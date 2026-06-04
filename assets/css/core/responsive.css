@@ -47,7 +47,7 @@
 	.aos-settings-sidebar-item,
 	.aos-settings-search-field input,
 	.aos-settings-profile-text strong {
-		font-size: var(--aos-text-body);
+		font-size: var(--aos-settings-text-body);
 	}
 
 	.aos-stats,

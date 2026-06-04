@@ -245,51 +245,59 @@
 		}
 
 		function makeDraggable(win) {
-			const handle = win.querySelector('[data-aos-drag-handle]');
+			const handles = Array.from(win.querySelectorAll('[data-aos-drag-handle]'));
 
-			if (!handle || !desktop) {
+			if (!handles.length || !desktop) {
 				return;
 			}
 
-			handle.addEventListener('pointerdown', (event) => {
-				if (event.target.closest('button') || win.classList.contains('is-maximized')) {
+			handles.forEach((handle) => {
+				if (handle.dataset.aosDragBound === '1') {
 					return;
 				}
 
-				event.preventDefault();
-				focusWindow(win);
+				handle.dataset.aosDragBound = '1';
 
-				const desktopRect = desktop.getBoundingClientRect();
-				const rect = win.getBoundingClientRect();
-				const startX = event.clientX;
-				const startY = event.clientY;
-				const startLeft = rect.left - desktopRect.left;
-				const startTop = rect.top - desktopRect.top;
+				handle.addEventListener('pointerdown', (event) => {
+					if (event.target.closest('button') || win.classList.contains('is-maximized')) {
+						return;
+					}
 
-				win.style.transform = 'none';
-				win.style.left = `${startLeft}px`;
-				win.style.top = `${startTop}px`;
-				handle.setPointerCapture(event.pointerId);
+					event.preventDefault();
+					focusWindow(win);
 
-				const move = (moveEvent) => {
-					const nextLeft = startLeft + moveEvent.clientX - startX;
-					const nextTop = startTop + moveEvent.clientY - startY;
-					const bounds = getWindowBounds(win);
+					const desktopRect = desktop.getBoundingClientRect();
+					const rect = win.getBoundingClientRect();
+					const startX = event.clientX;
+					const startY = event.clientY;
+					const startLeft = rect.left - desktopRect.left;
+					const startTop = rect.top - desktopRect.top;
 
-					win.style.left = `${clamp(nextLeft, bounds.minLeft, bounds.maxLeft)}px`;
-					win.style.top = `${clamp(nextTop, bounds.minTop, bounds.maxTop)}px`;
-				};
+					win.style.transform = 'none';
+					win.style.left = `${startLeft}px`;
+					win.style.top = `${startTop}px`;
+					handle.setPointerCapture(event.pointerId);
 
-				const up = () => {
-					handle.removeEventListener('pointermove', move);
-					handle.removeEventListener('pointerup', up);
-					handle.removeEventListener('pointercancel', up);
-					scheduleSave();
-				};
+					const move = (moveEvent) => {
+						const nextLeft = startLeft + moveEvent.clientX - startX;
+						const nextTop = startTop + moveEvent.clientY - startY;
+						const bounds = getWindowBounds(win);
 
-				handle.addEventListener('pointermove', move);
-				handle.addEventListener('pointerup', up);
-				handle.addEventListener('pointercancel', up);
+						win.style.left = `${clamp(nextLeft, bounds.minLeft, bounds.maxLeft)}px`;
+						win.style.top = `${clamp(nextTop, bounds.minTop, bounds.maxTop)}px`;
+					};
+
+					const up = () => {
+						handle.removeEventListener('pointermove', move);
+						handle.removeEventListener('pointerup', up);
+						handle.removeEventListener('pointercancel', up);
+						scheduleSave();
+					};
+
+					handle.addEventListener('pointermove', move);
+					handle.addEventListener('pointerup', up);
+					handle.addEventListener('pointercancel', up);
+				});
 			});
 		}
 

@@ -343,6 +343,7 @@
 		function createPaneHeader(title) {
 			const header = dom.createElement('header', 'aos-settings-pane-header');
 			const history = dom.createElement('div', 'aos-settings-history');
+			header.dataset.aosDragHandle = '';
 
 			['back', 'forward'].forEach((direction) => {
 				const button = document.createElement('button');

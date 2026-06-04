@@ -196,6 +196,11 @@
 
 .aos-window[data-aos-app-window="os-settings"] {
 	--aos-settings-sidebar-width: 258px;
+	--aos-settings-text-caption: 11px;
+	--aos-settings-text-body: 12px;
+	--aos-settings-text-label: 14px;
+	--aos-settings-text-heading: 16px;
+	--aos-settings-text-title: 21px;
 	min-height: 600px;
 	min-width: 980px;
 }
@@ -204,7 +209,7 @@
 	background: transparent;
 	border-bottom: 0;
 	left: 0;
-	min-height: 70px;
+	min-height: 60px;
 	padding: 0 0 0 22px;
 	position: absolute;
 	top: 0;
@@ -221,10 +226,10 @@
 	border-right: 1px solid var(--aos-line);
 	display: flex;
 	flex-direction: column;
-	gap: 14px;
+	gap: 12px;
 	min-height: 0;
 	overflow-y: auto;
-	padding: 76px 12px 16px;
+	padding: 68px 12px 16px;
 }
 
 .aos-settings-search-field {
@@ -234,14 +239,14 @@
 	color: var(--aos-muted);
 	display: flex;
 	gap: 8px;
-	min-height: 34px;
-	padding: 0 12px;
+	min-height: 30px;
+	padding: 0 10px;
 }
 
 .aos-settings-search-field .dashicons {
-	font-size: 18px;
-	height: 18px;
-	width: 18px;
+	font-size: 16px;
+	height: 16px;
+	width: 16px;
 }
 
 .aos-settings-search-field input {
@@ -250,8 +255,11 @@
 	box-shadow: none;
 	color: var(--aos-ink);
 	font-family: inherit;
-	font-size: var(--aos-text-label);
+	font-size: var(--aos-settings-text-label);
 	font-weight: var(--aos-weight-semibold);
+	height: 24px;
+	line-height: 24px;
+	min-height: 0;
 	min-width: 0;
 	outline: none;
 	padding: 0;
@@ -268,8 +276,8 @@
 	color: var(--aos-ink);
 	display: grid;
 	gap: 10px;
-	grid-template-columns: 46px minmax(0, 1fr);
-	padding: 8px 10px 14px;
+	grid-template-columns: 38px minmax(0, 1fr);
+	padding: 6px 10px 12px;
 }
 
 .aos-settings-profile-avatar {
@@ -278,12 +286,12 @@
 	border-radius: 50%;
 	color: #fff;
 	display: flex;
-	font-size: var(--aos-text-label);
+	font-size: var(--aos-settings-text-label);
 	font-weight: var(--aos-weight-bold);
-	height: 46px;
+	height: 38px;
 	justify-content: center;
 	overflow: hidden;
-	width: 46px;
+	width: 38px;
 }
 
 .aos-settings-profile-avatar img {
@@ -306,14 +314,14 @@
 }
 
 .aos-settings-profile-text strong {
-	font-size: var(--aos-text-label);
+	font-size: var(--aos-settings-text-label);
 	font-weight: var(--aos-weight-bold);
 	line-height: var(--aos-line-height-body);
 }
 
 .aos-settings-profile-text span {
 	color: var(--aos-muted);
-	font-size: var(--aos-text-body);
+	font-size: var(--aos-settings-text-body);
 	font-weight: var(--aos-weight-semibold);
 }
 
@@ -332,12 +340,12 @@
 	cursor: default;
 	display: grid;
 	font-family: inherit;
-	font-size: var(--aos-text-label);
+	font-size: var(--aos-settings-text-label);
 	font-weight: var(--aos-weight-semibold);
-	gap: 10px;
-	grid-template-columns: 28px minmax(0, 1fr);
-	min-height: 38px;
-	padding: 5px 10px;
+	gap: 8px;
+	grid-template-columns: 24px minmax(0, 1fr);
+	min-height: 32px;
+	padding: 4px 8px;
 	text-align: left;
 	width: 100%;
 }
@@ -367,15 +375,15 @@
 	border-radius: 7px;
 	color: #fff;
 	display: flex;
-	height: 28px;
+	height: 24px;
 	justify-content: center;
-	width: 28px;
+	width: 24px;
 }
 
 .aos-settings-sidebar-icon .dashicons {
-	font-size: 18px;
-	height: 18px;
-	width: 18px;
+	font-size: 15px;
+	height: 15px;
+	width: 15px;
 }
 
 .aos-settings-sidebar-icon-blue {
@@ -426,16 +434,18 @@
 
 .aos-settings-pane-header {
 	align-items: center;
+	cursor: default;
 	display: flex;
-	gap: 18px;
-	min-height: 70px;
-	padding: 14px 26px 8px;
+	gap: 16px;
+	min-height: 60px;
+	padding: 12px 24px 8px;
+	user-select: none;
 }
 
 .aos-settings-pane-header h1 {
 	color: var(--aos-ink);
 	font-family: var(--aos-font-display);
-	font-size: 24px;
+	font-size: var(--aos-settings-text-title);
 	font-weight: var(--aos-weight-bold);
 	letter-spacing: 0;
 	line-height: var(--aos-line-height-tight);
@@ -445,7 +455,7 @@
 .aos-settings-history {
 	background: var(--aos-control-bg);
 	border: 1px solid var(--aos-card-border);
-	border-radius: 24px;
+	border-radius: 20px;
 	display: inline-flex;
 	overflow: hidden;
 }
@@ -458,10 +468,10 @@
 	color: var(--aos-ink);
 	cursor: default;
 	display: flex;
-	height: 40px;
+	height: 34px;
 	justify-content: center;
 	padding: 0;
-	width: 44px;
+	width: 38px;
 }
 
 .aos-settings-history-button + .aos-settings-history-button {
@@ -477,8 +487,8 @@
 	border-bottom: 3px solid currentColor;
 	border-right: 3px solid currentColor;
 	display: block;
-	height: 12px;
-	width: 12px;
+	height: 10px;
+	width: 10px;
 }
 
 .aos-settings-history-button-back .aos-settings-history-chevron {
@@ -492,10 +502,10 @@
 .aos-settings-pane {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	gap: 16px;
 	min-height: 0;
 	overflow-y: auto;
-	padding: 10px 26px 30px;
+	padding: 8px 24px 28px;
 }
 
 .aos-settings-section {
@@ -511,7 +521,7 @@
 .aos-settings-section h2 {
 	color: var(--aos-ink);
 	font-family: var(--aos-font-display);
-	font-size: var(--aos-text-section-title);
+	font-size: var(--aos-settings-text-heading);
 	font-weight: var(--aos-weight-heading);
 	letter-spacing: 0;
 	margin: 0;
@@ -522,7 +532,7 @@
 	color: var(--aos-ink);
 	flex: 0 0 auto;
 	font-family: var(--aos-font-display);
-	font-size: var(--aos-text-section-title);
+	font-size: var(--aos-settings-text-heading);
 	font-weight: var(--aos-weight-heading);
 	letter-spacing: 0;
 	margin: 18px 20px -4px;
@@ -533,8 +543,8 @@
 	display: grid;
 	gap: 18px;
 	grid-template-columns: minmax(180px, 250px) minmax(0, 1fr);
-	min-height: 54px;
-	padding: 14px 20px;
+	min-height: 46px;
+	padding: 11px 18px;
 }
 
 .aos-settings-section > .aos-settings-row + .aos-settings-row {
@@ -549,14 +559,14 @@
 
 .aos-settings-label {
 	color: var(--aos-ink);
-	font-size: var(--aos-text-label);
+	font-size: var(--aos-settings-text-label);
 	font-weight: var(--aos-weight-medium);
 	line-height: var(--aos-line-height-body);
 }
 
 .aos-settings-description {
 	color: var(--aos-muted);
-	font-size: var(--aos-text-body);
+	font-size: var(--aos-settings-text-body);
 	font-weight: var(--aos-weight-semibold);
 	line-height: var(--aos-line-height-body);
 }
@@ -568,8 +578,8 @@
 	border-radius: 7px;
 	color: var(--aos-ink);
 	font-family: inherit;
-	font-size: var(--aos-text-body);
-	min-height: 34px;
+	font-size: var(--aos-settings-text-body);
+	min-height: 30px;
 	padding: 0 10px;
 }
 
@@ -606,7 +616,7 @@
 .aos-settings-status {
 	color: var(--aos-muted);
 	flex: 0 0 auto;
-	font-size: var(--aos-text-caption);
+	font-size: var(--aos-settings-text-caption);
 	min-height: 18px;
 	padding: 0 20px;
 }
@@ -632,7 +642,7 @@
 	cursor: default;
 	display: grid;
 	font-family: inherit;
-	font-size: var(--aos-text-body);
+	font-size: var(--aos-settings-text-body);
 	font-weight: var(--aos-weight-strong);
 	gap: 6px;
 	justify-items: center;
