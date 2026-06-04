@@ -1,19 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="os-settings">
+	<metadata>Glyph derived from Lucide icon sliders-horizontal.svg; see THIRD-PARTY-ASSETS.txt.</metadata>
 	<defs>
-		<linearGradient id="g" x1="16" x2="112" y1="14" y2="116" gradientUnits="userSpaceOnUse">
+		<linearGradient id="g-os-settings-svg" x1="18" x2="110" y1="14" y2="116" gradientUnits="userSpaceOnUse">
 			<stop offset="0" stop-color="#f8fbff"/>
-			<stop offset=".5" stop-color="#bcc8d7"/>
-			<stop offset="1" stop-color="#708397"/>
+			<stop offset=".55" stop-color="#bfcbd9"/>
+			<stop offset="1" stop-color="#72879d"/>
 		</linearGradient>
 	</defs>
-	<rect x="8" y="8" width="112" height="112" rx="27" fill="url(#g)"/>
-	<rect x="28" y="36" width="72" height="10" rx="5" fill="#fff" fill-opacity=".92"/>
-	<rect x="28" y="62" width="72" height="10" rx="5" fill="#fff" fill-opacity=".92"/>
-	<rect x="28" y="88" width="72" height="10" rx="5" fill="#fff" fill-opacity=".92"/>
-	<circle cx="48" cy="41" r="11" fill="#3b9de9"/>
-	<circle cx="78" cy="67" r="11" fill="#2fbd91"/>
-	<circle cx="58" cy="93" r="11" fill="#ef756f"/>
-	<circle cx="48" cy="41" r="4" fill="#fff"/>
-	<circle cx="78" cy="67" r="4" fill="#fff"/>
-	<circle cx="58" cy="93" r="4" fill="#fff"/>
+	<rect x="8" y="8" width="112" height="112" rx="27" fill="url(#g-os-settings-svg)"/>
+	<path fill="#fff" fill-opacity=".2" d="M22 32c22-18 58-18 84 4 8 7 12 18 11 31-19-10-39-13-60-7-18 5-35 0-50-13 2-6 7-11 15-15z"/>
+	<g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" transform="translate(28 28) scale(3)">
+		<path d="M10 5H3" />
+		<path d="M12 19H3" />
+		<path d="M14 3v4" />
+		<path d="M16 17v4" />
+		<path d="M21 12h-9" />
+		<path d="M21 19h-5" />
+		<path d="M21 5h-7" />
+		<path d="M8 10v4" />
+		<path d="M8 12H3" />
+	</g>
 </svg>

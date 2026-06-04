@@ -39,7 +39,7 @@ final class Admin_OS_Mode_Theme_Registry {
 				'parent'         => 'macos-base',
 				'stylesheet'     => 'macos/default.css',
 				'media'          => array(
-					'wallpaper'   => 'themes/macos/default/wallpapers/aurora-flow.jpg',
+					'wallpaper'   => 'themes/macos/default/wallpapers/teal-architecture.jpg',
 					'icon_pack'   => 'themes/macos/default/icons',
 					'cursor_pack' => 'themes/macos/default/cursors',
 				),

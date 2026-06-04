@@ -1,13 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="plugins">
+	<metadata>Glyph derived from Lucide icon plug.svg; see THIRD-PARTY-ASSETS.txt.</metadata>
 	<defs>
-		<linearGradient id="g" x1="18" x2="108" y1="12" y2="116" gradientUnits="userSpaceOnUse">
-			<stop offset="0" stop-color="#62e6a2"/>
-			<stop offset=".52" stop-color="#17a989"/>
-			<stop offset="1" stop-color="#136b87"/>
+		<linearGradient id="g-plugins-svg" x1="18" x2="110" y1="14" y2="116" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#66e7a4"/>
+			<stop offset=".55" stop-color="#18aa8b"/>
+			<stop offset="1" stop-color="#126f8c"/>
 		</linearGradient>
 	</defs>
-	<rect x="8" y="8" width="112" height="112" rx="27" fill="url(#g)"/>
-	<path fill="#fff" fill-opacity=".92" d="M48 24h10v22h12V24h10v22h4a12 12 0 0 1 12 12v10c0 18-12 31-29 33v12H53v-12C36 99 24 86 24 68V58a12 12 0 0 1 12-12h12z"/>
-	<path fill="#17a989" fill-opacity=".36" d="M35 64h58v8c0 16-13 29-29 29S35 88 35 72z"/>
-	<path fill="none" stroke="#136b87" stroke-linecap="round" stroke-width="6" d="M48 64h32"/>
+	<rect x="8" y="8" width="112" height="112" rx="27" fill="url(#g-plugins-svg)"/>
+	<path fill="#fff" fill-opacity=".2" d="M22 32c22-18 58-18 84 4 8 7 12 18 11 31-19-10-39-13-60-7-18 5-35 0-50-13 2-6 7-11 15-15z"/>
+	<g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" transform="translate(28 28) scale(3)">
+		<path d="M12 22v-5" />
+		<path d="M15 8V2" />
+		<path d="M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z" />
+		<path d="M9 8V2" />
+	</g>
 </svg>

@@ -1,0 +1,47 @@
+# Third-Party Assets
+
+Admin OS Mode avoids bundled Apple-owned artwork, app logos, wallpapers, and font files.
+
+## macOS Default Icon Pack
+
+Location: `assets/media/themes/macos/default/icons/`
+
+The macOS default app, folder, dock, and widget icons use original rounded tile wrappers with glyphs derived from Lucide icons.
+
+Source: https://github.com/lucide-icons/lucide
+
+License: ISC for Lucide Icons and Contributors. Lucide also documents that some icons are Feather-derived under MIT.
+
+Lucide source glyphs used:
+
+- `layout-dashboard.svg`
+- `file-text.svg`
+- `files.svg`
+- `image.svg`
+- `message-circle.svg`
+- `palette.svg`
+- `plug.svg`
+- `users.svg`
+- `sliders-horizontal.svg`
+- `settings.svg`
+- `wrench.svg`
+- `heart-pulse.svg`
+- `shopping-cart.svg`
+- `folder-open.svg`
+- `folder-tree.svg`
+- `folder-cog.svg`
+- `clock.svg`
+
+## macOS Default Wallpaper
+
+Location: `assets/media/themes/macos/default/wallpapers/teal-architecture.jpg`
+
+Source repository: https://github.com/pop-os/wallpapers
+
+Source file: `original/ricardo-gomez-angel-180819-blue.jpg`
+
+Upstream source notes: Pop!_OS wallpapers lists this file under Unsplash photos and describes Unsplash photos as public domain. The README credits Ricardo Gomez Angel and notes a color shift by Cassidy James.
+
+Original Unsplash page listed by upstream: https://unsplash.com/photos/3kzlCL3rj8A
+
+This plugin copy was resized from the downloaded source image for package size.

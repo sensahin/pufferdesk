@@ -1,14 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="settings">
+	<metadata>Glyph derived from Lucide icon settings.svg; see THIRD-PARTY-ASSETS.txt.</metadata>
 	<defs>
-		<linearGradient id="g" x1="16" x2="112" y1="14" y2="116" gradientUnits="userSpaceOnUse">
-			<stop offset="0" stop-color="#d9e4ef"/>
-			<stop offset=".52" stop-color="#8a9cac"/>
-			<stop offset="1" stop-color="#415466"/>
+		<linearGradient id="g-settings-svg" x1="18" x2="110" y1="14" y2="116" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#dce6f0"/>
+			<stop offset=".55" stop-color="#8c9ead"/>
+			<stop offset="1" stop-color="#43586b"/>
 		</linearGradient>
 	</defs>
-	<rect x="8" y="8" width="112" height="112" rx="27" fill="url(#g)"/>
-	<path fill="#fff" fill-opacity=".9" d="M58 24h12l4 13 10 4 12-6 8 9-7 12 4 10 13 4v12l-13 4-4 10 7 12-8 9-12-6-10 4-4 13H58l-4-13-10-4-12 6-8-9 7-12-4-10-13-4V70l13-4 4-10-7-12 8-9 12 6 10-4z"/>
-	<circle cx="64" cy="76" r="25" fill="#5a6f80"/>
-	<circle cx="64" cy="76" r="12" fill="#fff"/>
-	<path fill="#fff" fill-opacity=".35" d="M38 34c16-12 38-13 56 0l-8 7-12-4-4-13H58l-4 13-10 4z"/>
+	<rect x="8" y="8" width="112" height="112" rx="27" fill="url(#g-settings-svg)"/>
+	<path fill="#fff" fill-opacity=".2" d="M22 32c22-18 58-18 84 4 8 7 12 18 11 31-19-10-39-13-60-7-18 5-35 0-50-13 2-6 7-11 15-15z"/>
+	<g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" transform="translate(28 28) scale(3)">
+		<path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+		<circle cx="12" cy="12" r="3" />
+	</g>
 </svg>

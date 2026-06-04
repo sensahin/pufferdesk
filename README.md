@@ -27,7 +27,7 @@ Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. T
 
 Admin OS Mode intentionally wraps existing WordPress admin screens instead of replacing them. That keeps plugin compatibility high and makes Classic Admin a reliable fallback.
 
-The default macOS family uses original plugin CSS and release-safe media locations. Do not ship Apple-owned icons, wallpapers, logos, app artwork, or bundled Apple font files in this plugin.
+The default macOS family uses plugin CSS plus release-safe media. Do not ship Apple-owned icons, wallpapers, logos, app artwork, or bundled Apple font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
 
 The foundation separates shell behavior from OS appearance:
 
@@ -123,7 +123,7 @@ Themes support family/version inheritance. A concrete theme can declare a parent
 	'stylesheet'    => 'macos/default.css',
 	'version_label' => 'Default',
 	'media'         => array(
-		'wallpaper'   => 'themes/macos/default/wallpapers/aurora-flow.jpg',
+		'wallpaper'   => 'themes/macos/default/wallpapers/teal-architecture.jpg',
 		'icon_pack'   => 'themes/macos/default/icons',
 		'cursor_pack' => 'themes/macos/default/cursors',
 	),
