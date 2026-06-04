@@ -123,7 +123,7 @@ Themes support family/version inheritance. A concrete theme can declare a parent
 	'stylesheet'    => 'macos/default.css',
 	'version_label' => 'Default',
 	'media'         => array(
-		'wallpaper'   => 'themes/macos/default/wallpapers/default.webp',
+		'wallpaper'   => 'themes/macos/default/wallpapers/aurora-flow.jpg',
 		'icon_pack'   => 'themes/macos/default/icons',
 		'cursor_pack' => 'themes/macos/default/cursors',
 	),
