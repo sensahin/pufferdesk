@@ -62,6 +62,7 @@ The foundation separates shell behavior from OS appearance:
 - `assets/media/` reserves release-safe media locations:
   - `assets/media/themes/{family}/{version}/wallpapers/`
   - `assets/media/themes/{family}/{version}/icons/`
+  - `assets/media/themes/{family}/{version}/cursors/`
   - `assets/media/shared/icons/`
 
 Apps and folders use structured icon descriptors internally. Legacy Dashicon strings still work, but the normalized shape supports both current and future media-backed icons:
@@ -115,8 +116,15 @@ Themes support family/version inheritance. A concrete theme can declare a parent
 	'parent'        => 'macos-base',
 	'stylesheet'    => 'macos/default.css',
 	'version_label' => 'Default',
+	'media'         => array(
+		'wallpaper'   => 'themes/macos/default/wallpapers/default.webp',
+		'icon_pack'   => 'themes/macos/default/icons',
+		'cursor_pack' => 'themes/macos/default/cursors',
+	),
 );
 ```
+
+Theme media fields are normalized to local `assets/media/` descriptors with `path` and `url` values, then exposed in the runtime theme config. Keep OS media original or licensed for redistribution.
 
 Future phases can add theme packs such as specific macOS eras, Windows-style, Win98-style, Ubuntu-style, and other OS skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce.
 

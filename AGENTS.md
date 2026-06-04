@@ -103,6 +103,7 @@ Media:
 
 - `assets/media/themes/{family}/{version}/wallpapers/`
 - `assets/media/themes/{family}/{version}/icons/`
+- `assets/media/themes/{family}/{version}/cursors/`
 - `assets/media/shared/icons/`
 
 ## Extension Contracts
@@ -126,6 +127,8 @@ Themes:
 - Themes are organized by family and version.
 - Use parent/child theme inheritance for common OS-family styling.
 - Put visual language in theme CSS. Put behavior in core JS/PHP.
+- Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
+- Keep OS media original, licensed for redistribution, or otherwise release-safe.
 - Template override resolution order is:
   1. `templates/themes/{theme_id}/{template}`
   2. `templates/themes/{family}/{template}`
