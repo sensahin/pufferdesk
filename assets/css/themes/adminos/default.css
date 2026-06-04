@@ -26,6 +26,9 @@
 	--aos-dock-border: rgba(255, 255, 255, 0.5);
 	--aos-dock-shadow: 0 24px 60px rgba(8, 22, 34, 0.3), 0 1px 0 rgba(255, 255, 255, 0.64) inset;
 	--aos-focus-ring: rgba(83, 165, 196, 0.42);
+	--aos-scrollbar-track: rgba(255, 255, 255, 0.08);
+	--aos-scrollbar-thumb: rgba(60, 72, 82, 0.34);
+	--aos-scrollbar-thumb-hover: rgba(60, 72, 82, 0.48);
 	--aos-text-widget-clock: 36px;
 	--aos-weight-widget-clock: var(--aos-weight-heading);
 }
@@ -383,6 +386,9 @@
 	--aos-dock-bg: rgba(28, 33, 43, 0.54);
 	--aos-dock-border: rgba(255, 255, 255, 0.14);
 	--aos-dock-shadow: 0 24px 60px rgba(0, 0, 0, 0.42), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+	--aos-scrollbar-track: rgba(255, 255, 255, 0.05);
+	--aos-scrollbar-thumb: rgba(214, 218, 225, 0.54);
+	--aos-scrollbar-thumb-hover: rgba(231, 234, 240, 0.68);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-window-material="tinted"][data-aos-effective-appearance="light"] {
