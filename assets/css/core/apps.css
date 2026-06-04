@@ -196,11 +196,11 @@
 
 .aos-window[data-aos-app-window="os-settings"] {
 	--aos-settings-sidebar-width: 258px;
-	--aos-settings-text-caption: 11px;
-	--aos-settings-text-body: 12px;
-	--aos-settings-text-label: 14px;
-	--aos-settings-text-heading: 16px;
-	--aos-settings-text-title: 21px;
+	--aos-settings-text-caption: 10px;
+	--aos-settings-text-body: 11px;
+	--aos-settings-text-label: 12.5px;
+	--aos-settings-text-heading: 13.5px;
+	--aos-settings-text-title: 18px;
 	min-height: 600px;
 	min-width: 980px;
 }
@@ -209,7 +209,7 @@
 	background: transparent;
 	border-bottom: 0;
 	left: 0;
-	min-height: 60px;
+	min-height: 54px;
 	padding: 0 0 0 22px;
 	position: absolute;
 	top: 0;
@@ -226,10 +226,10 @@
 	border-right: 1px solid var(--aos-line);
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 10px;
 	min-height: 0;
 	overflow-y: auto;
-	padding: 68px 12px 16px;
+	padding: 62px 12px 16px;
 }
 
 .aos-settings-search-field {
@@ -238,15 +238,15 @@
 	border-radius: 999px;
 	color: var(--aos-muted);
 	display: flex;
-	gap: 8px;
-	min-height: 30px;
+	gap: 7px;
+	min-height: 26px;
 	padding: 0 10px;
 }
 
 .aos-settings-search-field .dashicons {
-	font-size: 16px;
-	height: 16px;
-	width: 16px;
+	font-size: 14px;
+	height: 14px;
+	width: 14px;
 }
 
 .aos-settings-search-field input {
@@ -256,9 +256,9 @@
 	color: var(--aos-ink);
 	font-family: inherit;
 	font-size: var(--aos-settings-text-label);
-	font-weight: var(--aos-weight-semibold);
-	height: 24px;
-	line-height: 24px;
+	font-weight: var(--aos-weight-medium);
+	height: 20px;
+	line-height: 20px;
 	min-height: 0;
 	min-width: 0;
 	outline: none;
@@ -275,9 +275,9 @@
 	align-items: center;
 	color: var(--aos-ink);
 	display: grid;
-	gap: 10px;
-	grid-template-columns: 38px minmax(0, 1fr);
-	padding: 6px 10px 12px;
+	gap: 8px;
+	grid-template-columns: 32px minmax(0, 1fr);
+	padding: 5px 10px 10px;
 }
 
 .aos-settings-profile-avatar {
@@ -288,10 +288,10 @@
 	display: flex;
 	font-size: var(--aos-settings-text-label);
 	font-weight: var(--aos-weight-bold);
-	height: 38px;
+	height: 32px;
 	justify-content: center;
 	overflow: hidden;
-	width: 38px;
+	width: 32px;
 }
 
 .aos-settings-profile-avatar img {
@@ -315,19 +315,19 @@
 
 .aos-settings-profile-text strong {
 	font-size: var(--aos-settings-text-label);
-	font-weight: var(--aos-weight-bold);
+	font-weight: var(--aos-weight-semibold);
 	line-height: var(--aos-line-height-body);
 }
 
 .aos-settings-profile-text span {
 	color: var(--aos-muted);
 	font-size: var(--aos-settings-text-body);
-	font-weight: var(--aos-weight-semibold);
+	font-weight: var(--aos-weight-medium);
 }
 
 .aos-settings-sidebar-nav {
 	display: grid;
-	gap: 3px;
+	gap: 2px;
 }
 
 .aos-settings-sidebar-item {
@@ -341,10 +341,10 @@
 	display: grid;
 	font-family: inherit;
 	font-size: var(--aos-settings-text-label);
-	font-weight: var(--aos-weight-semibold);
-	gap: 8px;
-	grid-template-columns: 24px minmax(0, 1fr);
-	min-height: 32px;
+	font-weight: var(--aos-weight-medium);
+	gap: 7px;
+	grid-template-columns: 20px minmax(0, 1fr);
+	min-height: 28px;
 	padding: 4px 8px;
 	text-align: left;
 	width: 100%;
@@ -372,18 +372,18 @@
 
 .aos-settings-sidebar-icon {
 	align-items: center;
-	border-radius: 7px;
+	border-radius: 6px;
 	color: #fff;
 	display: flex;
-	height: 24px;
+	height: 20px;
 	justify-content: center;
-	width: 24px;
+	width: 20px;
 }
 
 .aos-settings-sidebar-icon .dashicons {
-	font-size: 15px;
-	height: 15px;
-	width: 15px;
+	font-size: 12px;
+	height: 12px;
+	width: 12px;
 }
 
 .aos-settings-sidebar-icon-blue {
@@ -436,9 +436,9 @@
 	align-items: center;
 	cursor: default;
 	display: flex;
-	gap: 16px;
-	min-height: 60px;
-	padding: 12px 24px 8px;
+	gap: 14px;
+	min-height: 54px;
+	padding: 10px 24px 7px;
 	user-select: none;
 }
 
@@ -455,7 +455,7 @@
 .aos-settings-history {
 	background: var(--aos-control-bg);
 	border: 1px solid var(--aos-card-border);
-	border-radius: 20px;
+	border-radius: 18px;
 	display: inline-flex;
 	overflow: hidden;
 }
@@ -468,10 +468,10 @@
 	color: var(--aos-ink);
 	cursor: default;
 	display: flex;
-	height: 34px;
+	height: 30px;
 	justify-content: center;
 	padding: 0;
-	width: 38px;
+	width: 34px;
 }
 
 .aos-settings-history-button + .aos-settings-history-button {
@@ -484,11 +484,11 @@
 }
 
 .aos-settings-history-chevron {
-	border-bottom: 3px solid currentColor;
-	border-right: 3px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	border-right: 2px solid currentColor;
 	display: block;
-	height: 10px;
-	width: 10px;
+	height: 9px;
+	width: 9px;
 }
 
 .aos-settings-history-button-back .aos-settings-history-chevron {
@@ -502,10 +502,10 @@
 .aos-settings-pane {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 14px;
 	min-height: 0;
 	overflow-y: auto;
-	padding: 8px 24px 28px;
+	padding: 8px 24px 26px;
 }
 
 .aos-settings-section {
@@ -525,7 +525,7 @@
 	font-weight: var(--aos-weight-heading);
 	letter-spacing: 0;
 	margin: 0;
-	padding: 18px 20px 4px;
+	padding: 14px 18px 3px;
 }
 
 .aos-settings-group-heading {
@@ -535,16 +535,16 @@
 	font-size: var(--aos-settings-text-heading);
 	font-weight: var(--aos-weight-heading);
 	letter-spacing: 0;
-	margin: 18px 20px -4px;
+	margin: 14px 18px -3px;
 }
 
 .aos-settings-row {
 	align-items: center;
 	display: grid;
-	gap: 18px;
+	gap: 16px;
 	grid-template-columns: minmax(180px, 250px) minmax(0, 1fr);
-	min-height: 46px;
-	padding: 11px 18px;
+	min-height: 40px;
+	padding: 9px 16px;
 }
 
 .aos-settings-section > .aos-settings-row + .aos-settings-row {
@@ -626,7 +626,7 @@
 	align-items: start;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 10px;
+	gap: 8px;
 	justify-content: flex-end;
 	justify-self: end;
 	min-width: 0;
@@ -643,8 +643,8 @@
 	display: grid;
 	font-family: inherit;
 	font-size: var(--aos-settings-text-body);
-	font-weight: var(--aos-weight-strong);
-	gap: 6px;
+	font-weight: var(--aos-weight-semibold);
+	gap: 5px;
 	justify-items: center;
 	padding: 0;
 }
@@ -674,9 +674,9 @@
 }
 
 .aos-settings-appearance-preview {
-	height: 54px;
+	height: 48px;
 	overflow: hidden;
-	width: 94px;
+	width: 84px;
 }
 
 .aos-settings-appearance-preview::before {
@@ -720,13 +720,13 @@
 .aos-settings-preview-option.is-selected .aos-settings-appearance-preview,
 .aos-settings-preview-option.is-selected .aos-settings-material-preview,
 .aos-settings-icon-option.is-selected .aos-settings-icon-preview {
-	box-shadow: 0 0 0 4px var(--aos-accent), var(--aos-tile-shadow);
+	box-shadow: 0 0 0 3px var(--aos-accent), var(--aos-tile-shadow);
 }
 
 .aos-settings-material-preview {
-	height: 54px;
+	height: 48px;
 	overflow: hidden;
-	width: 94px;
+	width: 84px;
 }
 
 .aos-settings-material-preview::before {
@@ -742,11 +742,11 @@
 	background: rgba(255, 255, 255, 0.54);
 	border-radius: 999px;
 	content: "";
-	height: 30px;
-	left: 14px;
+	height: 26px;
+	left: 12px;
 	position: absolute;
-	top: 14px;
-	width: 78px;
+	top: 11px;
+	width: 68px;
 }
 
 .aos-settings-material-preview[data-aos-preview-value="tinted"]::after {
@@ -755,7 +755,7 @@
 
 .aos-settings-swatch-group {
 	align-items: center;
-	gap: 10px;
+	gap: 9px;
 }
 
 .aos-settings-swatch {
@@ -764,13 +764,13 @@
 	border: 1px solid rgba(0, 0, 0, 0.12);
 	border-radius: 50%;
 	cursor: default;
-	height: 30px;
+	height: 24px;
 	padding: 0;
-	width: 30px;
+	width: 24px;
 }
 
 .aos-settings-swatch.is-selected {
-	box-shadow: 0 0 0 4px var(--aos-accent);
+	box-shadow: 0 0 0 3px var(--aos-accent);
 }
 
 .aos-settings-swatch-multicolor {
@@ -812,17 +812,17 @@
 .aos-settings-swatch-label {
 	color: var(--aos-muted);
 	flex-basis: 100%;
-	font-size: var(--aos-text-body);
-	font-weight: var(--aos-weight-semibold);
+	font-size: var(--aos-settings-text-body);
+	font-weight: var(--aos-weight-medium);
 	text-align: right;
 }
 
 .aos-settings-icon-preview {
 	align-items: center;
 	display: flex;
-	height: 48px;
+	height: 40px;
 	justify-content: center;
-	width: 48px;
+	width: 40px;
 }
 
 .aos-settings-icon-preview::before,
@@ -834,16 +834,16 @@
 
 .aos-settings-icon-preview::before {
 	background: linear-gradient(180deg, #f4fbff, #72c6ff);
-	height: 24px;
-	width: 31px;
+	height: 20px;
+	width: 26px;
 }
 
 .aos-settings-icon-preview::after {
 	background: #ffd23f;
-	height: 17px;
-	right: 8px;
-	top: 9px;
-	width: 17px;
+	height: 14px;
+	right: 7px;
+	top: 8px;
+	width: 14px;
 }
 
 .aos-settings-icon-preview[data-aos-preview-value="dark"] {
