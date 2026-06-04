@@ -200,7 +200,7 @@
 	--aos-settings-text-body: 11px;
 	--aos-settings-text-label: 12.5px;
 	--aos-settings-text-heading: 13.5px;
-	--aos-settings-text-title: 18px;
+	--aos-settings-text-title: 16px;
 	min-height: 600px;
 	min-width: 880px;
 	max-width: 900px;
@@ -472,9 +472,9 @@
 	align-items: center;
 	cursor: default;
 	display: flex;
-	gap: 14px;
-	min-height: 54px;
-	padding: 10px 24px 7px;
+	gap: 12px;
+	min-height: 48px;
+	padding: 8px 24px 6px;
 	user-select: none;
 }
 
@@ -482,7 +482,7 @@
 	color: var(--aos-ink);
 	font-family: var(--aos-font-display);
 	font-size: var(--aos-settings-text-title);
-	font-weight: var(--aos-weight-bold);
+	font-weight: var(--aos-weight-semibold);
 	letter-spacing: 0;
 	line-height: var(--aos-line-height-tight);
 	margin: 0;
@@ -491,7 +491,7 @@
 .aos-settings-history {
 	background: var(--aos-control-bg);
 	border: 1px solid var(--aos-card-border);
-	border-radius: 18px;
+	border-radius: 16px;
 	display: inline-flex;
 	overflow: hidden;
 }
@@ -504,10 +504,10 @@
 	color: var(--aos-ink);
 	cursor: default;
 	display: flex;
-	height: 30px;
+	height: 28px;
 	justify-content: center;
 	padding: 0;
-	width: 34px;
+	width: 32px;
 }
 
 .aos-settings-history-button + .aos-settings-history-button {
@@ -523,8 +523,8 @@
 	border-bottom: 2px solid currentColor;
 	border-right: 2px solid currentColor;
 	display: block;
-	height: 9px;
-	width: 9px;
+	height: 8px;
+	width: 8px;
 }
 
 .aos-settings-history-button-back .aos-settings-history-chevron {
