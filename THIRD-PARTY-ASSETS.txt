@@ -1,12 +1,12 @@
 # Third-Party Assets
 
-Admin OS Mode avoids bundled Apple-owned artwork, app logos, wallpapers, and font files.
+Admin OS Mode avoids bundled Apple-owned, Microsoft-owned, Canonical-owned, and other third-party platform artwork, app logos, wallpapers, and font files.
 
-## macOS Default Icon Pack
+## Aqua Glass Icon Pack
 
 Location: `assets/media/themes/macos/default/icons/`
 
-The macOS default app, folder, dock, and widget icons use original rounded tile wrappers with glyphs derived from Lucide icons.
+The optional Aqua Glass app, folder, dock, and widget icons use original rounded tile wrappers with glyphs derived from Lucide icons.
 
 Source: https://github.com/lucide-icons/lucide
 
@@ -32,7 +32,7 @@ Lucide source glyphs used:
 - `folder-cog.svg`
 - `clock.svg`
 
-## macOS Default Wallpaper
+## Aqua Glass Wallpaper
 
 Location: `assets/media/themes/macos/default/wallpapers/teal-architecture.jpg`
 

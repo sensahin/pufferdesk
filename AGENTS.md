@@ -6,7 +6,7 @@ This project is not a throwaway MVP. Treat it as a long-term WordPress plugin fo
 
 ## Project Purpose
 
-Admin OS Mode wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding an OS shell with themes, windows, apps, widgets, desktop surfaces, and future OS families such as macOS versions, Windows versions, Ubuntu-style themes, and nostalgic retro systems.
+Admin OS Mode wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding an OS shell with themes, windows, apps, widgets, desktop surfaces, a neutral public default, and optional OS-style theme families such as Aqua-style, Redmond-style, Linux desktop, and nostalgic retro systems.
 
 The foundation matters more than short-term visual hacks.
 
@@ -34,7 +34,7 @@ Never:
 - Do not remove or weaken the Classic Admin escape path.
 - Do not introduce external dependencies casually.
 - Do not ship minified assets without keeping readable source files and source references.
-- Do not ship Apple-owned icons, wallpapers, logos, app artwork, or bundled Apple font files. OS theme assets must be original, licensed for redistribution, or otherwise release-safe.
+- Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled platform font files. OS theme assets must be original, licensed for redistribution, or otherwise release-safe.
 - Do not commit `node_modules/`, `release/`, `.DS_Store`, local credentials, or machine-specific state.
 
 ## Directory Map
@@ -149,7 +149,7 @@ Icons:
 
 'icon' => array(
 	'type' => 'image',
-	'src'  => 'themes/macos/default/icons/posts.svg',
+	'src'  => 'themes/adminos/default/icons/posts.svg',
 );
 
 'icon' => array(

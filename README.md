@@ -12,7 +12,7 @@ Admin OS Mode turns the WordPress dashboard entry point into a desktop-style adm
 
 == Description ==
 
-Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on a safe macOS workspace: a top menu bar, desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
+Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on a neutral, release-safe Admin OS workspace: a top menu bar, desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
 
 == Current foundation features ==
 
@@ -20,14 +20,14 @@ Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. T
 - Per-user mode preference.
 - Dashboard entry redirects to OS Mode by default.
 - Emergency one-request classic override: `/wp-admin/index.php?admin_os_classic=1`.
-- macOS shell with menu bar, desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
+- Admin OS shell with menu bar, desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
 - Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave more like OS windows.
 
 == Notes ==
 
 Admin OS Mode intentionally wraps existing WordPress admin screens instead of replacing them. That keeps plugin compatibility high and makes Classic Admin a reliable fallback.
 
-The default macOS family uses plugin CSS plus release-safe media. Do not ship Apple-owned icons, wallpapers, logos, app artwork, or bundled Apple font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
+The default Admin OS family uses original plugin CSS and release-safe media. Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
 
 The foundation separates shell behavior from OS appearance:
 
@@ -75,7 +75,7 @@ Apps and folders use structured icon descriptors internally. Legacy Dashicon str
 
 'icon' => array(
 	'type' => 'image',
-	'src'  => 'themes/macos/default/icons/posts.svg',
+	'src'  => 'themes/adminos/default/icons/posts.svg',
 );
 
 'icon' => array(
@@ -115,17 +115,17 @@ For example, a Windows family can override `templates/themes/windows/windows/tit
 Themes support family/version inheritance. A concrete theme can declare a parent theme and receives its stylesheet stack before its own styles are loaded:
 
 ```php
-'macos' => array(
-	'id'            => 'macos',
-	'family'        => 'macos',
+'adminos' => array(
+	'id'            => 'adminos',
+	'family'        => 'adminos',
 	'version'       => 'default',
-	'parent'        => 'macos-base',
-	'stylesheet'    => 'macos/default.css',
+	'parent'        => 'adminos-base',
+	'stylesheet'    => 'adminos/default.css',
 	'version_label' => 'Default',
 	'media'         => array(
-		'wallpaper'   => 'themes/macos/default/wallpapers/teal-architecture.jpg',
-		'icon_pack'   => 'themes/macos/default/icons',
-		'cursor_pack' => 'themes/macos/default/cursors',
+		'wallpaper'   => 'themes/adminos/default/wallpapers/aurora-flow.jpg',
+		'icon_pack'   => 'themes/adminos/default/icons',
+		'cursor_pack' => 'themes/adminos/default/cursors',
 	),
 );
 ```
@@ -134,7 +134,7 @@ Theme media fields are normalized to local `assets/media/` descriptors with `pat
 
 When a theme declares a wallpaper, the shell sets `--aos-wallpaper-image` from `theme.media.wallpaper.url`. If no wallpaper is declared, the desktop keeps the theme CSS fallback background. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing.
 
-Future phases can add theme packs such as specific macOS eras, Windows-style, Win98-style, Ubuntu-style, and other OS skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce.
+Future phases can add optional OS-style theme packs such as Aqua-style, Redmond-style, classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The public default should remain a neutral Admin OS identity rather than depending on another platform owner’s brand assets.
 
 Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows` and `widgets`, so future desktop icons, spaces, or OS-specific surfaces can join without replacing the whole session payload. Windows track welcome/app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state.
 
