@@ -15,8 +15,6 @@ Generated release assets are minified for performance. Readable source files rem
 ## Theme CSS
 - assets/css/themes/adminos/base.css -> assets/dist/css/themes/adminos/base.min.css
 - assets/css/themes/adminos/default.css -> assets/dist/css/themes/adminos/default.min.css
-- assets/css/themes/macos/base.css -> assets/dist/css/themes/macos/base.min.css
-- assets/css/themes/macos/default.css -> assets/dist/css/themes/macos/default.min.css
 
 ## JavaScript
 - assets/js/core/config.js

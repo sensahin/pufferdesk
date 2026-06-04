@@ -2,46 +2,6 @@
 
 Admin OS Mode avoids bundled Apple-owned, Microsoft-owned, Canonical-owned, and other third-party platform artwork, app logos, wallpapers, and font files.
 
-## Aqua Glass Icon Pack
+No third-party media assets are currently bundled.
 
-Location: `assets/media/themes/macos/default/icons/`
-
-The optional Aqua Glass app, folder, dock, and widget icons use original rounded tile wrappers with glyphs derived from Lucide icons.
-
-Source: https://github.com/lucide-icons/lucide
-
-License: ISC for Lucide Icons and Contributors. Lucide also documents that some icons are Feather-derived under MIT.
-
-Lucide source glyphs used:
-
-- `layout-dashboard.svg`
-- `file-text.svg`
-- `files.svg`
-- `image.svg`
-- `message-circle.svg`
-- `palette.svg`
-- `plug.svg`
-- `users.svg`
-- `sliders-horizontal.svg`
-- `settings.svg`
-- `wrench.svg`
-- `heart-pulse.svg`
-- `shopping-cart.svg`
-- `folder-open.svg`
-- `folder-tree.svg`
-- `folder-cog.svg`
-- `clock.svg`
-
-## Aqua Glass Wallpaper
-
-Location: `assets/media/themes/macos/default/wallpapers/teal-architecture.jpg`
-
-Source repository: https://github.com/pop-os/wallpapers
-
-Source file: `original/ricardo-gomez-angel-180819-blue.jpg`
-
-Upstream source notes: Pop!_OS wallpapers lists this file under Unsplash photos and describes Unsplash photos as public domain. The README credits Ricardo Gomez Angel and notes a color shift by Cassidy James.
-
-Original Unsplash page listed by upstream: https://unsplash.com/photos/3kzlCL3rj8A
-
-This plugin copy was resized from the downloaded source image for package size.
+If future releases include third-party media, document each asset here with its source, license, file location, and redistribution notes.

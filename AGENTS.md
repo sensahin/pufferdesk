@@ -6,7 +6,7 @@ This project is not a throwaway MVP. Treat it as a long-term WordPress plugin fo
 
 ## Project Purpose
 
-Admin OS Mode wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding an OS shell with themes, windows, apps, widgets, desktop surfaces, a neutral public default, and optional OS-style theme families such as Aqua-style, Redmond-style, Linux desktop, and nostalgic retro systems.
+Admin OS Mode wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding an OS shell with themes, windows, apps, widgets, desktop surfaces, one primary Admin OS identity, and optional future theme families such as Redmond-style, Linux desktop, and nostalgic retro systems.
 
 The foundation matters more than short-term visual hacks.
 
@@ -16,6 +16,7 @@ Always:
 
 - Keep changes modular, small, and aligned with the existing structure.
 - Prefer registries, templates, and theme overrides over hard-coded one-off behavior.
+- Treat Admin OS as the bundled product identity. Polish it with familiar desktop patterns, but do not add a redundant platform clone as a second bundled theme.
 - Preserve Classic Admin as a reliable fallback.
 - Preserve per-user preferences and per-user/per-theme layout behavior.
 - Use WordPress-safe PHP: capability checks, nonces for state changes, sanitization on input, escaping on output.
@@ -29,7 +30,7 @@ Never:
 - Do not turn this into a pile of duplicate one-off files.
 - Do not leave dead leftover code, unused legacy modules, stale comments, or unreferenced assets.
 - Do not bypass registries for apps, widgets, or themes unless there is a strong architectural reason.
-- Do not mix OS-specific styling into core CSS.
+- Do not mix theme-specific styling into core CSS.
 - Do not put core behavior into theme files.
 - Do not remove or weaken the Classic Admin escape path.
 - Do not introduce external dependencies casually.
@@ -85,8 +86,8 @@ CSS:
 - `assets/css/core/apps.css`: built-in app surfaces.
 - `assets/css/core/dock.css`: dock.
 - `assets/css/core/responsive.css`: responsive rules.
-- `assets/css/themes/{family}/base.css`: OS-family visual base.
-- `assets/css/themes/{family}/{version}.css`: OS-version visual skin.
+- `assets/css/themes/{family}/base.css`: theme-family visual base.
+- `assets/css/themes/{family}/{version}.css`: theme-version visual skin.
 
 JavaScript:
 
@@ -128,7 +129,7 @@ Widgets:
 Themes:
 
 - Themes are organized by family and version.
-- Use parent/child theme inheritance for common OS-family styling.
+- Use parent/child theme inheritance for common theme-family styling.
 - Put visual language in theme CSS. Put behavior in core JS/PHP.
 - Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
 - Keep OS media original, licensed for redistribution, or otherwise release-safe.
@@ -199,7 +200,7 @@ CSS:
 - Theme CSS defines visual skin and OS personality.
 - Avoid one-note palettes and unmaintainable selector sprawl.
 - Keep selectors semantic and aligned with template structure.
-- Do not add visual polish by hard-coding OS-specific values into core component files.
+- Do not add visual polish by hard-coding theme-specific values into core component files.
 
 Accessibility:
 
@@ -308,7 +309,7 @@ When adding a feature, decide where it belongs:
 - New PHP data contract belongs in an `includes/` registry/service class.
 - New visual component markup belongs in `templates/{domain}/`.
 - New core component CSS belongs in `assets/css/core/{domain}.css`.
-- New OS-specific skin belongs in `assets/css/themes/{family}/`.
+- New theme-specific skin belongs in `assets/css/themes/{family}/`.
 - New image/icon/wallpaper assets belong in `assets/media/`.
 
 Prefer data-driven registration over hard-coded conditionals. If future OS families or versions will need to change something, make it a registry field, theme field, template override, or scoped CSS variable.

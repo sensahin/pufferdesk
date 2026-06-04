@@ -66,23 +66,26 @@
 		status.setAttribute('role', 'status');
 		status.setAttribute('aria-live', 'polite');
 
-		const themeSection = dom.createElement('section', 'aos-settings-section');
-		themeSection.appendChild(dom.createElement('h2', '', 'Appearance'));
+		let themeSection = null;
+		if (themes.length > 1) {
+			themeSection = dom.createElement('section', 'aos-settings-section');
+			themeSection.appendChild(dom.createElement('h2', '', 'Appearance'));
 
-		const themeSelect = document.createElement('select');
-		themeSelect.className = 'aos-settings-control';
-		themes.forEach((theme) => {
-			const option = document.createElement('option');
-			option.value = theme.id;
-			option.textContent = getThemeOptionLabel(theme);
-			option.selected = config.theme && config.theme.id === theme.id;
-			themeSelect.appendChild(option);
-		});
-		themeSection.appendChild(createSettingsRow('Theme', themeSelect));
+			const themeSelect = document.createElement('select');
+			themeSelect.className = 'aos-settings-control';
+			themes.forEach((theme) => {
+				const option = document.createElement('option');
+				option.value = theme.id;
+				option.textContent = getThemeOptionLabel(theme);
+				option.selected = config.theme && config.theme.id === theme.id;
+				themeSelect.appendChild(option);
+			});
+			themeSection.appendChild(createSettingsRow('Theme', themeSelect));
 
-		const saveThemeButton = createButton('Apply Theme');
-		saveThemeButton.addEventListener('click', () => saveTheme(themeSelect.value, status));
-		themeSection.appendChild(saveThemeButton);
+			const saveThemeButton = createButton('Apply Theme');
+			saveThemeButton.addEventListener('click', () => saveTheme(themeSelect.value, status));
+			themeSection.appendChild(saveThemeButton);
+		}
 
 		const workspaceSection = dom.createElement('section', 'aos-settings-section');
 		workspaceSection.appendChild(dom.createElement('h2', '', 'Workspace'));
@@ -122,7 +125,9 @@
 		});
 		systemSection.appendChild(classicButton);
 
-		content.appendChild(themeSection);
+		if (themeSection) {
+			content.appendChild(themeSection);
+		}
 		content.appendChild(workspaceSection);
 		content.appendChild(systemSection);
 		content.appendChild(status);

@@ -12,7 +12,7 @@ Admin OS Mode turns the WordPress dashboard entry point into a desktop-style adm
 
 == Description ==
 
-Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on a neutral, release-safe Admin OS workspace: a top menu bar, desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
+Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe Admin OS workspace: a top menu bar, desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
 
 == Current foundation features ==
 
@@ -27,7 +27,7 @@ Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. T
 
 Admin OS Mode intentionally wraps existing WordPress admin screens instead of replacing them. That keeps plugin compatibility high and makes Classic Admin a reliable fallback.
 
-The default Admin OS family uses original plugin CSS and release-safe media. Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
+The bundled Admin OS family uses original plugin CSS and release-safe media. Visual polish may use familiar desktop conventions, but the product identity, assets, and naming must remain Admin OS. Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
 
 The foundation separates shell behavior from OS appearance:
 
@@ -58,7 +58,7 @@ The foundation separates shell behavior from OS appearance:
   - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
   - `apps/` owns app launching and native app content such as OS Settings.
   - `shell/` owns global shell controls such as search and clock behavior.
-- `assets/css/themes/` owns OS-specific visual language.
+- `assets/css/themes/` owns theme-specific visual language.
 - `assets/media/` reserves release-safe media locations:
   - `assets/media/themes/{family}/{version}/wallpapers/`
   - `assets/media/themes/{family}/{version}/icons/`
@@ -104,7 +104,7 @@ npm run check
 npm run package
 ```
 
-Template resolution supports OS-specific overrides. The renderer checks paths in this order:
+Template resolution supports theme-specific overrides. The renderer checks paths in this order:
 
 1. `templates/themes/{theme_id}/{template}`
 2. `templates/themes/{family}/{template}`
@@ -134,9 +134,9 @@ Theme media fields are normalized to local `assets/media/` descriptors with `pat
 
 When a theme declares a wallpaper, the shell sets `--aos-wallpaper-image` from `theme.media.wallpaper.url`. If no wallpaper is declared, the desktop keeps the theme CSS fallback background. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing.
 
-Future phases can add optional OS-style theme packs such as Aqua-style, Redmond-style, classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The public default should remain a neutral Admin OS identity rather than depending on another platform owner’s brand assets.
+Future phases can add optional alternate theme packs such as Redmond-style, classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the Admin OS identity rather than depending on another platform owner’s brand assets.
 
-Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows` and `widgets`, so future desktop icons, spaces, or OS-specific surfaces can join without replacing the whole session payload. Windows track welcome/app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state.
+Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows` and `widgets`, so future desktop icons, spaces, or theme-specific surfaces can join without replacing the whole session payload. Windows track welcome/app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state.
 
 Widgets are registered through `Admin_OS_Mode_Widget_Registry` and can be extended with the `admin_os_mode_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, and session section.
 

@@ -44,32 +44,6 @@ final class Admin_OS_Mode_Theme_Registry {
 					'cursor_pack' => 'themes/adminos/default/cursors',
 				),
 			),
-			'macos-base' => array(
-				'id'             => 'macos-base',
-				'label'          => __( 'Aqua Glass Base', 'admin-os-mode' ),
-				'family'         => 'macos',
-				'family_label'   => __( 'Aqua Glass', 'admin-os-mode' ),
-				'version'        => 'base',
-				'version_label'  => __( 'Base', 'admin-os-mode' ),
-				'stylesheet'     => 'macos/base.css',
-				'welcome_kicker' => __( 'Aqua-style workspace', 'admin-os-mode' ),
-				'abstract'       => true,
-			),
-			'macos' => array(
-				'id'             => 'macos',
-				'label'          => __( 'Aqua Glass', 'admin-os-mode' ),
-				'family'         => 'macos',
-				'family_label'   => __( 'Aqua Glass', 'admin-os-mode' ),
-				'version'        => 'default',
-				'version_label'  => __( 'Default', 'admin-os-mode' ),
-				'parent'         => 'macos-base',
-				'stylesheet'     => 'macos/default.css',
-				'media'          => array(
-					'wallpaper'   => 'themes/macos/default/wallpapers/teal-architecture.jpg',
-					'icon_pack'   => 'themes/macos/default/icons',
-					'cursor_pack' => 'themes/macos/default/cursors',
-				),
-			),
 		);
 
 		/**
