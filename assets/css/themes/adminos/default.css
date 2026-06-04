@@ -209,11 +209,11 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window-control-maximize::before {
-	clip-path: polygon(34% 0, 100% 0, 100% 66%);
+	clip-path: polygon(0 0, 66% 0, 0 66%);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window-control-maximize::after {
-	clip-path: polygon(0 34%, 66% 100%, 0 100%);
+	clip-path: polygon(100% 34%, 100% 100%, 34% 100%);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-stat,
