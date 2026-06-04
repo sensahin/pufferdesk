@@ -65,7 +65,7 @@ The foundation separates shell behavior from OS appearance:
   - `assets/media/themes/{family}/{version}/cursors/`
   - `assets/media/shared/icons/`
 
-Apps and folders use structured icon descriptors internally. Legacy Dashicon strings still work, but the normalized shape supports both current and future media-backed icons:
+Apps and folders use structured icon descriptors internally. Dashicon strings still work as shorthand, but the normalized shape supports both current and future media-backed icons:
 
 ```php
 'icon' => array(

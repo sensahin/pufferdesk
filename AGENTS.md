@@ -22,13 +22,13 @@ Always:
 - Use WordPress-safe PHP: capability checks, nonces for state changes, sanitization on input, escaping on output.
 - Keep readable source assets in `assets/css/` and `assets/js/`; regenerate `assets/dist/` for release assets.
 - Update docs when architecture, build behavior, public filters, or extension contracts change.
-- Remove replaced code, stale files, unused references, dead branches, and abandoned legacy paths.
+- Remove replaced code, stale files, unused references, dead branches, and abandoned obsolete paths.
 - Run the required validation commands before committing.
 
 Never:
 
 - Do not turn this into a pile of duplicate one-off files.
-- Do not leave dead leftover code, unused legacy modules, stale comments, or unreferenced assets.
+- Do not leave dead leftover code, unused obsolete modules, stale comments, or unreferenced assets.
 - Do not bypass registries for apps, widgets, or themes unless there is a strong architectural reason.
 - Do not mix theme-specific styling into core CSS.
 - Do not put core behavior into theme files.
@@ -140,7 +140,7 @@ Themes:
 
 Icons:
 
-- Legacy Dashicon strings are allowed for compatibility.
+- Dashicon strings are allowed as shorthand.
 - Prefer theme descriptors with Dashicon fallbacks for built-in apps, folders, and widgets, so OS icon packs can replace the visual asset without changing registry IDs or app definitions.
 - Theme icon files resolve from `theme.media.icon_pack.url`; missing files must fall back cleanly to Dashicons in PHP-rendered and JS-rendered surfaces.
 - Prefer normalized descriptors for future flexibility:
@@ -324,7 +324,7 @@ If you remove a feature, remove its CSS, JS, templates, registry entries, and do
 If a helper is no longer used, delete it.
 If a comment describes behavior that changed, update or delete it.
 
-No dead legacy code. No abandoned experiments. No duplicate implementations.
+No dead code. No abandoned experiments. No duplicate implementations.
 
 ## When Unsure
 

@@ -141,7 +141,7 @@ final class Admin_OS_Mode_App_Registry {
 		 * Filter the shell app registry.
 		 *
 		 * Each app accepts id, label, url, icon, group, cap, kind, and native.
-		 * Icons may be a legacy Dashicon string or a descriptor:
+		 * Icons may be a Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-admin-post' )
 		 * array( 'type' => 'image', 'src' => 'themes/adminos/default/icons/posts.svg' )
 		 * array( 'type' => 'theme', 'name' => 'posts.svg', 'fallback' => 'dashicons-admin-post' )

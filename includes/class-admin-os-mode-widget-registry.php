@@ -58,7 +58,7 @@ final class Admin_OS_Mode_Widget_Registry {
 		 * default_position, default_size, and refresh_interval.
 		 * Positions accept left or right, and top or bottom.
 		 *
-		 * Icons may be a legacy Dashicon string or a descriptor:
+		 * Icons may be a Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-clock' )
 		 * array( 'type' => 'image', 'src' => 'themes/adminos/default/icons/clock.svg' )
 		 * array( 'type' => 'theme', 'name' => 'clock.svg', 'fallback' => 'dashicons-clock' )

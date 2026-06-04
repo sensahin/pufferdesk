@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Admin_OS_Mode_Icon_Renderer {
 	/**
-	 * Normalize a legacy dashicon string or structured icon descriptor.
+	 * Normalize a Dashicon string or structured icon descriptor.
 	 *
 	 * @param mixed $icon Raw icon.
 	 * @return array<string,string>
