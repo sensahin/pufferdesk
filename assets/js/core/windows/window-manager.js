@@ -10,6 +10,7 @@
 		const sessionStore = window.AdminOSMode.session.createSessionStore(options.storageKey || '');
 		let zIndex = 30;
 		let windowOffset = 0;
+		let activeWindow = null;
 		let restoreInProgress = false;
 		let saveTimer = null;
 		const resizeObserver = typeof window.ResizeObserver === 'function'
@@ -49,6 +50,7 @@
 			win.style.zIndex = String(zIndex);
 			win.classList.remove('is-hidden');
 			win.classList.remove('is-closed');
+			setActiveWindow(win);
 			scheduleSave();
 		}
 
@@ -58,6 +60,9 @@
 			}
 
 			win.classList.add('is-hidden');
+			if (activeWindow === win) {
+				setActiveWindow(getTopVisibleWindow());
+			}
 			scheduleSave();
 		}
 
@@ -79,6 +84,9 @@
 			if (win.dataset.aosWindow === 'welcome') {
 				win.classList.add('is-closed');
 				win.classList.remove('is-hidden');
+				if (activeWindow === win) {
+					setActiveWindow(getTopVisibleWindow());
+				}
 				scheduleSave();
 				return;
 			}
@@ -87,7 +95,64 @@
 			if (appId) {
 				setDockRunning(appId, false);
 			}
+			if (activeWindow === win) {
+				setActiveWindow(getTopVisibleWindow());
+			}
 			scheduleSave();
+		}
+
+		function getActiveWindowDetail(win) {
+			if (!win) {
+				return {
+					kind: 'desktop'
+				};
+			}
+
+			if (win.dataset.aosWindow === 'welcome') {
+				return {
+					kind: 'workspace',
+					title: win.getAttribute('aria-label') || ''
+				};
+			}
+
+			return {
+				appId: win.dataset.aosAppWindow || '',
+				kind: win.dataset.aosWindowKind || (win.dataset.aosAppWindow ? 'app' : 'window'),
+				menu: win.aosMenu || null,
+				title: win.dataset.aosWindowTitle || win.getAttribute('aria-label') || ''
+			};
+		}
+
+		function dispatchActiveWindowChange() {
+			shell.dispatchEvent(new window.CustomEvent('adminOSMode:active-window-change', {
+				detail: getActiveWindowDetail(activeWindow)
+			}));
+		}
+
+		function setActiveWindow(win) {
+			activeWindow = win || null;
+			shell.querySelectorAll('.aos-window.is-active').forEach((item) => {
+				item.classList.remove('is-active');
+			});
+			if (activeWindow) {
+				activeWindow.classList.add('is-active');
+			}
+			dispatchActiveWindowChange();
+		}
+
+		function isVisibleWindow(win) {
+			return win && !win.classList.contains('is-hidden') && !win.classList.contains('is-closed');
+		}
+
+		function getWindowZIndex(win) {
+			const parsed = Number.parseFloat(win.style.zIndex);
+			return Number.isFinite(parsed) ? parsed : 0;
+		}
+
+		function getTopVisibleWindow() {
+			return Array.from(shell.querySelectorAll('.aos-window'))
+				.filter(isVisibleWindow)
+				.sort((first, second) => getWindowZIndex(second) - getWindowZIndex(first))[0] || null;
 		}
 
 		function setDockRunning(appId, running) {
@@ -387,6 +452,15 @@
 			});
 
 			restoreInProgress = false;
+			setActiveWindow(getTopVisibleWindow());
+		}
+
+		if (desktop) {
+			desktop.addEventListener('pointerdown', (event) => {
+				if (event.target === desktop) {
+					setActiveWindow(null);
+				}
+			});
 		}
 
 		window.addEventListener('beforeunload', saveSession);

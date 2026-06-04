@@ -92,6 +92,7 @@ final class Admin_OS_Mode_Assets {
 		}
 
 		$apps    = $this->app_registry->get_apps();
+		$folders = $this->app_registry->get_folders( $apps );
 		$widgets = $this->widget_registry->get_widgets();
 		$theme   = $this->theme_registry->get_current_theme( $this->preferences );
 
@@ -116,7 +117,7 @@ final class Admin_OS_Mode_Assets {
 
 		wp_add_inline_script(
 			$config_handle,
-			'window.adminOSMode = ' . wp_json_encode( $this->get_runtime_config( $apps, $widgets, $theme ) ) . ';',
+			'window.adminOSMode = ' . wp_json_encode( $this->get_runtime_config( $apps, $folders, $widgets, $theme ) ) . ';',
 			'before'
 		);
 	}
@@ -249,13 +250,17 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/shell/search.js',
 				'deps' => array( 'admin-os-mode-config' ),
 			),
+			'admin-os-mode-menu'           => array(
+				'path' => 'assets/js/core/shell/menu.js',
+				'deps' => array( 'admin-os-mode-config' ),
+			),
 			'admin-os-mode-clock'          => array(
 				'path' => 'assets/js/core/shell/clock.js',
 				'deps' => array( 'admin-os-mode-config' ),
 			),
 			'admin-os-mode-boot'           => array(
 				'path' => 'assets/js/core/boot.js',
-				'deps' => array( 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-clock' ),
+				'deps' => array( 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-menu', 'admin-os-mode-clock' ),
 			),
 		);
 
@@ -276,11 +281,12 @@ final class Admin_OS_Mode_Assets {
 	 * Runtime data passed from WordPress into the shell.
 	 *
 	 * @param array<int,array<string,mixed>> $apps Apps.
+	 * @param array<int,array<string,mixed>> $folders Folders.
 	 * @param array<int,array<string,mixed>> $widgets Widgets.
 	 * @param array<string,mixed>            $theme Current theme.
 	 * @return array<string,mixed>
 	 */
-	private function get_runtime_config( $apps, $widgets, $theme ) {
+	private function get_runtime_config( $apps, $folders, $widgets, $theme ) {
 		return array(
 			'apps'       => $apps,
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
@@ -291,8 +297,44 @@ final class Admin_OS_Mode_Assets {
 			'userId'     => get_current_user_id(),
 			'storageKey' => 'adminOSMode:' . get_current_user_id() . ':' . $theme['id'] . ':session',
 			'nonce'      => wp_create_nonce( Admin_OS_Mode_Settings_Controller::NONCE_ACTION ),
+			'folders'    => $folders,
+			'menu'       => $this->get_menu_config(),
 			'theme'      => $theme,
 			'widgets'    => $widgets,
+		);
+	}
+
+	/**
+	 * Localized menu defaults for the active-app menu bar.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_menu_config() {
+		return array(
+			'desktop' => array(
+				array(
+					'label'  => __( 'Workspace', 'admin-os-mode' ),
+					'action' => 'open-window',
+					'target' => 'welcome',
+				),
+				array( 'label' => __( 'File', 'admin-os-mode' ) ),
+				array( 'label' => __( 'Edit', 'admin-os-mode' ) ),
+				array( 'label' => __( 'View', 'admin-os-mode' ) ),
+				array( 'label' => __( 'Go', 'admin-os-mode' ) ),
+				array( 'label' => __( 'Window', 'admin-os-mode' ) ),
+				array( 'label' => __( 'Help', 'admin-os-mode' ) ),
+			),
+			'labels'  => array(
+				'workspace'     => __( 'Workspace', 'admin-os-mode' ),
+				'file'          => __( 'File', 'admin-os-mode' ),
+				'edit'          => __( 'Edit', 'admin-os-mode' ),
+				'view'          => __( 'View', 'admin-os-mode' ),
+				'go'            => __( 'Go', 'admin-os-mode' ),
+				'window'        => __( 'Window', 'admin-os-mode' ),
+				'help'          => __( 'Help', 'admin-os-mode' ),
+				'admin'         => __( 'Admin', 'admin-os-mode' ),
+				'folder_suffix' => __( 'Folder', 'admin-os-mode' ),
+			),
 		);
 	}
 

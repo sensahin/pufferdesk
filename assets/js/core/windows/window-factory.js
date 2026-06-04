@@ -57,6 +57,11 @@
 			const win = document.createElement('section');
 			win.className = 'aos-window aos-app-window';
 			win.dataset.aosAppWindow = options.appId || '';
+			win.dataset.aosWindowKind = options.windowKind || (options.appId ? 'app' : 'window');
+			win.dataset.aosWindowTitle = options.title || '';
+			if (options.menu && typeof options.menu === 'object') {
+				win.aosMenu = options.menu;
+			}
 			win.setAttribute('aria-label', `${options.title} window`);
 			win.style.width = options.width || '860px';
 			win.style.height = options.height || '620px';

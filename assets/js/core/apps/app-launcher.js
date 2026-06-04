@@ -7,12 +7,22 @@
 	window.AdminOSMode.apps.createAppLauncher = function createAppLauncher(shell, manager, config = {}) {
 		const dom = window.AdminOSMode.dom;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
+		const folders = Array.isArray(config.folders) ? config.folders : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
+		const folderMap = new Map(folders.map((folder) => [folder.id, folder]));
+		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object'
+			? config.menu.labels
+			: {};
+
+		function getMenuLabel(key, fallback) {
+			return typeof menuLabels[key] === 'string' && menuLabels[key] ? menuLabels[key] : fallback;
+		}
 
 		function getAppWindowOptions(app) {
 			const options = {
 				appId: app.id,
 				title: app.label,
+				windowKind: 'app',
 				icon: app.icon
 			};
 
@@ -46,6 +56,7 @@
 			manager.createWindow({
 				title: title || 'Admin',
 				icon: icon || 'dashicons-admin-generic',
+				windowKind: 'document',
 				url
 			});
 		}
@@ -71,11 +82,9 @@
 
 		function openFolder(folderId) {
 			const folderApps = apps.filter((app) => app.group === folderId);
-			const folderNames = {
-				content: 'Content',
-				site: 'Site',
-				system: 'System'
-			};
+			const folder = folderMap.get(folderId);
+			const folderLabel = folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin');
+			const folderTitle = `${folderLabel} ${getMenuLabel('folder_suffix', 'Folder')}`;
 
 			if (!folderApps.length) {
 				return;
@@ -90,10 +99,11 @@
 			content.appendChild(grid);
 
 			manager.createWindow({
-				title: `${folderNames[folderId] || 'Folder'} Folder`,
-				icon: folderId === 'content' ? 'dashicons-category' : 'dashicons-admin-generic',
+				title: folderTitle,
+				icon: folder && folder.icon ? folder.icon : 'dashicons-admin-generic',
 				content,
 				bodyClass: 'aos-window-body aos-folder-body',
+				windowKind: 'folder',
 				width: '560px',
 				height: '420px'
 			});

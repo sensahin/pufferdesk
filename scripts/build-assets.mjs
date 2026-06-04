@@ -28,6 +28,7 @@ const jsSources = [
 	'assets/js/core/apps/settings-app.js',
 	'assets/js/core/apps/app-launcher.js',
 	'assets/js/core/shell/search.js',
+	'assets/js/core/shell/menu.js',
 	'assets/js/core/shell/clock.js',
 	'assets/js/core/boot.js'
 ];

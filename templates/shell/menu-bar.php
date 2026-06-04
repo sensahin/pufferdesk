@@ -15,10 +15,14 @@ defined( 'ABSPATH' ) || exit;
 		</span>
 		<strong><?php echo esc_html__( 'Admin OS', 'admin-os-mode' ); ?></strong>
 	</div>
-	<nav class="aos-menu-items" aria-label="<?php esc_attr_e( 'Admin OS menus', 'admin-os-mode' ); ?>">
+	<nav class="aos-menu-items" aria-label="<?php esc_attr_e( 'Admin OS menus', 'admin-os-mode' ); ?>" data-aos-menu-items>
 		<button type="button" data-aos-open-window="welcome"><?php esc_html_e( 'Workspace', 'admin-os-mode' ); ?></button>
-		<button type="button" data-aos-open-folder="content"><?php esc_html_e( 'Content', 'admin-os-mode' ); ?></button>
-		<button type="button" data-aos-open-folder="system"><?php esc_html_e( 'System', 'admin-os-mode' ); ?></button>
+		<button type="button"><?php esc_html_e( 'File', 'admin-os-mode' ); ?></button>
+		<button type="button"><?php esc_html_e( 'Edit', 'admin-os-mode' ); ?></button>
+		<button type="button"><?php esc_html_e( 'View', 'admin-os-mode' ); ?></button>
+		<button type="button"><?php esc_html_e( 'Go', 'admin-os-mode' ); ?></button>
+		<button type="button"><?php esc_html_e( 'Window', 'admin-os-mode' ); ?></button>
+		<button type="button"><?php esc_html_e( 'Help', 'admin-os-mode' ); ?></button>
 	</nav>
 	<label class="aos-search" for="aos-search-input">
 		<span class="dashicons dashicons-search" aria-hidden="true"></span>

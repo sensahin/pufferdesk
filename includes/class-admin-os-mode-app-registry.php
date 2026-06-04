@@ -140,11 +140,12 @@ final class Admin_OS_Mode_App_Registry {
 		/**
 		 * Filter the shell app registry.
 		 *
-		 * Each app accepts id, label, url, icon, group, cap, kind, and native.
+		 * Each app accepts id, label, url, icon, group, cap, kind, native, and menus.
 		 * Icons may be a Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-admin-post' )
 		 * array( 'type' => 'image', 'src' => 'themes/adminos/default/icons/posts.svg' )
 		 * array( 'type' => 'theme', 'name' => 'posts.svg', 'fallback' => 'dashicons-admin-post' )
+		 * Menus may be strings or arrays with label, action, and target.
 		 *
 		 * @param array<int,array<string,mixed>> $apps Registered apps.
 		 */
@@ -222,6 +223,7 @@ final class Admin_OS_Mode_App_Registry {
 				continue;
 			}
 
+			$label = sanitize_text_field( $app['label'] );
 			$icon  = isset( $app['icon'] ) ? Admin_OS_Mode_Icon_Renderer::normalize( $app['icon'] ) : Admin_OS_Mode_Icon_Renderer::normalize( 'dashicons-admin-generic' );
 			$group = isset( $app['group'] ) ? sanitize_key( $app['group'] ) : 'system';
 			$kind  = isset( $app['kind'] ) ? sanitize_key( $app['kind'] ) : 'iframe';
@@ -245,16 +247,79 @@ final class Admin_OS_Mode_App_Registry {
 
 			$normalized[] = array(
 				'id'     => sanitize_key( $app['id'] ),
-				'label'  => sanitize_text_field( $app['label'] ),
+				'label'  => $label,
 				'url'    => $url,
 				'icon'   => $icon,
 				'group'  => $group,
 				'kind'   => $kind,
 				'native' => $native,
+				'menus'  => $this->normalize_menu_items( isset( $app['menus'] ) ? $app['menus'] : array(), $label ),
 			);
 		}
 
 		return $normalized;
+	}
+
+	/**
+	 * Normalize top menu labels for an app.
+	 *
+	 * @param mixed  $items Raw menu items.
+	 * @param string $fallback_label App label used for default app menu.
+	 * @return array<int,array<string,string>>
+	 */
+	private function normalize_menu_items( $items, $fallback_label ) {
+		$normalized = array();
+
+		if ( is_array( $items ) ) {
+			foreach ( $items as $item ) {
+				if ( is_string( $item ) ) {
+					$label = sanitize_text_field( $item );
+					if ( '' !== $label ) {
+						$normalized[] = array( 'label' => $label );
+					}
+					continue;
+				}
+
+				if ( ! is_array( $item ) || empty( $item['label'] ) ) {
+					continue;
+				}
+
+				$menu_item = array(
+					'label' => sanitize_text_field( $item['label'] ),
+				);
+
+				if ( ! empty( $item['action'] ) ) {
+					$menu_item['action'] = sanitize_key( $item['action'] );
+				}
+
+				if ( ! empty( $item['target'] ) ) {
+					$menu_item['target'] = sanitize_text_field( $item['target'] );
+				}
+
+				if ( '' !== $menu_item['label'] ) {
+					$normalized[] = $menu_item;
+				}
+			}
+		}
+
+		return $normalized ? $normalized : $this->get_default_app_menu_items( $fallback_label );
+	}
+
+	/**
+	 * Default app menu labels.
+	 *
+	 * @param string $app_label Active app label.
+	 * @return array<int,array<string,string>>
+	 */
+	private function get_default_app_menu_items( $app_label ) {
+		return array(
+			array( 'label' => $app_label ),
+			array( 'label' => __( 'File', 'admin-os-mode' ) ),
+			array( 'label' => __( 'Edit', 'admin-os-mode' ) ),
+			array( 'label' => __( 'View', 'admin-os-mode' ) ),
+			array( 'label' => __( 'Window', 'admin-os-mode' ) ),
+			array( 'label' => __( 'Help', 'admin-os-mode' ) ),
+		);
 	}
 
 	/**

@@ -16,7 +16,8 @@
 			!window.AdminOSMode.windows ||
 			!window.AdminOSMode.widgets ||
 			!window.AdminOSMode.apps ||
-			!window.AdminOSMode.shell
+			!window.AdminOSMode.shell ||
+			!window.AdminOSMode.shell.createMenuController
 		) {
 			return;
 		}
@@ -31,7 +32,9 @@
 			storageKey: config.storageKey || ''
 		});
 		const launcher = window.AdminOSMode.apps.createAppLauncher(shell, manager, config);
+		const menuController = window.AdminOSMode.shell.createMenuController(shell, config);
 
+		menuController.bind();
 		widgetManager.bindExistingWidgets();
 		widgetManager.restoreSession();
 		manager.bindExistingWindows();
