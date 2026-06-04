@@ -57,6 +57,7 @@
 			const win = document.createElement('section');
 			win.className = 'aos-window aos-app-window';
 			win.dataset.aosAppWindow = options.appId || '';
+			win.dataset.aosResizeMode = options.resizeMode || 'both';
 			win.dataset.aosWindowKind = options.windowKind || (options.appId ? 'app' : 'window');
 			win.dataset.aosWindowTitle = options.title || '';
 			if (options.menu && typeof options.menu === 'object') {

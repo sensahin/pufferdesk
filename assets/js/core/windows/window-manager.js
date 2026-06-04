@@ -310,6 +310,22 @@
 			};
 		}
 
+		function getResizeDirections(win) {
+			const mode = win.dataset.aosResizeMode || 'both';
+
+			if (mode === 'none') {
+				return [];
+			}
+			if (mode === 'vertical') {
+				return ['n', 's'];
+			}
+			if (mode === 'horizontal') {
+				return ['e', 'w'];
+			}
+
+			return resizeDirections;
+		}
+
 		function ensureResizeHandles(win) {
 			if (win.dataset.aosResizeHandlesBound === '1') {
 				return;
@@ -317,7 +333,7 @@
 
 			win.dataset.aosResizeHandlesBound = '1';
 
-			resizeDirections.forEach((direction) => {
+			getResizeDirections(win).forEach((direction) => {
 				const handle = document.createElement('span');
 				handle.className = `aos-window-resize-handle aos-window-resize-handle-${direction}`;
 				handle.dataset.aosResizeHandle = direction;
@@ -335,7 +351,12 @@
 		}
 
 		function startResize(win, handle, direction, event) {
-			if (!desktop || win.classList.contains('is-maximized') || win.classList.contains('is-resizing')) {
+			if (
+				!desktop
+				|| win.classList.contains('is-maximized')
+				|| win.classList.contains('is-resizing')
+				|| !getResizeDirections(win).includes(direction)
+			) {
 				return;
 			}
 

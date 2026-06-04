@@ -236,7 +236,6 @@
 .aos-settings-sidebar,
 .aos-settings-pane {
 	scrollbar-color: var(--aos-scrollbar-thumb) var(--aos-scrollbar-track);
-	scrollbar-width: auto;
 }
 
 .aos-settings-sidebar::-webkit-scrollbar,
@@ -254,10 +253,9 @@
 .aos-settings-sidebar::-webkit-scrollbar-thumb,
 .aos-settings-pane::-webkit-scrollbar-thumb {
 	background: var(--aos-scrollbar-thumb);
-	background-clip: content-box;
-	border: 2px solid transparent;
+	border: 0;
 	border-radius: 999px;
-	min-height: 44px;
+	min-height: 52px;
 }
 
 .aos-settings-sidebar::-webkit-scrollbar-thumb:hover,
