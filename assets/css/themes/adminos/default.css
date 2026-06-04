@@ -204,13 +204,24 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window-controls {
-	gap: 8px;
+	gap: 9px;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window-control {
 	box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.14) inset;
-	height: 12px;
-	width: 12px;
+	height: 13px;
+	width: 13px;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window-control-close::before,
+.aos-shell[data-aos-theme="adminos"] .aos-window-control-close::after,
+.aos-shell[data-aos-theme="adminos"] .aos-window-control-minimize::before {
+	width: 7px;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window-control-maximize::before,
+.aos-shell[data-aos-theme="adminos"] .aos-window-control-maximize::after {
+	height: 6px;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-stat,
