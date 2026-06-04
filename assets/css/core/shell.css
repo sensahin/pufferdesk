@@ -40,7 +40,7 @@
 .aos-desktop-icon,
 .aos-app-launcher,
 .aos-dock-item,
-.aos-window-actions button,
+.aos-window-control,
 .aos-recent-list button {
 	appearance: none;
 	font-family: inherit;
@@ -79,32 +79,27 @@
 	letter-spacing: 0;
 }
 
-.aos-traffic,
-.aos-window-controls {
+.aos-traffic {
 	display: inline-flex;
 	gap: 7px;
 }
 
-.aos-traffic span,
-.aos-window-controls span {
+.aos-traffic span {
 	border-radius: 50%;
 	display: block;
 	height: 11px;
 	width: 11px;
 }
 
-.aos-traffic span:nth-child(1),
-.aos-window-controls span:nth-child(1) {
+.aos-traffic span:nth-child(1) {
 	background: var(--aos-traffic-close);
 }
 
-.aos-traffic span:nth-child(2),
-.aos-window-controls span:nth-child(2) {
+.aos-traffic span:nth-child(2) {
 	background: var(--aos-traffic-minimize);
 }
 
-.aos-traffic span:nth-child(3),
-.aos-window-controls span:nth-child(3) {
+.aos-traffic span:nth-child(3) {
 	background: var(--aos-traffic-zoom);
 }
 

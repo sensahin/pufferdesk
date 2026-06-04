@@ -17,31 +17,15 @@
 			: null;
 		const factory = window.AdminOSMode.windows.createWindowFactory({
 			onMinimize(win) {
-				if (!win) {
-					return;
-				}
-				win.classList.add('is-hidden');
-				scheduleSave();
+				minimizeWindow(win);
 			},
 
 			onMaximize(win) {
-				if (!win) {
-					return;
-				}
-				win.classList.toggle('is-maximized');
-				focusWindow(win);
-				scheduleSave();
+				toggleMaximizeWindow(win);
 			},
 
 			onClose(win, appId) {
-				if (!win) {
-					return;
-				}
-				win.remove();
-				if (appId) {
-					setDockRunning(appId, false);
-				}
-				scheduleSave();
+				closeWindow(win, appId);
 			}
 		});
 
@@ -64,6 +48,45 @@
 			zIndex += 1;
 			win.style.zIndex = String(zIndex);
 			win.classList.remove('is-hidden');
+			win.classList.remove('is-closed');
+			scheduleSave();
+		}
+
+		function minimizeWindow(win) {
+			if (!win) {
+				return;
+			}
+
+			win.classList.add('is-hidden');
+			scheduleSave();
+		}
+
+		function toggleMaximizeWindow(win) {
+			if (!win) {
+				return;
+			}
+
+			win.classList.toggle('is-maximized');
+			focusWindow(win);
+			scheduleSave();
+		}
+
+		function closeWindow(win, appId) {
+			if (!win) {
+				return;
+			}
+
+			if (win.dataset.aosWindow === 'welcome') {
+				win.classList.add('is-closed');
+				win.classList.remove('is-hidden');
+				scheduleSave();
+				return;
+			}
+
+			win.remove();
+			if (appId) {
+				setDockRunning(appId, false);
+			}
 			scheduleSave();
 		}
 
@@ -156,6 +179,7 @@
 				height: readNumber(win.style.height) ?? rect.height,
 				zIndex: readNumber(win.style.zIndex) ?? 20,
 				hidden: win.classList.contains('is-hidden'),
+				closed: win.classList.contains('is-closed'),
 				maximized: win.classList.contains('is-maximized')
 			};
 		}
@@ -185,6 +209,7 @@
 
 			win.classList.toggle('is-maximized', Boolean(state.maximized));
 			win.classList.toggle('is-hidden', Boolean(state.hidden));
+			win.classList.toggle('is-closed', Boolean(state.closed));
 		}
 
 		function serializeWindows() {
@@ -294,14 +319,23 @@
 		function bindExistingWindows() {
 			shell.querySelectorAll('.aos-window').forEach(bindWindowFrame);
 
+			shell.querySelectorAll('[data-aos-close]').forEach((button) => {
+				if (button.dataset.aosActionBound === '1') {
+					return;
+				}
+				button.dataset.aosActionBound = '1';
+				button.addEventListener('click', () => {
+					closeWindow(button.closest('.aos-window'), null);
+				});
+			});
+
 			shell.querySelectorAll('[data-aos-minimize]').forEach((button) => {
 				if (button.dataset.aosActionBound === '1') {
 					return;
 				}
 				button.dataset.aosActionBound = '1';
 				button.addEventListener('click', () => {
-					button.closest('.aos-window').classList.add('is-hidden');
-					scheduleSave();
+					minimizeWindow(button.closest('.aos-window'));
 				});
 			});
 
@@ -311,10 +345,7 @@
 				}
 				button.dataset.aosActionBound = '1';
 				button.addEventListener('click', () => {
-					const win = button.closest('.aos-window');
-					win.classList.toggle('is-maximized');
-					focusWindow(win);
-					scheduleSave();
+					toggleMaximizeWindow(button.closest('.aos-window'));
 				});
 			});
 		}

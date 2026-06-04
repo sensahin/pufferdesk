@@ -12,12 +12,10 @@ defined( 'ABSPATH' ) || exit;
  */
 ?>
 <div class="aos-window-titlebar" data-aos-drag-handle>
-	<div class="aos-window-controls" aria-hidden="true">
-		<span></span><span></span><span></span>
+	<div class="aos-window-controls">
+		<button type="button" class="aos-window-control aos-window-control-close" data-aos-close aria-label="<?php esc_attr_e( 'Close', 'admin-os-mode' ); ?>" title="<?php esc_attr_e( 'Close', 'admin-os-mode' ); ?>"></button>
+		<button type="button" class="aos-window-control aos-window-control-minimize" data-aos-minimize aria-label="<?php esc_attr_e( 'Minimize', 'admin-os-mode' ); ?>" title="<?php esc_attr_e( 'Minimize', 'admin-os-mode' ); ?>"></button>
+		<button type="button" class="aos-window-control aos-window-control-maximize" data-aos-maximize aria-label="<?php esc_attr_e( 'Maximize', 'admin-os-mode' ); ?>" title="<?php esc_attr_e( 'Maximize', 'admin-os-mode' ); ?>"></button>
 	</div>
 	<strong><?php echo esc_html( $title ); ?></strong>
-	<div class="aos-window-actions">
-		<button type="button" data-aos-minimize title="<?php esc_attr_e( 'Minimize', 'admin-os-mode' ); ?>"><span class="dashicons dashicons-minus"></span></button>
-		<button type="button" data-aos-maximize title="<?php esc_attr_e( 'Maximize', 'admin-os-mode' ); ?>"><span class="dashicons dashicons-fullscreen-alt"></span></button>
-	</div>
 </div>

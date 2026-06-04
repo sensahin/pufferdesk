@@ -29,19 +29,6 @@
 		}
 	}
 
-	function createIconButton(action, title, icon) {
-		const button = document.createElement('button');
-		button.type = 'button';
-		button.dataset[action] = '';
-		button.title = title;
-
-		const dashicon = document.createElement('span');
-		dashicon.className = `dashicons ${icon}`;
-		button.appendChild(dashicon);
-
-		return button;
-	}
-
 	function createDashicon(icon) {
 		const dashicon = document.createElement('span');
 		dashicon.className = `dashicons ${icon || 'dashicons-admin-generic'}`;
@@ -147,7 +134,6 @@
 		createDashicon,
 		createElement,
 		createIcon,
-		createIconButton,
 		escapeAttribute
 	};
 })();
