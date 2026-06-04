@@ -4,7 +4,7 @@
 	}
 
 	.aos-menu-bar {
-		grid-template-columns: auto 1fr auto;
+		grid-template-columns: auto 1fr;
 		height: auto;
 		min-height: 56px;
 		padding: 8px 12px;

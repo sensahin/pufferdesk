@@ -7,9 +7,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * @var string $classic_link
- */
 ?>
 <header class="aos-menu-bar">
 	<div class="aos-brand">
@@ -28,5 +25,4 @@ defined( 'ABSPATH' ) || exit;
 		<input id="aos-search-input" type="search" placeholder="<?php esc_attr_e( 'Search apps', 'admin-os-mode' ); ?>" autocomplete="off" data-aos-search />
 	</label>
 	<div class="aos-clock" data-aos-clock><?php echo esc_html( current_time( 'H:i' ) ); ?></div>
-	<a class="aos-classic-link" href="<?php echo esc_url( $classic_link ); ?>"><?php esc_html_e( 'Classic Admin', 'admin-os-mode' ); ?></a>
 </header>

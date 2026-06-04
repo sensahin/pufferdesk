@@ -108,7 +108,6 @@ final class Admin_OS_Mode_Shell_Renderer {
 				'folders'      => $folders,
 				'stats'        => $this->dashboard_data->get_stats(),
 				'recents'      => $this->dashboard_data->get_recent_content(),
-				'classic_link' => $this->router->get_toggle_url( false ),
 				'classic_once' => admin_url( 'index.php?admin_os_classic=1' ),
 				'site_name'    => get_bloginfo( 'name' ),
 				'theme'        => $theme,

@@ -17,8 +17,6 @@
 	--aos-tile-shadow: 0 14px 28px rgba(17, 37, 52, 0.18), 0 1px 0 rgba(255, 255, 255, 0.78) inset;
 	--aos-accent: #0f7b77;
 	--aos-running-indicator: #f6f7f8;
-	--aos-classic-bg: rgba(24, 32, 42, 0.78);
-	--aos-classic-bg-hover: rgba(24, 32, 42, 0.92);
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(235, 240, 244, 0.68));
 	--aos-window-bar-border: rgba(20, 37, 51, 0.08);
 	--aos-card-bg: rgba(255, 255, 255, 0.54);
@@ -32,7 +30,7 @@
 .aos-shell[data-aos-theme="macos"] .aos-menu-bar {
 	backdrop-filter: blur(28px) saturate(150%);
 	gap: 14px;
-	grid-template-columns: auto auto minmax(180px, 340px) auto auto;
+	grid-template-columns: auto auto minmax(180px, 340px) minmax(48px, 1fr);
 	height: 34px;
 	padding: 0 12px;
 }
@@ -55,8 +53,7 @@
 	width: 7px;
 }
 
-.aos-shell[data-aos-theme="macos"] .aos-menu-items button,
-.aos-shell[data-aos-theme="macos"] .aos-classic-link {
+.aos-shell[data-aos-theme="macos"] .aos-menu-items button {
 	border-radius: 5px;
 	font-size: 13px;
 	padding: 6px 9px;
@@ -303,7 +300,7 @@
 
 @media (max-width: 960px) {
 	.aos-shell[data-aos-theme="macos"] .aos-menu-bar {
-		grid-template-columns: auto 1fr auto;
+		grid-template-columns: auto 1fr;
 		height: auto;
 		min-height: 52px;
 		padding: 8px 12px;
