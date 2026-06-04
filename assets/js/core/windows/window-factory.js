@@ -5,8 +5,6 @@
 	window.AdminOSMode.windows = window.AdminOSMode.windows || {};
 
 	window.AdminOSMode.windows.createWindowFactory = function createWindowFactory(callbacks = {}) {
-		const dom = window.AdminOSMode.dom;
-
 		function createWindowControl(action, label, modifier) {
 			const button = document.createElement('button');
 			button.type = 'button';
@@ -18,7 +16,7 @@
 			return button;
 		}
 
-		function createTitlebar(title, icon, appId) {
+		function createTitlebar(appId) {
 			const titlebar = document.createElement('div');
 			titlebar.className = 'aos-window-titlebar';
 			titlebar.dataset.aosDragHandle = '';
@@ -28,13 +26,6 @@
 			controls.appendChild(createWindowControl('aosClose', 'Close', 'close'));
 			controls.appendChild(createWindowControl('aosMinimize', 'Minimize', 'minimize'));
 			controls.appendChild(createWindowControl('aosMaximize', 'Maximize', 'maximize'));
-
-			const label = document.createElement('strong');
-			if (icon) {
-				const iconSpan = dom.createIcon(icon);
-				label.appendChild(iconSpan);
-			}
-			label.appendChild(document.createTextNode(title));
 
 			controls.querySelector('[data-aos-close]').addEventListener('click', () => {
 				const win = titlebar.closest('.aos-window');
@@ -58,7 +49,6 @@
 			});
 
 			titlebar.appendChild(controls);
-			titlebar.appendChild(label);
 
 			return titlebar;
 		}
@@ -74,7 +64,7 @@
 			win.style.top = options.top || '42px';
 			win.style.transform = 'none';
 
-			win.appendChild(createTitlebar(options.title, options.icon, options.appId));
+			win.appendChild(createTitlebar(options.appId));
 
 			const body = document.createElement('div');
 			body.className = options.bodyClass || 'aos-window-body';

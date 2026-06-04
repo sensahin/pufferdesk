@@ -18,12 +18,7 @@ defined( 'ABSPATH' ) || exit;
 ?>
 <section class="aos-window aos-window-welcome is-closed" data-aos-window="welcome" aria-label="<?php esc_attr_e( 'Workspace window', 'admin-os-mode' ); ?>">
 	<?php
-	$this->render_part(
-		'windows/titlebar.php',
-		array(
-			'title' => $site_name,
-		)
-	);
+	$this->render_part( 'windows/titlebar.php' );
 	?>
 	<div class="aos-window-body aos-welcome-body">
 		<div class="aos-welcome-header">

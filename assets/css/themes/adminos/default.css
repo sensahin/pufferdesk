@@ -150,20 +150,6 @@
 	width: 12px;
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-window-titlebar strong {
-	color: rgba(23, 33, 43, 0.88);
-	font-size: 13px;
-	font-weight: 650;
-	justify-content: center;
-}
-
-.aos-shell[data-aos-theme="adminos"] .aos-window-titlebar strong > .dashicons,
-.aos-shell[data-aos-theme="adminos"] .aos-window-titlebar strong > .aos-icon-image {
-	height: 18px;
-	margin-right: 7px;
-	width: 18px;
-}
-
 .aos-shell[data-aos-theme="adminos"] .aos-stat,
 .aos-shell[data-aos-theme="adminos"] .aos-panel {
 	backdrop-filter: blur(24px) saturate(135%);

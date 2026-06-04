@@ -49,28 +49,6 @@
 	cursor: default;
 }
 
-.aos-window-titlebar strong {
-	align-items: center;
-	display: flex;
-	font-size: 13px;
-	letter-spacing: 0;
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.aos-window-titlebar strong > .dashicons,
-.aos-window-titlebar strong > .aos-icon-image {
-	flex: 0 0 auto;
-	margin-right: 7px;
-}
-
-.aos-window-titlebar strong > .aos-icon-image {
-	height: 17px;
-	width: 17px;
-}
-
 .aos-window-controls {
 	display: inline-flex;
 	gap: 7px;

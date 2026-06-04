@@ -7,9 +7,6 @@
 
 defined( 'ABSPATH' ) || exit;
 
-/**
- * @var string $title
- */
 ?>
 <div class="aos-window-titlebar" data-aos-drag-handle>
 	<div class="aos-window-controls">
@@ -17,5 +14,4 @@ defined( 'ABSPATH' ) || exit;
 		<button type="button" class="aos-window-control aos-window-control-minimize" data-aos-minimize aria-label="<?php esc_attr_e( 'Minimize', 'admin-os-mode' ); ?>" title="<?php esc_attr_e( 'Minimize', 'admin-os-mode' ); ?>"></button>
 		<button type="button" class="aos-window-control aos-window-control-maximize" data-aos-maximize aria-label="<?php esc_attr_e( 'Maximize', 'admin-os-mode' ); ?>" title="<?php esc_attr_e( 'Maximize', 'admin-os-mode' ); ?>"></button>
 	</div>
-	<strong><?php echo esc_html( $title ); ?></strong>
 </div>
