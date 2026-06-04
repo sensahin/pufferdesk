@@ -195,7 +195,6 @@
 }
 
 .aos-window[data-aos-app-window="os-settings"] {
-	--aos-settings-content-width: 600px;
 	--aos-settings-sidebar-width: 258px;
 	--aos-settings-text-caption: 10px;
 	--aos-settings-text-body: 11px;
@@ -203,7 +202,8 @@
 	--aos-settings-text-heading: 13.5px;
 	--aos-settings-text-title: 18px;
 	min-height: 600px;
-	min-width: 980px;
+	min-width: 880px;
+	max-width: 900px;
 }
 
 .aos-window[data-aos-app-window="os-settings"] .aos-window-titlebar {
@@ -510,14 +510,6 @@
 	width: 100%;
 }
 
-.aos-settings-pane > .aos-settings-section,
-.aos-settings-pane > .aos-settings-group-heading,
-.aos-settings-pane > .aos-settings-status {
-	flex-shrink: 0;
-	max-width: var(--aos-settings-content-width);
-	width: 100%;
-}
-
 .aos-settings-section {
 	background: var(--aos-card-bg);
 	border: 1px solid var(--aos-card-border);
@@ -552,7 +544,7 @@
 	align-items: center;
 	display: grid;
 	gap: 16px;
-	grid-template-columns: minmax(180px, 250px) minmax(0, 1fr);
+	grid-template-columns: minmax(160px, 210px) minmax(0, 1fr);
 	min-height: 40px;
 	padding: 9px 16px;
 }

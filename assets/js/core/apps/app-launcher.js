@@ -29,7 +29,7 @@
 			if (app.kind === 'native' && app.native === 'settings') {
 				options.content = window.AdminOSMode.apps.createSettingsApp({ config });
 				options.bodyClass = 'aos-window-body aos-settings-body';
-				options.width = '980px';
+				options.width = '880px';
 				options.height = '680px';
 				return options;
 			}

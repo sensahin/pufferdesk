@@ -32,8 +32,8 @@
 	}
 
 	.aos-window[data-aos-app-window="os-settings"] {
-		--aos-settings-content-width: 100%;
 		--aos-settings-sidebar-width: 210px;
+		max-width: none;
 		min-width: 0;
 	}
 
