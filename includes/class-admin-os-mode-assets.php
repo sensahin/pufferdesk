@@ -33,6 +33,13 @@ final class Admin_OS_Mode_Assets {
 	private $app_registry;
 
 	/**
+	 * Widget registry.
+	 *
+	 * @var Admin_OS_Mode_Widget_Registry
+	 */
+	private $widget_registry;
+
+	/**
 	 * Theme registry.
 	 *
 	 * @var Admin_OS_Mode_Theme_Registry
@@ -45,18 +52,21 @@ final class Admin_OS_Mode_Assets {
 	 * @param Admin_OS_Mode_Router           $router Router.
 	 * @param Admin_OS_Mode_User_Preferences $preferences Preferences.
 	 * @param Admin_OS_Mode_App_Registry     $app_registry App registry.
+	 * @param Admin_OS_Mode_Widget_Registry  $widget_registry Widget registry.
 	 * @param Admin_OS_Mode_Theme_Registry   $theme_registry Theme registry.
 	 */
 	public function __construct(
 		Admin_OS_Mode_Router $router,
 		Admin_OS_Mode_User_Preferences $preferences,
 		Admin_OS_Mode_App_Registry $app_registry,
+		Admin_OS_Mode_Widget_Registry $widget_registry,
 		Admin_OS_Mode_Theme_Registry $theme_registry
 	) {
-		$this->router         = $router;
-		$this->preferences    = $preferences;
-		$this->app_registry   = $app_registry;
-		$this->theme_registry = $theme_registry;
+		$this->router          = $router;
+		$this->preferences     = $preferences;
+		$this->app_registry    = $app_registry;
+		$this->widget_registry = $widget_registry;
+		$this->theme_registry  = $theme_registry;
 	}
 
 	/**
@@ -81,8 +91,9 @@ final class Admin_OS_Mode_Assets {
 			return;
 		}
 
-		$apps  = $this->app_registry->get_apps();
-		$theme = $this->theme_registry->get_current_theme( $this->preferences );
+		$apps    = $this->app_registry->get_apps();
+		$widgets = $this->widget_registry->get_widgets();
+		$theme   = $this->theme_registry->get_current_theme( $this->preferences );
 
 		foreach ( $theme['stylesheet_stack'] as $index => $stylesheet ) {
 			$stylesheet_path = ADMIN_OS_MODE_DIR . 'assets/css/themes/' . $stylesheet;
@@ -105,7 +116,7 @@ final class Admin_OS_Mode_Assets {
 
 		wp_add_inline_script(
 			$config_handle,
-			'window.adminOSMode = ' . wp_json_encode( $this->get_runtime_config( $apps, $theme ) ) . ';',
+			'window.adminOSMode = ' . wp_json_encode( $this->get_runtime_config( $apps, $widgets, $theme ) ) . ';',
 			'before'
 		);
 	}
@@ -211,7 +222,7 @@ final class Admin_OS_Mode_Assets {
 				'deps' => array( 'admin-os-mode-config' ),
 			),
 			'admin-os-mode-session-store'  => array(
-				'path' => 'assets/js/core/windows/session-store.js',
+				'path' => 'assets/js/core/session/session-store.js',
 				'deps' => array( 'admin-os-mode-storage' ),
 			),
 			'admin-os-mode-window-factory' => array(
@@ -221,6 +232,10 @@ final class Admin_OS_Mode_Assets {
 			'admin-os-mode-window-manager' => array(
 				'path' => 'assets/js/core/windows/window-manager.js',
 				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-session-store', 'admin-os-mode-window-factory' ),
+			),
+			'admin-os-mode-widget-manager' => array(
+				'path' => 'assets/js/core/widgets/widget-manager.js',
+				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-session-store' ),
 			),
 			'admin-os-mode-settings-app'   => array(
 				'path' => 'assets/js/core/apps/settings-app.js',
@@ -240,7 +255,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-boot'           => array(
 				'path' => 'assets/js/core/boot.js',
-				'deps' => array( 'admin-os-mode-window-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-clock' ),
+				'deps' => array( 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-clock' ),
 			),
 		);
 
@@ -261,10 +276,11 @@ final class Admin_OS_Mode_Assets {
 	 * Runtime data passed from WordPress into the shell.
 	 *
 	 * @param array<int,array<string,mixed>> $apps Apps.
+	 * @param array<int,array<string,mixed>> $widgets Widgets.
 	 * @param array<string,mixed>            $theme Current theme.
 	 * @return array<string,mixed>
 	 */
-	private function get_runtime_config( $apps, $theme ) {
+	private function get_runtime_config( $apps, $widgets, $theme ) {
 		return array(
 			'apps'       => $apps,
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
@@ -276,6 +292,7 @@ final class Admin_OS_Mode_Assets {
 			'storageKey' => 'adminOSMode:' . get_current_user_id() . ':' . $theme['id'] . ':session',
 			'nonce'      => wp_create_nonce( Admin_OS_Mode_Settings_Controller::NONCE_ACTION ),
 			'theme'      => $theme,
+			'widgets'    => $widgets,
 		);
 	}
 
@@ -296,6 +313,7 @@ final class Admin_OS_Mode_Assets {
 				array(
 					'admin-os-mode-core-shell'      => 'assets/css/core/shell.css',
 					'admin-os-mode-core-desktop'    => 'assets/css/core/desktop.css',
+					'admin-os-mode-core-widgets'    => 'assets/css/core/widgets.css',
 					'admin-os-mode-core-windows'    => 'assets/css/core/windows.css',
 					'admin-os-mode-core-apps'       => 'assets/css/core/apps.css',
 					'admin-os-mode-core-dock'       => 'assets/css/core/dock.css',

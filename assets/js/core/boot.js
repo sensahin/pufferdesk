@@ -12,7 +12,9 @@
 
 		if (
 			!window.AdminOSMode.config ||
+			!window.AdminOSMode.session ||
 			!window.AdminOSMode.windows ||
+			!window.AdminOSMode.widgets ||
 			!window.AdminOSMode.apps ||
 			!window.AdminOSMode.shell
 		) {
@@ -25,8 +27,13 @@
 		const manager = window.AdminOSMode.windows.createWindowManager(shell, {
 			storageKey: config.storageKey || ''
 		});
+		const widgetManager = window.AdminOSMode.widgets.createWidgetManager(shell, {
+			storageKey: config.storageKey || ''
+		});
 		const launcher = window.AdminOSMode.apps.createAppLauncher(shell, manager, config);
 
+		widgetManager.bindExistingWidgets();
+		widgetManager.restoreSession();
 		manager.bindExistingWindows();
 		manager.restoreSession((appId) => launcher.getWindowOptions(appId));
 		launcher.bindShellClicks();

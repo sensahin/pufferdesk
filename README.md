@@ -20,7 +20,7 @@ Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. T
 - Per-user mode preference.
 - Dashboard entry redirects to OS Mode by default.
 - Emergency one-request classic override: `/wp-admin/index.php?admin_os_classic=1`.
-- Modern OS shell with menu bar, desktop folders, dock, search, draggable windows, and iframe-based admin apps.
+- Modern OS shell with menu bar, desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
 - Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave more like OS windows.
 
 == Notes ==
@@ -29,17 +29,19 @@ Admin OS Mode intentionally wraps existing WordPress admin screens instead of re
 
 The foundation separates shell behavior from OS appearance:
 
-- `includes/` owns routing, preferences, app/theme registries, assets, dashboard data, and rendering.
+- `includes/` owns routing, preferences, app/widget/theme registries, assets, dashboard data, and rendering.
 - `templates/` owns shell markup through semantic folders:
   - `templates/shell/` for global shell surfaces such as menu bar, desktop, and dock.
   - `templates/windows/` for reusable window chrome.
   - `templates/apps/` for native app content.
   - `templates/desktop/` for desktop icons and folder surfaces.
+  - `templates/widgets/` for desktop widget surfaces.
   - `templates/controls/` reserved for reusable settings controls.
 - `assets/css/core/` owns semantic core styles:
   - `admin-chrome.css` for WordPress admin chrome suppression.
   - `shell.css` for global shell variables, menu bar, and shared primitives.
   - `desktop.css` for desktop surfaces and desktop icons.
+  - `widgets.css` for desktop widget layout and shared widget chrome.
   - `windows.css` for reusable window chrome.
   - `dock.css` for dock behavior and states.
   - `apps.css` for built-in app surfaces such as Welcome, folders, and OS Settings.
@@ -49,7 +51,9 @@ The foundation separates shell behavior from OS appearance:
   - `config.js` exposes the WordPress-provided runtime payload.
   - `dom.js` owns shared DOM helpers.
   - `services/` owns browser storage and AJAX clients.
-  - `windows/` owns window creation, drag/focus behavior, and session persistence.
+  - `session/` owns per-user, per-theme workspace session sections.
+  - `windows/` owns window creation, drag/focus behavior, and window state serialization.
+  - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
   - `apps/` owns app launching and native app content such as OS Settings.
   - `shell/` owns global shell controls such as search and clock behavior.
 - `assets/css/themes/` owns OS-specific visual language.
@@ -114,7 +118,9 @@ Themes support family/version inheritance. A concrete theme can declare a parent
 
 Future phases can add theme packs such as Modern OS, Windows-style, and Win98-style skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce.
 
-Window/session layout is persisted in browser storage per user and per selected theme. Core tracks welcome/app windows, position, size, maximized/minimized state, and restores open app windows when the shell loads.
+Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows` and `widgets`, so future desktop icons, spaces, or OS-specific surfaces can join without replacing the whole session payload. Windows track welcome/app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state.
+
+Widgets are registered through `Admin_OS_Mode_Widget_Registry` and can be extended with the `admin_os_mode_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, and session section.
 
 == Changelog ==
 

@@ -11,6 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Template variables:
  *
  * @var array<int,array<string,string>> $apps
+ * @var array<int,array<string,mixed>>  $widgets
  * @var array<int,array<string,string>> $folders
  * @var array<int,array<string,string>> $stats
  * @var WP_Post[]                       $recents
@@ -33,6 +34,7 @@ defined( 'ABSPATH' ) || exit;
 		'shell/desktop.php',
 		array(
 			'apps'         => $apps,
+			'widgets'      => $widgets,
 			'folders'      => $folders,
 			'stats'        => $stats,
 			'recents'      => $recents,

@@ -9,6 +9,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * @var array<int,array<string,string>> $apps
+ * @var array<int,array<string,mixed>>  $widgets
  * @var array<int,array<string,string>> $folders
  * @var array<int,array<string,string>> $stats
  * @var WP_Post[]                       $recents
@@ -23,6 +24,14 @@ defined( 'ABSPATH' ) || exit;
 		'desktop/icons.php',
 		array(
 			'folders' => $folders,
+		)
+	);
+
+	$this->render_part(
+		'widgets/desktop.php',
+		array(
+			'widgets' => $widgets,
+			'theme'   => $theme,
 		)
 	);
 

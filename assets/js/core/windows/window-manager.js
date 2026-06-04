@@ -7,7 +7,7 @@
 	window.AdminOSMode.windows.createWindowManager = function createWindowManager(shell, options = {}) {
 		const dom = window.AdminOSMode.dom;
 		const desktop = shell.querySelector('.aos-desktop');
-		const sessionStore = window.AdminOSMode.windows.createSessionStore(options.storageKey || '');
+		const sessionStore = window.AdminOSMode.session.createSessionStore(options.storageKey || '');
 		let zIndex = 30;
 		let windowOffset = 0;
 		let restoreInProgress = false;
@@ -211,11 +211,7 @@
 				});
 			});
 
-			return {
-				version: 1,
-				updatedAt: Date.now(),
-				windows
-			};
+			return windows;
 		}
 
 		function saveSession() {
@@ -223,7 +219,7 @@
 				return;
 			}
 
-			sessionStore.save(serializeWindows());
+			sessionStore.saveSection('windows', serializeWindows());
 		}
 
 		function scheduleSave() {
@@ -324,14 +320,14 @@
 		}
 
 		function restoreSession(appResolver) {
-			const session = sessionStore.load();
-			if (!session || !Array.isArray(session.windows)) {
+			const windows = sessionStore.getSection('windows', []);
+			if (!Array.isArray(windows)) {
 				return;
 			}
 
 			restoreInProgress = true;
 
-			session.windows.forEach((item) => {
+			windows.forEach((item) => {
 				if (!item || typeof item !== 'object') {
 					return;
 				}

@@ -66,6 +66,7 @@ final class Admin_OS_Mode_Plugin {
 	private function __construct() {
 		$preferences    = new Admin_OS_Mode_User_Preferences();
 		$app_registry   = new Admin_OS_Mode_App_Registry();
+		$widget_registry = new Admin_OS_Mode_Widget_Registry();
 		$theme_registry = new Admin_OS_Mode_Theme_Registry();
 		$dashboard_data = new Admin_OS_Mode_Dashboard_Data();
 
@@ -74,6 +75,7 @@ final class Admin_OS_Mode_Plugin {
 			$this->router,
 			$preferences,
 			$app_registry,
+			$widget_registry,
 			$theme_registry,
 			$dashboard_data
 		);
@@ -81,6 +83,7 @@ final class Admin_OS_Mode_Plugin {
 			$this->router,
 			$preferences,
 			$app_registry,
+			$widget_registry,
 			$theme_registry
 		);
 		$this->settings_controller = new Admin_OS_Mode_Settings_Controller(
