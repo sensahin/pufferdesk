@@ -402,7 +402,7 @@
 		appearanceSection.appendChild(createSettingsRow('Window Material', createOptionGroup('window_material', [
 			{ value: 'clear', label: 'Clear' },
 			{ value: 'tinted', label: 'Tinted' }
-		], status, 'aos-settings-preview-option', 'aos-settings-material-preview'), 'Choose the surface treatment for windows and controls.'));
+		], status, 'aos-settings-preview-option', 'aos-settings-material-preview'), 'Choose your preferred look.'));
 
 		const themeSection = createSection('', 'aos-settings-section-theme');
 		themeSection.appendChild(createSettingsRow('Color', createAccentGroup(status)));
