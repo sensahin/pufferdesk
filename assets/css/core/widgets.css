@@ -30,14 +30,14 @@
 
 .aos-widget-handle {
 	align-items: center;
-	cursor: grab;
+	cursor: default;
 	display: flex;
 	gap: 8px;
 	min-height: 22px;
 }
 
 .aos-widget-handle:active {
-	cursor: grabbing;
+	cursor: default;
 }
 
 .aos-widget-handle strong {

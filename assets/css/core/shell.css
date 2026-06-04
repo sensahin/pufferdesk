@@ -46,6 +46,10 @@
 	font-family: inherit;
 }
 
+.aos-shell a {
+	cursor: default;
+}
+
 .aos-menu-bar {
 	align-items: center;
 	backdrop-filter: blur(18px);
@@ -112,7 +116,7 @@
 	border: 0;
 	border-radius: 7px;
 	color: var(--aos-ink);
-	cursor: pointer;
+	cursor: default;
 	font-size: 13px;
 	line-height: 1;
 	padding: 9px 10px;

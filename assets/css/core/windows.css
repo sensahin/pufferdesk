@@ -36,7 +36,7 @@
 	align-items: center;
 	background: var(--aos-window-bar-bg);
 	border-bottom: 1px solid var(--aos-window-bar-border);
-	cursor: grab;
+	cursor: default;
 	display: grid;
 	gap: 12px;
 	grid-template-columns: auto 1fr;
@@ -46,7 +46,7 @@
 }
 
 .aos-window-titlebar:active {
-	cursor: grabbing;
+	cursor: default;
 }
 
 .aos-window-titlebar strong {
@@ -80,7 +80,7 @@
 	background: var(--aos-control-bg);
 	border: 0;
 	border-radius: 50%;
-	cursor: pointer;
+	cursor: default;
 	display: block;
 	height: 11px;
 	padding: 0;

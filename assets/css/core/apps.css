@@ -96,7 +96,7 @@
 	border: 1px solid var(--aos-card-border);
 	border-radius: 8px;
 	color: var(--aos-ink);
-	cursor: pointer;
+	cursor: default;
 	display: flex;
 	flex-direction: column;
 	font-size: 12px;
@@ -140,7 +140,7 @@
 	border: 1px solid var(--aos-card-border);
 	border-radius: 7px;
 	color: var(--aos-ink);
-	cursor: pointer;
+	cursor: default;
 	display: flex;
 	justify-content: space-between;
 	padding: 10px 11px;
@@ -234,7 +234,7 @@
 }
 
 .aos-settings-button {
-	cursor: pointer;
+	cursor: default;
 	justify-self: start;
 }
 

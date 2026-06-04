@@ -23,7 +23,7 @@
 	border: 1px solid var(--aos-tile-border);
 	border-radius: 7px;
 	color: var(--aos-accent);
-	cursor: pointer;
+	cursor: default;
 	display: flex;
 	height: 44px;
 	justify-content: center;
