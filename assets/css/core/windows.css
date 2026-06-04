@@ -25,11 +25,11 @@
 
 .aos-window.is-maximized {
 	border-radius: 0;
-	height: calc(100% - 18px) !important;
-	left: 9px !important;
-	top: 9px !important;
+	height: var(--aos-window-maximized-height) !important;
+	left: var(--aos-window-maximized-edge) !important;
+	top: var(--aos-window-maximized-top) !important;
 	transform: none !important;
-	width: calc(100% - 18px) !important;
+	width: calc(100% - var(--aos-window-maximized-edge) - var(--aos-window-maximized-edge)) !important;
 }
 
 .aos-window-titlebar {

@@ -7,6 +7,7 @@
 	window.AdminOSMode.windows.createWindowManager = function createWindowManager(shell, options = {}) {
 		const dom = window.AdminOSMode.dom;
 		const desktop = shell.querySelector('.aos-desktop');
+		const menuBar = shell.querySelector('.aos-menu-bar');
 		const sessionStore = window.AdminOSMode.session.createSessionStore(options.storageKey || '');
 		let zIndex = 30;
 		let windowOffset = 0;
@@ -41,6 +42,84 @@
 			}
 		}
 
+		function clamp(value, min, max) {
+			return Math.min(Math.max(min, value), Math.max(min, max));
+		}
+
+		function getCssPixelValue(name, fallback) {
+			const parsed = Number.parseFloat(window.getComputedStyle(shell).getPropertyValue(name));
+			return Number.isFinite(parsed) ? parsed : fallback;
+		}
+
+		function getMenuBarHeight() {
+			if (!menuBar) {
+				return 0;
+			}
+
+			return Math.ceil(menuBar.getBoundingClientRect().height);
+		}
+
+		function getWindowSafeEdge() {
+			return getCssPixelValue('--aos-window-safe-edge', 10);
+		}
+
+		function getWindowSafeTop() {
+			return getMenuBarHeight() + getWindowSafeEdge();
+		}
+
+		function syncWindowSafeArea() {
+			const edge = getWindowSafeEdge();
+			const top = getWindowSafeTop();
+
+			shell.style.setProperty('--aos-window-maximized-edge', `${edge}px`);
+			shell.style.setProperty('--aos-window-maximized-top', `${top}px`);
+			shell.style.setProperty('--aos-window-maximized-height', `calc(100% - ${top + edge}px)`);
+
+			return {
+				edge,
+				top
+			};
+		}
+
+		function getWindowBounds(win) {
+			const safeArea = syncWindowSafeArea();
+			const maxLeft = Math.max(0, desktop.clientWidth - win.offsetWidth);
+			const maxTop = Math.max(safeArea.top, desktop.clientHeight - 64);
+
+			return {
+				maxLeft,
+				maxTop,
+				minLeft: 0,
+				minTop: safeArea.top
+			};
+		}
+
+		function constrainWindow(win) {
+			if (!win || !desktop || !isVisibleWindow(win)) {
+				return;
+			}
+
+			syncWindowSafeArea();
+			if (win.classList.contains('is-maximized')) {
+				return;
+			}
+
+			const desktopRect = desktop.getBoundingClientRect();
+			const rect = win.getBoundingClientRect();
+			const bounds = getWindowBounds(win);
+			const currentLeft = readNumber(win.style.left) ?? Math.round(rect.left - desktopRect.left);
+			const currentTop = readNumber(win.style.top) ?? Math.round(rect.top - desktopRect.top);
+
+			win.style.transform = 'none';
+			win.style.left = `${clamp(currentLeft, bounds.minLeft, bounds.maxLeft)}px`;
+			win.style.top = `${clamp(currentTop, bounds.minTop, bounds.maxTop)}px`;
+		}
+
+		function constrainVisibleWindows() {
+			syncWindowSafeArea();
+			shell.querySelectorAll('.aos-window').forEach((win) => constrainWindow(win));
+		}
+
 		function focusWindow(win) {
 			if (!win) {
 				return;
@@ -50,6 +129,7 @@
 			win.style.zIndex = String(zIndex);
 			win.classList.remove('is-hidden');
 			win.classList.remove('is-closed');
+			constrainWindow(win);
 			setActiveWindow(win);
 			scheduleSave();
 		}
@@ -71,7 +151,9 @@
 				return;
 			}
 
+			syncWindowSafeArea();
 			win.classList.toggle('is-maximized');
+			constrainWindow(win);
 			focusWindow(win);
 			scheduleSave();
 		}
@@ -191,11 +273,10 @@
 				const move = (moveEvent) => {
 					const nextLeft = startLeft + moveEvent.clientX - startX;
 					const nextTop = startTop + moveEvent.clientY - startY;
-					const maxLeft = Math.max(0, desktop.clientWidth - win.offsetWidth);
-					const maxTop = Math.max(0, desktop.clientHeight - 64);
+					const bounds = getWindowBounds(win);
 
-					win.style.left = `${Math.min(Math.max(0, nextLeft), maxLeft)}px`;
-					win.style.top = `${Math.min(Math.max(0, nextTop), maxTop)}px`;
+					win.style.left = `${clamp(nextLeft, bounds.minLeft, bounds.maxLeft)}px`;
+					win.style.top = `${clamp(nextTop, bounds.minTop, bounds.maxTop)}px`;
 				};
 
 				const up = () => {
@@ -272,9 +353,11 @@
 				zIndex = Math.max(zIndex, state.zIndex);
 			}
 
+			syncWindowSafeArea();
 			win.classList.toggle('is-maximized', Boolean(state.maximized));
 			win.classList.toggle('is-hidden', Boolean(state.hidden));
 			win.classList.toggle('is-closed', Boolean(state.closed));
+			constrainWindow(win);
 		}
 
 		function serializeWindows() {
@@ -322,8 +405,14 @@
 		}
 
 		function getDefaultPosition() {
-			const left = Math.min(180 + windowOffset, desktop.clientWidth - 420);
-			const top = Math.min(42 + windowOffset, desktop.clientHeight - 360);
+			const bounds = {
+				maxLeft: Math.max(0, desktop.clientWidth - 420),
+				maxTop: Math.max(getWindowSafeTop(), desktop.clientHeight - 360),
+				minLeft: 0,
+				minTop: getWindowSafeTop()
+			};
+			const left = clamp(180 + windowOffset, bounds.minLeft, bounds.maxLeft);
+			const top = clamp(bounds.minTop + windowOffset, bounds.minTop, bounds.maxTop);
 			windowOffset = (windowOffset + 28) % 140;
 
 			return {
@@ -382,7 +471,11 @@
 		}
 
 		function bindExistingWindows() {
-			shell.querySelectorAll('.aos-window').forEach(bindWindowFrame);
+			syncWindowSafeArea();
+			shell.querySelectorAll('.aos-window').forEach((win) => {
+				bindWindowFrame(win);
+				constrainWindow(win);
+			});
 
 			shell.querySelectorAll('[data-aos-close]').forEach((button) => {
 				if (button.dataset.aosActionBound === '1') {
@@ -463,6 +556,10 @@
 			});
 		}
 
+		window.addEventListener('resize', () => {
+			constrainVisibleWindows();
+			scheduleSave();
+		});
 		window.addEventListener('beforeunload', saveSession);
 
 		return {

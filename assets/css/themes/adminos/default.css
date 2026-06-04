@@ -19,6 +19,7 @@
 	--aos-running-indicator: #f6f7f8;
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(235, 241, 245, 0.7));
 	--aos-window-bar-border: rgba(20, 37, 51, 0.08);
+	--aos-window-safe-edge: 10px;
 	--aos-card-bg: rgba(255, 255, 255, 0.54);
 	--aos-card-border: rgba(255, 255, 255, 0.56);
 	--aos-dock-bg: rgba(246, 249, 251, 0.5);
@@ -164,10 +165,10 @@
 
 .aos-shell[data-aos-theme="adminos"] .aos-window.is-maximized {
 	border-radius: 10px;
-	height: calc(100% - 20px) !important;
-	left: 10px !important;
-	top: 10px !important;
-	width: calc(100% - 20px) !important;
+	height: var(--aos-window-maximized-height) !important;
+	left: var(--aos-window-maximized-edge) !important;
+	top: var(--aos-window-maximized-top) !important;
+	width: calc(100% - var(--aos-window-maximized-edge) - var(--aos-window-maximized-edge)) !important;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window-titlebar {
