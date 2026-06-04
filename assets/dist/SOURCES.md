@@ -22,6 +22,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/services/storage.js
 - assets/js/core/services/api-client.js
 - assets/js/core/session/session-store.js
+- assets/js/core/appearance.js
 - assets/js/core/windows/window-factory.js
 - assets/js/core/windows/window-manager.js
 - assets/js/core/widgets/widget-manager.js

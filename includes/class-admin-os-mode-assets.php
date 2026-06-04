@@ -226,6 +226,10 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/session/session-store.js',
 				'deps' => array( 'admin-os-mode-storage' ),
 			),
+			'admin-os-mode-appearance'     => array(
+				'path' => 'assets/js/core/appearance.js',
+				'deps' => array( 'admin-os-mode-config' ),
+			),
 			'admin-os-mode-window-factory' => array(
 				'path' => 'assets/js/core/windows/window-factory.js',
 				'deps' => array( 'admin-os-mode-dom' ),
@@ -240,7 +244,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-settings-app'   => array(
 				'path' => 'assets/js/core/apps/settings-app.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-storage', 'admin-os-mode-api-client' ),
+				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-storage', 'admin-os-mode-api-client', 'admin-os-mode-appearance' ),
 			),
 			'admin-os-mode-app-launcher'   => array(
 				'path' => 'assets/js/core/apps/app-launcher.js',
@@ -260,7 +264,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-boot'           => array(
 				'path' => 'assets/js/core/boot.js',
-				'deps' => array( 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-menu', 'admin-os-mode-clock' ),
+				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-menu', 'admin-os-mode-clock' ),
 			),
 		);
 
@@ -288,6 +292,7 @@ final class Admin_OS_Mode_Assets {
 	 */
 	private function get_runtime_config( $apps, $folders, $widgets, $theme ) {
 		return array(
+			'appearance' => $this->preferences->get_appearance(),
 			'apps'       => $apps,
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 			'classicUrl' => $this->router->get_toggle_url( false ),

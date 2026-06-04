@@ -186,39 +186,40 @@
 
 .aos-settings {
 	display: grid;
-	gap: 14px;
+	gap: 16px;
 	padding: 18px;
 }
 
 .aos-settings-section {
 	background: var(--aos-card-bg);
 	border: 1px solid var(--aos-card-border);
-	border-radius: 8px;
+	border-radius: 12px;
 	display: grid;
-	gap: 12px;
+	gap: 14px;
 	padding: 16px;
 }
 
 .aos-settings-section h2 {
-	color: var(--aos-muted);
-	font-size: 12px;
-	font-weight: 700;
+	color: var(--aos-ink);
+	font-size: 18px;
+	font-weight: 720;
 	letter-spacing: 0;
 	margin: 0;
-	text-transform: uppercase;
 }
 
 .aos-settings-row {
 	align-items: center;
 	display: grid;
-	gap: 12px;
-	grid-template-columns: 130px 1fr;
+	gap: 14px;
+	grid-template-columns: minmax(150px, 190px) 1fr;
+	min-height: 42px;
 }
 
 .aos-settings-label {
 	color: var(--aos-ink);
-	font-size: 13px;
-	font-weight: 600;
+	font-size: 17px;
+	font-weight: 520;
+	line-height: 1.25;
 }
 
 .aos-settings-control,
@@ -240,7 +241,7 @@
 
 .aos-settings-button:hover,
 .aos-settings-button:focus {
-	background: #fff;
+	background: var(--aos-panel);
 	outline: none;
 }
 
@@ -258,4 +259,276 @@
 	color: var(--aos-muted);
 	font-size: 12px;
 	min-height: 18px;
+}
+
+.aos-settings-option-group,
+.aos-settings-swatch-group {
+	align-items: start;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	justify-content: flex-end;
+}
+
+.aos-settings-preview-option,
+.aos-settings-icon-option {
+	align-items: center;
+	appearance: none;
+	background: transparent;
+	border: 0;
+	color: var(--aos-muted);
+	cursor: default;
+	display: grid;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 650;
+	gap: 6px;
+	justify-items: center;
+	padding: 0;
+}
+
+.aos-settings-preview-option:focus-visible,
+.aos-settings-icon-option:focus-visible,
+.aos-settings-swatch:focus-visible,
+.aos-settings-toggle:focus-visible {
+	box-shadow: 0 0 0 3px var(--aos-focus-ring);
+	outline: none;
+}
+
+.aos-settings-preview-option.is-selected,
+.aos-settings-icon-option.is-selected {
+	color: var(--aos-ink);
+}
+
+.aos-settings-appearance-preview,
+.aos-settings-material-preview,
+.aos-settings-icon-preview {
+	background: var(--aos-tile-bg);
+	border: 1px solid var(--aos-tile-border);
+	border-radius: 9px;
+	box-shadow: var(--aos-tile-shadow);
+	display: block;
+	position: relative;
+}
+
+.aos-settings-appearance-preview {
+	height: 54px;
+	overflow: hidden;
+	width: 94px;
+}
+
+.aos-settings-appearance-preview::before {
+	background: linear-gradient(135deg, rgba(255, 255, 255, 0.76), rgba(55, 150, 205, 0.18)), var(--aos-wallpaper-image);
+	background-size: cover;
+	border-radius: 7px;
+	content: "";
+	inset: 5px;
+	position: absolute;
+}
+
+.aos-settings-appearance-preview::after {
+	background: rgba(255, 255, 255, 0.86);
+	border: 1px solid rgba(255, 255, 255, 0.78);
+	border-radius: 6px;
+	bottom: 6px;
+	box-shadow: 0 8px 18px rgba(16, 28, 42, 0.18);
+	content: "";
+	height: 24px;
+	left: 28px;
+	position: absolute;
+	right: 8px;
+}
+
+.aos-settings-appearance-preview[data-aos-preview-value="auto"]::before {
+	background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0 50%, rgba(19, 25, 35, 0.92) 50% 100%), var(--aos-wallpaper-image);
+	background-blend-mode: screen, normal;
+	background-size: cover;
+}
+
+.aos-settings-appearance-preview[data-aos-preview-value="dark"]::before {
+	background: linear-gradient(135deg, rgba(14, 19, 28, 0.72), rgba(32, 46, 78, 0.44)), var(--aos-wallpaper-image);
+	background-size: cover;
+}
+
+.aos-settings-appearance-preview[data-aos-preview-value="dark"]::after {
+	background: rgba(20, 24, 32, 0.88);
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+.aos-settings-preview-option.is-selected .aos-settings-appearance-preview,
+.aos-settings-preview-option.is-selected .aos-settings-material-preview,
+.aos-settings-icon-option.is-selected .aos-settings-icon-preview {
+	box-shadow: 0 0 0 4px var(--aos-accent), var(--aos-tile-shadow);
+}
+
+.aos-settings-material-preview {
+	height: 54px;
+	overflow: hidden;
+	width: 94px;
+}
+
+.aos-settings-material-preview::before {
+	background: linear-gradient(135deg, rgba(253, 244, 190, 0.86), rgba(86, 182, 230, 0.52)), var(--aos-wallpaper-image);
+	background-size: cover;
+	content: "";
+	inset: 0;
+	position: absolute;
+}
+
+.aos-settings-material-preview::after {
+	backdrop-filter: blur(16px) saturate(145%);
+	background: rgba(255, 255, 255, 0.54);
+	border-radius: 999px;
+	content: "";
+	height: 30px;
+	left: 14px;
+	position: absolute;
+	top: 14px;
+	width: 78px;
+}
+
+.aos-settings-material-preview[data-aos-preview-value="tinted"]::after {
+	background: rgba(208, 236, 246, 0.64);
+}
+
+.aos-settings-swatch-group {
+	align-items: center;
+	gap: 10px;
+}
+
+.aos-settings-swatch {
+	appearance: none;
+	background: var(--aos-swatch-color, #0a84ff);
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 50%;
+	cursor: default;
+	height: 30px;
+	padding: 0;
+	width: 30px;
+}
+
+.aos-settings-swatch.is-selected {
+	box-shadow: 0 0 0 4px var(--aos-accent);
+}
+
+.aos-settings-swatch-multicolor {
+	--aos-swatch-color: conic-gradient(#ff3b30, #ff9500, #ffcc00, #34c759, #0a84ff, #af52de, #ff3b30);
+}
+
+.aos-settings-swatch-blue {
+	--aos-swatch-color: #0a84ff;
+}
+
+.aos-settings-swatch-purple {
+	--aos-swatch-color: #9b3fb0;
+}
+
+.aos-settings-swatch-pink {
+	--aos-swatch-color: #f0449a;
+}
+
+.aos-settings-swatch-red {
+	--aos-swatch-color: #ed333b;
+}
+
+.aos-settings-swatch-orange {
+	--aos-swatch-color: #ff7a16;
+}
+
+.aos-settings-swatch-yellow {
+	--aos-swatch-color: #ffc226;
+}
+
+.aos-settings-swatch-green {
+	--aos-swatch-color: #58b947;
+}
+
+.aos-settings-swatch-graphite {
+	--aos-swatch-color: #8e8e93;
+}
+
+.aos-settings-swatch-label {
+	color: var(--aos-muted);
+	flex-basis: 100%;
+	font-size: 13px;
+	font-weight: 600;
+	text-align: right;
+}
+
+.aos-settings-icon-preview {
+	align-items: center;
+	display: flex;
+	height: 48px;
+	justify-content: center;
+	width: 48px;
+}
+
+.aos-settings-icon-preview::before,
+.aos-settings-icon-preview::after {
+	border-radius: 50%;
+	content: "";
+	position: absolute;
+}
+
+.aos-settings-icon-preview::before {
+	background: linear-gradient(180deg, #f4fbff, #72c6ff);
+	height: 24px;
+	width: 31px;
+}
+
+.aos-settings-icon-preview::after {
+	background: #ffd23f;
+	height: 17px;
+	right: 8px;
+	top: 9px;
+	width: 17px;
+}
+
+.aos-settings-icon-preview[data-aos-preview-value="dark"] {
+	background: #202225;
+}
+
+.aos-settings-icon-preview[data-aos-preview-value="dark"]::before {
+	background: linear-gradient(180deg, #f7f7f7, #7c858d);
+}
+
+.aos-settings-icon-preview[data-aos-preview-value="clear"] {
+	background: rgba(255, 255, 255, 0.38);
+}
+
+.aos-settings-icon-preview[data-aos-preview-value="tinted"] {
+	background: linear-gradient(180deg, #21b3ff, #0787ed);
+}
+
+.aos-settings-toggle {
+	appearance: none;
+	background: rgba(130, 130, 130, 0.28);
+	border: 0;
+	border-radius: 999px;
+	cursor: default;
+	height: 26px;
+	justify-self: end;
+	padding: 0;
+	position: relative;
+	width: 46px;
+}
+
+.aos-settings-toggle[aria-pressed="true"] {
+	background: var(--aos-accent);
+}
+
+.aos-settings-toggle-knob {
+	background: #fff;
+	border-radius: 50%;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+	height: 22px;
+	left: 2px;
+	position: absolute;
+	top: 2px;
+	transition: transform 140ms ease;
+	width: 22px;
+}
+
+.aos-settings-toggle[aria-pressed="true"] .aos-settings-toggle-knob {
+	transform: translateX(20px);
 }

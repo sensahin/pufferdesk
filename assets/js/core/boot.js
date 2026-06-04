@@ -25,6 +25,11 @@
 		shell.dataset.aosBooted = '1';
 
 		const config = window.AdminOSMode.config.get();
+		if (window.AdminOSMode.appearance) {
+			window.AdminOSMode.appearance.apply(shell, config.appearance || {});
+			window.AdminOSMode.appearance.bindSystemMode(shell);
+		}
+
 		const manager = window.AdminOSMode.windows.createWindowManager(shell, {
 			storageKey: config.storageKey || ''
 		});

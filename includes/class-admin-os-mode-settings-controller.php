@@ -45,7 +45,43 @@ final class Admin_OS_Mode_Settings_Controller {
 	 * Register AJAX hooks.
 	 */
 	public function hooks() {
+		add_action( 'wp_ajax_admin_os_mode_save_appearance', array( $this, 'save_appearance' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_theme', array( $this, 'save_theme' ) );
+	}
+
+	/**
+	 * Save the current user's appearance settings.
+	 */
+	public function save_appearance() {
+		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+				),
+				403
+			);
+		}
+
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+
+		$appearance = $this->preferences->set_appearance(
+			array(
+				'mode'              => $this->read_post_value( 'mode' ),
+				'window_material'   => $this->read_post_value( 'window_material' ),
+				'accent_color'      => $this->read_post_value( 'accent_color' ),
+				'highlight_color'   => $this->read_post_value( 'highlight_color' ),
+				'icon_widget_style' => $this->read_post_value( 'icon_widget_style' ),
+				'folder_color'      => $this->read_post_value( 'folder_color' ),
+				'tint_windows'      => $this->read_post_value( 'tint_windows' ),
+			)
+		);
+
+		wp_send_json_success(
+			array(
+				'appearance' => $appearance,
+				'message'    => __( 'Appearance saved.', 'admin-os-mode' ),
+			)
+		);
 	}
 
 	/**
@@ -91,5 +127,21 @@ final class Admin_OS_Mode_Settings_Controller {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Read a scalar POST value.
+	 *
+	 * @param string $key POST key.
+	 * @return string
+	 */
+	private function read_post_value( $key ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- AJAX handlers verify the settings nonce before calling this helper.
+		if ( ! isset( $_POST[ $key ] ) || is_array( $_POST[ $key ] ) ) {
+			return '';
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- AJAX handlers verify the settings nonce before calling this helper.
+		return sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
 	}
 }

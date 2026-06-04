@@ -98,11 +98,13 @@ final class Admin_OS_Mode_Shell_Renderer {
 		$widgets = $this->widget_registry->get_widgets();
 		$folders = $this->app_registry->get_folders( $apps );
 		$theme   = $this->theme_registry->get_current_theme( $this->preferences );
+		$appearance = $this->preferences->get_appearance();
 		$this->current_theme = $theme;
 
 		$this->render_template(
 			'shell/shell.php',
 			array(
+				'appearance'   => $appearance,
 				'apps'         => $apps,
 				'widgets'      => $widgets,
 				'folders'      => $folders,

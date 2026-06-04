@@ -49,4 +49,13 @@
 	.aos-settings-row {
 		grid-template-columns: 1fr;
 	}
+
+	.aos-settings-option-group,
+	.aos-settings-swatch-group {
+		justify-content: flex-start;
+	}
+
+	.aos-settings-swatch-label {
+		text-align: left;
+	}
 }
