@@ -4,11 +4,11 @@
 	--aos-line: rgba(255, 255, 255, 0.52);
 	--aos-panel: rgba(248, 250, 252, 0.8);
 	--aos-shadow: 0 28px 80px rgba(11, 25, 38, 0.24), 0 1px 0 rgba(255, 255, 255, 0.72) inset;
-	--aos-menu-bg: rgba(246, 250, 252, 0.6);
-	--aos-menu-border: rgba(255, 255, 255, 0.42);
-	--aos-menu-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 14px 34px rgba(14, 33, 47, 0.1);
-	--aos-control-bg: rgba(255, 255, 255, 0.26);
-	--aos-control-bg-hover: rgba(255, 255, 255, 0.46);
+	--aos-menu-bg: rgba(246, 250, 252, 0.28);
+	--aos-menu-border: rgba(255, 255, 255, 0.22);
+	--aos-menu-shadow: 0 1px 0 rgba(255, 255, 255, 0.34) inset, 0 10px 26px rgba(14, 33, 47, 0.06);
+	--aos-control-bg: rgba(255, 255, 255, 0.18);
+	--aos-control-bg-hover: rgba(255, 255, 255, 0.34);
 	--aos-desktop-bg:
 		linear-gradient(135deg, rgba(34, 123, 116, 0.6), rgba(234, 242, 247, 0.06) 34%, rgba(221, 118, 99, 0.26) 66%, rgba(16, 43, 60, 0.52)),
 		#123444;
@@ -28,7 +28,7 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-menu-bar {
-	backdrop-filter: blur(26px) saturate(150%);
+	backdrop-filter: blur(34px) saturate(175%);
 	gap: 14px;
 	grid-template-columns: auto auto minmax(190px, 360px) minmax(48px, 1fr);
 	height: 40px;
@@ -42,6 +42,7 @@
 .aos-shell[data-aos-theme="adminos"] .aos-brand strong {
 	font-size: 13px;
 	font-weight: 720;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-traffic {
@@ -57,12 +58,13 @@
 	border-radius: 7px;
 	font-size: 13px;
 	padding: 7px 10px;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-search {
-	backdrop-filter: blur(18px);
-	background: rgba(255, 255, 255, 0.32);
-	border-color: rgba(255, 255, 255, 0.4);
+	backdrop-filter: blur(22px) saturate(150%);
+	background: rgba(255, 255, 255, 0.18);
+	border-color: rgba(255, 255, 255, 0.24);
 	height: 28px;
 	padding: 0 10px;
 }
