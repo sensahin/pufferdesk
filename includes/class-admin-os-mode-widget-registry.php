@@ -40,8 +40,8 @@ final class Admin_OS_Mode_Widget_Registry {
 				'native'           => 'clock',
 				'cap'              => 'read',
 				'default_position' => array(
-					'left' => 236,
-					'top'  => 24,
+					'right' => 24,
+					'top'   => 24,
 				),
 				'default_size'     => array(
 					'width'  => self::DEFAULT_WIDTH,
@@ -56,10 +56,11 @@ final class Admin_OS_Mode_Widget_Registry {
 		 *
 		 * Each widget accepts id, label, icon, cap, kind, native, template,
 		 * default_position, default_size, and refresh_interval.
+		 * Positions accept left or right, and top or bottom.
 		 *
 		 * Icons may be a legacy Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-clock' )
-		 * array( 'type' => 'image', 'src' => 'themes/macos/default/icons/clock.svg' )
+		 * array( 'type' => 'image', 'src' => 'themes/adminos/default/icons/clock.svg' )
 		 * array( 'type' => 'theme', 'name' => 'clock.svg', 'fallback' => 'dashicons-clock' )
 		 *
 		 * @param array<int,array<string,mixed>> $widgets Registered widgets.
@@ -140,10 +141,21 @@ final class Admin_OS_Mode_Widget_Registry {
 			$position = array();
 		}
 
-		return array(
-			'left' => isset( $position['left'] ) ? max( 0, absint( $position['left'] ) ) : 24,
-			'top'  => isset( $position['top'] ) ? max( 0, absint( $position['top'] ) ) : 24,
-		);
+		$normalized = array();
+
+		if ( isset( $position['right'] ) && ! isset( $position['left'] ) ) {
+			$normalized['right'] = max( 0, absint( $position['right'] ) );
+		} else {
+			$normalized['left'] = isset( $position['left'] ) ? max( 0, absint( $position['left'] ) ) : 24;
+		}
+
+		if ( isset( $position['bottom'] ) && ! isset( $position['top'] ) ) {
+			$normalized['bottom'] = max( 0, absint( $position['bottom'] ) );
+		} else {
+			$normalized['top'] = isset( $position['top'] ) ? max( 0, absint( $position['top'] ) ) : 24;
+		}
+
+		return $normalized;
 	}
 
 	/**

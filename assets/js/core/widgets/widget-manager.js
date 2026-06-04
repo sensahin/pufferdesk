@@ -34,11 +34,28 @@
 		}
 
 		function getWidgetDefaults(widget) {
+			const width = readNumber(widget.dataset.aosWidgetWidth) ?? widget.offsetWidth;
+			const height = readNumber(widget.dataset.aosWidgetHeight) ?? widget.offsetHeight;
+			const left = readNumber(widget.dataset.aosWidgetLeft);
+			const right = readNumber(widget.dataset.aosWidgetRight);
+			const top = readNumber(widget.dataset.aosWidgetTop);
+			const bottom = readNumber(widget.dataset.aosWidgetBottom);
+			let defaultLeft = left;
+			let defaultTop = top;
+
+			if (defaultLeft === null && right !== null && desktop) {
+				defaultLeft = desktop.clientWidth - width - right;
+			}
+
+			if (defaultTop === null && bottom !== null && desktop) {
+				defaultTop = desktop.clientHeight - height - bottom;
+			}
+
 			return {
-				left: readNumber(widget.dataset.aosWidgetLeft) ?? 24,
-				top: readNumber(widget.dataset.aosWidgetTop) ?? 24,
-				width: readNumber(widget.dataset.aosWidgetWidth) ?? widget.offsetWidth,
-				height: readNumber(widget.dataset.aosWidgetHeight) ?? widget.offsetHeight
+				left: defaultLeft ?? 24,
+				top: defaultTop ?? 24,
+				width,
+				height
 			};
 		}
 

@@ -56,6 +56,7 @@ PHP services in `includes/`:
 - `class-admin-os-mode-user-preferences.php`: per-user mode/theme preferences.
 - `class-admin-os-mode-app-registry.php`: app/folder registry and app normalization.
 - `class-admin-os-mode-widget-registry.php`: desktop widget registry and widget normalization.
+- `class-admin-os-mode-widget-layout.php`: shared widget layout attributes for templates.
 - `class-admin-os-mode-theme-registry.php`: theme family/version/parent inheritance.
 - `class-admin-os-mode-dashboard-data.php`: dashboard stats and recent content.
 - `class-admin-os-mode-assets.php`: CSS/JS enqueueing and runtime config.
@@ -118,8 +119,10 @@ Widgets:
 
 - Register widgets through `Admin_OS_Mode_Widget_Registry` or the `admin_os_mode_widgets` filter.
 - Widgets should define `id`, `label`, `cap`, `icon`, `kind`, `native`, `template`, `default_position`, `default_size`, and optional `refresh_interval`.
+- Widget `default_position` may use `left` or `right`, plus `top` or `bottom`; use one horizontal anchor and one vertical anchor.
 - Keep widget IDs stable. Widget layout persistence depends on stable IDs.
 - Add widget templates under `templates/widgets/`.
+- Use `Admin_OS_Mode_Widget_Layout::render_attributes()` for widget positioning and size attributes.
 - Use `templates/widgets/generic.php` as the fallback, not as a dumping ground.
 
 Themes:

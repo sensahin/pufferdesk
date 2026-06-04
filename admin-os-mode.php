@@ -25,6 +25,7 @@ require_once ADMIN_OS_MODE_DIR . 'includes/class-admin-os-mode-router.php';
 require_once ADMIN_OS_MODE_DIR . 'includes/class-admin-os-mode-icon-renderer.php';
 require_once ADMIN_OS_MODE_DIR . 'includes/class-admin-os-mode-app-registry.php';
 require_once ADMIN_OS_MODE_DIR . 'includes/class-admin-os-mode-widget-registry.php';
+require_once ADMIN_OS_MODE_DIR . 'includes/class-admin-os-mode-widget-layout.php';
 require_once ADMIN_OS_MODE_DIR . 'includes/class-admin-os-mode-theme-registry.php';
 require_once ADMIN_OS_MODE_DIR . 'includes/class-admin-os-mode-dashboard-data.php';
 require_once ADMIN_OS_MODE_DIR . 'includes/class-admin-os-mode-assets.php';

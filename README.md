@@ -31,7 +31,7 @@ The default Admin OS family uses original plugin CSS and release-safe media. Do 
 
 The foundation separates shell behavior from OS appearance:
 
-- `includes/` owns routing, preferences, app/widget/theme registries, assets, dashboard data, and rendering.
+- `includes/` owns routing, preferences, app/widget/theme registries, widget layout attributes, assets, dashboard data, and rendering.
 - `templates/` owns shell markup through semantic folders:
   - `templates/shell/` for global shell surfaces such as menu bar, desktop, and dock.
   - `templates/windows/` for reusable window chrome.
@@ -138,7 +138,7 @@ Future phases can add optional OS-style theme packs such as Aqua-style, Redmond-
 
 Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows` and `widgets`, so future desktop icons, spaces, or OS-specific surfaces can join without replacing the whole session payload. Windows track welcome/app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state.
 
-Widgets are registered through `Admin_OS_Mode_Widget_Registry` and can be extended with the `admin_os_mode_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, and session section.
+Widgets are registered through `Admin_OS_Mode_Widget_Registry` and can be extended with the `admin_os_mode_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, and session section.
 
 == Changelog ==
 
