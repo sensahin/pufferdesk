@@ -41,9 +41,9 @@
 }
 
 .aos-widget-handle strong {
-	font-size: 12px;
+	font-size: var(--aos-text-caption);
 	letter-spacing: 0;
-	line-height: 1.2;
+	line-height: var(--aos-line-height-caption);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -74,18 +74,19 @@
 
 .aos-widget-clock-time {
 	display: block;
-	font-size: 34px;
-	font-weight: 650;
+	font-family: var(--aos-font-display);
+	font-size: var(--aos-text-widget-clock);
+	font-weight: var(--aos-weight-widget-clock);
 	letter-spacing: 0;
-	line-height: 1;
+	line-height: var(--aos-line-height-tight);
 	white-space: nowrap;
 }
 
 .aos-widget-clock-date {
 	color: var(--aos-muted);
 	display: block;
-	font-size: 12px;
-	line-height: 1.25;
+	font-size: var(--aos-text-caption);
+	line-height: var(--aos-line-height-body);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

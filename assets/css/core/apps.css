@@ -13,8 +13,8 @@
 .aos-welcome-header p,
 .aos-panel h2 {
 	color: var(--aos-muted);
-	font-size: 12px;
-	font-weight: 700;
+	font-size: var(--aos-text-caption);
+	font-weight: var(--aos-weight-bold);
 	letter-spacing: 0;
 	margin: 0 0 7px;
 	text-transform: uppercase;
@@ -22,10 +22,11 @@
 
 .aos-welcome-header h1 {
 	color: var(--aos-ink);
-	font-size: 34px;
-	font-weight: 760;
+	font-family: var(--aos-font-display);
+	font-size: var(--aos-text-display-title);
+	font-weight: var(--aos-weight-display);
 	letter-spacing: 0;
-	line-height: 1.05;
+	line-height: var(--aos-line-height-display);
 	margin: 0;
 }
 
@@ -33,7 +34,7 @@
 	background: var(--aos-control-bg);
 	border-radius: 7px;
 	color: var(--aos-ink);
-	font-size: 13px;
+	font-size: var(--aos-text-body);
 	padding: 9px 11px;
 	text-decoration: none;
 	white-space: nowrap;
@@ -60,14 +61,14 @@
 .aos-stat span {
 	color: var(--aos-muted);
 	display: block;
-	font-size: 12px;
+	font-size: var(--aos-text-caption);
 	margin-bottom: 8px;
 }
 
 .aos-stat strong {
 	display: block;
-	font-size: 24px;
-	line-height: 1;
+	font-size: var(--aos-text-stat-value);
+	line-height: var(--aos-line-height-tight);
 }
 
 .aos-panel-grid {
@@ -99,8 +100,8 @@
 	cursor: default;
 	display: flex;
 	flex-direction: column;
-	font-size: 12px;
-	font-weight: 600;
+	font-size: var(--aos-text-caption);
+	font-weight: var(--aos-weight-semibold);
 	gap: 9px;
 	min-height: 96px;
 	padding: 12px;
@@ -155,7 +156,7 @@
 }
 
 .aos-recent-list span {
-	font-weight: 600;
+	font-weight: var(--aos-weight-semibold);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -201,8 +202,9 @@
 
 .aos-settings-section h2 {
 	color: var(--aos-ink);
-	font-size: 18px;
-	font-weight: 720;
+	font-family: var(--aos-font-display);
+	font-size: var(--aos-text-section-title);
+	font-weight: var(--aos-weight-heading);
 	letter-spacing: 0;
 	margin: 0;
 }
@@ -217,9 +219,9 @@
 
 .aos-settings-label {
 	color: var(--aos-ink);
-	font-size: 17px;
-	font-weight: 520;
-	line-height: 1.25;
+	font-size: var(--aos-text-label);
+	font-weight: var(--aos-weight-medium);
+	line-height: var(--aos-line-height-body);
 }
 
 .aos-settings-control,
@@ -229,7 +231,7 @@
 	border-radius: 7px;
 	color: var(--aos-ink);
 	font-family: inherit;
-	font-size: 13px;
+	font-size: var(--aos-text-body);
 	min-height: 34px;
 	padding: 0 10px;
 }
@@ -257,7 +259,7 @@
 
 .aos-settings-status {
 	color: var(--aos-muted);
-	font-size: 12px;
+	font-size: var(--aos-text-caption);
 	min-height: 18px;
 }
 
@@ -280,8 +282,8 @@
 	cursor: default;
 	display: grid;
 	font-family: inherit;
-	font-size: 13px;
-	font-weight: 650;
+	font-size: var(--aos-text-body);
+	font-weight: var(--aos-weight-strong);
 	gap: 6px;
 	justify-items: center;
 	padding: 0;
@@ -450,8 +452,8 @@
 .aos-settings-swatch-label {
 	color: var(--aos-muted);
 	flex-basis: 100%;
-	font-size: 13px;
-	font-weight: 600;
+	font-size: var(--aos-text-body);
+	font-weight: var(--aos-weight-semibold);
 	text-align: right;
 }
 
