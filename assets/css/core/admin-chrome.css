@@ -1,3 +1,4 @@
+body.admin-os-mode-shell #wpadminbar,
 body.admin-os-mode-shell #adminmenumain,
 body.admin-os-mode-shell #wpfooter,
 body.admin-os-mode-shell #screen-meta,
@@ -5,6 +6,10 @@ body.admin-os-mode-shell #screen-meta-links,
 body.admin-os-mode-shell .notice,
 body.admin-os-mode-shell .update-nag {
 	display: none !important;
+}
+
+body.admin-os-mode-shell {
+	overflow: hidden;
 }
 
 body.admin-os-mode-shell #wpcontent {
@@ -18,6 +23,14 @@ body.admin-os-mode-shell #wpbody-content {
 
 body.admin-os-mode-shell #wpbody-content > .wrap {
 	display: none;
+}
+
+body.admin-os-mode-shell .aos-shell {
+	height: 100vh;
+	inset: 0;
+	position: fixed;
+	width: 100vw;
+	z-index: 100000;
 }
 
 body.admin-os-mode-iframe #wpadminbar,

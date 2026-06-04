@@ -23,12 +23,6 @@
 		return element;
 	}
 
-	function appendTrafficDots(container) {
-		for (let index = 0; index < 3; index += 1) {
-			container.appendChild(document.createElement('span'));
-		}
-	}
-
 	function createDashicon(icon) {
 		const dashicon = document.createElement('span');
 		dashicon.className = `dashicons ${icon || 'dashicons-admin-generic'}`;
@@ -130,7 +124,6 @@
 	}
 
 	window.AdminOSMode.dom = {
-		appendTrafficDots,
 		createDashicon,
 		createElement,
 		createIcon,

@@ -10,10 +10,7 @@ defined( 'ABSPATH' ) || exit;
 ?>
 <header class="aos-menu-bar">
 	<div class="aos-brand">
-		<span class="aos-traffic" aria-hidden="true">
-			<span></span><span></span><span></span>
-		</span>
-		<strong><?php echo esc_html__( 'Admin OS', 'admin-os-mode' ); ?></strong>
+		<button type="button" class="aos-system-mark" data-aos-open-app="os-settings" aria-label="<?php esc_attr_e( 'Open OS Settings', 'admin-os-mode' ); ?>"></button>
 	</div>
 	<nav class="aos-menu-items" aria-label="<?php esc_attr_e( 'Admin OS menus', 'admin-os-mode' ); ?>" data-aos-menu-items>
 		<button type="button" data-aos-open-window="welcome"><?php esc_html_e( 'Workspace', 'admin-os-mode' ); ?></button>
@@ -28,5 +25,5 @@ defined( 'ABSPATH' ) || exit;
 		<span class="dashicons dashicons-search" aria-hidden="true"></span>
 		<input id="aos-search-input" type="search" placeholder="<?php esc_attr_e( 'Search apps', 'admin-os-mode' ); ?>" autocomplete="off" data-aos-search />
 	</label>
-	<div class="aos-clock" data-aos-clock><?php echo esc_html( current_time( 'H:i' ) ); ?></div>
+	<div class="aos-clock" data-aos-clock><?php echo esc_html( date_i18n( 'D M j H:i' ) ); ?></div>
 </header>

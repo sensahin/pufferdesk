@@ -40,6 +40,7 @@
 .aos-desktop-icon,
 .aos-app-launcher,
 .aos-dock-item,
+.aos-system-mark,
 .aos-window-control,
 .aos-recent-list button {
 	appearance: none;
@@ -78,33 +79,41 @@
 	white-space: nowrap;
 }
 
-.aos-brand strong {
-	font-size: 14px;
-	letter-spacing: 0;
-}
-
-.aos-traffic {
+.aos-system-mark {
+	align-items: center;
+	background: transparent;
+	border: 0;
+	border-radius: 7px;
+	color: var(--aos-ink);
+	cursor: default;
 	display: inline-flex;
-	gap: 7px;
+	height: 28px;
+	justify-content: center;
+	padding: 0;
+	position: relative;
+	width: 28px;
 }
 
-.aos-traffic span {
-	border-radius: 50%;
+.aos-system-mark::before,
+.aos-system-mark::after {
+	content: "";
 	display: block;
-	height: 11px;
-	width: 11px;
+	position: absolute;
 }
 
-.aos-traffic span:nth-child(1) {
-	background: var(--aos-traffic-close);
+.aos-system-mark::before {
+	border: 2px solid currentColor;
+	border-radius: 5px;
+	height: 12px;
+	transform: rotate(45deg);
+	width: 12px;
 }
 
-.aos-traffic span:nth-child(2) {
-	background: var(--aos-traffic-minimize);
-}
-
-.aos-traffic span:nth-child(3) {
-	background: var(--aos-traffic-zoom);
+.aos-system-mark::after {
+	background: currentColor;
+	border-radius: 50%;
+	height: 4px;
+	width: 4px;
 }
 
 .aos-menu-items {

@@ -108,7 +108,7 @@ final class Admin_OS_Mode_Assets {
 				$style_handle,
 				ADMIN_OS_MODE_URL . $theme_asset,
 				array( $style_dependency ),
-				ADMIN_OS_MODE_VERSION
+				$this->get_asset_version( $theme_asset )
 			);
 			$style_dependency = $style_handle;
 		}
@@ -148,7 +148,7 @@ final class Admin_OS_Mode_Assets {
 				'admin-os-mode-core-admin-chrome',
 				ADMIN_OS_MODE_URL . 'assets/css/core/admin-chrome.css',
 				array( 'dashicons' ),
-				ADMIN_OS_MODE_VERSION
+				$this->get_asset_version( 'assets/css/core/admin-chrome.css' )
 			);
 
 			return 'admin-os-mode-core-admin-chrome';
@@ -158,7 +158,7 @@ final class Admin_OS_Mode_Assets {
 			'admin-os-mode-core',
 			ADMIN_OS_MODE_URL . 'assets/dist/css/admin-os-mode-core.min.css',
 			array( 'dashicons' ),
-			ADMIN_OS_MODE_VERSION
+			$this->get_asset_version( 'assets/dist/css/admin-os-mode-core.min.css' )
 		);
 
 		return 'admin-os-mode-core';
@@ -192,7 +192,7 @@ final class Admin_OS_Mode_Assets {
 			'admin-os-mode-app',
 			ADMIN_OS_MODE_URL . 'assets/dist/js/admin-os-mode.min.js',
 			array(),
-			ADMIN_OS_MODE_VERSION,
+			$this->get_asset_version( 'assets/dist/js/admin-os-mode.min.js' ),
 			true
 		);
 
@@ -269,7 +269,7 @@ final class Admin_OS_Mode_Assets {
 				$handle,
 				ADMIN_OS_MODE_URL . $script['path'],
 				$script['deps'],
-				ADMIN_OS_MODE_VERSION,
+				$this->get_asset_version( $script['path'] ),
 				true
 			);
 		}
@@ -370,7 +370,7 @@ final class Admin_OS_Mode_Assets {
 				$handle,
 				ADMIN_OS_MODE_URL . $path,
 				array( $dependency ),
-				ADMIN_OS_MODE_VERSION
+				$this->get_asset_version( $path )
 			);
 			$dependency = $handle;
 		}
@@ -397,13 +397,29 @@ final class Admin_OS_Mode_Assets {
 	}
 
 	/**
-	 * Remove the admin top offset inside embedded iframe apps.
+	 * Remove the admin top offset inside shell and embedded iframe apps.
 	 */
 	public function print_iframe_head_style() {
-		if ( ! $this->router->is_iframe_request() ) {
+		if ( ! $this->router->is_shell_request() && ! $this->router->is_iframe_request() ) {
 			return;
 		}
 
 		echo '<style>html.wp-toolbar{padding-top:0!important;}</style>';
+	}
+
+	/**
+	 * Build a cache-busting asset version for edited source and dist files.
+	 *
+	 * @param string $path Asset path relative to the plugin root.
+	 * @return string
+	 */
+	private function get_asset_version( $path ) {
+		$file = ADMIN_OS_MODE_DIR . ltrim( $path, '/' );
+
+		if ( file_exists( $file ) ) {
+			return ADMIN_OS_MODE_VERSION . '-' . filemtime( $file );
+		}
+
+		return ADMIN_OS_MODE_VERSION;
 	}
 }

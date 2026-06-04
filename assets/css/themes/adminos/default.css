@@ -4,9 +4,9 @@
 	--aos-line: rgba(255, 255, 255, 0.52);
 	--aos-panel: rgba(248, 250, 252, 0.8);
 	--aos-shadow: 0 28px 80px rgba(11, 25, 38, 0.24), 0 1px 0 rgba(255, 255, 255, 0.72) inset;
-	--aos-menu-bg: rgba(246, 250, 252, 0.28);
-	--aos-menu-border: rgba(255, 255, 255, 0.22);
-	--aos-menu-shadow: 0 1px 0 rgba(255, 255, 255, 0.34) inset, 0 10px 26px rgba(14, 33, 47, 0.06);
+	--aos-menu-bg: transparent;
+	--aos-menu-border: transparent;
+	--aos-menu-shadow: none;
 	--aos-control-bg: rgba(255, 255, 255, 0.18);
 	--aos-control-bg-hover: rgba(255, 255, 255, 0.34);
 	--aos-desktop-bg:
@@ -28,60 +28,117 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-menu-bar {
-	backdrop-filter: blur(34px) saturate(175%);
-	gap: 14px;
-	grid-template-columns: auto auto minmax(190px, 360px) minmax(48px, 1fr);
+	backdrop-filter: none;
+	color: rgba(255, 255, 255, 0.96);
+	gap: 10px;
+	grid-template-columns: auto minmax(0, 1fr) auto auto;
 	height: 40px;
-	padding: 0 14px;
+	left: 0;
+	padding: 0 16px;
+	position: absolute;
+	right: 0;
+	top: 0;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-brand {
-	gap: 8px;
+	gap: 0;
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-brand strong {
-	font-size: 13px;
-	font-weight: 720;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.22);
+.aos-shell[data-aos-theme="adminos"] .aos-system-mark {
+	color: rgba(255, 255, 255, 0.98);
+	filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.42));
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-traffic {
-	gap: 5px;
+.aos-shell[data-aos-theme="adminos"] .aos-system-mark:hover,
+.aos-shell[data-aos-theme="adminos"] .aos-system-mark:focus {
+	background: rgba(34, 42, 50, 0.68);
+	outline: none;
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-traffic span {
-	height: 8px;
-	width: 8px;
+.aos-shell[data-aos-theme="adminos"] .aos-system-mark:active {
+	background: rgba(27, 34, 42, 0.82);
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-menu-items {
+	justify-content: flex-start;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-menu-items button {
 	border-radius: 7px;
+	color: rgba(255, 255, 255, 0.96);
 	font-size: 13px;
 	padding: 7px 10px;
-	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.16);
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.42);
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-menu-items button:hover,
+.aos-shell[data-aos-theme="adminos"] .aos-menu-items button:focus {
+	background: rgba(34, 42, 50, 0.72);
+	color: #fff;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-menu-items button:active {
+	background: rgba(27, 34, 42, 0.82);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-search {
-	backdrop-filter: blur(22px) saturate(150%);
-	background: rgba(255, 255, 255, 0.18);
-	border-color: rgba(255, 255, 255, 0.24);
+	backdrop-filter: none;
+	background: transparent;
+	border-color: transparent;
 	height: 28px;
-	padding: 0 10px;
+	justify-content: center;
+	overflow: hidden;
+	padding: 0;
+	transition: background-color 140ms ease, border-color 140ms ease, width 160ms ease;
+	width: 28px;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-search:hover,
+.aos-shell[data-aos-theme="adminos"] .aos-search:focus-within {
+	background: rgba(34, 42, 50, 0.68);
+	border-color: transparent;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-search:focus-within {
+	justify-content: flex-start;
+	padding: 0 9px;
+	width: 180px;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-search .dashicons {
+	color: rgba(255, 255, 255, 0.86);
+	flex: 0 0 auto;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.34);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-search input {
+	color: #fff;
 	font-size: 12px;
 	height: 26px;
+	opacity: 0;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+	transition: opacity 120ms ease;
+	width: 0;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-search:focus-within input {
+	opacity: 1;
+	width: 130px;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-search input::placeholder {
+	color: rgba(255, 255, 255, 0.74);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-clock {
-	color: rgba(20, 32, 44, 0.76);
+	color: rgba(255, 255, 255, 0.96);
 	font-size: 12px;
 	font-weight: 650;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.42);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-desktop {
-	height: calc(100% - 40px);
+	height: 100%;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-desktop::before {
@@ -97,8 +154,12 @@
 	gap: 14px;
 	grid-auto-rows: 104px;
 	grid-template-columns: repeat(2, 92px);
-	top: 22px;
+	top: 64px;
 	z-index: 6;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-widget-layer {
+	inset: 40px 0 0;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-desktop-icon {

@@ -12,12 +12,21 @@
 		}
 
 		const formatter = new Intl.DateTimeFormat(undefined, {
+			day: 'numeric',
 			hour: '2-digit',
-			minute: '2-digit'
+			hourCycle: 'h23',
+			minute: '2-digit',
+			month: 'short',
+			weekday: 'short'
 		});
 
 		const updateClock = () => {
-			clock.textContent = formatter.format(new Date());
+			const parts = formatter.formatToParts(new Date()).reduce((next, part) => {
+				next[part.type] = part.value;
+				return next;
+			}, {});
+
+			clock.textContent = `${parts.weekday || ''} ${parts.month || ''} ${parts.day || ''} ${parts.hour || ''}:${parts.minute || ''}`.replace(/\s+/g, ' ').trim();
 		};
 
 		updateClock();
