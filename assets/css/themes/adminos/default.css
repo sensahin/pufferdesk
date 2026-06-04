@@ -178,24 +178,42 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window-controls {
-	gap: 9px;
+	gap: 10px;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window-control {
 	box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.14) inset;
-	height: 13px;
-	width: 13px;
+	height: 15px;
+	width: 15px;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window-control::before,
+.aos-shell[data-aos-theme="adminos"] .aos-window-control::after {
+	background: rgba(50, 50, 50, 0.76);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window-control-close::before,
 .aos-shell[data-aos-theme="adminos"] .aos-window-control-close::after,
 .aos-shell[data-aos-theme="adminos"] .aos-window-control-minimize::before {
-	width: 7px;
+	height: 2px;
+	width: 8px;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window-control-maximize::before,
 .aos-shell[data-aos-theme="adminos"] .aos-window-control-maximize::after {
-	height: 6px;
+	background: rgba(0, 83, 36, 0.76);
+	border-radius: 0;
+	height: 8px;
+	transform: translate(-50%, -50%);
+	width: 8px;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window-control-maximize::before {
+	clip-path: polygon(34% 0, 100% 0, 100% 66%);
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window-control-maximize::after {
+	clip-path: polygon(0 34%, 66% 100%, 0 100%);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-stat,
