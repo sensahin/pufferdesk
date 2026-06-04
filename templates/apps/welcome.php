@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * @var array<string,mixed>             $theme
  */
 ?>
-<section class="aos-window aos-window-welcome is-active" data-aos-window="welcome" aria-label="<?php esc_attr_e( 'Workspace window', 'admin-os-mode' ); ?>">
+<section class="aos-window aos-window-welcome is-closed" data-aos-window="welcome" aria-label="<?php esc_attr_e( 'Workspace window', 'admin-os-mode' ); ?>">
 	<?php
 	$this->render_part(
 		'windows/titlebar.php',
