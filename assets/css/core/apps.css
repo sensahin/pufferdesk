@@ -195,7 +195,7 @@
 }
 
 .aos-window[data-aos-app-window="os-settings"] {
-	--aos-settings-content-width: 640px;
+	--aos-settings-content-width: 600px;
 	--aos-settings-sidebar-width: 258px;
 	--aos-settings-text-caption: 10px;
 	--aos-settings-text-body: 11px;
@@ -504,11 +504,17 @@
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
-	justify-self: start;
-	max-width: var(--aos-settings-content-width);
 	min-height: 0;
 	overflow-y: auto;
 	padding: 8px 24px 26px;
+	width: 100%;
+}
+
+.aos-settings-pane > .aos-settings-section,
+.aos-settings-pane > .aos-settings-group-heading,
+.aos-settings-pane > .aos-settings-status {
+	flex-shrink: 0;
+	max-width: var(--aos-settings-content-width);
 	width: 100%;
 }
 
