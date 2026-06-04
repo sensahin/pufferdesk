@@ -6,7 +6,7 @@ This project is not a throwaway MVP. Treat it as a long-term WordPress plugin fo
 
 ## Project Purpose
 
-Admin OS Mode wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding an OS shell with themes, windows, apps, widgets, desktop surfaces, and future OS families such as modern macOS-style, older macOS versions, Windows versions, Ubuntu-style themes, and nostalgic retro systems.
+Admin OS Mode wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding an OS shell with themes, windows, apps, widgets, desktop surfaces, and future OS families such as macOS versions, Windows versions, Ubuntu-style themes, and nostalgic retro systems.
 
 The foundation matters more than short-term visual hacks.
 
@@ -34,6 +34,7 @@ Never:
 - Do not remove or weaken the Classic Admin escape path.
 - Do not introduce external dependencies casually.
 - Do not ship minified assets without keeping readable source files and source references.
+- Do not ship Apple-owned icons, wallpapers, logos, app artwork, or bundled Apple font files. OS theme assets must be original, licensed for redistribution, or otherwise release-safe.
 - Do not commit `node_modules/`, `release/`, `.DS_Store`, local credentials, or machine-specific state.
 
 ## Directory Map
@@ -143,7 +144,7 @@ Icons:
 
 'icon' => array(
 	'type' => 'image',
-	'src'  => 'themes/modern/current/icons/posts.svg',
+	'src'  => 'themes/macos/default/icons/posts.svg',
 );
 ```
 
@@ -256,7 +257,7 @@ Recommended Plugin Check command:
 PLUGIN_DIR=/Users/senolsahin/Sites/new/wp-content/plugins/admin-os-mode
 find "$PLUGIN_DIR" -name .DS_Store -delete
 find "$PLUGIN_DIR" -type d -exec chmod u-w {} +
-php -d mysqli.default_socket=/Applications/MAMP/tmp/mysql/mysql.sock /usr/local/bin/wp --path=/Users/senolsahin/Sites/new plugin check admin-os-mode --exclude-directories=.github,release,node_modules --exclude-files=.gitignore,.gitattributes,.DS_Store
+php -d mysqli.default_socket=/Applications/MAMP/tmp/mysql/mysql.sock /usr/local/bin/wp --path=/Users/senolsahin/Sites/new plugin check admin-os-mode --exclude-directories=.github,release,node_modules --exclude-files=.gitignore,.gitattributes,.DS_Store,AGENTS.md
 STATUS=$?
 find "$PLUGIN_DIR" -type d -exec chmod u+w {} +
 find "$PLUGIN_DIR" -name .DS_Store -delete

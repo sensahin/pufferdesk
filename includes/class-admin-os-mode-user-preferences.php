@@ -57,7 +57,7 @@ final class Admin_OS_Mode_User_Preferences {
 			return $theme;
 		}
 
-		$default = sanitize_key( (string) apply_filters( 'admin_os_mode_default_theme', 'modern-os' ) );
+		$default = sanitize_key( (string) apply_filters( 'admin_os_mode_default_theme', 'macos' ) );
 		if ( isset( $themes[ $default ] ) ) {
 			return $default;
 		}

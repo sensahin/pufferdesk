@@ -15,6 +15,7 @@ const ignoredTopLevel = new Set([
 	'.github',
 	'.gitattributes',
 	'.gitignore',
+	'AGENTS.md',
 	'node_modules',
 	'release'
 ]);

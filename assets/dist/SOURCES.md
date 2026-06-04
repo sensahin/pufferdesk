@@ -13,8 +13,8 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/css/core/responsive.css
 
 ## Theme CSS
-- assets/css/themes/modern/base.css -> assets/dist/css/themes/modern/base.min.css
-- assets/css/themes/modern/current.css -> assets/dist/css/themes/modern/current.min.css
+- assets/css/themes/macos/base.css -> assets/dist/css/themes/macos/base.min.css
+- assets/css/themes/macos/default.css -> assets/dist/css/themes/macos/default.min.css
 
 ## JavaScript
 - assets/js/core/config.js

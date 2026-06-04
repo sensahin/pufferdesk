@@ -12,7 +12,7 @@ Admin OS Mode turns the WordPress dashboard entry point into a desktop-style adm
 
 == Description ==
 
-Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on a safe Modern OS workspace: a top menu bar, desktop folders, a dock, app search, draggable windows, and iframe-based admin apps.
+Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on a safe macOS workspace: a top menu bar, desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
 
 == Current foundation features ==
 
@@ -20,12 +20,14 @@ Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. T
 - Per-user mode preference.
 - Dashboard entry redirects to OS Mode by default.
 - Emergency one-request classic override: `/wp-admin/index.php?admin_os_classic=1`.
-- Modern OS shell with menu bar, desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
+- macOS shell with menu bar, desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
 - Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave more like OS windows.
 
 == Notes ==
 
 Admin OS Mode intentionally wraps existing WordPress admin screens instead of replacing them. That keeps plugin compatibility high and makes Classic Admin a reliable fallback.
+
+The default macOS family uses original plugin CSS and release-safe media locations. Do not ship Apple-owned icons, wallpapers, logos, app artwork, or bundled Apple font files in this plugin.
 
 The foundation separates shell behavior from OS appearance:
 
@@ -72,7 +74,7 @@ Apps and folders use structured icon descriptors internally. Legacy Dashicon str
 
 'icon' => array(
 	'type' => 'image',
-	'src'  => 'themes/modern/current/icons/posts.svg',
+	'src'  => 'themes/macos/default/icons/posts.svg',
 );
 ```
 
@@ -106,17 +108,17 @@ For example, a Windows family can override `templates/themes/windows/windows/tit
 Themes support family/version inheritance. A concrete theme can declare a parent theme and receives its stylesheet stack before its own styles are loaded:
 
 ```php
-'macos-tahoe' => array(
-	'id'            => 'macos-tahoe',
+'macos' => array(
+	'id'            => 'macos',
 	'family'        => 'macos',
-	'version'       => 'tahoe',
+	'version'       => 'default',
 	'parent'        => 'macos-base',
-	'stylesheet'    => 'macos/tahoe.css',
-	'version_label' => 'Tahoe',
+	'stylesheet'    => 'macos/default.css',
+	'version_label' => 'Default',
 );
 ```
 
-Future phases can add theme packs such as Modern OS, Windows-style, and Win98-style skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce.
+Future phases can add theme packs such as specific macOS eras, Windows-style, Win98-style, Ubuntu-style, and other OS skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce.
 
 Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows` and `widgets`, so future desktop icons, spaces, or OS-specific surfaces can join without replacing the whole session payload. Windows track welcome/app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state.
 

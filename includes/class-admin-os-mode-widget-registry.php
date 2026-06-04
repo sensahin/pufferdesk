@@ -59,7 +59,7 @@ final class Admin_OS_Mode_Widget_Registry {
 		 *
 		 * Icons may be a legacy Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-clock' )
-		 * array( 'type' => 'image', 'src' => 'themes/modern/current/icons/clock.svg' )
+		 * array( 'type' => 'image', 'src' => 'themes/macos/default/icons/clock.svg' )
 		 *
 		 * @param array<int,array<string,mixed>> $widgets Registered widgets.
 		 */

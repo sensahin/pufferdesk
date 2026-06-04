@@ -18,26 +18,26 @@ final class Admin_OS_Mode_Theme_Registry {
 	 */
 	public function get_themes() {
 		$themes = array(
-			'modern-base' => array(
-				'id'             => 'modern-base',
-				'label'          => __( 'Modern OS Base', 'admin-os-mode' ),
-				'family'         => 'modern',
-				'family_label'   => __( 'Modern OS', 'admin-os-mode' ),
+			'macos-base' => array(
+				'id'             => 'macos-base',
+				'label'          => __( 'macOS Base', 'admin-os-mode' ),
+				'family'         => 'macos',
+				'family_label'   => __( 'macOS', 'admin-os-mode' ),
 				'version'        => 'base',
 				'version_label'  => __( 'Base', 'admin-os-mode' ),
-				'stylesheet'     => 'modern/base.css',
-				'welcome_kicker' => __( 'Modern OS workspace', 'admin-os-mode' ),
+				'stylesheet'     => 'macos/base.css',
+				'welcome_kicker' => __( 'macOS workspace', 'admin-os-mode' ),
 				'abstract'       => true,
 			),
-			'modern-os' => array(
-				'id'             => 'modern-os',
-				'label'          => __( 'Modern OS', 'admin-os-mode' ),
-				'family'         => 'modern',
-				'family_label'   => __( 'Modern OS', 'admin-os-mode' ),
-				'version'        => 'current',
-				'version_label'  => __( 'Current', 'admin-os-mode' ),
-				'parent'         => 'modern-base',
-				'stylesheet'     => 'modern/current.css',
+			'macos' => array(
+				'id'             => 'macos',
+				'label'          => __( 'macOS', 'admin-os-mode' ),
+				'family'         => 'macos',
+				'family_label'   => __( 'macOS', 'admin-os-mode' ),
+				'version'        => 'default',
+				'version_label'  => __( 'Default', 'admin-os-mode' ),
+				'parent'         => 'macos-base',
+				'stylesheet'     => 'macos/default.css',
 			),
 		);
 

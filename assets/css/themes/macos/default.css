@@ -1,4 +1,4 @@
-.aos-shell[data-aos-theme="modern-os"] {
+.aos-shell[data-aos-theme="macos"] {
 	--aos-ink: #18202a;
 	--aos-muted: #617081;
 	--aos-line: rgba(255, 255, 255, 0.58);
@@ -29,13 +29,13 @@
 	--aos-dock-border: rgba(255, 255, 255, 0.74);
 }
 
-.aos-shell[data-aos-theme="modern-os"] .aos-stat,
-.aos-shell[data-aos-theme="modern-os"] .aos-panel {
+.aos-shell[data-aos-theme="macos"] .aos-stat,
+.aos-shell[data-aos-theme="macos"] .aos-panel {
 	background: rgba(255, 255, 255, 0.58);
 	border-color: rgba(255, 255, 255, 0.64);
 }
 
-.aos-shell[data-aos-theme="modern-os"] .aos-app-launcher {
+.aos-shell[data-aos-theme="macos"] .aos-app-launcher {
 	background: rgba(255, 255, 255, 0.72);
 	border-color: rgba(255, 255, 255, 0.72);
 }
