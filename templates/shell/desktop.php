@@ -21,14 +21,6 @@ defined( 'ABSPATH' ) || exit;
 <main class="aos-desktop" aria-label="<?php esc_attr_e( 'Admin OS desktop', 'admin-os-mode' ); ?>">
 	<?php
 	$this->render_part(
-		'desktop/icons.php',
-		array(
-			'folders' => $folders,
-			'theme'   => $theme,
-		)
-	);
-
-	$this->render_part(
 		'widgets/desktop.php',
 		array(
 			'widgets' => $widgets,

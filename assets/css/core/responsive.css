@@ -23,10 +23,6 @@
 		height: calc(100% - 56px);
 	}
 
-	.aos-desktop-icons {
-		grid-template-columns: 86px;
-	}
-
 	.aos-window {
 		left: 12px;
 		min-width: 0;

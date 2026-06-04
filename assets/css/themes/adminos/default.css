@@ -150,35 +150,8 @@
 	z-index: 1;
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-desktop-icons {
-	gap: 14px;
-	grid-auto-rows: 104px;
-	grid-template-columns: repeat(2, 92px);
-	top: 64px;
-	z-index: 6;
-}
-
 .aos-shell[data-aos-theme="adminos"] .aos-widget-layer {
 	inset: 40px 0 0;
-}
-
-.aos-shell[data-aos-theme="adminos"] .aos-desktop-icon {
-	font-size: 12px;
-	font-weight: 650;
-	text-shadow: 0 1px 6px rgba(0, 0, 0, 0.46);
-	width: 92px;
-}
-
-.aos-shell[data-aos-theme="adminos"] .aos-icon-tile {
-	backdrop-filter: blur(20px) saturate(140%);
-	border-radius: 20px;
-	height: 62px;
-	width: 62px;
-}
-
-.aos-shell[data-aos-theme="adminos"] .aos-icon-tile .aos-icon-image {
-	height: 62px;
-	width: 62px;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window {

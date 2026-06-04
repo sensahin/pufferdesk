@@ -8,42 +8,6 @@
 	position: relative;
 }
 
-.aos-desktop-icons {
-	align-content: start;
-	display: grid;
-	gap: 18px;
-	grid-auto-rows: 96px;
-	grid-template-columns: repeat(2, 86px);
-	left: 24px;
-	position: absolute;
-	top: 24px;
-	z-index: 5;
-}
-
-.aos-desktop-icon {
-	align-items: center;
-	background: transparent;
-	border: 0;
-	color: #fff;
-	cursor: default;
-	display: flex;
-	flex-direction: column;
-	font-size: 12px;
-	gap: 8px;
-	justify-content: center;
-	line-height: 1.25;
-	padding: 0;
-	text-align: center;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
-	width: 86px;
-}
-
-.aos-desktop-icon:hover .aos-icon-tile,
-.aos-desktop-icon:focus .aos-icon-tile {
-	transform: translateY(-2px);
-}
-
-.aos-icon-tile,
 .aos-app-icon {
 	align-items: center;
 	background: var(--aos-tile-bg);
@@ -54,21 +18,8 @@
 	justify-content: center;
 }
 
-.aos-icon-tile {
-	border-radius: 18px;
-	height: 54px;
-	transition: transform 160ms ease;
-	width: 62px;
-}
-
-.aos-icon-tile .dashicons,
 .aos-app-icon .dashicons {
 	font-size: 27px;
 	height: 27px;
 	width: 27px;
-}
-
-.aos-icon-tile .aos-icon-image {
-	height: 36px;
-	width: 36px;
 }
