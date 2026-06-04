@@ -14,6 +14,7 @@
 		let activeWindow = null;
 		let restoreInProgress = false;
 		let saveTimer = null;
+		const resizeDirections = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 		const resizeObserver = typeof window.ResizeObserver === 'function'
 			? new window.ResizeObserver(() => scheduleSave())
 			: null;
@@ -292,6 +293,137 @@
 			});
 		}
 
+		function getResizeMinSize(win) {
+			const styles = window.getComputedStyle(win);
+
+			return {
+				width: readNumber(styles.minWidth) ?? 320,
+				height: readNumber(styles.minHeight) ?? 260
+			};
+		}
+
+		function ensureResizeHandles(win) {
+			if (win.dataset.aosResizeHandlesBound === '1') {
+				return;
+			}
+
+			win.dataset.aosResizeHandlesBound = '1';
+
+			resizeDirections.forEach((direction) => {
+				const handle = document.createElement('span');
+				handle.className = `aos-window-resize-handle aos-window-resize-handle-${direction}`;
+				handle.dataset.aosResizeHandle = direction;
+				handle.setAttribute('aria-hidden', 'true');
+
+				handle.addEventListener('pointerdown', (event) => {
+					startResize(win, handle, direction, event);
+				});
+				handle.addEventListener('mousedown', (event) => {
+					startResize(win, handle, direction, event);
+				});
+
+				win.appendChild(handle);
+			});
+		}
+
+		function startResize(win, handle, direction, event) {
+			if (!desktop || win.classList.contains('is-maximized') || win.classList.contains('is-resizing')) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			focusWindow(win);
+
+			const desktopRect = desktop.getBoundingClientRect();
+			const rect = win.getBoundingClientRect();
+			const minSize = getResizeMinSize(win);
+			const startX = event.clientX;
+			const startY = event.clientY;
+			const startLeft = Math.round(rect.left - desktopRect.left);
+			const startTop = Math.round(rect.top - desktopRect.top);
+			const startWidth = Math.round(rect.width);
+			const startHeight = Math.round(rect.height);
+
+			win.classList.add('is-resizing');
+			win.style.transform = 'none';
+			win.style.left = `${startLeft}px`;
+			win.style.top = `${startTop}px`;
+			win.style.width = `${startWidth}px`;
+			win.style.height = `${startHeight}px`;
+
+			const pointerId = Number.isFinite(event.pointerId) ? event.pointerId : null;
+
+			if (pointerId !== null && typeof handle.setPointerCapture === 'function') {
+				try {
+					handle.setPointerCapture(pointerId);
+				} catch {
+					// Window-level listeners below keep resizing reliable if capture is unavailable.
+				}
+			}
+
+			const move = (moveEvent) => {
+				const safeArea = syncWindowSafeArea();
+				const deltaX = moveEvent.clientX - startX;
+				const deltaY = moveEvent.clientY - startY;
+				let nextLeft = startLeft;
+				let nextTop = startTop;
+				let nextWidth = startWidth;
+				let nextHeight = startHeight;
+
+				if (direction.includes('e')) {
+					nextWidth = clamp(startWidth + deltaX, minSize.width, desktop.clientWidth - startLeft);
+				}
+
+				if (direction.includes('s')) {
+					nextHeight = clamp(startHeight + deltaY, minSize.height, desktop.clientHeight - startTop);
+				}
+
+				if (direction.includes('w')) {
+					nextLeft = clamp(startLeft + deltaX, 0, startLeft + startWidth - minSize.width);
+					nextWidth = startWidth + startLeft - nextLeft;
+				}
+
+				if (direction.includes('n')) {
+					nextTop = clamp(startTop + deltaY, safeArea.top, startTop + startHeight - minSize.height);
+					nextHeight = startHeight + startTop - nextTop;
+				}
+
+				win.style.left = `${Math.round(nextLeft)}px`;
+				win.style.top = `${Math.round(nextTop)}px`;
+				win.style.width = `${Math.round(nextWidth)}px`;
+				win.style.height = `${Math.round(nextHeight)}px`;
+			};
+
+			const up = (upEvent) => {
+				window.removeEventListener('pointermove', move);
+				window.removeEventListener('mousemove', move);
+				window.removeEventListener('pointerup', up);
+				window.removeEventListener('mouseup', up);
+				window.removeEventListener('pointercancel', up);
+				win.classList.remove('is-resizing');
+
+				const releasePointerId = Number.isFinite(upEvent.pointerId) ? upEvent.pointerId : pointerId;
+
+				if (
+					releasePointerId !== null
+					&& typeof handle.hasPointerCapture === 'function'
+					&& typeof handle.releasePointerCapture === 'function'
+					&& handle.hasPointerCapture(releasePointerId)
+				) {
+					handle.releasePointerCapture(releasePointerId);
+				}
+
+				scheduleSave();
+			};
+
+			window.addEventListener('pointermove', move);
+			window.addEventListener('mousemove', move);
+			window.addEventListener('pointerup', up);
+			window.addEventListener('mouseup', up);
+			window.addEventListener('pointercancel', up);
+		}
+
 		function observeWindow(win) {
 			if (resizeObserver) {
 				resizeObserver.observe(win);
@@ -428,6 +560,7 @@
 
 			win.dataset.aosWindowBound = '1';
 			makeDraggable(win);
+			ensureResizeHandles(win);
 			observeWindow(win);
 			win.addEventListener('pointerdown', () => focusWindow(win));
 		}

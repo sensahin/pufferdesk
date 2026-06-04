@@ -11,7 +11,6 @@
 	min-width: 360px;
 	overflow: hidden;
 	position: absolute;
-	resize: both;
 	top: 48%;
 	transform: translate(-50%, -50%);
 	width: min(940px, calc(100vw - 260px));
@@ -32,6 +31,97 @@
 	width: calc(100% - var(--aos-window-maximized-edge) - var(--aos-window-maximized-edge)) !important;
 }
 
+.aos-window.is-resizing,
+.aos-window.is-resizing * {
+	user-select: none;
+}
+
+.aos-window.is-resizing .aos-app-frame {
+	pointer-events: none;
+}
+
+.aos-window-resize-handle {
+	background: transparent;
+	display: block;
+	pointer-events: auto;
+	position: absolute;
+	z-index: 5;
+}
+
+.aos-window-resize-handle-n,
+.aos-window-resize-handle-s {
+	cursor: ns-resize;
+	height: 7px;
+	left: 16px;
+	right: 16px;
+}
+
+.aos-window-resize-handle-n {
+	top: 0;
+}
+
+.aos-window-resize-handle-s {
+	bottom: 0;
+}
+
+.aos-window-resize-handle-e,
+.aos-window-resize-handle-w {
+	bottom: 16px;
+	cursor: ew-resize;
+	top: 16px;
+	width: 7px;
+}
+
+.aos-window-resize-handle-e {
+	right: 0;
+}
+
+.aos-window-resize-handle-w {
+	left: 0;
+}
+
+.aos-window-resize-handle-ne,
+.aos-window-resize-handle-nw,
+.aos-window-resize-handle-se,
+.aos-window-resize-handle-sw {
+	height: 10px;
+	width: 10px;
+}
+
+.aos-window-resize-handle-ne,
+.aos-window-resize-handle-sw {
+	cursor: nesw-resize;
+}
+
+.aos-window-resize-handle-nw,
+.aos-window-resize-handle-se {
+	cursor: nwse-resize;
+}
+
+.aos-window-resize-handle-ne,
+.aos-window-resize-handle-nw {
+	top: 0;
+}
+
+.aos-window-resize-handle-se,
+.aos-window-resize-handle-sw {
+	bottom: 0;
+}
+
+.aos-window-resize-handle-ne,
+.aos-window-resize-handle-se {
+	right: 0;
+}
+
+.aos-window-resize-handle-nw,
+.aos-window-resize-handle-sw {
+	left: 0;
+}
+
+.aos-window.is-maximized .aos-window-resize-handle {
+	display: none;
+}
+
 .aos-window-titlebar {
 	align-items: center;
 	background: var(--aos-window-bar-bg);
@@ -42,7 +132,9 @@
 	grid-template-columns: auto 1fr;
 	min-height: 42px;
 	padding: 0 12px;
+	position: relative;
 	user-select: none;
+	z-index: 2;
 }
 
 .aos-window-titlebar:active {
@@ -140,6 +232,8 @@
 	flex: 1;
 	min-height: 0;
 	overflow: auto;
+	position: relative;
+	z-index: 1;
 }
 
 .aos-app-frame {
