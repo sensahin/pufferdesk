@@ -35,7 +35,7 @@ final class Admin_OS_Mode_Widget_Registry {
 			array(
 				'id'               => 'clock',
 				'label'            => __( 'Clock', 'admin-os-mode' ),
-				'icon'             => 'dashicons-clock',
+				'icon'             => $this->theme_icon( 'clock.svg', 'dashicons-clock' ),
 				'kind'             => 'native',
 				'native'           => 'clock',
 				'cap'              => 'read',
@@ -60,6 +60,7 @@ final class Admin_OS_Mode_Widget_Registry {
 		 * Icons may be a legacy Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-clock' )
 		 * array( 'type' => 'image', 'src' => 'themes/macos/default/icons/clock.svg' )
+		 * array( 'type' => 'theme', 'name' => 'clock.svg', 'fallback' => 'dashicons-clock' )
 		 *
 		 * @param array<int,array<string,mixed>> $widgets Registered widgets.
 		 */
@@ -186,5 +187,20 @@ final class Admin_OS_Mode_Widget_Registry {
 		}
 
 		return implode( '/', $normalized );
+	}
+
+	/**
+	 * Build a theme-aware icon descriptor with a Dashicon fallback.
+	 *
+	 * @param string $name Theme icon file name.
+	 * @param string $fallback Dashicon fallback class.
+	 * @return array<string,string>
+	 */
+	private function theme_icon( $name, $fallback ) {
+		return array(
+			'type'     => 'theme',
+			'name'     => $name,
+			'fallback' => $fallback,
+		);
 	}
 }

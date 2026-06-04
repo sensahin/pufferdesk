@@ -24,6 +24,7 @@ defined( 'ABSPATH' ) || exit;
 		'desktop/icons.php',
 		array(
 			'folders' => $folders,
+			'theme'   => $theme,
 		)
 	);
 
@@ -51,6 +52,7 @@ defined( 'ABSPATH' ) || exit;
 		'shell/dock.php',
 		array(
 			'apps' => $apps,
+			'theme' => $theme,
 		)
 	);
 	?>

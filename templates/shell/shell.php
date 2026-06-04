@@ -20,8 +20,20 @@ defined( 'ABSPATH' ) || exit;
  * @var string                          $site_name
  * @var array<string,mixed>             $theme
  */
+$admin_os_mode_shell_style = '';
+if ( ! empty( $theme['media']['wallpaper']['url'] ) ) {
+	$admin_os_mode_wallpaper_url = str_replace(
+		array( '"', '\\' ),
+		array( '%22', '%5C' ),
+		esc_url_raw( $theme['media']['wallpaper']['url'] )
+	);
+
+	if ( '' !== $admin_os_mode_wallpaper_url ) {
+		$admin_os_mode_shell_style = '--aos-wallpaper-image:url("' . $admin_os_mode_wallpaper_url . '");';
+	}
+}
 ?>
-<div class="aos-shell" data-admin-os-shell data-aos-theme="<?php echo esc_attr( $theme['id'] ); ?>" data-aos-theme-family="<?php echo esc_attr( $theme['family'] ); ?>" data-aos-theme-version="<?php echo esc_attr( $theme['version'] ); ?>">
+<div class="aos-shell" data-admin-os-shell data-aos-theme="<?php echo esc_attr( $theme['id'] ); ?>" data-aos-theme-family="<?php echo esc_attr( $theme['family'] ); ?>" data-aos-theme-version="<?php echo esc_attr( $theme['version'] ); ?>"<?php if ( $admin_os_mode_shell_style ) : ?> style="<?php echo esc_attr( $admin_os_mode_shell_style ); ?>"<?php endif; ?>>
 	<?php
 	$this->render_part(
 		'shell/menu-bar.php',

@@ -9,6 +9,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * @var array<string,mixed> $widget
+ * @var array<string,mixed> $theme
  */
 
 $admin_os_mode_position = isset( $widget['default_position'] ) && is_array( $widget['default_position'] ) ? $widget['default_position'] : array();
@@ -31,7 +32,7 @@ $admin_os_mode_height   = isset( $admin_os_mode_size['height'] ) ? max( 80, absi
 	aria-label="<?php echo esc_attr( $widget['label'] ); ?>"
 >
 	<div class="aos-widget-handle" data-aos-widget-drag-handle>
-		<span class="aos-widget-icon"><?php Admin_OS_Mode_Icon_Renderer::render( $widget['icon'] ); ?></span>
+		<span class="aos-widget-icon"><?php Admin_OS_Mode_Icon_Renderer::render( $widget['icon'], $theme ); ?></span>
 		<strong><?php echo esc_html( $widget['label'] ); ?></strong>
 	</div>
 </section>

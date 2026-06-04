@@ -22,7 +22,7 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'dashboard',
 				'label' => __( 'Dashboard', 'admin-os-mode' ),
 				'url'   => admin_url( 'index.php?admin_os_classic=1' ),
-				'icon'  => 'dashicons-dashboard',
+				'icon'  => $this->theme_icon( 'dashboard.svg', 'dashicons-dashboard' ),
 				'group' => 'content',
 				'cap'   => 'read',
 			),
@@ -30,7 +30,7 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'posts',
 				'label' => __( 'Posts', 'admin-os-mode' ),
 				'url'   => admin_url( 'edit.php' ),
-				'icon'  => 'dashicons-admin-post',
+				'icon'  => $this->theme_icon( 'posts.svg', 'dashicons-admin-post' ),
 				'group' => 'content',
 				'cap'   => 'edit_posts',
 			),
@@ -38,7 +38,7 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'pages',
 				'label' => __( 'Pages', 'admin-os-mode' ),
 				'url'   => admin_url( 'edit.php?post_type=page' ),
-				'icon'  => 'dashicons-admin-page',
+				'icon'  => $this->theme_icon( 'pages.svg', 'dashicons-admin-page' ),
 				'group' => 'content',
 				'cap'   => 'edit_pages',
 			),
@@ -46,7 +46,7 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'media',
 				'label' => __( 'Media', 'admin-os-mode' ),
 				'url'   => admin_url( 'upload.php' ),
-				'icon'  => 'dashicons-admin-media',
+				'icon'  => $this->theme_icon( 'media.svg', 'dashicons-admin-media' ),
 				'group' => 'content',
 				'cap'   => 'upload_files',
 			),
@@ -54,7 +54,7 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'comments',
 				'label' => __( 'Comments', 'admin-os-mode' ),
 				'url'   => admin_url( 'edit-comments.php' ),
-				'icon'  => 'dashicons-admin-comments',
+				'icon'  => $this->theme_icon( 'comments.svg', 'dashicons-admin-comments' ),
 				'group' => 'content',
 				'cap'   => 'edit_posts',
 			),
@@ -62,7 +62,7 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'appearance',
 				'label' => __( 'Appearance', 'admin-os-mode' ),
 				'url'   => admin_url( 'themes.php' ),
-				'icon'  => 'dashicons-admin-appearance',
+				'icon'  => $this->theme_icon( 'appearance.svg', 'dashicons-admin-appearance' ),
 				'group' => 'site',
 				'cap'   => 'switch_themes',
 			),
@@ -70,7 +70,7 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'plugins',
 				'label' => __( 'Plugins', 'admin-os-mode' ),
 				'url'   => admin_url( 'plugins.php' ),
-				'icon'  => 'dashicons-admin-plugins',
+				'icon'  => $this->theme_icon( 'plugins.svg', 'dashicons-admin-plugins' ),
 				'group' => 'system',
 				'cap'   => 'activate_plugins',
 			),
@@ -78,14 +78,14 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'users',
 				'label' => __( 'Users', 'admin-os-mode' ),
 				'url'   => admin_url( 'users.php' ),
-				'icon'  => 'dashicons-admin-users',
+				'icon'  => $this->theme_icon( 'users.svg', 'dashicons-admin-users' ),
 				'group' => 'system',
 				'cap'   => 'list_users',
 			),
 			array(
 				'id'     => 'os-settings',
 				'label'  => __( 'OS Settings', 'admin-os-mode' ),
-				'icon'   => 'dashicons-admin-customizer',
+				'icon'   => $this->theme_icon( 'os-settings.svg', 'dashicons-admin-customizer' ),
 				'group'  => 'system',
 				'cap'    => 'read',
 				'kind'   => 'native',
@@ -95,7 +95,7 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'settings',
 				'label' => __( 'Settings', 'admin-os-mode' ),
 				'url'   => admin_url( 'options-general.php' ),
-				'icon'  => 'dashicons-admin-settings',
+				'icon'  => $this->theme_icon( 'settings.svg', 'dashicons-admin-settings' ),
 				'group' => 'system',
 				'cap'   => 'manage_options',
 			),
@@ -103,7 +103,7 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'tools',
 				'label' => __( 'Tools', 'admin-os-mode' ),
 				'url'   => admin_url( 'tools.php' ),
-				'icon'  => 'dashicons-admin-tools',
+				'icon'  => $this->theme_icon( 'tools.svg', 'dashicons-admin-tools' ),
 				'group' => 'system',
 				'cap'   => 'manage_options',
 			),
@@ -111,7 +111,7 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'site-health',
 				'label' => __( 'Site Health', 'admin-os-mode' ),
 				'url'   => admin_url( 'site-health.php' ),
-				'icon'  => 'dashicons-heart',
+				'icon'  => $this->theme_icon( 'site-health.svg', 'dashicons-heart' ),
 				'group' => 'system',
 				'cap'   => 'view_site_health_checks',
 			),
@@ -122,7 +122,7 @@ final class Admin_OS_Mode_App_Registry {
 				'id'    => 'woocommerce',
 				'label' => __( 'WooCommerce', 'admin-os-mode' ),
 				'url'   => admin_url( 'admin.php?page=wc-admin' ),
-				'icon'  => 'dashicons-cart',
+				'icon'  => $this->theme_icon( 'woocommerce.svg', 'dashicons-cart' ),
 				'group' => 'site',
 				'cap'   => 'manage_woocommerce',
 			);
@@ -144,6 +144,7 @@ final class Admin_OS_Mode_App_Registry {
 		 * Icons may be a legacy Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-admin-post' )
 		 * array( 'type' => 'image', 'src' => 'themes/macos/default/icons/post.svg' )
+		 * array( 'type' => 'theme', 'name' => 'posts.svg', 'fallback' => 'dashicons-admin-post' )
 		 *
 		 * @param array<int,array<string,mixed>> $apps Registered apps.
 		 */
@@ -169,17 +170,17 @@ final class Admin_OS_Mode_App_Registry {
 			array(
 				'id'    => 'content',
 				'label' => __( 'Content', 'admin-os-mode' ),
-				'icon'  => 'dashicons-category',
+				'icon'  => $this->theme_icon( 'folder-content.svg', 'dashicons-category' ),
 			),
 			array(
 				'id'    => 'site',
 				'label' => __( 'Site', 'admin-os-mode' ),
-				'icon'  => 'dashicons-admin-site-alt3',
+				'icon'  => $this->theme_icon( 'folder-site.svg', 'dashicons-admin-site-alt3' ),
 			),
 			array(
 				'id'    => 'system',
 				'label' => __( 'System', 'admin-os-mode' ),
-				'icon'  => 'dashicons-admin-generic',
+				'icon'  => $this->theme_icon( 'folder-system.svg', 'dashicons-admin-generic' ),
 			),
 		);
 
@@ -254,5 +255,20 @@ final class Admin_OS_Mode_App_Registry {
 		}
 
 		return $normalized;
+	}
+
+	/**
+	 * Build a theme-aware icon descriptor with a Dashicon fallback.
+	 *
+	 * @param string $name Theme icon file name.
+	 * @param string $fallback Dashicon fallback class.
+	 * @return array<string,string>
+	 */
+	private function theme_icon( $name, $fallback ) {
+		return array(
+			'type'     => 'theme',
+			'name'     => $name,
+			'fallback' => $fallback,
+		);
 	}
 }

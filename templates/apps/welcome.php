@@ -49,7 +49,7 @@ defined( 'ABSPATH' ) || exit;
 				<div class="aos-app-grid">
 					<?php foreach ( $apps as $admin_os_mode_app ) : ?>
 						<button type="button" class="aos-app-launcher" data-aos-open-app="<?php echo esc_attr( $admin_os_mode_app['id'] ); ?>">
-							<span class="aos-app-icon"><?php Admin_OS_Mode_Icon_Renderer::render( $admin_os_mode_app['icon'] ); ?></span>
+							<span class="aos-app-icon"><?php Admin_OS_Mode_Icon_Renderer::render( $admin_os_mode_app['icon'], $theme ); ?></span>
 							<span><?php echo esc_html( $admin_os_mode_app['label'] ); ?></span>
 						</button>
 					<?php endforeach; ?>

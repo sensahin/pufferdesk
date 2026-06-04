@@ -32,6 +32,18 @@ final class Admin_OS_Mode_Icon_Renderer {
 				}
 			}
 
+			if ( 'theme' === $type ) {
+				$name = isset( $icon['name'] ) ? sanitize_file_name( $icon['name'] ) : '';
+				if ( self::is_theme_icon_name( $name ) ) {
+					return array(
+						'type'     => 'theme',
+						'name'     => $name,
+						'fallback' => self::get_dashicon_value( isset( $icon['fallback'] ) ? $icon['fallback'] : '' ),
+						'alt'      => isset( $icon['alt'] ) ? sanitize_text_field( $icon['alt'] ) : '',
+					);
+				}
+			}
+
 			$value = '';
 			if ( isset( $icon['value'] ) ) {
 				$value = $icon['value'];
@@ -49,9 +61,10 @@ final class Admin_OS_Mode_Icon_Renderer {
 	 * Render a normalized icon descriptor.
 	 *
 	 * @param mixed $icon Raw or normalized icon.
+	 * @param mixed $theme Current theme data.
 	 */
-	public static function render( $icon ) {
-		$icon = self::normalize( $icon );
+	public static function render( $icon, $theme = array() ) {
+		$icon = self::resolve( $icon, $theme );
 
 		if ( 'image' === $icon['type'] && ! empty( $icon['url'] ) ) {
 			printf(
@@ -69,21 +82,69 @@ final class Admin_OS_Mode_Icon_Renderer {
 	}
 
 	/**
+	 * Resolve a normalized icon for the active theme.
+	 *
+	 * @param mixed $icon Raw or normalized icon.
+	 * @param mixed $theme Current theme data.
+	 * @return array<string,string>
+	 */
+	public static function resolve( $icon, $theme = array() ) {
+		$icon = self::normalize( $icon );
+
+		if ( 'theme' !== $icon['type'] ) {
+			return $icon;
+		}
+
+		$url = self::get_theme_icon_url( $icon, $theme );
+		if ( '' !== $url ) {
+			return array(
+				'type' => 'image',
+				'url'  => $url,
+				'alt'  => $icon['alt'],
+			);
+		}
+
+		return self::normalize_dashicon( $icon['fallback'] );
+	}
+
+	/**
 	 * Normalize a Dashicon class.
 	 *
 	 * @param mixed $value Raw class.
 	 * @return array<string,string>
 	 */
 	private static function normalize_dashicon( $value ) {
-		$value = sanitize_html_class( (string) $value );
-		if ( '' === $value ) {
-			$value = 'dashicons-admin-generic';
-		}
+		$value = self::get_dashicon_value( $value );
 
 		return array(
 			'type'  => 'dashicon',
 			'value' => $value,
 		);
+	}
+
+	/**
+	 * Sanitize a Dashicon value.
+	 *
+	 * @param mixed $value Raw class.
+	 * @return string
+	 */
+	private static function get_dashicon_value( $value ) {
+		$value = sanitize_html_class( (string) $value );
+		if ( '' === $value ) {
+			$value = 'dashicons-admin-generic';
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Check whether a theme icon name points to a supported image file.
+	 *
+	 * @param string $name Icon file name.
+	 * @return bool
+	 */
+	private static function is_theme_icon_name( $name ) {
+		return (bool) preg_match( '/\.(svg|png|webp|jpe?g|gif)$/i', $name );
 	}
 
 	/**
@@ -103,6 +164,26 @@ final class Admin_OS_Mode_Icon_Renderer {
 
 		$path = self::normalize_media_path( $icon['src'] );
 		if ( '' === $path ) {
+			return '';
+		}
+
+		return ADMIN_OS_MODE_URL . 'assets/media/' . $path;
+	}
+
+	/**
+	 * Resolve a theme icon URL when the active icon pack has the file.
+	 *
+	 * @param array<string,string> $icon Theme icon descriptor.
+	 * @param mixed                $theme Current theme data.
+	 * @return string
+	 */
+	private static function get_theme_icon_url( $icon, $theme ) {
+		if ( empty( $icon['name'] ) || ! is_array( $theme ) || empty( $theme['media']['icon_pack']['path'] ) ) {
+			return '';
+		}
+
+		$path = self::normalize_media_path( trailingslashit( $theme['media']['icon_pack']['path'] ) . $icon['name'] );
+		if ( '' === $path || ! file_exists( ADMIN_OS_MODE_DIR . 'assets/media/' . $path ) ) {
 			return '';
 		}
 

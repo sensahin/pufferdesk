@@ -137,6 +137,8 @@ Themes:
 Icons:
 
 - Legacy Dashicon strings are allowed for compatibility.
+- Prefer theme descriptors with Dashicon fallbacks for built-in apps, folders, and widgets, so OS icon packs can replace the visual asset without changing registry IDs or app definitions.
+- Theme icon files resolve from `theme.media.icon_pack.url`; missing files must fall back cleanly to Dashicons in PHP-rendered and JS-rendered surfaces.
 - Prefer normalized descriptors for future flexibility:
 
 ```php
@@ -148,6 +150,12 @@ Icons:
 'icon' => array(
 	'type' => 'image',
 	'src'  => 'themes/macos/default/icons/posts.svg',
+);
+
+'icon' => array(
+	'type'     => 'theme',
+	'name'     => 'posts.svg',
+	'fallback' => 'dashicons-admin-post',
 );
 ```
 

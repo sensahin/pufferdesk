@@ -77,6 +77,12 @@ Apps and folders use structured icon descriptors internally. Legacy Dashicon str
 	'type' => 'image',
 	'src'  => 'themes/macos/default/icons/posts.svg',
 );
+
+'icon' => array(
+	'type'     => 'theme',
+	'name'     => 'posts.svg',
+	'fallback' => 'dashicons-admin-post',
+);
 ```
 
 == Build and release assets ==
@@ -125,6 +131,8 @@ Themes support family/version inheritance. A concrete theme can declare a parent
 ```
 
 Theme media fields are normalized to local `assets/media/` descriptors with `path` and `url` values, then exposed in the runtime theme config. Keep OS media original or licensed for redistribution.
+
+When a theme declares a wallpaper, the shell sets `--aos-wallpaper-image` from `theme.media.wallpaper.url`. If no wallpaper is declared, the desktop keeps the theme CSS fallback background. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing.
 
 Future phases can add theme packs such as specific macOS eras, Windows-style, Win98-style, Ubuntu-style, and other OS skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce.
 
