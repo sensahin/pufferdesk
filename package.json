@@ -1,0 +1,17 @@
+{
+  "name": "admin-os-mode",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Desktop-style WordPress admin workspace plugin.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-assets.mjs",
+    "check": "npm run build && npm run check:js && npm run check:php",
+    "check:js": "find assets/js -name '*.js' -print0 | xargs -0 -n1 node --check",
+    "check:php": "find . -path './node_modules' -prune -o -path './release' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l",
+    "package": "npm run build && node scripts/package-plugin.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12"
+  }
+}

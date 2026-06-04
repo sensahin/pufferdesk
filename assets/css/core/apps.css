@@ -1,0 +1,261 @@
+.aos-welcome-body {
+	padding: 28px;
+}
+
+.aos-welcome-header {
+	align-items: start;
+	display: flex;
+	gap: 20px;
+	justify-content: space-between;
+	margin-bottom: 22px;
+}
+
+.aos-welcome-header p,
+.aos-panel h2 {
+	color: var(--aos-muted);
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0;
+	margin: 0 0 7px;
+	text-transform: uppercase;
+}
+
+.aos-welcome-header h1 {
+	color: var(--aos-ink);
+	font-size: 34px;
+	font-weight: 760;
+	letter-spacing: 0;
+	line-height: 1.05;
+	margin: 0;
+}
+
+.aos-welcome-header a {
+	background: var(--aos-control-bg);
+	border-radius: 7px;
+	color: var(--aos-ink);
+	font-size: 13px;
+	padding: 9px 11px;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.aos-stats {
+	display: grid;
+	gap: 12px;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	margin-bottom: 18px;
+}
+
+.aos-stat,
+.aos-panel {
+	background: var(--aos-card-bg);
+	border: 1px solid var(--aos-card-border);
+	border-radius: 8px;
+}
+
+.aos-stat {
+	padding: 14px;
+}
+
+.aos-stat span {
+	color: var(--aos-muted);
+	display: block;
+	font-size: 12px;
+	margin-bottom: 8px;
+}
+
+.aos-stat strong {
+	display: block;
+	font-size: 24px;
+	line-height: 1;
+}
+
+.aos-panel-grid {
+	display: grid;
+	gap: 18px;
+	grid-template-columns: 1.3fr 1fr;
+}
+
+.aos-panel {
+	padding: 18px;
+}
+
+.aos-panel h2 {
+	margin-bottom: 14px;
+}
+
+.aos-app-grid {
+	display: grid;
+	gap: 12px;
+	grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+}
+
+.aos-app-launcher {
+	align-items: center;
+	background: var(--aos-card-bg);
+	border: 1px solid var(--aos-card-border);
+	border-radius: 8px;
+	color: var(--aos-ink);
+	cursor: pointer;
+	display: flex;
+	flex-direction: column;
+	font-size: 12px;
+	font-weight: 600;
+	gap: 9px;
+	min-height: 96px;
+	padding: 12px;
+	text-align: center;
+}
+
+.aos-app-launcher:hover,
+.aos-app-launcher:focus {
+	background: #fff;
+	box-shadow: var(--aos-tile-shadow);
+	outline: none;
+	transform: translateY(-1px);
+}
+
+.aos-app-icon {
+	border-radius: 16px;
+	height: 46px;
+	width: 50px;
+}
+
+.aos-app-icon .aos-icon-image {
+	height: 30px;
+	width: 30px;
+}
+
+.aos-recent-list {
+	display: grid;
+	gap: 8px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.aos-recent-list button {
+	align-items: center;
+	background: var(--aos-card-bg);
+	border: 1px solid var(--aos-card-border);
+	border-radius: 7px;
+	color: var(--aos-ink);
+	cursor: pointer;
+	display: flex;
+	justify-content: space-between;
+	padding: 10px 11px;
+	text-align: left;
+	width: 100%;
+}
+
+.aos-recent-list button:hover,
+.aos-recent-list button:focus {
+	background: #fff;
+	outline: none;
+}
+
+.aos-recent-list span {
+	font-weight: 600;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-recent-list small {
+	color: var(--aos-muted);
+	margin-left: 12px;
+	white-space: nowrap;
+}
+
+.aos-empty {
+	color: var(--aos-muted);
+	margin: 0;
+}
+
+.aos-folder-body {
+	padding: 18px;
+}
+
+.aos-folder-body .aos-app-grid {
+	grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+}
+
+.aos-settings-body {
+	background: rgba(255, 255, 255, 0.5);
+}
+
+.aos-settings {
+	display: grid;
+	gap: 14px;
+	padding: 18px;
+}
+
+.aos-settings-section {
+	background: var(--aos-card-bg);
+	border: 1px solid var(--aos-card-border);
+	border-radius: 8px;
+	display: grid;
+	gap: 12px;
+	padding: 16px;
+}
+
+.aos-settings-section h2 {
+	color: var(--aos-muted);
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0;
+	margin: 0;
+	text-transform: uppercase;
+}
+
+.aos-settings-row {
+	align-items: center;
+	display: grid;
+	gap: 12px;
+	grid-template-columns: 130px 1fr;
+}
+
+.aos-settings-label {
+	color: var(--aos-ink);
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.aos-settings-control,
+.aos-settings-button {
+	background: var(--aos-tile-bg);
+	border: 1px solid var(--aos-tile-border);
+	border-radius: 7px;
+	color: var(--aos-ink);
+	font-family: inherit;
+	font-size: 13px;
+	min-height: 34px;
+	padding: 0 10px;
+}
+
+.aos-settings-button {
+	cursor: pointer;
+	justify-self: start;
+}
+
+.aos-settings-button:hover,
+.aos-settings-button:focus {
+	background: #fff;
+	outline: none;
+}
+
+.aos-settings-button:disabled,
+.aos-settings-control:disabled {
+	cursor: default;
+	opacity: 0.58;
+}
+
+.aos-settings-danger {
+	color: #b32d2e;
+}
+
+.aos-settings-status {
+	color: var(--aos-muted);
+	font-size: 12px;
+	min-height: 18px;
+}

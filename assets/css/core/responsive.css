@@ -1,0 +1,56 @@
+@media (max-width: 960px) {
+	.aos-shell {
+		height: calc(100vh - 46px);
+	}
+
+	.aos-menu-bar {
+		grid-template-columns: auto 1fr auto;
+		height: auto;
+		min-height: 56px;
+		padding: 8px 12px;
+	}
+
+	.aos-menu-items,
+	.aos-clock {
+		display: none;
+	}
+
+	.aos-search {
+		min-width: 140px;
+	}
+
+	.aos-desktop {
+		height: calc(100% - 56px);
+	}
+
+	.aos-desktop-icons {
+		grid-template-columns: 86px;
+	}
+
+	.aos-window {
+		left: 12px;
+		min-width: 0;
+		top: 84px;
+		transform: none;
+		width: calc(100% - 24px);
+	}
+
+	.aos-stats,
+	.aos-panel-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.aos-welcome-header {
+		display: block;
+	}
+
+	.aos-welcome-header a {
+		display: inline-block;
+		margin-top: 14px;
+		white-space: normal;
+	}
+
+	.aos-settings-row {
+		grid-template-columns: 1fr;
+	}
+}

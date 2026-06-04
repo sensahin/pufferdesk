@@ -1,0 +1,116 @@
+.aos-window {
+	background: var(--aos-panel);
+	backdrop-filter: blur(22px);
+	border: 1px solid var(--aos-line);
+	border-radius: 8px;
+	box-shadow: var(--aos-shadow);
+	display: flex;
+	flex-direction: column;
+	left: 50%;
+	min-height: 300px;
+	min-width: 360px;
+	overflow: hidden;
+	position: absolute;
+	resize: both;
+	top: 48%;
+	transform: translate(-50%, -50%);
+	width: min(940px, calc(100vw - 260px));
+	z-index: 20;
+}
+
+.aos-window.is-hidden {
+	display: none;
+}
+
+.aos-window.is-maximized {
+	border-radius: 0;
+	height: calc(100% - 18px) !important;
+	left: 9px !important;
+	top: 9px !important;
+	transform: none !important;
+	width: calc(100% - 18px) !important;
+}
+
+.aos-window-titlebar {
+	align-items: center;
+	background: var(--aos-window-bar-bg);
+	border-bottom: 1px solid var(--aos-window-bar-border);
+	cursor: grab;
+	display: grid;
+	gap: 12px;
+	grid-template-columns: auto 1fr auto;
+	min-height: 42px;
+	padding: 0 12px;
+	user-select: none;
+}
+
+.aos-window-titlebar:active {
+	cursor: grabbing;
+}
+
+.aos-window-titlebar strong {
+	align-items: center;
+	display: flex;
+	font-size: 13px;
+	letter-spacing: 0;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-window-titlebar strong > .dashicons,
+.aos-window-titlebar strong > .aos-icon-image {
+	flex: 0 0 auto;
+	margin-right: 7px;
+}
+
+.aos-window-titlebar strong > .aos-icon-image {
+	height: 17px;
+	width: 17px;
+}
+
+.aos-window-actions {
+	display: inline-flex;
+	gap: 6px;
+}
+
+.aos-window-actions button {
+	align-items: center;
+	background: var(--aos-control-bg);
+	border: 0;
+	border-radius: 6px;
+	color: var(--aos-ink);
+	cursor: pointer;
+	display: flex;
+	height: 26px;
+	justify-content: center;
+	padding: 0;
+	width: 28px;
+}
+
+.aos-window-actions button:hover,
+.aos-window-actions button:focus {
+	background: var(--aos-control-bg-hover);
+	outline: none;
+}
+
+.aos-window-actions .dashicons {
+	font-size: 15px;
+	height: 15px;
+	width: 15px;
+}
+
+.aos-window-body {
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+}
+
+.aos-app-frame {
+	background: #fff;
+	border: 0;
+	display: block;
+	height: 100%;
+	width: 100%;
+}

@@ -1,0 +1,65 @@
+.aos-dock {
+	align-items: center;
+	backdrop-filter: blur(20px);
+	background: var(--aos-dock-bg);
+	border: 1px solid var(--aos-dock-border);
+	border-radius: 8px;
+	bottom: 18px;
+	box-shadow: var(--aos-shadow);
+	display: flex;
+	gap: 8px;
+	left: 50%;
+	max-width: calc(100% - 36px);
+	overflow-x: auto;
+	padding: 9px;
+	position: absolute;
+	transform: translateX(-50%);
+	z-index: 70;
+}
+
+.aos-dock-item {
+	align-items: center;
+	background: var(--aos-tile-bg);
+	border: 1px solid var(--aos-tile-border);
+	border-radius: 7px;
+	color: var(--aos-accent);
+	cursor: pointer;
+	display: flex;
+	height: 44px;
+	justify-content: center;
+	padding: 0;
+	position: relative;
+	transition: transform 140ms ease;
+	width: 48px;
+}
+
+.aos-dock-item:hover,
+.aos-dock-item:focus,
+.aos-dock-item.is-running {
+	background: #fff;
+	outline: none;
+	transform: translateY(-3px);
+}
+
+.aos-dock-item.is-running::after {
+	background: var(--aos-running-indicator, var(--aos-accent));
+	border-radius: 50%;
+	bottom: 3px;
+	content: "";
+	height: 5px;
+	left: 50%;
+	position: absolute;
+	transform: translateX(-50%);
+	width: 5px;
+}
+
+.aos-dock-item .dashicons {
+	font-size: 24px;
+	height: 24px;
+	width: 24px;
+}
+
+.aos-dock-item .aos-icon-image {
+	height: 26px;
+	width: 26px;
+}
