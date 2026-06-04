@@ -291,6 +291,8 @@ final class Admin_OS_Mode_Assets {
 	 * @return array<string,mixed>
 	 */
 	private function get_runtime_config( $apps, $folders, $widgets, $theme ) {
+		$current_user = wp_get_current_user();
+
 		return array(
 			'appearance' => $this->preferences->get_appearance(),
 			'apps'       => $apps,
@@ -300,6 +302,11 @@ final class Admin_OS_Mode_Assets {
 			'siteName'   => get_bloginfo( 'name' ),
 			'themes'     => $this->theme_registry->get_selectable_themes(),
 			'userId'     => get_current_user_id(),
+			'user'       => array(
+				'avatar'   => get_avatar_url( $current_user->ID, array( 'size' => 96 ) ),
+				'name'     => $current_user->display_name ? $current_user->display_name : $current_user->user_login,
+				'subtitle' => __( 'WordPress Account', 'admin-os-mode' ),
+			),
 			'storageKey' => 'adminOSMode:' . get_current_user_id() . ':' . $theme['id'] . ':session',
 			'nonce'      => wp_create_nonce( Admin_OS_Mode_Settings_Controller::NONCE_ACTION ),
 			'folders'    => $folders,

@@ -31,6 +31,25 @@
 		width: calc(100% - 24px);
 	}
 
+	.aos-window[data-aos-app-window="os-settings"] {
+		--aos-settings-sidebar-width: 210px;
+		min-width: 0;
+	}
+
+	.aos-settings-pane-header {
+		padding: 14px 18px 8px;
+	}
+
+	.aos-settings-pane {
+		padding: 8px 18px 24px;
+	}
+
+	.aos-settings-sidebar-item,
+	.aos-settings-search-field input,
+	.aos-settings-profile-text strong {
+		font-size: var(--aos-text-body);
+	}
+
 	.aos-stats,
 	.aos-panel-grid {
 		grid-template-columns: 1fr;
@@ -50,6 +69,12 @@
 		grid-template-columns: 1fr;
 	}
 
+	.aos-settings-row > .aos-settings-control,
+	.aos-settings-option-group,
+	.aos-settings-swatch-group {
+		justify-self: start;
+	}
+
 	.aos-settings-option-group,
 	.aos-settings-swatch-group {
 		justify-content: flex-start;
@@ -57,5 +82,27 @@
 
 	.aos-settings-swatch-label {
 		text-align: left;
+	}
+}
+
+@media (max-width: 720px) {
+	.aos-settings {
+		grid-template-columns: 1fr;
+	}
+
+	.aos-settings-sidebar {
+		display: none;
+	}
+
+	.aos-window[data-aos-app-window="os-settings"] .aos-window-titlebar {
+		width: 112px;
+	}
+
+	.aos-settings-history {
+		display: none;
+	}
+
+	.aos-settings-pane-header {
+		padding-left: 96px;
 	}
 }
