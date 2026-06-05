@@ -282,15 +282,21 @@
 	width: 100%;
 }
 
-.aos-settings-profile:hover,
 .aos-settings-profile:focus {
-	background: var(--aos-control-bg-hover);
 	outline: none;
+}
+
+.aos-settings-profile:active {
+	background: var(--aos-control-bg-hover);
 }
 
 .aos-settings-profile.is-active {
 	background: var(--aos-accent);
 	color: #fff;
+}
+
+.aos-settings-profile.is-active:active {
+	background: var(--aos-accent);
 }
 
 .aos-settings-profile.is-active .aos-settings-profile-text span {
@@ -451,10 +457,12 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	border-top: 1px solid var(--aos-card-border);
 }
 
-button.aos-settings-profile-action:hover,
 button.aos-settings-profile-action:focus {
-	background: var(--aos-control-bg-hover);
 	outline: none;
+}
+
+button.aos-settings-profile-action:active {
+	background: var(--aos-control-bg-hover);
 }
 
 .aos-settings-profile-row-icon {
@@ -539,10 +547,12 @@ button.aos-settings-profile-action:focus {
 	padding: 0 17px;
 }
 
-.aos-settings-profile-sign-out:hover,
 .aos-settings-profile-sign-out:focus {
-	background: var(--aos-control-bg-hover);
 	outline: none;
+}
+
+.aos-settings-profile-sign-out:active {
+	background: var(--aos-control-bg-hover);
 }
 
 .aos-settings-sidebar-nav {
@@ -579,14 +589,17 @@ button.aos-settings-profile-action:focus {
 	color: #fff;
 }
 
-.aos-settings-sidebar-item:not(:disabled):hover,
 .aos-settings-sidebar-item:not(:disabled):focus {
-	background: var(--aos-control-bg-hover);
 	outline: none;
 }
 
+.aos-settings-sidebar-item:not(:disabled):active {
+	background: var(--aos-control-bg-hover);
+}
+
 .aos-settings-sidebar-item.is-active:hover,
-.aos-settings-sidebar-item.is-active:focus {
+.aos-settings-sidebar-item.is-active:focus,
+.aos-settings-sidebar-item.is-active:active {
 	background: var(--aos-accent);
 }
 
