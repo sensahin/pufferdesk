@@ -507,6 +507,48 @@
 			return grid;
 		}
 
+		function createCollapsibleWallpaperSection(title, items, status, options = {}) {
+			const visibleCount = Number.parseInt(options.visibleCount, 10) || 4;
+			const section = createSection('', options.sectionClassName || '');
+			const header = dom.createElement('div', 'aos-settings-section-header');
+			const heading = dom.createElement('h2', '', title);
+			const grid = createWallpaperGrid(
+				status,
+				items,
+				options.gridClassName || '',
+				options.optionClassName || ''
+			);
+			let expanded = false;
+
+			header.appendChild(heading);
+			section.appendChild(header);
+			section.appendChild(grid);
+
+			if (items.length > visibleCount) {
+				const toggle = document.createElement('button');
+				toggle.type = 'button';
+				toggle.className = 'aos-settings-section-toggle';
+
+				const syncExpandedState = () => {
+					grid.classList.toggle('is-collapsed', !expanded);
+					Array.from(grid.children).forEach((child, index) => {
+						child.hidden = !expanded && index >= visibleCount;
+					});
+					toggle.textContent = expanded ? 'Show Less' : `Show All (${items.length})`;
+					toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+				};
+
+				toggle.addEventListener('click', () => {
+					expanded = !expanded;
+					syncExpandedState();
+				});
+				header.appendChild(toggle);
+				syncExpandedState();
+			}
+
+			return section;
+		}
+
 		function chooseUploadedWallpaper(status) {
 			if (!currentWallpaper.can_upload || !window.wp || !window.wp.media) {
 				status.textContent = 'Media Library is not available for this user.';
@@ -598,13 +640,22 @@
 
 		function createWallpaperPanel(status) {
 			const panel = dom.createElement('div', 'aos-settings-pane-panel');
-			const builtInSection = createSection('Built-in Wallpapers', 'aos-settings-section-wallpaper-builtins');
+			const wallpaperItems = getWallpaperGroup('wallpapers');
+			const builtInSection = createCollapsibleWallpaperSection(
+				'Wallpapers',
+				wallpaperItems,
+				status,
+				{
+					sectionClassName: 'aos-settings-section-wallpaper-builtins',
+					gridClassName: 'aos-settings-wallpaper-builtins-grid',
+					visibleCount: 4
+				}
+			);
 			const colorSection = createSection('Colors', 'aos-settings-section-wallpaper-colors');
 			const resetSection = createSection('', 'aos-settings-section-wallpaper-reset');
 			const resetButton = createButton('Reset to Default');
 
 			panel.dataset.aosSettingsPanel = 'wallpaper';
-			builtInSection.appendChild(createWallpaperGrid(status, getWallpaperGroup('wallpapers')));
 			colorSection.appendChild(createWallpaperGrid(status, getWallpaperGroup('colors'), 'aos-settings-wallpaper-color-grid', 'aos-settings-wallpaper-color-option'));
 			resetButton.addEventListener('click', () => resetWallpaper(status));
 			resetSection.appendChild(resetButton);

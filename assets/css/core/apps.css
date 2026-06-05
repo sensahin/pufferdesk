@@ -618,11 +618,48 @@
 	color: #b32d2e;
 }
 
+.aos-settings-section-header {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	padding: 14px 16px 0;
+}
+
+.aos-settings-section-header h2 {
+	margin: 0;
+	padding: 0;
+}
+
+.aos-settings-section-toggle {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	border-radius: 999px;
+	color: var(--aos-accent);
+	cursor: default;
+	font-family: inherit;
+	font-size: var(--aos-settings-text-caption);
+	font-weight: var(--aos-weight-medium);
+	line-height: var(--aos-line-height-body);
+	padding: 2px 0;
+	text-align: right;
+}
+
+.aos-settings-section-toggle:focus-visible {
+	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(10, 132, 255, 0.28));
+	outline: none;
+}
+
 .aos-settings-wallpaper-grid {
 	display: grid;
 	gap: 12px;
 	grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
 	padding: 14px 16px 16px;
+}
+
+.aos-settings-wallpaper-builtins-grid {
+	gap: 10px;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .aos-settings-wallpaper-option {
@@ -635,7 +672,7 @@
 	font-family: inherit;
 	font-size: var(--aos-settings-text-body);
 	font-weight: var(--aos-weight-semibold);
-	gap: 6px;
+	gap: 5px;
 	min-width: 0;
 	padding: 0;
 	text-align: left;
@@ -666,6 +703,7 @@
 
 .aos-settings-wallpaper-preview {
 	aspect-ratio: 16 / 10;
+	border-radius: 7px;
 	width: 100%;
 }
 
