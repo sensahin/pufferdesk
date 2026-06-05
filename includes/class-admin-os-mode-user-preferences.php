@@ -58,34 +58,13 @@ final class Admin_OS_Mode_User_Preferences {
 		'dock_magnification'        => 0,
 		'dock_position'             => 'bottom',
 		'minimize_animation'        => 'genie',
-		'titlebar_double_click'     => 'zoom',
 		'minimize_into_app_icon'    => false,
 		'auto_hide_dock'            => false,
 		'animate_opening_apps'      => true,
 		'show_open_indicators'      => true,
-		'show_recent_apps'          => false,
-		'show_desktop_items'        => true,
-		'show_stage_manager_items'  => false,
 		'wallpaper_click'           => 'always',
-		'stage_manager'             => false,
-		'stage_manager_recent_apps' => true,
-		'stage_manager_windows'     => 'all_at_once',
 		'show_widgets_desktop'      => true,
-		'show_widgets_stage_manager' => false,
 		'dim_widgets'               => 'automatic',
-		'default_browser'           => 'system',
-		'prefer_tabs'               => 'in_full_screen',
-		'ask_keep_changes'          => false,
-		'close_windows_on_quit'     => true,
-		'edge_tiling'               => false,
-		'menu_bar_fill_screen'      => false,
-		'tile_modifier_key'         => true,
-		'tiled_windows_margins'     => false,
-		'auto_rearrange_spaces'     => true,
-		'switch_to_app_space'       => true,
-		'group_windows_by_app'      => false,
-		'separate_spaces'           => true,
-		'top_edge_mission_control'  => true,
 	);
 
 	/**
@@ -94,14 +73,10 @@ final class Admin_OS_Mode_User_Preferences {
 	 * @var array<string,array<int,string>>
 	 */
 	private $desktop_dock_options = array(
-		'dock_position'         => array( 'left', 'bottom', 'right' ),
-		'minimize_animation'    => array( 'genie', 'scale' ),
-		'titlebar_double_click' => array( 'zoom', 'minimize', 'nothing' ),
-		'wallpaper_click'       => array( 'always', 'only_stage_manager', 'never' ),
-		'stage_manager_windows' => array( 'all_at_once', 'one_at_a_time' ),
-		'dim_widgets'           => array( 'automatic', 'always', 'never' ),
-		'default_browser'       => array( 'system' ),
-		'prefer_tabs'           => array( 'never', 'in_full_screen', 'always' ),
+		'dock_position'      => array( 'left', 'bottom', 'right' ),
+		'minimize_animation' => array( 'genie', 'scale' ),
+		'wallpaper_click'    => array( 'always', 'never' ),
+		'dim_widgets'        => array( 'automatic', 'always', 'never' ),
 	);
 
 	/**

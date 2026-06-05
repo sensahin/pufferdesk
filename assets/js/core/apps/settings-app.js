@@ -72,32 +72,14 @@
 				{ value: 'genie', label: 'Genie Effect' },
 				{ value: 'scale', label: 'Scale Effect' }
 			],
-			titlebar_double_click: [
-				{ value: 'zoom', label: 'Zoom' },
-				{ value: 'minimize', label: 'Minimize' },
-				{ value: 'nothing', label: 'Do Nothing' }
-			],
 			wallpaper_click: [
 				{ value: 'always', label: 'Always' },
-				{ value: 'only_stage_manager', label: 'Only in Stage Manager' },
 				{ value: 'never', label: 'Never' }
-			],
-			stage_manager_windows: [
-				{ value: 'all_at_once', label: 'All at Once' },
-				{ value: 'one_at_a_time', label: 'One at a Time' }
 			],
 			dim_widgets: [
 				{ value: 'automatic', label: 'Automatically' },
 				{ value: 'always', label: 'Always' },
 				{ value: 'never', label: 'Never' }
-			],
-			default_browser: [
-				{ value: 'system', label: 'System Browser' }
-			],
-			prefer_tabs: [
-				{ value: 'never', label: 'Never' },
-				{ value: 'in_full_screen', label: 'In Full Screen' },
-				{ value: 'always', label: 'Always' }
 			]
 		};
 
@@ -923,24 +905,6 @@
 			return button;
 		}
 
-		function createDesktopDockCheckbox(key, labelText, status) {
-			const button = document.createElement('button');
-
-			button.type = 'button';
-			button.className = 'aos-settings-checkbox-option';
-			button.setAttribute('aria-pressed', currentDesktopDock[key] ? 'true' : 'false');
-			button.addEventListener('click', () => updateDesktopDock(key, !currentDesktopDock[key], status));
-			button.appendChild(dom.createElement('span', 'aos-settings-checkbox-box'));
-			button.appendChild(dom.createElement('span', '', labelText));
-			desktopDockControls.push({
-				button,
-				key,
-				type: 'checkbox'
-			});
-
-			return button;
-		}
-
 		function createDesktopDockRow(labelText, control, descriptionText = '') {
 			const row = dom.createElement('div', 'aos-settings-row aos-settings-desktop-dock-row');
 			const labelStack = dom.createElement('span', 'aos-settings-label-stack');
@@ -1204,44 +1168,21 @@
 			return createDesktopDockRow(labelText, createDesktopDockToggle(key, status), descriptionText);
 		}
 
-		function createDesktopDockCheckboxRow(labelText, items, status) {
-			const group = dom.createElement('span', 'aos-settings-checkbox-group');
-
-			items.forEach((item) => {
-				group.appendChild(createDesktopDockCheckbox(item.key, item.label, status));
-			});
-
-			return createDesktopDockRow(labelText, group);
-		}
-
 		function createDesktopDockPanel(status) {
 			const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-desktop-dock-panel');
 			const dockSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
 			const behaviorSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
 			const desktopSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
-			const stageSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
 			const widgetsSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
-			const browserSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
-			const windowsSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
-			const tilingSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
-			const missionSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
-			const footer = dom.createElement('div', 'aos-settings-desktop-dock-footer');
 
 			panel.dataset.aosSettingsPanel = 'desktop-dock';
 			dockSection.appendChild(createDesktopDockSelectRow('Dock position on screen', 'dock_position', status));
 			dockSection.appendChild(createDesktopDockSelectRow('Minimized window animation', 'minimize_animation', status));
-			dockSection.appendChild(createDesktopDockSelectRow('Window title bar double-click action', 'titlebar_double_click', status));
 			dockSection.appendChild(createDesktopDockToggleRow('Minimize windows into application icon', 'minimize_into_app_icon', status));
 
 			behaviorSection.appendChild(createDesktopDockToggleRow('Automatically hide and show the Dock', 'auto_hide_dock', status));
 			behaviorSection.appendChild(createDesktopDockToggleRow('Animate opening applications', 'animate_opening_apps', status));
 			behaviorSection.appendChild(createDesktopDockToggleRow('Show indicators for open applications', 'show_open_indicators', status));
-			behaviorSection.appendChild(createDesktopDockToggleRow('Show suggested and recent apps in Dock', 'show_recent_apps', status));
-
-			desktopSection.appendChild(createDesktopDockCheckboxRow('Show items', [
-				{ key: 'show_desktop_items', label: 'On Desktop' },
-				{ key: 'show_stage_manager_items', label: 'In Stage Manager' }
-			], status));
 			desktopSection.appendChild(createDesktopDockSelectRow(
 				'Click wallpaper to show desktop',
 				'wallpaper_click',
@@ -1249,63 +1190,17 @@
 				'Click wallpaper to move windows out of the way, revealing your desktop items and widgets.'
 			));
 
-			stageSection.appendChild(createDesktopDockToggleRow(
-				'Stage Manager',
-				'stage_manager',
-				status,
-				'Stage Manager arranges recent windows into a single strip for reduced clutter and quick access.'
-			));
-			stageSection.appendChild(createDesktopDockToggleRow('Show recent apps in Stage Manager', 'stage_manager_recent_apps', status));
-			stageSection.appendChild(createDesktopDockSelectRow('Show windows from an application', 'stage_manager_windows', status));
-
-			widgetsSection.appendChild(createDesktopDockCheckboxRow('Show Widgets', [
-				{ key: 'show_widgets_desktop', label: 'On Desktop' },
-				{ key: 'show_widgets_stage_manager', label: 'In Stage Manager' }
-			], status));
+			widgetsSection.appendChild(createDesktopDockToggleRow('Show widgets on desktop', 'show_widgets_desktop', status));
 			widgetsSection.appendChild(createDesktopDockSelectRow('Dim widgets on desktop', 'dim_widgets', status));
-
-			browserSection.appendChild(createDesktopDockSelectRow('Default web browser', 'default_browser', status));
-
-			windowsSection.appendChild(createDesktopDockSelectRow('Prefer tabs when opening documents', 'prefer_tabs', status));
-			windowsSection.appendChild(createDesktopDockToggleRow('Ask to keep changes when closing documents', 'ask_keep_changes', status));
-			windowsSection.appendChild(createDesktopDockToggleRow(
-				'Close windows when quitting an application',
-				'close_windows_on_quit',
-				status,
-				'When enabled, open documents and windows will not be restored when you re-open an application.'
-			));
-
-			tilingSection.appendChild(createDesktopDockToggleRow('Drag windows to left or right edge of screen to tile', 'edge_tiling', status));
-			tilingSection.appendChild(createDesktopDockToggleRow('Drag windows to menu bar to fill screen', 'menu_bar_fill_screen', status));
-			tilingSection.appendChild(createDesktopDockToggleRow('Hold Option key while dragging windows to tile', 'tile_modifier_key', status));
-			tilingSection.appendChild(createDesktopDockToggleRow('Tiled windows have margins', 'tiled_windows_margins', status));
-
-			missionSection.appendChild(createDesktopDockToggleRow('Automatically rearrange Spaces based on most recent use', 'auto_rearrange_spaces', status));
-			missionSection.appendChild(createDesktopDockToggleRow('When switching to an application, switch to a Space with open windows for the application', 'switch_to_app_space', status));
-			missionSection.appendChild(createDesktopDockToggleRow('Group windows by application', 'group_windows_by_app', status));
-			missionSection.appendChild(createDesktopDockToggleRow('Displays have separate Spaces', 'separate_spaces', status));
-			missionSection.appendChild(createDesktopDockToggleRow('Drag windows to top of screen to enter Mission Control', 'top_edge_mission_control', status));
-
-			footer.appendChild(createButton('Shortcuts...', 'aos-settings-desktop-dock-footer-button'));
-			footer.appendChild(createButton('Hot Corners...', 'aos-settings-desktop-dock-footer-button'));
 
 			panel.appendChild(createSectionHeading('Dock'));
 			panel.appendChild(createDesktopDockSliderSection(status));
 			panel.appendChild(dockSection);
 			panel.appendChild(behaviorSection);
-			panel.appendChild(createSectionHeading('Desktop & Stage Manager'));
+			panel.appendChild(createSectionHeading('Desktop'));
 			panel.appendChild(desktopSection);
-			panel.appendChild(stageSection);
 			panel.appendChild(createSectionHeading('Widgets'));
 			panel.appendChild(widgetsSection);
-			panel.appendChild(browserSection);
-			panel.appendChild(createSectionHeading('Windows'));
-			panel.appendChild(windowsSection);
-			panel.appendChild(tilingSection);
-			panel.appendChild(createSectionHeading('Mission Control'));
-			panel.appendChild(dom.createElement('p', 'aos-settings-section-intro', 'Mission Control shows an overview of your open windows and full-screen apps, all arranged in a unified view.'));
-			panel.appendChild(missionSection);
-			panel.appendChild(footer);
 
 			return panel;
 		}

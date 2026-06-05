@@ -167,7 +167,7 @@ final class Admin_OS_Mode_Icon_Renderer {
 			return '';
 		}
 
-		return ADMIN_OS_MODE_URL . 'assets/media/' . $path;
+		return self::get_local_media_url( $path );
 	}
 
 	/**
@@ -187,7 +187,32 @@ final class Admin_OS_Mode_Icon_Renderer {
 			return '';
 		}
 
-		return ADMIN_OS_MODE_URL . 'assets/media/' . $path;
+		return self::get_local_media_url( $path );
+	}
+
+	/**
+	 * Build a local media URL with a file-based cache version.
+	 *
+	 * @param string $path Normalized media path.
+	 * @return string
+	 */
+	private static function get_local_media_url( $path ) {
+		$file = ADMIN_OS_MODE_DIR . 'assets/media/' . $path;
+
+		if ( '' === $path || ! file_exists( $file ) ) {
+			return '';
+		}
+
+		$version = filemtime( $file );
+		if ( false === $version ) {
+			$version = ADMIN_OS_MODE_VERSION;
+		}
+
+		return add_query_arg(
+			'ver',
+			(string) $version,
+			ADMIN_OS_MODE_URL . 'assets/media/' . $path
+		);
 	}
 
 	/**

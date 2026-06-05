@@ -325,7 +325,7 @@
 				return false;
 			}
 
-			return mode !== 'only_stage_manager' || shell.dataset.aosStageManager === '1';
+			return true;
 		}
 
 		function getDockAppButton(win) {
