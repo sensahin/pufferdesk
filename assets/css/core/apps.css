@@ -1273,28 +1273,43 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	align-items: center;
 	display: inline-flex;
 	justify-self: end;
+	min-height: 28px;
 	position: relative;
 }
 
-.aos-settings-value-select {
+.aos-shell .aos-settings-inline-select .aos-settings-value-select {
+	-webkit-appearance: none;
 	appearance: none;
-	background: transparent;
-	border: 0;
-	color: var(--aos-ink);
+	background: transparent !important;
+	background-image: none !important;
+	border: 0 !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	color: var(--aos-ink) !important;
 	cursor: default;
 	font-family: inherit;
 	font-size: var(--aos-settings-text-label);
 	font-weight: var(--aos-weight-semibold);
+	height: 28px;
 	line-height: var(--aos-line-height-body);
+	margin: 0;
 	min-height: 28px;
 	min-width: 116px;
-	padding: 0 30px 0 8px;
+	padding: 0 30px 0 8px !important;
+	position: relative;
 	text-align: right;
 	text-align-last: right;
+	z-index: 1;
 }
 
-.aos-settings-value-select:focus {
-	outline: none;
+.aos-shell .aos-settings-inline-select .aos-settings-value-select:hover,
+.aos-shell .aos-settings-inline-select .aos-settings-value-select:focus {
+	background: transparent !important;
+	background-image: none !important;
+	border: 0 !important;
+	box-shadow: none !important;
+	color: var(--aos-ink) !important;
+	outline: none !important;
 }
 
 .aos-settings-select-chevrons {
