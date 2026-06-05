@@ -39,6 +39,11 @@
 	transform: translateY(0) scale(1);
 }
 
+.aos-shell-dialog.is-dragging {
+	transition: none;
+	user-select: none;
+}
+
 .aos-shell-dialog-title {
 	color: inherit;
 	font-family: var(--aos-font-display);
@@ -177,9 +182,18 @@
 
 .aos-shell-action-dialog-message {
 	font-size: 12px;
+	font-feature-settings: "tnum";
 	font-weight: var(--aos-weight-medium);
+	font-variant-numeric: tabular-nums;
 	line-height: 1.28;
 	margin-bottom: 12px;
+}
+
+.aos-shell-action-dialog-countdown {
+	display: inline-block;
+	font-feature-settings: "tnum";
+	font-variant-numeric: tabular-nums;
+	text-align: right;
 }
 
 .aos-shell-action-dialog-checkbox {

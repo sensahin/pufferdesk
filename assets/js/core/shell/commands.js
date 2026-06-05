@@ -121,7 +121,7 @@
 					icon: 'power',
 					message: 'If you do nothing, you will be logged out automatically in {seconds} seconds.',
 					overlayMessage: 'Logging out...',
-					reopenWindowsDefault: true,
+					reopenWindowsDefault: false,
 					reopenWindowsLabel: 'Reopen windows when logging back in',
 					title: 'Are you sure you want to log out?'
 				},
@@ -132,7 +132,7 @@
 					icon: 'power',
 					message: 'If you do nothing, Admin OS will restart automatically in {seconds} seconds.',
 					overlayMessage: 'Restarting Admin OS...',
-					reopenWindowsDefault: true,
+					reopenWindowsDefault: false,
 					reopenWindowsLabel: 'Reopen windows after restarting',
 					title: 'Are you sure you want to restart Admin OS?'
 				},
@@ -143,7 +143,7 @@
 					icon: 'dashicons-admin-site-alt3',
 					message: 'If you do nothing, Classic Admin will open automatically in {seconds} seconds.',
 					overlayMessage: 'Switching to Classic Admin...',
-					reopenWindowsDefault: true,
+					reopenWindowsDefault: false,
 					reopenWindowsLabel: 'Reopen windows when returning to Admin OS',
 					title: 'Are you sure you want to switch to Classic Admin?'
 				}

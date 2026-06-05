@@ -35,8 +35,101 @@
 			return icon;
 		}
 
-		function formatCountdownMessage(template, seconds) {
-			return String(template || '').replace('{seconds}', String(seconds));
+		function renderCountdownMessage(element, template, seconds, digitCount) {
+			const safeTemplate = String(template || '');
+			const parts = safeTemplate.split('{seconds}');
+
+			element.replaceChildren();
+
+			if (parts.length === 1) {
+				element.textContent = safeTemplate;
+				return;
+			}
+
+			parts.forEach((part, index) => {
+				if (part) {
+					element.appendChild(document.createTextNode(part));
+				}
+
+				if (index < parts.length - 1) {
+					const countdown = document.createElement('span');
+					countdown.className = 'aos-shell-action-dialog-countdown';
+					countdown.style.minWidth = `${digitCount}ch`;
+					countdown.textContent = String(seconds);
+					element.appendChild(countdown);
+				}
+			});
+		}
+
+		function clamp(value, min, max) {
+			return Math.min(Math.max(value, min), Math.max(min, max));
+		}
+
+		function isDragExcluded(target) {
+			if (!target || typeof target.closest !== 'function') {
+				return false;
+			}
+
+			return Boolean(target.closest('button, input, label, select, textarea, a'));
+		}
+
+		function bindDialogDrag(layer, dialog) {
+			dialog.addEventListener('pointerdown', (event) => {
+				if (event.button !== 0 || isDragExcluded(event.target)) {
+					return;
+				}
+
+				event.preventDefault();
+
+				const layerRect = layer.getBoundingClientRect();
+				const dialogRect = dialog.getBoundingClientRect();
+				const startX = event.clientX;
+				const startY = event.clientY;
+				const startLeft = dialogRect.left - layerRect.left;
+				const startTop = dialogRect.top - layerRect.top;
+				const maxLeft = Math.max(0, layerRect.width - dialogRect.width);
+				const maxTop = Math.max(0, layerRect.height - dialogRect.height);
+
+				function positionDialog(left, top) {
+					dialog.style.position = 'absolute';
+					dialog.style.left = `${clamp(left, 0, maxLeft)}px`;
+					dialog.style.top = `${clamp(top, 0, maxTop)}px`;
+					dialog.style.transform = 'none';
+				}
+
+				function onPointerMove(moveEvent) {
+					positionDialog(startLeft + moveEvent.clientX - startX, startTop + moveEvent.clientY - startY);
+				}
+
+				function onPointerEnd(endEvent) {
+					window.removeEventListener('pointermove', onPointerMove);
+					window.removeEventListener('pointerup', onPointerEnd);
+					window.removeEventListener('pointercancel', onPointerEnd);
+					dialog.classList.remove('is-dragging');
+
+					if (
+						Number.isFinite(endEvent.pointerId) &&
+						typeof dialog.hasPointerCapture === 'function' &&
+						typeof dialog.releasePointerCapture === 'function' &&
+						dialog.hasPointerCapture(endEvent.pointerId)
+					) {
+						dialog.releasePointerCapture(endEvent.pointerId);
+					}
+				}
+
+				dialog.classList.add('is-dragging');
+				positionDialog(startLeft, startTop);
+
+				if (typeof dialog.setPointerCapture === 'function') {
+					try {
+						dialog.setPointerCapture(event.pointerId);
+					} catch (error) {}
+				}
+
+				window.addEventListener('pointermove', onPointerMove);
+				window.addEventListener('pointerup', onPointerEnd);
+				window.addEventListener('pointercancel', onPointerEnd);
+			});
 		}
 
 		function removeLayer(layer) {
@@ -108,6 +201,7 @@
 
 				actions.append(cancelButton, confirmButton);
 				dialog.append(titleElement, messageElement, actions);
+				bindDialogDrag(layer, dialog);
 				layer.appendChild(dialog);
 				shell.appendChild(layer);
 				activeDialog = layer;
@@ -130,9 +224,10 @@
 				const confirmLabel = options.confirmLabel || 'OK';
 				const cancelLabel = options.cancelLabel || 'Cancel';
 				const reopenWindowsLabel = options.reopenWindowsLabel || '';
-				const reopenWindowsDefault = options.reopenWindowsDefault !== false;
+				const reopenWindowsDefault = options.reopenWindowsDefault === true;
 				const titleId = `aos-shell-dialog-title-${Date.now()}`;
 				const messageId = `aos-shell-dialog-message-${Date.now()}`;
+				const countdownDigitCount = String(countdownSeconds).length;
 				let remaining = countdownSeconds;
 				let timerId = null;
 
@@ -180,7 +275,7 @@
 				const confirmButton = createButton(confirmLabel, 'aos-shell-dialog-button aos-shell-dialog-button-primary');
 
 				function updateMessage() {
-					messageElement.textContent = formatCountdownMessage(messageTemplate, remaining);
+					renderCountdownMessage(messageElement, messageTemplate, remaining, countdownDigitCount);
 				}
 
 				function finish(confirmed, reason) {
@@ -224,6 +319,7 @@
 					dialog.appendChild(checkboxLabel);
 				}
 				dialog.appendChild(actions);
+				bindDialogDrag(layer, dialog);
 				layer.appendChild(dialog);
 				shell.appendChild(layer);
 				activeDialog = layer;
