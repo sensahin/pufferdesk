@@ -253,8 +253,30 @@
 }
 
 .aos-shell-action-dialog-actions .aos-shell-dialog-button {
+	background: rgba(255, 255, 255, 0.12);
+	border: 0;
+	box-shadow: none;
 	min-width: 0;
 	width: 100%;
+}
+
+.aos-shell-action-dialog-actions .aos-shell-dialog-button:active {
+	background: rgba(255, 255, 255, 0.16);
+}
+
+.aos-shell-action-dialog-actions .aos-shell-dialog-button-primary {
+	background: var(--aos-accent);
+	border: 0;
+	box-shadow: none;
+}
+
+.aos-shell-action-dialog-actions .aos-shell-dialog-button-primary:hover,
+.aos-shell-action-dialog-actions .aos-shell-dialog-button-primary:focus {
+	background: var(--aos-accent);
+}
+
+.aos-shell-action-dialog-actions .aos-shell-dialog-button-primary:active {
+	filter: brightness(1.04);
 }
 
 .aos-shell-blocking-overlay {
