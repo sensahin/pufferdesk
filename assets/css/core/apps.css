@@ -712,7 +712,7 @@
 }
 
 .aos-settings-wallpaper-color-grid {
-	gap: 12px;
+	gap: 14px 8px;
 	grid-template-columns: repeat(8, 44px);
 }
 
@@ -762,6 +762,13 @@
 	gap: 10px;
 	margin-top: 12px;
 	padding: 14px 16px 16px;
+}
+
+.aos-settings-wallpaper-photos-header {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	min-width: 0;
 }
 
 .aos-settings-wallpaper-photos h3 {

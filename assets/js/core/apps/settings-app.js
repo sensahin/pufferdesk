@@ -33,8 +33,11 @@
 		let wallpaperUploadedPhotoButtons = [];
 		let wallpaperPhotoGrid = null;
 		let wallpaperPhotoStatus = null;
+		let wallpaperPhotoToggle = null;
+		let wallpaperPhotoExpanded = false;
 		let mediaFrame = null;
 		const sidebarButtons = [];
+		const wallpaperPhotoVisibleCount = 4;
 
 		const accentOptions = [
 			{ value: 'multicolor', label: 'Multicolor' },
@@ -345,6 +348,29 @@
 					label.textContent = title;
 				}
 				wallpaperPhotoGrid.appendChild(button.aosPhotoItem || button);
+			});
+
+			syncPhotoWallpaperDisclosure();
+		}
+
+		function syncPhotoWallpaperDisclosure() {
+			if (!wallpaperPhotoGrid || !wallpaperPhotoToggle) {
+				return;
+			}
+
+			const items = Array.from(wallpaperPhotoGrid.children);
+			const hasOverflow = items.length > wallpaperPhotoVisibleCount;
+
+			if (!hasOverflow) {
+				wallpaperPhotoExpanded = false;
+			}
+
+			wallpaperPhotoToggle.hidden = !hasOverflow;
+			wallpaperPhotoToggle.textContent = wallpaperPhotoExpanded ? 'Show Less' : `Show All (${items.length})`;
+			wallpaperPhotoToggle.setAttribute('aria-expanded', wallpaperPhotoExpanded ? 'true' : 'false');
+
+			items.forEach((item, index) => {
+				item.hidden = !wallpaperPhotoExpanded && index >= wallpaperPhotoVisibleCount;
 			});
 		}
 
@@ -800,12 +826,23 @@
 
 		function createPhotoWallpaperGroup(status) {
 			const group = dom.createElement('div', 'aos-settings-wallpaper-photos');
+			const header = dom.createElement('div', 'aos-settings-wallpaper-photos-header');
 			const heading = dom.createElement('h3', '', 'Your Photos');
 			const grid = dom.createElement('div', 'aos-settings-wallpaper-photo-grid');
 			const addButton = document.createElement('button');
+			const toggle = document.createElement('button');
 			const preview = dom.createElement('span', 'aos-settings-wallpaper-upload-preview');
 			const icon = dom.createElement('span', 'aos-settings-wallpaper-upload-icon');
 			const label = dom.createElement('span', 'aos-settings-wallpaper-upload-label', 'Add Photo...');
+
+			toggle.type = 'button';
+			toggle.className = 'aos-settings-section-toggle';
+			toggle.hidden = true;
+			toggle.setAttribute('aria-expanded', 'false');
+			toggle.addEventListener('click', () => {
+				wallpaperPhotoExpanded = !wallpaperPhotoExpanded;
+				syncPhotoWallpaperDisclosure();
+			});
 
 			addButton.type = 'button';
 			addButton.className = 'aos-settings-wallpaper-photo-button aos-settings-wallpaper-add-photo-button';
@@ -821,9 +858,11 @@
 			wallpaperAddPhotoLabel = label;
 			wallpaperPhotoGrid = grid;
 			wallpaperPhotoStatus = status;
+			wallpaperPhotoToggle = toggle;
 
 			grid.appendChild(addButton);
-			group.append(heading, grid);
+			header.append(heading, toggle);
+			group.append(header, grid);
 
 			return group;
 		}
