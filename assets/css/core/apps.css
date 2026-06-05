@@ -261,6 +261,10 @@
 }
 
 .aos-about-lines p {
+	color: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
 	margin: 0;
 }
 
