@@ -663,10 +663,10 @@ final class Admin_OS_Mode_App_Registry {
 				? sanitize_text_field( $about['copyright'] )
 				: sprintf(
 					/* translators: %s: current year. */
-					__( 'Copyright (c) %s Admin OS Mode.', 'admin-os-mode' ),
+					__( 'Copyright (c) %s Admin OS Mode contributors.', 'admin-os-mode' ),
 					$year
 				),
-			'rights'    => ! empty( $about['rights'] ) ? sanitize_text_field( $about['rights'] ) : __( 'All rights reserved.', 'admin-os-mode' ),
+			'rights'    => ! empty( $about['rights'] ) ? sanitize_text_field( $about['rights'] ) : __( 'Licensed under GPLv2 or later.', 'admin-os-mode' ),
 			'icon'      => $icon,
 		);
 	}
