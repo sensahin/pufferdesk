@@ -571,7 +571,7 @@
 
 			desktop.querySelectorAll('[data-aos-app-window]').forEach((win) => {
 				const appId = win.dataset.aosAppWindow;
-				if (!appId) {
+				if (!appId || win.dataset.aosPersist === '0') {
 					return;
 				}
 
@@ -619,6 +619,24 @@
 			};
 		}
 
+		function getCenteredPosition(windowOptions = {}) {
+			const width = readNumber(windowOptions.width) ?? 360;
+			const height = readNumber(windowOptions.height) ?? 260;
+			const bounds = {
+				maxLeft: Math.max(0, desktop.clientWidth - width),
+				maxTop: Math.max(getWindowSafeTop(), desktop.clientHeight - height),
+				minLeft: 0,
+				minTop: getWindowSafeTop()
+			};
+			const left = clamp(Math.round((desktop.clientWidth - width) / 2), bounds.minLeft, bounds.maxLeft);
+			const top = clamp(Math.round((desktop.clientHeight - height) / 2), bounds.minTop, bounds.maxTop);
+
+			return {
+				left: `${left}px`,
+				top: `${top}px`
+			};
+		}
+
 		function bindWindowFrame(win) {
 			if (win.dataset.aosWindowBound === '1') {
 				return;
@@ -646,7 +664,7 @@
 				return existing;
 			}
 
-			const position = getDefaultPosition();
+			const position = windowOptions.centered ? getCenteredPosition(windowOptions) : getDefaultPosition();
 			const win = factory.createWindowElement(Object.assign({}, windowOptions, position), withIframeParam);
 			desktop.appendChild(win);
 

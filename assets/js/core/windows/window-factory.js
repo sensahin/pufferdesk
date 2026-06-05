@@ -5,43 +5,52 @@
 	window.AdminOSMode.windows = window.AdminOSMode.windows || {};
 
 	window.AdminOSMode.windows.createWindowFactory = function createWindowFactory(callbacks = {}) {
-		function createWindowControl(action, label, modifier) {
+		function createWindowControl(action, label, modifier, disabled = false) {
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = `aos-window-control aos-window-control-${modifier}`;
 			button.dataset[action] = '';
 			button.setAttribute('aria-label', label);
 			button.title = label;
+			button.disabled = disabled;
+			if (disabled) {
+				button.setAttribute('aria-disabled', 'true');
+			}
 
 			return button;
 		}
 
-		function createTitlebar(appId) {
+		function createTitlebar(appId, options = {}) {
+			const disabledControls = Array.isArray(options.disabledControls) ? options.disabledControls : [];
 			const titlebar = document.createElement('div');
 			titlebar.className = 'aos-window-titlebar';
 			titlebar.dataset.aosDragHandle = '';
 
 			const controls = document.createElement('div');
 			controls.className = 'aos-window-controls';
-			controls.appendChild(createWindowControl('aosClose', 'Close', 'close'));
-			controls.appendChild(createWindowControl('aosMinimize', 'Minimize', 'minimize'));
-			controls.appendChild(createWindowControl('aosMaximize', 'Maximize', 'maximize'));
+			const close = createWindowControl('aosClose', 'Close', 'close', disabledControls.includes('close'));
+			const minimize = createWindowControl('aosMinimize', 'Minimize', 'minimize', disabledControls.includes('minimize'));
+			const maximize = createWindowControl('aosMaximize', 'Maximize', 'maximize', disabledControls.includes('maximize'));
 
-			controls.querySelector('[data-aos-close]').addEventListener('click', () => {
+			controls.appendChild(close);
+			controls.appendChild(minimize);
+			controls.appendChild(maximize);
+
+			close.addEventListener('click', () => {
 				const win = titlebar.closest('.aos-window');
 				if (typeof callbacks.onClose === 'function') {
 					callbacks.onClose(win, appId);
 				}
 			});
 
-			controls.querySelector('[data-aos-minimize]').addEventListener('click', () => {
+			minimize.addEventListener('click', () => {
 				const win = titlebar.closest('.aos-window');
 				if (typeof callbacks.onMinimize === 'function') {
 					callbacks.onMinimize(win, appId);
 				}
 			});
 
-			controls.querySelector('[data-aos-maximize]').addEventListener('click', () => {
+			maximize.addEventListener('click', () => {
 				const win = titlebar.closest('.aos-window');
 				if (typeof callbacks.onMaximize === 'function') {
 					callbacks.onMaximize(win, appId);
@@ -60,6 +69,9 @@
 			win.dataset.aosResizeMode = options.resizeMode || 'both';
 			win.dataset.aosWindowKind = options.windowKind || (options.appId ? 'app' : 'window');
 			win.dataset.aosWindowTitle = options.title || '';
+			if (options.persist === false) {
+				win.dataset.aosPersist = '0';
+			}
 			if (options.menu && typeof options.menu === 'object') {
 				win.aosMenu = options.menu;
 			}
@@ -70,7 +82,7 @@
 			win.style.top = options.top || '42px';
 			win.style.transform = 'none';
 
-			win.appendChild(createTitlebar(options.appId));
+			win.appendChild(createTitlebar(options.appId, options));
 
 			const body = document.createElement('div');
 			body.className = options.bodyClass || 'aos-window-body';

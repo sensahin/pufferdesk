@@ -98,7 +98,7 @@ JavaScript:
 - `assets/js/core/session/`: shared workspace session sections.
 - `assets/js/core/windows/`: windows, window factory, window state serialization.
 - `assets/js/core/widgets/`: widget binding, live updates, widget layout persistence.
-- `assets/js/core/apps/`: app launcher and native apps.
+- `assets/js/core/apps/`: app launcher, reusable app surfaces such as about windows, and native apps.
 - `assets/js/core/shell/`: search, menu bar clock, global shell controls.
 
 Media:
@@ -114,6 +114,7 @@ Apps:
 
 - Register apps through `Admin_OS_Mode_App_Registry` or the `admin_os_mode_apps` filter.
 - Apps should define `id`, `label`, `cap`, `group`, `icon`, and either iframe data (`url`) or native data (`kind => native`, `native`).
+- Apps may define reusable `about` metadata with `name`, `version`, `copyright`, `rights`, and `icon`; do not hard-code app-specific about windows.
 - App-specific top menu behavior belongs in the app's `menu` definition, not in hard-coded menu bar conditionals.
 - Keep app IDs stable. Layout/session behavior depends on stable IDs.
 
@@ -126,7 +127,7 @@ Menus:
 - Runtime modules that need custom behavior should register commands through `window.AdminOSMode.menuCommands.register()` after boot, staying inside the `window.AdminOSMode` namespace.
 - Dropdown rendering must stay generic and schema-driven. App-specific items belong in app `menu` definitions.
 - Do not add app-specific menu conditionals to `templates/shell/menu-bar.php` or the menu renderer. Add command-backed data to the registry/schema instead.
-- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `navigate-url`, `window.close`, `window.minimize`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
+- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `open-about`, `navigate-url`, `window.close`, `window.minimize`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
 
 Widgets:
 

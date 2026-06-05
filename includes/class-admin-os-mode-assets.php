@@ -242,13 +242,17 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/widgets/widget-manager.js',
 				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-session-store' ),
 			),
+			'admin-os-mode-about-window'   => array(
+				'path' => 'assets/js/core/apps/about-window.js',
+				'deps' => array( 'admin-os-mode-dom' ),
+			),
 			'admin-os-mode-settings-app'   => array(
 				'path' => 'assets/js/core/apps/settings-app.js',
 				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-storage', 'admin-os-mode-api-client', 'admin-os-mode-appearance' ),
 			),
 			'admin-os-mode-app-launcher'   => array(
 				'path' => 'assets/js/core/apps/app-launcher.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-settings-app' ),
+				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-about-window', 'admin-os-mode-settings-app' ),
 			),
 			'admin-os-mode-search'         => array(
 				'path' => 'assets/js/core/shell/search.js',

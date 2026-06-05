@@ -54,6 +54,29 @@
 			manager.createWindow(options);
 		}
 
+		function openAbout(appId) {
+			const app = appMap.get(appId);
+			if (!app || !window.AdminOSMode.apps.createAboutWindow) {
+				return;
+			}
+
+			manager.createWindow({
+				appId: `about-${app.id}`,
+				bodyClass: 'aos-window-body aos-about-body',
+				centered: true,
+				content: window.AdminOSMode.apps.createAboutWindow(app),
+				disabledControls: ['minimize', 'maximize'],
+				height: '206px',
+				icon: app.icon,
+				menu: app.menu || null,
+				persist: false,
+				resizeMode: 'none',
+				title: app.label,
+				width: '286px',
+				windowKind: 'about'
+			});
+		}
+
 		function openUrl(url, title, icon) {
 			manager.createWindow({
 				title: title || 'Admin',
@@ -150,6 +173,7 @@
 		return {
 			bindShellClicks,
 			getWindowOptions,
+			openAbout,
 			openApp,
 			openFolder,
 			openUrl,

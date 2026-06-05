@@ -78,6 +78,11 @@
 			activeDetail = detail && typeof detail === 'object' ? detail : { kind: 'desktop' };
 		}
 
+		function getAppTargetFromDetail(detail = {}) {
+			const appId = detail && detail.appId ? detail.appId : '';
+			return appId.startsWith('about-') ? appId.slice(6) : appId;
+		}
+
 		register('noop', {
 			run() {}
 		});
@@ -97,6 +102,15 @@
 			},
 			run(payload) {
 				launcher.openFolder(payload.target);
+			}
+		});
+
+		register('open-about', {
+			isEnabled(payload, detail) {
+				return Boolean(launcher && typeof launcher.openAbout === 'function' && (payload.target || getAppTargetFromDetail(detail)));
+			},
+			run(payload, detail) {
+				launcher.openAbout(payload.target || getAppTargetFromDetail(detail));
 			}
 		});
 

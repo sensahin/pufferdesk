@@ -45,6 +45,7 @@
 	--aos-scrollbar-thumb: rgba(88, 96, 105, 0.42);
 	--aos-scrollbar-thumb-hover: rgba(88, 96, 105, 0.56);
 	--aos-traffic-close: #ef5f57;
+	--aos-traffic-disabled: rgba(0, 0, 0, 0.18);
 	--aos-traffic-minimize: #f2bf4b;
 	--aos-traffic-zoom: #44c35f;
 	--aos-font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;

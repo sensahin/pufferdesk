@@ -146,6 +146,7 @@ final class Admin_OS_Mode_App_Registry {
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-admin-post' )
 		 * array( 'type' => 'image', 'src' => 'themes/adminos/default/icons/posts.svg' )
 		 * array( 'type' => 'theme', 'name' => 'posts.svg', 'fallback' => 'dashicons-admin-post' )
+		 * About windows may define about name, version, copyright, rights, and icon.
 		 * Menus use array( 'groups' => array( ... ) ) with command-backed items.
 		 *
 		 * @param array<int,array<string,mixed>> $apps Registered apps.
@@ -251,6 +252,7 @@ final class Admin_OS_Mode_App_Registry {
 				'label'  => $label,
 				'url'    => $url,
 				'icon'   => $icon,
+				'about'  => $this->normalize_about( isset( $app['about'] ) ? $app['about'] : array(), $label, $icon ),
 				'group'  => $group,
 				'kind'   => $kind,
 				'native' => $native,
@@ -465,7 +467,8 @@ final class Admin_OS_Mode_App_Registry {
 					'items' => array(
 						array(
 							'label'   => __( 'About OS Settings', 'admin-os-mode' ),
-							'command' => 'noop',
+							'command' => 'open-about',
+							'target'  => 'os-settings',
 						),
 						array( 'type' => 'separator' ),
 						array(
@@ -567,7 +570,7 @@ final class Admin_OS_Mode_App_Registry {
 							__( 'About %s', 'admin-os-mode' ),
 							$app_label
 						),
-						'command' => 'noop',
+						'command' => 'open-about',
 					),
 				),
 			),
@@ -631,6 +634,41 @@ final class Admin_OS_Mode_App_Registry {
 	 */
 	private function get_default_menu_group_ids() {
 		return array( 'app', 'file', 'edit', 'view', 'go', 'window', 'help' );
+	}
+
+	/**
+	 * Normalize reusable about window metadata.
+	 *
+	 * @param mixed               $about Raw about metadata.
+	 * @param string              $fallback_name App label.
+	 * @param array<string,mixed> $fallback_icon Normalized app icon.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_about( $about, $fallback_name, $fallback_icon ) {
+		$about = is_array( $about ) ? $about : array();
+		$name  = ! empty( $about['name'] ) ? sanitize_text_field( $about['name'] ) : $fallback_name;
+		$year  = gmdate( 'Y' );
+		$icon  = isset( $about['icon'] ) ? Admin_OS_Mode_Icon_Renderer::normalize( $about['icon'] ) : $fallback_icon;
+
+		return array(
+			'name'      => $name,
+			'version'   => ! empty( $about['version'] )
+				? sanitize_text_field( $about['version'] )
+				: sprintf(
+					/* translators: %s: plugin version. */
+					__( 'Version %s', 'admin-os-mode' ),
+					ADMIN_OS_MODE_VERSION
+				),
+			'copyright' => ! empty( $about['copyright'] )
+				? sanitize_text_field( $about['copyright'] )
+				: sprintf(
+					/* translators: %s: current year. */
+					__( 'Copyright (c) %s Admin OS Mode.', 'admin-os-mode' ),
+					$year
+				),
+			'rights'    => ! empty( $about['rights'] ) ? sanitize_text_field( $about['rights'] ) : __( 'All rights reserved.', 'admin-os-mode' ),
+			'icon'      => $icon,
+		);
 	}
 
 	/**

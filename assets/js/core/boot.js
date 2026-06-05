@@ -54,6 +54,7 @@
 		window.AdminOSMode.shell.bindClock(shell, config);
 
 		window.AdminOSMode.appLauncher = {
+			openAbout: launcher.openAbout,
 			openApp: launcher.openApp,
 			openFolder: launcher.openFolder,
 			openUrl: launcher.openUrl

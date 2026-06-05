@@ -170,6 +170,12 @@
 	background: var(--aos-traffic-zoom);
 }
 
+.aos-window-control:disabled {
+	background: var(--aos-traffic-disabled);
+	cursor: default;
+	opacity: 0.76;
+}
+
 .aos-window-control:focus-visible {
 	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(34, 113, 177, 0.28));
 	outline: none;
@@ -193,6 +199,13 @@
 .aos-window-control:focus-visible::before,
 .aos-window-control:focus-visible::after {
 	opacity: 1;
+}
+
+.aos-window-control:disabled::before,
+.aos-window-control:disabled::after,
+.aos-window-controls:hover .aos-window-control:disabled::before,
+.aos-window-controls:hover .aos-window-control:disabled::after {
+	opacity: 0;
 }
 
 .aos-window-control-close::before,
