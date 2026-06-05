@@ -15,6 +15,8 @@ final class Admin_OS_Mode_User_Preferences {
 	const META_ENABLED    = 'admin_os_mode_enabled';
 	const META_THEME      = 'admin_os_mode_theme';
 	const META_WALLPAPER  = 'admin_os_mode_wallpaper';
+	const META_WALLPAPER_UPLOADS = 'admin_os_mode_wallpaper_uploads';
+	const WALLPAPER_UPLOAD_LIMIT = 12;
 
 	/**
 	 * Default shell appearance preferences.
@@ -233,8 +235,53 @@ final class Admin_OS_Mode_User_Preferences {
 		$wallpaper = $this->sanitize_wallpaper( is_array( $wallpaper ) ? $wallpaper : array() );
 
 		update_user_meta( $user_id, self::META_WALLPAPER, $wallpaper );
+		if ( 'upload' === $wallpaper['type'] && ! empty( $wallpaper['attachment_id'] ) ) {
+			$this->add_wallpaper_upload( $wallpaper['attachment_id'], $user_id );
+		}
 
 		return $wallpaper;
+	}
+
+	/**
+	 * Get recently uploaded wallpaper attachment IDs for the user.
+	 *
+	 * @param int $user_id Optional user ID.
+	 * @return array<int,int>
+	 */
+	public function get_wallpaper_uploads( $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$uploads = get_user_meta( $user_id, self::META_WALLPAPER_UPLOADS, true );
+
+		return $this->sanitize_wallpaper_uploads( is_array( $uploads ) ? $uploads : array() );
+	}
+
+	/**
+	 * Add an uploaded wallpaper to the user's recent wallpaper list.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @param int $user_id Optional user ID.
+	 * @return array<int,int>
+	 */
+	public function add_wallpaper_upload( $attachment_id, $user_id = 0 ) {
+		$user_id       = $user_id ? (int) $user_id : get_current_user_id();
+		$attachment_id = absint( $attachment_id );
+		if ( ! $attachment_id ) {
+			return $this->get_wallpaper_uploads( $user_id );
+		}
+
+		$uploads = array_values(
+			array_unique(
+				array_merge(
+					array( $attachment_id ),
+					$this->get_wallpaper_uploads( $user_id )
+				)
+			)
+		);
+		$uploads = array_slice( $uploads, 0, self::WALLPAPER_UPLOAD_LIMIT );
+
+		update_user_meta( $user_id, self::META_WALLPAPER_UPLOADS, $uploads );
+
+		return $uploads;
 	}
 
 	/**
@@ -269,6 +316,29 @@ final class Admin_OS_Mode_User_Preferences {
 
 		if ( array_key_exists( 'tint_windows', $appearance ) ) {
 			$sanitized['tint_windows'] = $this->sanitize_boolean( $appearance['tint_windows'] );
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize uploaded wallpaper attachment IDs.
+	 *
+	 * @param array<int,mixed> $uploads Raw attachment IDs.
+	 * @return array<int,int>
+	 */
+	private function sanitize_wallpaper_uploads( $uploads ) {
+		$sanitized = array();
+
+		foreach ( $uploads as $attachment_id ) {
+			$attachment_id = absint( $attachment_id );
+			if ( $attachment_id && ! in_array( $attachment_id, $sanitized, true ) ) {
+				$sanitized[] = $attachment_id;
+			}
+
+			if ( count( $sanitized ) >= self::WALLPAPER_UPLOAD_LIMIT ) {
+				break;
+			}
 		}
 
 		return $sanitized;

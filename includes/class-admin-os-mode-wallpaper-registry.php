@@ -113,6 +113,7 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 			'default'       => $this->get_default_preference( $theme ),
 			'groups'        => $this->get_grouped_options( $theme ),
 			'items'         => array_values( $this->get_available_wallpapers( $theme ) ),
+			'uploads'       => $this->get_uploaded_wallpaper_items( $preferences ),
 			'can_upload'    => current_user_can( 'upload_files' ),
 		);
 	}
@@ -352,6 +353,33 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 			'item'          => $item,
 			'css_variables' => $this->get_css_variables( $item, $preference ),
 		);
+	}
+
+	/**
+	 * Get the user's saved upload wallpaper items.
+	 *
+	 * @param Admin_OS_Mode_User_Preferences $preferences User preferences.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function get_uploaded_wallpaper_items( Admin_OS_Mode_User_Preferences $preferences ) {
+		$items = array();
+
+		foreach ( $preferences->get_wallpaper_uploads() as $attachment_id ) {
+			$resolved = $this->resolve_upload(
+				array(
+					'type'          => 'upload',
+					'attachment_id' => $attachment_id,
+					'fit'           => 'cover',
+					'position'      => 'center center',
+				)
+			);
+
+			if ( $resolved && ! empty( $resolved['item'] ) ) {
+				$items[] = $resolved['item'];
+			}
+		}
+
+		return $items;
 	}
 
 	/**
