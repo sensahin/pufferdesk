@@ -353,7 +353,7 @@ final class Admin_OS_Mode_Assets {
 			'user'       => array(
 				'avatar'   => get_avatar_url( $current_user->ID, array( 'size' => 96 ) ),
 				'name'     => $current_user->display_name ? $current_user->display_name : $current_user->user_login,
-				'subtitle' => __( 'WordPress Account', 'admin-os-mode' ),
+				'subtitle' => $this->get_user_role_label( $current_user ),
 			),
 			'storageKey' => 'adminOSMode:' . get_current_user_id() . ':' . $theme['id'] . ':session',
 			'nonce'      => wp_create_nonce( Admin_OS_Mode_Settings_Controller::NONCE_ACTION ),
@@ -362,6 +362,33 @@ final class Admin_OS_Mode_Assets {
 			'theme'      => $theme,
 			'widgets'    => $widgets,
 		);
+	}
+
+	/**
+	 * Get a compact label for the current user's primary WordPress role.
+	 *
+	 * @param WP_User $user User object.
+	 * @return string
+	 */
+	private function get_user_role_label( $user ) {
+		$roles = isset( $user->roles ) && is_array( $user->roles ) ? array_values( array_filter( $user->roles ) ) : array();
+
+		if ( empty( $roles ) ) {
+			return __( 'WordPress User', 'admin-os-mode' );
+		}
+
+		$role       = sanitize_key( $roles[0] );
+		$role_names = wp_roles()->role_names;
+
+		if ( '' === $role ) {
+			return __( 'WordPress User', 'admin-os-mode' );
+		}
+
+		if ( isset( $role_names[ $role ] ) ) {
+			return translate_user_role( $role_names[ $role ] );
+		}
+
+		return ucwords( str_replace( '_', ' ', $role ) );
 	}
 
 	/**

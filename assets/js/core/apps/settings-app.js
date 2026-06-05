@@ -902,7 +902,7 @@
 
 			const text = dom.createElement('span', 'aos-settings-profile-text');
 			text.appendChild(dom.createElement('strong', '', name));
-			text.appendChild(dom.createElement('span', '', user.subtitle || 'WordPress Account'));
+			text.appendChild(dom.createElement('span', '', user.subtitle || 'WordPress User'));
 
 			profile.appendChild(avatar);
 			profile.appendChild(text);
