@@ -246,17 +246,18 @@
 }
 
 .aos-about h1 {
-	color: var(--aos-ink);
-	font-size: 14px;
+	color: var(--aos-about-title-color, var(--aos-ink));
+	font-size: 13px;
 	font-weight: var(--aos-weight-bold);
-	line-height: var(--aos-line-height-body);
-	margin: 0 0 5px;
+	line-height: 1.18;
+	margin: 0 0 6px;
 }
 
 .aos-about-lines {
-	color: var(--aos-ink);
-	font-size: 11px;
-	line-height: 1.2;
+	color: var(--aos-about-text-color, var(--aos-ink));
+	font-size: 10px;
+	font-weight: var(--aos-weight-medium);
+	line-height: 1.16;
 }
 
 .aos-about-lines p {
