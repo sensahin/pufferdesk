@@ -59,7 +59,6 @@ final class Admin_OS_Mode_Settings_Controller {
 		add_action( 'wp_ajax_admin_os_mode_save_theme', array( $this, 'save_theme' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_wallpaper', array( $this, 'save_wallpaper' ) );
 		add_action( 'wp_ajax_admin_os_mode_remove_wallpaper_upload', array( $this, 'remove_wallpaper_upload' ) );
-		add_action( 'wp_ajax_admin_os_mode_reset_wallpaper', array( $this, 'reset_wallpaper' ) );
 	}
 
 	/**
@@ -183,32 +182,6 @@ final class Admin_OS_Mode_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'message'   => __( 'Wallpaper saved.', 'admin-os-mode' ),
-				'wallpaper' => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
-			)
-		);
-	}
-
-	/**
-	 * Reset the current user's wallpaper preference.
-	 */
-	public function reset_wallpaper() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
-				),
-				403
-			);
-		}
-
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
-
-		$this->preferences->reset_wallpaper();
-		$theme = $this->theme_registry->get_current_theme( $this->preferences );
-
-		wp_send_json_success(
-			array(
-				'message'   => __( 'Wallpaper reset.', 'admin-os-mode' ),
 				'wallpaper' => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
 			)
 		);

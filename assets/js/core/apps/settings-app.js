@@ -502,29 +502,6 @@
 				});
 		}
 
-		function resetWallpaper(status) {
-			status.textContent = 'Resetting...';
-
-			return api.post('admin_os_mode_reset_wallpaper', {})
-				.then((result) => {
-					if (!result || !result.success) {
-						const message = result && result.data && result.data.message
-							? result.data.message
-							: 'Wallpaper could not be reset.';
-						status.textContent = message;
-						return null;
-					}
-
-					applyWallpaper(result.data.wallpaper || currentWallpaper);
-					status.textContent = result.data.message || 'Wallpaper reset.';
-					return result.data.wallpaper || currentWallpaper;
-				})
-				.catch((error) => {
-					status.textContent = error && error.message ? error.message : 'Wallpaper could not be reset.';
-					return null;
-				});
-		}
-
 		function removeUploadedWallpaper(item, status) {
 			const attachmentId = Number.parseInt(item.attachment_id, 10) || 0;
 			if (!attachmentId) {
@@ -891,14 +868,10 @@
 					visibleCount: 8
 				}
 			);
-			const resetSection = createSection('', 'aos-settings-section-wallpaper-reset');
-			const resetButton = createButton('Reset to Default');
 
 			panel.dataset.aosSettingsPanel = 'wallpaper';
-			resetButton.addEventListener('click', () => resetWallpaper(status));
-			resetSection.appendChild(resetButton);
 			builtInSection.appendChild(createPhotoWallpaperGroup(status));
-			panel.append(builtInSection, colorSection, resetSection);
+			panel.append(builtInSection, colorSection);
 
 			return panel;
 		}
@@ -1094,24 +1067,6 @@
 			installedThemeSection.appendChild(saveThemeButton);
 		}
 
-		const workspaceSection = createSection('', 'aos-settings-section-workspace');
-		const resetLayoutButton = createButton('Reset Layout', 'aos-settings-button aos-settings-danger');
-		resetLayoutButton.addEventListener('click', () => {
-			storage.remove(config.storageKey);
-			status.textContent = 'Layout reset.';
-			window.setTimeout(() => {
-				window.location.href = config.shellUrl || window.location.href;
-			}, 200);
-		});
-		workspaceSection.appendChild(resetLayoutButton);
-
-		const systemSection = createSection('', 'aos-settings-section-system');
-		const classicButton = createButton('Classic Admin');
-		classicButton.addEventListener('click', () => {
-			window.location.href = config.classicUrl || '/wp-admin/';
-		});
-		systemSection.appendChild(classicButton);
-
 		appearancePanel.appendChild(appearanceSection);
 		appearancePanel.appendChild(createSectionHeading('Theme'));
 		appearancePanel.appendChild(themeSection);
@@ -1121,10 +1076,6 @@
 			appearancePanel.appendChild(createSectionHeading('Installed Theme'));
 			appearancePanel.appendChild(installedThemeSection);
 		}
-		appearancePanel.appendChild(createSectionHeading('Workspace'));
-		appearancePanel.appendChild(workspaceSection);
-		appearancePanel.appendChild(createSectionHeading('System'));
-		appearancePanel.appendChild(systemSection);
 		pane.appendChild(appearancePanel);
 		pane.appendChild(createWallpaperPanel(status));
 		pane.appendChild(status);
