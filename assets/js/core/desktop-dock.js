@@ -103,8 +103,13 @@
 
 		const current = normalize(preferences);
 		const iconSize = Math.max(18, Math.round(current.dock_size * 0.56));
-		const lift = Math.round(3 + current.dock_magnification / 8);
-		const scale = (1 + current.dock_magnification / 120).toFixed(3);
+		const tileSize = Math.max(28, current.dock_size - 2);
+		const lift = current.dock_magnification > 0
+			? Math.round(4 + current.dock_magnification / 3)
+			: 0;
+		const scale = current.dock_magnification > 0
+			? (1 + current.dock_magnification / 55).toFixed(3)
+			: '1';
 
 		shell.dataset.aosDockPosition = current.dock_position;
 		shell.dataset.aosDockAutoHide = current.auto_hide_dock ? '1' : '0';
@@ -120,6 +125,7 @@
 
 		shell.style.setProperty('--aos-dock-item-size', `${current.dock_size}px`);
 		shell.style.setProperty('--aos-dock-icon-size', `${iconSize}px`);
+		shell.style.setProperty('--aos-dock-tile-size', `${tileSize}px`);
 		shell.style.setProperty('--aos-dock-hover-lift', `${lift}px`);
 		shell.style.setProperty('--aos-dock-hover-scale', scale);
 

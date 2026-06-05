@@ -61,8 +61,8 @@
 }
 
 .aos-dock-item .aos-icon-image {
-	height: var(--aos-dock-icon-size, 26px);
-	width: var(--aos-dock-icon-size, 26px);
+	height: var(--aos-dock-tile-size, 26px);
+	width: var(--aos-dock-tile-size, 26px);
 }
 
 .aos-shell[data-aos-dock-show-indicators="0"] .aos-dock-item.is-running::after {
