@@ -83,8 +83,12 @@
 
 .aos-shell-dialog-button:hover,
 .aos-shell-dialog-button:focus {
-	background: var(--aos-dialog-button-hover-bg);
+	background: var(--aos-dialog-button-bg);
 	outline: none;
+}
+
+.aos-shell-dialog-button:active {
+	background: var(--aos-dialog-button-hover-bg);
 }
 
 .aos-shell-dialog-button:focus-visible {
@@ -101,6 +105,10 @@
 .aos-shell-dialog-button-primary:hover,
 .aos-shell-dialog-button-primary:focus {
 	background: var(--aos-accent);
+	filter: none;
+}
+
+.aos-shell-dialog-button-primary:active {
 	filter: brightness(1.05);
 }
 
@@ -175,6 +183,7 @@
 }
 
 .aos-shell-action-dialog-message {
+	color: inherit;
 	font-size: 12px;
 	font-feature-settings: "tnum";
 	font-weight: var(--aos-weight-medium);
@@ -192,7 +201,7 @@
 
 .aos-shell-action-dialog-checkbox {
 	align-items: center;
-	color: var(--aos-dialog-muted);
+	color: inherit;
 	cursor: default;
 	display: flex;
 	font-family: var(--aos-font-ui);
