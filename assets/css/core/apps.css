@@ -726,18 +726,20 @@
 	outline: none;
 }
 
-.aos-settings-wallpaper-color-option .aos-settings-wallpaper-preview {
-	aspect-ratio: 1;
+.aos-settings-wallpaper-swatch {
+	background-color: var(--aos-control-bg);
+	background-clip: padding-box;
 	border: 1px solid rgba(0, 0, 0, 0.12);
 	border-radius: 50%;
-	box-shadow: none;
+	display: block;
 	height: 44px;
 	justify-self: center;
+	overflow: hidden;
 	width: 44px;
 }
 
-.aos-settings-wallpaper-color-option:focus-visible .aos-settings-wallpaper-preview,
-.aos-settings-wallpaper-color-option.is-selected .aos-settings-wallpaper-preview {
+.aos-settings-wallpaper-color-option:focus-visible .aos-settings-wallpaper-swatch,
+.aos-settings-wallpaper-color-option.is-selected .aos-settings-wallpaper-swatch {
 	box-shadow: 0 0 0 3px var(--aos-accent);
 }
 
@@ -983,17 +985,40 @@
 }
 
 .aos-settings-swatch {
+	align-items: center;
 	appearance: none;
-	background: var(--aos-swatch-color, #0a84ff);
-	border: 1px solid rgba(0, 0, 0, 0.12);
+	background: transparent;
+	border: 0;
 	border-radius: 50%;
 	cursor: default;
+	display: inline-flex;
 	height: 20px;
+	justify-content: center;
 	padding: 0;
 	width: 20px;
 }
 
-.aos-settings-swatch.is-selected {
+.aos-settings-swatch:focus-visible {
+	box-shadow: none;
+	outline: none;
+}
+
+.aos-settings-swatch-dot {
+	background: var(--aos-swatch-color, #0a84ff);
+	background-clip: padding-box;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 50%;
+	display: block;
+	height: 20px;
+	overflow: hidden;
+	width: 20px;
+}
+
+.aos-settings-swatch:focus-visible .aos-settings-swatch-dot {
+	box-shadow: 0 0 0 3px var(--aos-focus-ring);
+}
+
+.aos-settings-swatch.is-selected .aos-settings-swatch-dot {
 	box-shadow: 0 0 0 3px var(--aos-accent);
 }
 

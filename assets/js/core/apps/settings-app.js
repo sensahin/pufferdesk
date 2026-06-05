@@ -165,6 +165,17 @@
 			return `url("${String(value).replace(/\\/g, '%5C').replace(/"/g, '%22')}")`;
 		}
 
+		function applyWallpaperPreview(preview, item = {}) {
+			if (item.type === 'color' && item.swatch) {
+				preview.style.backgroundColor = item.swatch;
+				preview.style.backgroundImage = 'none';
+				return;
+			}
+
+			preview.style.backgroundColor = '';
+			preview.style.backgroundImage = getWallpaperPreviewValue(item);
+		}
+
 		function getWallpaperItems() {
 			return currentWallpaper && Array.isArray(currentWallpaper.items) ? currentWallpaper.items : [];
 		}
@@ -432,6 +443,9 @@
 				button.setAttribute('aria-label', option.label);
 				button.setAttribute('aria-pressed', 'false');
 				button.addEventListener('click', () => updateAppearance('accent_color', option.value, status));
+				const swatch = dom.createElement('span', 'aos-settings-swatch-dot');
+				swatch.setAttribute('aria-hidden', 'true');
+				button.appendChild(swatch);
 				group.appendChild(button);
 
 				return button;
@@ -481,7 +495,7 @@
 
 		function createWallpaperOption(item, status, extraClassName = '') {
 			const button = document.createElement('button');
-			const preview = dom.createElement('span', 'aos-settings-wallpaper-preview');
+			const preview = dom.createElement('span', item.type === 'color' ? 'aos-settings-wallpaper-swatch' : 'aos-settings-wallpaper-preview');
 			const label = dom.createElement('span', 'aos-settings-wallpaper-label', item.label || item.id);
 			const key = getWallpaperKey({
 				type: item.type,
@@ -494,7 +508,7 @@
 			button.dataset.aosWallpaperKey = key;
 			button.setAttribute('aria-label', item.label || item.id);
 			button.setAttribute('aria-pressed', 'false');
-			preview.style.backgroundImage = getWallpaperPreviewValue(item);
+			applyWallpaperPreview(preview, item);
 			preview.setAttribute('aria-hidden', 'true');
 			button.append(preview, label);
 			button.addEventListener('click', () => selectWallpaperItem(item, status));

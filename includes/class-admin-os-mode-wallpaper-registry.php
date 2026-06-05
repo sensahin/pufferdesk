@@ -137,6 +137,7 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 				'label'     => $this->get_color_label( $color['id'] ),
 				'css_value' => $color['css_value'],
 				'preview'   => $color['css_value'],
+				'swatch'    => $this->get_swatch_from_css_value( $color['css_value'] ),
 				'fit'       => 'cover',
 				'position'  => 'center center',
 			);
@@ -427,6 +428,7 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 				'url'       => isset( $item['url'] ) ? esc_url_raw( $item['url'] ) : '',
 				'css_value' => $this->sanitize_css_value( $item['css_value'] ),
 				'preview'   => isset( $item['preview'] ) ? $this->sanitize_css_value( $item['preview'] ) : $this->sanitize_css_value( $item['css_value'] ),
+				'swatch'    => isset( $item['swatch'] ) ? $this->sanitize_swatch( $item['swatch'] ) : '',
 				'fit'       => isset( $item['fit'] ) ? sanitize_key( $item['fit'] ) : 'cover',
 				'position'  => isset( $item['position'] ) ? sanitize_text_field( $item['position'] ) : 'center center',
 			);
@@ -550,6 +552,36 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 		);
 
 		return $url ? 'url("' . $url . '")' : 'none';
+	}
+
+	/**
+	 * Extract the solid swatch color from a generated solid gradient value.
+	 *
+	 * @param string $css_value CSS value.
+	 * @return string
+	 */
+	private function get_swatch_from_css_value( $css_value ) {
+		if ( preg_match( '/#[0-9a-fA-F]{3,8}/', (string) $css_value, $matches ) ) {
+			return $this->sanitize_swatch( $matches[0] );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Sanitize a solid swatch color.
+	 *
+	 * @param mixed $value Raw swatch value.
+	 * @return string
+	 */
+	private function sanitize_swatch( $value ) {
+		$value = trim( (string) $value );
+
+		if ( preg_match( '/^#[0-9a-fA-F]{3,8}$/', $value ) ) {
+			return strtolower( $value );
+		}
+
+		return '';
 	}
 
 	/**
