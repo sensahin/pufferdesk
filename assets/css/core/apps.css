@@ -272,7 +272,7 @@
 
 .aos-site-about-specs {
 	display: grid;
-	gap: 6px;
+	gap: 5px;
 	margin: 0 0 24px;
 	max-width: 220px;
 	width: 100%;
@@ -280,14 +280,14 @@
 
 .aos-site-about-spec {
 	display: grid;
-	gap: 13px;
-	grid-template-columns: minmax(78px, 1fr) minmax(0, 1.34fr);
-	line-height: 1.1;
+	gap: 11px;
+	grid-template-columns: minmax(72px, 1fr) minmax(0, 1.38fr);
+	line-height: 1.08;
 }
 
 .aos-site-about-spec dt,
 .aos-site-about-spec dd {
-	font-size: 12.5px;
+	font-size: 11px;
 	margin: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -296,7 +296,7 @@
 
 .aos-site-about-spec dt {
 	color: var(--aos-ink);
-	font-weight: var(--aos-weight-bold);
+	font-weight: var(--aos-weight-semibold);
 	text-align: right;
 }
 
