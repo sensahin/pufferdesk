@@ -10,6 +10,7 @@
 		const manager = context.manager || null;
 		const widgetManager = context.widgetManager || null;
 		const dialogs = context.dialogs || null;
+		const reopenPolicy = context.reopenPolicy || null;
 		const config = context.config && typeof context.config === 'object' ? context.config : {};
 		const commands = new Map();
 		let activeDetail = { kind: 'desktop' };
@@ -105,10 +106,55 @@
 			return appId.startsWith('about-') ? appId.slice(6) : appId;
 		}
 
-		function getRestartConfig() {
-			return config.system && config.system.restart && typeof config.system.restart === 'object'
-				? config.system.restart
+		function getSystemActions() {
+			return config.system && config.system.actions && typeof config.system.actions === 'object'
+				? config.system.actions
 				: {};
+		}
+
+		function getActionDefaults(actionKey) {
+			const defaults = {
+				logout: {
+					cancelLabel: 'Cancel',
+					confirmLabel: 'Log Out',
+					countdownSeconds: 60,
+					icon: 'power',
+					message: 'If you do nothing, you will be logged out automatically in {seconds} seconds.',
+					overlayMessage: 'Logging out...',
+					reopenWindowsDefault: true,
+					reopenWindowsLabel: 'Reopen windows when logging back in',
+					title: 'Are you sure you want to log out?'
+				},
+				restart: {
+					cancelLabel: 'Cancel',
+					confirmLabel: 'Restart',
+					countdownSeconds: 60,
+					icon: 'power',
+					message: 'If you do nothing, Admin OS will restart automatically in {seconds} seconds.',
+					overlayMessage: 'Restarting Admin OS...',
+					reopenWindowsDefault: true,
+					reopenWindowsLabel: 'Reopen windows after restarting',
+					title: 'Are you sure you want to restart Admin OS?'
+				},
+				switchClassic: {
+					cancelLabel: 'Cancel',
+					confirmLabel: 'Switch',
+					countdownSeconds: 60,
+					icon: 'dashicons-admin-site-alt3',
+					message: 'If you do nothing, Classic Admin will open automatically in {seconds} seconds.',
+					overlayMessage: 'Switching to Classic Admin...',
+					reopenWindowsDefault: true,
+					reopenWindowsLabel: 'Reopen windows when returning to Admin OS',
+					title: 'Are you sure you want to switch to Classic Admin?'
+				}
+			};
+
+			return defaults[actionKey] || {};
+		}
+
+		function getActionConfig(actionKey) {
+			const actions = getSystemActions();
+			return Object.assign({}, getActionDefaults(actionKey), actions[actionKey] && typeof actions[actionKey] === 'object' ? actions[actionKey] : {});
 		}
 
 		function getShellUrl() {
@@ -145,39 +191,48 @@
 			}
 		}
 
-		async function confirmRestart(restartConfig) {
-			const title = restartConfig.confirmTitle || 'Restart Admin OS?';
-			const message = restartConfig.confirmMessage || 'Open windows will reload, but your saved layout will be preserved.';
-			const confirmLabel = restartConfig.confirmLabel || 'Restart';
-			const cancelLabel = restartConfig.cancelLabel || 'Cancel';
-
-			if (dialogs && typeof dialogs.confirm === 'function') {
-				return dialogs.confirm({
-					cancelLabel,
-					confirmLabel,
-					message,
-					title
-				});
+		function skipWindowRestoreOnce() {
+			if (reopenPolicy && typeof reopenPolicy.skipWindowRestoreOnce === 'function') {
+				reopenPolicy.skipWindowRestoreOnce();
 			}
-
-			return window.confirm(`${title}\n\n${message}`);
 		}
 
-		async function restartShell() {
-			const restartConfig = getRestartConfig();
-			const confirmed = await confirmRestart(restartConfig);
+		async function confirmAction(actionConfig) {
+			if (dialogs && typeof dialogs.confirmTimedAction === 'function') {
+				return dialogs.confirmTimedAction(actionConfig);
+			}
 
-			if (!confirmed) {
+			const confirmed = window.confirm(`${actionConfig.title}\n\n${String(actionConfig.message || '').replace('{seconds}', actionConfig.countdownSeconds || 60)}`);
+			return {
+				confirmed,
+				reason: confirmed ? 'confirm' : 'cancel',
+				reopenWindows: true
+			};
+		}
+
+		async function runTimedAction(actionKey, actionRunner) {
+			const actionConfig = getActionConfig(actionKey);
+			const result = await confirmAction(actionConfig);
+
+			if (!result.confirmed) {
 				return;
+			}
+
+			if (result.reopenWindows === false) {
+				skipWindowRestoreOnce();
 			}
 
 			saveManagers();
 
 			if (dialogs && typeof dialogs.showBlockingOverlay === 'function') {
-				dialogs.showBlockingOverlay(restartConfig.overlayMessage || 'Restarting Admin OS...');
+				dialogs.showBlockingOverlay(actionConfig.overlayMessage || '');
 			}
 
-			window.setTimeout(() => {
+			window.setTimeout(actionRunner, 180);
+		}
+
+		function restartShell() {
+			return runTimedAction('restart', () => {
 				const shellUrl = getShellUrl();
 
 				if (shellUrl && !isCurrentShellUrl(shellUrl)) {
@@ -186,7 +241,19 @@
 				}
 
 				window.location.reload();
-			}, 180);
+			});
+		}
+
+		function switchToClassicAdmin(payload) {
+			return runTimedAction('switchClassic', () => {
+				window.location.href = payload.url || payload.target || config.classicUrl;
+			});
+		}
+
+		function logOut(payload) {
+			return runTimedAction('logout', () => {
+				window.location.href = payload.url || payload.target;
+			});
 		}
 
 		register('noop', {
@@ -262,6 +329,24 @@
 			},
 			run() {
 				return restartShell();
+			}
+		});
+
+		register('shell.switch-classic', {
+			isEnabled(payload) {
+				return Boolean(payload.url || payload.target || config.classicUrl);
+			},
+			run(payload) {
+				return switchToClassicAdmin(payload);
+			}
+		});
+
+		register('user.logout', {
+			isEnabled(payload) {
+				return Boolean(payload.url || payload.target);
+			},
+			run(payload) {
+				return logOut(payload);
 			}
 		});
 

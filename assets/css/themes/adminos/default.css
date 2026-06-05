@@ -444,6 +444,8 @@
 	--aos-dialog-button-bg: rgba(255, 255, 255, 0.1);
 	--aos-dialog-button-border: rgba(255, 255, 255, 0.16);
 	--aos-dialog-button-hover-bg: rgba(255, 255, 255, 0.16);
+	--aos-action-dialog-icon-bg: rgba(132, 142, 144, 0.72);
+	--aos-action-dialog-icon-ink: #f4f7f7;
 	--aos-scrollbar-track: rgba(255, 255, 255, 0.05);
 	--aos-scrollbar-thumb: rgba(214, 218, 225, 0.54);
 	--aos-scrollbar-thumb-hover: rgba(231, 234, 240, 0.68);

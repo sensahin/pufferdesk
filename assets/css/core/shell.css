@@ -36,6 +36,8 @@
 	--aos-dialog-button-bg: rgba(255, 255, 255, 0.72);
 	--aos-dialog-button-border: rgba(0, 0, 0, 0.16);
 	--aos-dialog-button-hover-bg: rgba(255, 255, 255, 0.92);
+	--aos-action-dialog-icon-bg: rgba(101, 108, 116, 0.78);
+	--aos-action-dialog-icon-ink: #fff;
 	--aos-control-bg: rgba(0, 0, 0, 0.06);
 	--aos-control-bg-hover: rgba(0, 0, 0, 0.11);
 	--aos-desktop-bg: #f0f0f1;

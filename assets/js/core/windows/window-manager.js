@@ -13,6 +13,7 @@
 		let windowOffset = 0;
 		let activeWindow = null;
 		let restoreInProgress = false;
+		let preserveStoredWindowsUntilChange = Boolean(options.preserveStoredWindowsUntilChange);
 		let saveTimer = null;
 		const resizeDirections = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 		const resizeObserver = typeof window.ResizeObserver === 'function'
@@ -565,7 +566,13 @@
 				return;
 			}
 
-			sessionStore.saveSection('windows', serializeWindows());
+			const windows = serializeWindows();
+			if (preserveStoredWindowsUntilChange && !windows.length) {
+				return;
+			}
+
+			preserveStoredWindowsUntilChange = false;
+			sessionStore.saveSection('windows', windows);
 		}
 
 		function scheduleSave() {
@@ -657,6 +664,7 @@
 				setDockRunning(windowOptions.appId, true);
 			}
 
+			preserveStoredWindowsUntilChange = false;
 			scheduleSave();
 
 			return win;
@@ -756,6 +764,9 @@
 			},
 			hasHiddenWindows,
 			hideOtherWindows,
+			isPreservingStoredWindows() {
+				return preserveStoredWindowsUntilChange;
+			},
 			makeDraggable,
 			minimizeWindow,
 			restoreSession,

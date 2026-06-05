@@ -13,6 +13,7 @@
 		if (
 			!window.AdminOSMode.config ||
 			!window.AdminOSMode.session ||
+			!window.AdminOSMode.session.createReopenPolicy ||
 			!window.AdminOSMode.windows ||
 			!window.AdminOSMode.widgets ||
 			!window.AdminOSMode.apps ||
@@ -35,7 +36,10 @@
 			window.AdminOSMode.appearance.bindSystemMode(shell);
 		}
 
+		const reopenPolicy = window.AdminOSMode.session.createReopenPolicy(config.storageKey || '');
+		const skipWindowRestore = reopenPolicy.consumeSkipWindowRestoreOnce();
 		const manager = window.AdminOSMode.windows.createWindowManager(shell, {
+			preserveStoredWindowsUntilChange: skipWindowRestore,
 			storageKey: config.storageKey || ''
 		});
 		const widgetManager = window.AdminOSMode.widgets.createWidgetManager(shell, {
@@ -48,6 +52,7 @@
 			dialogs,
 			launcher,
 			manager,
+			reopenPolicy,
 			widgetManager
 		});
 		const menuController = window.AdminOSMode.shell.createMenuController(shell, config, {
@@ -67,7 +72,9 @@
 		widgetManager.bindExistingWidgets();
 		widgetManager.restoreSession();
 		manager.bindExistingWindows();
-		manager.restoreSession((appId) => launcher.getWindowOptions(appId));
+		if (!manager.isPreservingStoredWindows()) {
+			manager.restoreSession((appId) => launcher.getWindowOptions(appId));
+		}
 		launcher.bindShellClicks();
 		window.AdminOSMode.shell.bindSearch(shell, launcher, config);
 		window.AdminOSMode.shell.bindClock(shell, config);

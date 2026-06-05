@@ -132,7 +132,7 @@ Menus:
 - Runtime modules that need custom behavior should register commands through `window.AdminOSMode.menuCommands.register()` after boot, staying inside the `window.AdminOSMode` namespace.
 - Dropdown rendering must stay generic and schema-driven. App-specific items belong in app `menu` definitions.
 - Do not add app-specific menu conditionals to `templates/shell/menu-bar.php` or the menu renderer. Add command-backed data to the registry/schema instead.
-- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `open-about`, `open-system-about`, `open-external-url`, `navigate-url`, `shell.restart`, `session.reset-layout`, `widget.hide`, `window.focus`, `window.close`, `window.minimize`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
+- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `open-about`, `open-system-about`, `open-external-url`, `navigate-url`, `shell.restart`, `shell.switch-classic`, `user.logout`, `session.reset-layout`, `widget.hide`, `window.focus`, `window.close`, `window.minimize`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
 
 Widgets:
 
@@ -184,6 +184,7 @@ Icons:
 Session:
 
 - Use `assets/js/core/session/session-store.js` for persisted shell layout.
+- Use `assets/js/core/session/reopen-policy.js` for one-time shell reopen behavior; do not clear stored layout just to skip reopening windows for one transition.
 - Store layout by named section, such as `windows` and `widgets`.
 - Do not overwrite the whole session blob from one module.
 - New desktop object types should add their own section instead of hijacking `windows` or `widgets`.

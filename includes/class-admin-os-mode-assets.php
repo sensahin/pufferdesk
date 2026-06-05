@@ -226,6 +226,10 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/session/session-store.js',
 				'deps' => array( 'admin-os-mode-storage' ),
 			),
+			'admin-os-mode-reopen-policy'  => array(
+				'path' => 'assets/js/core/session/reopen-policy.js',
+				'deps' => array( 'admin-os-mode-session-store' ),
+			),
 			'admin-os-mode-appearance'     => array(
 				'path' => 'assets/js/core/appearance.js',
 				'deps' => array( 'admin-os-mode-config' ),
@@ -260,7 +264,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-shell-dialogs'  => array(
 				'path' => 'assets/js/core/shell/dialogs.js',
-				'deps' => array(),
+				'deps' => array( 'admin-os-mode-dom' ),
 			),
 			'admin-os-mode-menu-commands'  => array(
 				'path' => 'assets/js/core/shell/commands.js',
@@ -288,7 +292,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-boot'           => array(
 				'path' => 'assets/js/core/boot.js',
-				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-clock' ),
+				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-reopen-policy', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-clock' ),
 			),
 		);
 
@@ -347,6 +351,9 @@ final class Admin_OS_Mode_Assets {
 	 * @return array<string,mixed>
 	 */
 	private function get_system_config() {
+		$current_user = wp_get_current_user();
+		$user_label   = $current_user->display_name ? $current_user->display_name : $current_user->user_login;
+
 		return array(
 			'about' => array(
 				'name'      => __( 'Admin OS', 'admin-os-mode' ),
@@ -363,12 +370,47 @@ final class Admin_OS_Mode_Assets {
 					'fallback' => 'dashicons-admin-generic',
 				),
 			),
-			'restart' => array(
-				'confirmTitle'   => __( 'Restart Admin OS?', 'admin-os-mode' ),
-				'confirmMessage' => __( 'Open windows will reload, but your saved layout will be preserved.', 'admin-os-mode' ),
-				'confirmLabel'   => __( 'Restart', 'admin-os-mode' ),
-				'cancelLabel'    => __( 'Cancel', 'admin-os-mode' ),
-				'overlayMessage' => __( 'Restarting Admin OS...', 'admin-os-mode' ),
+			'actions' => array(
+				'restart'       => array(
+					'title'                => __( 'Are you sure you want to restart Admin OS?', 'admin-os-mode' ),
+					/* translators: {seconds}: seconds remaining before Admin OS restarts automatically. */
+					'message'              => __( 'If you do nothing, Admin OS will restart automatically in {seconds} seconds.', 'admin-os-mode' ),
+					'confirmLabel'         => __( 'Restart', 'admin-os-mode' ),
+					'cancelLabel'          => __( 'Cancel', 'admin-os-mode' ),
+					'reopenWindowsLabel'   => __( 'Reopen windows after restarting', 'admin-os-mode' ),
+					'reopenWindowsDefault' => true,
+					'countdownSeconds'     => 60,
+					'icon'                 => 'power',
+					'overlayMessage'       => __( 'Restarting Admin OS...', 'admin-os-mode' ),
+				),
+				'switchClassic' => array(
+					'title'                => __( 'Are you sure you want to switch to Classic Admin?', 'admin-os-mode' ),
+					/* translators: {seconds}: seconds remaining before Classic Admin opens automatically. */
+					'message'              => __( 'If you do nothing, Classic Admin will open automatically in {seconds} seconds.', 'admin-os-mode' ),
+					'confirmLabel'         => __( 'Switch', 'admin-os-mode' ),
+					'cancelLabel'          => __( 'Cancel', 'admin-os-mode' ),
+					'reopenWindowsLabel'   => __( 'Reopen windows when returning to Admin OS', 'admin-os-mode' ),
+					'reopenWindowsDefault' => true,
+					'countdownSeconds'     => 60,
+					'icon'                 => 'dashicons-admin-site-alt3',
+					'overlayMessage'       => __( 'Switching to Classic Admin...', 'admin-os-mode' ),
+				),
+				'logout'        => array(
+					'title'                => sprintf(
+						/* translators: %s: current user display name. */
+						__( 'Are you sure you want to log out %s?', 'admin-os-mode' ),
+						$user_label
+					),
+					/* translators: {seconds}: seconds remaining before the user is logged out automatically. */
+					'message'              => __( 'If you do nothing, you will be logged out automatically in {seconds} seconds.', 'admin-os-mode' ),
+					'confirmLabel'         => __( 'Log Out', 'admin-os-mode' ),
+					'cancelLabel'          => __( 'Cancel', 'admin-os-mode' ),
+					'reopenWindowsLabel'   => __( 'Reopen windows when logging back in', 'admin-os-mode' ),
+					'reopenWindowsDefault' => true,
+					'countdownSeconds'     => 60,
+					'icon'                 => 'power',
+					'overlayMessage'       => __( 'Logging out...', 'admin-os-mode' ),
+				),
 			),
 		);
 	}
@@ -434,8 +476,8 @@ final class Admin_OS_Mode_Assets {
 								'icon'    => 'dashicons-update',
 							),
 							array(
-								'label'   => __( 'Switch to Classic Admin', 'admin-os-mode' ),
-								'command' => 'navigate-url',
+								'label'   => __( 'Switch to Classic Admin...', 'admin-os-mode' ),
+								'command' => 'shell.switch-classic',
 								'url'     => $this->router->get_toggle_url( false ),
 								'icon'    => 'dashicons-admin-site-alt3',
 							),
@@ -448,7 +490,7 @@ final class Admin_OS_Mode_Assets {
 									__( 'Log Out %s...', 'admin-os-mode' ),
 									$user_label
 								),
-								'command' => 'navigate-url',
+								'command' => 'user.logout',
 								'url'     => wp_logout_url(),
 								'icon'    => 'dashicons-migrate',
 							),
