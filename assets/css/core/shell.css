@@ -59,6 +59,10 @@
 	--aos-card-border: rgba(0, 0, 0, 0.08);
 	--aos-dock-bg: rgba(255, 255, 255, 0.86);
 	--aos-dock-border: rgba(0, 0, 0, 0.08);
+	--aos-dock-hover-lift: 3px;
+	--aos-dock-hover-scale: 1;
+	--aos-dock-icon-size: 26px;
+	--aos-dock-item-size: 48px;
 	--aos-scrollbar-size: 20px;
 	--aos-scrollbar-track: transparent;
 	--aos-scrollbar-thumb: rgba(88, 96, 105, 0.42);

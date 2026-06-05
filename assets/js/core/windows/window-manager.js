@@ -279,6 +279,19 @@
 
 				handle.dataset.aosDragBound = '1';
 
+				handle.addEventListener('dblclick', (event) => {
+					if (event.target.closest('button')) {
+						return;
+					}
+
+					const action = shell.dataset.aosTitlebarDoubleClick || 'zoom';
+					if (action === 'minimize') {
+						minimizeWindow(win);
+					} else if (action === 'zoom') {
+						toggleMaximizeWindow(win);
+					}
+				});
+
 				handle.addEventListener('pointerdown', (event) => {
 					if (event.target.closest('button') || win.classList.contains('is-maximized')) {
 						return;

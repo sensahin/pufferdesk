@@ -9,6 +9,7 @@
 		const api = window.AdminOSMode.services.api;
 		const storage = window.AdminOSMode.services.storage;
 		const appearance = window.AdminOSMode.appearance;
+		const desktopDock = window.AdminOSMode.desktopDock;
 		const wallpaper = window.AdminOSMode.wallpaper;
 		const config = context.config || window.AdminOSMode.config.get();
 		const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
@@ -21,7 +22,11 @@
 		let currentWallpaper = config.wallpaper && typeof config.wallpaper === 'object'
 			? config.wallpaper
 			: {};
+		let currentDesktopDock = desktopDock
+			? desktopDock.normalize(config.desktopDock || {})
+			: Object.assign({}, config.desktopDock || {});
 		let saveTimer = null;
+		let desktopDockSaveTimer = null;
 		let accentLabel = null;
 		let tintToggle = null;
 		let activeSection = 'general';
@@ -41,6 +46,7 @@
 		let wallpaperPhotoToggle = null;
 		let wallpaperPhotoExpanded = false;
 		let mediaFrame = null;
+		const desktopDockControls = [];
 		const sidebarButtons = [];
 		const wallpaperPhotoVisibleCount = 4;
 
@@ -56,10 +62,49 @@
 			{ value: 'graphite', label: 'Graphite' }
 		];
 
+		const desktopDockSelectOptions = {
+			dock_position: [
+				{ value: 'left', label: 'Left' },
+				{ value: 'bottom', label: 'Bottom' },
+				{ value: 'right', label: 'Right' }
+			],
+			minimize_animation: [
+				{ value: 'genie', label: 'Genie Effect' },
+				{ value: 'scale', label: 'Scale Effect' }
+			],
+			titlebar_double_click: [
+				{ value: 'zoom', label: 'Zoom' },
+				{ value: 'minimize', label: 'Minimize' },
+				{ value: 'nothing', label: 'Do Nothing' }
+			],
+			wallpaper_click: [
+				{ value: 'always', label: 'Always' },
+				{ value: 'only_stage_manager', label: 'Only in Stage Manager' },
+				{ value: 'never', label: 'Never' }
+			],
+			stage_manager_windows: [
+				{ value: 'all_at_once', label: 'All at Once' },
+				{ value: 'one_at_a_time', label: 'One at a Time' }
+			],
+			dim_widgets: [
+				{ value: 'automatic', label: 'Automatically' },
+				{ value: 'always', label: 'Always' },
+				{ value: 'never', label: 'Never' }
+			],
+			default_browser: [
+				{ value: 'system', label: 'System Browser' }
+			],
+			prefer_tabs: [
+				{ value: 'never', label: 'Never' },
+				{ value: 'in_full_screen', label: 'In Full Screen' },
+				{ value: 'always', label: 'Always' }
+			]
+		};
+
 		const sidebarItems = [
 			{ id: 'general', label: 'General', icon: 'dashicons-admin-generic', tone: 'gray' },
 			{ id: 'appearance', label: 'Appearance', icon: 'dashicons-admin-appearance', tone: 'blue' },
-			{ id: 'desktop-dock', label: 'Desktop & Dock', icon: 'dashicons-desktop', tone: 'indigo', disabled: true },
+			{ id: 'desktop-dock', label: 'Desktop & Dock', icon: 'dashicons-desktop', tone: 'indigo' },
 			{ id: 'menu-bar', label: 'Menu Bar', icon: 'dashicons-menu-alt3', tone: 'gray', disabled: true },
 			{ id: 'wallpaper', label: 'Wallpaper', icon: 'dashicons-format-image', tone: 'cyan' },
 			{ id: 'widgets', label: 'Widgets', icon: 'dashicons-screenoptions', tone: 'green', disabled: true },
@@ -552,6 +597,77 @@
 			saveAppearance(status);
 		}
 
+		function applyDesktopDock(nextDesktopDock) {
+			currentDesktopDock = desktopDock
+				? desktopDock.normalize(nextDesktopDock)
+				: nextDesktopDock;
+			config.desktopDock = currentDesktopDock;
+
+			if (desktopDock && shell) {
+				desktopDock.apply(shell, currentDesktopDock);
+			}
+
+			syncDesktopDockControls();
+		}
+
+		function saveDesktopDock(status) {
+			window.clearTimeout(desktopDockSaveTimer);
+
+			desktopDockSaveTimer = window.setTimeout(() => {
+				api.post('admin_os_mode_save_desktop_dock', currentDesktopDock)
+					.then((result) => {
+						if (!result || !result.success) {
+							status.textContent = result && result.data && result.data.message
+								? result.data.message
+								: 'Desktop & Dock could not be saved.';
+							return;
+						}
+
+						applyDesktopDock(result.data.desktopDock || currentDesktopDock);
+					})
+					.catch((error) => {
+						status.textContent = error && error.message ? error.message : 'Desktop & Dock could not be saved.';
+					});
+			}, 180);
+		}
+
+		function updateDesktopDock(key, value, status) {
+			applyDesktopDock(Object.assign({}, currentDesktopDock, {
+				[key]: value
+			}));
+			saveDesktopDock(status);
+		}
+
+		function syncDesktopDockControls() {
+			desktopDockControls.forEach((entry) => {
+				const value = currentDesktopDock[entry.key];
+
+				if (entry.type === 'range') {
+					entry.input.value = String(value);
+					updateDesktopDockRangeFill(entry.input);
+					return;
+				}
+
+				if (entry.type === 'select') {
+					entry.select.value = String(value);
+					return;
+				}
+
+				if (entry.type === 'toggle' || entry.type === 'checkbox') {
+					entry.button.setAttribute('aria-pressed', value ? 'true' : 'false');
+				}
+			});
+		}
+
+		function updateDesktopDockRangeFill(input) {
+			const min = Number.parseFloat(input.min) || 0;
+			const max = Number.parseFloat(input.max) || 100;
+			const value = Number.parseFloat(input.value) || min;
+			const ratio = max > min ? (value - min) / (max - min) : 0;
+
+			input.style.setProperty('--aos-range-fill', `${Math.max(0, Math.min(100, ratio * 100))}%`);
+		}
+
 		function saveWallpaper(payload, status, fallbackWallpaper = null) {
 			status.textContent = 'Saving...';
 
@@ -734,6 +850,108 @@
 			tintToggle = button;
 
 			return button;
+		}
+
+		function createDesktopDockRange(key, labelText, options, status) {
+			const field = dom.createElement('label', 'aos-settings-range-field');
+			const label = dom.createElement('span', 'aos-settings-range-title', labelText);
+			const input = document.createElement('input');
+			const legend = dom.createElement('span', 'aos-settings-range-legend');
+
+			input.type = 'range';
+			input.min = String(options.min);
+			input.max = String(options.max);
+			input.step = String(options.step || 1);
+			input.value = String(currentDesktopDock[key]);
+			updateDesktopDockRangeFill(input);
+			input.addEventListener('input', () => {
+				updateDesktopDockRangeFill(input);
+				updateDesktopDock(key, Number.parseInt(input.value, 10), status);
+			});
+			(options.labels || []).forEach((text) => {
+				legend.appendChild(dom.createElement('span', '', text));
+			});
+
+			field.append(label, input, legend);
+			desktopDockControls.push({
+				input,
+				key,
+				type: 'range'
+			});
+
+			return field;
+		}
+
+		function createDesktopDockSelect(key, status) {
+			const wrap = dom.createElement('span', 'aos-settings-inline-select');
+			const select = document.createElement('select');
+
+			select.className = 'aos-settings-value-select';
+			(desktopDockSelectOptions[key] || []).forEach((item) => {
+				const option = document.createElement('option');
+				option.value = item.value;
+				option.textContent = item.label;
+				option.selected = currentDesktopDock[key] === item.value;
+				select.appendChild(option);
+			});
+			select.addEventListener('change', () => updateDesktopDock(key, select.value, status));
+			wrap.appendChild(select);
+			wrap.appendChild(dom.createElement('span', 'aos-settings-select-chevrons'));
+			desktopDockControls.push({
+				key,
+				select,
+				type: 'select'
+			});
+
+			return wrap;
+		}
+
+		function createDesktopDockToggle(key, status) {
+			const button = document.createElement('button');
+
+			button.type = 'button';
+			button.className = 'aos-settings-toggle';
+			button.setAttribute('aria-pressed', currentDesktopDock[key] ? 'true' : 'false');
+			button.addEventListener('click', () => updateDesktopDock(key, !currentDesktopDock[key], status));
+			button.appendChild(dom.createElement('span', 'aos-settings-toggle-knob'));
+			desktopDockControls.push({
+				button,
+				key,
+				type: 'toggle'
+			});
+
+			return button;
+		}
+
+		function createDesktopDockCheckbox(key, labelText, status) {
+			const button = document.createElement('button');
+
+			button.type = 'button';
+			button.className = 'aos-settings-checkbox-option';
+			button.setAttribute('aria-pressed', currentDesktopDock[key] ? 'true' : 'false');
+			button.addEventListener('click', () => updateDesktopDock(key, !currentDesktopDock[key], status));
+			button.appendChild(dom.createElement('span', 'aos-settings-checkbox-box'));
+			button.appendChild(dom.createElement('span', '', labelText));
+			desktopDockControls.push({
+				button,
+				key,
+				type: 'checkbox'
+			});
+
+			return button;
+		}
+
+		function createDesktopDockRow(labelText, control, descriptionText = '') {
+			const row = dom.createElement('div', 'aos-settings-row aos-settings-desktop-dock-row');
+			const labelStack = dom.createElement('span', 'aos-settings-label-stack');
+
+			labelStack.appendChild(dom.createElement('span', 'aos-settings-label', labelText));
+			if (descriptionText) {
+				labelStack.appendChild(dom.createElement('span', 'aos-settings-description', descriptionText));
+			}
+			row.append(labelStack, control);
+
+			return row;
 		}
 
 		function createWallpaperOption(item, status, extraClassName = '') {
@@ -955,6 +1173,139 @@
 			panel.dataset.aosSettingsPanel = 'wallpaper';
 			builtInSection.appendChild(createPhotoWallpaperGroup(status));
 			panel.append(builtInSection, colorSection);
+
+			return panel;
+		}
+
+		function createDesktopDockSliderSection(status) {
+			const section = createSection('', 'aos-settings-desktop-dock-slider-section');
+			const row = dom.createElement('div', 'aos-settings-desktop-dock-slider-row');
+
+			row.appendChild(createDesktopDockRange('dock_size', 'Size', {
+				labels: ['Small', 'Large'],
+				max: 72,
+				min: 36
+			}, status));
+			row.appendChild(createDesktopDockRange('dock_magnification', 'Magnification', {
+				labels: ['Off', 'Small', 'Large'],
+				max: 24,
+				min: 0
+			}, status));
+			section.appendChild(row);
+
+			return section;
+		}
+
+		function createDesktopDockSelectRow(labelText, key, status, descriptionText = '') {
+			return createDesktopDockRow(labelText, createDesktopDockSelect(key, status), descriptionText);
+		}
+
+		function createDesktopDockToggleRow(labelText, key, status, descriptionText = '') {
+			return createDesktopDockRow(labelText, createDesktopDockToggle(key, status), descriptionText);
+		}
+
+		function createDesktopDockCheckboxRow(labelText, items, status) {
+			const group = dom.createElement('span', 'aos-settings-checkbox-group');
+
+			items.forEach((item) => {
+				group.appendChild(createDesktopDockCheckbox(item.key, item.label, status));
+			});
+
+			return createDesktopDockRow(labelText, group);
+		}
+
+		function createDesktopDockPanel(status) {
+			const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-desktop-dock-panel');
+			const dockSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+			const behaviorSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+			const desktopSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+			const stageSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+			const widgetsSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+			const browserSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+			const windowsSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+			const tilingSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+			const missionSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+			const footer = dom.createElement('div', 'aos-settings-desktop-dock-footer');
+
+			panel.dataset.aosSettingsPanel = 'desktop-dock';
+			dockSection.appendChild(createDesktopDockSelectRow('Dock position on screen', 'dock_position', status));
+			dockSection.appendChild(createDesktopDockSelectRow('Minimized window animation', 'minimize_animation', status));
+			dockSection.appendChild(createDesktopDockSelectRow('Window title bar double-click action', 'titlebar_double_click', status));
+			dockSection.appendChild(createDesktopDockToggleRow('Minimize windows into application icon', 'minimize_into_app_icon', status));
+
+			behaviorSection.appendChild(createDesktopDockToggleRow('Automatically hide and show the Dock', 'auto_hide_dock', status));
+			behaviorSection.appendChild(createDesktopDockToggleRow('Animate opening applications', 'animate_opening_apps', status));
+			behaviorSection.appendChild(createDesktopDockToggleRow('Show indicators for open applications', 'show_open_indicators', status));
+			behaviorSection.appendChild(createDesktopDockToggleRow('Show suggested and recent apps in Dock', 'show_recent_apps', status));
+
+			desktopSection.appendChild(createDesktopDockCheckboxRow('Show items', [
+				{ key: 'show_desktop_items', label: 'On Desktop' },
+				{ key: 'show_stage_manager_items', label: 'In Stage Manager' }
+			], status));
+			desktopSection.appendChild(createDesktopDockSelectRow(
+				'Click wallpaper to show desktop',
+				'wallpaper_click',
+				status,
+				'Click wallpaper to move windows out of the way, revealing your desktop items and widgets.'
+			));
+
+			stageSection.appendChild(createDesktopDockToggleRow(
+				'Stage Manager',
+				'stage_manager',
+				status,
+				'Stage Manager arranges recent windows into a single strip for reduced clutter and quick access.'
+			));
+			stageSection.appendChild(createDesktopDockToggleRow('Show recent apps in Stage Manager', 'stage_manager_recent_apps', status));
+			stageSection.appendChild(createDesktopDockSelectRow('Show windows from an application', 'stage_manager_windows', status));
+
+			widgetsSection.appendChild(createDesktopDockCheckboxRow('Show Widgets', [
+				{ key: 'show_widgets_desktop', label: 'On Desktop' },
+				{ key: 'show_widgets_stage_manager', label: 'In Stage Manager' }
+			], status));
+			widgetsSection.appendChild(createDesktopDockSelectRow('Dim widgets on desktop', 'dim_widgets', status));
+
+			browserSection.appendChild(createDesktopDockSelectRow('Default web browser', 'default_browser', status));
+
+			windowsSection.appendChild(createDesktopDockSelectRow('Prefer tabs when opening documents', 'prefer_tabs', status));
+			windowsSection.appendChild(createDesktopDockToggleRow('Ask to keep changes when closing documents', 'ask_keep_changes', status));
+			windowsSection.appendChild(createDesktopDockToggleRow(
+				'Close windows when quitting an application',
+				'close_windows_on_quit',
+				status,
+				'When enabled, open documents and windows will not be restored when you re-open an application.'
+			));
+
+			tilingSection.appendChild(createDesktopDockToggleRow('Drag windows to left or right edge of screen to tile', 'edge_tiling', status));
+			tilingSection.appendChild(createDesktopDockToggleRow('Drag windows to menu bar to fill screen', 'menu_bar_fill_screen', status));
+			tilingSection.appendChild(createDesktopDockToggleRow('Hold Option key while dragging windows to tile', 'tile_modifier_key', status));
+			tilingSection.appendChild(createDesktopDockToggleRow('Tiled windows have margins', 'tiled_windows_margins', status));
+
+			missionSection.appendChild(createDesktopDockToggleRow('Automatically rearrange Spaces based on most recent use', 'auto_rearrange_spaces', status));
+			missionSection.appendChild(createDesktopDockToggleRow('When switching to an application, switch to a Space with open windows for the application', 'switch_to_app_space', status));
+			missionSection.appendChild(createDesktopDockToggleRow('Group windows by application', 'group_windows_by_app', status));
+			missionSection.appendChild(createDesktopDockToggleRow('Displays have separate Spaces', 'separate_spaces', status));
+			missionSection.appendChild(createDesktopDockToggleRow('Drag windows to top of screen to enter Mission Control', 'top_edge_mission_control', status));
+
+			footer.appendChild(createButton('Shortcuts...', 'aos-settings-desktop-dock-footer-button'));
+			footer.appendChild(createButton('Hot Corners...', 'aos-settings-desktop-dock-footer-button'));
+
+			panel.appendChild(createSectionHeading('Dock'));
+			panel.appendChild(createDesktopDockSliderSection(status));
+			panel.appendChild(dockSection);
+			panel.appendChild(behaviorSection);
+			panel.appendChild(createSectionHeading('Desktop & Stage Manager'));
+			panel.appendChild(desktopSection);
+			panel.appendChild(stageSection);
+			panel.appendChild(createSectionHeading('Widgets'));
+			panel.appendChild(widgetsSection);
+			panel.appendChild(browserSection);
+			panel.appendChild(createSectionHeading('Windows'));
+			panel.appendChild(windowsSection);
+			panel.appendChild(tilingSection);
+			panel.appendChild(createSectionHeading('Mission Control'));
+			panel.appendChild(dom.createElement('p', 'aos-settings-section-intro', 'Mission Control shows an overview of your open windows and full-screen apps, all arranged in a unified view.'));
+			panel.appendChild(missionSection);
+			panel.appendChild(footer);
 
 			return panel;
 		}
@@ -1453,6 +1804,7 @@
 		pane.appendChild(createGeneralAboutPanel());
 		pane.appendChild(createProfilePanel());
 		pane.appendChild(appearancePanel);
+		pane.appendChild(createDesktopDockPanel(status));
 		pane.appendChild(createWallpaperPanel(status));
 		pane.appendChild(status);
 
@@ -1461,6 +1813,7 @@
 		content.appendChild(createSettingsSidebar());
 		content.appendChild(main);
 		syncAppearanceControls();
+		syncDesktopDockControls();
 		syncWallpaperControls();
 		setActiveSection(activeSection);
 

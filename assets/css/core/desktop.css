@@ -23,3 +23,12 @@
 	height: 27px;
 	width: 27px;
 }
+
+.aos-shell[data-aos-show-widgets-desktop="0"] .aos-widget-layer {
+	display: none;
+}
+
+.aos-shell[data-aos-dim-widgets="always"] .aos-widget-layer,
+.aos-shell[data-aos-dim-widgets="automatic"] .aos-desktop:has(.aos-window:not(.is-hidden):not(.is-closed)) .aos-widget-layer {
+	opacity: 0.54;
+}

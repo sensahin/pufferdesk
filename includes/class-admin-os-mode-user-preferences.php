@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Admin_OS_Mode_User_Preferences {
 	const META_APPEARANCE = 'admin_os_mode_appearance';
+	const META_DESKTOP_DOCK = 'admin_os_mode_desktop_dock';
 	const META_ENABLED    = 'admin_os_mode_enabled';
 	const META_THEME      = 'admin_os_mode_theme';
 	const META_WALLPAPER  = 'admin_os_mode_wallpaper';
@@ -45,6 +46,62 @@ final class Admin_OS_Mode_User_Preferences {
 		'highlight_color'   => array( 'automatic' ),
 		'icon_widget_style' => array( 'default', 'dark', 'clear', 'tinted' ),
 		'folder_color'      => array( 'automatic' ),
+	);
+
+	/**
+	 * Default Desktop & Dock preferences.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private $default_desktop_dock = array(
+		'dock_size'                 => 48,
+		'dock_magnification'        => 0,
+		'dock_position'             => 'bottom',
+		'minimize_animation'        => 'genie',
+		'titlebar_double_click'     => 'zoom',
+		'minimize_into_app_icon'    => false,
+		'auto_hide_dock'            => false,
+		'animate_opening_apps'      => true,
+		'show_open_indicators'      => true,
+		'show_recent_apps'          => false,
+		'show_desktop_items'        => true,
+		'show_stage_manager_items'  => false,
+		'wallpaper_click'           => 'always',
+		'stage_manager'             => false,
+		'stage_manager_recent_apps' => true,
+		'stage_manager_windows'     => 'all_at_once',
+		'show_widgets_desktop'      => true,
+		'show_widgets_stage_manager' => false,
+		'dim_widgets'               => 'automatic',
+		'default_browser'           => 'system',
+		'prefer_tabs'               => 'in_full_screen',
+		'ask_keep_changes'          => false,
+		'close_windows_on_quit'     => true,
+		'edge_tiling'               => false,
+		'menu_bar_fill_screen'      => false,
+		'tile_modifier_key'         => true,
+		'tiled_windows_margins'     => false,
+		'auto_rearrange_spaces'     => true,
+		'switch_to_app_space'       => true,
+		'group_windows_by_app'      => false,
+		'separate_spaces'           => true,
+		'top_edge_mission_control'  => true,
+	);
+
+	/**
+	 * Allowed Desktop & Dock preference values.
+	 *
+	 * @var array<string,array<int,string>>
+	 */
+	private $desktop_dock_options = array(
+		'dock_position'         => array( 'left', 'bottom', 'right' ),
+		'minimize_animation'    => array( 'genie', 'scale' ),
+		'titlebar_double_click' => array( 'zoom', 'minimize', 'nothing' ),
+		'wallpaper_click'       => array( 'always', 'only_stage_manager', 'never' ),
+		'stage_manager_windows' => array( 'all_at_once', 'one_at_a_time' ),
+		'dim_widgets'           => array( 'automatic', 'always', 'never' ),
+		'default_browser'       => array( 'system' ),
+		'prefer_tabs'           => array( 'never', 'in_full_screen', 'always' ),
 	);
 
 	/**
@@ -161,6 +218,35 @@ final class Admin_OS_Mode_User_Preferences {
 		update_user_meta( $user_id, self::META_APPEARANCE, $appearance );
 
 		return $appearance;
+	}
+
+	/**
+	 * Get the user's Desktop & Dock preferences.
+	 *
+	 * @param int $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function get_desktop_dock( $user_id = 0 ) {
+		$user_id      = $user_id ? (int) $user_id : get_current_user_id();
+		$desktop_dock = get_user_meta( $user_id, self::META_DESKTOP_DOCK, true );
+
+		return $this->sanitize_desktop_dock( is_array( $desktop_dock ) ? $desktop_dock : array() );
+	}
+
+	/**
+	 * Save the user's Desktop & Dock preferences.
+	 *
+	 * @param array<string,mixed> $desktop_dock Desktop & Dock data.
+	 * @param int                 $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function set_desktop_dock( $desktop_dock, $user_id = 0 ) {
+		$user_id      = $user_id ? (int) $user_id : get_current_user_id();
+		$desktop_dock = $this->sanitize_desktop_dock( is_array( $desktop_dock ) ? $desktop_dock : array() );
+
+		update_user_meta( $user_id, self::META_DESKTOP_DOCK, $desktop_dock );
+
+		return $desktop_dock;
 	}
 
 	/**
@@ -332,6 +418,43 @@ final class Admin_OS_Mode_User_Preferences {
 	}
 
 	/**
+	 * Sanitize a Desktop & Dock preference payload.
+	 *
+	 * @param array<string,mixed> $desktop_dock Raw Desktop & Dock data.
+	 * @return array<string,mixed>
+	 */
+	public function sanitize_desktop_dock( $desktop_dock ) {
+		$sanitized = $this->default_desktop_dock;
+
+		if ( array_key_exists( 'dock_size', $desktop_dock ) ) {
+			$sanitized['dock_size'] = $this->sanitize_range( $desktop_dock['dock_size'], 36, 72, $sanitized['dock_size'] );
+		}
+
+		if ( array_key_exists( 'dock_magnification', $desktop_dock ) ) {
+			$sanitized['dock_magnification'] = $this->sanitize_range( $desktop_dock['dock_magnification'], 0, 24, $sanitized['dock_magnification'] );
+		}
+
+		foreach ( $this->desktop_dock_options as $key => $allowed ) {
+			if ( ! array_key_exists( $key, $desktop_dock ) ) {
+				continue;
+			}
+
+			$value = sanitize_key( (string) $desktop_dock[ $key ] );
+			if ( in_array( $value, $allowed, true ) ) {
+				$sanitized[ $key ] = $value;
+			}
+		}
+
+		foreach ( $sanitized as $key => $value ) {
+			if ( is_bool( $value ) && array_key_exists( $key, $desktop_dock ) ) {
+				$sanitized[ $key ] = $this->sanitize_boolean( $desktop_dock[ $key ] );
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
 	 * Sanitize an appearance preference payload.
 	 *
 	 * @param array<string,mixed> $appearance Raw appearance data.
@@ -397,5 +520,22 @@ final class Admin_OS_Mode_User_Preferences {
 		}
 
 		return in_array( strtolower( (string) $value ), array( '1', 'true', 'yes', 'on' ), true );
+	}
+
+	/**
+	 * Sanitize a numeric range preference.
+	 *
+	 * @param mixed $value Raw value.
+	 * @param int   $min Minimum value.
+	 * @param int   $max Maximum value.
+	 * @param int   $fallback Fallback value.
+	 * @return int
+	 */
+	private function sanitize_range( $value, $min, $max, $fallback ) {
+		if ( ! is_numeric( $value ) ) {
+			return $fallback;
+		}
+
+		return max( $min, min( $max, (int) round( (float) $value ) ) );
 	}
 }

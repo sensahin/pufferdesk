@@ -26,6 +26,7 @@ const jsSources = [
 	'assets/js/core/session/session-store.js',
 	'assets/js/core/session/reopen-policy.js',
 	'assets/js/core/appearance.js',
+	'assets/js/core/desktop-dock.js',
 	'assets/js/core/wallpaper.js',
 	'assets/js/core/windows/window-factory.js',
 	'assets/js/core/windows/window-manager.js',

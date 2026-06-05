@@ -56,9 +56,70 @@ final class Admin_OS_Mode_Settings_Controller {
 	 */
 	public function hooks() {
 		add_action( 'wp_ajax_admin_os_mode_save_appearance', array( $this, 'save_appearance' ) );
+		add_action( 'wp_ajax_admin_os_mode_save_desktop_dock', array( $this, 'save_desktop_dock' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_theme', array( $this, 'save_theme' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_wallpaper', array( $this, 'save_wallpaper' ) );
 		add_action( 'wp_ajax_admin_os_mode_remove_wallpaper_upload', array( $this, 'remove_wallpaper_upload' ) );
+	}
+
+	/**
+	 * Save the current user's Desktop & Dock settings.
+	 */
+	public function save_desktop_dock() {
+		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+				),
+				403
+			);
+		}
+
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+
+		$desktop_dock = $this->preferences->set_desktop_dock(
+			array(
+				'dock_size'                  => $this->read_post_value( 'dock_size' ),
+				'dock_magnification'         => $this->read_post_value( 'dock_magnification' ),
+				'dock_position'              => $this->read_post_value( 'dock_position' ),
+				'minimize_animation'         => $this->read_post_value( 'minimize_animation' ),
+				'titlebar_double_click'      => $this->read_post_value( 'titlebar_double_click' ),
+				'minimize_into_app_icon'     => $this->read_post_value( 'minimize_into_app_icon' ),
+				'auto_hide_dock'             => $this->read_post_value( 'auto_hide_dock' ),
+				'animate_opening_apps'       => $this->read_post_value( 'animate_opening_apps' ),
+				'show_open_indicators'       => $this->read_post_value( 'show_open_indicators' ),
+				'show_recent_apps'           => $this->read_post_value( 'show_recent_apps' ),
+				'show_desktop_items'         => $this->read_post_value( 'show_desktop_items' ),
+				'show_stage_manager_items'   => $this->read_post_value( 'show_stage_manager_items' ),
+				'wallpaper_click'            => $this->read_post_value( 'wallpaper_click' ),
+				'stage_manager'              => $this->read_post_value( 'stage_manager' ),
+				'stage_manager_recent_apps'  => $this->read_post_value( 'stage_manager_recent_apps' ),
+				'stage_manager_windows'      => $this->read_post_value( 'stage_manager_windows' ),
+				'show_widgets_desktop'       => $this->read_post_value( 'show_widgets_desktop' ),
+				'show_widgets_stage_manager' => $this->read_post_value( 'show_widgets_stage_manager' ),
+				'dim_widgets'                => $this->read_post_value( 'dim_widgets' ),
+				'default_browser'            => $this->read_post_value( 'default_browser' ),
+				'prefer_tabs'                => $this->read_post_value( 'prefer_tabs' ),
+				'ask_keep_changes'           => $this->read_post_value( 'ask_keep_changes' ),
+				'close_windows_on_quit'      => $this->read_post_value( 'close_windows_on_quit' ),
+				'edge_tiling'                => $this->read_post_value( 'edge_tiling' ),
+				'menu_bar_fill_screen'       => $this->read_post_value( 'menu_bar_fill_screen' ),
+				'tile_modifier_key'          => $this->read_post_value( 'tile_modifier_key' ),
+				'tiled_windows_margins'      => $this->read_post_value( 'tiled_windows_margins' ),
+				'auto_rearrange_spaces'      => $this->read_post_value( 'auto_rearrange_spaces' ),
+				'switch_to_app_space'        => $this->read_post_value( 'switch_to_app_space' ),
+				'group_windows_by_app'       => $this->read_post_value( 'group_windows_by_app' ),
+				'separate_spaces'            => $this->read_post_value( 'separate_spaces' ),
+				'top_edge_mission_control'   => $this->read_post_value( 'top_edge_mission_control' ),
+			)
+		);
+
+		wp_send_json_success(
+			array(
+				'desktopDock' => $desktop_dock,
+				'message'     => __( 'Desktop & Dock saved.', 'admin-os-mode' ),
+			)
+		);
 	}
 
 	/**

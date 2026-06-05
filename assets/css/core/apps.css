@@ -1186,6 +1186,237 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	text-align: center;
 }
 
+.aos-settings-desktop-dock-panel {
+	gap: 14px;
+}
+
+.aos-settings-desktop-dock-slider-section,
+.aos-settings-desktop-dock-list {
+	padding: 0;
+}
+
+.aos-settings-desktop-dock-slider-row {
+	display: grid;
+	gap: 32px;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+	padding: 14px 20px 16px;
+}
+
+.aos-settings-range-field {
+	display: grid;
+	gap: 8px;
+	min-width: 0;
+}
+
+.aos-settings-range-title {
+	color: var(--aos-ink);
+	font-size: var(--aos-settings-text-heading);
+	font-weight: var(--aos-weight-semibold);
+	line-height: var(--aos-line-height-body);
+}
+
+.aos-settings-range-field input[type="range"] {
+	appearance: none;
+	background: transparent;
+	height: 15px;
+	width: 100%;
+}
+
+.aos-settings-range-field input[type="range"]::-webkit-slider-runnable-track {
+	background: linear-gradient(90deg, var(--aos-accent), var(--aos-accent)) 0 50% / var(--aos-range-fill, 32%) 3px no-repeat, rgba(142, 142, 147, 0.35);
+	border-radius: 999px;
+	height: 3px;
+}
+
+.aos-settings-range-field input[type="range"]::-webkit-slider-thumb {
+	appearance: none;
+	background: #e9eaec;
+	border: 0;
+	border-radius: 50%;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+	height: 22px;
+	margin-top: -9.5px;
+	width: 22px;
+}
+
+.aos-settings-range-field input[type="range"]:focus {
+	outline: none;
+}
+
+.aos-settings-range-legend {
+	color: var(--aos-muted);
+	display: flex;
+	font-size: var(--aos-settings-text-body);
+	font-weight: var(--aos-weight-semibold);
+	justify-content: space-between;
+	line-height: 1;
+}
+
+.aos-settings-desktop-dock-row {
+	grid-template-columns: minmax(210px, 1.5fr) minmax(0, 1fr);
+	min-height: 42px;
+	padding: 9px 16px;
+}
+
+.aos-settings-desktop-dock-row .aos-settings-label {
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-medium);
+}
+
+.aos-settings-desktop-dock-row .aos-settings-description {
+	font-size: var(--aos-settings-text-body);
+	font-weight: var(--aos-weight-semibold);
+	max-width: 360px;
+}
+
+.aos-settings-inline-select {
+	align-items: center;
+	display: inline-flex;
+	justify-self: end;
+	position: relative;
+}
+
+.aos-settings-value-select {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	color: var(--aos-ink);
+	cursor: default;
+	font-family: inherit;
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-semibold);
+	line-height: var(--aos-line-height-body);
+	min-height: 28px;
+	min-width: 116px;
+	padding: 0 30px 0 8px;
+	text-align: right;
+	text-align-last: right;
+}
+
+.aos-settings-value-select:focus {
+	outline: none;
+}
+
+.aos-settings-select-chevrons {
+	background: rgba(142, 142, 147, 0.22);
+	border-radius: 50%;
+	height: 23px;
+	pointer-events: none;
+	position: absolute;
+	right: 0;
+	width: 23px;
+}
+
+.aos-settings-select-chevrons::before,
+.aos-settings-select-chevrons::after {
+	border-right: 2px solid var(--aos-muted);
+	border-top: 2px solid var(--aos-muted);
+	content: "";
+	height: 5px;
+	left: 8px;
+	position: absolute;
+	width: 5px;
+}
+
+.aos-settings-select-chevrons::before {
+	top: 6px;
+	transform: rotate(-45deg);
+}
+
+.aos-settings-select-chevrons::after {
+	bottom: 6px;
+	transform: rotate(135deg);
+}
+
+.aos-settings-checkbox-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 18px;
+	justify-content: flex-end;
+}
+
+.aos-settings-checkbox-option {
+	align-items: center;
+	appearance: none;
+	background: transparent;
+	border: 0;
+	color: var(--aos-ink);
+	cursor: default;
+	display: inline-flex;
+	font-family: inherit;
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-semibold);
+	gap: 8px;
+	line-height: var(--aos-line-height-body);
+	padding: 0;
+}
+
+.aos-settings-checkbox-option:focus {
+	outline: none;
+}
+
+.aos-settings-checkbox-box {
+	align-items: center;
+	background: rgba(142, 142, 147, 0.22);
+	border-radius: 6px;
+	display: inline-flex;
+	height: 22px;
+	justify-content: center;
+	width: 22px;
+}
+
+.aos-settings-checkbox-option[aria-pressed="true"] .aos-settings-checkbox-box {
+	background: var(--aos-accent);
+}
+
+.aos-settings-checkbox-option[aria-pressed="true"] .aos-settings-checkbox-box::before {
+	border-bottom: 3px solid #fff;
+	border-right: 3px solid #fff;
+	content: "";
+	height: 11px;
+	margin-top: -3px;
+	transform: rotate(45deg);
+	width: 6px;
+}
+
+.aos-settings-section-intro {
+	color: var(--aos-muted);
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-semibold);
+	line-height: 1.25;
+	margin: -5px 20px 4px;
+}
+
+.aos-settings-desktop-dock-footer {
+	display: flex;
+	gap: 12px;
+	justify-content: flex-end;
+	padding: 4px 0 0;
+}
+
+.aos-settings-desktop-dock-footer-button {
+	appearance: none;
+	background: var(--aos-control-bg);
+	border: 0;
+	border-radius: 8px;
+	color: var(--aos-ink);
+	cursor: default;
+	font-family: inherit;
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-semibold);
+	line-height: 1;
+	min-height: 31px;
+	padding: 0 17px;
+}
+
+.aos-settings-desktop-dock-footer-button:focus {
+	outline: none;
+}
+
+.aos-settings-desktop-dock-footer-button:active {
+	background: var(--aos-control-bg-hover);
+}
+
 .aos-settings-action-row {
 	align-items: center;
 	appearance: none;
