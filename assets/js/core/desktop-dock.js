@@ -119,6 +119,8 @@
 		shell.dataset.aosTitlebarDoubleClick = current.titlebar_double_click;
 		shell.dataset.aosMinimizeAnimation = current.minimize_animation;
 		shell.dataset.aosMinimizeIntoAppIcon = current.minimize_into_app_icon ? '1' : '0';
+		shell.dataset.aosWallpaperClick = current.wallpaper_click;
+		shell.dataset.aosStageManager = current.stage_manager ? '1' : '0';
 		shell.dataset.aosShowDesktopItems = current.show_desktop_items ? '1' : '0';
 		shell.dataset.aosShowWidgetsDesktop = current.show_widgets_desktop ? '1' : '0';
 		shell.dataset.aosDimWidgets = current.dim_widgets;
@@ -128,6 +130,9 @@
 		shell.style.setProperty('--aos-dock-tile-size', `${tileSize}px`);
 		shell.style.setProperty('--aos-dock-hover-lift', `${lift}px`);
 		shell.style.setProperty('--aos-dock-hover-scale', scale);
+		shell.dispatchEvent(new window.CustomEvent('adminOSMode:desktop-dock-change', {
+			detail: current
+		}));
 
 		return current;
 	}

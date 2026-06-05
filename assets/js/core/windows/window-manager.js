@@ -7,14 +7,19 @@
 	window.AdminOSMode.windows.createWindowManager = function createWindowManager(shell, options = {}) {
 		const dom = window.AdminOSMode.dom;
 		const desktop = shell.querySelector('.aos-desktop');
+		const dock = shell.querySelector('.aos-dock');
 		const menuBar = shell.querySelector('.aos-menu-bar');
 		const sessionStore = window.AdminOSMode.session.createSessionStore(options.storageKey || '');
 		let zIndex = 30;
 		let windowOffset = 0;
+		let windowId = 0;
 		let activeWindow = null;
 		let restoreInProgress = false;
 		let preserveStoredWindowsUntilChange = Boolean(options.preserveStoredWindowsUntilChange);
 		let saveTimer = null;
+		let showDesktopActive = false;
+		let showDesktopWindows = new Set();
+		const animationTimers = new WeakMap();
 		const resizeDirections = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 		const resizeObserver = typeof window.ResizeObserver === 'function'
 			? new window.ResizeObserver(() => scheduleSave())
@@ -127,25 +132,42 @@
 				return;
 			}
 
+			exitShowDesktop(false);
 			zIndex += 1;
 			win.style.zIndex = String(zIndex);
-			win.classList.remove('is-hidden');
-			win.classList.remove('is-closed');
+			revealWindow(win);
 			constrainWindow(win);
 			setActiveWindow(win);
 			scheduleSave();
 		}
 
 		function minimizeWindow(win) {
-			if (!win) {
+			if (!win || win.classList.contains('is-hidden') || win.classList.contains('is-minimizing')) {
 				return;
 			}
 
-			win.classList.add('is-hidden');
+			cancelWindowAnimation(win);
+			win.classList.remove('is-opening', 'is-restoring', 'is-show-desktop-hidden');
+			if (!shouldMinimizeIntoAppIcon()) {
+				createMinimizedDockItem(win);
+			}
+
+			const target = getWindowAnimationTarget(win);
+			setWindowAnimationTarget(win, target);
+			win.dataset.aosMinimizeAnimation = getMinimizeAnimation();
+			win.classList.add('is-minimizing');
+
 			if (activeWindow === win) {
 				setActiveWindow(getTopVisibleWindow());
 			}
-			scheduleSave();
+
+			finishWindowAnimation(win, 'is-minimizing', () => {
+				win.classList.remove('is-minimizing');
+				win.classList.add('is-hidden');
+				win.removeAttribute('data-aos-minimize-animation');
+				clearWindowAnimationTarget(win);
+				scheduleSave();
+			});
 		}
 
 		function hideOtherWindows(referenceWindow) {
@@ -155,7 +177,7 @@
 
 			shell.querySelectorAll('.aos-window').forEach((win) => {
 				if (win !== referenceWindow && isVisibleWindow(win)) {
-					win.classList.add('is-hidden');
+					minimizeWindow(win);
 				}
 			});
 
@@ -169,8 +191,7 @@
 
 		function showAllWindows() {
 			shell.querySelectorAll('.aos-window.is-hidden:not(.is-closed)').forEach((win) => {
-				win.classList.remove('is-hidden');
-				constrainWindow(win);
+				revealWindow(win);
 			});
 
 			if (isVisibleWindow(activeWindow)) {
@@ -202,6 +223,9 @@
 				return;
 			}
 
+			cancelWindowAnimation(win);
+			removeMinimizedDockItem(win);
+			showDesktopWindows.delete(win);
 			win.remove();
 			if (appId) {
 				setDockRunning(appId, false);
@@ -245,7 +269,11 @@
 		}
 
 		function isVisibleWindow(win) {
-			return win && !win.classList.contains('is-hidden') && !win.classList.contains('is-closed');
+			return win
+				&& !win.classList.contains('is-hidden')
+				&& !win.classList.contains('is-closed')
+				&& !win.classList.contains('is-minimizing')
+				&& !win.classList.contains('is-show-desktop-hidden');
 		}
 
 		function getWindowZIndex(win) {
@@ -263,6 +291,271 @@
 			const selector = `[data-aos-open-app="${dom.escapeAttribute(appId)}"].aos-dock-item`;
 			const items = shell.querySelectorAll(selector);
 			items.forEach((item) => item.classList.toggle('is-running', running));
+		}
+
+		function getWindowId(win) {
+			if (!win.dataset.aosWindowId) {
+				windowId += 1;
+				win.dataset.aosWindowId = `window-${windowId}`;
+			}
+
+			return win.dataset.aosWindowId;
+		}
+
+		function shouldAnimateOpeningApps() {
+			return shell.dataset.aosDockAnimateApps !== '0';
+		}
+
+		function getMinimizeAnimation() {
+			return shell.dataset.aosMinimizeAnimation === 'scale' ? 'scale' : 'genie';
+		}
+
+		function shouldMinimizeIntoAppIcon() {
+			return shell.dataset.aosMinimizeIntoAppIcon === '1';
+		}
+
+		function getWallpaperClickMode() {
+			return shell.dataset.aosWallpaperClick || 'always';
+		}
+
+		function shouldWallpaperClickShowDesktop() {
+			const mode = getWallpaperClickMode();
+
+			if (mode === 'never') {
+				return false;
+			}
+
+			return mode !== 'only_stage_manager' || shell.dataset.aosStageManager === '1';
+		}
+
+		function getDockAppButton(win) {
+			const appId = win && win.dataset.aosAppWindow;
+
+			if (!appId) {
+				return null;
+			}
+
+			return shell.querySelector(`[data-aos-open-app="${dom.escapeAttribute(appId)}"].aos-dock-item`);
+		}
+
+		function getMinimizedDockItem(win) {
+			const id = win && win.dataset.aosWindowId;
+
+			return id ? shell.querySelector(`[data-aos-restore-window-id="${dom.escapeAttribute(id)}"]`) : null;
+		}
+
+		function getWindowAnimationTarget(win) {
+			const target = shouldMinimizeIntoAppIcon() ? getDockAppButton(win) : getMinimizedDockItem(win);
+
+			if (!target) {
+				return null;
+			}
+
+			const winRect = win.getBoundingClientRect();
+			const targetRect = target.getBoundingClientRect();
+
+			return {
+				x: Math.round(targetRect.left + targetRect.width / 2 - (winRect.left + winRect.width / 2)),
+				y: Math.round(targetRect.top + targetRect.height / 2 - (winRect.top + winRect.height / 2))
+			};
+		}
+
+		function setWindowAnimationTarget(win, target) {
+			const fallbackY = Math.max(96, Math.round(desktop.getBoundingClientRect().bottom - win.getBoundingClientRect().bottom + 64));
+			const x = target ? target.x : 0;
+			const y = target ? target.y : fallbackY;
+
+			win.style.setProperty('--aos-window-animation-x', `${x}px`);
+			win.style.setProperty('--aos-window-animation-y', `${y}px`);
+		}
+
+		function clearWindowAnimationTarget(win) {
+			win.style.removeProperty('--aos-window-animation-x');
+			win.style.removeProperty('--aos-window-animation-y');
+		}
+
+		function cancelWindowAnimation(win) {
+			const entry = animationTimers.get(win);
+
+			if (entry) {
+				window.clearTimeout(entry.timer);
+				win.removeEventListener('animationend', entry.finish);
+				animationTimers.delete(win);
+			}
+		}
+
+		function finishWindowAnimation(win, className, callback, duration = 280) {
+			cancelWindowAnimation(win);
+
+			let finished = false;
+			const finish = (event) => {
+				if (event && event.target !== win) {
+					return;
+				}
+				if (finished) {
+					return;
+				}
+
+				finished = true;
+				cancelWindowAnimation(win);
+				if (typeof callback === 'function') {
+					callback();
+				} else {
+					win.classList.remove(className);
+					clearWindowAnimationTarget(win);
+				}
+			};
+			const timer = window.setTimeout(finish, duration);
+
+			animationTimers.set(win, {
+				finish,
+				timer
+			});
+			win.addEventListener('animationend', finish);
+		}
+
+		function playWindowAnimation(win, className, target, duration = 280) {
+			cancelWindowAnimation(win);
+			setWindowAnimationTarget(win, target);
+			win.dataset.aosMinimizeAnimation = getMinimizeAnimation();
+			win.classList.remove('is-opening', 'is-restoring');
+			win.classList.add(className);
+
+			finishWindowAnimation(win, className, () => {
+				win.classList.remove(className);
+				win.removeAttribute('data-aos-minimize-animation');
+				clearWindowAnimationTarget(win);
+			}, duration);
+		}
+
+		function revealWindow(win, options = {}) {
+			const wasHidden = win.classList.contains('is-hidden') || win.classList.contains('is-minimizing');
+			const target = getWindowAnimationTarget(win);
+
+			cancelWindowAnimation(win);
+			win.classList.remove('is-hidden', 'is-closed', 'is-minimizing', 'is-show-desktop-hidden');
+			win.removeAttribute('data-aos-minimize-animation');
+			removeMinimizedDockItem(win);
+			constrainWindow(win);
+
+			if (wasHidden && options.animate !== false && shouldAnimateOpeningApps()) {
+				playWindowAnimation(win, 'is-restoring', target);
+			}
+		}
+
+		function getMinimizedDockContainer() {
+			if (!dock) {
+				return null;
+			}
+
+			let container = dock.querySelector('.aos-dock-minimized-windows');
+			if (!container) {
+				container = document.createElement('span');
+				container.className = 'aos-dock-minimized-windows';
+				dock.appendChild(container);
+			}
+
+			return container;
+		}
+
+		function createMinimizedDockItem(win) {
+			const container = getMinimizedDockContainer();
+			const id = getWindowId(win);
+
+			if (!container || getMinimizedDockItem(win)) {
+				return getMinimizedDockItem(win);
+			}
+
+			const button = document.createElement('button');
+			const title = win.dataset.aosWindowTitle || win.getAttribute('aria-label') || 'Window';
+			const dockAppButton = getDockAppButton(win);
+			const icon = dockAppButton ? dockAppButton.querySelector('.aos-icon-image, .dashicons') : null;
+
+			button.type = 'button';
+			button.className = 'aos-dock-window-item';
+			button.dataset.aosRestoreWindowId = id;
+			button.title = title;
+			button.setAttribute('aria-label', `Restore ${title}`);
+			if (icon) {
+				button.appendChild(icon.cloneNode(true));
+			} else {
+				button.appendChild(dom.createDashicon('dashicons-admin-generic'));
+			}
+			button.addEventListener('click', () => focusWindow(win));
+			container.appendChild(button);
+
+			return button;
+		}
+
+		function removeMinimizedDockItem(win) {
+			const item = getMinimizedDockItem(win);
+
+			if (item) {
+				item.remove();
+			}
+
+			const container = dock && dock.querySelector('.aos-dock-minimized-windows');
+			if (container && !container.children.length) {
+				container.remove();
+			}
+		}
+
+		function syncMinimizedDockItems() {
+			if (shouldMinimizeIntoAppIcon()) {
+				shell.querySelectorAll('.aos-dock-window-item').forEach((item) => item.remove());
+				const container = dock && dock.querySelector('.aos-dock-minimized-windows');
+				if (container && !container.children.length) {
+					container.remove();
+				}
+				return;
+			}
+
+			shell.querySelectorAll('.aos-window.is-hidden:not(.is-closed)').forEach((win) => {
+				createMinimizedDockItem(win);
+			});
+		}
+
+		function enterShowDesktop() {
+			const visibleWindows = Array.from(shell.querySelectorAll('.aos-window')).filter(isVisibleWindow);
+
+			if (!visibleWindows.length) {
+				setActiveWindow(null);
+				return;
+			}
+
+			showDesktopActive = true;
+			showDesktopWindows = new Set(visibleWindows);
+			shell.dataset.aosShowingDesktop = '1';
+			visibleWindows.forEach((win) => {
+				win.classList.add('is-show-desktop-hidden');
+			});
+			setActiveWindow(null);
+		}
+
+		function exitShowDesktop(focusTop = true) {
+			if (!showDesktopActive) {
+				return;
+			}
+
+			showDesktopWindows.forEach((win) => {
+				win.classList.remove('is-show-desktop-hidden');
+			});
+			showDesktopWindows = new Set();
+			showDesktopActive = false;
+			shell.dataset.aosShowingDesktop = '0';
+
+			if (focusTop) {
+				setActiveWindow(getTopVisibleWindow());
+			}
+		}
+
+		function toggleShowDesktop() {
+			if (showDesktopActive) {
+				exitShowDesktop(true);
+				return;
+			}
+
+			enterShowDesktop();
 		}
 
 		function makeDraggable(win) {
@@ -638,6 +931,7 @@
 			}
 
 			win.dataset.aosWindowBound = '1';
+			getWindowId(win);
 			makeDraggable(win);
 			ensureResizeHandles(win);
 			observeWindow(win);
@@ -671,11 +965,15 @@
 
 			if (!windowOptions.skipFocus) {
 				focusWindow(win);
+				if (!restoreInProgress && shouldAnimateOpeningApps() && !(windowOptions.state && windowOptions.state.hidden)) {
+					playWindowAnimation(win, 'is-opening', getWindowAnimationTarget(win), 220);
+				}
 			}
 
 			if (windowOptions.appId) {
 				setDockRunning(windowOptions.appId, true);
 			}
+			syncMinimizedDockItems();
 
 			preserveStoredWindowsUntilChange = false;
 			scheduleSave();
@@ -751,15 +1049,27 @@
 
 			restoreInProgress = false;
 			setActiveWindow(getTopVisibleWindow());
+			syncMinimizedDockItems();
 		}
 
 		if (desktop) {
-			desktop.addEventListener('pointerdown', (event) => {
+			desktop.addEventListener('click', (event) => {
 				if (event.target === desktop) {
-					setActiveWindow(null);
+					if (shouldWallpaperClickShowDesktop()) {
+						toggleShowDesktop();
+					} else {
+						setActiveWindow(null);
+					}
 				}
 			});
 		}
+
+		shell.addEventListener('adminOSMode:desktop-dock-change', () => {
+			syncMinimizedDockItems();
+			if (!shouldWallpaperClickShowDesktop()) {
+				exitShowDesktop(true);
+			}
+		});
 
 		window.addEventListener('resize', () => {
 			constrainVisibleWindows();

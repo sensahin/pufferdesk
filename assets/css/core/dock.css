@@ -65,6 +65,49 @@
 	width: var(--aos-dock-tile-size, 26px);
 }
 
+.aos-dock-minimized-windows {
+	align-items: center;
+	border-left: 1px solid var(--aos-dock-border);
+	display: flex;
+	gap: 8px;
+	margin-left: 4px;
+	padding-left: 8px;
+}
+
+.aos-dock-window-item {
+	align-items: center;
+	appearance: none;
+	background: var(--aos-tile-bg);
+	border: 1px solid var(--aos-tile-border);
+	border-radius: 7px;
+	color: var(--aos-accent);
+	cursor: default;
+	display: flex;
+	height: var(--aos-dock-item-size, 44px);
+	justify-content: center;
+	padding: 0;
+	position: relative;
+	transition: transform 140ms ease;
+	width: var(--aos-dock-item-size, 48px);
+}
+
+.aos-dock-window-item:hover,
+.aos-dock-window-item:focus {
+	outline: none;
+	transform: translateY(calc(-1 * var(--aos-dock-hover-lift, 3px))) scale(var(--aos-dock-hover-scale, 1));
+}
+
+.aos-dock-window-item .dashicons {
+	font-size: var(--aos-dock-icon-size, 24px);
+	height: var(--aos-dock-icon-size, 24px);
+	width: var(--aos-dock-icon-size, 24px);
+}
+
+.aos-dock-window-item .aos-icon-image {
+	height: var(--aos-dock-tile-size, 26px);
+	width: var(--aos-dock-tile-size, 26px);
+}
+
 .aos-shell[data-aos-dock-show-indicators="0"] .aos-dock-item.is-running::after {
 	display: none;
 }

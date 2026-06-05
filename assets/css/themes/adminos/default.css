@@ -297,7 +297,8 @@
 	padding: 8px 10px;
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-dock-item {
+.aos-shell[data-aos-theme="adminos"] .aos-dock-item,
+.aos-shell[data-aos-theme="adminos"] .aos-dock-window-item {
 	background: transparent;
 	border: 0;
 	border-radius: 14px;
@@ -310,6 +311,8 @@
 
 .aos-shell[data-aos-theme="adminos"] .aos-dock-item:hover,
 .aos-shell[data-aos-theme="adminos"] .aos-dock-item:focus,
+.aos-shell[data-aos-theme="adminos"] .aos-dock-window-item:hover,
+.aos-shell[data-aos-theme="adminos"] .aos-dock-window-item:focus,
 .aos-shell[data-aos-theme="adminos"] .aos-dock-item.is-running {
 	background: transparent;
 	filter: drop-shadow(0 12px 16px rgba(5, 20, 32, 0.24));
@@ -323,7 +326,8 @@
 	width: 4px;
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-dock-item .dashicons {
+.aos-shell[data-aos-theme="adminos"] .aos-dock-item .dashicons,
+.aos-shell[data-aos-theme="adminos"] .aos-dock-window-item .dashicons {
 	background: linear-gradient(160deg, rgba(255, 255, 255, 0.86), rgba(218, 234, 238, 0.8));
 	border: 1px solid rgba(255, 255, 255, 0.72);
 	border-radius: 14px;
@@ -334,7 +338,8 @@
 	width: var(--aos-dock-tile-size, 52px);
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-dock-item .aos-icon-image {
+.aos-shell[data-aos-theme="adminos"] .aos-dock-item .aos-icon-image,
+.aos-shell[data-aos-theme="adminos"] .aos-dock-window-item .aos-icon-image {
 	height: var(--aos-dock-tile-size, 54px);
 	width: var(--aos-dock-tile-size, 54px);
 }
@@ -576,12 +581,14 @@
 		overflow-y: hidden;
 	}
 
-	.aos-shell[data-aos-theme="adminos"] .aos-dock-item {
+	.aos-shell[data-aos-theme="adminos"] .aos-dock-item,
+	.aos-shell[data-aos-theme="adminos"] .aos-dock-window-item {
 		height: var(--aos-dock-item-size, 48px);
 		width: var(--aos-dock-item-size, 48px);
 	}
 
-	.aos-shell[data-aos-theme="adminos"] .aos-dock-item .aos-icon-image {
+	.aos-shell[data-aos-theme="adminos"] .aos-dock-item .aos-icon-image,
+	.aos-shell[data-aos-theme="adminos"] .aos-dock-window-item .aos-icon-image {
 		height: var(--aos-dock-tile-size, 46px);
 		width: var(--aos-dock-tile-size, 46px);
 	}
