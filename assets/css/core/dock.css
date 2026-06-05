@@ -61,7 +61,10 @@
 }
 
 .aos-dock-item .aos-icon-image {
+	flex: 0 0 auto;
 	height: var(--aos-dock-tile-size, 26px);
+	object-fit: contain;
+	object-position: center;
 	width: var(--aos-dock-tile-size, 26px);
 }
 
@@ -104,7 +107,10 @@
 }
 
 .aos-dock-window-item .aos-icon-image {
+	flex: 0 0 auto;
 	height: var(--aos-dock-tile-size, 26px);
+	object-fit: contain;
+	object-position: center;
 	width: var(--aos-dock-tile-size, 26px);
 }
 
