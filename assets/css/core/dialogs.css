@@ -30,13 +30,7 @@
 	max-width: min(360px, calc(100% - 48px));
 	padding: 18px 18px 14px;
 	text-align: center;
-	transform: translateY(8px) scale(0.985);
-	transition: transform 140ms ease;
 	width: 320px;
-}
-
-.aos-shell-dialog-layer.is-visible .aos-shell-dialog {
-	transform: translateY(0) scale(1);
 }
 
 .aos-shell-dialog.is-dragging {
