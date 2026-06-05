@@ -51,6 +51,7 @@
 				id: typeof item.id === 'string' ? item.id : '',
 				label: item.label,
 				payload: item.payload && typeof item.payload === 'object' ? item.payload : {},
+				shortcut: typeof item.shortcut === 'string' ? item.shortcut : '',
 				target: typeof item.target === 'string' ? item.target : '',
 				title: typeof item.title === 'string' ? item.title : '',
 				url: typeof item.url === 'string' ? item.url : ''

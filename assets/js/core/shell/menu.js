@@ -5,6 +5,7 @@
 	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
 
 	window.AdminOSMode.shell.createMenuController = function createMenuController(shell, config = {}, context = {}) {
+		const dom = window.AdminOSMode.dom;
 		const menu = shell.querySelector('[data-aos-menu-items]');
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
@@ -13,6 +14,9 @@
 		const commands = window.AdminOSMode.shell.createCommandRegistry(shell, context);
 		let activeDetail = { kind: 'desktop' };
 		let activeDefinition = schema.getDefaultDefinition({ appLabel: labels.workspace || 'Workspace', includeGo: true });
+		let activeButton = null;
+		let popover = null;
+		let openGroupId = '';
 
 		function getDesktopDefinition() {
 			return schema.normalizeDefinition(menuConfig.desktop, {
@@ -50,7 +54,168 @@
 			return getDefaultAppDefinition(detail);
 		}
 
-		function bindGroupCommand(button, group) {
+		function hasMenuItems(group) {
+			return Boolean(group && Array.isArray(group.items) && group.items.length);
+		}
+
+		function getItemDisabled(item) {
+			return Boolean(item.disabled || (item.command && !commands.canExecute(item, activeDetail)));
+		}
+
+		function closePopover() {
+			if (popover) {
+				popover.remove();
+				popover = null;
+			}
+
+			if (activeButton) {
+				activeButton.classList.remove('is-active');
+				activeButton.setAttribute('aria-expanded', 'false');
+				activeButton = null;
+			}
+
+			openGroupId = '';
+		}
+
+		function positionPopover(button) {
+			if (!popover) {
+				return;
+			}
+
+			const shellRect = shell.getBoundingClientRect();
+			const buttonRect = button.getBoundingClientRect();
+			const top = Math.round(buttonRect.bottom - shellRect.top + 2);
+			const minLeft = 8;
+			const maxLeft = Math.max(minLeft, shell.clientWidth - popover.offsetWidth - 8);
+			const left = Math.min(Math.max(minLeft, Math.round(buttonRect.left - shellRect.left)), maxLeft);
+
+			popover.style.left = `${left}px`;
+			popover.style.top = `${top}px`;
+		}
+
+		function createMenuItemIcon(item) {
+			if (!item.icon) {
+				return null;
+			}
+
+			const icon = document.createElement('span');
+			icon.className = 'aos-menu-item-icon';
+			if (item.icon.startsWith('dashicons-')) {
+				icon.appendChild(dom.createDashicon(item.icon));
+			}
+
+			return icon;
+		}
+
+		function createMenuItem(item) {
+			if (item.type === 'separator') {
+				const separator = document.createElement('span');
+				separator.className = 'aos-menu-separator';
+				separator.setAttribute('role', 'separator');
+				return separator;
+			}
+
+			const disabled = getItemDisabled(item);
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = 'aos-menu-item';
+			button.dataset.aosMenuItem = item.id || item.command || item.label;
+			button.setAttribute('role', 'menuitem');
+			button.disabled = disabled;
+
+			if (disabled) {
+				button.setAttribute('aria-disabled', 'true');
+			}
+
+			const icon = createMenuItemIcon(item);
+			if (icon) {
+				button.classList.add('has-icon');
+				button.appendChild(icon);
+			}
+
+			const label = document.createElement('span');
+			label.className = 'aos-menu-item-label';
+			label.textContent = item.label;
+			button.appendChild(label);
+
+			const shortcut = document.createElement('span');
+			shortcut.className = 'aos-menu-item-shortcut';
+			shortcut.textContent = item.shortcut || '';
+			button.appendChild(shortcut);
+
+			if (item.command && !disabled) {
+				button.addEventListener('click', () => {
+					commands.execute(item, activeDetail);
+					closePopover();
+				});
+			}
+
+			return button;
+		}
+
+		function openPopover(group, button, options = {}) {
+			if (!hasMenuItems(group)) {
+				return;
+			}
+
+			closePopover();
+
+			activeButton = button;
+			openGroupId = group.id;
+			activeButton.classList.add('is-active');
+			activeButton.setAttribute('aria-expanded', 'true');
+
+			popover = document.createElement('div');
+			popover.className = 'aos-menu-popover';
+			popover.dataset.aosMenuPopover = group.id;
+			popover.setAttribute('role', 'menu');
+			popover.setAttribute('aria-label', group.label);
+			popover.replaceChildren(...group.items.map(createMenuItem));
+
+			shell.appendChild(popover);
+			positionPopover(button);
+
+			if (options.focus) {
+				const firstEnabled = popover.querySelector('.aos-menu-item:not(:disabled)');
+				if (firstEnabled) {
+					firstEnabled.focus();
+				}
+			}
+		}
+
+		function togglePopover(group, button) {
+			if (openGroupId === group.id) {
+				closePopover();
+				return;
+			}
+
+			openPopover(group, button);
+		}
+
+		function bindGroupButton(button, group) {
+			button.dataset.aosMenuGroup = group.id;
+
+			if (hasMenuItems(group)) {
+				button.setAttribute('aria-haspopup', 'menu');
+				button.setAttribute('aria-expanded', 'false');
+				button.addEventListener('click', () => togglePopover(group, button));
+				button.addEventListener('pointerenter', () => {
+					if (popover) {
+						openPopover(group, button);
+					}
+				});
+				button.addEventListener('keydown', (event) => {
+					if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
+						event.preventDefault();
+						openPopover(group, button, { focus: true });
+					} else if (event.key === 'Escape') {
+						closePopover();
+						button.focus();
+					}
+				});
+				return;
+			}
+
 			if (!group.command) {
 				return;
 			}
@@ -59,12 +224,10 @@
 			if (group.target) {
 				button.dataset.aosCommandTarget = group.target;
 			}
-			if (Array.isArray(group.items) && group.items.length) {
-				return;
-			}
 			button.disabled = !commands.canExecute(group, activeDetail);
 			button.addEventListener('click', () => {
 				commands.execute(group, activeDetail);
+				closePopover();
 			});
 		}
 
@@ -76,13 +239,13 @@
 			activeDetail = detail && typeof detail === 'object' ? detail : { kind: 'desktop' };
 			commands.setActiveDetail(activeDetail);
 			activeDefinition = getDefinitionForDetail(activeDetail);
+			closePopover();
 
 			menu.replaceChildren(...activeDefinition.groups.map((group) => {
 				const button = document.createElement('button');
 				button.type = 'button';
 				button.textContent = group.label;
-				button.dataset.aosMenuGroup = group.id;
-				bindGroupCommand(button, group);
+				bindGroupButton(button, group);
 				return button;
 			}));
 		}
@@ -96,6 +259,21 @@
 			shell.addEventListener('adminOSMode:active-window-change', (event) => {
 				render(event.detail || { kind: 'desktop' });
 			});
+			document.addEventListener('pointerdown', (event) => {
+				if (
+					popover
+					&& !popover.contains(event.target)
+					&& !menu.contains(event.target)
+				) {
+					closePopover();
+				}
+			});
+			document.addEventListener('keydown', (event) => {
+				if (event.key === 'Escape') {
+					closePopover();
+				}
+			});
+			window.addEventListener('resize', closePopover);
 		}
 
 		function getMenuDefinition() {

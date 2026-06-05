@@ -7,6 +7,16 @@
 	--aos-menu-bg: transparent;
 	--aos-menu-border: transparent;
 	--aos-menu-shadow: none;
+	--aos-menu-active-bg: rgba(15, 96, 210, 0.86);
+	--aos-menu-popover-bg: rgba(234, 247, 250, 0.78);
+	--aos-menu-popover-border: rgba(255, 255, 255, 0.5);
+	--aos-menu-popover-shadow: 0 18px 48px rgba(12, 28, 43, 0.26), 0 1px 0 rgba(255, 255, 255, 0.48) inset;
+	--aos-menu-popover-ink: #1c252d;
+	--aos-menu-popover-muted: rgba(28, 37, 45, 0.38);
+	--aos-menu-popover-separator: rgba(28, 37, 45, 0.16);
+	--aos-menu-item-hover-bg: #0a84ff;
+	--aos-menu-item-hover-ink: #fff;
+	--aos-menu-item-disabled: rgba(28, 37, 45, 0.3);
 	--aos-control-bg: rgba(255, 255, 255, 0.18);
 	--aos-control-bg-hover: rgba(255, 255, 255, 0.34);
 	--aos-desktop-bg:
@@ -78,9 +88,14 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-menu-items button:hover,
-.aos-shell[data-aos-theme="adminos"] .aos-menu-items button:focus {
+.aos-shell[data-aos-theme="adminos"] .aos-menu-items button:focus,
+.aos-shell[data-aos-theme="adminos"] .aos-menu-items button.is-active {
 	background: rgba(34, 42, 50, 0.72);
 	color: #fff;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-menu-items button.is-active {
+	background: var(--aos-menu-active-bg);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-menu-items button:active {
@@ -386,6 +401,14 @@
 	--aos-dock-bg: rgba(28, 33, 43, 0.54);
 	--aos-dock-border: rgba(255, 255, 255, 0.14);
 	--aos-dock-shadow: 0 24px 60px rgba(0, 0, 0, 0.42), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+	--aos-menu-active-bg: rgba(78, 72, 126, 0.9);
+	--aos-menu-popover-bg: rgba(24, 36, 42, 0.78);
+	--aos-menu-popover-border: rgba(143, 166, 184, 0.28);
+	--aos-menu-popover-shadow: 0 18px 48px rgba(0, 0, 0, 0.42), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+	--aos-menu-popover-ink: #f3f6fb;
+	--aos-menu-popover-muted: rgba(243, 246, 251, 0.46);
+	--aos-menu-popover-separator: rgba(243, 246, 251, 0.18);
+	--aos-menu-item-disabled: rgba(243, 246, 251, 0.3);
 	--aos-scrollbar-track: rgba(255, 255, 255, 0.05);
 	--aos-scrollbar-thumb: rgba(214, 218, 225, 0.54);
 	--aos-scrollbar-thumb-hover: rgba(231, 234, 240, 0.68);

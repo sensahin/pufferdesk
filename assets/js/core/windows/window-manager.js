@@ -147,6 +147,43 @@
 			scheduleSave();
 		}
 
+		function hideOtherWindows(referenceWindow) {
+			if (!referenceWindow) {
+				return;
+			}
+
+			shell.querySelectorAll('.aos-window').forEach((win) => {
+				if (win !== referenceWindow && isVisibleWindow(win)) {
+					win.classList.add('is-hidden');
+				}
+			});
+
+			if (isVisibleWindow(referenceWindow)) {
+				focusWindow(referenceWindow);
+			} else {
+				setActiveWindow(getTopVisibleWindow());
+			}
+			scheduleSave();
+		}
+
+		function showAllWindows() {
+			shell.querySelectorAll('.aos-window.is-hidden:not(.is-closed)').forEach((win) => {
+				win.classList.remove('is-hidden');
+				constrainWindow(win);
+			});
+
+			if (isVisibleWindow(activeWindow)) {
+				focusWindow(activeWindow);
+			} else {
+				setActiveWindow(getTopVisibleWindow());
+			}
+			scheduleSave();
+		}
+
+		function hasHiddenWindows() {
+			return Boolean(shell.querySelector('.aos-window.is-hidden:not(.is-closed)'));
+		}
+
 		function toggleMaximizeWindow(win) {
 			if (!win) {
 				return;
@@ -732,11 +769,14 @@
 			getActiveWindow() {
 				return activeWindow;
 			},
+			hasHiddenWindows,
+			hideOtherWindows,
 			makeDraggable,
 			minimizeWindow,
 			restoreSession,
 			saveSession,
 			setDockRunning,
+			showAllWindows,
 			toggleMaximizeWindow,
 			withIframeParam
 		};

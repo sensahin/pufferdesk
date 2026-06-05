@@ -12,6 +12,16 @@
 	--aos-menu-bg: #fff;
 	--aos-menu-border: rgba(0, 0, 0, 0.08);
 	--aos-menu-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+	--aos-menu-active-bg: rgba(0, 0, 0, 0.11);
+	--aos-menu-popover-bg: rgba(255, 255, 255, 0.9);
+	--aos-menu-popover-border: rgba(0, 0, 0, 0.14);
+	--aos-menu-popover-shadow: 0 18px 46px rgba(0, 0, 0, 0.18);
+	--aos-menu-popover-ink: #17212b;
+	--aos-menu-popover-muted: rgba(23, 33, 43, 0.48);
+	--aos-menu-popover-separator: rgba(23, 33, 43, 0.14);
+	--aos-menu-item-hover-bg: #0a84ff;
+	--aos-menu-item-hover-ink: #fff;
+	--aos-menu-item-disabled: rgba(23, 33, 43, 0.32);
 	--aos-control-bg: rgba(0, 0, 0, 0.06);
 	--aos-control-bg-hover: rgba(0, 0, 0, 0.11);
 	--aos-desktop-bg: #f0f0f1;
@@ -173,10 +183,107 @@
 }
 
 .aos-menu-items button:hover,
-.aos-menu-items button:focus {
+.aos-menu-items button:focus,
+.aos-menu-items button.is-active {
 	background: var(--aos-control-bg-hover);
 	color: var(--aos-ink);
 	outline: none;
+}
+
+.aos-menu-items button.is-active {
+	background: var(--aos-menu-active-bg);
+}
+
+.aos-menu-popover {
+	-webkit-backdrop-filter: blur(28px) saturate(150%);
+	backdrop-filter: blur(28px) saturate(150%);
+	background: var(--aos-menu-popover-bg);
+	border: 1px solid var(--aos-menu-popover-border);
+	border-radius: 10px;
+	box-shadow: var(--aos-menu-popover-shadow);
+	color: var(--aos-menu-popover-ink);
+	min-width: 248px;
+	padding: 6px;
+	position: absolute;
+	user-select: none;
+	z-index: 160;
+}
+
+.aos-menu-item {
+	align-items: center;
+	appearance: none;
+	background: transparent;
+	border: 0;
+	border-radius: 6px;
+	color: inherit;
+	cursor: default;
+	display: grid;
+	font-family: inherit;
+	font-size: var(--aos-text-menu);
+	gap: 8px;
+	grid-template-columns: minmax(0, 1fr) auto;
+	height: 25px;
+	line-height: var(--aos-line-height-tight);
+	padding: 0 10px;
+	text-align: left;
+	width: 100%;
+}
+
+.aos-menu-item.has-icon {
+	grid-template-columns: 16px minmax(0, 1fr) auto;
+}
+
+.aos-menu-item:not(:disabled):hover,
+.aos-menu-item:not(:disabled):focus {
+	background: var(--aos-menu-item-hover-bg);
+	color: var(--aos-menu-item-hover-ink);
+	outline: none;
+}
+
+.aos-menu-item:disabled {
+	color: var(--aos-menu-item-disabled);
+}
+
+.aos-menu-item-icon {
+	align-items: center;
+	display: inline-flex;
+	height: 16px;
+	justify-content: center;
+	width: 16px;
+}
+
+.aos-menu-item-icon .dashicons {
+	font-size: 12px;
+	height: 12px;
+	line-height: 12px;
+	width: 12px;
+}
+
+.aos-menu-item-label {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-menu-item-shortcut {
+	color: var(--aos-menu-popover-muted);
+	font-size: var(--aos-text-caption);
+	justify-self: end;
+	min-width: 30px;
+	text-align: right;
+}
+
+.aos-menu-item:not(:disabled):hover .aos-menu-item-shortcut,
+.aos-menu-item:not(:disabled):focus .aos-menu-item-shortcut {
+	color: currentColor;
+}
+
+.aos-menu-separator {
+	background: var(--aos-menu-popover-separator);
+	display: block;
+	height: 1px;
+	margin: 5px 10px;
 }
 
 .aos-search {

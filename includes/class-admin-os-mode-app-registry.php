@@ -90,6 +90,7 @@ final class Admin_OS_Mode_App_Registry {
 				'cap'    => 'read',
 				'kind'   => 'native',
 				'native' => 'settings',
+				'menu'   => $this->get_os_settings_menu(),
 			),
 			array(
 				'id'    => 'settings',
@@ -422,6 +423,10 @@ final class Admin_OS_Mode_App_Registry {
 				$menu_item['payload'] = $this->normalize_menu_payload( $item['payload'] );
 			}
 
+			if ( ! empty( $item['shortcut'] ) ) {
+				$menu_item['shortcut'] = sanitize_text_field( $item['shortcut'] );
+			}
+
 			if ( ! empty( $item['target'] ) ) {
 				$menu_item['target'] = sanitize_text_field( $item['target'] );
 			}
@@ -444,6 +449,73 @@ final class Admin_OS_Mode_App_Registry {
 		}
 
 		return $normalized;
+	}
+
+	/**
+	 * OS Settings app menu definition.
+	 *
+	 * @return array<string,array<int,array<string,mixed>>>
+	 */
+	private function get_os_settings_menu() {
+		return array(
+			'groups' => array(
+				array(
+					'id'    => 'app',
+					'label' => __( 'OS Settings', 'admin-os-mode' ),
+					'items' => array(
+						array(
+							'label'   => __( 'About OS Settings', 'admin-os-mode' ),
+							'command' => 'noop',
+						),
+						array( 'type' => 'separator' ),
+						array(
+							'label'    => __( 'Hide OS Settings', 'admin-os-mode' ),
+							'command'  => 'window.hide',
+							'icon'     => 'dashicons-hidden',
+							'shortcut' => '⌘H',
+						),
+						array(
+							'label'    => __( 'Hide Others', 'admin-os-mode' ),
+							'command'  => 'window.hide-others',
+							'icon'     => 'dashicons-excerpt-view',
+							'shortcut' => '⌥⌘H',
+						),
+						array(
+							'label'   => __( 'Show All', 'admin-os-mode' ),
+							'command' => 'window.show-all',
+							'icon'    => 'dashicons-visibility',
+						),
+						array( 'type' => 'separator' ),
+						array(
+							'label'    => __( 'Quit OS Settings', 'admin-os-mode' ),
+							'command'  => 'window.close',
+							'icon'     => 'dashicons-dismiss',
+							'shortcut' => '⌘Q',
+						),
+					),
+				),
+				array(
+					'id'    => 'edit',
+					'label' => __( 'Edit', 'admin-os-mode' ),
+					'items' => array(),
+				),
+				array(
+					'id'    => 'view',
+					'label' => __( 'View', 'admin-os-mode' ),
+					'items' => array(),
+				),
+				array(
+					'id'    => 'window',
+					'label' => __( 'Window', 'admin-os-mode' ),
+					'items' => array(),
+				),
+				array(
+					'id'    => 'help',
+					'label' => __( 'Help', 'admin-os-mode' ),
+					'items' => array(),
+				),
+			),
+		);
 	}
 
 	/**

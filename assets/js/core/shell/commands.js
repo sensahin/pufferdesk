@@ -146,6 +146,33 @@
 			}
 		});
 
+		register('window.hide', {
+			isEnabled(payload, detail) {
+				return Boolean(manager && typeof manager.minimizeWindow === 'function' && getTargetWindow(detail));
+			},
+			run(payload, detail) {
+				manager.minimizeWindow(getTargetWindow(detail));
+			}
+		});
+
+		register('window.hide-others', {
+			isEnabled(payload, detail) {
+				return Boolean(manager && typeof manager.hideOtherWindows === 'function' && getTargetWindow(detail));
+			},
+			run(payload, detail) {
+				manager.hideOtherWindows(getTargetWindow(detail));
+			}
+		});
+
+		register('window.show-all', {
+			isEnabled() {
+				return Boolean(manager && typeof manager.showAllWindows === 'function' && typeof manager.hasHiddenWindows === 'function' && manager.hasHiddenWindows());
+			},
+			run() {
+				manager.showAllWindows();
+			}
+		});
+
 		register('window.toggle-maximize', {
 			isEnabled(payload, detail) {
 				return Boolean(manager && typeof manager.toggleMaximizeWindow === 'function' && getTargetWindow(detail));
