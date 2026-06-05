@@ -87,7 +87,7 @@
 				{
 					id: 'primary',
 					items: [
-						commandItem('OS Settings', 'open-app', {
+						commandItem('System Settings', 'open-app', {
 							icon: 'dashicons-admin-customizer',
 							target: 'os-settings'
 						}),

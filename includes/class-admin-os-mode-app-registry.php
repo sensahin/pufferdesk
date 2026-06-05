@@ -84,7 +84,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'     => 'os-settings',
-				'label'  => __( 'OS Settings', 'admin-os-mode' ),
+				'label'  => __( 'System Settings', 'admin-os-mode' ),
 				'icon'   => $this->theme_icon( 'os-settings.svg', 'dashicons-admin-customizer' ),
 				'group'  => 'system',
 				'cap'    => 'read',
@@ -454,7 +454,7 @@ final class Admin_OS_Mode_App_Registry {
 	}
 
 	/**
-	 * OS Settings app menu definition.
+	 * System Settings app menu definition.
 	 *
 	 * @return array<string,array<int,array<string,mixed>>>
 	 */
@@ -463,16 +463,16 @@ final class Admin_OS_Mode_App_Registry {
 			'groups' => array(
 				array(
 					'id'    => 'app',
-					'label' => __( 'OS Settings', 'admin-os-mode' ),
+					'label' => __( 'System Settings', 'admin-os-mode' ),
 					'items' => array(
 						array(
-							'label'   => __( 'About OS Settings', 'admin-os-mode' ),
+							'label'   => __( 'About System Settings', 'admin-os-mode' ),
 							'command' => 'open-about',
 							'target'  => 'os-settings',
 						),
 						array( 'type' => 'separator' ),
 						array(
-							'label'    => __( 'Hide OS Settings', 'admin-os-mode' ),
+							'label'    => __( 'Hide System Settings', 'admin-os-mode' ),
 							'command'  => 'window.hide',
 							'icon'     => 'dashicons-hidden',
 							'shortcut' => '⌘H',
@@ -490,7 +490,7 @@ final class Admin_OS_Mode_App_Registry {
 						),
 						array( 'type' => 'separator' ),
 						array(
-							'label'    => __( 'Quit OS Settings', 'admin-os-mode' ),
+							'label'    => __( 'Quit System Settings', 'admin-os-mode' ),
 							'command'  => 'window.close',
 							'icon'     => 'dashicons-dismiss',
 							'shortcut' => '⌘Q',

@@ -24,7 +24,7 @@
 		let saveTimer = null;
 		let accentLabel = null;
 		let tintToggle = null;
-		let activeSection = 'appearance';
+		let activeSection = 'general';
 		let paneTitle = null;
 		let settingsRoot = null;
 		let wallpaperButtons = [];
@@ -1294,7 +1294,7 @@
 		pane.appendChild(createWallpaperPanel(status));
 		pane.appendChild(status);
 
-		main.appendChild(createPaneHeader('Appearance'));
+		main.appendChild(createPaneHeader('General'));
 		main.appendChild(pane);
 		content.appendChild(createSettingsSidebar());
 		content.appendChild(main);

@@ -47,7 +47,7 @@ The foundation separates shell behavior from OS appearance:
   - `widgets.css` for desktop widget layout and shared widget chrome.
   - `windows.css` for reusable window chrome.
   - `dock.css` for dock behavior and states.
-  - `apps.css` for built-in app surfaces such as folders and OS Settings.
+  - `apps.css` for built-in app surfaces such as folders and System Settings.
   - `responsive.css` for core viewport adaptations.
 - `assets/js/core/` owns reusable shell behavior through purpose-specific modules:
   - `boot.js` wires the shell together.
@@ -57,7 +57,7 @@ The foundation separates shell behavior from OS appearance:
   - `session/` owns per-user, per-theme workspace session sections.
   - `windows/` owns window creation, drag/focus behavior, and window state serialization.
   - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
-  - `apps/` owns app launching and native app content such as OS Settings.
+  - `apps/` owns app launching and native app content such as System Settings.
   - `shell/` owns global shell controls such as search, clock behavior, menu commands, top menus, and context menus.
 - `assets/css/themes/` owns theme-specific visual language.
 - `assets/media/` reserves release-safe media locations:

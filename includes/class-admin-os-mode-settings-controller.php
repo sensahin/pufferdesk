@@ -1,6 +1,6 @@
 <?php
 /**
- * Native OS Settings actions.
+ * Native System Settings actions.
  *
  * @package AdminOSMode
  */
@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Handles AJAX actions from the internal OS Settings app.
+ * Handles AJAX actions from the internal System Settings app.
  */
 final class Admin_OS_Mode_Settings_Controller {
 	const NONCE_ACTION = 'admin_os_mode_settings';

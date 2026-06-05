@@ -398,7 +398,7 @@ final class Admin_OS_Mode_Assets {
 	}
 
 	/**
-	 * Settings data used by native OS Settings panels.
+	 * Settings data used by native System Settings panels.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -641,7 +641,7 @@ final class Admin_OS_Mode_Assets {
 								'icon'    => 'dashicons-info-outline',
 							),
 							array(
-								'label'   => __( 'OS Settings...', 'admin-os-mode' ),
+								'label'   => __( 'System Settings...', 'admin-os-mode' ),
 								'command' => 'open-app',
 								'target'  => 'os-settings',
 								'icon'    => 'dashicons-admin-customizer',
