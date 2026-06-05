@@ -19,6 +19,10 @@
 	--aos-menu-popover-ink: #17212b;
 	--aos-menu-popover-muted: rgba(23, 33, 43, 0.48);
 	--aos-menu-popover-separator: rgba(23, 33, 43, 0.14);
+	--aos-menu-selection-active-bg: var(--aos-menu-active-bg);
+	--aos-menu-selection-bg: var(--aos-control-bg-hover);
+	--aos-menu-selection-border: transparent;
+	--aos-menu-selection-shadow: none;
 	--aos-menu-item-hover-bg: #0a84ff;
 	--aos-menu-item-hover-ink: #fff;
 	--aos-menu-item-disabled: rgba(23, 33, 43, 0.32);
@@ -123,7 +127,7 @@
 	align-items: center;
 	background: transparent;
 	border: 0;
-	border-radius: 7px;
+	border-radius: 999px;
 	color: var(--aos-ink);
 	cursor: default;
 	display: inline-flex;
@@ -137,7 +141,10 @@
 .aos-system-mark:hover,
 .aos-system-mark:focus,
 .aos-system-mark.is-active {
-	background: var(--aos-control-bg-hover);
+	-webkit-backdrop-filter: blur(12px) saturate(140%);
+	backdrop-filter: blur(12px) saturate(140%);
+	background: var(--aos-menu-selection-bg);
+	box-shadow: inset 0 0 0 1px var(--aos-menu-selection-border), var(--aos-menu-selection-shadow);
 	outline: none;
 }
 
@@ -172,7 +179,7 @@
 .aos-menu-items button {
 	background: transparent;
 	border: 0;
-	border-radius: 7px;
+	border-radius: 999px;
 	color: var(--aos-ink);
 	cursor: default;
 	flex: 0 1 auto;
@@ -194,13 +201,16 @@
 .aos-menu-items button:hover,
 .aos-menu-items button:focus,
 .aos-menu-items button.is-active {
-	background: var(--aos-control-bg-hover);
+	-webkit-backdrop-filter: blur(12px) saturate(140%);
+	backdrop-filter: blur(12px) saturate(140%);
+	background: var(--aos-menu-selection-bg);
+	box-shadow: inset 0 0 0 1px var(--aos-menu-selection-border), var(--aos-menu-selection-shadow);
 	color: var(--aos-ink);
 	outline: none;
 }
 
 .aos-menu-items button.is-active {
-	background: var(--aos-menu-active-bg);
+	background: var(--aos-menu-selection-active-bg);
 }
 
 .aos-menu-popover {
