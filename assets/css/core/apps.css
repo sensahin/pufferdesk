@@ -255,9 +255,9 @@
 
 .aos-about-lines {
 	color: var(--aos-about-text-color, var(--aos-ink));
-	font-size: 10px;
-	font-weight: var(--aos-weight-medium);
-	line-height: 1.16;
+	font-size: 9px;
+	font-weight: 430;
+	line-height: 1.14;
 }
 
 .aos-about-lines p {
