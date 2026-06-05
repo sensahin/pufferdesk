@@ -31,7 +31,7 @@
 	--aos-running-indicator: #f6f7f8;
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(235, 241, 245, 0.7));
 	--aos-window-bar-border: rgba(20, 37, 51, 0.08);
-	--aos-window-safe-edge: 10px;
+	--aos-window-safe-edge: 2px;
 	--aos-card-bg: rgba(255, 255, 255, 0.54);
 	--aos-card-border: rgba(255, 255, 255, 0.56);
 	--aos-dock-bg: rgba(246, 249, 251, 0.5);
