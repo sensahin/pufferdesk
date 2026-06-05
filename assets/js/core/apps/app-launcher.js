@@ -91,12 +91,12 @@
 				centered: true,
 				content: window.AdminOSMode.apps.createSiteAboutWindow(siteInfo),
 				disabledControls: ['minimize', 'maximize'],
-				height: '520px',
+				height: '500px',
 				icon: 'dashicons-admin-site-alt3',
 				persist: false,
 				resizeMode: 'none',
 				title,
-				width: '380px',
+				width: '286px',
 				windowKind: 'site-about'
 			});
 		}
