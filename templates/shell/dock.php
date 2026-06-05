@@ -20,10 +20,12 @@ defined( 'ABSPATH' ) || exit;
 			data-aos-context="dock-app"
 			data-aos-context-id="<?php echo esc_attr( $admin_os_mode_app['id'] ); ?>"
 			data-aos-context-label="<?php echo esc_attr( $admin_os_mode_app['label'] ); ?>"
+			data-aos-dock-tooltip="<?php echo esc_attr( $admin_os_mode_app['label'] ); ?>"
 			data-aos-open-app="<?php echo esc_attr( $admin_os_mode_app['id'] ); ?>"
-			title="<?php echo esc_attr( $admin_os_mode_app['label'] ); ?>"
+			aria-label="<?php echo esc_attr( $admin_os_mode_app['label'] ); ?>"
 		>
 			<?php Admin_OS_Mode_Icon_Renderer::render( $admin_os_mode_app['icon'], $theme ); ?>
+			<span class="aos-dock-tooltip" aria-hidden="true"><?php echo esc_html( $admin_os_mode_app['label'] ); ?></span>
 			<span class="screen-reader-text"><?php echo esc_html( $admin_os_mode_app['label'] ); ?></span>
 		</button>
 	<?php endforeach; ?>

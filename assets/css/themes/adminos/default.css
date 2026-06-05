@@ -82,6 +82,10 @@
 	--aos-dock-bg: var(--aos-material-clear-bg);
 	--aos-dock-border: var(--aos-material-clear-border);
 	--aos-dock-shadow: var(--aos-material-clear-shadow);
+	--aos-dock-tooltip-bg: rgba(214, 239, 247, 0.9);
+	--aos-dock-tooltip-border: transparent;
+	--aos-dock-tooltip-color: rgba(22, 29, 34, 0.92);
+	--aos-dock-tooltip-shadow: none;
 	--aos-focus-ring: rgba(83, 165, 196, 0.42);
 	--aos-scrollbar-track: rgba(255, 255, 255, 0.08);
 	--aos-scrollbar-thumb: rgba(60, 72, 82, 0.34);
@@ -597,6 +601,10 @@
 	--aos-dock-bg: var(--aos-material-clear-bg);
 	--aos-dock-border: var(--aos-material-clear-border);
 	--aos-dock-shadow: var(--aos-material-clear-shadow);
+	--aos-dock-tooltip-bg: rgba(38, 49, 86, 0.9);
+	--aos-dock-tooltip-border: transparent;
+	--aos-dock-tooltip-color: rgba(255, 255, 255, 0.94);
+	--aos-dock-tooltip-shadow: none;
 	--aos-menu-active-bg: rgba(78, 72, 126, 0.9);
 	--aos-menu-popover-bg: var(--aos-material-popover-bg);
 	--aos-menu-popover-border: var(--aos-material-popover-border);
@@ -871,8 +879,13 @@
 	.aos-shell[data-aos-theme="adminos"] .aos-dock {
 		bottom: 10px;
 		max-width: calc(100% - 20px);
-		overflow-x: auto;
-		overflow-y: hidden;
+		overflow: visible;
+	}
+
+	.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="left"] .aos-dock,
+	.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="right"] .aos-dock {
+		overflow-x: hidden;
+		overflow-y: auto;
 	}
 
 	.aos-shell[data-aos-theme="adminos"] .aos-dock-item,

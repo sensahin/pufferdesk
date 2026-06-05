@@ -474,13 +474,16 @@
 			button.type = 'button';
 			button.className = 'aos-dock-window-item';
 			button.dataset.aosRestoreWindowId = id;
-			button.title = title;
+			button.dataset.aosDockTooltip = title;
 			button.setAttribute('aria-label', `Restore ${title}`);
 			if (icon) {
 				button.appendChild(icon.cloneNode(true));
 			} else {
 				button.appendChild(dom.createDashicon('dashicons-admin-generic'));
 			}
+			const tooltip = dom.createElement('span', 'aos-dock-tooltip', title);
+			tooltip.setAttribute('aria-hidden', 'true');
+			button.appendChild(tooltip);
 			button.addEventListener('click', () => focusWindow(win));
 			container.appendChild(button);
 

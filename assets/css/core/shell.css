@@ -59,6 +59,7 @@
 	--aos-menu-item-hover-bg: #0a84ff;
 	--aos-menu-item-hover-ink: #fff;
 	--aos-menu-item-disabled: rgba(23, 33, 43, 0.32);
+	--aos-layer-dock: 9000;
 	--aos-layer-menu: 10000;
 	--aos-layer-menu-popover: 10010;
 	--aos-layer-overlay: 10020;
@@ -100,6 +101,10 @@
 	--aos-dock-icon-size: 26px;
 	--aos-dock-item-size: 48px;
 	--aos-dock-tile-size: 46px;
+	--aos-dock-tooltip-bg: rgba(38, 48, 72, 0.9);
+	--aos-dock-tooltip-border: transparent;
+	--aos-dock-tooltip-color: rgba(255, 255, 255, 0.94);
+	--aos-dock-tooltip-shadow: none;
 	--aos-scrollbar-size: 20px;
 	--aos-scrollbar-track: transparent;
 	--aos-scrollbar-thumb: rgba(88, 96, 105, 0.42);
