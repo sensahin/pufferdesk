@@ -27,9 +27,12 @@
 		let paneTitle = null;
 		let settingsRoot = null;
 		let wallpaperButtons = [];
-		let wallpaperCustomButton = null;
-		let wallpaperCustomPreview = null;
-		let wallpaperCustomLabel = null;
+		let wallpaperAddPhotoButton = null;
+		let wallpaperAddPhotoPreview = null;
+		let wallpaperAddPhotoLabel = null;
+		let wallpaperUploadedPhotoButton = null;
+		let wallpaperUploadedPhotoPreview = null;
+		let wallpaperUploadedPhotoLabel = null;
 		let mediaFrame = null;
 		const sidebarButtons = [];
 
@@ -247,31 +250,62 @@
 
 		function syncWallpaperControls() {
 			const preference = getWallpaperPreference();
+			const current = getWallpaperCurrent();
 			const selectedKey = getWallpaperKey(preference);
+
+			syncUploadedPhotoOption(current);
+
 			wallpaperButtons.forEach((button) => {
 				const selected = button.dataset.aosWallpaperKey === selectedKey;
 				button.classList.toggle('is-selected', selected);
 				button.setAttribute('aria-pressed', selected ? 'true' : 'false');
 			});
 
-			const current = getWallpaperCurrent();
-
-			if (wallpaperCustomPreview) {
-				wallpaperCustomPreview.style.backgroundImage = current.type === 'upload'
-					? getWallpaperPreviewValue(current)
-					: 'none';
-				wallpaperCustomPreview.classList.toggle('has-wallpaper', current.type === 'upload');
+			if (wallpaperAddPhotoPreview) {
+				wallpaperAddPhotoPreview.style.backgroundImage = 'none';
+				wallpaperAddPhotoPreview.classList.remove('has-wallpaper');
 			}
 
-			if (wallpaperCustomButton) {
-				wallpaperCustomButton.classList.toggle('is-selected', current.type === 'upload');
-				wallpaperCustomButton.setAttribute('aria-pressed', current.type === 'upload' ? 'true' : 'false');
+			if (wallpaperAddPhotoButton) {
+				wallpaperAddPhotoButton.classList.remove('is-selected');
+				wallpaperAddPhotoButton.setAttribute('aria-pressed', 'false');
 			}
 
-			if (wallpaperCustomLabel) {
-				wallpaperCustomLabel.textContent = current.type === 'upload' && current.label
-					? current.label
-					: 'Add Photo...';
+			if (wallpaperAddPhotoLabel) {
+				wallpaperAddPhotoLabel.textContent = 'Add Photo...';
+			}
+		}
+
+		function syncUploadedPhotoOption(current = {}) {
+			if (!wallpaperUploadedPhotoButton || !wallpaperUploadedPhotoPreview) {
+				return;
+			}
+
+			const attachmentId = Number.parseInt(current.attachment_id, 10) || 0;
+			const hasUpload = current.type === 'upload' && attachmentId > 0;
+			wallpaperUploadedPhotoButton.hidden = !hasUpload;
+
+			if (!hasUpload) {
+				wallpaperUploadedPhotoButton.dataset.aosWallpaperKey = '';
+				wallpaperUploadedPhotoButton.setAttribute('aria-label', 'Selected photo');
+				wallpaperUploadedPhotoPreview.style.backgroundImage = 'none';
+				wallpaperUploadedPhotoPreview.classList.remove('has-wallpaper');
+				if (wallpaperUploadedPhotoLabel) {
+					wallpaperUploadedPhotoLabel.textContent = '';
+				}
+				return;
+			}
+
+			const label = current.label || 'Selected Photo';
+			wallpaperUploadedPhotoButton.dataset.aosWallpaperKey = getWallpaperKey({
+				type: 'upload',
+				attachment_id: attachmentId
+			});
+			wallpaperUploadedPhotoButton.setAttribute('aria-label', label);
+			wallpaperUploadedPhotoPreview.style.backgroundImage = getWallpaperPreviewValue(current);
+			wallpaperUploadedPhotoPreview.classList.add('has-wallpaper');
+			if (wallpaperUploadedPhotoLabel) {
+				wallpaperUploadedPhotoLabel.textContent = label;
 			}
 		}
 
@@ -376,12 +410,15 @@
 		}
 
 		function selectWallpaperItem(item, status) {
+			const attachmentId = item.type === 'upload'
+				? Number.parseInt(item.attachment_id, 10) || 0
+				: 0;
 			const fallbackWallpaper = currentWallpaper;
 			const nextWallpaper = Object.assign({}, currentWallpaper, {
 				preference: {
 					type: item.type,
-					id: item.id,
-					attachment_id: 0,
+					id: item.type === 'upload' ? '' : item.id,
+					attachment_id: attachmentId,
 					fit: item.fit || 'cover',
 					position: item.position || 'center center'
 				},
@@ -645,25 +682,45 @@
 			const group = dom.createElement('div', 'aos-settings-wallpaper-photos');
 			const heading = dom.createElement('h3', '', 'Your Photos');
 			const grid = dom.createElement('div', 'aos-settings-wallpaper-photo-grid');
-			const button = document.createElement('button');
+			const addButton = document.createElement('button');
 			const preview = dom.createElement('span', 'aos-settings-wallpaper-upload-preview');
 			const icon = dom.createElement('span', 'aos-settings-wallpaper-upload-icon');
 			const label = dom.createElement('span', 'aos-settings-wallpaper-upload-label', 'Add Photo...');
+			const uploadedButton = document.createElement('button');
+			const uploadedPreview = dom.createElement('span', 'aos-settings-wallpaper-upload-preview aos-settings-wallpaper-selected-photo-preview');
+			const uploadedLabel = dom.createElement('span', 'aos-settings-wallpaper-upload-label aos-settings-wallpaper-selected-photo-label');
 
-			button.type = 'button';
-			button.className = 'aos-settings-wallpaper-photo-button';
-			button.setAttribute('aria-pressed', 'false');
+			addButton.type = 'button';
+			addButton.className = 'aos-settings-wallpaper-photo-button aos-settings-wallpaper-add-photo-button';
+			addButton.setAttribute('aria-pressed', 'false');
 			preview.setAttribute('aria-hidden', 'true');
 			icon.setAttribute('aria-hidden', 'true');
 			icon.appendChild(dom.createDashicon('dashicons-format-image'));
 			preview.appendChild(icon);
-			button.append(preview, label);
-			button.addEventListener('click', () => chooseUploadedWallpaper(status));
-			wallpaperCustomButton = button;
-			wallpaperCustomPreview = preview;
-			wallpaperCustomLabel = label;
+			addButton.append(preview, label);
+			addButton.addEventListener('click', () => chooseUploadedWallpaper(status));
+			wallpaperAddPhotoButton = addButton;
+			wallpaperAddPhotoPreview = preview;
+			wallpaperAddPhotoLabel = label;
 
-			grid.appendChild(button);
+			uploadedButton.type = 'button';
+			uploadedButton.className = 'aos-settings-wallpaper-photo-button aos-settings-wallpaper-selected-photo-button';
+			uploadedButton.hidden = true;
+			uploadedButton.setAttribute('aria-pressed', 'false');
+			uploadedPreview.setAttribute('aria-hidden', 'true');
+			uploadedButton.append(uploadedPreview, uploadedLabel);
+			uploadedButton.addEventListener('click', () => {
+				const current = getWallpaperCurrent();
+				if (current.type === 'upload') {
+					selectWallpaperItem(current, status);
+				}
+			});
+			wallpaperUploadedPhotoButton = uploadedButton;
+			wallpaperUploadedPhotoPreview = uploadedPreview;
+			wallpaperUploadedPhotoLabel = uploadedLabel;
+			wallpaperButtons.push(uploadedButton);
+
+			grid.append(addButton, uploadedButton);
 			group.append(heading, grid);
 
 			return group;

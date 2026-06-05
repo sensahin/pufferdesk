@@ -830,6 +830,10 @@
 	display: none;
 }
 
+.aos-settings-wallpaper-selected-photo-label {
+	display: none;
+}
+
 .aos-settings-wallpaper-upload-label {
 	color: var(--aos-muted);
 	font-size: var(--aos-settings-text-body);
