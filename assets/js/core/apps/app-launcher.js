@@ -77,6 +77,35 @@
 			});
 		}
 
+		function openSystemAbout() {
+			const system = config.system && typeof config.system === 'object' ? config.system : {};
+			const about = system.about && typeof system.about === 'object' ? system.about : {};
+			const title = about.name || 'Admin OS';
+
+			if (!window.AdminOSMode.apps.createAboutWindow) {
+				return;
+			}
+
+			manager.createWindow({
+				appId: 'about-admin-os',
+				bodyClass: 'aos-window-body aos-about-body',
+				centered: true,
+				content: window.AdminOSMode.apps.createAboutWindow({
+					about,
+					icon: about.icon || 'dashicons-admin-generic',
+					label: title
+				}),
+				disabledControls: ['minimize', 'maximize'],
+				height: '206px',
+				icon: about.icon || 'dashicons-admin-generic',
+				persist: false,
+				resizeMode: 'none',
+				title,
+				width: '286px',
+				windowKind: 'about'
+			});
+		}
+
 		function openUrl(url, title, icon) {
 			manager.createWindow({
 				title: title || 'Admin',
@@ -174,6 +203,7 @@
 			openAbout,
 			openApp,
 			openFolder,
+			openSystemAbout,
 			openUrl,
 			runSearch
 		};

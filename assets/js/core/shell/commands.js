@@ -128,6 +128,15 @@
 			}
 		});
 
+		register('open-system-about', {
+			isEnabled() {
+				return Boolean(launcher && typeof launcher.openSystemAbout === 'function');
+			},
+			run() {
+				launcher.openSystemAbout();
+			}
+		});
+
 		register('open-url', {
 			isEnabled(payload) {
 				return Boolean(launcher && typeof launcher.openUrl === 'function' && (payload.url || payload.target));
@@ -152,6 +161,15 @@
 			},
 			run(payload) {
 				window.open(payload.url || payload.target, '_blank', 'noopener');
+			}
+		});
+
+		register('shell.restart', {
+			isEnabled() {
+				return Boolean(config.shellUrl || window.location.href);
+			},
+			run() {
+				window.location.href = config.shellUrl || window.location.href;
 			}
 		});
 

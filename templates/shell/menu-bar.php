@@ -14,7 +14,7 @@ $admin_os_mode_site_name = isset( $site_name ) && '' !== $site_name ? $site_name
 ?>
 <header class="aos-menu-bar">
 	<div class="aos-brand">
-		<button type="button" class="aos-system-mark" data-aos-open-app="os-settings" aria-label="<?php esc_attr_e( 'Open OS Settings', 'admin-os-mode' ); ?>"></button>
+		<button type="button" class="aos-system-mark" data-aos-system-menu aria-label="<?php esc_attr_e( 'Open Admin OS menu', 'admin-os-mode' ); ?>"></button>
 	</div>
 	<nav class="aos-menu-items" aria-label="<?php esc_attr_e( 'Admin OS menus', 'admin-os-mode' ); ?>" data-aos-menu-items>
 		<button type="button"><?php echo esc_html( $admin_os_mode_site_name ); ?></button>

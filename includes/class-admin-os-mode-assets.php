@@ -320,6 +320,7 @@ final class Admin_OS_Mode_Assets {
 			'classicUrl' => $this->router->get_toggle_url( false ),
 			'shellUrl'   => $this->router->get_shell_url(),
 			'siteName'   => get_bloginfo( 'name' ),
+			'system'     => $this->get_system_config(),
 			'themes'     => $this->theme_registry->get_selectable_themes(),
 			'userId'     => get_current_user_id(),
 			'user'       => array(
@@ -337,12 +338,113 @@ final class Admin_OS_Mode_Assets {
 	}
 
 	/**
+	 * Runtime data for the Admin OS system identity.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_system_config() {
+		return array(
+			'about' => array(
+				'name'      => __( 'Admin OS', 'admin-os-mode' ),
+				'version'   => sprintf(
+					/* translators: %s: plugin version. */
+					__( 'Version %s', 'admin-os-mode' ),
+					ADMIN_OS_MODE_VERSION
+				),
+				'copyright' => __( 'Licensed under GPLv2 or later.', 'admin-os-mode' ),
+				'rights'    => __( 'Built for WordPress admin.', 'admin-os-mode' ),
+				'icon'      => array(
+					'type'     => 'theme',
+					'name'     => 'os-settings.svg',
+					'fallback' => 'dashicons-admin-generic',
+				),
+			),
+		);
+	}
+
+	/**
 	 * Localized menu defaults for the active-app menu bar.
 	 *
 	 * @return array<string,mixed>
 	 */
 	private function get_menu_config() {
+		$current_user = wp_get_current_user();
+		$user_label   = $current_user->display_name ? $current_user->display_name : $current_user->user_login;
+
 		return array(
+			'system'     => array(
+				'groups' => array(
+					array(
+						'id'    => 'system',
+						'label' => __( 'Admin OS', 'admin-os-mode' ),
+						'items' => array(
+							array(
+								'label'   => __( 'About Admin OS', 'admin-os-mode' ),
+								'command' => 'open-system-about',
+								'icon'    => 'dashicons-info-outline',
+							),
+							array(
+								'label'   => __( 'OS Settings...', 'admin-os-mode' ),
+								'command' => 'open-app',
+								'target'  => 'os-settings',
+								'icon'    => 'dashicons-admin-customizer',
+							),
+							array(
+								'label'   => __( 'WordPress Updates...', 'admin-os-mode' ),
+								'command' => 'open-url',
+								'url'     => admin_url( 'update-core.php' ),
+								'title'   => __( 'WordPress Updates', 'admin-os-mode' ),
+								'icon'    => 'dashicons-update',
+							),
+							array(
+								'type' => 'separator',
+							),
+							array(
+								'label'    => __( 'Recent Items', 'admin-os-mode' ),
+								'disabled' => true,
+								'icon'     => 'dashicons-backup',
+								'shortcut' => '>',
+							),
+							array(
+								'type' => 'separator',
+							),
+							array(
+								'id'      => 'close-active-window',
+								'label'   => __( 'Close Active App', 'admin-os-mode' ),
+								'command' => 'window.close',
+								'icon'    => 'dashicons-dismiss',
+							),
+							array(
+								'type' => 'separator',
+							),
+							array(
+								'label'   => __( 'Restart Admin OS...', 'admin-os-mode' ),
+								'command' => 'shell.restart',
+								'icon'    => 'dashicons-update',
+							),
+							array(
+								'label'   => __( 'Switch to Classic Admin', 'admin-os-mode' ),
+								'command' => 'navigate-url',
+								'url'     => $this->router->get_toggle_url( false ),
+								'icon'    => 'dashicons-admin-site-alt3',
+							),
+							array(
+								'type' => 'separator',
+							),
+							array(
+								'label'   => sprintf(
+									/* translators: %s: current user display name. */
+									__( 'Log Out %s...', 'admin-os-mode' ),
+									$user_label
+								),
+								'command' => 'navigate-url',
+								'url'     => wp_logout_url(),
+								'icon'    => 'dashicons-migrate',
+							),
+						),
+					),
+				),
+			),
 			'persistent' => array(
 				'groups' => array(
 					array(

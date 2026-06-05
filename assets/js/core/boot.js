@@ -73,6 +73,7 @@
 			openAbout: launcher.openAbout,
 			openApp: launcher.openApp,
 			openFolder: launcher.openFolder,
+			openSystemAbout: launcher.openSystemAbout,
 			openUrl: launcher.openUrl
 		};
 		window.AdminOSMode.contextMenuController = contextMenuController;

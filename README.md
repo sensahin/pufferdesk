@@ -20,7 +20,7 @@ Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. T
 - Per-user mode preference.
 - Dashboard entry redirects to OS Mode by default.
 - Emergency one-request classic override: `/wp-admin/index.php?admin_os_classic=1`.
-- Admin OS shell with menu bar, right-click context menus, desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
+- Admin OS shell with system menu, site title menu, app menu bar, right-click context menus, desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
 - Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave more like OS windows.
 
 == Notes ==

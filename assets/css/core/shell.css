@@ -134,6 +134,13 @@
 	width: 28px;
 }
 
+.aos-system-mark:hover,
+.aos-system-mark:focus,
+.aos-system-mark.is-active {
+	background: var(--aos-control-bg-hover);
+	outline: none;
+}
+
 .aos-system-mark::before,
 .aos-system-mark::after {
 	content: "";

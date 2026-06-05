@@ -5,6 +5,7 @@
 	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
 
 	window.AdminOSMode.shell.createMenuController = function createMenuController(shell, config = {}, context = {}) {
+		const systemButton = shell.querySelector('[data-aos-system-menu]');
 		const menu = shell.querySelector('[data-aos-menu-items]');
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
@@ -18,6 +19,16 @@
 				appLabel: labels.site || config.siteName || 'Site'
 			})
 			: { groups: [] };
+		const systemDefinition = menuConfig.system
+			? schema.normalizeDefinition(menuConfig.system, {
+				appLabel: labels.system || 'Admin OS'
+			})
+			: { groups: [] };
+		const systemGroup = {
+			id: 'system',
+			items: getGroupedItems(systemDefinition),
+			label: systemDefinition.groups[0] && systemDefinition.groups[0].label ? systemDefinition.groups[0].label : 'Admin OS'
+		};
 		const persistentGroupIds = new Set(persistentDefinition.groups.map((group) => group.id));
 		let activeDefinition = getDesktopDefinition();
 		let activeButton = null;
@@ -63,8 +74,41 @@
 			return persistentDefinition.groups.concat(activeDefinition.groups.filter((group) => !persistentGroupIds.has(group.id)));
 		}
 
+		function getGroupedItems(definition) {
+			const items = [];
+
+			definition.groups.forEach((group) => {
+				if (!group.items.length) {
+					return;
+				}
+
+				if (items.length) {
+					items.push({ type: 'separator' });
+				}
+
+				items.push(...group.items);
+			});
+
+			return items;
+		}
+
 		function hasMenuItems(group) {
 			return Boolean(group && Array.isArray(group.items) && group.items.length);
+		}
+
+		function resolveMenuItem(item) {
+			if (item.id !== 'close-active-window') {
+				return item;
+			}
+
+			const title = activeDetail && activeDetail.title ? activeDetail.title : '';
+			if (!title) {
+				return item;
+			}
+
+			return Object.assign({}, item, {
+				label: `Close ${title}`
+			});
 		}
 
 		function closePopover() {
@@ -99,7 +143,7 @@
 		}
 
 		function createMenuItem(item) {
-			return itemRenderer.createItem(item, activeDetail, closePopover);
+			return itemRenderer.createItem(resolveMenuItem(item), activeDetail, closePopover);
 		}
 
 		function openPopover(group, button, options = {}) {
@@ -199,11 +243,21 @@
 			}));
 		}
 
+		function bindSystemButton() {
+			if (!systemButton || systemButton.dataset.aosSystemMenuBound === '1' || !hasMenuItems(systemGroup)) {
+				return;
+			}
+
+			systemButton.dataset.aosSystemMenuBound = '1';
+			bindGroupButton(systemButton, systemGroup);
+		}
+
 		function bind() {
 			if (!menu) {
 				return;
 			}
 
+			bindSystemButton();
 			render({ kind: 'desktop' });
 			shell.addEventListener('adminOSMode:active-window-change', (event) => {
 				render(event.detail || { kind: 'desktop' });
@@ -213,6 +267,7 @@
 					popover
 					&& !popover.contains(event.target)
 					&& !menu.contains(event.target)
+					&& (!systemButton || !systemButton.contains(event.target))
 				) {
 					closePopover();
 				}
@@ -227,6 +282,7 @@
 
 		function getMenuDefinition() {
 			return {
+				system: systemGroup,
 				groups: getRenderedGroups()
 			};
 		}

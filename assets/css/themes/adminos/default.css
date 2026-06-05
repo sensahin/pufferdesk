@@ -72,7 +72,8 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-system-mark:hover,
-.aos-shell[data-aos-theme="adminos"] .aos-system-mark:focus {
+.aos-shell[data-aos-theme="adminos"] .aos-system-mark:focus,
+.aos-shell[data-aos-theme="adminos"] .aos-system-mark.is-active {
 	background: rgba(34, 42, 50, 0.68);
 	outline: none;
 }

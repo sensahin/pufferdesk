@@ -117,6 +117,7 @@ Apps:
 - Apps may define reusable `about` metadata with `name`, `version`, `copyright`, `rights`, and `icon`; do not hard-code app-specific about windows.
 - About metadata must stay GPL-compatible for WordPress distribution. Do not use "All rights reserved" defaults in plugin UI.
 - App-specific top menu behavior belongs in the app's `menu` definition, not in hard-coded menu bar conditionals.
+- The fixed Admin OS mark opens the system menu. Do not wire it directly to an app; system-menu items belong in the `menu.system` runtime definition.
 - Keep app IDs stable. Layout/session behavior depends on stable IDs.
 
 Menus:
@@ -131,7 +132,7 @@ Menus:
 - Runtime modules that need custom behavior should register commands through `window.AdminOSMode.menuCommands.register()` after boot, staying inside the `window.AdminOSMode` namespace.
 - Dropdown rendering must stay generic and schema-driven. App-specific items belong in app `menu` definitions.
 - Do not add app-specific menu conditionals to `templates/shell/menu-bar.php` or the menu renderer. Add command-backed data to the registry/schema instead.
-- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `open-about`, `open-external-url`, `navigate-url`, `session.reset-layout`, `widget.hide`, `window.focus`, `window.close`, `window.minimize`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
+- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `open-about`, `open-system-about`, `open-external-url`, `navigate-url`, `shell.restart`, `session.reset-layout`, `widget.hide`, `window.focus`, `window.close`, `window.minimize`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
 
 Widgets:
 
