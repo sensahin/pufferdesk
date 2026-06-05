@@ -23,10 +23,6 @@
 				return shell.querySelector(`[data-aos-app-window="${dom.escapeAttribute(detail.appId)}"]`);
 			}
 
-			if (detail && detail.kind === 'workspace') {
-				return shell.querySelector('[data-aos-window="welcome"]');
-			}
-
 			return null;
 		}
 
@@ -132,12 +128,12 @@
 			}
 		});
 
-		register('open-window', {
+		register('open-external-url', {
 			isEnabled(payload) {
-				return Boolean(manager && typeof manager.focusWindow === 'function' && payload.target);
+				return Boolean(payload.url || payload.target);
 			},
 			run(payload) {
-				manager.focusWindow(shell.querySelector(`[data-aos-window="${dom.escapeAttribute(payload.target)}"]`));
+				window.open(payload.url || payload.target, '_blank', 'noopener');
 			}
 		});
 

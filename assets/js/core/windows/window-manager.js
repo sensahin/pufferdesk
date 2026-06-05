@@ -201,16 +201,6 @@
 				return;
 			}
 
-			if (win.dataset.aosWindow === 'welcome') {
-				win.classList.add('is-closed');
-				win.classList.remove('is-hidden');
-				if (activeWindow === win) {
-					setActiveWindow(getTopVisibleWindow());
-				}
-				scheduleSave();
-				return;
-			}
-
 			win.remove();
 			if (appId) {
 				setDockRunning(appId, false);
@@ -225,13 +215,6 @@
 			if (!win) {
 				return {
 					kind: 'desktop'
-				};
-			}
-
-			if (win.dataset.aosWindow === 'welcome') {
-				return {
-					kind: 'workspace',
-					title: win.getAttribute('aria-label') || ''
 				};
 			}
 
@@ -560,14 +543,6 @@
 
 		function serializeWindows() {
 			const windows = [];
-			const welcome = shell.querySelector('[data-aos-window="welcome"]');
-
-			if (welcome) {
-				windows.push({
-					kind: 'welcome',
-					state: readWindowState(welcome)
-				});
-			}
 
 			desktop.querySelectorAll('[data-aos-app-window]').forEach((win) => {
 				const appId = win.dataset.aosAppWindow;
@@ -735,14 +710,6 @@
 
 			windows.forEach((item) => {
 				if (!item || typeof item !== 'object') {
-					return;
-				}
-
-				if (item.kind === 'welcome') {
-					const welcome = shell.querySelector('[data-aos-window="welcome"]');
-					if (welcome) {
-						applyWindowState(welcome, item.state);
-					}
 					return;
 				}
 

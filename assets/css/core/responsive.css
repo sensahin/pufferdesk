@@ -51,21 +51,6 @@
 		font-size: var(--aos-settings-text-body);
 	}
 
-	.aos-stats,
-	.aos-panel-grid {
-		grid-template-columns: 1fr;
-	}
-
-	.aos-welcome-header {
-		display: block;
-	}
-
-	.aos-welcome-header a {
-		display: inline-block;
-		margin-top: 14px;
-		white-space: normal;
-	}
-
 	.aos-settings-row {
 		grid-template-columns: 1fr;
 	}

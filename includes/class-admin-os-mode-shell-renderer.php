@@ -47,13 +47,6 @@ final class Admin_OS_Mode_Shell_Renderer {
 	private $theme_registry;
 
 	/**
-	 * Dashboard data.
-	 *
-	 * @var Admin_OS_Mode_Dashboard_Data
-	 */
-	private $dashboard_data;
-
-	/**
 	 * Current resolved theme during a render pass.
 	 *
 	 * @var array<string,mixed>|null
@@ -68,22 +61,19 @@ final class Admin_OS_Mode_Shell_Renderer {
 	 * @param Admin_OS_Mode_App_Registry     $app_registry App registry.
 	 * @param Admin_OS_Mode_Widget_Registry  $widget_registry Widget registry.
 	 * @param Admin_OS_Mode_Theme_Registry   $theme_registry Theme registry.
-	 * @param Admin_OS_Mode_Dashboard_Data   $dashboard_data Dashboard data.
 	 */
 	public function __construct(
 		Admin_OS_Mode_Router $router,
 		Admin_OS_Mode_User_Preferences $preferences,
 		Admin_OS_Mode_App_Registry $app_registry,
 		Admin_OS_Mode_Widget_Registry $widget_registry,
-		Admin_OS_Mode_Theme_Registry $theme_registry,
-		Admin_OS_Mode_Dashboard_Data $dashboard_data
+		Admin_OS_Mode_Theme_Registry $theme_registry
 	) {
 		$this->router          = $router;
 		$this->preferences     = $preferences;
 		$this->app_registry    = $app_registry;
 		$this->widget_registry = $widget_registry;
 		$this->theme_registry  = $theme_registry;
-		$this->dashboard_data  = $dashboard_data;
 	}
 
 	/**
@@ -104,15 +94,12 @@ final class Admin_OS_Mode_Shell_Renderer {
 		$this->render_template(
 			'shell/shell.php',
 			array(
-				'appearance'   => $appearance,
-				'apps'         => $apps,
-				'widgets'      => $widgets,
-				'folders'      => $folders,
-				'stats'        => $this->dashboard_data->get_stats(),
-				'recents'      => $this->dashboard_data->get_recent_content(),
-				'classic_once' => admin_url( 'index.php?admin_os_classic=1' ),
-				'site_name'    => get_bloginfo( 'name' ),
-				'theme'        => $theme,
+				'appearance' => $appearance,
+				'apps'       => $apps,
+				'widgets'    => $widgets,
+				'folders'    => $folders,
+				'site_name'  => get_bloginfo( 'name' ),
+				'theme'      => $theme,
 			)
 		);
 	}

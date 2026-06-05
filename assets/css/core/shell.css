@@ -82,8 +82,7 @@
 .aos-app-launcher,
 .aos-dock-item,
 .aos-system-mark,
-.aos-window-control,
-.aos-recent-list button {
+.aos-window-control {
 	appearance: none;
 	font-family: inherit;
 }

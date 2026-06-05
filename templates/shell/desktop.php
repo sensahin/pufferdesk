@@ -11,10 +11,6 @@ defined( 'ABSPATH' ) || exit;
  * @var array<int,array<string,string>> $apps
  * @var array<int,array<string,mixed>>  $widgets
  * @var array<int,array<string,string>> $folders
- * @var array<int,array<string,string>> $stats
- * @var WP_Post[]                       $recents
- * @var string                          $classic_once
- * @var string                          $site_name
  * @var array<string,mixed>             $theme
  */
 ?>
@@ -25,18 +21,6 @@ defined( 'ABSPATH' ) || exit;
 		array(
 			'widgets' => $widgets,
 			'theme'   => $theme,
-		)
-	);
-
-	$this->render_part(
-		'apps/welcome.php',
-		array(
-			'apps'         => $apps,
-			'stats'        => $stats,
-			'recents'      => $recents,
-			'classic_once' => $classic_once,
-			'site_name'    => $site_name,
-			'theme'        => $theme,
 		)
 	);
 

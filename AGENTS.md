@@ -59,7 +59,6 @@ PHP services in `includes/`:
 - `class-admin-os-mode-widget-registry.php`: desktop widget registry and widget normalization.
 - `class-admin-os-mode-widget-layout.php`: shared widget layout attributes for templates.
 - `class-admin-os-mode-theme-registry.php`: theme family/version/parent inheritance.
-- `class-admin-os-mode-dashboard-data.php`: dashboard stats and recent content.
 - `class-admin-os-mode-assets.php`: CSS/JS enqueueing and runtime config.
 - `class-admin-os-mode-shell-renderer.php`: template rendering and theme override resolution.
 - `class-admin-os-mode-settings-controller.php`: AJAX settings persistence.
@@ -122,13 +121,13 @@ Apps:
 Menus:
 
 - Menu definitions use the canonical shape `array( 'groups' => array( ... ) )`.
-- Each group should define `id`, `label`, and `items`; supported group IDs are `app`, `file`, `edit`, `view`, `go`, `window`, and `help`.
+- Each group should define `id`, `label`, and `items`; supported group IDs are `site`, `app`, `file`, `edit`, `view`, `go`, `window`, and `help`.
 - Menu command items should define `label` plus optional `command`, `target`, `url`, `title`, `icon`, `shortcut`, `payload`, and `disabled`.
 - Commands are registered in `assets/js/core/shell/commands.js`; schema normalization is in `assets/js/core/shell/menu-schema.js`; top menu rendering is in `assets/js/core/shell/menu.js`.
 - Runtime modules that need custom behavior should register commands through `window.AdminOSMode.menuCommands.register()` after boot, staying inside the `window.AdminOSMode` namespace.
 - Dropdown rendering must stay generic and schema-driven. App-specific items belong in app `menu` definitions.
 - Do not add app-specific menu conditionals to `templates/shell/menu-bar.php` or the menu renderer. Add command-backed data to the registry/schema instead.
-- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `open-about`, `navigate-url`, `window.close`, `window.minimize`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
+- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `open-about`, `open-external-url`, `navigate-url`, `window.close`, `window.minimize`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
 
 Widgets:
 

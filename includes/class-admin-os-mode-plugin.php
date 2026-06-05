@@ -68,7 +68,6 @@ final class Admin_OS_Mode_Plugin {
 		$app_registry   = new Admin_OS_Mode_App_Registry();
 		$widget_registry = new Admin_OS_Mode_Widget_Registry();
 		$theme_registry = new Admin_OS_Mode_Theme_Registry();
-		$dashboard_data = new Admin_OS_Mode_Dashboard_Data();
 
 		$this->router   = new Admin_OS_Mode_Router( $preferences );
 		$this->renderer = new Admin_OS_Mode_Shell_Renderer(
@@ -76,8 +75,7 @@ final class Admin_OS_Mode_Plugin {
 			$preferences,
 			$app_registry,
 			$widget_registry,
-			$theme_registry,
-			$dashboard_data
+			$theme_registry
 		);
 		$this->assets   = new Admin_OS_Mode_Assets(
 			$this->router,

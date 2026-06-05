@@ -242,14 +242,6 @@
 	clip-path: polygon(100% 34%, 100% 100%, 34% 100%);
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-stat,
-.aos-shell[data-aos-theme="adminos"] .aos-panel {
-	backdrop-filter: blur(24px) saturate(135%);
-	background: rgba(255, 255, 255, 0.52);
-	border-color: rgba(255, 255, 255, 0.5);
-	box-shadow: 0 16px 36px rgba(12, 28, 43, 0.12), 0 1px 0 rgba(255, 255, 255, 0.58) inset;
-}
-
 .aos-shell[data-aos-theme="adminos"] .aos-app-launcher {
 	backdrop-filter: blur(18px) saturate(130%);
 	background: rgba(255, 255, 255, 0.44);
@@ -340,8 +332,7 @@
 
 .aos-shell[data-aos-theme="adminos"] .aos-settings-section,
 .aos-shell[data-aos-theme="adminos"] .aos-settings-control,
-.aos-shell[data-aos-theme="adminos"] .aos-settings-button,
-.aos-shell[data-aos-theme="adminos"] .aos-recent-list button {
+.aos-shell[data-aos-theme="adminos"] .aos-settings-button {
 	backdrop-filter: blur(18px) saturate(130%);
 	border-color: rgba(255, 255, 255, 0.48);
 }
@@ -351,8 +342,7 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-settings-control,
-.aos-shell[data-aos-theme="adminos"] .aos-settings-button,
-.aos-shell[data-aos-theme="adminos"] .aos-recent-list button {
+.aos-shell[data-aos-theme="adminos"] .aos-settings-button {
 	border-radius: 10px;
 }
 
@@ -460,8 +450,6 @@
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(35, 55, 67, 0.92), rgba(22, 34, 44, 0.76));
 }
 
-.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-stat,
-.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-panel,
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-app-launcher,
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-widget {
 	background: var(--aos-card-bg);
@@ -472,9 +460,7 @@
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-app-launcher:hover,
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-app-launcher:focus,
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-button:hover,
-.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-button:focus,
-.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-recent-list button:hover,
-.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-recent-list button:focus {
+.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-button:focus {
 	background: rgba(255, 255, 255, 0.12);
 }
 
@@ -513,8 +499,7 @@
 
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-section,
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-control,
-.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-button,
-.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-recent-list button {
+.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-button {
 	background: rgba(28, 33, 43, 0.7);
 	border-color: rgba(255, 255, 255, 0.14);
 	color: var(--aos-ink);

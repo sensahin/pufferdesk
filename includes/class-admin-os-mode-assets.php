@@ -335,29 +335,28 @@ final class Admin_OS_Mode_Assets {
 	 */
 	private function get_menu_config() {
 		return array(
-			'desktop' => array(
+			'persistent' => array(
 				'groups' => array(
 					array(
-						'id'    => 'app',
-						'label' => __( 'Workspace', 'admin-os-mode' ),
+						'id'    => 'site',
+						'label' => get_bloginfo( 'name' ),
 						'items' => array(
 							array(
-								'label'   => __( 'Show Workspace', 'admin-os-mode' ),
-								'command' => 'open-window',
-								'target'  => 'welcome',
-							),
-							array(
-								'label'   => __( 'OS Settings', 'admin-os-mode' ),
+								'label'   => __( 'Dashboard', 'admin-os-mode' ),
 								'command' => 'open-app',
-								'target'  => 'os-settings',
+								'target'  => 'dashboard',
 							),
 							array(
-								'label'   => __( 'Classic Admin', 'admin-os-mode' ),
-								'command' => 'navigate-url',
-								'url'     => $this->router->get_toggle_url( false ),
+								'label'   => __( 'Visit Site', 'admin-os-mode' ),
+								'command' => 'open-external-url',
+								'url'     => home_url( '/' ),
 							),
 						),
 					),
+				),
+			),
+			'desktop'    => array(
+				'groups' => array(
 					array(
 						'id'    => 'file',
 						'label' => __( 'File', 'admin-os-mode' ),
@@ -390,8 +389,8 @@ final class Admin_OS_Mode_Assets {
 					),
 				),
 			),
-			'labels'  => array(
-				'workspace'     => __( 'Workspace', 'admin-os-mode' ),
+			'labels'     => array(
+				'site'          => get_bloginfo( 'name' ),
 				'file'          => __( 'File', 'admin-os-mode' ),
 				'edit'          => __( 'Edit', 'admin-os-mode' ),
 				'view'          => __( 'View', 'admin-os-mode' ),

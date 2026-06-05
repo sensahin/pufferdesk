@@ -13,14 +13,19 @@
 		const schema = window.AdminOSMode.shell.createMenuSchema(labels);
 		const commands = window.AdminOSMode.shell.createCommandRegistry(shell, context);
 		let activeDetail = { kind: 'desktop' };
-		let activeDefinition = schema.getDefaultDefinition({ appLabel: labels.workspace || 'Workspace', includeGo: true });
+		const persistentDefinition = menuConfig.persistent
+			? schema.normalizeDefinition(menuConfig.persistent, {
+				appLabel: labels.site || config.siteName || 'Site'
+			})
+			: { groups: [] };
+		const persistentGroupIds = new Set(persistentDefinition.groups.map((group) => group.id));
+		let activeDefinition = getDesktopDefinition();
 		let activeButton = null;
 		let popover = null;
 		let openGroupId = '';
 
 		function getDesktopDefinition() {
 			return schema.normalizeDefinition(menuConfig.desktop, {
-				appLabel: labels.workspace || 'Workspace',
 				includeGo: true
 			});
 		}
@@ -32,7 +37,7 @@
 		}
 
 		function getDefinitionForDetail(detail = {}) {
-			if (!detail.kind || detail.kind === 'desktop' || detail.kind === 'workspace') {
+			if (!detail.kind || detail.kind === 'desktop') {
 				return getDesktopDefinition();
 			}
 
@@ -52,6 +57,10 @@
 			}
 
 			return getDefaultAppDefinition(detail);
+		}
+
+		function getRenderedGroups() {
+			return persistentDefinition.groups.concat(activeDefinition.groups.filter((group) => !persistentGroupIds.has(group.id)));
 		}
 
 		function hasMenuItems(group) {
@@ -241,7 +250,7 @@
 			activeDefinition = getDefinitionForDetail(activeDetail);
 			closePopover();
 
-			menu.replaceChildren(...activeDefinition.groups.map((group) => {
+			menu.replaceChildren(...getRenderedGroups().map((group) => {
 				const button = document.createElement('button');
 				button.type = 'button';
 				button.textContent = group.label;
@@ -277,7 +286,9 @@
 		}
 
 		function getMenuDefinition() {
-			return activeDefinition;
+			return {
+				groups: getRenderedGroups()
+			};
 		}
 
 		return {

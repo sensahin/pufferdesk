@@ -5,6 +5,7 @@
 	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
 
 	const standardGroupIds = ['app', 'file', 'edit', 'view', 'go', 'window', 'help'];
+	const recognizedGroupIds = ['site'].concat(standardGroupIds);
 
 	window.AdminOSMode.shell.createMenuSchema = function createMenuSchema(labels = {}) {
 		function getLabel(key, fallback) {
@@ -111,7 +112,7 @@
 				return definition.groups;
 			}
 
-			return standardGroupIds
+			return recognizedGroupIds
 				.filter((id) => Object.prototype.hasOwnProperty.call(definition, id))
 				.map((id) => {
 					const group = definition[id];

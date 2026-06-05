@@ -12,7 +12,7 @@ Admin OS Mode turns the WordPress dashboard entry point into a desktop-style adm
 
 == Description ==
 
-Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe Admin OS workspace: a top menu bar, desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
+Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe Admin OS experience: a top menu bar, desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
 
 == Current foundation features ==
 
@@ -136,7 +136,7 @@ When a theme declares a wallpaper, the shell sets `--aos-wallpaper-image` from `
 
 Future phases can add optional alternate theme packs such as Redmond-style, classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the Admin OS identity rather than depending on another platform owner’s brand assets.
 
-Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows` and `widgets`, so future desktop icons, spaces, or theme-specific surfaces can join without replacing the whole session payload. Windows track welcome/app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state.
+Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows` and `widgets`, so future desktop icons, spaces, or theme-specific surfaces can join without replacing the whole session payload. Windows track app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state.
 
 Widgets are registered through `Admin_OS_Mode_Widget_Registry` and can be extended with the `admin_os_mode_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, and session section.
 

@@ -162,11 +162,6 @@
 					openUrl(urlButton.dataset.aosOpenUrl, urlButton.dataset.aosTitle, urlButton.dataset.aosIcon);
 					return;
 				}
-
-				const welcomeButton = event.target.closest('[data-aos-open-window="welcome"]');
-				if (welcomeButton) {
-					manager.focusWindow(shell.querySelector('[data-aos-window="welcome"]'));
-				}
 			});
 		}
 

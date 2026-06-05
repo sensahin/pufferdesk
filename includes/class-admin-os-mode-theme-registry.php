@@ -22,13 +22,12 @@ final class Admin_OS_Mode_Theme_Registry {
 				'id'             => 'adminos-base',
 				'label'          => __( 'Admin OS Base', 'admin-os-mode' ),
 				'family'         => 'adminos',
-				'family_label'   => __( 'Admin OS', 'admin-os-mode' ),
-				'version'        => 'base',
-				'version_label'  => __( 'Base', 'admin-os-mode' ),
-				'stylesheet'     => 'adminos/base.css',
-				'welcome_kicker' => __( 'Admin OS workspace', 'admin-os-mode' ),
-				'abstract'       => true,
-			),
+					'family_label'   => __( 'Admin OS', 'admin-os-mode' ),
+					'version'        => 'base',
+					'version_label'  => __( 'Base', 'admin-os-mode' ),
+					'stylesheet'     => 'adminos/base.css',
+					'abstract'       => true,
+				),
 			'adminos' => array(
 				'id'             => 'adminos',
 				'label'          => __( 'Admin OS', 'admin-os-mode' ),
@@ -51,8 +50,8 @@ final class Admin_OS_Mode_Theme_Registry {
 		 *
 		 * Theme keys are stable IDs. Values accept:
 		 * id, label, family, family_label, version, version_label, parent,
-		 * stylesheet, stylesheets, media, wallpaper, icon_pack, cursor_pack,
-		 * welcome_kicker, and abstract.
+			 * stylesheet, stylesheets, media, wallpaper, icon_pack, cursor_pack,
+			 * and abstract.
 		 *
 		 * @param array<string,array<string,mixed>> $themes Registered themes.
 		 */
@@ -139,11 +138,10 @@ final class Admin_OS_Mode_Theme_Registry {
 				'version'        => isset( $theme['version'] ) ? sanitize_text_field( $theme['version'] ) : '',
 				'version_label'  => isset( $theme['version_label'] ) ? sanitize_text_field( $theme['version_label'] ) : '',
 				'parent'         => isset( $theme['parent'] ) ? sanitize_key( $theme['parent'] ) : '',
-				'stylesheets'    => $this->normalize_stylesheets( $theme ),
-				'media'          => $this->normalize_media( $theme ),
-				'welcome_kicker' => isset( $theme['welcome_kicker'] ) ? sanitize_text_field( $theme['welcome_kicker'] ) : '',
-				'abstract'       => ! empty( $theme['abstract'] ),
-			);
+					'stylesheets'    => $this->normalize_stylesheets( $theme ),
+					'media'          => $this->normalize_media( $theme ),
+					'abstract'       => ! empty( $theme['abstract'] ),
+				);
 		}
 
 		return $normalized;
@@ -179,10 +177,9 @@ final class Admin_OS_Mode_Theme_Registry {
 
 		$parent = $this->resolve_theme( $parent_id, $themes, $seen );
 
-		$theme['family']            = $theme['family'] ? $theme['family'] : $parent['family'];
-		$theme['family_label']      = $theme['family_label'] ? $theme['family_label'] : $parent['family_label'];
-		$theme['welcome_kicker']    = $theme['welcome_kicker'] ? $theme['welcome_kicker'] : $parent['welcome_kicker'];
-		$theme['media']             = $this->merge_media( $parent['media'], $theme['media'] );
+			$theme['family']            = $theme['family'] ? $theme['family'] : $parent['family'];
+			$theme['family_label']      = $theme['family_label'] ? $theme['family_label'] : $parent['family_label'];
+			$theme['media']             = $this->merge_media( $parent['media'], $theme['media'] );
 		$theme['stylesheet_stack']  = array_values( array_unique( array_merge( $parent['stylesheet_stack'], $theme['stylesheets'] ) ) );
 		$theme['ancestors']         = array_merge( $parent['ancestors'], array( $parent['id'] ) );
 
