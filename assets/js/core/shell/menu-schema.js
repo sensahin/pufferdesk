@@ -51,6 +51,7 @@
 				icon: typeof item.icon === 'string' || (item.icon && typeof item.icon === 'object') ? item.icon : '',
 				id: typeof item.id === 'string' ? item.id : '',
 				label: item.label,
+				panel: typeof item.panel === 'string' ? item.panel : '',
 				payload: item.payload && typeof item.payload === 'object' ? item.payload : {},
 				shortcut: typeof item.shortcut === 'string' ? item.shortcut : '',
 				target: typeof item.target === 'string' ? item.target : '',

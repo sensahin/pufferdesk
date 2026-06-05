@@ -49,6 +49,7 @@
 		function getPayload(item = {}) {
 			return Object.assign({}, item.payload && typeof item.payload === 'object' ? item.payload : {}, {
 				icon: item.icon || '',
+				panel: item.panel || '',
 				target: item.target || '',
 				title: item.title || item.label || '',
 				url: item.url || ''
@@ -293,6 +294,15 @@
 			},
 			run() {
 				launcher.openSiteAbout();
+			}
+		});
+
+		register('settings.open-panel', {
+			isEnabled(payload) {
+				return Boolean(launcher && typeof launcher.openSettingsPanel === 'function' && payload.panel);
+			},
+			run(payload) {
+				launcher.openSettingsPanel(payload.panel);
 			}
 		});
 

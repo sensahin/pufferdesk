@@ -1726,6 +1726,16 @@
 		syncDesktopDockControls();
 		syncWallpaperControls();
 		setActiveSection(activeSection);
+		content.aosOpenPanel = (panelId) => {
+			if (!panelId || !content.querySelector(`[data-aos-settings-panel="${dom.escapeAttribute(panelId)}"]`)) {
+				return false;
+			}
+
+			showSettingsPanel(panelId, {
+				pushHistory: activePanel !== panelId
+			});
+			return true;
+		};
 
 		return content;
 	};

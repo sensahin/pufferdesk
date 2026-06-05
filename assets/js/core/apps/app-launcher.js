@@ -49,10 +49,21 @@
 		function openApp(appId) {
 			const options = getWindowOptions(appId);
 			if (!options) {
-				return;
+				return null;
 			}
 
-			manager.createWindow(options);
+			return manager.createWindow(options);
+		}
+
+		function openSettingsPanel(panelId) {
+			const win = openApp('os-settings');
+			const settingsRoot = win ? win.querySelector('.aos-settings') : null;
+
+			if (settingsRoot && typeof settingsRoot.aosOpenPanel === 'function') {
+				return settingsRoot.aosOpenPanel(panelId);
+			}
+
+			return false;
 		}
 
 		function openAbout(appId) {
@@ -201,6 +212,7 @@
 			openAbout,
 			openApp,
 			openFolder,
+			openSettingsPanel,
 			openSiteAbout,
 			openUrl,
 			runSearch

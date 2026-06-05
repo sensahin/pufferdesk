@@ -87,6 +87,10 @@
 				{
 					id: 'primary',
 					items: [
+						commandItem('Change Wallpaper...', 'settings.open-panel', {
+							icon: 'dashicons-format-image',
+							panel: 'wallpaper'
+						}),
 						commandItem('System Settings', 'open-app', {
 							icon: 'dashicons-admin-customizer',
 							target: 'os-settings'
