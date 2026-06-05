@@ -906,10 +906,7 @@
 
 .aos-settings-status {
 	color: var(--aos-muted);
-	flex: 0 0 auto;
-	font-size: var(--aos-settings-text-caption);
-	min-height: 18px;
-	padding: 0 20px;
+	display: none;
 }
 
 .aos-settings-option-group,
