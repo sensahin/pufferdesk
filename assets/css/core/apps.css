@@ -721,11 +721,24 @@
 	text-align: center;
 }
 
+.aos-settings-wallpaper-color-option:focus-visible {
+	box-shadow: none;
+	outline: none;
+}
+
 .aos-settings-wallpaper-color-option .aos-settings-wallpaper-preview {
 	aspect-ratio: 1;
+	border: 1px solid rgba(0, 0, 0, 0.12);
 	border-radius: 50%;
+	box-shadow: none;
+	height: 44px;
 	justify-self: center;
 	width: 44px;
+}
+
+.aos-settings-wallpaper-color-option:focus-visible .aos-settings-wallpaper-preview,
+.aos-settings-wallpaper-color-option.is-selected .aos-settings-wallpaper-preview {
+	box-shadow: 0 0 0 3px var(--aos-accent);
 }
 
 .aos-settings-wallpaper-color-grid.is-collapsed .aos-settings-wallpaper-option:nth-child(n+9) {
