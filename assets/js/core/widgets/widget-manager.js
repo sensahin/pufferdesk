@@ -255,10 +255,30 @@
 			restoreInProgress = false;
 		}
 
+		function getWidget(widgetId) {
+			if (!layer || !widgetId) {
+				return null;
+			}
+
+			return layer.querySelector(`[data-aos-widget="${dom.escapeAttribute(widgetId)}"]`);
+		}
+
+		function hideWidget(widgetOrId) {
+			const widget = typeof widgetOrId === 'string' ? getWidget(widgetOrId) : widgetOrId;
+			if (!widget) {
+				return;
+			}
+
+			widget.hidden = true;
+			scheduleSave();
+		}
+
 		window.addEventListener('beforeunload', saveSession);
 
 		return {
 			bindExistingWidgets,
+			getWidget,
+			hideWidget,
 			restoreSession,
 			saveSession
 		};

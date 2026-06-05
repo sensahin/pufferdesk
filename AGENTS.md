@@ -79,6 +79,7 @@ CSS:
 
 - `assets/css/core/admin-chrome.css`: WordPress admin chrome suppression.
 - `assets/css/core/shell.css`: global shell variables, menu bar, shared primitives.
+- `assets/css/core/context-menu.css`: right-click context menu positioning on top of shared menu primitives.
 - `assets/css/core/desktop.css`: desktop and desktop icons.
 - `assets/css/core/widgets.css`: desktop widgets.
 - `assets/css/core/windows.css`: reusable window chrome.
@@ -98,7 +99,7 @@ JavaScript:
 - `assets/js/core/windows/`: windows, window factory, window state serialization.
 - `assets/js/core/widgets/`: widget binding, live updates, widget layout persistence.
 - `assets/js/core/apps/`: app launcher, reusable app surfaces such as about windows, and native apps.
-- `assets/js/core/shell/`: search, menu bar clock, global shell controls.
+- `assets/js/core/shell/`: search, menu bar clock, command registry, top menus, context menus, global shell controls.
 
 Media:
 
@@ -123,11 +124,14 @@ Menus:
 - Menu definitions use the canonical shape `array( 'groups' => array( ... ) )`.
 - Each group should define `id`, `label`, and `items`; supported group IDs are `site`, `app`, `file`, `edit`, `view`, `go`, `window`, and `help`.
 - Menu command items should define `label` plus optional `command`, `target`, `url`, `title`, `icon`, `shortcut`, `payload`, and `disabled`.
-- Commands are registered in `assets/js/core/shell/commands.js`; schema normalization is in `assets/js/core/shell/menu-schema.js`; top menu rendering is in `assets/js/core/shell/menu.js`.
+- Commands are registered in `assets/js/core/shell/commands.js`; schema normalization is in `assets/js/core/shell/menu-schema.js`; shared menu item rendering is in `assets/js/core/shell/menu-renderer.js`; top menu rendering is in `assets/js/core/shell/menu.js`.
+- Context menus are registered and rendered through `assets/js/core/shell/context-menu.js`. Context targets should use stable `data-aos-context` and `data-aos-context-id` attributes rather than one-off event handlers.
+- Supported context target types include `desktop`, `app`, `desktop-app`, `dock-app`, `folder`, `desktop-folder`, `window`, and `widget`.
+- Context menu providers should compose common command-backed items with target-specific items. Do not add right-click behavior inside dock, desktop, widget, or window modules unless it is exposing target state to the shared context menu system.
 - Runtime modules that need custom behavior should register commands through `window.AdminOSMode.menuCommands.register()` after boot, staying inside the `window.AdminOSMode` namespace.
 - Dropdown rendering must stay generic and schema-driven. App-specific items belong in app `menu` definitions.
 - Do not add app-specific menu conditionals to `templates/shell/menu-bar.php` or the menu renderer. Add command-backed data to the registry/schema instead.
-- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `open-about`, `open-external-url`, `navigate-url`, `window.close`, `window.minimize`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
+- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `open-about`, `open-external-url`, `navigate-url`, `session.reset-layout`, `widget.hide`, `window.focus`, `window.close`, `window.minimize`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
 
 Widgets:
 

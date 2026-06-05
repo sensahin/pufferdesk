@@ -19,7 +19,9 @@
 			!window.AdminOSMode.shell ||
 			!window.AdminOSMode.shell.createCommandRegistry ||
 			!window.AdminOSMode.shell.createMenuSchema ||
-			!window.AdminOSMode.shell.createMenuController
+			!window.AdminOSMode.shell.createMenuItemRenderer ||
+			!window.AdminOSMode.shell.createMenuController ||
+			!window.AdminOSMode.shell.createContextMenuController
 		) {
 			return;
 		}
@@ -39,12 +41,26 @@
 			storageKey: config.storageKey || ''
 		});
 		const launcher = window.AdminOSMode.apps.createAppLauncher(shell, manager, config);
+		const commands = window.AdminOSMode.shell.createCommandRegistry(shell, {
+			config,
+			launcher,
+			manager,
+			widgetManager
+		});
 		const menuController = window.AdminOSMode.shell.createMenuController(shell, config, {
+			commands,
 			launcher,
 			manager
 		});
+		const contextMenuController = window.AdminOSMode.shell.createContextMenuController(shell, config, {
+			commands,
+			launcher,
+			manager,
+			widgetManager
+		});
 
 		menuController.bind();
+		contextMenuController.bind();
 		widgetManager.bindExistingWidgets();
 		widgetManager.restoreSession();
 		manager.bindExistingWindows();
@@ -59,8 +75,9 @@
 			openFolder: launcher.openFolder,
 			openUrl: launcher.openUrl
 		};
+		window.AdminOSMode.contextMenuController = contextMenuController;
 		window.AdminOSMode.menuController = menuController;
-		window.AdminOSMode.menuCommands = menuController.commands;
+		window.AdminOSMode.menuCommands = commands;
 	}
 
 	if (document.readyState === 'loading') {

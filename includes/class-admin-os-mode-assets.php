@@ -266,9 +266,17 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/shell/menu-schema.js',
 				'deps' => array( 'admin-os-mode-config' ),
 			),
+			'admin-os-mode-menu-renderer'  => array(
+				'path' => 'assets/js/core/shell/menu-renderer.js',
+				'deps' => array( 'admin-os-mode-dom' ),
+			),
 			'admin-os-mode-menu'           => array(
 				'path' => 'assets/js/core/shell/menu.js',
-				'deps' => array( 'admin-os-mode-config', 'admin-os-mode-menu-commands', 'admin-os-mode-menu-schema' ),
+				'deps' => array( 'admin-os-mode-config', 'admin-os-mode-menu-commands', 'admin-os-mode-menu-schema', 'admin-os-mode-menu-renderer' ),
+			),
+			'admin-os-mode-context-menu'   => array(
+				'path' => 'assets/js/core/shell/context-menu.js',
+				'deps' => array( 'admin-os-mode-config', 'admin-os-mode-menu-commands', 'admin-os-mode-menu-schema', 'admin-os-mode-menu-renderer' ),
 			),
 			'admin-os-mode-clock'          => array(
 				'path' => 'assets/js/core/shell/clock.js',
@@ -276,7 +284,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-boot'           => array(
 				'path' => 'assets/js/core/boot.js',
-				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-menu', 'admin-os-mode-clock' ),
+				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-clock' ),
 			),
 		);
 
@@ -419,6 +427,7 @@ final class Admin_OS_Mode_Assets {
 				$core_styles,
 				array(
 					'admin-os-mode-core-shell'      => 'assets/css/core/shell.css',
+					'admin-os-mode-core-context'    => 'assets/css/core/context-menu.css',
 					'admin-os-mode-core-desktop'    => 'assets/css/core/desktop.css',
 					'admin-os-mode-core-widgets'    => 'assets/css/core/widgets.css',
 					'admin-os-mode-core-windows'    => 'assets/css/core/windows.css',

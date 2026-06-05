@@ -1,0 +1,13 @@
+.aos-context-menu {
+	min-width: 218px;
+	position: absolute;
+	z-index: calc(var(--aos-layer-menu-popover) + 1);
+}
+
+.aos-context-menu .aos-menu-item {
+	grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.aos-context-menu .aos-menu-item.has-icon {
+	grid-template-columns: 16px minmax(0, 1fr) auto;
+}

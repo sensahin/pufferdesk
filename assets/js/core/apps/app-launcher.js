@@ -90,6 +90,9 @@
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = 'aos-app-launcher';
+			button.dataset.aosContext = 'app';
+			button.dataset.aosContextId = app.id;
+			button.dataset.aosContextLabel = app.label;
 
 			const appIcon = document.createElement('span');
 			appIcon.className = 'aos-app-icon';

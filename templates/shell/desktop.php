@@ -14,7 +14,12 @@ defined( 'ABSPATH' ) || exit;
  * @var array<string,mixed>             $theme
  */
 ?>
-<main class="aos-desktop" aria-label="<?php esc_attr_e( 'Admin OS desktop', 'admin-os-mode' ); ?>">
+<main
+	class="aos-desktop"
+	data-aos-context="desktop"
+	data-aos-context-id="desktop"
+	aria-label="<?php esc_attr_e( 'Admin OS desktop', 'admin-os-mode' ); ?>"
+>
 	<?php
 	$this->render_part(
 		'widgets/desktop.php',

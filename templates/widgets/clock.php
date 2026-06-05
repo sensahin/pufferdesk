@@ -16,6 +16,9 @@ $admin_os_mode_time = current_time( 'timestamp' );
 ?>
 <section
 	class="aos-widget aos-clock-widget"
+	data-aos-context="widget"
+	data-aos-context-id="<?php echo esc_attr( $widget['id'] ); ?>"
+	data-aos-context-label="<?php echo esc_attr( $widget['label'] ); ?>"
 	data-aos-widget="<?php echo esc_attr( $widget['id'] ); ?>"
 	data-aos-widget-kind="<?php echo esc_attr( $widget['kind'] ); ?>"
 	data-aos-widget-native="<?php echo esc_attr( $widget['native'] ); ?>"

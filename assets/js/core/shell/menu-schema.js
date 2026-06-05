@@ -48,7 +48,7 @@
 			return {
 				command: typeof item.command === 'string' ? item.command : '',
 				disabled: Boolean(item.disabled),
-				icon: typeof item.icon === 'string' ? item.icon : '',
+				icon: typeof item.icon === 'string' || (item.icon && typeof item.icon === 'object') ? item.icon : '',
 				id: typeof item.id === 'string' ? item.id : '',
 				label: item.label,
 				payload: item.payload && typeof item.payload === 'object' ? item.payload : {},

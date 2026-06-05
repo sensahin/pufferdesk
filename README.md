@@ -20,7 +20,7 @@ Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. T
 - Per-user mode preference.
 - Dashboard entry redirects to OS Mode by default.
 - Emergency one-request classic override: `/wp-admin/index.php?admin_os_classic=1`.
-- Admin OS shell with menu bar, desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
+- Admin OS shell with menu bar, right-click context menus, desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
 - Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave more like OS windows.
 
 == Notes ==
@@ -31,7 +31,7 @@ The bundled Admin OS family uses original plugin CSS and release-safe media. Vis
 
 The foundation separates shell behavior from OS appearance:
 
-- `includes/` owns routing, preferences, app/widget/theme registries, widget layout attributes, assets, dashboard data, and rendering.
+- `includes/` owns routing, preferences, app/widget/theme registries, widget layout attributes, assets, and rendering.
 - `templates/` owns shell markup through semantic folders:
   - `templates/shell/` for global shell surfaces such as menu bar, desktop, and dock.
   - `templates/windows/` for reusable window chrome.
@@ -42,11 +42,12 @@ The foundation separates shell behavior from OS appearance:
 - `assets/css/core/` owns semantic core styles:
   - `admin-chrome.css` for WordPress admin chrome suppression.
   - `shell.css` for global shell variables, menu bar, and shared primitives.
+  - `context-menu.css` for right-click menu positioning on top of shared menu primitives.
   - `desktop.css` for desktop surfaces and desktop icons.
   - `widgets.css` for desktop widget layout and shared widget chrome.
   - `windows.css` for reusable window chrome.
   - `dock.css` for dock behavior and states.
-  - `apps.css` for built-in app surfaces such as Welcome, folders, and OS Settings.
+  - `apps.css` for built-in app surfaces such as folders and OS Settings.
   - `responsive.css` for core viewport adaptations.
 - `assets/js/core/` owns reusable shell behavior through purpose-specific modules:
   - `boot.js` wires the shell together.
@@ -57,7 +58,7 @@ The foundation separates shell behavior from OS appearance:
   - `windows/` owns window creation, drag/focus behavior, and window state serialization.
   - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
   - `apps/` owns app launching and native app content such as OS Settings.
-  - `shell/` owns global shell controls such as search and clock behavior.
+  - `shell/` owns global shell controls such as search, clock behavior, menu commands, top menus, and context menus.
 - `assets/css/themes/` owns theme-specific visual language.
 - `assets/media/` reserves release-safe media locations:
   - `assets/media/themes/{family}/{version}/wallpapers/`

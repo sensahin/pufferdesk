@@ -66,6 +66,9 @@
 			const win = document.createElement('section');
 			win.className = 'aos-window aos-app-window';
 			win.dataset.aosAppWindow = options.appId || '';
+			win.dataset.aosContext = 'window';
+			win.dataset.aosContextId = options.appId || options.windowKind || 'window';
+			win.dataset.aosContextLabel = options.title || '';
 			win.dataset.aosResizeMode = options.resizeMode || 'both';
 			win.dataset.aosWindowKind = options.windowKind || (options.appId ? 'app' : 'window');
 			win.dataset.aosWindowTitle = options.title || '';

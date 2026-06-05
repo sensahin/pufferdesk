@@ -8,6 +8,7 @@ const distDir = path.join(root, 'assets/dist');
 const coreCssSources = [
 	'assets/css/core/admin-chrome.css',
 	'assets/css/core/shell.css',
+	'assets/css/core/context-menu.css',
 	'assets/css/core/desktop.css',
 	'assets/css/core/widgets.css',
 	'assets/css/core/windows.css',
@@ -32,7 +33,9 @@ const jsSources = [
 	'assets/js/core/shell/search.js',
 	'assets/js/core/shell/commands.js',
 	'assets/js/core/shell/menu-schema.js',
+	'assets/js/core/shell/menu-renderer.js',
 	'assets/js/core/shell/menu.js',
+	'assets/js/core/shell/context-menu.js',
 	'assets/js/core/shell/clock.js',
 	'assets/js/core/boot.js'
 ];

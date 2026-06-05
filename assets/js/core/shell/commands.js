@@ -8,10 +8,16 @@
 		const dom = window.AdminOSMode.dom;
 		const launcher = context.launcher || null;
 		const manager = context.manager || null;
+		const widgetManager = context.widgetManager || null;
+		const config = context.config && typeof context.config === 'object' ? context.config : {};
 		const commands = new Map();
 		let activeDetail = { kind: 'desktop' };
 
 		function getTargetWindow(detail = activeDetail) {
+			if (detail && detail.windowElement && detail.windowElement.classList && detail.windowElement.classList.contains('aos-window')) {
+				return detail.windowElement;
+			}
+
 			if (manager && typeof manager.getActiveWindow === 'function') {
 				const activeWindow = manager.getActiveWindow();
 				if (activeWindow) {
@@ -21,6 +27,18 @@
 
 			if (detail && detail.appId) {
 				return shell.querySelector(`[data-aos-app-window="${dom.escapeAttribute(detail.appId)}"]`);
+			}
+
+			return null;
+		}
+
+		function getTargetWidget(detail = activeDetail) {
+			if (detail && detail.widgetElement && detail.widgetElement.dataset && detail.widgetElement.dataset.aosWidget) {
+				return detail.widgetElement;
+			}
+
+			if (detail && detail.widgetId && widgetManager && typeof widgetManager.getWidget === 'function') {
+				return widgetManager.getWidget(detail.widgetId);
 			}
 
 			return null;
@@ -134,6 +152,34 @@
 			},
 			run(payload) {
 				window.open(payload.url || payload.target, '_blank', 'noopener');
+			}
+		});
+
+		register('session.reset-layout', {
+			isEnabled() {
+				return Boolean(config.storageKey && window.AdminOSMode.session && window.AdminOSMode.session.createSessionStore);
+			},
+			run() {
+				window.AdminOSMode.session.createSessionStore(config.storageKey).clear();
+				window.location.href = config.shellUrl || window.location.href;
+			}
+		});
+
+		register('widget.hide', {
+			isEnabled(payload, detail) {
+				return Boolean(widgetManager && typeof widgetManager.hideWidget === 'function' && getTargetWidget(detail));
+			},
+			run(payload, detail) {
+				widgetManager.hideWidget(getTargetWidget(detail));
+			}
+		});
+
+		register('window.focus', {
+			isEnabled(payload, detail) {
+				return Boolean(manager && typeof manager.focusWindow === 'function' && getTargetWindow(detail));
+			},
+			run(payload, detail) {
+				manager.focusWindow(getTargetWindow(detail));
 			}
 		});
 

@@ -5,13 +5,13 @@
 	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
 
 	window.AdminOSMode.shell.createMenuController = function createMenuController(shell, config = {}, context = {}) {
-		const dom = window.AdminOSMode.dom;
 		const menu = shell.querySelector('[data-aos-menu-items]');
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
 		const schema = window.AdminOSMode.shell.createMenuSchema(labels);
-		const commands = window.AdminOSMode.shell.createCommandRegistry(shell, context);
+		const commands = context.commands || window.AdminOSMode.shell.createCommandRegistry(shell, context);
+		const itemRenderer = window.AdminOSMode.shell.createMenuItemRenderer(commands);
 		let activeDetail = { kind: 'desktop' };
 		const persistentDefinition = menuConfig.persistent
 			? schema.normalizeDefinition(menuConfig.persistent, {
@@ -67,10 +67,6 @@
 			return Boolean(group && Array.isArray(group.items) && group.items.length);
 		}
 
-		function getItemDisabled(item) {
-			return Boolean(item.disabled || (item.command && !commands.canExecute(item, activeDetail)));
-		}
-
 		function closePopover() {
 			if (popover) {
 				popover.remove();
@@ -102,64 +98,8 @@
 			popover.style.top = `${top}px`;
 		}
 
-		function createMenuItemIcon(item) {
-			if (!item.icon) {
-				return null;
-			}
-
-			const icon = document.createElement('span');
-			icon.className = 'aos-menu-item-icon';
-			if (item.icon.startsWith('dashicons-')) {
-				icon.appendChild(dom.createDashicon(item.icon));
-			}
-
-			return icon;
-		}
-
 		function createMenuItem(item) {
-			if (item.type === 'separator') {
-				const separator = document.createElement('span');
-				separator.className = 'aos-menu-separator';
-				separator.setAttribute('role', 'separator');
-				return separator;
-			}
-
-			const disabled = getItemDisabled(item);
-			const button = document.createElement('button');
-			button.type = 'button';
-			button.className = 'aos-menu-item';
-			button.dataset.aosMenuItem = item.id || item.command || item.label;
-			button.setAttribute('role', 'menuitem');
-			button.disabled = disabled;
-
-			if (disabled) {
-				button.setAttribute('aria-disabled', 'true');
-			}
-
-			const icon = createMenuItemIcon(item);
-			if (icon) {
-				button.classList.add('has-icon');
-				button.appendChild(icon);
-			}
-
-			const label = document.createElement('span');
-			label.className = 'aos-menu-item-label';
-			label.textContent = item.label;
-			button.appendChild(label);
-
-			const shortcut = document.createElement('span');
-			shortcut.className = 'aos-menu-item-shortcut';
-			shortcut.textContent = item.shortcut || '';
-			button.appendChild(shortcut);
-
-			if (item.command && !disabled) {
-				button.addEventListener('click', () => {
-					commands.execute(item, activeDetail);
-					closePopover();
-				});
-			}
-
-			return button;
+			return itemRenderer.createItem(item, activeDetail, closePopover);
 		}
 
 		function openPopover(group, button, options = {}) {
