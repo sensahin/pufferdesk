@@ -342,8 +342,8 @@
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] {
 	background: rgba(246, 249, 251, 0.66);
 	min-height: 600px;
-	min-width: 880px;
-	max-width: 900px;
+	min-width: 740px;
+	max-width: 740px;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] .aos-window-titlebar {

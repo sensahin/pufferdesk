@@ -30,7 +30,7 @@
 				options.content = window.AdminOSMode.apps.createSettingsApp({ config });
 				options.bodyClass = 'aos-window-body aos-settings-body';
 				options.resizeMode = 'vertical';
-				options.width = '880px';
+				options.width = '740px';
 				options.height = '680px';
 				return options;
 			}

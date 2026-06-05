@@ -195,15 +195,15 @@
 }
 
 .aos-window[data-aos-app-window="os-settings"] {
-	--aos-settings-sidebar-width: 258px;
+	--aos-settings-sidebar-width: 230px;
 	--aos-settings-text-caption: 10px;
 	--aos-settings-text-body: 11px;
 	--aos-settings-text-label: 12.5px;
 	--aos-settings-text-heading: 13.5px;
 	--aos-settings-text-title: 16px;
 	min-height: 600px;
-	min-width: 880px;
-	max-width: 900px;
+	min-width: 740px;
+	max-width: 740px;
 }
 
 .aos-window[data-aos-app-window="os-settings"] .aos-window-titlebar {
@@ -579,7 +579,7 @@
 	align-items: center;
 	display: grid;
 	gap: 16px;
-	grid-template-columns: minmax(160px, 210px) minmax(0, 1fr);
+	grid-template-columns: minmax(120px, 150px) minmax(0, 1fr);
 	min-height: 40px;
 	padding: 9px 16px;
 }
@@ -622,7 +622,7 @@
 
 .aos-settings-row > .aos-settings-control {
 	justify-self: end;
-	min-width: 170px;
+	min-width: 150px;
 }
 
 .aos-settings-button {
@@ -713,7 +713,7 @@
 .aos-settings-appearance-preview {
 	height: 48px;
 	overflow: hidden;
-	width: 84px;
+	width: 68px;
 }
 
 .aos-settings-appearance-preview::before {
@@ -733,9 +733,9 @@
 	box-shadow: 0 8px 18px rgba(16, 28, 42, 0.18);
 	content: "";
 	height: 24px;
-	left: 28px;
+	left: 23px;
 	position: absolute;
-	right: 8px;
+	right: 6px;
 }
 
 .aos-settings-appearance-preview[data-aos-preview-value="auto"]::before {
@@ -763,7 +763,7 @@
 .aos-settings-material-preview {
 	height: 48px;
 	overflow: hidden;
-	width: 84px;
+	width: 68px;
 }
 
 .aos-settings-material-preview::before {
@@ -780,10 +780,10 @@
 	border-radius: 999px;
 	content: "";
 	height: 26px;
-	left: 12px;
+	left: 9px;
 	position: absolute;
 	top: 11px;
-	width: 68px;
+	width: 50px;
 }
 
 .aos-settings-material-preview[data-aos-preview-value="tinted"]::after {
@@ -792,7 +792,7 @@
 
 .aos-settings-swatch-group {
 	align-items: center;
-	gap: 9px;
+	gap: 7px;
 }
 
 .aos-settings-swatch {
@@ -801,9 +801,9 @@
 	border: 1px solid rgba(0, 0, 0, 0.12);
 	border-radius: 50%;
 	cursor: default;
-	height: 24px;
+	height: 20px;
 	padding: 0;
-	width: 24px;
+	width: 20px;
 }
 
 .aos-settings-swatch.is-selected {
