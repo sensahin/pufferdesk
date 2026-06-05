@@ -503,6 +503,16 @@
 	width: 100%;
 }
 
+.aos-settings-pane-panel {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.aos-settings-pane-panel[hidden] {
+	display: none;
+}
+
 .aos-settings-section {
 	background: var(--aos-card-bg);
 	border: 1px solid var(--aos-card-border);
@@ -606,6 +616,116 @@
 
 .aos-settings-danger {
 	color: #b32d2e;
+}
+
+.aos-settings-wallpaper-current-preview {
+	background: var(--aos-wallpaper-image), var(--aos-desktop-bg);
+	background-position: var(--aos-wallpaper-position), center;
+	background-repeat: var(--aos-wallpaper-repeat), no-repeat;
+	background-size: var(--aos-wallpaper-size), cover;
+	min-height: 190px;
+}
+
+.aos-settings-wallpaper-grid {
+	display: grid;
+	gap: 12px;
+	grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+	padding: 14px 16px 16px;
+}
+
+.aos-settings-wallpaper-option {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	color: var(--aos-muted);
+	cursor: default;
+	display: grid;
+	font-family: inherit;
+	font-size: var(--aos-settings-text-body);
+	font-weight: var(--aos-weight-semibold);
+	gap: 6px;
+	min-width: 0;
+	padding: 0;
+	text-align: left;
+}
+
+.aos-settings-wallpaper-option:focus-visible,
+.aos-settings-wallpaper-option.is-selected .aos-settings-wallpaper-preview {
+	box-shadow: 0 0 0 3px var(--aos-accent), var(--aos-tile-shadow);
+	outline: none;
+}
+
+.aos-settings-wallpaper-option.is-selected {
+	color: var(--aos-ink);
+}
+
+.aos-settings-wallpaper-preview,
+.aos-settings-wallpaper-upload-preview {
+	background-color: var(--aos-control-bg);
+	background-position: center center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	border: 1px solid var(--aos-card-border);
+	border-radius: 10px;
+	box-shadow: var(--aos-tile-shadow);
+	display: block;
+	overflow: hidden;
+}
+
+.aos-settings-wallpaper-preview {
+	aspect-ratio: 16 / 10;
+	width: 100%;
+}
+
+.aos-settings-wallpaper-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-settings-wallpaper-custom-control {
+	align-items: center;
+	display: grid;
+	gap: 12px;
+	grid-template-columns: 92px minmax(0, 1fr) auto;
+	padding: 14px 16px;
+}
+
+.aos-settings-wallpaper-upload-preview {
+	height: 58px;
+	position: relative;
+	width: 92px;
+}
+
+.aos-settings-wallpaper-upload-preview:not(.has-wallpaper)::before {
+	color: var(--aos-muted);
+	content: "\f128";
+	font-family: dashicons;
+	font-size: 22px;
+	left: 50%;
+	line-height: 1;
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.aos-settings-wallpaper-upload-text {
+	display: grid;
+	gap: 3px;
+	min-width: 0;
+}
+
+.aos-settings-wallpaper-upload-label {
+	color: var(--aos-ink);
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-medium);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-settings-wallpaper-upload-actions {
+	justify-self: end;
 }
 
 .aos-settings-status {

@@ -9,16 +9,29 @@
 		const api = window.AdminOSMode.services.api;
 		const storage = window.AdminOSMode.services.storage;
 		const appearance = window.AdminOSMode.appearance;
+		const wallpaper = window.AdminOSMode.wallpaper;
 		const config = context.config || window.AdminOSMode.config.get();
 		const themes = Array.isArray(config.themes) ? config.themes : [];
 		const shell = document.querySelector('[data-admin-os-shell]');
-		const optionGroups = [];
+		let optionGroups = [];
 		let currentAppearance = appearance
 			? appearance.normalize(config.appearance || {})
 			: Object.assign({}, config.appearance || {});
+		let currentWallpaper = config.wallpaper && typeof config.wallpaper === 'object'
+			? config.wallpaper
+			: {};
 		let saveTimer = null;
 		let accentLabel = null;
 		let tintToggle = null;
+		let activeSection = 'appearance';
+		let paneTitle = null;
+		let settingsRoot = null;
+		let wallpaperButtons = [];
+		let wallpaperCurrentPreview = null;
+		let wallpaperCustomPreview = null;
+		let wallpaperCustomLabel = null;
+		let mediaFrame = null;
+		const sidebarButtons = [];
 
 		const accentOptions = [
 			{ value: 'multicolor', label: 'Multicolor' },
@@ -37,7 +50,7 @@
 			{ id: 'appearance', label: 'Appearance', icon: 'dashicons-admin-appearance', tone: 'blue' },
 			{ id: 'desktop-dock', label: 'Desktop & Dock', icon: 'dashicons-desktop', tone: 'indigo', disabled: true },
 			{ id: 'menu-bar', label: 'Menu Bar', icon: 'dashicons-menu-alt3', tone: 'gray', disabled: true },
-			{ id: 'wallpaper', label: 'Wallpaper', icon: 'dashicons-format-image', tone: 'cyan', disabled: true },
+			{ id: 'wallpaper', label: 'Wallpaper', icon: 'dashicons-format-image', tone: 'cyan' },
 			{ id: 'widgets', label: 'Widgets', icon: 'dashicons-screenoptions', tone: 'green', disabled: true },
 			{ id: 'apps', label: 'Apps', icon: 'dashicons-grid-view', tone: 'purple', disabled: true },
 			{ id: 'workspace', label: 'Workspace', icon: 'dashicons-layout', tone: 'orange', disabled: true },
@@ -79,11 +92,81 @@
 			return button;
 		}
 
+		function getSidebarItem(id) {
+			return sidebarItems.find((item) => item.id === id) || sidebarItems[0];
+		}
+
+		function setActiveSection(sectionId) {
+			const item = getSidebarItem(sectionId);
+			if (!item || item.disabled) {
+				return;
+			}
+
+			activeSection = item.id;
+			sidebarButtons.forEach((entry) => {
+				const selected = entry.id === activeSection;
+				entry.button.classList.toggle('is-active', selected);
+				if (selected) {
+					entry.button.setAttribute('aria-current', 'page');
+				} else {
+					entry.button.removeAttribute('aria-current');
+				}
+			});
+
+			(settingsRoot || document).querySelectorAll('[data-aos-settings-panel]').forEach((panel) => {
+				panel.hidden = panel.dataset.aosSettingsPanel !== activeSection;
+			});
+
+			if (paneTitle) {
+				paneTitle.textContent = item.label;
+			}
+		}
+
 		function getThemeOptionLabel(theme) {
 			const family = theme.family_label || theme.family || 'Theme';
 			const version = theme.version_label || theme.version || theme.label;
 
 			return `${family} · ${version}`;
+		}
+
+		function getWallpaperPreference() {
+			if (wallpaper && typeof wallpaper.getPreference === 'function') {
+				return wallpaper.getPreference(currentWallpaper);
+			}
+
+			return currentWallpaper.preference || {};
+		}
+
+		function getWallpaperCurrent() {
+			if (wallpaper && typeof wallpaper.getCurrent === 'function') {
+				return wallpaper.getCurrent(currentWallpaper);
+			}
+
+			return currentWallpaper.current || {};
+		}
+
+		function getWallpaperKey(preference = {}) {
+			if (wallpaper && typeof wallpaper.getPreferenceKey === 'function') {
+				return wallpaper.getPreferenceKey(preference);
+			}
+
+			if (preference.type === 'upload') {
+				return `upload:${Number.parseInt(preference.attachment_id, 10) || 0}`;
+			}
+
+			return `${preference.type || ''}:${preference.id || ''}`;
+		}
+
+		function getWallpaperPreviewValue(item = {}) {
+			return item.preview || item.css_value || 'none';
+		}
+
+		function getWallpaperImageCssValue(value) {
+			return `url("${String(value).replace(/\\/g, '%5C').replace(/"/g, '%22')}")`;
+		}
+
+		function getWallpaperItems() {
+			return currentWallpaper && Array.isArray(currentWallpaper.items) ? currentWallpaper.items : [];
 		}
 
 		function getAccentOption(value) {
@@ -135,6 +218,48 @@
 			syncAppearanceControls();
 		}
 
+		function syncWallpaperControls() {
+			const preference = getWallpaperPreference();
+			const selectedKey = getWallpaperKey(preference);
+			const current = getWallpaperCurrent();
+
+			wallpaperButtons.forEach((button) => {
+				const selected = button.dataset.aosWallpaperKey === selectedKey;
+				button.classList.toggle('is-selected', selected);
+				button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+			});
+
+			if (wallpaperCurrentPreview) {
+				wallpaperCurrentPreview.style.backgroundImage = getWallpaperPreviewValue(current);
+			}
+
+			if (wallpaperCustomPreview) {
+				wallpaperCustomPreview.style.backgroundImage = current.type === 'upload'
+					? getWallpaperPreviewValue(current)
+					: 'none';
+				wallpaperCustomPreview.classList.toggle('has-wallpaper', current.type === 'upload');
+			}
+
+			if (wallpaperCustomLabel) {
+				wallpaperCustomLabel.textContent = current.type === 'upload' && current.label
+					? current.label
+					: 'No custom wallpaper selected';
+			}
+		}
+
+		function applyWallpaper(nextWallpaper) {
+			currentWallpaper = nextWallpaper && typeof nextWallpaper === 'object'
+				? nextWallpaper
+				: currentWallpaper;
+			config.wallpaper = currentWallpaper;
+
+			if (wallpaper && shell) {
+				wallpaper.apply(shell, currentWallpaper);
+			}
+
+			syncWallpaperControls();
+		}
+
 		function saveAppearance(status) {
 			window.clearTimeout(saveTimer);
 			status.textContent = 'Saving...';
@@ -164,6 +289,85 @@
 				[key]: value
 			}));
 			saveAppearance(status);
+		}
+
+		function saveWallpaper(payload, status, fallbackWallpaper = null) {
+			status.textContent = 'Saving...';
+
+			return api.post('admin_os_mode_save_wallpaper', payload)
+				.then((result) => {
+					if (!result || !result.success) {
+						const message = result && result.data && result.data.message
+							? result.data.message
+							: 'Wallpaper could not be saved.';
+						status.textContent = message;
+						if (fallbackWallpaper) {
+							applyWallpaper(fallbackWallpaper);
+						} else {
+							syncWallpaperControls();
+						}
+						return null;
+					}
+
+					applyWallpaper(result.data.wallpaper || currentWallpaper);
+					status.textContent = result.data.message || 'Wallpaper saved.';
+					return result.data.wallpaper || currentWallpaper;
+				})
+				.catch((error) => {
+					status.textContent = error && error.message ? error.message : 'Wallpaper could not be saved.';
+					if (fallbackWallpaper) {
+						applyWallpaper(fallbackWallpaper);
+					} else {
+						syncWallpaperControls();
+					}
+					return null;
+				});
+		}
+
+		function resetWallpaper(status) {
+			status.textContent = 'Resetting...';
+
+			return api.post('admin_os_mode_reset_wallpaper', {})
+				.then((result) => {
+					if (!result || !result.success) {
+						const message = result && result.data && result.data.message
+							? result.data.message
+							: 'Wallpaper could not be reset.';
+						status.textContent = message;
+						return null;
+					}
+
+					applyWallpaper(result.data.wallpaper || currentWallpaper);
+					status.textContent = result.data.message || 'Wallpaper reset.';
+					return result.data.wallpaper || currentWallpaper;
+				})
+				.catch((error) => {
+					status.textContent = error && error.message ? error.message : 'Wallpaper could not be reset.';
+					return null;
+				});
+		}
+
+		function selectWallpaperItem(item, status) {
+			const fallbackWallpaper = currentWallpaper;
+			const nextWallpaper = Object.assign({}, currentWallpaper, {
+				preference: {
+					type: item.type,
+					id: item.id,
+					attachment_id: 0,
+					fit: item.fit || 'cover',
+					position: item.position || 'center center'
+				},
+				current: item,
+				css_variables: {
+					'--aos-wallpaper-image': item.css_value || 'none',
+					'--aos-wallpaper-position': item.position || 'center center',
+					'--aos-wallpaper-repeat': 'no-repeat',
+					'--aos-wallpaper-size': item.fit || 'cover'
+				}
+			});
+
+			applyWallpaper(nextWallpaper);
+			saveWallpaper(nextWallpaper.preference, status, fallbackWallpaper);
 		}
 
 		function createOptionButton(key, option, status, className, previewClassName) {
@@ -258,6 +462,149 @@
 			return button;
 		}
 
+		function createWallpaperOption(item, status) {
+			const button = document.createElement('button');
+			const preview = dom.createElement('span', 'aos-settings-wallpaper-preview');
+			const label = dom.createElement('span', 'aos-settings-wallpaper-label', item.label || item.id);
+			const key = getWallpaperKey({
+				type: item.type,
+				id: item.id,
+				attachment_id: item.attachment_id || 0
+			});
+
+			button.type = 'button';
+			button.className = 'aos-settings-wallpaper-option';
+			button.dataset.aosWallpaperKey = key;
+			button.setAttribute('aria-pressed', 'false');
+			preview.style.backgroundImage = getWallpaperPreviewValue(item);
+			preview.setAttribute('aria-hidden', 'true');
+			button.append(preview, label);
+			button.addEventListener('click', () => selectWallpaperItem(item, status));
+			wallpaperButtons.push(button);
+
+			return button;
+		}
+
+		function createWallpaperGrid(status) {
+			const grid = dom.createElement('div', 'aos-settings-wallpaper-grid');
+			getWallpaperItems().forEach((item) => {
+				if (item && item.type !== 'upload') {
+					grid.appendChild(createWallpaperOption(item, status));
+				}
+			});
+
+			return grid;
+		}
+
+		function chooseUploadedWallpaper(status) {
+			if (!currentWallpaper.can_upload || !window.wp || !window.wp.media) {
+				status.textContent = 'Media Library is not available for this user.';
+				return;
+			}
+
+			if (!mediaFrame) {
+				mediaFrame = window.wp.media({
+					title: 'Choose Wallpaper',
+					button: {
+						text: 'Use as Wallpaper'
+					},
+					library: {
+						type: 'image'
+					},
+					multiple: false
+				});
+				mediaFrame.on('select', () => {
+					const selection = mediaFrame.state().get('selection').first();
+					if (!selection) {
+						return;
+					}
+
+					const attachment = selection.toJSON();
+					const attachmentId = Number.parseInt(attachment.id, 10) || 0;
+					const imageUrl = attachment.url || '';
+					if (!attachmentId || !imageUrl) {
+						status.textContent = 'Choose a valid image.';
+						return;
+					}
+
+					const imageCssValue = getWallpaperImageCssValue(imageUrl);
+					const fallbackWallpaper = currentWallpaper;
+					const nextWallpaper = Object.assign({}, currentWallpaper, {
+						preference: {
+							type: 'upload',
+							id: '',
+							attachment_id: attachmentId,
+							fit: 'cover',
+							position: 'center center'
+						},
+						current: {
+							type: 'upload',
+							id: 'custom',
+							attachment_id: attachmentId,
+							label: attachment.title || 'Custom Wallpaper',
+							preview: imageCssValue,
+							css_value: imageCssValue,
+							fit: 'cover',
+							position: 'center center'
+						},
+						css_variables: {
+							'--aos-wallpaper-image': imageCssValue,
+							'--aos-wallpaper-position': 'center center',
+							'--aos-wallpaper-repeat': 'no-repeat',
+							'--aos-wallpaper-size': 'cover'
+						}
+					});
+
+					applyWallpaper(nextWallpaper);
+					saveWallpaper(nextWallpaper.preference, status, fallbackWallpaper);
+				});
+			}
+
+			mediaFrame.open();
+		}
+
+		function createCustomWallpaperSection(status) {
+			const section = createSection('Custom Wallpaper', 'aos-settings-section-wallpaper-custom');
+			const control = dom.createElement('div', 'aos-settings-wallpaper-custom-control');
+			const preview = dom.createElement('span', 'aos-settings-wallpaper-upload-preview');
+			const text = dom.createElement('span', 'aos-settings-wallpaper-upload-text');
+			const label = dom.createElement('span', 'aos-settings-wallpaper-upload-label', 'No custom wallpaper selected');
+			const actions = dom.createElement('span', 'aos-settings-wallpaper-upload-actions');
+			const chooseButton = createButton('Choose Image');
+
+			wallpaperCustomPreview = preview;
+			wallpaperCustomLabel = label;
+			preview.setAttribute('aria-hidden', 'true');
+			text.appendChild(label);
+			text.appendChild(dom.createElement('span', 'aos-settings-description', 'Use an image from the WordPress Media Library.'));
+			chooseButton.addEventListener('click', () => chooseUploadedWallpaper(status));
+			actions.appendChild(chooseButton);
+			control.append(preview, text, actions);
+			section.appendChild(control);
+
+			return section;
+		}
+
+		function createWallpaperPanel(status) {
+			const panel = dom.createElement('div', 'aos-settings-pane-panel');
+			const currentSection = createSection('', 'aos-settings-section-wallpaper-current');
+			const currentPreview = dom.createElement('div', 'aos-settings-wallpaper-current-preview');
+			const builtInSection = createSection('Built-in Wallpapers', 'aos-settings-section-wallpaper-builtins');
+			const resetSection = createSection('', 'aos-settings-section-wallpaper-reset');
+			const resetButton = createButton('Reset to Default');
+
+			panel.dataset.aosSettingsPanel = 'wallpaper';
+			wallpaperCurrentPreview = currentPreview;
+			currentPreview.setAttribute('aria-hidden', 'true');
+			currentSection.appendChild(currentPreview);
+			builtInSection.appendChild(createWallpaperGrid(status));
+			resetButton.addEventListener('click', () => resetWallpaper(status));
+			resetSection.appendChild(resetButton);
+			panel.append(currentSection, builtInSection, createCustomWallpaperSection(status), resetSection);
+
+			return panel;
+		}
+
 		function createSidebarIcon(item) {
 			const icon = dom.createElement('span', `aos-settings-sidebar-icon aos-settings-sidebar-icon-${item.tone || 'blue'}`);
 			icon.appendChild(dom.createDashicon(item.icon));
@@ -317,11 +664,18 @@
 				button.disabled = Boolean(item.disabled);
 				button.appendChild(createSidebarIcon(item));
 				button.appendChild(dom.createElement('span', 'aos-settings-sidebar-label', item.label));
-				if (item.id === 'appearance') {
+				if (!item.disabled) {
+					button.addEventListener('click', () => setActiveSection(item.id));
+				}
+				if (item.id === activeSection) {
 					button.classList.add('is-active');
 					button.setAttribute('aria-current', 'page');
 				}
 				nav.appendChild(button);
+				sidebarButtons.push({
+					button,
+					id: item.id
+				});
 				navItems.push({
 					button,
 					label: item.label.toLowerCase()
@@ -343,6 +697,7 @@
 		function createPaneHeader(title) {
 			const header = dom.createElement('header', 'aos-settings-pane-header');
 			const history = dom.createElement('div', 'aos-settings-history');
+			const titleElement = dom.createElement('h1', '', title);
 			header.dataset.aosDragHandle = '';
 
 			['back', 'forward'].forEach((direction) => {
@@ -356,7 +711,8 @@
 			});
 
 			header.appendChild(history);
-			header.appendChild(dom.createElement('h1', '', title));
+			header.appendChild(titleElement);
+			paneTitle = titleElement;
 
 			return header;
 		}
@@ -387,9 +743,12 @@
 		}
 
 		const content = dom.createElement('div', 'aos-settings');
+		settingsRoot = content;
 		const main = dom.createElement('div', 'aos-settings-main');
 		const pane = dom.createElement('div', 'aos-settings-pane');
+		const appearancePanel = dom.createElement('div', 'aos-settings-pane-panel');
 		const status = dom.createElement('div', 'aos-settings-status');
+		appearancePanel.dataset.aosSettingsPanel = 'appearance';
 		status.setAttribute('role', 'status');
 		status.setAttribute('aria-live', 'polite');
 
@@ -455,19 +814,21 @@
 		});
 		systemSection.appendChild(classicButton);
 
-		pane.appendChild(appearanceSection);
-		pane.appendChild(createSectionHeading('Theme'));
-		pane.appendChild(themeSection);
-		pane.appendChild(createSectionHeading('Windows'));
-		pane.appendChild(windowSection);
+		appearancePanel.appendChild(appearanceSection);
+		appearancePanel.appendChild(createSectionHeading('Theme'));
+		appearancePanel.appendChild(themeSection);
+		appearancePanel.appendChild(createSectionHeading('Windows'));
+		appearancePanel.appendChild(windowSection);
 		if (installedThemeSection) {
-			pane.appendChild(createSectionHeading('Installed Theme'));
-			pane.appendChild(installedThemeSection);
+			appearancePanel.appendChild(createSectionHeading('Installed Theme'));
+			appearancePanel.appendChild(installedThemeSection);
 		}
-		pane.appendChild(createSectionHeading('Workspace'));
-		pane.appendChild(workspaceSection);
-		pane.appendChild(createSectionHeading('System'));
-		pane.appendChild(systemSection);
+		appearancePanel.appendChild(createSectionHeading('Workspace'));
+		appearancePanel.appendChild(workspaceSection);
+		appearancePanel.appendChild(createSectionHeading('System'));
+		appearancePanel.appendChild(systemSection);
+		pane.appendChild(appearancePanel);
+		pane.appendChild(createWallpaperPanel(status));
 		pane.appendChild(status);
 
 		main.appendChild(createPaneHeader('Appearance'));
@@ -475,6 +836,8 @@
 		content.appendChild(createSettingsSidebar());
 		content.appendChild(main);
 		syncAppearanceControls();
+		syncWallpaperControls();
+		setActiveSection(activeSection);
 
 		return content;
 	};

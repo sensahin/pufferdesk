@@ -64,10 +64,11 @@ final class Admin_OS_Mode_Plugin {
 	 * Build services.
 	 */
 	private function __construct() {
-		$preferences    = new Admin_OS_Mode_User_Preferences();
-		$app_registry   = new Admin_OS_Mode_App_Registry();
-		$widget_registry = new Admin_OS_Mode_Widget_Registry();
-		$theme_registry = new Admin_OS_Mode_Theme_Registry();
+		$preferences        = new Admin_OS_Mode_User_Preferences();
+		$app_registry       = new Admin_OS_Mode_App_Registry();
+		$widget_registry    = new Admin_OS_Mode_Widget_Registry();
+		$theme_registry     = new Admin_OS_Mode_Theme_Registry();
+		$wallpaper_registry = new Admin_OS_Mode_Wallpaper_Registry();
 
 		$this->router   = new Admin_OS_Mode_Router( $preferences );
 		$this->renderer = new Admin_OS_Mode_Shell_Renderer(
@@ -75,18 +76,21 @@ final class Admin_OS_Mode_Plugin {
 			$preferences,
 			$app_registry,
 			$widget_registry,
-			$theme_registry
+			$theme_registry,
+			$wallpaper_registry
 		);
 		$this->assets   = new Admin_OS_Mode_Assets(
 			$this->router,
 			$preferences,
 			$app_registry,
 			$widget_registry,
-			$theme_registry
+			$theme_registry,
+			$wallpaper_registry
 		);
 		$this->settings_controller = new Admin_OS_Mode_Settings_Controller(
 			$preferences,
-			$theme_registry
+			$theme_registry,
+			$wallpaper_registry
 		);
 	}
 

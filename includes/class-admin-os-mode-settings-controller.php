@@ -28,17 +28,27 @@ final class Admin_OS_Mode_Settings_Controller {
 	private $theme_registry;
 
 	/**
+	 * Wallpaper registry.
+	 *
+	 * @var Admin_OS_Mode_Wallpaper_Registry
+	 */
+	private $wallpaper_registry;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Admin_OS_Mode_User_Preferences $preferences User preferences.
 	 * @param Admin_OS_Mode_Theme_Registry   $theme_registry Theme registry.
+	 * @param Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
 	 */
 	public function __construct(
 		Admin_OS_Mode_User_Preferences $preferences,
-		Admin_OS_Mode_Theme_Registry $theme_registry
+		Admin_OS_Mode_Theme_Registry $theme_registry,
+		Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry
 	) {
-		$this->preferences    = $preferences;
-		$this->theme_registry = $theme_registry;
+		$this->preferences        = $preferences;
+		$this->theme_registry     = $theme_registry;
+		$this->wallpaper_registry = $wallpaper_registry;
 	}
 
 	/**
@@ -47,6 +57,8 @@ final class Admin_OS_Mode_Settings_Controller {
 	public function hooks() {
 		add_action( 'wp_ajax_admin_os_mode_save_appearance', array( $this, 'save_appearance' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_theme', array( $this, 'save_theme' ) );
+		add_action( 'wp_ajax_admin_os_mode_save_wallpaper', array( $this, 'save_wallpaper' ) );
+		add_action( 'wp_ajax_admin_os_mode_reset_wallpaper', array( $this, 'reset_wallpaper' ) );
 	}
 
 	/**
@@ -125,6 +137,78 @@ final class Admin_OS_Mode_Settings_Controller {
 					'version'       => $theme['version'],
 					'version_label' => $theme['version_label'],
 				),
+			)
+		);
+	}
+
+	/**
+	 * Save the current user's wallpaper preference.
+	 */
+	public function save_wallpaper() {
+		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+				),
+				403
+			);
+		}
+
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+
+		$wallpaper = $this->preferences->sanitize_wallpaper(
+			array(
+				'type'          => $this->read_post_value( 'type' ),
+				'id'            => $this->read_post_value( 'id' ),
+				'attachment_id' => $this->read_post_value( 'attachment_id' ),
+				'fit'           => $this->read_post_value( 'fit' ),
+				'position'      => $this->read_post_value( 'position' ),
+			)
+		);
+		$theme     = $this->theme_registry->get_current_theme( $this->preferences );
+		$result    = $this->wallpaper_registry->validate_preference( $wallpaper, $theme );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error(
+				array(
+					'message' => $result->get_error_message(),
+				),
+				400
+			);
+		}
+
+		$this->preferences->set_wallpaper( $wallpaper );
+
+		wp_send_json_success(
+			array(
+				'message'   => __( 'Wallpaper saved.', 'admin-os-mode' ),
+				'wallpaper' => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
+			)
+		);
+	}
+
+	/**
+	 * Reset the current user's wallpaper preference.
+	 */
+	public function reset_wallpaper() {
+		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+				),
+				403
+			);
+		}
+
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+
+		$this->preferences->reset_wallpaper();
+		$theme = $this->theme_registry->get_current_theme( $this->preferences );
+
+		wp_send_json_success(
+			array(
+				'message'   => __( 'Wallpaper reset.', 'admin-os-mode' ),
+				'wallpaper' => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
 			)
 		);
 	}

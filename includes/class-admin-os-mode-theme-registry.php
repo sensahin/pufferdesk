@@ -39,6 +39,16 @@ final class Admin_OS_Mode_Theme_Registry {
 				'stylesheet'     => 'adminos/default.css',
 				'media'          => array(
 					'wallpaper'   => 'themes/adminos/default/wallpapers/aurora-flow.jpg',
+					'wallpapers'  => array(
+						'default' => 'aurora-flow',
+						'items'   => array(
+							array(
+								'id'    => 'aurora-flow',
+								'label' => __( 'Aurora Flow', 'admin-os-mode' ),
+								'path'  => 'themes/adminos/default/wallpapers/aurora-flow.jpg',
+							),
+						),
+					),
 					'icon_pack'   => 'themes/adminos/default/icons',
 					'cursor_pack' => 'themes/adminos/default/cursors',
 				),
@@ -247,6 +257,7 @@ final class Admin_OS_Mode_Theme_Registry {
 
 		return array(
 			'wallpaper'   => $this->normalize_media_file( isset( $media['wallpaper'] ) ? $media['wallpaper'] : '' ),
+			'wallpapers'  => $this->normalize_wallpapers( isset( $media['wallpapers'] ) ? $media['wallpapers'] : array(), isset( $media['wallpaper'] ) ? $media['wallpaper'] : '' ),
 			'icon_pack'   => $this->normalize_media_directory( isset( $media['icon_pack'] ) ? $media['icon_pack'] : '' ),
 			'cursor_pack' => $this->normalize_media_directory( isset( $media['cursor_pack'] ) ? $media['cursor_pack'] : '' ),
 		);
@@ -270,7 +281,91 @@ final class Admin_OS_Mode_Theme_Registry {
 			}
 		}
 
+		if ( ! empty( $parent['wallpapers']['items'] ) || ! empty( $child['wallpapers']['items'] ) ) {
+			$wallpapers = array();
+			foreach ( array( $parent, $child ) as $source ) {
+				if ( empty( $source['wallpapers']['items'] ) || ! is_array( $source['wallpapers']['items'] ) ) {
+					continue;
+				}
+
+				foreach ( $source['wallpapers']['items'] as $item ) {
+					if ( ! empty( $item['id'] ) ) {
+						$wallpapers[ $item['id'] ] = $item;
+					}
+				}
+			}
+
+			$merged['wallpapers'] = array(
+				'default' => ! empty( $child['wallpapers']['default'] ) ? $child['wallpapers']['default'] : ( isset( $parent['wallpapers']['default'] ) ? $parent['wallpapers']['default'] : '' ),
+				'items'   => array_values( $wallpapers ),
+			);
+		}
+
 		return $merged;
+	}
+
+	/**
+	 * Normalize theme wallpaper collection metadata.
+	 *
+	 * @param mixed $wallpapers Raw wallpaper collection.
+	 * @param mixed $fallback_wallpaper Raw single wallpaper fallback.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_wallpapers( $wallpapers, $fallback_wallpaper ) {
+		$normalized = array(
+			'default' => '',
+			'items'   => array(),
+		);
+
+		if ( is_array( $wallpapers ) ) {
+			if ( ! empty( $wallpapers['default'] ) ) {
+				$normalized['default'] = sanitize_key( $wallpapers['default'] );
+			}
+
+			if ( ! empty( $wallpapers['items'] ) && is_array( $wallpapers['items'] ) ) {
+				foreach ( $wallpapers['items'] as $item ) {
+					if ( ! is_array( $item ) || empty( $item['id'] ) ) {
+						continue;
+					}
+
+					$id   = sanitize_key( $item['id'] );
+					$file = $this->normalize_media_file( isset( $item['path'] ) ? $item['path'] : ( isset( $item['file'] ) ? $item['file'] : '' ) );
+					if ( '' === $id || empty( $file['url'] ) ) {
+						continue;
+					}
+
+					$normalized['items'][] = array(
+						'id'       => $id,
+						'label'    => isset( $item['label'] ) ? sanitize_text_field( $item['label'] ) : $id,
+						'path'     => $file['path'],
+						'url'      => $file['url'],
+						'fit'      => isset( $item['fit'] ) ? sanitize_key( $item['fit'] ) : 'cover',
+						'position' => isset( $item['position'] ) ? sanitize_text_field( $item['position'] ) : 'center center',
+					);
+				}
+			}
+		}
+
+		if ( empty( $normalized['items'] ) && ! empty( $fallback_wallpaper ) ) {
+			$file = $this->normalize_media_file( $fallback_wallpaper );
+			if ( ! empty( $file['url'] ) ) {
+				$normalized['default'] = 'default';
+				$normalized['items'][] = array(
+					'id'       => 'default',
+					'label'    => __( 'Default', 'admin-os-mode' ),
+					'path'     => $file['path'],
+					'url'      => $file['url'],
+					'fit'      => 'cover',
+					'position' => 'center center',
+				);
+			}
+		}
+
+		if ( '' === $normalized['default'] && ! empty( $normalized['items'][0]['id'] ) ) {
+			$normalized['default'] = $normalized['items'][0]['id'];
+		}
+
+		return $normalized;
 	}
 
 	/**

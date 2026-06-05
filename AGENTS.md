@@ -59,6 +59,7 @@ PHP services in `includes/`:
 - `class-admin-os-mode-widget-registry.php`: desktop widget registry and widget normalization.
 - `class-admin-os-mode-widget-layout.php`: shared widget layout attributes for templates.
 - `class-admin-os-mode-theme-registry.php`: theme family/version/parent inheritance.
+- `class-admin-os-mode-wallpaper-registry.php`: built-in/theme/upload wallpaper options and CSS-variable resolution.
 - `class-admin-os-mode-assets.php`: CSS/JS enqueueing and runtime config.
 - `class-admin-os-mode-shell-renderer.php`: template rendering and theme override resolution.
 - `class-admin-os-mode-settings-controller.php`: AJAX settings persistence.
@@ -96,6 +97,7 @@ JavaScript:
 - `assets/js/core/dom.js`: shared DOM helpers.
 - `assets/js/core/services/`: browser storage and AJAX clients.
 - `assets/js/core/session/`: shared workspace session sections.
+- `assets/js/core/wallpaper.js`: wallpaper CSS-variable application and preference helpers.
 - `assets/js/core/windows/`: windows, window factory, window state serialization.
 - `assets/js/core/widgets/`: widget binding, live updates, widget layout persistence.
 - `assets/js/core/apps/`: app launcher, reusable app surfaces such as about windows, and native apps.
@@ -149,7 +151,9 @@ Themes:
 - Themes are organized by family and version.
 - Use parent/child theme inheritance for common theme-family styling.
 - Put visual language in theme CSS. Put behavior in core JS/PHP.
-- Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
+- Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `wallpapers`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
+- Use `wallpapers` for a theme-managed wallpaper collection. The canonical shape is `array( 'default' => 'wallpaper-id', 'items' => array( array( 'id' => 'wallpaper-id', 'label' => 'Wallpaper Label', 'path' => 'themes/{family}/{version}/wallpapers/file.jpg' ) ) )`.
+- Use `Admin_OS_Mode_Wallpaper_Registry` for built-in gradients, theme wallpapers, upload validation, and `--aos-wallpaper-*` CSS-variable resolution. Do not read theme wallpaper URLs directly from templates or app JS.
 - Keep OS media original, licensed for redistribution, or otherwise release-safe.
 - Template override resolution order is:
   1. `templates/themes/{theme_id}/{template}`

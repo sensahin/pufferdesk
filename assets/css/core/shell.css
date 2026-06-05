@@ -42,6 +42,9 @@
 	--aos-control-bg-hover: rgba(0, 0, 0, 0.11);
 	--aos-desktop-bg: #f0f0f1;
 	--aos-wallpaper-image: none;
+	--aos-wallpaper-position: center center;
+	--aos-wallpaper-repeat: no-repeat;
+	--aos-wallpaper-size: cover;
 	--aos-tile-bg: #fff;
 	--aos-tile-border: rgba(0, 0, 0, 0.08);
 	--aos-tile-shadow: 0 12px 28px rgba(0, 0, 0, 0.13);

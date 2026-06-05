@@ -47,6 +47,13 @@ final class Admin_OS_Mode_Assets {
 	private $theme_registry;
 
 	/**
+	 * Wallpaper registry.
+	 *
+	 * @var Admin_OS_Mode_Wallpaper_Registry
+	 */
+	private $wallpaper_registry;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Admin_OS_Mode_Router           $router Router.
@@ -54,19 +61,22 @@ final class Admin_OS_Mode_Assets {
 	 * @param Admin_OS_Mode_App_Registry     $app_registry App registry.
 	 * @param Admin_OS_Mode_Widget_Registry  $widget_registry Widget registry.
 	 * @param Admin_OS_Mode_Theme_Registry   $theme_registry Theme registry.
+	 * @param Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
 	 */
 	public function __construct(
 		Admin_OS_Mode_Router $router,
 		Admin_OS_Mode_User_Preferences $preferences,
 		Admin_OS_Mode_App_Registry $app_registry,
 		Admin_OS_Mode_Widget_Registry $widget_registry,
-		Admin_OS_Mode_Theme_Registry $theme_registry
+		Admin_OS_Mode_Theme_Registry $theme_registry,
+		Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry
 	) {
-		$this->router          = $router;
-		$this->preferences     = $preferences;
-		$this->app_registry    = $app_registry;
-		$this->widget_registry = $widget_registry;
-		$this->theme_registry  = $theme_registry;
+		$this->router             = $router;
+		$this->preferences        = $preferences;
+		$this->app_registry       = $app_registry;
+		$this->widget_registry    = $widget_registry;
+		$this->theme_registry     = $theme_registry;
+		$this->wallpaper_registry = $wallpaper_registry;
 	}
 
 	/**
@@ -89,6 +99,10 @@ final class Admin_OS_Mode_Assets {
 
 		if ( ! $is_shell ) {
 			return;
+		}
+
+		if ( current_user_can( 'upload_files' ) ) {
+			wp_enqueue_media();
 		}
 
 		$apps    = $this->app_registry->get_apps();
@@ -234,6 +248,10 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/appearance.js',
 				'deps' => array( 'admin-os-mode-config' ),
 			),
+			'admin-os-mode-wallpaper'      => array(
+				'path' => 'assets/js/core/wallpaper.js',
+				'deps' => array( 'admin-os-mode-config' ),
+			),
 			'admin-os-mode-window-factory' => array(
 				'path' => 'assets/js/core/windows/window-factory.js',
 				'deps' => array( 'admin-os-mode-dom' ),
@@ -252,7 +270,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-settings-app'   => array(
 				'path' => 'assets/js/core/apps/settings-app.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-storage', 'admin-os-mode-api-client', 'admin-os-mode-appearance' ),
+				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-storage', 'admin-os-mode-api-client', 'admin-os-mode-appearance', 'admin-os-mode-wallpaper' ),
 			),
 			'admin-os-mode-app-launcher'   => array(
 				'path' => 'assets/js/core/apps/app-launcher.js',
@@ -292,7 +310,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-boot'           => array(
 				'path' => 'assets/js/core/boot.js',
-				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-reopen-policy', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-clock' ),
+				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-wallpaper', 'admin-os-mode-reopen-policy', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-clock' ),
 			),
 		);
 
@@ -330,6 +348,7 @@ final class Admin_OS_Mode_Assets {
 			'siteName'   => get_bloginfo( 'name' ),
 			'system'     => $this->get_system_config(),
 			'themes'     => $this->theme_registry->get_selectable_themes(),
+			'wallpaper'  => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
 			'userId'     => get_current_user_id(),
 			'user'       => array(
 				'avatar'   => get_avatar_url( $current_user->ID, array( 'size' => 96 ) ),

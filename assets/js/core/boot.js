@@ -35,6 +35,9 @@
 			window.AdminOSMode.appearance.apply(shell, config.appearance || {});
 			window.AdminOSMode.appearance.bindSystemMode(shell);
 		}
+		if (window.AdminOSMode.wallpaper) {
+			window.AdminOSMode.wallpaper.apply(shell, config.wallpaper || {});
+		}
 
 		const reopenPolicy = window.AdminOSMode.session.createReopenPolicy(config.storageKey || '');
 		const skipWindowRestore = reopenPolicy.consumeSkipWindowRestoreOnce();

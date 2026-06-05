@@ -47,6 +47,13 @@ final class Admin_OS_Mode_Shell_Renderer {
 	private $theme_registry;
 
 	/**
+	 * Wallpaper registry.
+	 *
+	 * @var Admin_OS_Mode_Wallpaper_Registry
+	 */
+	private $wallpaper_registry;
+
+	/**
 	 * Current resolved theme during a render pass.
 	 *
 	 * @var array<string,mixed>|null
@@ -61,19 +68,22 @@ final class Admin_OS_Mode_Shell_Renderer {
 	 * @param Admin_OS_Mode_App_Registry     $app_registry App registry.
 	 * @param Admin_OS_Mode_Widget_Registry  $widget_registry Widget registry.
 	 * @param Admin_OS_Mode_Theme_Registry   $theme_registry Theme registry.
+	 * @param Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
 	 */
 	public function __construct(
 		Admin_OS_Mode_Router $router,
 		Admin_OS_Mode_User_Preferences $preferences,
 		Admin_OS_Mode_App_Registry $app_registry,
 		Admin_OS_Mode_Widget_Registry $widget_registry,
-		Admin_OS_Mode_Theme_Registry $theme_registry
+		Admin_OS_Mode_Theme_Registry $theme_registry,
+		Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry
 	) {
-		$this->router          = $router;
-		$this->preferences     = $preferences;
-		$this->app_registry    = $app_registry;
-		$this->widget_registry = $widget_registry;
-		$this->theme_registry  = $theme_registry;
+		$this->router             = $router;
+		$this->preferences        = $preferences;
+		$this->app_registry       = $app_registry;
+		$this->widget_registry    = $widget_registry;
+		$this->theme_registry     = $theme_registry;
+		$this->wallpaper_registry = $wallpaper_registry;
 	}
 
 	/**
@@ -87,8 +97,9 @@ final class Admin_OS_Mode_Shell_Renderer {
 		$apps    = $this->app_registry->get_apps();
 		$widgets = $this->widget_registry->get_widgets();
 		$folders = $this->app_registry->get_folders( $apps );
-		$theme   = $this->theme_registry->get_current_theme( $this->preferences );
+		$theme      = $this->theme_registry->get_current_theme( $this->preferences );
 		$appearance = $this->preferences->get_appearance();
+		$wallpaper  = $this->wallpaper_registry->get_client_config( $theme, $this->preferences );
 		$this->current_theme = $theme;
 
 		$this->render_template(
@@ -100,6 +111,7 @@ final class Admin_OS_Mode_Shell_Renderer {
 				'folders'    => $folders,
 				'site_name'  => get_bloginfo( 'name' ),
 				'theme'      => $theme,
+				'wallpaper'  => $wallpaper,
 			)
 		);
 	}

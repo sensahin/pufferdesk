@@ -16,19 +16,22 @@ defined( 'ABSPATH' ) || exit;
  * @var array<int,array<string,string>> $folders
  * @var string                          $site_name
  * @var array<string,mixed>             $theme
+ * @var array<string,mixed>             $wallpaper
  */
-$admin_os_mode_shell_style = '';
-if ( ! empty( $theme['media']['wallpaper']['url'] ) ) {
-	$admin_os_mode_wallpaper_url = str_replace(
-		array( '"', '\\' ),
-		array( '%22', '%5C' ),
-		esc_url_raw( $theme['media']['wallpaper']['url'] )
-	);
+$admin_os_mode_shell_style_parts = array();
+if ( ! empty( $wallpaper['css_variables'] ) && is_array( $wallpaper['css_variables'] ) ) {
+	foreach ( $wallpaper['css_variables'] as $admin_os_mode_wallpaper_name => $admin_os_mode_wallpaper_value ) {
+		if ( ! preg_match( '/^--aos-wallpaper-(image|size|position|repeat)$/', (string) $admin_os_mode_wallpaper_name ) ) {
+			continue;
+		}
 
-	if ( '' !== $admin_os_mode_wallpaper_url ) {
-		$admin_os_mode_shell_style = '--aos-wallpaper-image:url("' . $admin_os_mode_wallpaper_url . '");';
+		$admin_os_mode_wallpaper_value = str_replace( ';', '', (string) $admin_os_mode_wallpaper_value );
+		if ( '' !== $admin_os_mode_wallpaper_value ) {
+			$admin_os_mode_shell_style_parts[] = $admin_os_mode_wallpaper_name . ':' . $admin_os_mode_wallpaper_value;
+		}
 	}
 }
+$admin_os_mode_shell_style = implode( ';', $admin_os_mode_shell_style_parts );
 
 $admin_os_mode_appearance = wp_parse_args(
 	is_array( $appearance ) ? $appearance : array(),
@@ -49,6 +52,8 @@ $admin_os_mode_shell_attributes     = array(
 	'data-aos-theme'              => $theme['id'],
 	'data-aos-theme-family'       => $theme['family'],
 	'data-aos-theme-version'      => $theme['version'],
+	'data-aos-wallpaper-type'     => ! empty( $wallpaper['preference']['type'] ) ? $wallpaper['preference']['type'] : '',
+	'data-aos-wallpaper-id'       => ! empty( $wallpaper['preference']['id'] ) ? $wallpaper['preference']['id'] : '',
 	'data-aos-appearance-mode'    => $admin_os_mode_appearance['mode'],
 	'data-aos-effective-appearance' => $admin_os_mode_effective_appearance,
 	'data-aos-window-material'    => $admin_os_mode_appearance['window_material'],

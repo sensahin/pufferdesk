@@ -14,6 +14,7 @@ final class Admin_OS_Mode_User_Preferences {
 	const META_APPEARANCE = 'admin_os_mode_appearance';
 	const META_ENABLED    = 'admin_os_mode_enabled';
 	const META_THEME      = 'admin_os_mode_theme';
+	const META_WALLPAPER  = 'admin_os_mode_wallpaper';
 
 	/**
 	 * Default shell appearance preferences.
@@ -42,6 +43,19 @@ final class Admin_OS_Mode_User_Preferences {
 		'highlight_color'   => array( 'automatic' ),
 		'icon_widget_style' => array( 'default', 'dark', 'clear', 'tinted' ),
 		'folder_color'      => array( 'automatic' ),
+	);
+
+	/**
+	 * Default wallpaper preference.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private $default_wallpaper = array(
+		'type'          => 'theme',
+		'id'            => '',
+		'attachment_id' => 0,
+		'fit'           => 'cover',
+		'position'      => 'center center',
 	);
 
 	/**
@@ -145,6 +159,92 @@ final class Admin_OS_Mode_User_Preferences {
 		update_user_meta( $user_id, self::META_APPEARANCE, $appearance );
 
 		return $appearance;
+	}
+
+	/**
+	 * Get the user's wallpaper preference.
+	 *
+	 * @param int $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function get_wallpaper( $user_id = 0 ) {
+		$user_id   = $user_id ? (int) $user_id : get_current_user_id();
+		$wallpaper = get_user_meta( $user_id, self::META_WALLPAPER, true );
+
+		return $this->sanitize_wallpaper( is_array( $wallpaper ) ? $wallpaper : array() );
+	}
+
+	/**
+	 * Sanitize a wallpaper preference payload.
+	 *
+	 * @param array<string,mixed> $wallpaper Raw wallpaper data.
+	 * @return array<string,mixed>
+	 */
+	public function sanitize_wallpaper( $wallpaper ) {
+		$sanitized = $this->default_wallpaper;
+		$type      = isset( $wallpaper['type'] ) ? sanitize_key( (string) $wallpaper['type'] ) : $sanitized['type'];
+
+		if ( in_array( $type, array( 'theme', 'gradient', 'upload' ), true ) ) {
+			$sanitized['type'] = $type;
+		}
+
+		if ( isset( $wallpaper['id'] ) ) {
+			$sanitized['id'] = sanitize_key( (string) $wallpaper['id'] );
+		}
+
+		if ( isset( $wallpaper['attachment_id'] ) ) {
+			$sanitized['attachment_id'] = absint( $wallpaper['attachment_id'] );
+		}
+
+		if ( isset( $wallpaper['fit'] ) ) {
+			$fit = sanitize_key( (string) $wallpaper['fit'] );
+			if ( in_array( $fit, array( 'cover', 'contain', 'auto' ), true ) ) {
+				$sanitized['fit'] = $fit;
+			}
+		}
+
+		if ( isset( $wallpaper['position'] ) ) {
+			$position = sanitize_text_field( (string) $wallpaper['position'] );
+			if ( in_array( $position, array( 'center center', 'top center', 'bottom center', 'center left', 'center right' ), true ) ) {
+				$sanitized['position'] = $position;
+			}
+		}
+
+		if ( 'upload' !== $sanitized['type'] ) {
+			$sanitized['attachment_id'] = 0;
+		}
+
+		if ( 'upload' === $sanitized['type'] ) {
+			$sanitized['id'] = '';
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Save the user's wallpaper preference.
+	 *
+	 * @param array<string,mixed> $wallpaper Wallpaper data.
+	 * @param int                 $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function set_wallpaper( $wallpaper, $user_id = 0 ) {
+		$user_id   = $user_id ? (int) $user_id : get_current_user_id();
+		$wallpaper = $this->sanitize_wallpaper( is_array( $wallpaper ) ? $wallpaper : array() );
+
+		update_user_meta( $user_id, self::META_WALLPAPER, $wallpaper );
+
+		return $wallpaper;
+	}
+
+	/**
+	 * Reset the user's wallpaper preference to the active theme default.
+	 *
+	 * @param int $user_id Optional user ID.
+	 */
+	public function reset_wallpaper( $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		delete_user_meta( $user_id, self::META_WALLPAPER );
 	}
 
 	/**

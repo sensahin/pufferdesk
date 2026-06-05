@@ -1,8 +1,8 @@
 .aos-desktop {
 	background: var(--aos-wallpaper-image), var(--aos-desktop-bg);
-	background-position: center, center, 0 0, 0 0, center;
-	background-repeat: no-repeat, no-repeat, repeat, repeat, no-repeat;
-	background-size: cover, auto, 42px 42px, 42px 42px, auto;
+	background-position: var(--aos-wallpaper-position), center, 0 0, 0 0, center;
+	background-repeat: var(--aos-wallpaper-repeat), no-repeat, repeat, repeat, no-repeat;
+	background-size: var(--aos-wallpaper-size), auto, 42px 42px, 42px 42px, auto;
 	height: calc(100% - 48px);
 	overflow: hidden;
 	position: relative;
