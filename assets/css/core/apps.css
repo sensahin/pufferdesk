@@ -779,6 +779,11 @@
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.aos-settings-wallpaper-photo-item {
+	min-width: 0;
+	position: relative;
+}
+
 .aos-settings-wallpaper-photo-button {
 	appearance: none;
 	background: transparent;
@@ -793,6 +798,7 @@
 	min-width: 0;
 	padding: 0;
 	text-align: center;
+	width: 100%;
 }
 
 .aos-settings-wallpaper-photo-button:focus-visible,
@@ -828,6 +834,52 @@
 
 .aos-settings-wallpaper-upload-preview.has-wallpaper .aos-settings-wallpaper-upload-icon {
 	display: none;
+}
+
+.aos-settings-wallpaper-remove-photo {
+	align-items: center;
+	appearance: none;
+	background: rgba(190, 194, 199, 0.96);
+	border: 0;
+	border-radius: 50%;
+	color: rgba(30, 34, 38, 0.82);
+	cursor: default;
+	display: flex;
+	height: 14px;
+	justify-content: center;
+	left: -5px;
+	padding: 0;
+	position: absolute;
+	top: -5px;
+	width: 14px;
+	z-index: 2;
+}
+
+.aos-settings-wallpaper-remove-photo[hidden] {
+	display: none;
+}
+
+.aos-settings-wallpaper-remove-photo::before,
+.aos-settings-wallpaper-remove-photo::after {
+	background: currentColor;
+	border-radius: 999px;
+	content: "";
+	height: 2px;
+	position: absolute;
+	width: 7px;
+}
+
+.aos-settings-wallpaper-remove-photo::before {
+	transform: rotate(45deg);
+}
+
+.aos-settings-wallpaper-remove-photo::after {
+	transform: rotate(-45deg);
+}
+
+.aos-settings-wallpaper-remove-photo:focus-visible {
+	box-shadow: 0 0 0 3px var(--aos-focus-ring);
+	outline: none;
 }
 
 .aos-settings-wallpaper-selected-photo-label {

@@ -281,6 +281,12 @@
 				const selected = button.dataset.aosWallpaperKey === selectedKey;
 				button.classList.toggle('is-selected', selected);
 				button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+				if (button.aosRemoveButton) {
+					button.aosRemoveButton.hidden = selected;
+				}
+				if (button.aosPhotoItem) {
+					button.aosPhotoItem.classList.toggle('is-selected', selected);
+				}
 			});
 
 			if (wallpaperAddPhotoPreview) {
@@ -315,7 +321,11 @@
 				}
 
 				wallpaperButtons = wallpaperButtons.filter((item) => item !== button);
-				button.remove();
+				if (button.aosPhotoItem) {
+					button.aosPhotoItem.remove();
+				} else {
+					button.remove();
+				}
 				return false;
 			});
 
@@ -334,7 +344,7 @@
 				if (label) {
 					label.textContent = title;
 				}
-				wallpaperPhotoGrid.appendChild(button);
+				wallpaperPhotoGrid.appendChild(button.aosPhotoItem || button);
 			});
 		}
 
@@ -348,9 +358,11 @@
 				return existing;
 			}
 
+			const photoItem = dom.createElement('div', 'aos-settings-wallpaper-photo-item aos-settings-wallpaper-uploaded-photo-item');
 			const uploadedButton = document.createElement('button');
 			const uploadedPreview = dom.createElement('span', 'aos-settings-wallpaper-upload-preview aos-settings-wallpaper-selected-photo-preview');
 			const uploadedLabel = dom.createElement('span', 'aos-settings-wallpaper-upload-label aos-settings-wallpaper-selected-photo-label');
+			const removeButton = document.createElement('button');
 
 			uploadedButton.type = 'button';
 			uploadedButton.className = 'aos-settings-wallpaper-photo-button aos-settings-wallpaper-selected-photo-button';
@@ -364,10 +376,25 @@
 				}
 			});
 
+			removeButton.type = 'button';
+			removeButton.className = 'aos-settings-wallpaper-remove-photo';
+			removeButton.hidden = true;
+			removeButton.setAttribute('aria-label', 'Remove photo');
+			removeButton.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				if (uploadedButton.aosWallpaperItem) {
+					removeUploadedWallpaper(uploadedButton.aosWallpaperItem, wallpaperPhotoStatus);
+				}
+			});
+
+			photoItem.append(uploadedButton, removeButton);
 			uploadedButton.aosWallpaperItem = item;
+			uploadedButton.aosPhotoItem = photoItem;
+			uploadedButton.aosRemoveButton = removeButton;
 			wallpaperUploadedPhotoButtons.push(uploadedButton);
 			wallpaperButtons.push(uploadedButton);
-			wallpaperPhotoGrid.appendChild(uploadedButton);
+			wallpaperPhotoGrid.appendChild(photoItem);
 
 			return uploadedButton;
 		}
@@ -469,6 +496,36 @@
 				.catch((error) => {
 					status.textContent = error && error.message ? error.message : 'Wallpaper could not be reset.';
 					return null;
+				});
+		}
+
+		function removeUploadedWallpaper(item, status) {
+			const attachmentId = Number.parseInt(item.attachment_id, 10) || 0;
+			if (!attachmentId) {
+				return;
+			}
+
+			status.textContent = 'Removing...';
+
+			api.post('admin_os_mode_remove_wallpaper_upload', {
+				attachment_id: attachmentId
+			})
+				.then((result) => {
+					if (!result || !result.success) {
+						const message = result && result.data && result.data.message
+							? result.data.message
+							: 'Photo could not be removed.';
+						status.textContent = message;
+						syncWallpaperControls();
+						return;
+					}
+
+					applyWallpaper(result.data.wallpaper || currentWallpaper);
+					status.textContent = result.data.message || 'Photo removed.';
+				})
+				.catch((error) => {
+					status.textContent = error && error.message ? error.message : 'Photo could not be removed.';
+					syncWallpaperControls();
 				});
 		}
 

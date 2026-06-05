@@ -285,6 +285,38 @@ final class Admin_OS_Mode_User_Preferences {
 	}
 
 	/**
+	 * Remove an uploaded wallpaper from the user's recent wallpaper list.
+	 *
+	 * @param int $attachment_id Attachment ID.
+	 * @param int $user_id Optional user ID.
+	 * @return array<int,int>
+	 */
+	public function remove_wallpaper_upload( $attachment_id, $user_id = 0 ) {
+		$user_id       = $user_id ? (int) $user_id : get_current_user_id();
+		$attachment_id = absint( $attachment_id );
+		if ( ! $attachment_id ) {
+			return $this->get_wallpaper_uploads( $user_id );
+		}
+
+		$uploads = array_values(
+			array_filter(
+				$this->get_wallpaper_uploads( $user_id ),
+				function ( $upload_id ) use ( $attachment_id ) {
+					return $attachment_id !== (int) $upload_id;
+				}
+			)
+		);
+
+		if ( empty( $uploads ) ) {
+			delete_user_meta( $user_id, self::META_WALLPAPER_UPLOADS );
+		} else {
+			update_user_meta( $user_id, self::META_WALLPAPER_UPLOADS, $uploads );
+		}
+
+		return $uploads;
+	}
+
+	/**
 	 * Reset the user's wallpaper preference to the active theme default.
 	 *
 	 * @param int $user_id Optional user ID.
