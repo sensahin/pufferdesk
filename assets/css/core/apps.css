@@ -618,14 +618,6 @@
 	color: #b32d2e;
 }
 
-.aos-settings-wallpaper-current-preview {
-	background: var(--aos-wallpaper-image), var(--aos-desktop-bg);
-	background-position: var(--aos-wallpaper-position), center;
-	background-repeat: var(--aos-wallpaper-repeat), no-repeat;
-	background-size: var(--aos-wallpaper-size), cover;
-	min-height: 190px;
-}
-
 .aos-settings-wallpaper-grid {
 	display: grid;
 	gap: 12px;

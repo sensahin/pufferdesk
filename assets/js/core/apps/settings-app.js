@@ -27,7 +27,6 @@
 		let paneTitle = null;
 		let settingsRoot = null;
 		let wallpaperButtons = [];
-		let wallpaperCurrentPreview = null;
 		let wallpaperCustomPreview = null;
 		let wallpaperCustomLabel = null;
 		let mediaFrame = null;
@@ -237,17 +236,13 @@
 		function syncWallpaperControls() {
 			const preference = getWallpaperPreference();
 			const selectedKey = getWallpaperKey(preference);
-			const current = getWallpaperCurrent();
-
 			wallpaperButtons.forEach((button) => {
 				const selected = button.dataset.aosWallpaperKey === selectedKey;
 				button.classList.toggle('is-selected', selected);
 				button.setAttribute('aria-pressed', selected ? 'true' : 'false');
 			});
 
-			if (wallpaperCurrentPreview) {
-				wallpaperCurrentPreview.style.backgroundImage = getWallpaperPreviewValue(current);
-			}
+			const current = getWallpaperCurrent();
 
 			if (wallpaperCustomPreview) {
 				wallpaperCustomPreview.style.backgroundImage = current.type === 'upload'
@@ -603,22 +598,17 @@
 
 		function createWallpaperPanel(status) {
 			const panel = dom.createElement('div', 'aos-settings-pane-panel');
-			const currentSection = createSection('', 'aos-settings-section-wallpaper-current');
-			const currentPreview = dom.createElement('div', 'aos-settings-wallpaper-current-preview');
 			const builtInSection = createSection('Built-in Wallpapers', 'aos-settings-section-wallpaper-builtins');
 			const colorSection = createSection('Colors', 'aos-settings-section-wallpaper-colors');
 			const resetSection = createSection('', 'aos-settings-section-wallpaper-reset');
 			const resetButton = createButton('Reset to Default');
 
 			panel.dataset.aosSettingsPanel = 'wallpaper';
-			wallpaperCurrentPreview = currentPreview;
-			currentPreview.setAttribute('aria-hidden', 'true');
-			currentSection.appendChild(currentPreview);
 			builtInSection.appendChild(createWallpaperGrid(status, getWallpaperGroup('wallpapers')));
 			colorSection.appendChild(createWallpaperGrid(status, getWallpaperGroup('colors'), 'aos-settings-wallpaper-color-grid', 'aos-settings-wallpaper-color-option'));
 			resetButton.addEventListener('click', () => resetWallpaper(status));
 			resetSection.appendChild(resetButton);
-			panel.append(currentSection, builtInSection, createCustomWallpaperSection(status), colorSection, resetSection);
+			panel.append(builtInSection, createCustomWallpaperSection(status), colorSection, resetSection);
 
 			return panel;
 		}
