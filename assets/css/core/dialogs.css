@@ -28,9 +28,27 @@
 	display: grid;
 	gap: 9px;
 	max-width: min(360px, calc(100% - 48px));
+	overflow: hidden;
 	padding: 18px 18px 14px;
+	position: relative;
 	text-align: center;
 	width: 320px;
+}
+
+.aos-shell-dialog::before {
+	background: var(--aos-material-sheen, linear-gradient(155deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0)));
+	border-radius: inherit;
+	content: "";
+	inset: 0;
+	opacity: 0.48;
+	pointer-events: none;
+	position: absolute;
+	z-index: 0;
+}
+
+.aos-shell-dialog > * {
+	position: relative;
+	z-index: 1;
 }
 
 .aos-shell-dialog.is-dragging {
@@ -115,7 +133,7 @@
 .aos-shell-action-dialog {
 	align-content: start;
 	border-radius: 20px;
-	box-shadow: 0 24px 68px rgba(0, 0, 0, 0.42), 0 1px 0 rgba(255, 255, 255, 0.22) inset, 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+	box-shadow: var(--aos-dialog-shadow);
 	display: flex;
 	flex-direction: column;
 	gap: 0;
