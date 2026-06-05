@@ -8,15 +8,15 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Owns built-in wallpaper options, upload resolution, and CSS variables.
+ * Owns built-in wallpaper/color options, upload resolution, and CSS variables.
  */
 final class Admin_OS_Mode_Wallpaper_Registry {
 	/**
-	 * Built-in original gradient wallpapers.
+	 * Built-in original color backgrounds.
 	 *
 	 * @var array<int,array<string,string>>
 	 */
-	private $gradient_wallpapers = array(
+	private $color_backgrounds = array(
 		array(
 			'id'        => 'aurora-mist',
 			'css_value' => 'radial-gradient(circle at 24% 18%, rgba(117, 236, 218, 0.92), transparent 32%), radial-gradient(circle at 78% 24%, rgba(62, 126, 255, 0.78), transparent 36%), radial-gradient(circle at 58% 76%, rgba(247, 141, 119, 0.58), transparent 40%), linear-gradient(135deg, #182f46 0%, #227a88 42%, #d9edf2 100%)',
@@ -59,6 +59,7 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 			'current'       => $resolved['item'],
 			'css_variables' => $resolved['css_variables'],
 			'default'       => $this->get_default_preference( $theme ),
+			'groups'        => $this->get_grouped_options( $theme ),
 			'items'         => array_values( $this->get_available_wallpapers( $theme ) ),
 			'can_upload'    => current_user_can( 'upload_files' ),
 		);
@@ -77,13 +78,13 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 			$items[ $this->get_item_key( $item['type'], $item['id'] ) ] = $item;
 		}
 
-		foreach ( $this->gradient_wallpapers as $gradient ) {
+		foreach ( $this->color_backgrounds as $color ) {
 			$item = array(
-				'type'      => 'gradient',
-				'id'        => sanitize_key( $gradient['id'] ),
-				'label'     => $this->get_gradient_label( $gradient['id'] ),
-				'css_value' => $gradient['css_value'],
-				'preview'   => $gradient['css_value'],
+				'type'      => 'color',
+				'id'        => sanitize_key( $color['id'] ),
+				'label'     => $this->get_color_label( $color['id'] ),
+				'css_value' => $color['css_value'],
+				'preview'   => $color['css_value'],
 				'fit'       => 'cover',
 				'position'  => 'center center',
 			);
@@ -93,12 +94,38 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 		/**
 		 * Filter available Admin OS wallpapers.
 		 *
-		 * @param array<string,array<string,mixed>> $items Wallpaper items keyed by type:id.
+		 * @param array<string,array<string,mixed>> $items Wallpaper and color items keyed by type:id.
 		 * @param array<string,mixed>               $theme Current theme.
 		 */
 		$items = apply_filters( 'admin_os_mode_wallpapers', $items, $theme );
 
 		return $this->normalize_wallpaper_items( $items );
+	}
+
+	/**
+	 * Get client-facing wallpaper option groups.
+	 *
+	 * @param array<string,mixed> $theme Theme data.
+	 * @return array<string,array<int,array<string,mixed>>>
+	 */
+	private function get_grouped_options( $theme ) {
+		$groups = array(
+			'wallpapers' => array(),
+			'colors'     => array(),
+		);
+
+		foreach ( $this->get_available_wallpapers( $theme ) as $item ) {
+			if ( 'color' === $item['type'] ) {
+				$groups['colors'][] = $item;
+				continue;
+			}
+
+			if ( 'upload' !== $item['type'] ) {
+				$groups['wallpapers'][] = $item;
+			}
+		}
+
+		return $groups;
 	}
 
 	/**
@@ -167,7 +194,7 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 
 		if ( ! $item ) {
 			$item = array(
-				'type'      => 'gradient',
+				'type'      => 'color',
 				'id'        => 'none',
 				'label'     => __( 'Default', 'admin-os-mode' ),
 				'css_value' => 'none',
@@ -218,7 +245,7 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 		$item  = reset( $items );
 
 		return array(
-			'type'          => $item && ! empty( $item['type'] ) ? $item['type'] : 'gradient',
+			'type'          => $item && ! empty( $item['type'] ) ? $item['type'] : 'color',
 			'id'            => $item && ! empty( $item['id'] ) ? $item['id'] : 'aurora-mist',
 			'attachment_id' => 0,
 			'fit'           => 'cover',
@@ -357,12 +384,12 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 	}
 
 	/**
-	 * Get a translated label for a built-in gradient wallpaper.
+	 * Get a translated label for a built-in color background.
 	 *
-	 * @param string $id Wallpaper ID.
+	 * @param string $id Color background ID.
 	 * @return string
 	 */
-	private function get_gradient_label( $id ) {
+	private function get_color_label( $id ) {
 		switch ( sanitize_key( $id ) ) {
 			case 'blue-drift':
 				return __( 'Blue Drift', 'admin-os-mode' );

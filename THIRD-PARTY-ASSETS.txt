@@ -4,4 +4,6 @@ Admin OS Mode avoids bundled Apple-owned, Microsoft-owned, Canonical-owned, and 
 
 No third-party media assets are currently bundled.
 
+Bundled wallpaper files in assets/media/themes/adminos/default/wallpapers/ are original bitmap assets created for this plugin and are distributed under the plugin license.
+
 If future releases include third-party media, document each asset here with its source, license, file location, and redistribution notes.

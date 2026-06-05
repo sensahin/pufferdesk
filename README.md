@@ -143,7 +143,7 @@ Themes support family/version inheritance. A concrete theme can declare a parent
 
 Theme media fields are normalized to local `assets/media/` descriptors with `path` and `url` values, then exposed in the runtime theme config. Keep OS media original or licensed for redistribution.
 
-Wallpapers are managed by `Admin_OS_Mode_Wallpaper_Registry`. It combines theme-declared wallpaper collections, bundled original gradient wallpapers, and user-selected Media Library uploads, then resolves the active choice into `--aos-wallpaper-*` CSS variables for the shell. The older single `wallpaper` field remains a fallback for one-image themes, but new themes should declare `wallpapers` with stable item IDs. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing.
+Wallpapers are managed by `Admin_OS_Mode_Wallpaper_Registry`. It combines theme-declared image wallpaper collections, bundled original color backgrounds, and user-selected Media Library uploads, then resolves the active choice into `--aos-wallpaper-*` CSS variables for the shell. The older single `wallpaper` field remains a fallback for one-image themes, but new themes should declare `wallpapers` with stable item IDs. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing.
 
 Future phases can add optional alternate theme packs such as Redmond-style, classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the Admin OS identity rather than depending on another platform owner’s brand assets.
 

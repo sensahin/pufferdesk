@@ -169,6 +169,22 @@
 			return currentWallpaper && Array.isArray(currentWallpaper.items) ? currentWallpaper.items : [];
 		}
 
+		function getWallpaperGroup(key) {
+			if (
+				currentWallpaper &&
+				currentWallpaper.groups &&
+				Array.isArray(currentWallpaper.groups[key])
+			) {
+				return currentWallpaper.groups[key];
+			}
+
+			if (key === 'colors') {
+				return getWallpaperItems().filter((item) => item && item.type === 'color');
+			}
+
+			return getWallpaperItems().filter((item) => item && item.type !== 'upload' && item.type !== 'color');
+		}
+
 		function getAccentOption(value) {
 			return accentOptions.find((option) => option.value === value) || accentOptions[0];
 		}
@@ -462,7 +478,7 @@
 			return button;
 		}
 
-		function createWallpaperOption(item, status) {
+		function createWallpaperOption(item, status, extraClassName = '') {
 			const button = document.createElement('button');
 			const preview = dom.createElement('span', 'aos-settings-wallpaper-preview');
 			const label = dom.createElement('span', 'aos-settings-wallpaper-label', item.label || item.id);
@@ -473,7 +489,7 @@
 			});
 
 			button.type = 'button';
-			button.className = 'aos-settings-wallpaper-option';
+			button.className = `aos-settings-wallpaper-option ${extraClassName}`.trim();
 			button.dataset.aosWallpaperKey = key;
 			button.setAttribute('aria-pressed', 'false');
 			preview.style.backgroundImage = getWallpaperPreviewValue(item);
@@ -485,11 +501,11 @@
 			return button;
 		}
 
-		function createWallpaperGrid(status) {
-			const grid = dom.createElement('div', 'aos-settings-wallpaper-grid');
-			getWallpaperItems().forEach((item) => {
+		function createWallpaperGrid(status, items, className = '', optionClassName = '') {
+			const grid = dom.createElement('div', `aos-settings-wallpaper-grid ${className}`.trim());
+			items.forEach((item) => {
 				if (item && item.type !== 'upload') {
-					grid.appendChild(createWallpaperOption(item, status));
+					grid.appendChild(createWallpaperOption(item, status, optionClassName));
 				}
 			});
 
@@ -564,7 +580,7 @@
 		}
 
 		function createCustomWallpaperSection(status) {
-			const section = createSection('Custom Wallpaper', 'aos-settings-section-wallpaper-custom');
+			const section = createSection('Custom Image', 'aos-settings-section-wallpaper-custom');
 			const control = dom.createElement('div', 'aos-settings-wallpaper-custom-control');
 			const preview = dom.createElement('span', 'aos-settings-wallpaper-upload-preview');
 			const text = dom.createElement('span', 'aos-settings-wallpaper-upload-text');
@@ -590,6 +606,7 @@
 			const currentSection = createSection('', 'aos-settings-section-wallpaper-current');
 			const currentPreview = dom.createElement('div', 'aos-settings-wallpaper-current-preview');
 			const builtInSection = createSection('Built-in Wallpapers', 'aos-settings-section-wallpaper-builtins');
+			const colorSection = createSection('Colors', 'aos-settings-section-wallpaper-colors');
 			const resetSection = createSection('', 'aos-settings-section-wallpaper-reset');
 			const resetButton = createButton('Reset to Default');
 
@@ -597,10 +614,11 @@
 			wallpaperCurrentPreview = currentPreview;
 			currentPreview.setAttribute('aria-hidden', 'true');
 			currentSection.appendChild(currentPreview);
-			builtInSection.appendChild(createWallpaperGrid(status));
+			builtInSection.appendChild(createWallpaperGrid(status, getWallpaperGroup('wallpapers')));
+			colorSection.appendChild(createWallpaperGrid(status, getWallpaperGroup('colors'), 'aos-settings-wallpaper-color-grid', 'aos-settings-wallpaper-color-option'));
 			resetButton.addEventListener('click', () => resetWallpaper(status));
 			resetSection.appendChild(resetButton);
-			panel.append(currentSection, builtInSection, createCustomWallpaperSection(status), resetSection);
+			panel.append(currentSection, builtInSection, createCustomWallpaperSection(status), colorSection, resetSection);
 
 			return panel;
 		}

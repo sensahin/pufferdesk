@@ -184,7 +184,7 @@ final class Admin_OS_Mode_User_Preferences {
 		$sanitized = $this->default_wallpaper;
 		$type      = isset( $wallpaper['type'] ) ? sanitize_key( (string) $wallpaper['type'] ) : $sanitized['type'];
 
-		if ( in_array( $type, array( 'theme', 'gradient', 'upload' ), true ) ) {
+		if ( in_array( $type, array( 'theme', 'color', 'upload' ), true ) ) {
 			$sanitized['type'] = $type;
 		}
 

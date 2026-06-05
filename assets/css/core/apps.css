@@ -677,6 +677,21 @@
 	width: 100%;
 }
 
+.aos-settings-wallpaper-color-grid {
+	grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+}
+
+.aos-settings-wallpaper-color-option {
+	text-align: center;
+}
+
+.aos-settings-wallpaper-color-option .aos-settings-wallpaper-preview {
+	aspect-ratio: 1;
+	border-radius: 50%;
+	justify-self: center;
+	width: 48px;
+}
+
 .aos-settings-wallpaper-label {
 	overflow: hidden;
 	text-overflow: ellipsis;

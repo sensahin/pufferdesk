@@ -153,7 +153,7 @@ Themes:
 - Put visual language in theme CSS. Put behavior in core JS/PHP.
 - Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `wallpapers`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
 - Use `wallpapers` for a theme-managed wallpaper collection. The canonical shape is `array( 'default' => 'wallpaper-id', 'items' => array( array( 'id' => 'wallpaper-id', 'label' => 'Wallpaper Label', 'path' => 'themes/{family}/{version}/wallpapers/file.jpg' ) ) )`.
-- Use `Admin_OS_Mode_Wallpaper_Registry` for built-in gradients, theme wallpapers, upload validation, and `--aos-wallpaper-*` CSS-variable resolution. Do not read theme wallpaper URLs directly from templates or app JS.
+- Use `Admin_OS_Mode_Wallpaper_Registry` for built-in color backgrounds, theme image wallpapers, upload validation, and `--aos-wallpaper-*` CSS-variable resolution. Do not read theme wallpaper URLs directly from templates or app JS.
 - Keep OS media original, licensed for redistribution, or otherwise release-safe.
 - Template override resolution order is:
   1. `templates/themes/{theme_id}/{template}`

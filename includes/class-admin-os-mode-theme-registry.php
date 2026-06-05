@@ -22,12 +22,12 @@ final class Admin_OS_Mode_Theme_Registry {
 				'id'             => 'adminos-base',
 				'label'          => __( 'Admin OS Base', 'admin-os-mode' ),
 				'family'         => 'adminos',
-					'family_label'   => __( 'Admin OS', 'admin-os-mode' ),
-					'version'        => 'base',
-					'version_label'  => __( 'Base', 'admin-os-mode' ),
-					'stylesheet'     => 'adminos/base.css',
-					'abstract'       => true,
-				),
+				'family_label'   => __( 'Admin OS', 'admin-os-mode' ),
+				'version'        => 'base',
+				'version_label'  => __( 'Base', 'admin-os-mode' ),
+				'stylesheet'     => 'adminos/base.css',
+				'abstract'       => true,
+			),
 			'adminos' => array(
 				'id'             => 'adminos',
 				'label'          => __( 'Admin OS', 'admin-os-mode' ),
@@ -47,6 +47,51 @@ final class Admin_OS_Mode_Theme_Registry {
 								'label' => __( 'Aurora Flow', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/aurora-flow.jpg',
 							),
+							array(
+								'id'    => 'aqua-horizon',
+								'label' => __( 'Aqua Horizon', 'admin-os-mode' ),
+								'path'  => 'themes/adminos/default/wallpapers/aqua-horizon.jpg',
+							),
+							array(
+								'id'    => 'alpine-mist',
+								'label' => __( 'Alpine Mist', 'admin-os-mode' ),
+								'path'  => 'themes/adminos/default/wallpapers/alpine-mist.jpg',
+							),
+							array(
+								'id'    => 'canyon-light',
+								'label' => __( 'Canyon Light', 'admin-os-mode' ),
+								'path'  => 'themes/adminos/default/wallpapers/canyon-light.jpg',
+							),
+							array(
+								'id'    => 'coral-ridge',
+								'label' => __( 'Coral Ridge', 'admin-os-mode' ),
+								'path'  => 'themes/adminos/default/wallpapers/coral-ridge.jpg',
+							),
+							array(
+								'id'    => 'glacier-bloom',
+								'label' => __( 'Glacier Bloom', 'admin-os-mode' ),
+								'path'  => 'themes/adminos/default/wallpapers/glacier-bloom.jpg',
+							),
+							array(
+								'id'    => 'indigo-dunes',
+								'label' => __( 'Indigo Dunes', 'admin-os-mode' ),
+								'path'  => 'themes/adminos/default/wallpapers/indigo-dunes.jpg',
+							),
+							array(
+								'id'    => 'jade-current',
+								'label' => __( 'Jade Current', 'admin-os-mode' ),
+								'path'  => 'themes/adminos/default/wallpapers/jade-current.jpg',
+							),
+							array(
+								'id'    => 'lunar-peak',
+								'label' => __( 'Lunar Peak', 'admin-os-mode' ),
+								'path'  => 'themes/adminos/default/wallpapers/lunar-peak.jpg',
+							),
+							array(
+								'id'    => 'prism-lake',
+								'label' => __( 'Prism Lake', 'admin-os-mode' ),
+								'path'  => 'themes/adminos/default/wallpapers/prism-lake.jpg',
+							),
 						),
 					),
 					'icon_pack'   => 'themes/adminos/default/icons',
@@ -60,8 +105,8 @@ final class Admin_OS_Mode_Theme_Registry {
 		 *
 		 * Theme keys are stable IDs. Values accept:
 		 * id, label, family, family_label, version, version_label, parent,
-			 * stylesheet, stylesheets, media, wallpaper, icon_pack, cursor_pack,
-			 * and abstract.
+			 * stylesheet, stylesheets, media, wallpaper, wallpapers, icon_pack,
+			 * cursor_pack, and abstract.
 		 *
 		 * @param array<string,array<string,mixed>> $themes Registered themes.
 		 */
