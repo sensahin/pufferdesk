@@ -121,9 +121,7 @@ final class Admin_OS_Mode_Settings_Controller {
 				'mode'              => $this->read_post_value( 'mode' ),
 				'window_material'   => $this->read_post_value( 'window_material' ),
 				'accent_color'      => $this->read_post_value( 'accent_color' ),
-				'highlight_color'   => $this->read_post_value( 'highlight_color' ),
 				'icon_widget_style' => $this->read_post_value( 'icon_widget_style' ),
-				'folder_color'      => $this->read_post_value( 'folder_color' ),
 				'tint_windows'      => $this->read_post_value( 'tint_windows' ),
 			)
 		);

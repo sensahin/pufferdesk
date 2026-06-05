@@ -39,9 +39,7 @@ $admin_os_mode_appearance = wp_parse_args(
 		'mode'              => 'light',
 		'window_material'   => 'clear',
 		'accent_color'      => 'multicolor',
-		'highlight_color'   => 'automatic',
 		'icon_widget_style' => 'default',
-		'folder_color'      => 'automatic',
 		'tint_windows'      => true,
 	)
 );
@@ -58,9 +56,7 @@ $admin_os_mode_shell_attributes     = array(
 	'data-aos-effective-appearance' => $admin_os_mode_effective_appearance,
 	'data-aos-window-material'    => $admin_os_mode_appearance['window_material'],
 	'data-aos-accent-color'       => $admin_os_mode_appearance['accent_color'],
-	'data-aos-highlight-color'    => $admin_os_mode_appearance['highlight_color'],
 	'data-aos-icon-widget-style'  => $admin_os_mode_appearance['icon_widget_style'],
-	'data-aos-folder-color'       => $admin_os_mode_appearance['folder_color'],
 	'data-aos-tint-windows'       => ! empty( $admin_os_mode_appearance['tint_windows'] ) ? '1' : '0',
 );
 if ( $admin_os_mode_shell_style ) {

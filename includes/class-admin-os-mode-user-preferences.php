@@ -28,9 +28,7 @@ final class Admin_OS_Mode_User_Preferences {
 		'mode'           => 'light',
 		'window_material' => 'clear',
 		'accent_color'   => 'multicolor',
-		'highlight_color' => 'automatic',
 		'icon_widget_style' => 'default',
-		'folder_color'   => 'automatic',
 		'tint_windows'   => true,
 	);
 
@@ -43,9 +41,7 @@ final class Admin_OS_Mode_User_Preferences {
 		'mode'              => array( 'auto', 'light', 'dark' ),
 		'window_material'   => array( 'clear', 'tinted' ),
 		'accent_color'      => array( 'multicolor', 'blue', 'purple', 'pink', 'red', 'orange', 'yellow', 'green', 'graphite' ),
-		'highlight_color'   => array( 'automatic' ),
 		'icon_widget_style' => array( 'default', 'dark', 'clear', 'tinted' ),
-		'folder_color'      => array( 'automatic' ),
 	);
 
 	/**

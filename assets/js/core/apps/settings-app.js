@@ -1672,14 +1672,12 @@
 
 		const themeSection = createSection('', 'aos-settings-section-theme');
 		themeSection.appendChild(createSettingsRow('Color', createAccentGroup(status)));
-		themeSection.appendChild(createSingleOptionSelect('Text highlight color'));
 		themeSection.appendChild(createSettingsRow('Icon & widget style', createOptionGroup('icon_widget_style', [
 			{ value: 'default', label: 'Default' },
 			{ value: 'dark', label: 'Dark' },
 			{ value: 'clear', label: 'Clear' },
 			{ value: 'tinted', label: 'Tinted' }
 		], status, 'aos-settings-icon-option', 'aos-settings-icon-preview')));
-		themeSection.appendChild(createSingleOptionSelect('Folder color'));
 
 		const windowSection = createSection('', 'aos-settings-section-windows');
 		windowSection.appendChild(createSettingsRow('Tint window background with wallpaper color', createToggle(status)));

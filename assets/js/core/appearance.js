@@ -7,9 +7,7 @@
 		mode: 'light',
 		window_material: 'clear',
 		accent_color: 'multicolor',
-		highlight_color: 'automatic',
 		icon_widget_style: 'default',
-		folder_color: 'automatic',
 		tint_windows: true
 	};
 
@@ -17,9 +15,7 @@
 		mode: ['auto', 'light', 'dark'],
 		window_material: ['clear', 'tinted'],
 		accent_color: ['multicolor', 'blue', 'purple', 'pink', 'red', 'orange', 'yellow', 'green', 'graphite'],
-		highlight_color: ['automatic'],
-		icon_widget_style: ['default', 'dark', 'clear', 'tinted'],
-		folder_color: ['automatic']
+		icon_widget_style: ['default', 'dark', 'clear', 'tinted']
 	};
 
 	function rgba(rgb, alpha) {
@@ -92,9 +88,7 @@
 			mode: getAllowedValue('mode', appearance.mode),
 			window_material: getAllowedValue('window_material', appearance.window_material),
 			accent_color: getAllowedValue('accent_color', appearance.accent_color),
-			highlight_color: getAllowedValue('highlight_color', appearance.highlight_color),
 			icon_widget_style: getAllowedValue('icon_widget_style', appearance.icon_widget_style),
-			folder_color: getAllowedValue('folder_color', appearance.folder_color),
 			tint_windows: Object.prototype.hasOwnProperty.call(appearance, 'tint_windows')
 				? normalizeBoolean(appearance.tint_windows)
 				: defaults.tint_windows
@@ -137,9 +131,7 @@
 		shell.dataset.aosEffectiveAppearance = getEffectiveMode(currentAppearance);
 		shell.dataset.aosWindowMaterial = currentAppearance.window_material;
 		shell.dataset.aosAccentColor = currentAppearance.accent_color;
-		shell.dataset.aosHighlightColor = currentAppearance.highlight_color;
 		shell.dataset.aosIconWidgetStyle = currentAppearance.icon_widget_style;
-		shell.dataset.aosFolderColor = currentAppearance.folder_color;
 		shell.dataset.aosTintWindows = currentAppearance.tint_windows ? '1' : '0';
 		applyAccent(shell, currentAppearance.accent_color);
 
