@@ -848,11 +848,20 @@
 	height: 14px;
 	justify-content: center;
 	left: -5px;
+	opacity: 0;
 	padding: 0;
+	pointer-events: none;
 	position: absolute;
 	top: -5px;
+	transition: opacity 0.12s ease;
 	width: 14px;
 	z-index: 2;
+}
+
+.aos-settings-wallpaper-photo-item:hover .aos-settings-wallpaper-remove-photo:not([hidden]),
+.aos-settings-wallpaper-photo-item:focus-within .aos-settings-wallpaper-remove-photo:not([hidden]) {
+	opacity: 1;
+	pointer-events: auto;
 }
 
 .aos-settings-wallpaper-remove-photo[hidden] {

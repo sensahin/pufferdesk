@@ -269,11 +269,16 @@ final class Admin_OS_Mode_User_Preferences {
 			return $this->get_wallpaper_uploads( $user_id );
 		}
 
+		$uploads = $this->get_wallpaper_uploads( $user_id );
+		if ( in_array( $attachment_id, $uploads, true ) ) {
+			return $uploads;
+		}
+
 		$uploads = array_values(
 			array_unique(
 				array_merge(
 					array( $attachment_id ),
-					$this->get_wallpaper_uploads( $user_id )
+					$uploads
 				)
 			)
 		);
