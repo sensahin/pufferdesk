@@ -518,6 +518,33 @@ button.aos-settings-profile-action:focus {
 	width: 8px;
 }
 
+.aos-settings-profile-footer {
+	display: flex;
+	justify-content: flex-start;
+	padding: 0;
+}
+
+.aos-settings-profile-sign-out {
+	appearance: none;
+	background: var(--aos-control-bg);
+	border: 1px solid transparent;
+	border-radius: 9px;
+	color: var(--aos-ink);
+	cursor: default;
+	font-family: inherit;
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-semibold);
+	line-height: var(--aos-line-height-body);
+	min-height: 31px;
+	padding: 0 17px;
+}
+
+.aos-settings-profile-sign-out:hover,
+.aos-settings-profile-sign-out:focus {
+	background: var(--aos-control-bg-hover);
+	outline: none;
+}
+
 .aos-settings-sidebar-nav {
 	display: grid;
 	gap: 2px;

@@ -934,38 +934,29 @@
 			return icon;
 		}
 
+		function executeMenuCommand(command, options = {}) {
+			const commands = window.AdminOSMode && window.AdminOSMode.menuCommands;
+
+			if (commands && typeof commands.execute === 'function') {
+				commands.execute({
+					command,
+					icon: options.icon || '',
+					label: options.label || '',
+					url: options.url || ''
+				});
+			}
+		}
+
 		function createProfileActionRow(options = {}) {
 			const hasUrl = Boolean(options.url);
-			const hasCommand = Boolean(options.command);
-			const row = hasUrl || hasCommand ? document.createElement('button') : dom.createElement('div');
+			const row = hasUrl ? document.createElement('button') : dom.createElement('div');
 			const text = dom.createElement('span', 'aos-settings-profile-row-text');
 
-			if (hasUrl || hasCommand) {
+			if (hasUrl) {
 				row.type = 'button';
-			}
-
-			if (hasUrl && !hasCommand) {
 				row.dataset.aosOpenUrl = options.url;
 				row.dataset.aosTitle = options.windowTitle || options.label || 'WordPress Profile';
 				row.dataset.aosIcon = options.icon || 'dashicons-admin-users';
-			}
-
-			if (hasCommand) {
-				row.addEventListener('click', (event) => {
-					const commands = window.AdminOSMode && window.AdminOSMode.menuCommands;
-					const item = {
-						command: options.command,
-						icon: options.icon || '',
-						label: options.label || '',
-						url: options.url || ''
-					};
-
-					event.preventDefault();
-					event.stopPropagation();
-					if (commands && typeof commands.execute === 'function') {
-						commands.execute(item);
-					}
-				});
 			}
 
 			row.className = 'aos-settings-profile-action';
@@ -978,11 +969,31 @@
 
 			if (options.value) {
 				row.appendChild(dom.createElement('span', 'aos-settings-profile-row-value', options.value));
-			} else if (hasUrl || hasCommand) {
+			} else if (hasUrl) {
 				row.appendChild(dom.createElement('span', 'aos-settings-profile-row-chevron'));
 			}
 
 			return row;
+		}
+
+		function createProfileSignOutButton() {
+			const footer = dom.createElement('div', 'aos-settings-profile-footer');
+			const button = document.createElement('button');
+
+			button.type = 'button';
+			button.className = 'aos-settings-profile-sign-out';
+			button.textContent = 'Sign Out...';
+			button.addEventListener('click', () => {
+				executeMenuCommand('user.logout', {
+					icon: 'dashicons-migrate',
+					label: 'Sign Out...',
+					url: config.logoutUrl || ''
+				});
+			});
+
+			footer.appendChild(button);
+
+			return footer;
 		}
 
 		function createProfilePanel() {
@@ -1017,16 +1028,8 @@
 				tone: 'gray',
 				value: role
 			}));
-			accountSection.appendChild(createProfileActionRow({
-				command: 'user.logout',
-				description: 'End this WordPress session',
-				icon: 'dashicons-migrate',
-				label: 'Sign Out...',
-				tone: 'red',
-				url: config.logoutUrl || ''
-			}));
 
-			panel.append(hero, accountSection);
+			panel.append(hero, accountSection, createProfileSignOutButton());
 
 			return panel;
 		}
