@@ -3,6 +3,16 @@
 	box-sizing: border-box;
 }
 
+.aos-shell input,
+.aos-shell select,
+.aos-shell textarea {
+	accent-color: var(--aos-accent);
+}
+
+.aos-shell ::selection {
+	background: var(--aos-highlight);
+}
+
 .aos-shell {
 	--aos-ink: #1d2327;
 	--aos-muted: #646970;
@@ -45,19 +55,19 @@
 	--aos-menu-bg: var(--aos-material-bar-bg);
 	--aos-menu-border: var(--aos-material-bar-border);
 	--aos-menu-shadow: var(--aos-material-bar-shadow);
-	--aos-menu-active-bg: rgba(0, 0, 0, 0.11);
+	--aos-menu-active-bg: var(--aos-accent-active-strong);
 	--aos-menu-popover-bg: var(--aos-material-popover-bg);
 	--aos-menu-popover-border: var(--aos-material-popover-border);
 	--aos-menu-popover-shadow: var(--aos-material-popover-shadow);
 	--aos-menu-popover-ink: #17212b;
 	--aos-menu-popover-muted: rgba(23, 33, 43, 0.48);
 	--aos-menu-popover-separator: rgba(23, 33, 43, 0.14);
-	--aos-menu-selection-active-bg: var(--aos-menu-active-bg);
-	--aos-menu-selection-bg: var(--aos-control-bg-hover);
-	--aos-menu-selection-border: transparent;
+	--aos-menu-selection-active-bg: var(--aos-accent-active-strong);
+	--aos-menu-selection-bg: var(--aos-accent-medium);
+	--aos-menu-selection-border: var(--aos-accent-soft);
 	--aos-menu-selection-shadow: none;
-	--aos-menu-item-hover-bg: #0a84ff;
-	--aos-menu-item-hover-ink: #fff;
+	--aos-menu-item-hover-bg: var(--aos-accent);
+	--aos-menu-item-hover-ink: var(--aos-accent-ink);
 	--aos-menu-item-disabled: rgba(23, 33, 43, 0.32);
 	--aos-layer-dock: 9000;
 	--aos-layer-menu: 10000;
@@ -84,6 +94,13 @@
 	--aos-tile-border: var(--aos-material-solid-border);
 	--aos-tile-shadow: var(--aos-material-card-shadow);
 	--aos-accent: #2271b1;
+	--aos-accent-rgb: 34 113 177;
+	--aos-accent-ink: #fff;
+	--aos-accent-soft: rgba(34, 113, 177, 0.16);
+	--aos-accent-medium: rgba(34, 113, 177, 0.28);
+	--aos-accent-active: rgba(34, 113, 177, 0.82);
+	--aos-accent-active-strong: linear-gradient(180deg, rgba(34, 113, 177, 0.92), rgba(34, 113, 177, 0.78));
+	--aos-highlight: rgba(34, 113, 177, 0.18);
 	--aos-window-bar-bg: #fff;
 	--aos-window-bar-border: rgba(0, 0, 0, 0.08);
 	--aos-window-maximized-edge: 9px;
@@ -205,6 +222,7 @@
 	backdrop-filter: var(--aos-material-control-filter);
 	background: var(--aos-menu-selection-bg);
 	box-shadow: inset 0 0 0 1px var(--aos-menu-selection-border), var(--aos-menu-selection-shadow);
+	color: var(--aos-accent-ink);
 	outline: none;
 }
 
@@ -265,7 +283,7 @@
 	backdrop-filter: var(--aos-material-control-filter);
 	background: var(--aos-menu-selection-bg);
 	box-shadow: inset 0 0 0 1px var(--aos-menu-selection-border), var(--aos-menu-selection-shadow);
-	color: var(--aos-ink);
+	color: var(--aos-accent-ink);
 	outline: none;
 }
 

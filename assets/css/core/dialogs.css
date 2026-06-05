@@ -117,7 +117,7 @@
 	background: var(--aos-accent);
 	border-color: var(--aos-accent);
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.24) inset;
-	color: #fff;
+	color: var(--aos-accent-ink);
 }
 
 .aos-shell-dialog-button-primary:hover,
@@ -229,7 +229,7 @@
 
 .aos-shell-action-dialog-checkbox-box {
 	background: rgba(255, 255, 255, 0.12);
-	border: 2px solid rgba(10, 132, 255, 0.7);
+	border: 2px solid var(--aos-accent);
 	border-radius: 7px;
 	display: inline-block;
 	flex: 0 0 auto;
@@ -239,7 +239,7 @@
 }
 
 .aos-shell-action-dialog-checkbox input:checked + .aos-shell-action-dialog-checkbox-box {
-	background: rgba(10, 132, 255, 0.94);
+	background: var(--aos-accent);
 }
 
 .aos-shell-action-dialog-checkbox input:focus-visible + .aos-shell-action-dialog-checkbox-box {
@@ -247,8 +247,8 @@
 }
 
 .aos-shell-action-dialog-checkbox input:checked + .aos-shell-action-dialog-checkbox-box::after {
-	border-bottom: 2px solid #fff;
-	border-right: 2px solid #fff;
+	border-bottom: 2px solid var(--aos-accent-ink);
+	border-right: 2px solid var(--aos-accent-ink);
 	content: "";
 	height: 9px;
 	left: 6px;
@@ -286,6 +286,7 @@
 	background: var(--aos-accent);
 	border: 0;
 	box-shadow: none;
+	color: var(--aos-accent-ink);
 }
 
 .aos-shell-action-dialog-actions .aos-shell-dialog-button-primary:hover,

@@ -493,7 +493,7 @@
 
 .aos-settings-profile.is-active {
 	background: var(--aos-accent);
-	color: #fff;
+	color: var(--aos-accent-ink);
 }
 
 .aos-settings-profile.is-active:active {
@@ -501,7 +501,8 @@
 }
 
 .aos-settings-profile.is-active .aos-settings-profile-text span {
-	color: rgba(255, 255, 255, 0.78);
+	color: var(--aos-accent-ink);
+	opacity: 0.78;
 }
 
 .aos-settings-profile-avatar,
@@ -697,7 +698,7 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 
 .aos-settings-sidebar-item.is-active {
 	background: var(--aos-accent);
-	color: #fff;
+	color: var(--aos-accent-ink);
 }
 
 .aos-settings-sidebar-item:not(:disabled):focus {
@@ -930,6 +931,7 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 
 .aos-settings-control,
 .aos-settings-button {
+	accent-color: var(--aos-accent);
 	background: var(--aos-tile-bg);
 	border: 1px solid var(--aos-tile-border);
 	border-radius: 7px;
@@ -1221,6 +1223,7 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 
 .aos-settings-range-field input[type="range"] {
 	appearance: none;
+	accent-color: var(--aos-accent);
 	background: transparent;
 	height: 15px;
 	width: 100%;
@@ -1326,6 +1329,10 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	width: 23px;
 }
 
+.aos-settings-inline-select:focus-within .aos-settings-select-chevrons {
+	background: var(--aos-accent);
+}
+
 .aos-settings-select-chevrons::before,
 .aos-settings-select-chevrons::after {
 	border-right: 2px solid var(--aos-muted);
@@ -1335,6 +1342,11 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	left: 8px;
 	position: absolute;
 	width: 5px;
+}
+
+.aos-settings-inline-select:focus-within .aos-settings-select-chevrons::before,
+.aos-settings-inline-select:focus-within .aos-settings-select-chevrons::after {
+	border-color: var(--aos-accent-ink);
 }
 
 .aos-settings-select-chevrons::before {
@@ -1440,6 +1452,12 @@ button.aos-settings-action-row:active {
 .aos-settings-button:hover,
 .aos-settings-button:focus {
 	background: var(--aos-panel);
+	outline: none;
+}
+
+.aos-settings-control:focus-visible,
+.aos-settings-button:focus-visible {
+	box-shadow: 0 0 0 3px var(--aos-focus-ring);
 	outline: none;
 }
 

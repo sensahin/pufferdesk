@@ -49,19 +49,19 @@
 	--aos-menu-bg: var(--aos-material-bar-bg);
 	--aos-menu-border: var(--aos-material-bar-border);
 	--aos-menu-shadow: var(--aos-material-bar-shadow);
-	--aos-menu-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(14, 24, 37, 0.26));
+	--aos-menu-active-bg: var(--aos-accent-active-strong);
 	--aos-menu-popover-bg: var(--aos-material-popover-bg);
 	--aos-menu-popover-border: var(--aos-material-popover-border);
 	--aos-menu-popover-shadow: var(--aos-material-popover-shadow);
 	--aos-menu-popover-ink: #1c252d;
 	--aos-menu-popover-muted: rgba(28, 37, 45, 0.38);
 	--aos-menu-popover-separator: rgba(28, 37, 45, 0.16);
-	--aos-menu-selection-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(11, 23, 36, 0.32));
-	--aos-menu-selection-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(18, 31, 46, 0.2));
-	--aos-menu-selection-border: rgba(255, 255, 255, 0.12);
+	--aos-menu-selection-active-bg: var(--aos-accent-active-strong);
+	--aos-menu-selection-bg: var(--aos-accent-medium);
+	--aos-menu-selection-border: var(--aos-accent-soft);
 	--aos-menu-selection-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-	--aos-menu-item-hover-bg: #0a84ff;
-	--aos-menu-item-hover-ink: #fff;
+	--aos-menu-item-hover-bg: var(--aos-accent);
+	--aos-menu-item-hover-ink: var(--aos-accent-ink);
 	--aos-menu-item-disabled: rgba(28, 37, 45, 0.3);
 	--aos-control-bg: var(--aos-material-control-bg);
 	--aos-control-bg-hover: var(--aos-material-control-hover-bg);
@@ -72,6 +72,12 @@
 	--aos-tile-border: rgba(255, 255, 255, 0.68);
 	--aos-tile-shadow: var(--aos-material-card-shadow);
 	--aos-accent: #157a82;
+	--aos-accent-rgb: 21 122 130;
+	--aos-accent-ink: #fff;
+	--aos-accent-soft: rgba(21, 122, 130, 0.18);
+	--aos-accent-medium: rgba(21, 122, 130, 0.3);
+	--aos-accent-active: rgba(21, 122, 130, 0.82);
+	--aos-accent-active-strong: linear-gradient(180deg, rgba(21, 122, 130, 0.92), rgba(21, 122, 130, 0.78));
 	--aos-running-indicator: #f6f7f8;
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(235, 241, 245, 0.7));
 	--aos-window-bar-border: rgba(20, 37, 51, 0.08);
@@ -127,6 +133,7 @@
 	-webkit-backdrop-filter: var(--aos-material-control-filter);
 	backdrop-filter: var(--aos-material-control-filter);
 	background: var(--aos-menu-selection-bg);
+	color: var(--aos-accent-ink);
 	outline: none;
 }
 
@@ -152,7 +159,7 @@
 	-webkit-backdrop-filter: var(--aos-material-control-filter);
 	backdrop-filter: var(--aos-material-control-filter);
 	background: var(--aos-menu-selection-bg);
-	color: #fff;
+	color: var(--aos-accent-ink);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-menu-items button.is-active {
@@ -605,7 +612,7 @@
 	--aos-dock-tooltip-border: transparent;
 	--aos-dock-tooltip-color: rgba(255, 255, 255, 0.94);
 	--aos-dock-tooltip-shadow: none;
-	--aos-menu-active-bg: rgba(78, 72, 126, 0.9);
+	--aos-menu-active-bg: var(--aos-accent-active-strong);
 	--aos-menu-popover-bg: var(--aos-material-popover-bg);
 	--aos-menu-popover-border: var(--aos-material-popover-border);
 	--aos-menu-popover-shadow: var(--aos-material-popover-shadow);

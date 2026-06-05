@@ -22,52 +22,47 @@
 		folder_color: ['automatic']
 	};
 
+	function rgba(rgb, alpha) {
+		return `rgba(${rgb.join(', ')}, ${alpha})`;
+	}
+
+	function defineAccent(color, rgb, options = {}) {
+		const ink = options.ink || '#fff';
+
+		return {
+			color,
+			rgb: rgb.join(' '),
+			ink,
+			focus: rgba(rgb, options.focus || 0.34),
+			highlight: rgba(rgb, options.highlight || 0.18),
+			soft: rgba(rgb, options.soft || 0.16),
+			medium: rgba(rgb, options.medium || 0.28),
+			active: rgba(rgb, options.active || 0.82),
+			activeStrong: `linear-gradient(180deg, ${rgba(rgb, options.activeTop || 0.92)}, ${rgba(rgb, options.activeBottom || 0.78)})`
+		};
+	}
+
 	const accentColors = {
-		multicolor: {
-			color: '#0a84ff',
-			focus: 'rgba(10, 132, 255, 0.38)',
-			highlight: 'rgba(10, 132, 255, 0.2)'
-		},
-		blue: {
-			color: '#0a84ff',
-			focus: 'rgba(10, 132, 255, 0.38)',
-			highlight: 'rgba(10, 132, 255, 0.2)'
-		},
-		purple: {
-			color: '#9b3fb0',
-			focus: 'rgba(155, 63, 176, 0.34)',
-			highlight: 'rgba(155, 63, 176, 0.18)'
-		},
-		pink: {
-			color: '#f0449a',
-			focus: 'rgba(240, 68, 154, 0.34)',
-			highlight: 'rgba(240, 68, 154, 0.18)'
-		},
-		red: {
-			color: '#ed333b',
-			focus: 'rgba(237, 51, 59, 0.34)',
-			highlight: 'rgba(237, 51, 59, 0.18)'
-		},
-		orange: {
-			color: '#ff7a16',
-			focus: 'rgba(255, 122, 22, 0.34)',
-			highlight: 'rgba(255, 122, 22, 0.18)'
-		},
-		yellow: {
-			color: '#ffc226',
-			focus: 'rgba(255, 194, 38, 0.34)',
-			highlight: 'rgba(255, 194, 38, 0.2)'
-		},
-		green: {
-			color: '#58b947',
-			focus: 'rgba(88, 185, 71, 0.34)',
-			highlight: 'rgba(88, 185, 71, 0.18)'
-		},
-		graphite: {
-			color: '#8e8e93',
-			focus: 'rgba(142, 142, 147, 0.34)',
-			highlight: 'rgba(142, 142, 147, 0.18)'
-		}
+		multicolor: defineAccent('#157a82', [21, 122, 130], {
+			focus: 0.42,
+			highlight: 0.2,
+			soft: 0.18,
+			medium: 0.3
+		}),
+		blue: defineAccent('#0a84ff', [10, 132, 255], {
+			focus: 0.38,
+			highlight: 0.2
+		}),
+		purple: defineAccent('#9b3fb0', [155, 63, 176]),
+		pink: defineAccent('#f0449a', [240, 68, 154]),
+		red: defineAccent('#ed333b', [237, 51, 59]),
+		orange: defineAccent('#ff7a16', [255, 122, 22]),
+		yellow: defineAccent('#ffc226', [255, 194, 38], {
+			highlight: 0.2,
+			ink: '#2f2815'
+		}),
+		green: defineAccent('#58b947', [88, 185, 71]),
+		graphite: defineAccent('#8e8e93', [142, 142, 147])
 	};
 
 	let currentAppearance = Object.assign({}, defaults);
@@ -122,6 +117,12 @@
 		const accent = accentColors[accentColor] || accentColors.multicolor;
 
 		shell.style.setProperty('--aos-accent', accent.color);
+		shell.style.setProperty('--aos-accent-rgb', accent.rgb);
+		shell.style.setProperty('--aos-accent-ink', accent.ink);
+		shell.style.setProperty('--aos-accent-soft', accent.soft);
+		shell.style.setProperty('--aos-accent-medium', accent.medium);
+		shell.style.setProperty('--aos-accent-active', accent.active);
+		shell.style.setProperty('--aos-accent-active-strong', accent.activeStrong);
 		shell.style.setProperty('--aos-focus-ring', accent.focus);
 		shell.style.setProperty('--aos-highlight', accent.highlight);
 	}
