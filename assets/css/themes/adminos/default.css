@@ -437,6 +437,13 @@
 	--aos-menu-popover-muted: rgba(243, 246, 251, 0.46);
 	--aos-menu-popover-separator: rgba(243, 246, 251, 0.18);
 	--aos-menu-item-disabled: rgba(243, 246, 251, 0.3);
+	--aos-dialog-bg: rgba(33, 40, 39, 0.9);
+	--aos-dialog-border: rgba(132, 150, 142, 0.42);
+	--aos-dialog-ink: #e7e9e8;
+	--aos-dialog-muted: rgba(215, 219, 218, 0.76);
+	--aos-dialog-button-bg: rgba(255, 255, 255, 0.1);
+	--aos-dialog-button-border: rgba(255, 255, 255, 0.16);
+	--aos-dialog-button-hover-bg: rgba(255, 255, 255, 0.16);
 	--aos-scrollbar-track: rgba(255, 255, 255, 0.05);
 	--aos-scrollbar-thumb: rgba(214, 218, 225, 0.54);
 	--aos-scrollbar-thumb-hover: rgba(231, 234, 240, 0.68);

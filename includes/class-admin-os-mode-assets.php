@@ -258,6 +258,10 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/shell/search.js',
 				'deps' => array( 'admin-os-mode-config' ),
 			),
+			'admin-os-mode-shell-dialogs'  => array(
+				'path' => 'assets/js/core/shell/dialogs.js',
+				'deps' => array(),
+			),
 			'admin-os-mode-menu-commands'  => array(
 				'path' => 'assets/js/core/shell/commands.js',
 				'deps' => array( 'admin-os-mode-dom' ),
@@ -284,7 +288,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-boot'           => array(
 				'path' => 'assets/js/core/boot.js',
-				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-clock' ),
+				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-clock' ),
 			),
 		);
 
@@ -358,6 +362,13 @@ final class Admin_OS_Mode_Assets {
 					'name'     => 'os-settings.svg',
 					'fallback' => 'dashicons-admin-generic',
 				),
+			),
+			'restart' => array(
+				'confirmTitle'   => __( 'Restart Admin OS?', 'admin-os-mode' ),
+				'confirmMessage' => __( 'Open windows will reload, but your saved layout will be preserved.', 'admin-os-mode' ),
+				'confirmLabel'   => __( 'Restart', 'admin-os-mode' ),
+				'cancelLabel'    => __( 'Cancel', 'admin-os-mode' ),
+				'overlayMessage' => __( 'Restarting Admin OS...', 'admin-os-mode' ),
 			),
 		);
 	}
@@ -529,6 +540,7 @@ final class Admin_OS_Mode_Assets {
 				$core_styles,
 				array(
 					'admin-os-mode-core-shell'      => 'assets/css/core/shell.css',
+					'admin-os-mode-core-dialogs'    => 'assets/css/core/dialogs.css',
 					'admin-os-mode-core-context'    => 'assets/css/core/context-menu.css',
 					'admin-os-mode-core-desktop'    => 'assets/css/core/desktop.css',
 					'admin-os-mode-core-widgets'    => 'assets/css/core/widgets.css',

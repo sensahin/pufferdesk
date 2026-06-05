@@ -1,0 +1,127 @@
+.aos-shell-dialog-layer,
+.aos-shell-restart-overlay {
+	align-items: center;
+	background: rgba(0, 0, 0, 0);
+	display: flex;
+	inset: 0;
+	justify-content: center;
+	opacity: 0;
+	pointer-events: auto;
+	position: absolute;
+	transition: opacity 140ms ease, background-color 140ms ease;
+	z-index: var(--aos-layer-overlay);
+}
+
+.aos-shell-dialog-layer.is-visible {
+	background: rgba(0, 0, 0, 0.12);
+	opacity: 1;
+}
+
+.aos-shell-dialog {
+	-webkit-backdrop-filter: blur(28px) saturate(150%);
+	backdrop-filter: blur(28px) saturate(150%);
+	background: var(--aos-dialog-bg);
+	border: 1px solid var(--aos-dialog-border);
+	border-radius: 14px;
+	box-shadow: 0 22px 70px rgba(0, 0, 0, 0.26);
+	color: var(--aos-dialog-ink);
+	display: grid;
+	gap: 9px;
+	max-width: min(360px, calc(100% - 48px));
+	padding: 18px 18px 14px;
+	text-align: center;
+	transform: translateY(8px) scale(0.985);
+	transition: transform 140ms ease;
+	width: 320px;
+}
+
+.aos-shell-dialog-layer.is-visible .aos-shell-dialog {
+	transform: translateY(0) scale(1);
+}
+
+.aos-shell-dialog-title {
+	color: inherit;
+	font-family: var(--aos-font-display);
+	font-size: 15px;
+	font-weight: var(--aos-weight-semibold);
+	letter-spacing: 0;
+	line-height: var(--aos-line-height-body);
+	margin: 0;
+}
+
+.aos-shell-dialog-message {
+	color: var(--aos-dialog-muted);
+	font-family: var(--aos-font-ui);
+	font-size: 12px;
+	font-weight: var(--aos-weight-medium);
+	line-height: 1.3;
+	margin: 0;
+}
+
+.aos-shell-dialog-actions {
+	display: flex;
+	gap: 8px;
+	justify-content: flex-end;
+	margin-top: 5px;
+}
+
+.aos-shell-dialog-button {
+	appearance: none;
+	background: var(--aos-dialog-button-bg);
+	border: 1px solid var(--aos-dialog-button-border);
+	border-radius: 7px;
+	color: var(--aos-dialog-ink);
+	cursor: default;
+	font-family: var(--aos-font-ui);
+	font-size: 12px;
+	font-weight: var(--aos-weight-medium);
+	line-height: 1;
+	min-height: 26px;
+	min-width: 76px;
+	padding: 0 12px;
+}
+
+.aos-shell-dialog-button:hover,
+.aos-shell-dialog-button:focus {
+	background: var(--aos-dialog-button-hover-bg);
+	outline: none;
+}
+
+.aos-shell-dialog-button:focus-visible {
+	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(10, 132, 255, 0.28));
+}
+
+.aos-shell-dialog-button-primary {
+	background: var(--aos-accent);
+	border-color: var(--aos-accent);
+	color: #fff;
+}
+
+.aos-shell-dialog-button-primary:hover,
+.aos-shell-dialog-button-primary:focus {
+	background: var(--aos-accent);
+	filter: brightness(1.05);
+}
+
+.aos-shell-restart-overlay {
+	background: rgba(0, 0, 0, 0.26);
+	color: #fff;
+	font-family: var(--aos-font-ui);
+	font-size: 13px;
+	font-weight: var(--aos-weight-semibold);
+	letter-spacing: 0;
+}
+
+.aos-shell-restart-overlay.is-visible {
+	opacity: 1;
+}
+
+.aos-shell-restart-message {
+	-webkit-backdrop-filter: blur(28px) saturate(150%);
+	backdrop-filter: blur(28px) saturate(150%);
+	background: rgba(20, 24, 31, 0.56);
+	border: 1px solid rgba(255, 255, 255, 0.22);
+	border-radius: 999px;
+	box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+	padding: 10px 18px;
+}

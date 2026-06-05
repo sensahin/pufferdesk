@@ -17,6 +17,7 @@
 			!window.AdminOSMode.widgets ||
 			!window.AdminOSMode.apps ||
 			!window.AdminOSMode.shell ||
+			!window.AdminOSMode.shell.createShellDialogs ||
 			!window.AdminOSMode.shell.createCommandRegistry ||
 			!window.AdminOSMode.shell.createMenuSchema ||
 			!window.AdminOSMode.shell.createMenuItemRenderer ||
@@ -41,8 +42,10 @@
 			storageKey: config.storageKey || ''
 		});
 		const launcher = window.AdminOSMode.apps.createAppLauncher(shell, manager, config);
+		const dialogs = window.AdminOSMode.shell.createShellDialogs(shell);
 		const commands = window.AdminOSMode.shell.createCommandRegistry(shell, {
 			config,
+			dialogs,
 			launcher,
 			manager,
 			widgetManager
@@ -77,6 +80,7 @@
 			openUrl: launcher.openUrl
 		};
 		window.AdminOSMode.contextMenuController = contextMenuController;
+		window.AdminOSMode.shellDialogs = dialogs;
 		window.AdminOSMode.menuController = menuController;
 		window.AdminOSMode.menuCommands = commands;
 	}

@@ -9,6 +9,7 @@
 		const launcher = context.launcher || null;
 		const manager = context.manager || null;
 		const widgetManager = context.widgetManager || null;
+		const dialogs = context.dialogs || null;
 		const config = context.config && typeof context.config === 'object' ? context.config : {};
 		const commands = new Map();
 		let activeDetail = { kind: 'desktop' };
@@ -84,7 +85,14 @@
 			}
 
 			const command = commands.get(item.command);
-			command.run(getPayload(item), detail);
+			const result = command.run(getPayload(item), detail);
+			if (result && typeof result.catch === 'function') {
+				result.catch((error) => {
+					if (window.console && typeof window.console.error === 'function') {
+						window.console.error('Admin OS command failed.', error);
+					}
+				});
+			}
 			return true;
 		}
 
@@ -95,6 +103,90 @@
 		function getAppTargetFromDetail(detail = {}) {
 			const appId = detail && detail.appId ? detail.appId : '';
 			return appId.startsWith('about-') ? appId.slice(6) : appId;
+		}
+
+		function getRestartConfig() {
+			return config.system && config.system.restart && typeof config.system.restart === 'object'
+				? config.system.restart
+				: {};
+		}
+
+		function getShellUrl() {
+			if (!config.shellUrl) {
+				return null;
+			}
+
+			try {
+				return new URL(config.shellUrl, window.location.href);
+			} catch (error) {
+				return null;
+			}
+		}
+
+		function isCurrentShellUrl(shellUrl) {
+			if (!shellUrl) {
+				return true;
+			}
+
+			try {
+				return new URL(window.location.href).href === shellUrl.href;
+			} catch (error) {
+				return false;
+			}
+		}
+
+		function saveManagers() {
+			if (manager && typeof manager.saveSession === 'function') {
+				manager.saveSession();
+			}
+
+			if (widgetManager && typeof widgetManager.saveSession === 'function') {
+				widgetManager.saveSession();
+			}
+		}
+
+		async function confirmRestart(restartConfig) {
+			const title = restartConfig.confirmTitle || 'Restart Admin OS?';
+			const message = restartConfig.confirmMessage || 'Open windows will reload, but your saved layout will be preserved.';
+			const confirmLabel = restartConfig.confirmLabel || 'Restart';
+			const cancelLabel = restartConfig.cancelLabel || 'Cancel';
+
+			if (dialogs && typeof dialogs.confirm === 'function') {
+				return dialogs.confirm({
+					cancelLabel,
+					confirmLabel,
+					message,
+					title
+				});
+			}
+
+			return window.confirm(`${title}\n\n${message}`);
+		}
+
+		async function restartShell() {
+			const restartConfig = getRestartConfig();
+			const confirmed = await confirmRestart(restartConfig);
+
+			if (!confirmed) {
+				return;
+			}
+
+			saveManagers();
+
+			if (dialogs && typeof dialogs.showBlockingOverlay === 'function') {
+				dialogs.showBlockingOverlay(restartConfig.overlayMessage || 'Restarting Admin OS...');
+			}
+
+			window.setTimeout(() => {
+				const shellUrl = getShellUrl();
+
+				if (shellUrl && !isCurrentShellUrl(shellUrl)) {
+					window.location.href = shellUrl.href;
+					return;
+				}
+
+				window.location.reload();
+			}, 180);
 		}
 
 		register('noop', {
@@ -169,7 +261,7 @@
 				return Boolean(config.shellUrl || window.location.href);
 			},
 			run() {
-				window.location.href = config.shellUrl || window.location.href;
+				return restartShell();
 			}
 		});
 
