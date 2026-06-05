@@ -62,6 +62,7 @@
 			{ id: 'workspace', label: 'Workspace', icon: 'dashicons-layout', tone: 'orange', disabled: true },
 			{ id: 'system', label: 'System', icon: 'dashicons-admin-tools', tone: 'red', disabled: true }
 		];
+		const profileItem = { id: 'profile', label: 'Profile' };
 
 		function createSettingsRow(labelText, control, descriptionText = '') {
 			const row = dom.createElement('div', 'aos-settings-row');
@@ -99,6 +100,10 @@
 		}
 
 		function getSidebarItem(id) {
+			if (id === profileItem.id) {
+				return profileItem;
+			}
+
 			return sidebarItems.find((item) => item.id === id) || sidebarItems[0];
 		}
 
@@ -240,6 +245,23 @@
 				.slice(0, 2)
 				.map((part) => part.charAt(0).toUpperCase())
 				.join('') || 'A';
+		}
+
+		function createAvatar(className, user, name) {
+			const avatar = dom.createElement('span', className);
+
+			if (user.avatar) {
+				const image = document.createElement('img');
+				image.src = user.avatar;
+				image.alt = '';
+				image.loading = 'lazy';
+				image.decoding = 'async';
+				avatar.appendChild(image);
+			} else {
+				avatar.textContent = getUserInitials(name);
+			}
+
+			return avatar;
 		}
 
 		function syncAppearanceControls() {
@@ -883,29 +905,134 @@
 			return icon;
 		}
 
+		function createProfileRowIcon(iconName, tone = 'gray') {
+			const icon = dom.createElement('span', `aos-settings-profile-row-icon aos-settings-sidebar-icon-${tone}`);
+			icon.appendChild(dom.createDashicon(iconName));
+
+			return icon;
+		}
+
+		function createProfileActionRow(options = {}) {
+			const hasUrl = Boolean(options.url);
+			const row = hasUrl ? document.createElement('button') : dom.createElement('div');
+			const text = dom.createElement('span', 'aos-settings-profile-row-text');
+
+			if (hasUrl) {
+				row.type = 'button';
+				row.dataset.aosOpenUrl = options.url;
+				row.dataset.aosTitle = options.windowTitle || options.label || 'WordPress Profile';
+				row.dataset.aosIcon = options.icon || 'dashicons-admin-users';
+			}
+
+			row.className = 'aos-settings-profile-action';
+			row.appendChild(createProfileRowIcon(options.icon || 'dashicons-admin-generic', options.tone || 'gray'));
+			text.appendChild(dom.createElement('strong', '', options.label || 'Profile'));
+			if (options.description) {
+				text.appendChild(dom.createElement('span', '', options.description));
+			}
+			row.appendChild(text);
+
+			if (options.value) {
+				row.appendChild(dom.createElement('span', 'aos-settings-profile-row-value', options.value));
+			} else if (hasUrl) {
+				row.appendChild(dom.createElement('span', 'aos-settings-profile-row-chevron'));
+			}
+
+			return row;
+		}
+
+		function createProfilePanel() {
+			const user = getUserProfile();
+			const name = user.name || 'Admin';
+			const role = user.role || user.subtitle || 'WordPress User';
+			const profileUrl = user.profileUrl || '';
+			const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-profile-panel');
+			const hero = dom.createElement('div', 'aos-settings-profile-hero');
+			const accountSection = createSection('', 'aos-settings-profile-list');
+			const wordpressSection = createSection('', 'aos-settings-profile-list');
+
+			panel.dataset.aosSettingsPanel = 'profile';
+			hero.appendChild(createAvatar('aos-settings-profile-hero-avatar', user, name));
+			hero.appendChild(dom.createElement('h2', '', name));
+			if (user.email) {
+				hero.appendChild(dom.createElement('p', '', user.email));
+			}
+			hero.appendChild(dom.createElement('span', 'aos-settings-profile-role', role));
+
+			accountSection.appendChild(createProfileActionRow({
+				description: 'Name, contact, website, and bio',
+				icon: 'dashicons-id',
+				label: 'Personal Information',
+				tone: 'gray',
+				url: profileUrl,
+				windowTitle: 'WordPress Profile'
+			}));
+			accountSection.appendChild(createProfileActionRow({
+				description: 'Password, sessions, and application passwords',
+				icon: 'dashicons-lock',
+				label: 'Account & Security',
+				tone: 'gray',
+				url: profileUrl,
+				windowTitle: 'WordPress Profile'
+			}));
+			accountSection.appendChild(createProfileActionRow({
+				description: 'Current access level',
+				icon: 'dashicons-shield',
+				label: 'Role & Permissions',
+				tone: 'gray',
+				value: role
+			}));
+
+			wordpressSection.appendChild(createProfileActionRow({
+				description: 'Language, toolbar, and admin color scheme',
+				icon: 'dashicons-admin-settings',
+				label: 'Preferences',
+				tone: 'blue',
+				url: profileUrl,
+				windowTitle: 'WordPress Profile'
+			}));
+			wordpressSection.appendChild(createProfileActionRow({
+				description: 'Managed by WordPress and Gravatar',
+				icon: 'dashicons-format-image',
+				label: 'Profile Picture',
+				tone: 'cyan',
+				url: profileUrl,
+				windowTitle: 'WordPress Profile'
+			}));
+			wordpressSection.appendChild(createProfileActionRow({
+				description: 'Edit full profile in native WordPress',
+				icon: 'dashicons-external',
+				label: 'Open WordPress Profile',
+				tone: 'purple',
+				url: profileUrl,
+				windowTitle: 'WordPress Profile'
+			}));
+
+			panel.append(hero, accountSection, wordpressSection);
+
+			return panel;
+		}
+
 		function createUserProfile() {
 			const user = getUserProfile();
 			const name = user.name || 'Admin';
-			const profile = dom.createElement('div', 'aos-settings-profile');
-			const avatar = dom.createElement('span', 'aos-settings-profile-avatar');
+			const profile = document.createElement('button');
 
-			if (user.avatar) {
-				const image = document.createElement('img');
-				image.src = user.avatar;
-				image.alt = '';
-				image.loading = 'lazy';
-				image.decoding = 'async';
-				avatar.appendChild(image);
-			} else {
-				avatar.textContent = getUserInitials(name);
-			}
-
+			profile.type = 'button';
+			profile.className = 'aos-settings-profile';
+			profile.dataset.aosSettingsSection = profileItem.id;
+			profile.setAttribute('aria-label', `${profileItem.label}: ${name}`);
+			profile.addEventListener('click', () => setActiveSection(profileItem.id));
 			const text = dom.createElement('span', 'aos-settings-profile-text');
 			text.appendChild(dom.createElement('strong', '', name));
 			text.appendChild(dom.createElement('span', '', user.subtitle || 'WordPress User'));
 
-			profile.appendChild(avatar);
+			profile.appendChild(createAvatar('aos-settings-profile-avatar', user, name));
 			profile.appendChild(text);
+			sidebarButtons.push({
+				button: profile,
+				id: profileItem.id
+			});
 
 			return profile;
 		}
@@ -1076,6 +1203,7 @@
 			appearancePanel.appendChild(createSectionHeading('Installed Theme'));
 			appearancePanel.appendChild(installedThemeSection);
 		}
+		pane.appendChild(createProfilePanel());
 		pane.appendChild(appearancePanel);
 		pane.appendChild(createWallpaperPanel(status));
 		pane.appendChild(status);

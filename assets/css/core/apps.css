@@ -267,14 +267,38 @@
 
 .aos-settings-profile {
 	align-items: center;
+	appearance: none;
+	background: transparent;
+	border: 0;
+	border-radius: 10px;
 	color: var(--aos-ink);
+	cursor: default;
 	display: grid;
+	font-family: inherit;
 	gap: 8px;
 	grid-template-columns: 32px minmax(0, 1fr);
 	padding: 5px 10px 10px;
+	text-align: left;
+	width: 100%;
 }
 
-.aos-settings-profile-avatar {
+.aos-settings-profile:hover,
+.aos-settings-profile:focus {
+	background: var(--aos-control-bg-hover);
+	outline: none;
+}
+
+.aos-settings-profile.is-active {
+	background: var(--aos-accent);
+	color: #fff;
+}
+
+.aos-settings-profile.is-active .aos-settings-profile-text span {
+	color: rgba(255, 255, 255, 0.78);
+}
+
+.aos-settings-profile-avatar,
+.aos-settings-profile-hero-avatar {
 	align-items: center;
 	background: linear-gradient(145deg, #dbe9f7, #8fb5d9);
 	border-radius: 50%;
@@ -288,7 +312,8 @@
 	width: 32px;
 }
 
-.aos-settings-profile-avatar img {
+.aos-settings-profile-avatar img,
+.aos-settings-profile-hero-avatar img {
 	display: block;
 	height: 100%;
 	object-fit: cover;
@@ -317,6 +342,145 @@
 	color: var(--aos-muted);
 	font-size: var(--aos-settings-text-body);
 	font-weight: var(--aos-weight-medium);
+}
+
+.aos-settings-profile-panel {
+	gap: 16px;
+}
+
+.aos-settings-profile-hero {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	padding: 22px 16px 6px;
+	text-align: center;
+}
+
+.aos-settings-profile-hero-avatar {
+	box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+	font-size: 36px;
+	font-weight: var(--aos-weight-semibold);
+	height: 116px;
+	margin-bottom: 12px;
+	width: 116px;
+}
+
+.aos-settings-profile-hero h2 {
+	color: var(--aos-ink);
+	font-family: var(--aos-font-display);
+	font-size: 24px;
+	font-weight: var(--aos-weight-semibold);
+	letter-spacing: 0;
+	line-height: var(--aos-line-height-tight);
+	margin: 0;
+}
+
+.aos-settings-profile-hero p {
+	color: var(--aos-muted);
+	font-size: var(--aos-settings-text-heading);
+	font-weight: var(--aos-weight-medium);
+	line-height: var(--aos-line-height-body);
+	margin: 2px 0 0;
+}
+
+.aos-settings-profile-role {
+	color: var(--aos-muted);
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-medium);
+	line-height: var(--aos-line-height-body);
+	margin-top: 3px;
+}
+
+.aos-settings-profile-list {
+	padding: 0;
+}
+
+.aos-settings-profile-action {
+	align-items: center;
+	appearance: none;
+	background: transparent;
+	border: 0;
+	color: var(--aos-ink);
+	cursor: default;
+	display: grid;
+	font-family: inherit;
+	gap: 12px;
+	grid-template-columns: 30px minmax(0, 1fr) auto;
+	min-height: 54px;
+	padding: 10px 16px;
+	text-align: left;
+	width: 100%;
+}
+
+.aos-settings-profile-action + .aos-settings-profile-action {
+	border-top: 1px solid var(--aos-card-border);
+}
+
+button.aos-settings-profile-action:hover,
+button.aos-settings-profile-action:focus {
+	background: var(--aos-control-bg-hover);
+	outline: none;
+}
+
+.aos-settings-profile-row-icon {
+	align-items: center;
+	border-radius: 8px;
+	color: #fff;
+	display: flex;
+	height: 28px;
+	justify-content: center;
+	width: 28px;
+}
+
+.aos-settings-profile-row-icon .dashicons {
+	font-size: 16px;
+	height: 16px;
+	width: 16px;
+}
+
+.aos-settings-profile-row-text {
+	display: grid;
+	gap: 2px;
+	min-width: 0;
+}
+
+.aos-settings-profile-row-text strong,
+.aos-settings-profile-row-text span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-settings-profile-row-text strong {
+	color: var(--aos-ink);
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-semibold);
+	line-height: var(--aos-line-height-body);
+}
+
+.aos-settings-profile-row-text span,
+.aos-settings-profile-row-value {
+	color: var(--aos-muted);
+	font-size: var(--aos-settings-text-body);
+	font-weight: var(--aos-weight-medium);
+	line-height: var(--aos-line-height-body);
+}
+
+.aos-settings-profile-row-value {
+	max-width: 150px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-settings-profile-row-chevron {
+	border-right: 2px solid var(--aos-muted);
+	border-top: 2px solid var(--aos-muted);
+	display: block;
+	height: 8px;
+	opacity: 0.72;
+	transform: rotate(45deg);
+	width: 8px;
 }
 
 .aos-settings-sidebar-nav {

@@ -338,6 +338,7 @@ final class Admin_OS_Mode_Assets {
 	 */
 	private function get_runtime_config( $apps, $folders, $widgets, $theme ) {
 		$current_user = wp_get_current_user();
+		$role_label   = $this->get_user_role_label( $current_user );
 
 		return array(
 			'appearance' => $this->preferences->get_appearance(),
@@ -351,9 +352,12 @@ final class Admin_OS_Mode_Assets {
 			'wallpaper'  => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
 			'userId'     => get_current_user_id(),
 			'user'       => array(
-				'avatar'   => get_avatar_url( $current_user->ID, array( 'size' => 96 ) ),
-				'name'     => $current_user->display_name ? $current_user->display_name : $current_user->user_login,
-				'subtitle' => $this->get_user_role_label( $current_user ),
+				'avatar'     => get_avatar_url( $current_user->ID, array( 'size' => 192 ) ),
+				'email'      => $current_user->user_email,
+				'name'       => $current_user->display_name ? $current_user->display_name : $current_user->user_login,
+				'profileUrl' => admin_url( 'profile.php' ),
+				'role'       => $role_label,
+				'subtitle'   => $role_label,
 			),
 			'storageKey' => 'adminOSMode:' . get_current_user_id() . ':' . $theme['id'] . ':session',
 			'nonce'      => wp_create_nonce( Admin_OS_Mode_Settings_Controller::NONCE_ACTION ),
