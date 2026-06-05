@@ -36,6 +36,7 @@
 		let backButton = null;
 		let forwardButton = null;
 		const panelHistory = [];
+		const panelForwardHistory = [];
 		let wallpaperButtons = [];
 		let wallpaperAddPhotoButton = null;
 		let wallpaperAddPhotoPreview = null;
@@ -156,7 +157,7 @@
 				backButton.disabled = panelHistory.length === 0;
 			}
 			if (forwardButton) {
-				forwardButton.disabled = true;
+				forwardButton.disabled = panelForwardHistory.length === 0;
 			}
 		}
 
@@ -168,10 +169,13 @@
 
 			if (options.pushHistory && activePanel !== panelId) {
 				panelHistory.push(activePanel);
+				if (options.clearForward !== false) {
+					panelForwardHistory.length = 0;
+				}
 			}
 
-			(settingsRoot || document).querySelectorAll('[data-aos-settings-panel]').forEach((panel) => {
-				panel.hidden = panel.dataset.aosSettingsPanel !== panelId;
+			(settingsRoot || document).querySelectorAll('[data-aos-settings-panel]').forEach((settingsPanel) => {
+				settingsPanel.hidden = settingsPanel.dataset.aosSettingsPanel !== panelId;
 			});
 
 			activePanel = panelId;
@@ -189,8 +193,9 @@
 				return;
 			}
 
-			panelHistory.length = 0;
-			showSettingsPanel(item.id);
+			showSettingsPanel(item.id, {
+				pushHistory: true
+			});
 		}
 
 		function openSettingsSubpanel(panelId) {
@@ -1591,11 +1596,23 @@
 					button.addEventListener('click', () => {
 						const previousPanel = panelHistory.pop();
 						if (previousPanel) {
-							showSettingsPanel(previousPanel);
+							panelForwardHistory.push(activePanel);
+							showSettingsPanel(previousPanel, {
+								clearForward: false
+							});
 						}
 					});
 				} else {
 					forwardButton = button;
+					button.addEventListener('click', () => {
+						const nextPanel = panelForwardHistory.pop();
+						if (nextPanel) {
+							showSettingsPanel(nextPanel, {
+								clearForward: false,
+								pushHistory: true
+							});
+						}
+					});
 				}
 				history.appendChild(button);
 			});
