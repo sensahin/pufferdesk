@@ -23,7 +23,7 @@
 
 .aos-app-launcher:hover,
 .aos-app-launcher:focus {
-	background: #fff;
+	background: var(--aos-control-bg-hover);
 	box-shadow: var(--aos-tile-shadow);
 	outline: none;
 	transform: translateY(-1px);
@@ -864,6 +864,8 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 }
 
 .aos-settings-section {
+	-webkit-backdrop-filter: var(--aos-material-card-filter);
+	backdrop-filter: var(--aos-material-card-filter);
 	background: var(--aos-card-bg);
 	border: 1px solid var(--aos-card-border);
 	border-radius: 16px;
@@ -953,6 +955,8 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 }
 
 .aos-settings-summary-card {
+	-webkit-backdrop-filter: var(--aos-material-card-filter);
+	backdrop-filter: var(--aos-material-card-filter);
 	align-items: center;
 	background: var(--aos-card-bg);
 	border: 1px solid var(--aos-card-border);
@@ -1864,8 +1868,9 @@ button.aos-settings-action-row:active {
 }
 
 .aos-settings-material-preview::after {
-	backdrop-filter: blur(16px) saturate(145%);
-	background: rgba(255, 255, 255, 0.54);
+	-webkit-backdrop-filter: var(--aos-material-control-filter);
+	backdrop-filter: var(--aos-material-control-filter);
+	background: var(--aos-material-control-bg);
 	border-radius: 999px;
 	content: "";
 	height: 26px;
@@ -1876,7 +1881,7 @@ button.aos-settings-action-row:active {
 }
 
 .aos-settings-material-preview[data-aos-preview-value="tinted"]::after {
-	background: rgba(208, 236, 246, 0.64);
+	background: var(--aos-material-tinted-bg);
 }
 
 .aos-settings-swatch-group {

@@ -1,6 +1,7 @@
 .aos-window {
+	-webkit-backdrop-filter: var(--aos-material-regular-filter);
+	backdrop-filter: var(--aos-material-regular-filter);
 	background: var(--aos-panel);
-	backdrop-filter: blur(22px);
 	border: 1px solid var(--aos-line);
 	border-radius: 8px;
 	box-shadow: var(--aos-shadow);
@@ -225,6 +226,8 @@
 }
 
 .aos-window-titlebar {
+	-webkit-backdrop-filter: var(--aos-material-bar-filter);
+	backdrop-filter: var(--aos-material-bar-filter);
 	align-items: center;
 	background: var(--aos-window-bar-bg);
 	border-bottom: 1px solid var(--aos-window-bar-border);

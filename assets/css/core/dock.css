@@ -1,11 +1,12 @@
 .aos-dock {
 	align-items: center;
-	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: var(--aos-material-clear-filter);
+	backdrop-filter: var(--aos-material-clear-filter);
 	background: var(--aos-dock-bg);
 	border: 1px solid var(--aos-dock-border);
 	border-radius: 8px;
 	bottom: 18px;
-	box-shadow: var(--aos-shadow);
+	box-shadow: var(--aos-dock-shadow);
 	display: flex;
 	gap: 8px;
 	left: 50%;
@@ -37,7 +38,7 @@
 .aos-dock-item:hover,
 .aos-dock-item:focus,
 .aos-dock-item.is-running {
-	background: #fff;
+	background: var(--aos-control-bg-hover);
 	outline: none;
 	transform: translateY(calc(-1 * var(--aos-dock-hover-lift, 3px))) scale(var(--aos-dock-hover-scale, 1));
 }
