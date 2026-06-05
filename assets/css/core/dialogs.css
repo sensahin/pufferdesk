@@ -164,17 +164,6 @@
 	width: 2px;
 }
 
-.aos-shell-action-dialog-icon-power span::after {
-	background: var(--aos-action-dialog-icon-bg);
-	content: "";
-	height: 15px;
-	left: 50%;
-	position: absolute;
-	top: -3px;
-	transform: translateX(-50%);
-	width: 12px;
-}
-
 .aos-shell-action-dialog-title {
 	font-size: 13px;
 	font-weight: var(--aos-weight-bold);

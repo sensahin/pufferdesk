@@ -635,7 +635,7 @@
 	background: transparent;
 	border: 0;
 	border-radius: 999px;
-	color: var(--aos-accent);
+	color: var(--aos-muted);
 	cursor: default;
 	font-family: inherit;
 	font-size: var(--aos-settings-text-caption);
@@ -662,6 +662,10 @@
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.aos-settings-wallpaper-builtins-grid.is-collapsed .aos-settings-wallpaper-option:nth-child(n+5) {
+	display: none;
+}
+
 .aos-settings-wallpaper-option {
 	appearance: none;
 	background: transparent;
@@ -675,7 +679,7 @@
 	gap: 5px;
 	min-width: 0;
 	padding: 0;
-	text-align: left;
+	text-align: center;
 }
 
 .aos-settings-wallpaper-option:focus-visible,
@@ -728,49 +732,86 @@
 	white-space: nowrap;
 }
 
-.aos-settings-wallpaper-custom-control {
-	align-items: center;
+.aos-settings-wallpaper-photos {
 	display: grid;
-	gap: 12px;
-	grid-template-columns: 92px minmax(0, 1fr) auto;
-	padding: 14px 16px;
+	gap: 10px;
+	margin-top: 12px;
+	padding: 14px 16px 16px;
+}
+
+.aos-settings-wallpaper-photos h3 {
+	color: var(--aos-ink);
+	font-family: var(--aos-font-display);
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-semibold);
+	line-height: var(--aos-line-height-body);
+	margin: 0;
+}
+
+.aos-settings-wallpaper-photo-grid {
+	display: grid;
+	gap: 10px;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.aos-settings-wallpaper-photo-button {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	color: var(--aos-muted);
+	cursor: default;
+	display: grid;
+	font-family: inherit;
+	font-size: var(--aos-settings-text-body);
+	font-weight: var(--aos-weight-medium);
+	gap: 6px;
+	min-width: 0;
+	padding: 0;
+	text-align: center;
+}
+
+.aos-settings-wallpaper-photo-button:focus-visible,
+.aos-settings-wallpaper-photo-button.is-selected .aos-settings-wallpaper-upload-preview {
+	box-shadow: 0 0 0 3px var(--aos-accent), var(--aos-tile-shadow);
+	outline: none;
 }
 
 .aos-settings-wallpaper-upload-preview {
-	height: 58px;
+	align-items: center;
+	aspect-ratio: 16 / 10;
+	display: flex;
+	justify-content: center;
 	position: relative;
-	width: 92px;
+	width: 100%;
 }
 
-.aos-settings-wallpaper-upload-preview:not(.has-wallpaper)::before {
+.aos-settings-wallpaper-upload-icon {
+	align-items: center;
 	color: var(--aos-muted);
-	content: "\f128";
-	font-family: dashicons;
-	font-size: 22px;
-	left: 50%;
-	line-height: 1;
-	position: absolute;
-	top: 50%;
-	transform: translate(-50%, -50%);
+	display: inline-flex;
+	height: 34px;
+	justify-content: center;
+	position: relative;
+	width: 34px;
 }
 
-.aos-settings-wallpaper-upload-text {
-	display: grid;
-	gap: 3px;
-	min-width: 0;
+.aos-settings-wallpaper-upload-icon .dashicons {
+	font-size: 28px;
+	height: 28px;
+	width: 28px;
+}
+
+.aos-settings-wallpaper-upload-preview.has-wallpaper .aos-settings-wallpaper-upload-icon {
+	display: none;
 }
 
 .aos-settings-wallpaper-upload-label {
-	color: var(--aos-ink);
-	font-size: var(--aos-settings-text-label);
+	color: var(--aos-muted);
+	font-size: var(--aos-settings-text-body);
 	font-weight: var(--aos-weight-medium);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-}
-
-.aos-settings-wallpaper-upload-actions {
-	justify-self: end;
 }
 
 .aos-settings-status {

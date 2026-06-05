@@ -55,12 +55,9 @@
 		grid-template-columns: 1fr;
 	}
 
-	.aos-settings-wallpaper-custom-control {
-		grid-template-columns: 1fr;
-	}
-
-	.aos-settings-wallpaper-upload-actions {
-		justify-self: start;
+	.aos-settings-wallpaper-builtins-grid,
+	.aos-settings-wallpaper-photo-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	.aos-settings-row > .aos-settings-control,

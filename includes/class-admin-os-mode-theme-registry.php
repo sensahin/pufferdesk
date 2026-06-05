@@ -44,52 +44,52 @@ final class Admin_OS_Mode_Theme_Registry {
 						'items'   => array(
 							array(
 								'id'    => 'aurora-flow',
-								'label' => __( 'Aurora Flow', 'admin-os-mode' ),
+								'label' => __( 'Aurora', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/aurora-flow.jpg',
 							),
 							array(
 								'id'    => 'aqua-horizon',
-								'label' => __( 'Aqua Horizon', 'admin-os-mode' ),
+								'label' => __( 'Aqua', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/aqua-horizon.jpg',
 							),
 							array(
 								'id'    => 'alpine-mist',
-								'label' => __( 'Alpine Mist', 'admin-os-mode' ),
+								'label' => __( 'Alpine', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/alpine-mist.jpg',
 							),
 							array(
 								'id'    => 'canyon-light',
-								'label' => __( 'Canyon Light', 'admin-os-mode' ),
+								'label' => __( 'Canyon', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/canyon-light.jpg',
 							),
 							array(
 								'id'    => 'coral-ridge',
-								'label' => __( 'Coral Ridge', 'admin-os-mode' ),
+								'label' => __( 'Coral', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/coral-ridge.jpg',
 							),
 							array(
 								'id'    => 'glacier-bloom',
-								'label' => __( 'Glacier Bloom', 'admin-os-mode' ),
+								'label' => __( 'Glacier', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/glacier-bloom.jpg',
 							),
 							array(
 								'id'    => 'indigo-dunes',
-								'label' => __( 'Indigo Dunes', 'admin-os-mode' ),
+								'label' => __( 'Indigo', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/indigo-dunes.jpg',
 							),
 							array(
 								'id'    => 'jade-current',
-								'label' => __( 'Jade Current', 'admin-os-mode' ),
+								'label' => __( 'Jade', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/jade-current.jpg',
 							),
 							array(
 								'id'    => 'lunar-peak',
-								'label' => __( 'Lunar Peak', 'admin-os-mode' ),
+								'label' => __( 'Lunar', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/lunar-peak.jpg',
 							),
 							array(
 								'id'    => 'prism-lake',
-								'label' => __( 'Prism Lake', 'admin-os-mode' ),
+								'label' => __( 'Prism', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/prism-lake.jpg',
 							),
 						),

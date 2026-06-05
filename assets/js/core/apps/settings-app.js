@@ -27,6 +27,7 @@
 		let paneTitle = null;
 		let settingsRoot = null;
 		let wallpaperButtons = [];
+		let wallpaperCustomButton = null;
 		let wallpaperCustomPreview = null;
 		let wallpaperCustomLabel = null;
 		let mediaFrame = null;
@@ -251,10 +252,15 @@
 				wallpaperCustomPreview.classList.toggle('has-wallpaper', current.type === 'upload');
 			}
 
+			if (wallpaperCustomButton) {
+				wallpaperCustomButton.classList.toggle('is-selected', current.type === 'upload');
+				wallpaperCustomButton.setAttribute('aria-pressed', current.type === 'upload' ? 'true' : 'false');
+			}
+
 			if (wallpaperCustomLabel) {
 				wallpaperCustomLabel.textContent = current.type === 'upload' && current.label
 					? current.label
-					: 'No custom wallpaper selected';
+					: 'Add Photo...';
 			}
 		}
 
@@ -520,6 +526,10 @@
 			);
 			let expanded = false;
 
+			if (items.length > visibleCount) {
+				grid.classList.add('is-collapsed');
+			}
+
 			header.appendChild(heading);
 			section.appendChild(header);
 			section.appendChild(grid);
@@ -616,26 +626,32 @@
 			mediaFrame.open();
 		}
 
-		function createCustomWallpaperSection(status) {
-			const section = createSection('Custom Image', 'aos-settings-section-wallpaper-custom');
-			const control = dom.createElement('div', 'aos-settings-wallpaper-custom-control');
+		function createPhotoWallpaperGroup(status) {
+			const group = dom.createElement('div', 'aos-settings-wallpaper-photos');
+			const heading = dom.createElement('h3', '', 'Your Photos');
+			const grid = dom.createElement('div', 'aos-settings-wallpaper-photo-grid');
+			const button = document.createElement('button');
 			const preview = dom.createElement('span', 'aos-settings-wallpaper-upload-preview');
-			const text = dom.createElement('span', 'aos-settings-wallpaper-upload-text');
-			const label = dom.createElement('span', 'aos-settings-wallpaper-upload-label', 'No custom wallpaper selected');
-			const actions = dom.createElement('span', 'aos-settings-wallpaper-upload-actions');
-			const chooseButton = createButton('Choose Image');
+			const icon = dom.createElement('span', 'aos-settings-wallpaper-upload-icon');
+			const label = dom.createElement('span', 'aos-settings-wallpaper-upload-label', 'Add Photo...');
 
+			button.type = 'button';
+			button.className = 'aos-settings-wallpaper-photo-button';
+			button.setAttribute('aria-pressed', 'false');
+			preview.setAttribute('aria-hidden', 'true');
+			icon.setAttribute('aria-hidden', 'true');
+			icon.appendChild(dom.createDashicon('dashicons-format-image'));
+			preview.appendChild(icon);
+			button.append(preview, label);
+			button.addEventListener('click', () => chooseUploadedWallpaper(status));
+			wallpaperCustomButton = button;
 			wallpaperCustomPreview = preview;
 			wallpaperCustomLabel = label;
-			preview.setAttribute('aria-hidden', 'true');
-			text.appendChild(label);
-			text.appendChild(dom.createElement('span', 'aos-settings-description', 'Use an image from the WordPress Media Library.'));
-			chooseButton.addEventListener('click', () => chooseUploadedWallpaper(status));
-			actions.appendChild(chooseButton);
-			control.append(preview, text, actions);
-			section.appendChild(control);
 
-			return section;
+			grid.appendChild(button);
+			group.append(heading, grid);
+
+			return group;
 		}
 
 		function createWallpaperPanel(status) {
@@ -659,7 +675,8 @@
 			colorSection.appendChild(createWallpaperGrid(status, getWallpaperGroup('colors'), 'aos-settings-wallpaper-color-grid', 'aos-settings-wallpaper-color-option'));
 			resetButton.addEventListener('click', () => resetWallpaper(status));
 			resetSection.appendChild(resetButton);
-			panel.append(builtInSection, createCustomWallpaperSection(status), colorSection, resetSection);
+			builtInSection.appendChild(createPhotoWallpaperGroup(status));
+			panel.append(builtInSection, colorSection, resetSection);
 
 			return panel;
 		}
