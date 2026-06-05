@@ -18,28 +18,80 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 	 */
 	private $color_backgrounds = array(
 		array(
-			'id'        => 'aurora-mist',
-			'css_value' => 'radial-gradient(circle at 24% 18%, rgba(117, 236, 218, 0.92), transparent 32%), radial-gradient(circle at 78% 24%, rgba(62, 126, 255, 0.78), transparent 36%), radial-gradient(circle at 58% 76%, rgba(247, 141, 119, 0.58), transparent 40%), linear-gradient(135deg, #182f46 0%, #227a88 42%, #d9edf2 100%)',
+			'id'        => 'black',
+			'css_value' => 'linear-gradient(#000000, #000000)',
 		),
 		array(
-			'id'        => 'blue-drift',
-			'css_value' => 'radial-gradient(circle at 20% 30%, rgba(95, 216, 255, 0.82), transparent 32%), radial-gradient(circle at 82% 18%, rgba(36, 76, 210, 0.82), transparent 36%), linear-gradient(135deg, #0d2844 0%, #1f74a7 48%, #bce9f1 100%)',
+			'id'        => 'periwinkle',
+			'css_value' => 'linear-gradient(#747bd6, #747bd6)',
 		),
 		array(
-			'id'        => 'violet-tide',
-			'css_value' => 'radial-gradient(circle at 18% 20%, rgba(255, 128, 218, 0.76), transparent 30%), radial-gradient(circle at 70% 18%, rgba(91, 107, 255, 0.72), transparent 34%), radial-gradient(circle at 68% 78%, rgba(83, 218, 201, 0.54), transparent 36%), linear-gradient(135deg, #26163f 0%, #4e2f87 48%, #b7dff2 100%)',
+			'id'        => 'cyan',
+			'css_value' => 'linear-gradient(#22adc5, #22adc5)',
 		),
 		array(
-			'id'        => 'sunset-glass',
-			'css_value' => 'radial-gradient(circle at 16% 22%, rgba(255, 219, 121, 0.88), transparent 32%), radial-gradient(circle at 72% 20%, rgba(255, 112, 112, 0.72), transparent 36%), radial-gradient(circle at 64% 80%, rgba(84, 199, 255, 0.58), transparent 42%), linear-gradient(135deg, #513048 0%, #db7662 48%, #f2e6c8 100%)',
+			'id'        => 'rose',
+			'css_value' => 'linear-gradient(#e36d78, #e36d78)',
 		),
 		array(
-			'id'        => 'green-lake',
-			'css_value' => 'radial-gradient(circle at 18% 26%, rgba(161, 245, 187, 0.82), transparent 34%), radial-gradient(circle at 78% 22%, rgba(64, 184, 174, 0.66), transparent 36%), linear-gradient(135deg, #102f37 0%, #267d74 52%, #d6efe0 100%)',
+			'id'        => 'blue',
+			'css_value' => 'linear-gradient(#465bd8, #465bd8)',
 		),
 		array(
-			'id'        => 'graphite-dawn',
-			'css_value' => 'radial-gradient(circle at 24% 18%, rgba(202, 214, 225, 0.64), transparent 30%), radial-gradient(circle at 76% 28%, rgba(86, 134, 180, 0.58), transparent 36%), linear-gradient(135deg, #151b24 0%, #425263 52%, #c9d2dc 100%)',
+			'id'        => 'peach',
+			'css_value' => 'linear-gradient(#f2d2c1, #f2d2c1)',
+		),
+		array(
+			'id'        => 'cream',
+			'css_value' => 'linear-gradient(#f1e1c8, #f1e1c8)',
+		),
+		array(
+			'id'        => 'gold',
+			'css_value' => 'linear-gradient(#ddb253, #ddb253)',
+		),
+		array(
+			'id'        => 'magenta',
+			'css_value' => 'linear-gradient(#cf4d9e, #cf4d9e)',
+		),
+		array(
+			'id'        => 'ember',
+			'css_value' => 'linear-gradient(#fb3f27, #fb3f27)',
+		),
+		array(
+			'id'        => 'blush',
+			'css_value' => 'linear-gradient(#efcbc6, #efcbc6)',
+		),
+		array(
+			'id'        => 'mist',
+			'css_value' => 'linear-gradient(#e7eaeb, #e7eaeb)',
+		),
+		array(
+			'id'        => 'pink',
+			'css_value' => 'linear-gradient(#f2d2dc, #f2d2dc)',
+		),
+		array(
+			'id'        => 'gray',
+			'css_value' => 'linear-gradient(#8b8e92, #8b8e92)',
+		),
+		array(
+			'id'        => 'silver',
+			'css_value' => 'linear-gradient(#c8ccd2, #c8ccd2)',
+		),
+		array(
+			'id'        => 'slate',
+			'css_value' => 'linear-gradient(#5c6161, #5c6161)',
+		),
+		array(
+			'id'        => 'teal',
+			'css_value' => 'linear-gradient(#0b948c, #0b948c)',
+		),
+		array(
+			'id'        => 'mint',
+			'css_value' => 'linear-gradient(#72c9a8, #72c9a8)',
+		),
+		array(
+			'id'        => 'yellow',
+			'css_value' => 'linear-gradient(#f8bd2e, #f8bd2e)',
 		),
 	);
 
@@ -391,19 +443,45 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 	 */
 	private function get_color_label( $id ) {
 		switch ( sanitize_key( $id ) ) {
-			case 'blue-drift':
-				return __( 'Blue Drift', 'admin-os-mode' );
-			case 'violet-tide':
-				return __( 'Violet Tide', 'admin-os-mode' );
-			case 'sunset-glass':
-				return __( 'Sunset Glass', 'admin-os-mode' );
-			case 'green-lake':
-				return __( 'Green Lake', 'admin-os-mode' );
-			case 'graphite-dawn':
-				return __( 'Graphite Dawn', 'admin-os-mode' );
-			case 'aurora-mist':
+			case 'periwinkle':
+				return __( 'Periwinkle', 'admin-os-mode' );
+			case 'cyan':
+				return __( 'Cyan', 'admin-os-mode' );
+			case 'rose':
+				return __( 'Rose', 'admin-os-mode' );
+			case 'blue':
+				return __( 'Blue', 'admin-os-mode' );
+			case 'peach':
+				return __( 'Peach', 'admin-os-mode' );
+			case 'cream':
+				return __( 'Cream', 'admin-os-mode' );
+			case 'gold':
+				return __( 'Gold', 'admin-os-mode' );
+			case 'magenta':
+				return __( 'Magenta', 'admin-os-mode' );
+			case 'ember':
+				return __( 'Ember', 'admin-os-mode' );
+			case 'blush':
+				return __( 'Blush', 'admin-os-mode' );
+			case 'mist':
+				return __( 'Mist', 'admin-os-mode' );
+			case 'pink':
+				return __( 'Pink', 'admin-os-mode' );
+			case 'gray':
+				return __( 'Gray', 'admin-os-mode' );
+			case 'silver':
+				return __( 'Silver', 'admin-os-mode' );
+			case 'slate':
+				return __( 'Slate', 'admin-os-mode' );
+			case 'teal':
+				return __( 'Teal', 'admin-os-mode' );
+			case 'mint':
+				return __( 'Mint', 'admin-os-mode' );
+			case 'yellow':
+				return __( 'Yellow', 'admin-os-mode' );
+			case 'black':
 			default:
-				return __( 'Aurora Mist', 'admin-os-mode' );
+				return __( 'Black', 'admin-os-mode' );
 		}
 	}
 

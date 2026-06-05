@@ -492,6 +492,7 @@
 			button.type = 'button';
 			button.className = `aos-settings-wallpaper-option ${extraClassName}`.trim();
 			button.dataset.aosWallpaperKey = key;
+			button.setAttribute('aria-label', item.label || item.id);
 			button.setAttribute('aria-pressed', 'false');
 			preview.style.backgroundImage = getWallpaperPreviewValue(item);
 			preview.setAttribute('aria-hidden', 'true');
@@ -667,12 +668,21 @@
 					visibleCount: 4
 				}
 			);
-			const colorSection = createSection('Colors', 'aos-settings-section-wallpaper-colors');
+			const colorSection = createCollapsibleWallpaperSection(
+				'Colors',
+				getWallpaperGroup('colors'),
+				status,
+				{
+					sectionClassName: 'aos-settings-section-wallpaper-colors',
+					gridClassName: 'aos-settings-wallpaper-color-grid',
+					optionClassName: 'aos-settings-wallpaper-color-option',
+					visibleCount: 8
+				}
+			);
 			const resetSection = createSection('', 'aos-settings-section-wallpaper-reset');
 			const resetButton = createButton('Reset to Default');
 
 			panel.dataset.aosSettingsPanel = 'wallpaper';
-			colorSection.appendChild(createWallpaperGrid(status, getWallpaperGroup('colors'), 'aos-settings-wallpaper-color-grid', 'aos-settings-wallpaper-color-option'));
 			resetButton.addEventListener('click', () => resetWallpaper(status));
 			resetSection.appendChild(resetButton);
 			builtInSection.appendChild(createPhotoWallpaperGroup(status));

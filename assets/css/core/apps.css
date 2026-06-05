@@ -712,10 +712,12 @@
 }
 
 .aos-settings-wallpaper-color-grid {
-	grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+	gap: 12px;
+	grid-template-columns: repeat(8, 44px);
 }
 
 .aos-settings-wallpaper-color-option {
+	gap: 0;
 	text-align: center;
 }
 
@@ -723,7 +725,15 @@
 	aspect-ratio: 1;
 	border-radius: 50%;
 	justify-self: center;
-	width: 48px;
+	width: 44px;
+}
+
+.aos-settings-wallpaper-color-grid.is-collapsed .aos-settings-wallpaper-option:nth-child(n+9) {
+	display: none;
+}
+
+.aos-settings-wallpaper-color-option .aos-settings-wallpaper-label {
+	display: none;
 }
 
 .aos-settings-wallpaper-label {
