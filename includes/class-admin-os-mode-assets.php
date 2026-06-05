@@ -345,6 +345,7 @@ final class Admin_OS_Mode_Assets {
 			'apps'       => $apps,
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 			'classicUrl' => $this->router->get_toggle_url( false ),
+			'logoutUrl'  => wp_logout_url(),
 			'shellUrl'   => $this->router->get_shell_url(),
 			'siteName'   => get_bloginfo( 'name' ),
 			'system'     => $this->get_system_config(),

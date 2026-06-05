@@ -357,18 +357,53 @@
 }
 
 .aos-settings-profile-hero-avatar {
+	appearance: none;
+	border: 0;
 	box-shadow: 0 14px 34px rgba(0, 0, 0, 0.16);
+	cursor: default;
 	font-size: 36px;
 	font-weight: var(--aos-weight-semibold);
-	height: 116px;
+	height: 104px;
 	margin-bottom: 12px;
-	width: 116px;
+	padding: 0;
+	position: relative;
+	width: 104px;
+}
+
+button.aos-settings-profile-hero-avatar:focus {
+	outline: none;
+}
+
+.aos-settings-profile-hero-edit {
+	align-items: center;
+	background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.54));
+	border-radius: 0 0 999px 999px;
+	bottom: 0;
+	color: #fff;
+	display: flex;
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-semibold);
+	height: 38%;
+	justify-content: center;
+	left: 0;
+	letter-spacing: 0;
+	opacity: 0;
+	padding-top: 13px;
+	pointer-events: none;
+	position: absolute;
+	right: 0;
+	transition: opacity 0.12s ease;
+}
+
+button.aos-settings-profile-hero-avatar:hover .aos-settings-profile-hero-edit,
+button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
+	opacity: 1;
 }
 
 .aos-settings-profile-hero h2 {
 	color: var(--aos-ink);
 	font-family: var(--aos-font-display);
-	font-size: 24px;
+	font-size: 21px;
 	font-weight: var(--aos-weight-semibold);
 	letter-spacing: 0;
 	line-height: var(--aos-line-height-tight);

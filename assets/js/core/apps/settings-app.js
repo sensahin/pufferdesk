@@ -62,7 +62,7 @@
 			{ id: 'workspace', label: 'Workspace', icon: 'dashicons-layout', tone: 'orange', disabled: true },
 			{ id: 'system', label: 'System', icon: 'dashicons-admin-tools', tone: 'red', disabled: true }
 		];
-		const profileItem = { id: 'profile', label: 'Profile' };
+		const profileItem = { id: 'profile', label: 'WordPress Account' };
 
 		function createSettingsRow(labelText, control, descriptionText = '') {
 			const row = dom.createElement('div', 'aos-settings-row');
@@ -247,9 +247,7 @@
 				.join('') || 'A';
 		}
 
-		function createAvatar(className, user, name) {
-			const avatar = dom.createElement('span', className);
-
+		function populateAvatar(avatar, user, name) {
 			if (user.avatar) {
 				const image = document.createElement('img');
 				image.src = user.avatar;
@@ -259,6 +257,30 @@
 				avatar.appendChild(image);
 			} else {
 				avatar.textContent = getUserInitials(name);
+			}
+
+			return avatar;
+		}
+
+		function createAvatar(className, user, name) {
+			return populateAvatar(dom.createElement('span', className), user, name);
+		}
+
+		function createEditableProfileAvatar(user, name, profileUrl) {
+			const avatar = profileUrl ? document.createElement('button') : document.createElement('span');
+
+			avatar.className = 'aos-settings-profile-hero-avatar';
+			if (profileUrl) {
+				avatar.type = 'button';
+				avatar.dataset.aosOpenUrl = profileUrl;
+				avatar.dataset.aosTitle = 'WordPress Profile';
+				avatar.dataset.aosIcon = 'dashicons-admin-users';
+				avatar.setAttribute('aria-label', 'Edit profile');
+			}
+
+			populateAvatar(avatar, user, name);
+			if (profileUrl) {
+				avatar.appendChild(dom.createElement('span', 'aos-settings-profile-hero-edit', 'Edit'));
 			}
 
 			return avatar;
@@ -914,14 +936,36 @@
 
 		function createProfileActionRow(options = {}) {
 			const hasUrl = Boolean(options.url);
-			const row = hasUrl ? document.createElement('button') : dom.createElement('div');
+			const hasCommand = Boolean(options.command);
+			const row = hasUrl || hasCommand ? document.createElement('button') : dom.createElement('div');
 			const text = dom.createElement('span', 'aos-settings-profile-row-text');
 
-			if (hasUrl) {
+			if (hasUrl || hasCommand) {
 				row.type = 'button';
+			}
+
+			if (hasUrl && !hasCommand) {
 				row.dataset.aosOpenUrl = options.url;
 				row.dataset.aosTitle = options.windowTitle || options.label || 'WordPress Profile';
 				row.dataset.aosIcon = options.icon || 'dashicons-admin-users';
+			}
+
+			if (hasCommand) {
+				row.addEventListener('click', (event) => {
+					const commands = window.AdminOSMode && window.AdminOSMode.menuCommands;
+					const item = {
+						command: options.command,
+						icon: options.icon || '',
+						label: options.label || '',
+						url: options.url || ''
+					};
+
+					event.preventDefault();
+					event.stopPropagation();
+					if (commands && typeof commands.execute === 'function') {
+						commands.execute(item);
+					}
+				});
 			}
 
 			row.className = 'aos-settings-profile-action';
@@ -934,7 +978,7 @@
 
 			if (options.value) {
 				row.appendChild(dom.createElement('span', 'aos-settings-profile-row-value', options.value));
-			} else if (hasUrl) {
+			} else if (hasUrl || hasCommand) {
 				row.appendChild(dom.createElement('span', 'aos-settings-profile-row-chevron'));
 			}
 
@@ -949,10 +993,9 @@
 			const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-profile-panel');
 			const hero = dom.createElement('div', 'aos-settings-profile-hero');
 			const accountSection = createSection('', 'aos-settings-profile-list');
-			const wordpressSection = createSection('', 'aos-settings-profile-list');
 
 			panel.dataset.aosSettingsPanel = 'profile';
-			hero.appendChild(createAvatar('aos-settings-profile-hero-avatar', user, name));
+			hero.appendChild(createEditableProfileAvatar(user, name, profileUrl));
 			hero.appendChild(dom.createElement('h2', '', name));
 			if (user.email) {
 				hero.appendChild(dom.createElement('p', '', user.email));
@@ -968,47 +1011,22 @@
 				windowTitle: 'WordPress Profile'
 			}));
 			accountSection.appendChild(createProfileActionRow({
-				description: 'Password, sessions, and application passwords',
-				icon: 'dashicons-lock',
-				label: 'Account & Security',
-				tone: 'gray',
-				url: profileUrl,
-				windowTitle: 'WordPress Profile'
-			}));
-			accountSection.appendChild(createProfileActionRow({
 				description: 'Current access level',
 				icon: 'dashicons-shield',
 				label: 'Role & Permissions',
 				tone: 'gray',
 				value: role
 			}));
-
-			wordpressSection.appendChild(createProfileActionRow({
-				description: 'Language, toolbar, and admin color scheme',
-				icon: 'dashicons-admin-settings',
-				label: 'Preferences',
-				tone: 'blue',
-				url: profileUrl,
-				windowTitle: 'WordPress Profile'
-			}));
-			wordpressSection.appendChild(createProfileActionRow({
-				description: 'Managed by WordPress and Gravatar',
-				icon: 'dashicons-format-image',
-				label: 'Profile Picture',
-				tone: 'cyan',
-				url: profileUrl,
-				windowTitle: 'WordPress Profile'
-			}));
-			wordpressSection.appendChild(createProfileActionRow({
-				description: 'Edit full profile in native WordPress',
-				icon: 'dashicons-external',
-				label: 'Open WordPress Profile',
-				tone: 'purple',
-				url: profileUrl,
-				windowTitle: 'WordPress Profile'
+			accountSection.appendChild(createProfileActionRow({
+				command: 'user.logout',
+				description: 'End this WordPress session',
+				icon: 'dashicons-migrate',
+				label: 'Sign Out...',
+				tone: 'red',
+				url: config.logoutUrl || ''
 			}));
 
-			panel.append(hero, accountSection, wordpressSection);
+			panel.append(hero, accountSection);
 
 			return panel;
 		}
