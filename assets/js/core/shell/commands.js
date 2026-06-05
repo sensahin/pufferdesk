@@ -287,12 +287,12 @@
 			}
 		});
 
-		register('open-system-about', {
+		register('open-site-about', {
 			isEnabled() {
-				return Boolean(launcher && typeof launcher.openSystemAbout === 'function');
+				return Boolean(launcher && typeof launcher.openSiteAbout === 'function');
 			},
 			run() {
-				launcher.openSystemAbout();
+				launcher.openSiteAbout();
 			}
 		});
 

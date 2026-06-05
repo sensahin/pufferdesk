@@ -268,13 +268,17 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/apps/about-window.js',
 				'deps' => array( 'admin-os-mode-dom' ),
 			),
+			'admin-os-mode-site-about-window' => array(
+				'path' => 'assets/js/core/apps/site-about-window.js',
+				'deps' => array( 'admin-os-mode-dom' ),
+			),
 			'admin-os-mode-settings-app'   => array(
 				'path' => 'assets/js/core/apps/settings-app.js',
 				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-storage', 'admin-os-mode-api-client', 'admin-os-mode-appearance', 'admin-os-mode-wallpaper' ),
 			),
 			'admin-os-mode-app-launcher'   => array(
 				'path' => 'assets/js/core/apps/app-launcher.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-about-window', 'admin-os-mode-settings-app' ),
+				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-about-window', 'admin-os-mode-site-about-window', 'admin-os-mode-settings-app' ),
 			),
 			'admin-os-mode-search'         => array(
 				'path' => 'assets/js/core/shell/search.js',
@@ -348,6 +352,7 @@ final class Admin_OS_Mode_Assets {
 			'logoutUrl'  => wp_logout_url(),
 			'settings'   => $this->get_settings_config(),
 			'shellUrl'   => $this->router->get_shell_url(),
+			'siteInfo'   => $this->get_site_info_config(),
 			'siteName'   => get_bloginfo( 'name' ),
 			'system'     => $this->get_system_config(),
 			'themes'     => $this->theme_registry->get_selectable_themes(),
@@ -398,6 +403,106 @@ final class Admin_OS_Mode_Assets {
 	}
 
 	/**
+	 * Safe site details for the About This Site window.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_site_info_config() {
+		global $wpdb;
+
+		$theme           = wp_get_theme();
+		$theme_name      = $theme->exists() ? $theme->get( 'Name' ) : __( 'Unknown', 'admin-os-mode' );
+		$theme_version   = $theme->exists() ? $theme->get( 'Version' ) : '';
+		$theme_label     = trim( $theme_name . ( $theme_version ? ' ' . $theme_version : '' ) );
+		$database_label  = isset( $wpdb ) && method_exists( $wpdb, 'db_version' ) ? $wpdb->db_version() : '';
+		$site_url        = home_url( '/' );
+		$site_icon_url   = $this->get_site_identity_image_url();
+		$server_software = $this->get_server_software_label();
+		$rows            = array(
+			array(
+				'label' => __( 'WordPress', 'admin-os-mode' ),
+				'value' => get_bloginfo( 'version' ),
+			),
+			array(
+				'label' => __( 'Theme', 'admin-os-mode' ),
+				'value' => $theme_label,
+			),
+			array(
+				'label' => __( 'PHP', 'admin-os-mode' ),
+				'value' => PHP_VERSION,
+			),
+			array(
+				'label' => __( 'Database', 'admin-os-mode' ),
+				'value' => $database_label,
+			),
+			array(
+				'label' => __( 'Server', 'admin-os-mode' ),
+				'value' => $server_software,
+			),
+		);
+
+		return array(
+			'title'         => __( 'About This Site', 'admin-os-mode' ),
+			'name'          => get_bloginfo( 'name' ),
+			'url'           => preg_replace( '#^https?://#', '', untrailingslashit( $site_url ) ),
+			'iconUrl'       => $site_icon_url,
+			'rows'          => array_values(
+				array_filter(
+					$rows,
+					static function ( $row ) {
+						return ! empty( $row['value'] );
+					}
+				)
+			),
+			'moreInfoLabel' => __( 'More Info...', 'admin-os-mode' ),
+			'moreInfoTitle' => __( 'Site Health Info', 'admin-os-mode' ),
+			'moreInfoUrl'   => current_user_can( 'view_site_health_checks' ) ? admin_url( 'site-health.php?tab=debug' ) : '',
+			'footer'        => sprintf(
+				/* translators: %s: Admin OS Mode plugin version. */
+				__( 'Admin OS %s · Built for WordPress admin.', 'admin-os-mode' ),
+				ADMIN_OS_MODE_VERSION
+			),
+		);
+	}
+
+	/**
+	 * Site logo or icon URL for About This Site.
+	 *
+	 * @return string
+	 */
+	private function get_site_identity_image_url() {
+		$logo_id = (int) get_theme_mod( 'custom_logo' );
+
+		if ( $logo_id ) {
+			$logo_url = wp_get_attachment_image_url( $logo_id, 'full' );
+			if ( $logo_url ) {
+				return esc_url_raw( $logo_url );
+			}
+		}
+
+		$site_icon_url = get_site_icon_url( 256 );
+
+		return $site_icon_url ? esc_url_raw( $site_icon_url ) : '';
+	}
+
+	/**
+	 * Public web server software label without sensitive host details.
+	 *
+	 * @return string
+	 */
+	private function get_server_software_label() {
+		$server_software = isset( $_SERVER['SERVER_SOFTWARE'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) )
+			: '';
+
+		if ( '' === $server_software ) {
+			return __( 'Unknown', 'admin-os-mode' );
+		}
+
+		return preg_replace( '/\s+/', ' ', $server_software );
+	}
+
+	/**
 	 * Settings data used by native System Settings panels.
 	 *
 	 * @return array<string,mixed>
@@ -427,15 +532,10 @@ final class Admin_OS_Mode_Assets {
 								array(
 									'id'          => 'about',
 									'label'       => __( 'About', 'admin-os-mode' ),
-									'description' => sprintf(
-										/* translators: 1: plugin version, 2: WordPress version. */
-										__( 'Admin OS %1$s · WordPress %2$s', 'admin-os-mode' ),
-										ADMIN_OS_MODE_VERSION,
-										get_bloginfo( 'version' )
-									),
+									'description' => __( 'Site and WordPress environment details', 'admin-os-mode' ),
 									'icon'        => 'dashicons-info-outline',
 									'tone'        => 'gray',
-									'command'     => 'open-system-about',
+									'command'     => 'open-site-about',
 								),
 								array(
 									'id'     => 'software-update',
@@ -550,7 +650,7 @@ final class Admin_OS_Mode_Assets {
 	}
 
 	/**
-	 * Runtime data for the Admin OS system identity.
+	 * Runtime data for Admin OS shell actions.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -559,21 +659,6 @@ final class Admin_OS_Mode_Assets {
 		$user_label   = $current_user->display_name ? $current_user->display_name : $current_user->user_login;
 
 		return array(
-			'about' => array(
-				'name'      => __( 'Admin OS', 'admin-os-mode' ),
-				'version'   => sprintf(
-					/* translators: %s: plugin version. */
-					__( 'Version %s', 'admin-os-mode' ),
-					ADMIN_OS_MODE_VERSION
-				),
-				'copyright' => __( 'Licensed under GPLv2 or later.', 'admin-os-mode' ),
-				'rights'    => __( 'Built for WordPress admin.', 'admin-os-mode' ),
-				'icon'      => array(
-					'type'     => 'theme',
-					'name'     => 'os-settings.svg',
-					'fallback' => 'dashicons-admin-generic',
-				),
-			),
 			'actions' => array(
 				'restart'       => array(
 					'title'                => __( 'Are you sure you want to restart Admin OS?', 'admin-os-mode' ),
@@ -636,8 +721,8 @@ final class Admin_OS_Mode_Assets {
 						'label' => __( 'Admin OS', 'admin-os-mode' ),
 						'items' => array(
 							array(
-								'label'   => __( 'About Admin OS', 'admin-os-mode' ),
-								'command' => 'open-system-about',
+								'label'   => __( 'About This Site', 'admin-os-mode' ),
+								'command' => 'open-site-about',
 								'icon'    => 'dashicons-info-outline',
 							),
 							array(

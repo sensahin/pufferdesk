@@ -77,32 +77,27 @@
 			});
 		}
 
-		function openSystemAbout() {
-			const system = config.system && typeof config.system === 'object' ? config.system : {};
-			const about = system.about && typeof system.about === 'object' ? system.about : {};
-			const title = about.name || 'Admin OS';
+		function openSiteAbout() {
+			const siteInfo = config.siteInfo && typeof config.siteInfo === 'object' ? config.siteInfo : {};
+			const title = siteInfo.title || 'About This Site';
 
-			if (!window.AdminOSMode.apps.createAboutWindow) {
+			if (!window.AdminOSMode.apps.createSiteAboutWindow) {
 				return;
 			}
 
 			manager.createWindow({
-				appId: 'about-admin-os',
-				bodyClass: 'aos-window-body aos-about-body',
+				appId: 'about-this-site',
+				bodyClass: 'aos-window-body aos-site-about-body',
 				centered: true,
-				content: window.AdminOSMode.apps.createAboutWindow({
-					about,
-					icon: about.icon || 'dashicons-admin-generic',
-					label: title
-				}),
+				content: window.AdminOSMode.apps.createSiteAboutWindow(siteInfo),
 				disabledControls: ['minimize', 'maximize'],
-				height: '206px',
-				icon: about.icon || 'dashicons-admin-generic',
+				height: '520px',
+				icon: 'dashicons-admin-site-alt3',
 				persist: false,
 				resizeMode: 'none',
 				title,
-				width: '286px',
-				windowKind: 'about'
+				width: '380px',
+				windowKind: 'site-about'
 			});
 		}
 
@@ -203,7 +198,7 @@
 			openAbout,
 			openApp,
 			openFolder,
-			openSystemAbout,
+			openSiteAbout,
 			openUrl,
 			runSearch
 		};
