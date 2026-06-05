@@ -726,12 +726,18 @@
 
 		return {
 			bindExistingWindows,
+			closeWindow,
 			createWindow,
 			focusWindow,
+			getActiveWindow() {
+				return activeWindow;
+			},
 			makeDraggable,
+			minimizeWindow,
 			restoreSession,
 			saveSession,
 			setDockRunning,
+			toggleMaximizeWindow,
 			withIframeParam
 		};
 	};

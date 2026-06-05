@@ -29,6 +29,8 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/apps/settings-app.js
 - assets/js/core/apps/app-launcher.js
 - assets/js/core/shell/search.js
+- assets/js/core/shell/commands.js
+- assets/js/core/shell/menu-schema.js
 - assets/js/core/shell/menu.js
 - assets/js/core/shell/clock.js
 - assets/js/core/boot.js

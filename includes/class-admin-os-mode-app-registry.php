@@ -140,12 +140,12 @@ final class Admin_OS_Mode_App_Registry {
 		/**
 		 * Filter the shell app registry.
 		 *
-		 * Each app accepts id, label, url, icon, group, cap, kind, native, and menus.
+		 * Each app accepts id, label, url, icon, group, cap, kind, native, and menu.
 		 * Icons may be a Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-admin-post' )
 		 * array( 'type' => 'image', 'src' => 'themes/adminos/default/icons/posts.svg' )
 		 * array( 'type' => 'theme', 'name' => 'posts.svg', 'fallback' => 'dashicons-admin-post' )
-		 * Menus may be strings or arrays with label, action, and target.
+		 * Menus use array( 'groups' => array( ... ) ) with command-backed items.
 		 *
 		 * @param array<int,array<string,mixed>> $apps Registered apps.
 		 */
@@ -253,7 +253,7 @@ final class Admin_OS_Mode_App_Registry {
 				'group'  => $group,
 				'kind'   => $kind,
 				'native' => $native,
-				'menus'  => $this->normalize_menu_items( isset( $app['menus'] ) ? $app['menus'] : array(), $label ),
+				'menu'   => $this->normalize_menu_definition( isset( $app['menu'] ) ? $app['menu'] : array(), $label ),
 			);
 		}
 
@@ -261,65 +261,338 @@ final class Admin_OS_Mode_App_Registry {
 	}
 
 	/**
-	 * Normalize top menu labels for an app.
+	 * Normalize the menu definition for an app.
 	 *
-	 * @param mixed  $items Raw menu items.
+	 * @param mixed  $definition Raw menu definition.
 	 * @param string $fallback_label App label used for default app menu.
-	 * @return array<int,array<string,string>>
+	 * @return array<string,array<int,array<string,mixed>>>
 	 */
-	private function normalize_menu_items( $items, $fallback_label ) {
-		$normalized = array();
+	private function normalize_menu_definition( $definition, $fallback_label ) {
+		$groups = array();
 
-		if ( is_array( $items ) ) {
-			foreach ( $items as $item ) {
-				if ( is_string( $item ) ) {
-					$label = sanitize_text_field( $item );
-					if ( '' !== $label ) {
-						$normalized[] = array( 'label' => $label );
+		if ( is_array( $definition ) ) {
+			if ( isset( $definition['groups'] ) && is_array( $definition['groups'] ) ) {
+				$groups = $definition['groups'];
+			} elseif ( array_values( $definition ) === $definition ) {
+				$groups = $definition;
+			} else {
+				foreach ( $this->get_default_menu_group_ids() as $id ) {
+					if ( isset( $definition[ $id ] ) && is_array( $definition[ $id ] ) ) {
+						$groups[] = array_merge(
+							$definition[ $id ],
+							array( 'id' => $id )
+						);
 					}
-					continue;
-				}
-
-				if ( ! is_array( $item ) || empty( $item['label'] ) ) {
-					continue;
-				}
-
-				$menu_item = array(
-					'label' => sanitize_text_field( $item['label'] ),
-				);
-
-				if ( ! empty( $item['action'] ) ) {
-					$menu_item['action'] = sanitize_key( $item['action'] );
-				}
-
-				if ( ! empty( $item['target'] ) ) {
-					$menu_item['target'] = sanitize_text_field( $item['target'] );
-				}
-
-				if ( '' !== $menu_item['label'] ) {
-					$normalized[] = $menu_item;
 				}
 			}
 		}
 
-		return $normalized ? $normalized : $this->get_default_app_menu_items( $fallback_label );
+		$normalized_groups = $this->normalize_menu_groups( $groups, $fallback_label );
+
+		return array(
+			'groups' => $normalized_groups ? $normalized_groups : $this->get_default_app_menu_groups( $fallback_label ),
+		);
 	}
 
 	/**
-	 * Default app menu labels.
+	 * Normalize menu groups.
+	 *
+	 * @param array<int,mixed> $groups Raw menu groups.
+	 * @param string           $fallback_label App label used for default app menu.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function normalize_menu_groups( $groups, $fallback_label ) {
+		$normalized = array();
+
+		foreach ( $groups as $index => $group ) {
+			if ( is_string( $group ) ) {
+				$label = sanitize_text_field( $group );
+				if ( '' !== $label ) {
+					$normalized[] = array(
+						'id'    => $this->get_default_menu_group_id( $index ),
+						'label' => $label,
+						'items' => array(),
+					);
+				}
+				continue;
+			}
+
+			if ( ! is_array( $group ) ) {
+				continue;
+			}
+
+			$id    = ! empty( $group['id'] ) ? $this->normalize_command_id( $group['id'] ) : $this->get_default_menu_group_id( $index );
+			$label = ! empty( $group['label'] ) ? sanitize_text_field( $group['label'] ) : $this->get_default_menu_group_label( $id, $fallback_label );
+			if ( '' === $id || '' === $label ) {
+				continue;
+			}
+
+			$normalized_group = array(
+				'id'    => $id,
+				'label' => $label,
+				'items' => $this->normalize_menu_command_items( isset( $group['items'] ) ? $group['items'] : array() ),
+			);
+
+			if ( ! empty( $group['disabled'] ) ) {
+				$normalized_group['disabled'] = true;
+			}
+
+			if ( ! empty( $group['command'] ) ) {
+				$normalized_group['command'] = $this->normalize_command_id( $group['command'] );
+			}
+
+			if ( ! empty( $group['icon'] ) ) {
+				$normalized_group['icon'] = sanitize_text_field( $group['icon'] );
+			}
+
+			if ( ! empty( $group['payload'] ) ) {
+				$normalized_group['payload'] = $this->normalize_menu_payload( $group['payload'] );
+			}
+
+			if ( ! empty( $group['target'] ) ) {
+				$normalized_group['target'] = sanitize_text_field( $group['target'] );
+			}
+
+			if ( ! empty( $group['title'] ) ) {
+				$normalized_group['title'] = sanitize_text_field( $group['title'] );
+			}
+
+			if ( ! empty( $group['url'] ) ) {
+				$normalized_group['url'] = esc_url_raw( $group['url'] );
+			}
+
+			$normalized[] = $normalized_group;
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize command-backed menu items.
+	 *
+	 * @param mixed $items Raw command items.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function normalize_menu_command_items( $items ) {
+		$normalized = array();
+
+		if ( ! is_array( $items ) ) {
+			return $normalized;
+		}
+
+		foreach ( $items as $item ) {
+			if ( is_string( $item ) ) {
+				$label = sanitize_text_field( $item );
+				if ( '' !== $label ) {
+					$normalized[] = array( 'label' => $label );
+				}
+				continue;
+			}
+
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+
+			if ( ! empty( $item['separator'] ) || ( isset( $item['type'] ) && 'separator' === $item['type'] ) ) {
+				$normalized[] = array( 'type' => 'separator' );
+				continue;
+			}
+
+			if ( empty( $item['label'] ) ) {
+				continue;
+			}
+
+			$menu_item = array(
+				'label' => sanitize_text_field( $item['label'] ),
+			);
+
+			if ( ! empty( $item['id'] ) ) {
+				$menu_item['id'] = $this->normalize_command_id( $item['id'] );
+			}
+
+			if ( ! empty( $item['command'] ) ) {
+				$menu_item['command'] = $this->normalize_command_id( $item['command'] );
+			}
+
+			if ( ! empty( $item['icon'] ) ) {
+				$menu_item['icon'] = sanitize_text_field( $item['icon'] );
+			}
+
+			if ( ! empty( $item['payload'] ) ) {
+				$menu_item['payload'] = $this->normalize_menu_payload( $item['payload'] );
+			}
+
+			if ( ! empty( $item['target'] ) ) {
+				$menu_item['target'] = sanitize_text_field( $item['target'] );
+			}
+
+			if ( ! empty( $item['title'] ) ) {
+				$menu_item['title'] = sanitize_text_field( $item['title'] );
+			}
+
+			if ( ! empty( $item['url'] ) ) {
+				$menu_item['url'] = esc_url_raw( $item['url'] );
+			}
+
+			if ( ! empty( $item['disabled'] ) ) {
+				$menu_item['disabled'] = true;
+			}
+
+			if ( '' !== $menu_item['label'] ) {
+				$normalized[] = $menu_item;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize command payload data.
+	 *
+	 * @param mixed $payload Raw payload data.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_menu_payload( $payload ) {
+		$normalized = array();
+
+		if ( ! is_array( $payload ) ) {
+			return $normalized;
+		}
+
+		foreach ( $payload as $key => $value ) {
+			$key = sanitize_key( $key );
+			if ( '' === $key ) {
+				continue;
+			}
+
+			if ( is_array( $value ) ) {
+				$normalized[ $key ] = $this->normalize_menu_payload( $value );
+			} elseif ( is_bool( $value ) || is_int( $value ) || is_float( $value ) ) {
+				$normalized[ $key ] = $value;
+			} elseif ( is_scalar( $value ) ) {
+				$normalized[ $key ] = sanitize_text_field( (string) $value );
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Default app menu groups.
 	 *
 	 * @param string $app_label Active app label.
-	 * @return array<int,array<string,string>>
+	 * @return array<int,array<string,mixed>>
 	 */
-	private function get_default_app_menu_items( $app_label ) {
+	private function get_default_app_menu_groups( $app_label ) {
 		return array(
-			array( 'label' => $app_label ),
-			array( 'label' => __( 'File', 'admin-os-mode' ) ),
-			array( 'label' => __( 'Edit', 'admin-os-mode' ) ),
-			array( 'label' => __( 'View', 'admin-os-mode' ) ),
-			array( 'label' => __( 'Window', 'admin-os-mode' ) ),
-			array( 'label' => __( 'Help', 'admin-os-mode' ) ),
+			array(
+				'id'    => 'app',
+				'label' => $app_label,
+				'items' => array(
+					array(
+						'label'   => sprintf(
+							/* translators: %s: app label. */
+							__( 'About %s', 'admin-os-mode' ),
+							$app_label
+						),
+						'command' => 'noop',
+					),
+				),
+			),
+			array(
+				'id'    => 'file',
+				'label' => __( 'File', 'admin-os-mode' ),
+				'items' => array(),
+			),
+			array(
+				'id'    => 'edit',
+				'label' => __( 'Edit', 'admin-os-mode' ),
+				'items' => array(),
+			),
+			array(
+				'id'    => 'view',
+				'label' => __( 'View', 'admin-os-mode' ),
+				'items' => array(),
+			),
+			array(
+				'id'    => 'window',
+				'label' => __( 'Window', 'admin-os-mode' ),
+				'items' => array(
+					array(
+						'label'   => __( 'Minimize', 'admin-os-mode' ),
+						'command' => 'window.minimize',
+					),
+					array(
+						'label'   => __( 'Zoom', 'admin-os-mode' ),
+						'command' => 'window.toggle-maximize',
+					),
+					array(
+						'label'   => __( 'Close', 'admin-os-mode' ),
+						'command' => 'window.close',
+					),
+				),
+			),
+			array(
+				'id'    => 'help',
+				'label' => __( 'Help', 'admin-os-mode' ),
+				'items' => array(),
+			),
 		);
+	}
+
+	/**
+	 * Default menu group id by position.
+	 *
+	 * @param int $index Group position.
+	 * @return string
+	 */
+	private function get_default_menu_group_id( $index ) {
+		$ids = $this->get_default_menu_group_ids();
+
+		return isset( $ids[ $index ] ) ? $ids[ $index ] : 'menu-' . ( $index + 1 );
+	}
+
+	/**
+	 * Default menu group ids.
+	 *
+	 * @return array<int,string>
+	 */
+	private function get_default_menu_group_ids() {
+		return array( 'app', 'file', 'edit', 'view', 'go', 'window', 'help' );
+	}
+
+	/**
+	 * Default menu group label.
+	 *
+	 * @param string $id Group id.
+	 * @param string $fallback_label App label.
+	 * @return string
+	 */
+	private function get_default_menu_group_label( $id, $fallback_label ) {
+		$labels = array(
+			'app'    => $fallback_label,
+			'file'   => __( 'File', 'admin-os-mode' ),
+			'edit'   => __( 'Edit', 'admin-os-mode' ),
+			'view'   => __( 'View', 'admin-os-mode' ),
+			'go'     => __( 'Go', 'admin-os-mode' ),
+			'window' => __( 'Window', 'admin-os-mode' ),
+			'help'   => __( 'Help', 'admin-os-mode' ),
+		);
+
+		return isset( $labels[ $id ] ) ? $labels[ $id ] : sanitize_text_field( $id );
+	}
+
+	/**
+	 * Normalize command and group identifiers.
+	 *
+	 * @param mixed $value Raw id.
+	 * @return string
+	 */
+	private function normalize_command_id( $value ) {
+		$value = strtolower( sanitize_text_field( (string) $value ) );
+		$normalized = preg_replace( '/[^a-z0-9_.-]/', '', $value );
+
+		return is_string( $normalized ) ? $normalized : '';
 	}
 
 	/**

@@ -254,9 +254,17 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/shell/search.js',
 				'deps' => array( 'admin-os-mode-config' ),
 			),
+			'admin-os-mode-menu-commands'  => array(
+				'path' => 'assets/js/core/shell/commands.js',
+				'deps' => array( 'admin-os-mode-dom' ),
+			),
+			'admin-os-mode-menu-schema'    => array(
+				'path' => 'assets/js/core/shell/menu-schema.js',
+				'deps' => array( 'admin-os-mode-config' ),
+			),
 			'admin-os-mode-menu'           => array(
 				'path' => 'assets/js/core/shell/menu.js',
-				'deps' => array( 'admin-os-mode-config' ),
+				'deps' => array( 'admin-os-mode-config', 'admin-os-mode-menu-commands', 'admin-os-mode-menu-schema' ),
 			),
 			'admin-os-mode-clock'          => array(
 				'path' => 'assets/js/core/shell/clock.js',
@@ -324,17 +332,59 @@ final class Admin_OS_Mode_Assets {
 	private function get_menu_config() {
 		return array(
 			'desktop' => array(
-				array(
-					'label'  => __( 'Workspace', 'admin-os-mode' ),
-					'action' => 'open-window',
-					'target' => 'welcome',
+				'groups' => array(
+					array(
+						'id'    => 'app',
+						'label' => __( 'Workspace', 'admin-os-mode' ),
+						'items' => array(
+							array(
+								'label'   => __( 'Show Workspace', 'admin-os-mode' ),
+								'command' => 'open-window',
+								'target'  => 'welcome',
+							),
+							array(
+								'label'   => __( 'OS Settings', 'admin-os-mode' ),
+								'command' => 'open-app',
+								'target'  => 'os-settings',
+							),
+							array(
+								'label'   => __( 'Classic Admin', 'admin-os-mode' ),
+								'command' => 'navigate-url',
+								'url'     => $this->router->get_toggle_url( false ),
+							),
+						),
+					),
+					array(
+						'id'    => 'file',
+						'label' => __( 'File', 'admin-os-mode' ),
+						'items' => array(),
+					),
+					array(
+						'id'    => 'edit',
+						'label' => __( 'Edit', 'admin-os-mode' ),
+						'items' => array(),
+					),
+					array(
+						'id'    => 'view',
+						'label' => __( 'View', 'admin-os-mode' ),
+						'items' => array(),
+					),
+					array(
+						'id'    => 'go',
+						'label' => __( 'Go', 'admin-os-mode' ),
+						'items' => array(),
+					),
+					array(
+						'id'    => 'window',
+						'label' => __( 'Window', 'admin-os-mode' ),
+						'items' => array(),
+					),
+					array(
+						'id'    => 'help',
+						'label' => __( 'Help', 'admin-os-mode' ),
+						'items' => array(),
+					),
 				),
-				array( 'label' => __( 'File', 'admin-os-mode' ) ),
-				array( 'label' => __( 'Edit', 'admin-os-mode' ) ),
-				array( 'label' => __( 'View', 'admin-os-mode' ) ),
-				array( 'label' => __( 'Go', 'admin-os-mode' ) ),
-				array( 'label' => __( 'Window', 'admin-os-mode' ) ),
-				array( 'label' => __( 'Help', 'admin-os-mode' ) ),
 			),
 			'labels'  => array(
 				'workspace'     => __( 'Workspace', 'admin-os-mode' ),

@@ -17,6 +17,8 @@
 			!window.AdminOSMode.widgets ||
 			!window.AdminOSMode.apps ||
 			!window.AdminOSMode.shell ||
+			!window.AdminOSMode.shell.createCommandRegistry ||
+			!window.AdminOSMode.shell.createMenuSchema ||
 			!window.AdminOSMode.shell.createMenuController
 		) {
 			return;
@@ -37,7 +39,10 @@
 			storageKey: config.storageKey || ''
 		});
 		const launcher = window.AdminOSMode.apps.createAppLauncher(shell, manager, config);
-		const menuController = window.AdminOSMode.shell.createMenuController(shell, config);
+		const menuController = window.AdminOSMode.shell.createMenuController(shell, config, {
+			launcher,
+			manager
+		});
 
 		menuController.bind();
 		widgetManager.bindExistingWidgets();
@@ -53,6 +58,8 @@
 			openFolder: launcher.openFolder,
 			openUrl: launcher.openUrl
 		};
+		window.AdminOSMode.menuController = menuController;
+		window.AdminOSMode.menuCommands = menuController.commands;
 	}
 
 	if (document.readyState === 'loading') {

@@ -1,0 +1,165 @@
+(function () {
+	'use strict';
+
+	window.AdminOSMode = window.AdminOSMode || {};
+	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
+
+	window.AdminOSMode.shell.createCommandRegistry = function createCommandRegistry(shell, context = {}) {
+		const dom = window.AdminOSMode.dom;
+		const launcher = context.launcher || null;
+		const manager = context.manager || null;
+		const commands = new Map();
+		let activeDetail = { kind: 'desktop' };
+
+		function getTargetWindow(detail = activeDetail) {
+			if (manager && typeof manager.getActiveWindow === 'function') {
+				const activeWindow = manager.getActiveWindow();
+				if (activeWindow) {
+					return activeWindow;
+				}
+			}
+
+			if (detail && detail.appId) {
+				return shell.querySelector(`[data-aos-app-window="${dom.escapeAttribute(detail.appId)}"]`);
+			}
+
+			if (detail && detail.kind === 'workspace') {
+				return shell.querySelector('[data-aos-window="welcome"]');
+			}
+
+			return null;
+		}
+
+		function getPayload(item = {}) {
+			return Object.assign({}, item.payload && typeof item.payload === 'object' ? item.payload : {}, {
+				icon: item.icon || '',
+				target: item.target || '',
+				title: item.title || item.label || '',
+				url: item.url || ''
+			});
+		}
+
+		function register(id, command) {
+			if (!id || !command || typeof command.run !== 'function') {
+				return;
+			}
+
+			commands.set(id, command);
+		}
+
+		function canExecute(item, detail = activeDetail) {
+			if (!item || item.disabled || !item.command) {
+				return false;
+			}
+
+			const command = commands.get(item.command);
+			if (!command) {
+				return false;
+			}
+
+			if (typeof command.isEnabled === 'function') {
+				return Boolean(command.isEnabled(getPayload(item), detail));
+			}
+
+			return true;
+		}
+
+		function execute(item, detail = activeDetail) {
+			if (!canExecute(item, detail)) {
+				return false;
+			}
+
+			const command = commands.get(item.command);
+			command.run(getPayload(item), detail);
+			return true;
+		}
+
+		function setActiveDetail(detail = {}) {
+			activeDetail = detail && typeof detail === 'object' ? detail : { kind: 'desktop' };
+		}
+
+		register('noop', {
+			run() {}
+		});
+
+		register('open-app', {
+			isEnabled(payload) {
+				return Boolean(launcher && typeof launcher.openApp === 'function' && payload.target);
+			},
+			run(payload) {
+				launcher.openApp(payload.target);
+			}
+		});
+
+		register('open-folder', {
+			isEnabled(payload) {
+				return Boolean(launcher && typeof launcher.openFolder === 'function' && payload.target);
+			},
+			run(payload) {
+				launcher.openFolder(payload.target);
+			}
+		});
+
+		register('open-url', {
+			isEnabled(payload) {
+				return Boolean(launcher && typeof launcher.openUrl === 'function' && (payload.url || payload.target));
+			},
+			run(payload) {
+				launcher.openUrl(payload.url || payload.target, payload.title, payload.icon);
+			}
+		});
+
+		register('navigate-url', {
+			isEnabled(payload) {
+				return Boolean(payload.url || payload.target);
+			},
+			run(payload) {
+				window.location.href = payload.url || payload.target;
+			}
+		});
+
+		register('open-window', {
+			isEnabled(payload) {
+				return Boolean(manager && typeof manager.focusWindow === 'function' && payload.target);
+			},
+			run(payload) {
+				manager.focusWindow(shell.querySelector(`[data-aos-window="${dom.escapeAttribute(payload.target)}"]`));
+			}
+		});
+
+		register('window.close', {
+			isEnabled(payload, detail) {
+				return Boolean(manager && typeof manager.closeWindow === 'function' && getTargetWindow(detail));
+			},
+			run(payload, detail) {
+				const win = getTargetWindow(detail);
+				manager.closeWindow(win, win ? win.dataset.aosAppWindow : '');
+			}
+		});
+
+		register('window.minimize', {
+			isEnabled(payload, detail) {
+				return Boolean(manager && typeof manager.minimizeWindow === 'function' && getTargetWindow(detail));
+			},
+			run(payload, detail) {
+				manager.minimizeWindow(getTargetWindow(detail));
+			}
+		});
+
+		register('window.toggle-maximize', {
+			isEnabled(payload, detail) {
+				return Boolean(manager && typeof manager.toggleMaximizeWindow === 'function' && getTargetWindow(detail));
+			},
+			run(payload, detail) {
+				manager.toggleMaximizeWindow(getTargetWindow(detail));
+			}
+		});
+
+		return {
+			canExecute,
+			execute,
+			register,
+			setActiveDetail
+		};
+	};
+})();

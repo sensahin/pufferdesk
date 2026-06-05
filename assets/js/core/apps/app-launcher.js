@@ -23,7 +23,8 @@
 				appId: app.id,
 				title: app.label,
 				windowKind: 'app',
-				icon: app.icon
+				icon: app.icon,
+				menu: app.menu || null
 			};
 
 			if (app.kind === 'native' && app.native === 'settings') {

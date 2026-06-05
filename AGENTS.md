@@ -114,7 +114,18 @@ Apps:
 
 - Register apps through `Admin_OS_Mode_App_Registry` or the `admin_os_mode_apps` filter.
 - Apps should define `id`, `label`, `cap`, `group`, `icon`, and either iframe data (`url`) or native data (`kind => native`, `native`).
+- App-specific top menu behavior belongs in the app's `menu` definition, not in hard-coded menu bar conditionals.
 - Keep app IDs stable. Layout/session behavior depends on stable IDs.
+
+Menus:
+
+- Menu definitions use the canonical shape `array( 'groups' => array( ... ) )`.
+- Each group should define `id`, `label`, and `items`; supported group IDs are `app`, `file`, `edit`, `view`, `go`, `window`, and `help`.
+- Menu command items should define `label` plus optional `command`, `target`, `url`, `title`, `icon`, `payload`, and `disabled`.
+- Commands are registered in `assets/js/core/shell/commands.js`; schema normalization is in `assets/js/core/shell/menu-schema.js`; top menu rendering is in `assets/js/core/shell/menu.js`.
+- Runtime modules that need custom behavior should register commands through `window.AdminOSMode.menuCommands.register()` after boot, staying inside the `window.AdminOSMode` namespace.
+- Do not add app-specific menu conditionals to `templates/shell/menu-bar.php` or the menu renderer. Add command-backed data to the registry/schema instead.
+- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `navigate-url`, `window.close`, `window.minimize`, and `window.toggle-maximize`.
 
 Widgets:
 
