@@ -25,8 +25,12 @@
 		let accentLabel = null;
 		let tintToggle = null;
 		let activeSection = 'general';
+		let activePanel = 'general';
 		let paneTitle = null;
 		let settingsRoot = null;
+		let backButton = null;
+		let forwardButton = null;
+		const panelHistory = [];
 		let wallpaperButtons = [];
 		let wallpaperAddPhotoButton = null;
 		let wallpaperAddPhotoPreview = null;
@@ -108,15 +112,9 @@
 			return sidebarItems.find((item) => item.id === id) || sidebarItems[0];
 		}
 
-		function setActiveSection(sectionId) {
-			const item = getSidebarItem(sectionId);
-			if (!item || item.disabled) {
-				return;
-			}
-
-			activeSection = item.id;
+		function updateSidebarSelection(sectionId) {
 			sidebarButtons.forEach((entry) => {
-				const selected = entry.id === activeSection;
+				const selected = entry.id === sectionId;
 				entry.button.classList.toggle('is-active', selected);
 				if (selected) {
 					entry.button.setAttribute('aria-current', 'page');
@@ -124,14 +122,54 @@
 					entry.button.removeAttribute('aria-current');
 				}
 			});
+		}
+
+		function updateHistoryControls() {
+			if (backButton) {
+				backButton.disabled = panelHistory.length === 0;
+			}
+			if (forwardButton) {
+				forwardButton.disabled = true;
+			}
+		}
+
+		function showSettingsPanel(panelId, options = {}) {
+			const panel = (settingsRoot || document).querySelector(`[data-aos-settings-panel="${panelId}"]`);
+			if (!panel) {
+				return;
+			}
+
+			if (options.pushHistory && activePanel !== panelId) {
+				panelHistory.push(activePanel);
+			}
 
 			(settingsRoot || document).querySelectorAll('[data-aos-settings-panel]').forEach((panel) => {
-				panel.hidden = panel.dataset.aosSettingsPanel !== activeSection;
+				panel.hidden = panel.dataset.aosSettingsPanel !== panelId;
 			});
 
+			activePanel = panelId;
+			activeSection = panel.dataset.aosSettingsSidebar || panelId;
+			updateSidebarSelection(activeSection);
 			if (paneTitle) {
-				paneTitle.textContent = item.label;
+				paneTitle.textContent = panel.dataset.aosSettingsTitle || getSidebarItem(activeSection).label;
 			}
+			updateHistoryControls();
+		}
+
+		function setActiveSection(sectionId) {
+			const item = getSidebarItem(sectionId);
+			if (!item || item.disabled) {
+				return;
+			}
+
+			panelHistory.length = 0;
+			showSettingsPanel(item.id);
+		}
+
+		function openSettingsSubpanel(panelId) {
+			showSettingsPanel(panelId, {
+				pushHistory: true
+			});
 		}
 
 		function getThemeOptionLabel(theme) {
@@ -953,7 +991,8 @@
 		function createSettingsActionRow(options = {}) {
 			const hasUrl = Boolean(options.url);
 			const hasCommand = Boolean(options.command);
-			const isInteractive = hasUrl || hasCommand;
+			const hasPanel = Boolean(options.panel);
+			const isInteractive = hasUrl || hasCommand || hasPanel;
 			const row = isInteractive ? document.createElement('button') : dom.createElement('div');
 			const text = dom.createElement('span', 'aos-settings-row-text');
 
@@ -967,6 +1006,9 @@
 			}
 			if (hasCommand) {
 				row.addEventListener('click', () => executeMenuCommand(options.command, options));
+			}
+			if (hasPanel) {
+				row.addEventListener('click', () => openSettingsSubpanel(options.panel));
 			}
 
 			row.className = `aos-settings-action-row ${options.className || ''}`.trim();
@@ -1098,6 +1140,114 @@
 			return panel;
 		}
 
+		function createSettingsAboutDevice(siteInfo = {}) {
+			const device = dom.createElement('div', 'aos-settings-about-device');
+			const screen = dom.createElement('div', 'aos-settings-about-screen');
+			const stand = dom.createElement('span', 'aos-settings-about-stand');
+
+			if (siteInfo.iconUrl) {
+				const image = document.createElement('img');
+				image.src = siteInfo.iconUrl;
+				image.alt = '';
+				image.loading = 'lazy';
+				image.decoding = 'async';
+				screen.appendChild(image);
+			} else {
+				screen.appendChild(dom.createDashicon('dashicons-wordpress'));
+			}
+
+			device.append(screen, stand);
+
+			return device;
+		}
+
+		function createSettingsAboutInfoRow(label, value) {
+			const row = dom.createElement('div', 'aos-settings-about-info-row');
+
+			row.appendChild(dom.createElement('span', 'aos-settings-about-info-label', label));
+			row.appendChild(dom.createElement('span', 'aos-settings-about-info-value', value));
+
+			return row;
+		}
+
+		function createSettingsAboutInfoCard(siteInfo = {}) {
+			const section = createSection('', 'aos-settings-about-info-card');
+			const rows = [
+				{ label: 'Name', value: siteInfo.name || '' },
+				{ label: 'Address', value: siteInfo.url || '' }
+			].concat(Array.isArray(siteInfo.rows) ? siteInfo.rows : []);
+
+			rows.forEach((row) => {
+				if (!row || !row.label || !row.value) {
+					return;
+				}
+
+				section.appendChild(createSettingsAboutInfoRow(row.label, row.value));
+			});
+
+			return section;
+		}
+
+		function createSettingsAboutDiagnostics(siteInfo = {}) {
+			if (!siteInfo.moreInfoUrl) {
+				return null;
+			}
+
+			const section = createSection('', 'aos-settings-about-diagnostics');
+			const row = dom.createElement('div', 'aos-settings-about-diagnostics-row');
+			const text = dom.createElement('span', 'aos-settings-row-text');
+			const button = document.createElement('button');
+
+			button.type = 'button';
+			button.className = 'aos-settings-about-button';
+			button.textContent = siteInfo.moreInfoLabel || 'More Info...';
+			button.addEventListener('click', () => {
+				executeMenuCommand('open-url', {
+					icon: 'dashicons-heart',
+					label: siteInfo.moreInfoLabel || 'More Info...',
+					title: siteInfo.moreInfoTitle || 'Site Health Info',
+					url: siteInfo.moreInfoUrl
+				});
+			});
+
+			text.appendChild(dom.createElement('strong', '', 'Site Health'));
+			text.appendChild(dom.createElement('span', '', 'WordPress diagnostics and environment report'));
+			row.appendChild(createSettingsRowIcon('dashicons-heart', 'red'));
+			row.appendChild(text);
+			row.appendChild(button);
+			section.appendChild(row);
+
+			return section;
+		}
+
+		function createGeneralAboutPanel() {
+			const siteInfo = config.siteInfo && typeof config.siteInfo === 'object' ? config.siteInfo : {};
+			const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-about-panel');
+			const hero = dom.createElement('div', 'aos-settings-about-hero');
+			const diagnostics = createSettingsAboutDiagnostics(siteInfo);
+
+			panel.dataset.aosSettingsPanel = 'general-about';
+			panel.dataset.aosSettingsSidebar = 'general';
+			panel.dataset.aosSettingsTitle = 'About';
+			hero.appendChild(createSettingsAboutDevice(siteInfo));
+			hero.appendChild(dom.createElement('h2', '', siteInfo.name || 'WordPress Site'));
+			if (siteInfo.url) {
+				hero.appendChild(dom.createElement('p', '', siteInfo.url));
+			}
+
+			panel.appendChild(hero);
+			panel.appendChild(createSettingsAboutInfoCard(siteInfo));
+			if (diagnostics) {
+				panel.appendChild(createSectionHeading('Diagnostics'));
+				panel.appendChild(diagnostics);
+			}
+			if (siteInfo.footer) {
+				panel.appendChild(dom.createElement('p', 'aos-settings-about-footer', siteInfo.footer));
+			}
+
+			return panel;
+		}
+
 		function createUserProfile() {
 			const user = getUserProfile();
 			const name = user.name || 'Admin';
@@ -1190,6 +1340,17 @@
 				button.disabled = true;
 				button.setAttribute('aria-label', direction === 'back' ? 'Back' : 'Forward');
 				button.appendChild(dom.createElement('span', 'aos-settings-history-chevron'));
+				if (direction === 'back') {
+					backButton = button;
+					button.addEventListener('click', () => {
+						const previousPanel = panelHistory.pop();
+						if (previousPanel) {
+							showSettingsPanel(previousPanel);
+						}
+					});
+				} else {
+					forwardButton = button;
+				}
 				history.appendChild(button);
 			});
 
@@ -1289,6 +1450,7 @@
 			appearancePanel.appendChild(installedThemeSection);
 		}
 		pane.appendChild(createGeneralPanel());
+		pane.appendChild(createGeneralAboutPanel());
 		pane.appendChild(createProfilePanel());
 		pane.appendChild(appearancePanel);
 		pane.appendChild(createWallpaperPanel(status));

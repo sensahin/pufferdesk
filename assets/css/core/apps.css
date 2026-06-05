@@ -250,7 +250,7 @@
 	font-size: 23px;
 	font-weight: var(--aos-weight-heading);
 	letter-spacing: 0;
-	line-height: var(--aos-line-height-tight);
+	line-height: 1.16;
 	margin: 0;
 	max-width: 100%;
 	overflow: hidden;
@@ -999,6 +999,191 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	line-height: 1.32;
 	margin: 6px auto 0;
 	max-width: 480px;
+}
+
+.aos-settings-about-panel {
+	gap: 16px;
+}
+
+.aos-settings-about-hero {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	padding: 34px 12px 14px;
+	text-align: center;
+}
+
+.aos-settings-about-device {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 22px;
+}
+
+.aos-settings-about-screen {
+	align-items: center;
+	background: linear-gradient(180deg, #62b6f0, #2386cf);
+	border: 2px solid rgba(0, 0, 0, 0.92);
+	border-radius: 5px 5px 2px 2px;
+	box-shadow: 0 15px 24px rgba(0, 0, 0, 0.2);
+	display: flex;
+	height: 84px;
+	justify-content: center;
+	position: relative;
+	width: 140px;
+}
+
+.aos-settings-about-screen::before {
+	background: rgba(0, 0, 0, 0.92);
+	border-radius: 0 0 5px 5px;
+	content: "";
+	height: 6px;
+	left: 50%;
+	position: absolute;
+	top: -2px;
+	transform: translateX(-50%);
+	width: 26px;
+}
+
+.aos-settings-about-screen img {
+	background: rgba(255, 255, 255, 0.88);
+	border-radius: 13px;
+	display: block;
+	max-height: 48px;
+	max-width: 48px;
+	object-fit: contain;
+	padding: 7px;
+}
+
+.aos-settings-about-screen .dashicons {
+	background: rgba(255, 255, 255, 0.88);
+	border-radius: 13px;
+	color: #1e4f7c;
+	font-size: 35px;
+	height: 48px;
+	line-height: 48px;
+	width: 48px;
+}
+
+.aos-settings-about-stand {
+	background: linear-gradient(180deg, #222, #070707 62%, #55595d);
+	border-radius: 0 0 48% 48%;
+	box-shadow: 0 5px 8px rgba(0, 0, 0, 0.34);
+	display: block;
+	height: 13px;
+	margin-top: -1px;
+	width: 173px;
+}
+
+.aos-settings-about-hero h2 {
+	color: var(--aos-ink);
+	font-family: var(--aos-font-display);
+	font-size: 25px;
+	font-weight: var(--aos-weight-semibold);
+	letter-spacing: 0;
+	line-height: 1.16;
+	margin: 0;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-settings-about-hero p {
+	color: var(--aos-muted);
+	font-size: var(--aos-settings-text-heading);
+	font-weight: var(--aos-weight-semibold);
+	line-height: var(--aos-line-height-body);
+	margin: 5px 0 0;
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-settings-about-info-card {
+	padding: 0;
+}
+
+.aos-settings-about-info-row {
+	align-items: center;
+	display: grid;
+	gap: 16px;
+	grid-template-columns: minmax(112px, 1fr) minmax(0, 1.6fr);
+	min-height: 38px;
+	padding: 8px 16px;
+}
+
+.aos-settings-about-info-row + .aos-settings-about-info-row {
+	border-top: 1px solid var(--aos-card-border);
+}
+
+.aos-settings-about-info-label,
+.aos-settings-about-info-value {
+	font-size: var(--aos-settings-text-label);
+	line-height: var(--aos-line-height-body);
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-settings-about-info-label {
+	color: var(--aos-ink);
+	font-weight: var(--aos-weight-medium);
+}
+
+.aos-settings-about-info-value {
+	color: var(--aos-muted);
+	font-weight: var(--aos-weight-semibold);
+	text-align: right;
+}
+
+.aos-settings-about-diagnostics {
+	padding: 0;
+}
+
+.aos-settings-about-diagnostics-row {
+	align-items: center;
+	display: grid;
+	gap: 12px;
+	grid-template-columns: 30px minmax(0, 1fr) auto;
+	min-height: 62px;
+	padding: 10px 16px;
+}
+
+.aos-settings-about-button {
+	appearance: none;
+	background: var(--aos-control-bg);
+	border: 0;
+	border-radius: 8px;
+	color: var(--aos-ink);
+	cursor: default;
+	font-family: inherit;
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-semibold);
+	line-height: 1;
+	min-height: 30px;
+	padding: 0 15px;
+}
+
+.aos-settings-about-button:focus {
+	outline: none;
+}
+
+.aos-settings-about-button:active {
+	background: var(--aos-control-bg-hover);
+}
+
+.aos-settings-about-footer {
+	color: var(--aos-muted);
+	font-size: var(--aos-settings-text-body);
+	font-weight: var(--aos-weight-semibold);
+	line-height: 1.25;
+	margin: 2px auto 0;
+	max-width: 360px;
+	opacity: 0.8;
+	text-align: center;
 }
 
 .aos-settings-action-row {

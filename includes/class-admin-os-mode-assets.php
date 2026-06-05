@@ -535,7 +535,7 @@ final class Admin_OS_Mode_Assets {
 									'description' => __( 'Site and WordPress environment details', 'admin-os-mode' ),
 									'icon'        => 'dashicons-info-outline',
 									'tone'        => 'gray',
-									'command'     => 'open-site-about',
+									'panel'       => 'general-about',
 								),
 								array(
 									'id'     => 'software-update',

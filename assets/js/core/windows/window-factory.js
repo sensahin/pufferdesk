@@ -11,7 +11,6 @@
 			button.className = `aos-window-control aos-window-control-${modifier}`;
 			button.dataset[action] = '';
 			button.setAttribute('aria-label', label);
-			button.title = label;
 			button.disabled = disabled;
 			if (disabled) {
 				button.setAttribute('aria-disabled', 'true');
@@ -72,6 +71,9 @@
 			win.dataset.aosResizeMode = options.resizeMode || 'both';
 			win.dataset.aosWindowKind = options.windowKind || (options.appId ? 'app' : 'window');
 			win.dataset.aosWindowTitle = options.title || '';
+			if (options.contextMenu === false) {
+				win.dataset.aosContextMenuDisabled = '1';
+			}
 			if (options.persist === false) {
 				win.dataset.aosPersist = '0';
 			}

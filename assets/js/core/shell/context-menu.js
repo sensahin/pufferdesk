@@ -312,6 +312,14 @@
 		}
 
 		function openFromEvent(event) {
+			const disabled = event.target.closest('[data-aos-context-menu-disabled="1"]');
+			if (disabled && shell.contains(disabled)) {
+				closeMenu();
+				event.preventDefault();
+				event.stopPropagation();
+				return false;
+			}
+
 			const target = resolveTarget(event.target);
 			if (!target) {
 				closeMenu();

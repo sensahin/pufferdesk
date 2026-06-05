@@ -30,6 +30,7 @@
 			if (app.kind === 'native' && app.native === 'settings') {
 				options.content = window.AdminOSMode.apps.createSettingsApp({ config });
 				options.bodyClass = 'aos-window-body aos-settings-body';
+				options.contextMenu = false;
 				options.resizeMode = 'vertical';
 				options.width = '740px';
 				options.height = '680px';
@@ -64,6 +65,7 @@
 				appId: `about-${app.id}`,
 				bodyClass: 'aos-window-body aos-about-body',
 				centered: true,
+				contextMenu: false,
 				content: window.AdminOSMode.apps.createAboutWindow(app),
 				disabledControls: ['minimize', 'maximize'],
 				height: '206px',
@@ -89,6 +91,7 @@
 				appId: 'about-this-site',
 				bodyClass: 'aos-window-body aos-site-about-body',
 				centered: true,
+				contextMenu: false,
 				content: window.AdminOSMode.apps.createSiteAboutWindow(siteInfo),
 				disabledControls: ['minimize', 'maximize'],
 				height: '500px',
