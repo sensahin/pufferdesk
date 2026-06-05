@@ -346,6 +346,7 @@ final class Admin_OS_Mode_Assets {
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 			'classicUrl' => $this->router->get_toggle_url( false ),
 			'logoutUrl'  => wp_logout_url(),
+			'settings'   => $this->get_settings_config(),
 			'shellUrl'   => $this->router->get_shell_url(),
 			'siteName'   => get_bloginfo( 'name' ),
 			'system'     => $this->get_system_config(),
@@ -394,6 +395,158 @@ final class Admin_OS_Mode_Assets {
 		}
 
 		return ucwords( str_replace( '_', ' ', $role ) );
+	}
+
+	/**
+	 * Settings data used by native OS Settings panels.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_settings_config() {
+		return array(
+			'general' => array(
+				'description' => __( 'Manage site information, updates, language, privacy, and WordPress tools.', 'admin-os-mode' ),
+				'groups'      => $this->get_general_settings_groups(),
+			),
+		);
+	}
+
+	/**
+	 * General settings groups for WordPress-backed destinations.
+	 *
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function get_general_settings_groups() {
+		return array_values(
+			array_filter(
+				array(
+					array(
+						'id'    => 'system',
+						'items' => $this->filter_settings_rows(
+							array(
+								array(
+									'id'          => 'about',
+									'label'       => __( 'About', 'admin-os-mode' ),
+									'description' => sprintf(
+										/* translators: 1: plugin version, 2: WordPress version. */
+										__( 'Admin OS %1$s · WordPress %2$s', 'admin-os-mode' ),
+										ADMIN_OS_MODE_VERSION,
+										get_bloginfo( 'version' )
+									),
+									'icon'        => 'dashicons-info-outline',
+									'tone'        => 'gray',
+									'command'     => 'open-system-about',
+								),
+								array(
+									'id'     => 'software-update',
+									'label'  => __( 'Software Update', 'admin-os-mode' ),
+									'icon'   => 'dashicons-update',
+									'tone'   => 'gray',
+									'url'    => admin_url( 'update-core.php' ),
+									'title'  => __( 'WordPress Updates', 'admin-os-mode' ),
+									'capany' => array( 'update_core', 'update_plugins', 'update_themes' ),
+								),
+								array(
+									'id'    => 'site-health',
+									'label' => __( 'Site Health', 'admin-os-mode' ),
+									'icon'  => 'dashicons-heart',
+									'tone'  => 'gray',
+									'url'   => admin_url( 'site-health.php' ),
+									'title' => __( 'Site Health', 'admin-os-mode' ),
+									'cap'   => 'view_site_health_checks',
+								),
+							)
+						),
+					),
+					array(
+						'id'    => 'site',
+						'items' => $this->filter_settings_rows(
+							array(
+								array(
+									'id'    => 'date-time',
+									'label' => __( 'Date & Time', 'admin-os-mode' ),
+									'icon'  => 'dashicons-calendar-alt',
+									'tone'  => 'blue',
+									'url'   => admin_url( 'options-general.php#timezone_string' ),
+									'title' => __( 'Date & Time', 'admin-os-mode' ),
+									'cap'   => 'manage_options',
+								),
+								array(
+									'id'    => 'language-region',
+									'label' => __( 'Language & Region', 'admin-os-mode' ),
+									'icon'  => 'dashicons-translation',
+									'tone'  => 'blue',
+									'url'   => admin_url( 'options-general.php#WPLANG' ),
+									'title' => __( 'Language & Region', 'admin-os-mode' ),
+									'cap'   => 'manage_options',
+								),
+								array(
+									'id'    => 'permalinks',
+									'label' => __( 'Permalinks', 'admin-os-mode' ),
+									'icon'  => 'dashicons-admin-links',
+									'tone'  => 'gray',
+									'url'   => admin_url( 'options-permalink.php' ),
+									'title' => __( 'Permalinks', 'admin-os-mode' ),
+									'cap'   => 'manage_options',
+								),
+								array(
+									'id'    => 'privacy',
+									'label' => __( 'Privacy', 'admin-os-mode' ),
+									'icon'  => 'dashicons-privacy',
+									'tone'  => 'gray',
+									'url'   => admin_url( 'options-privacy.php' ),
+									'title' => __( 'Privacy', 'admin-os-mode' ),
+									'cap'   => 'manage_privacy_options',
+								),
+								array(
+									'id'    => 'import-export',
+									'label' => __( 'Import & Export', 'admin-os-mode' ),
+									'icon'  => 'dashicons-migrate',
+									'tone'  => 'gray',
+									'url'   => admin_url( 'import.php' ),
+									'title' => __( 'Import & Export', 'admin-os-mode' ),
+									'cap'   => 'import',
+								),
+							)
+						),
+					),
+				),
+				static function ( $group ) {
+					return ! empty( $group['items'] );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Remove rows the current user cannot use.
+	 *
+	 * @param array<int,array<string,mixed>> $rows Rows.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function filter_settings_rows( $rows ) {
+		return array_values(
+			array_filter(
+				$rows,
+				static function ( $row ) {
+					if ( isset( $row['capany'] ) && is_array( $row['capany'] ) ) {
+						foreach ( $row['capany'] as $capability ) {
+							if ( current_user_can( $capability ) ) {
+								return true;
+							}
+						}
+
+						return false;
+					}
+
+					if ( isset( $row['cap'] ) && is_string( $row['cap'] ) ) {
+						return current_user_can( $row['cap'] );
+					}
+
+					return true;
+				}
+			)
+		);
 	}
 
 	/**

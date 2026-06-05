@@ -11,6 +11,7 @@
 		const appearance = window.AdminOSMode.appearance;
 		const wallpaper = window.AdminOSMode.wallpaper;
 		const config = context.config || window.AdminOSMode.config.get();
+		const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
 		const themes = Array.isArray(config.themes) ? config.themes : [];
 		const shell = document.querySelector('[data-admin-os-shell]');
 		let optionGroups = [];
@@ -52,7 +53,7 @@
 		];
 
 		const sidebarItems = [
-			{ id: 'general', label: 'General', icon: 'dashicons-admin-generic', tone: 'gray', disabled: true },
+			{ id: 'general', label: 'General', icon: 'dashicons-admin-generic', tone: 'gray' },
 			{ id: 'appearance', label: 'Appearance', icon: 'dashicons-admin-appearance', tone: 'blue' },
 			{ id: 'desktop-dock', label: 'Desktop & Dock', icon: 'dashicons-desktop', tone: 'indigo', disabled: true },
 			{ id: 'menu-bar', label: 'Menu Bar', icon: 'dashicons-menu-alt3', tone: 'gray', disabled: true },
@@ -927,8 +928,8 @@
 			return icon;
 		}
 
-		function createProfileRowIcon(iconName, tone = 'gray') {
-			const icon = dom.createElement('span', `aos-settings-profile-row-icon aos-settings-sidebar-icon-${tone}`);
+		function createSettingsRowIcon(iconName, tone = 'gray') {
+			const icon = dom.createElement('span', `aos-settings-row-icon aos-settings-sidebar-icon-${tone}`);
 			icon.appendChild(dom.createDashicon(iconName));
 
 			return icon;
@@ -942,25 +943,34 @@
 					command,
 					icon: options.icon || '',
 					label: options.label || '',
+					target: options.target || '',
+					title: options.title || options.windowTitle || options.label || '',
 					url: options.url || ''
 				});
 			}
 		}
 
-		function createProfileActionRow(options = {}) {
+		function createSettingsActionRow(options = {}) {
 			const hasUrl = Boolean(options.url);
-			const row = hasUrl ? document.createElement('button') : dom.createElement('div');
-			const text = dom.createElement('span', 'aos-settings-profile-row-text');
+			const hasCommand = Boolean(options.command);
+			const isInteractive = hasUrl || hasCommand;
+			const row = isInteractive ? document.createElement('button') : dom.createElement('div');
+			const text = dom.createElement('span', 'aos-settings-row-text');
 
-			if (hasUrl) {
+			if (isInteractive) {
 				row.type = 'button';
+			}
+			if (hasUrl) {
 				row.dataset.aosOpenUrl = options.url;
-				row.dataset.aosTitle = options.windowTitle || options.label || 'WordPress Profile';
-				row.dataset.aosIcon = options.icon || 'dashicons-admin-users';
+				row.dataset.aosTitle = options.windowTitle || options.title || options.label || 'WordPress';
+				row.dataset.aosIcon = options.icon || 'dashicons-admin-generic';
+			}
+			if (hasCommand) {
+				row.addEventListener('click', () => executeMenuCommand(options.command, options));
 			}
 
-			row.className = 'aos-settings-profile-action';
-			row.appendChild(createProfileRowIcon(options.icon || 'dashicons-admin-generic', options.tone || 'gray'));
+			row.className = `aos-settings-action-row ${options.className || ''}`.trim();
+			row.appendChild(createSettingsRowIcon(options.icon || 'dashicons-admin-generic', options.tone || 'gray'));
 			text.appendChild(dom.createElement('strong', '', options.label || 'Profile'));
 			if (options.description) {
 				text.appendChild(dom.createElement('span', '', options.description));
@@ -968,12 +978,18 @@
 			row.appendChild(text);
 
 			if (options.value) {
-				row.appendChild(dom.createElement('span', 'aos-settings-profile-row-value', options.value));
-			} else if (hasUrl) {
-				row.appendChild(dom.createElement('span', 'aos-settings-profile-row-chevron'));
+				row.appendChild(dom.createElement('span', 'aos-settings-row-value', options.value));
+			} else if (isInteractive) {
+				row.appendChild(dom.createElement('span', 'aos-settings-row-chevron'));
 			}
 
 			return row;
+		}
+
+		function createProfileActionRow(options = {}) {
+			return createSettingsActionRow(Object.assign({}, options, {
+				className: 'aos-settings-profile-action'
+			}));
 		}
 
 		function createProfileSignOutButton() {
@@ -1030,6 +1046,54 @@
 			}));
 
 			panel.append(hero, accountSection, createProfileSignOutButton());
+
+			return panel;
+		}
+
+		function getGeneralSettingsConfig() {
+			return settingsConfig.general && typeof settingsConfig.general === 'object'
+				? settingsConfig.general
+				: {};
+		}
+
+		function createSettingsHero(options = {}) {
+			const hero = dom.createElement('section', 'aos-settings-summary-card');
+			const icon = dom.createElement('span', 'aos-settings-summary-icon aos-settings-sidebar-icon-gray');
+
+			icon.appendChild(dom.createDashicon(options.icon || 'dashicons-admin-generic'));
+			hero.appendChild(icon);
+			hero.appendChild(dom.createElement('h2', '', options.title || 'General'));
+			if (options.description) {
+				hero.appendChild(dom.createElement('p', '', options.description));
+			}
+
+			return hero;
+		}
+
+		function createGeneralPanel() {
+			const general = getGeneralSettingsConfig();
+			const groups = Array.isArray(general.groups) ? general.groups : [];
+			const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-general-panel');
+
+			panel.dataset.aosSettingsPanel = 'general';
+			panel.appendChild(createSettingsHero({
+				description: general.description || 'Manage site information, updates, language, privacy, and WordPress tools.',
+				icon: 'dashicons-admin-generic',
+				title: 'General'
+			}));
+
+			groups.forEach((group) => {
+				const items = Array.isArray(group.items) ? group.items : [];
+				if (!items.length) {
+					return;
+				}
+
+				const section = createSection('', 'aos-settings-list');
+				items.forEach((item) => {
+					section.appendChild(createSettingsActionRow(item));
+				});
+				panel.appendChild(section);
+			});
 
 			return panel;
 		}
@@ -1224,6 +1288,7 @@
 			appearancePanel.appendChild(createSectionHeading('Installed Theme'));
 			appearancePanel.appendChild(installedThemeSection);
 		}
+		pane.appendChild(createGeneralPanel());
 		pane.appendChild(createProfilePanel());
 		pane.appendChild(appearancePanel);
 		pane.appendChild(createWallpaperPanel(status));
