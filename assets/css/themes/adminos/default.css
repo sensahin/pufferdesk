@@ -115,12 +115,30 @@
 	--aos-tile-border: rgba(255, 255, 255, 0.68);
 	--aos-tile-shadow: var(--aos-material-card-shadow);
 	--aos-accent: #0a84ff;
+	--aos-accent-hue-shift: 170deg;
 	--aos-accent-rgb: 10 132 255;
 	--aos-accent-ink: #fff;
 	--aos-accent-soft: rgba(10, 132, 255, 0.16);
 	--aos-accent-medium: rgba(10, 132, 255, 0.28);
 	--aos-accent-active: rgba(10, 132, 255, 0.82);
 	--aos-accent-active-strong: linear-gradient(180deg, rgba(10, 132, 255, 0.92), rgba(10, 132, 255, 0.78));
+	--aos-icon-widget-app-surface-bg: transparent;
+	--aos-icon-widget-app-surface-border: transparent;
+	--aos-icon-widget-app-surface-border-width: 0;
+	--aos-icon-widget-app-surface-shadow: none;
+	--aos-icon-widget-image-filter: none;
+	--aos-icon-widget-image-opacity: 1;
+	--aos-icon-widget-surface-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.86), rgba(218, 234, 238, 0.8));
+	--aos-icon-widget-surface-border: rgba(255, 255, 255, 0.72);
+	--aos-icon-widget-surface-shadow: 0 8px 16px rgba(16, 34, 50, 0.12), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+	--aos-icon-widget-symbol: var(--aos-accent);
+	--aos-icon-widget-tile-bg: var(--aos-tile-bg);
+	--aos-icon-widget-tile-border: var(--aos-tile-border);
+	--aos-icon-widget-tile-color: #fff;
+	--aos-icon-widget-widget-bg: var(--aos-card-bg);
+	--aos-icon-widget-widget-border: var(--aos-card-border);
+	--aos-icon-widget-widget-shadow: var(--aos-card-shadow);
+	--aos-icon-widget-widget-icon: var(--aos-accent);
 	--aos-running-indicator: rgba(12, 18, 24, 0.88);
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(235, 241, 245, 0.7));
 	--aos-window-bar-border: rgba(20, 37, 51, 0.08);
@@ -154,6 +172,7 @@
 
 .aos-shell[data-aos-theme="adminos"][data-aos-accent-color="purple"] {
 	--aos-accent: #9b3fb0;
+	--aos-accent-hue-shift: 225deg;
 	--aos-accent-rgb: 155 63 176;
 	--aos-accent-ink: #fff;
 	--aos-accent-soft: rgba(155, 63, 176, 0.16);
@@ -166,6 +185,7 @@
 
 .aos-shell[data-aos-theme="adminos"][data-aos-accent-color="pink"] {
 	--aos-accent: #f0449a;
+	--aos-accent-hue-shift: 285deg;
 	--aos-accent-rgb: 240 68 154;
 	--aos-accent-ink: #fff;
 	--aos-accent-soft: rgba(240, 68, 154, 0.16);
@@ -178,6 +198,7 @@
 
 .aos-shell[data-aos-theme="adminos"][data-aos-accent-color="red"] {
 	--aos-accent: #ed333b;
+	--aos-accent-hue-shift: 320deg;
 	--aos-accent-rgb: 237 51 59;
 	--aos-accent-ink: #fff;
 	--aos-accent-soft: rgba(237, 51, 59, 0.16);
@@ -190,6 +211,7 @@
 
 .aos-shell[data-aos-theme="adminos"][data-aos-accent-color="orange"] {
 	--aos-accent: #ff7a16;
+	--aos-accent-hue-shift: 340deg;
 	--aos-accent-rgb: 255 122 22;
 	--aos-accent-ink: #fff;
 	--aos-accent-soft: rgba(255, 122, 22, 0.16);
@@ -202,6 +224,7 @@
 
 .aos-shell[data-aos-theme="adminos"][data-aos-accent-color="yellow"] {
 	--aos-accent: #ffc226;
+	--aos-accent-hue-shift: 0deg;
 	--aos-accent-rgb: 255 194 38;
 	--aos-accent-ink: #2f2815;
 	--aos-accent-soft: rgba(255, 194, 38, 0.16);
@@ -214,6 +237,7 @@
 
 .aos-shell[data-aos-theme="adminos"][data-aos-accent-color="green"] {
 	--aos-accent: #58b947;
+	--aos-accent-hue-shift: 80deg;
 	--aos-accent-rgb: 88 185 71;
 	--aos-accent-ink: #fff;
 	--aos-accent-soft: rgba(88, 185, 71, 0.16);
@@ -226,6 +250,7 @@
 
 .aos-shell[data-aos-theme="adminos"][data-aos-accent-color="graphite"] {
 	--aos-accent: #8e8e93;
+	--aos-accent-hue-shift: 0deg;
 	--aos-accent-rgb: 142 142 147;
 	--aos-accent-ink: #fff;
 	--aos-accent-soft: rgba(142, 142, 147, 0.16);
@@ -515,27 +540,40 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-app-icon {
-	background: transparent;
-	border: 0;
+	background: var(--aos-icon-widget-app-surface-bg);
+	border: var(--aos-icon-widget-app-surface-border-width) solid var(--aos-icon-widget-app-surface-border);
 	border-radius: 15px;
-	box-shadow: none;
+	box-shadow: var(--aos-icon-widget-app-surface-shadow);
+	color: var(--aos-icon-widget-symbol);
 	height: 52px;
 	width: 52px;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-app-icon .aos-icon-image {
+	filter: var(--aos-icon-widget-image-filter);
 	height: 52px;
+	opacity: var(--aos-icon-widget-image-opacity);
 	width: 52px;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-widget {
 	-webkit-backdrop-filter: var(--aos-material-card-filter);
 	backdrop-filter: var(--aos-material-card-filter);
-	background: var(--aos-card-bg);
-	border-color: var(--aos-card-border);
+	background: var(--aos-icon-widget-widget-bg);
+	border-color: var(--aos-icon-widget-widget-border);
 	border-radius: 14px;
-	box-shadow: var(--aos-card-shadow);
+	box-shadow: var(--aos-icon-widget-widget-shadow);
+	color: var(--aos-ink);
 	position: absolute;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-widget-icon {
+	color: var(--aos-icon-widget-widget-icon);
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-widget-icon .aos-icon-image {
+	filter: var(--aos-icon-widget-image-filter);
+	opacity: var(--aos-icon-widget-image-opacity);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-widget::before {
@@ -625,10 +663,11 @@
 
 .aos-shell[data-aos-theme="adminos"] .aos-dock-item .dashicons,
 .aos-shell[data-aos-theme="adminos"] .aos-dock-window-item .dashicons {
-	background: linear-gradient(160deg, rgba(255, 255, 255, 0.86), rgba(218, 234, 238, 0.8));
-	border: 1px solid rgba(255, 255, 255, 0.72);
+	background: var(--aos-icon-widget-surface-bg);
+	border: 1px solid var(--aos-icon-widget-surface-border);
 	border-radius: 14px;
-	box-shadow: 0 8px 16px rgba(16, 34, 50, 0.12), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+	box-shadow: var(--aos-icon-widget-surface-shadow);
+	color: var(--aos-icon-widget-symbol);
 	font-size: var(--aos-dock-icon-size, 27px);
 	height: var(--aos-dock-tile-size, 52px);
 	line-height: var(--aos-dock-tile-size, 52px);
@@ -637,8 +676,21 @@
 
 .aos-shell[data-aos-theme="adminos"] .aos-dock-item .aos-icon-image,
 .aos-shell[data-aos-theme="adminos"] .aos-dock-window-item .aos-icon-image {
+	filter: var(--aos-icon-widget-image-filter);
 	height: var(--aos-dock-tile-size, 54px);
+	opacity: var(--aos-icon-widget-image-opacity);
 	width: var(--aos-dock-tile-size, 54px);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-dock-item:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-dock-window-item:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] .aos-dock-item:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] .aos-dock-window-item:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] .aos-dock-item:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] .aos-dock-window-item:has(.aos-icon-image) {
+	background: var(--aos-icon-widget-app-surface-bg);
+	border: var(--aos-icon-widget-app-surface-border-width) solid var(--aos-icon-widget-app-surface-border);
+	box-shadow: var(--aos-icon-widget-app-surface-shadow);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-settings-section,
@@ -736,6 +788,24 @@
 	background: var(--aos-settings-main-bg);
 }
 
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-settings-sidebar-icon,
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-settings-row-icon,
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-settings-summary-icon,
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-settings-about-feature-icon,
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] .aos-settings-sidebar-icon,
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] .aos-settings-row-icon,
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] .aos-settings-summary-icon,
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] .aos-settings-about-feature-icon,
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] .aos-settings-sidebar-icon,
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] .aos-settings-row-icon,
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] .aos-settings-summary-icon,
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] .aos-settings-about-feature-icon {
+	background: var(--aos-icon-widget-tile-bg);
+	border: 1px solid var(--aos-icon-widget-tile-border);
+	box-shadow: var(--aos-icon-widget-surface-shadow);
+	color: var(--aos-icon-widget-tile-color);
+}
+
 .aos-shell[data-aos-theme="adminos"] .aos-settings-search-field,
 .aos-shell[data-aos-theme="adminos"] .aos-settings-history {
 	-webkit-backdrop-filter: var(--aos-material-control-filter);
@@ -798,6 +868,14 @@
 	--aos-tile-bg: var(--aos-material-solid-bg);
 	--aos-tile-border: var(--aos-material-solid-border);
 	--aos-tile-shadow: var(--aos-material-card-shadow);
+	--aos-icon-widget-image-filter: none;
+	--aos-icon-widget-surface-bg: linear-gradient(160deg, rgba(74, 83, 96, 0.9), rgba(30, 38, 49, 0.88));
+	--aos-icon-widget-surface-border: rgba(255, 255, 255, 0.18);
+	--aos-icon-widget-surface-shadow: 0 8px 18px rgba(0, 0, 0, 0.24), 0 1px 0 rgba(255, 255, 255, 0.14) inset;
+	--aos-icon-widget-symbol: rgba(246, 248, 251, 0.94);
+	--aos-icon-widget-tile-bg: linear-gradient(180deg, rgba(98, 104, 114, 0.92), rgba(50, 56, 66, 0.92));
+	--aos-icon-widget-tile-border: rgba(255, 255, 255, 0.16);
+	--aos-icon-widget-widget-icon: var(--aos-accent);
 	--aos-running-indicator: rgba(244, 247, 251, 0.92);
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(42, 47, 58, 0.9), rgba(26, 30, 38, 0.72));
 	--aos-window-bar-border: rgba(255, 255, 255, 0.11);
@@ -886,11 +964,16 @@
 	--aos-settings-sidebar-bg: linear-gradient(145deg, rgba(25, 39, 50, 0.76), rgba(14, 24, 34, 0.66));
 }
 
-.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-app-launcher,
-.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-widget {
+.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-app-launcher {
 	background: var(--aos-card-bg);
 	border-color: var(--aos-card-border);
 	box-shadow: var(--aos-card-shadow);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-widget {
+	background: var(--aos-icon-widget-widget-bg);
+	border-color: var(--aos-icon-widget-widget-border);
+	box-shadow: var(--aos-icon-widget-widget-shadow);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-app-launcher:hover,
@@ -959,20 +1042,89 @@
 	--aos-dock-bg: var(--aos-material-clear-bg);
 }
 
-.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-widget,
-.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-dock-item .dashicons {
-	background: rgba(25, 27, 31, 0.82);
-	color: #f6f7f8;
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] {
+	--aos-icon-widget-app-surface-bg: linear-gradient(160deg, rgba(53, 59, 69, 0.92), rgba(24, 29, 37, 0.9));
+	--aos-icon-widget-app-surface-border: rgba(255, 255, 255, 0.16);
+	--aos-icon-widget-app-surface-border-width: 1px;
+	--aos-icon-widget-app-surface-shadow: 0 8px 16px rgba(0, 0, 0, 0.22), 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+	--aos-icon-widget-image-filter: brightness(0.72) saturate(0.9) contrast(1.08);
+	--aos-icon-widget-image-opacity: 0.94;
+	--aos-icon-widget-surface-bg: linear-gradient(160deg, rgba(61, 68, 80, 0.96), rgba(27, 33, 43, 0.94));
+	--aos-icon-widget-surface-border: rgba(255, 255, 255, 0.18);
+	--aos-icon-widget-surface-shadow: 0 9px 18px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.14) inset;
+	--aos-icon-widget-symbol: rgba(246, 248, 251, 0.96);
+	--aos-icon-widget-tile-bg: linear-gradient(180deg, rgba(95, 101, 111, 0.96), rgba(46, 52, 62, 0.96));
+	--aos-icon-widget-tile-border: rgba(255, 255, 255, 0.16);
+	--aos-icon-widget-tile-color: rgba(246, 248, 251, 0.96);
+	--aos-icon-widget-widget-bg: linear-gradient(145deg, rgba(42, 49, 60, 0.72), rgba(18, 24, 33, 0.58));
+	--aos-icon-widget-widget-border: rgba(255, 255, 255, 0.15);
+	--aos-icon-widget-widget-shadow: 0 20px 50px rgba(0, 0, 0, 0.36), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+	--aos-icon-widget-widget-icon: rgba(246, 248, 251, 0.94);
 }
 
-.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] .aos-widget,
-.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] .aos-dock-item .dashicons {
-	background: rgba(255, 255, 255, 0.24);
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] {
+	--aos-icon-widget-app-surface-bg: rgba(255, 255, 255, 0.2);
+	--aos-icon-widget-app-surface-border: rgba(255, 255, 255, 0.38);
+	--aos-icon-widget-app-surface-border-width: 1px;
+	--aos-icon-widget-app-surface-shadow: 0 8px 18px rgba(8, 24, 38, 0.12), 0 1px 0 rgba(255, 255, 255, 0.34) inset;
+	--aos-icon-widget-image-filter: saturate(0.78) contrast(0.96) brightness(1.03);
+	--aos-icon-widget-image-opacity: 0.9;
+	--aos-icon-widget-surface-bg: rgba(255, 255, 255, 0.28);
+	--aos-icon-widget-surface-border: rgba(255, 255, 255, 0.44);
+	--aos-icon-widget-surface-shadow: 0 8px 18px rgba(8, 24, 38, 0.12), 0 1px 0 rgba(255, 255, 255, 0.34) inset;
+	--aos-icon-widget-symbol: var(--aos-ink);
+	--aos-icon-widget-tile-bg: rgba(255, 255, 255, 0.22);
+	--aos-icon-widget-tile-border: rgba(255, 255, 255, 0.36);
+	--aos-icon-widget-tile-color: var(--aos-ink);
+	--aos-icon-widget-widget-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.24), rgba(230, 242, 247, 0.14));
+	--aos-icon-widget-widget-border: rgba(255, 255, 255, 0.34);
+	--aos-icon-widget-widget-shadow: 0 18px 46px rgba(8, 24, 38, 0.16), 0 1px 0 rgba(255, 255, 255, 0.22) inset;
+	--aos-icon-widget-widget-icon: var(--aos-ink);
 }
 
-.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] .aos-widget,
-.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] .aos-dock-item .dashicons {
-	background: rgba(148, 217, 232, 0.38);
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] {
+	--aos-icon-widget-app-surface-bg: linear-gradient(160deg, rgb(var(--aos-accent-rgb) / 0.42), rgb(var(--aos-accent-rgb) / 0.2));
+	--aos-icon-widget-app-surface-border: rgb(var(--aos-accent-rgb) / 0.34);
+	--aos-icon-widget-app-surface-border-width: 1px;
+	--aos-icon-widget-app-surface-shadow: 0 8px 18px rgb(var(--aos-accent-rgb) / 0.2), 0 1px 0 rgba(255, 255, 255, 0.22) inset;
+	--aos-icon-widget-image-filter: grayscale(1) sepia(1) saturate(4.6) hue-rotate(var(--aos-accent-hue-shift)) brightness(0.92) contrast(0.96);
+	--aos-icon-widget-image-opacity: 0.82;
+	--aos-icon-widget-surface-bg: linear-gradient(160deg, rgb(var(--aos-accent-rgb) / 0.58), rgb(var(--aos-accent-rgb) / 0.28));
+	--aos-icon-widget-surface-border: rgb(var(--aos-accent-rgb) / 0.4);
+	--aos-icon-widget-surface-shadow: 0 8px 18px rgb(var(--aos-accent-rgb) / 0.22), 0 1px 0 rgba(255, 255, 255, 0.28) inset;
+	--aos-icon-widget-symbol: var(--aos-accent-ink);
+	--aos-icon-widget-tile-bg: linear-gradient(180deg, rgb(var(--aos-accent-rgb) / 0.92), rgb(var(--aos-accent-rgb) / 0.68));
+	--aos-icon-widget-tile-border: rgb(var(--aos-accent-rgb) / 0.42);
+	--aos-icon-widget-tile-color: var(--aos-accent-ink);
+	--aos-icon-widget-widget-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.28), rgba(255, 255, 255, 0.18));
+	--aos-icon-widget-widget-border: rgb(var(--aos-accent-rgb) / 0.3);
+	--aos-icon-widget-widget-shadow: 0 20px 52px rgb(var(--aos-accent-rgb) / 0.18), 0 1px 0 rgba(255, 255, 255, 0.22) inset;
+	--aos-icon-widget-widget-icon: var(--aos-accent);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"][data-aos-icon-widget-style="clear"] {
+	--aos-icon-widget-app-surface-bg: rgba(255, 255, 255, 0.12);
+	--aos-icon-widget-app-surface-border: rgba(255, 255, 255, 0.18);
+	--aos-icon-widget-surface-bg: rgba(255, 255, 255, 0.14);
+	--aos-icon-widget-surface-border: rgba(255, 255, 255, 0.2);
+	--aos-icon-widget-symbol: rgba(246, 248, 251, 0.94);
+	--aos-icon-widget-tile-bg: rgba(255, 255, 255, 0.14);
+	--aos-icon-widget-tile-border: rgba(255, 255, 255, 0.18);
+	--aos-icon-widget-tile-color: rgba(246, 248, 251, 0.94);
+	--aos-icon-widget-widget-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(20, 30, 38, 0.22));
+	--aos-icon-widget-widget-border: rgba(255, 255, 255, 0.16);
+	--aos-icon-widget-widget-icon: rgba(246, 248, 251, 0.94);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"][data-aos-icon-widget-style="tinted"] {
+	--aos-icon-widget-app-surface-bg: linear-gradient(160deg, rgb(var(--aos-accent-rgb) / 0.32), rgb(var(--aos-accent-rgb) / 0.16));
+	--aos-icon-widget-surface-bg: linear-gradient(160deg, rgb(var(--aos-accent-rgb) / 0.48), rgb(var(--aos-accent-rgb) / 0.22));
+	--aos-icon-widget-tile-bg: linear-gradient(180deg, rgb(var(--aos-accent-rgb) / 0.78), rgb(var(--aos-accent-rgb) / 0.52));
+	--aos-icon-widget-widget-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.22), rgba(16, 24, 32, 0.34));
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-accent-color="graphite"][data-aos-icon-widget-style="tinted"] {
+	--aos-icon-widget-image-filter: grayscale(1) saturate(0.18) brightness(0.9) contrast(0.98);
 }
 
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {

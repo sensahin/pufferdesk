@@ -27,6 +27,7 @@
 
 		return {
 			color,
+			hueShift: options.hueShift || '170deg',
 			rgb: rgb.join(' '),
 			ink,
 			focus: rgba(rgb, options.focus || 0.34),
@@ -41,24 +42,39 @@
 	const accentColors = {
 		multicolor: defineAccent('#0a84ff', [10, 132, 255], {
 			focus: 0.38,
+			hueShift: '170deg',
 			highlight: 0.2,
 			soft: 0.16,
 			medium: 0.28
 		}),
 		blue: defineAccent('#0a84ff', [10, 132, 255], {
 			focus: 0.38,
+			hueShift: '170deg',
 			highlight: 0.2
 		}),
-		purple: defineAccent('#9b3fb0', [155, 63, 176]),
-		pink: defineAccent('#f0449a', [240, 68, 154]),
-		red: defineAccent('#ed333b', [237, 51, 59]),
-		orange: defineAccent('#ff7a16', [255, 122, 22]),
+		purple: defineAccent('#9b3fb0', [155, 63, 176], {
+			hueShift: '225deg'
+		}),
+		pink: defineAccent('#f0449a', [240, 68, 154], {
+			hueShift: '285deg'
+		}),
+		red: defineAccent('#ed333b', [237, 51, 59], {
+			hueShift: '320deg'
+		}),
+		orange: defineAccent('#ff7a16', [255, 122, 22], {
+			hueShift: '340deg'
+		}),
 		yellow: defineAccent('#ffc226', [255, 194, 38], {
+			hueShift: '0deg',
 			highlight: 0.2,
 			ink: '#2f2815'
 		}),
-		green: defineAccent('#58b947', [88, 185, 71]),
-		graphite: defineAccent('#8e8e93', [142, 142, 147])
+		green: defineAccent('#58b947', [88, 185, 71], {
+			hueShift: '80deg'
+		}),
+		graphite: defineAccent('#8e8e93', [142, 142, 147], {
+			hueShift: '0deg'
+		})
 	};
 
 	let currentAppearance = Object.assign({}, defaults);
@@ -111,6 +127,7 @@
 		const accent = accentColors[accentColor] || accentColors.multicolor;
 
 		shell.style.setProperty('--aos-accent', accent.color);
+		shell.style.setProperty('--aos-accent-hue-shift', accent.hueShift);
 		shell.style.setProperty('--aos-accent-rgb', accent.rgb);
 		shell.style.setProperty('--aos-accent-ink', accent.ink);
 		shell.style.setProperty('--aos-accent-soft', accent.soft);

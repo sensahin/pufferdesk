@@ -2131,7 +2131,15 @@ button.aos-settings-action-row:active {
 }
 
 .aos-settings-icon-preview[data-aos-preview-value="tinted"] {
-	background: linear-gradient(180deg, #21b3ff, #0787ed);
+	background: linear-gradient(180deg, rgb(var(--aos-accent-rgb) / 0.9), rgb(var(--aos-accent-rgb) / 0.68));
+}
+
+.aos-settings-icon-preview[data-aos-preview-value="tinted"]::before {
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgb(var(--aos-accent-rgb) / 0.24));
+}
+
+.aos-settings-icon-preview[data-aos-preview-value="tinted"]::after {
+	background: rgb(var(--aos-accent-rgb) / 0.92);
 }
 
 .aos-settings-toggle {
