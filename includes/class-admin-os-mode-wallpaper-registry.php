@@ -383,7 +383,7 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 	}
 
 	/**
-	 * Get theme-declared image wallpapers.
+	 * Get theme-declared wallpapers.
 	 *
 	 * @param array<string,mixed> $theme Theme data.
 	 * @return array<int,array<string,mixed>>
@@ -393,7 +393,23 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 
 		if ( ! empty( $theme['media']['wallpapers']['items'] ) && is_array( $theme['media']['wallpapers']['items'] ) ) {
 			foreach ( $theme['media']['wallpapers']['items'] as $wallpaper ) {
-				if ( empty( $wallpaper['id'] ) || empty( $wallpaper['url'] ) ) {
+				if ( empty( $wallpaper['id'] ) ) {
+					continue;
+				}
+
+				$css_value = '';
+				$preview   = '';
+				$url       = '';
+				if ( ! empty( $wallpaper['url'] ) ) {
+					$url       = esc_url_raw( $wallpaper['url'] );
+					$css_value = $this->get_url_css_value( $url );
+					$preview   = $css_value;
+				} elseif ( ! empty( $wallpaper['css_value'] ) ) {
+					$css_value = $this->sanitize_css_value( $wallpaper['css_value'] );
+					$preview   = ! empty( $wallpaper['preview'] ) ? $this->sanitize_css_value( $wallpaper['preview'] ) : $css_value;
+				}
+
+				if ( '' === $css_value || 'none' === $css_value ) {
 					continue;
 				}
 
@@ -401,9 +417,9 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 					'type'      => 'theme',
 					'id'        => sanitize_key( $wallpaper['id'] ),
 					'label'     => isset( $wallpaper['label'] ) ? sanitize_text_field( $wallpaper['label'] ) : sanitize_key( $wallpaper['id'] ),
-					'url'       => esc_url_raw( $wallpaper['url'] ),
-					'css_value' => $this->get_url_css_value( $wallpaper['url'] ),
-					'preview'   => $this->get_url_css_value( $wallpaper['url'] ),
+					'url'       => $url,
+					'css_value' => $css_value,
+					'preview'   => $preview,
 					'fit'       => isset( $wallpaper['fit'] ) ? sanitize_key( $wallpaper['fit'] ) : 'cover',
 					'position'  => isset( $wallpaper['position'] ) ? sanitize_text_field( $wallpaper['position'] ) : 'center center',
 				);

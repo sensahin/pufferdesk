@@ -38,34 +38,58 @@ final class Admin_OS_Mode_Theme_Registry {
 				'parent'         => 'adminos-base',
 				'stylesheet'     => 'adminos/default.css',
 				'media'          => array(
-					'wallpaper'   => 'themes/adminos/default/wallpapers/aurora-flow.jpg',
 					'wallpapers'  => array(
 						'default' => 'aurora-flow',
 						'items'   => array(
 							array(
-								'id'    => 'aurora-flow',
-								'label' => __( 'Aurora', 'admin-os-mode' ),
-								'path'  => 'themes/adminos/default/wallpapers/aurora-flow.jpg',
+								'id'        => 'aurora-flow',
+								'label'     => __( 'Aurora', 'admin-os-mode' ),
+								'css_value' => 'radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.34), transparent 24%), radial-gradient(circle at 78% 18%, rgba(46, 211, 255, 0.38), transparent 30%), linear-gradient(135deg, #2447c7 0%, #2fb8d2 52%, #8d3cff 100%)',
 							),
 							array(
-								'id'    => 'aqua-horizon',
-								'label' => __( 'Aqua', 'admin-os-mode' ),
-								'path'  => 'themes/adminos/default/wallpapers/aqua-horizon.jpg',
+								'id'        => 'aqua-horizon',
+								'label'     => __( 'Aqua', 'admin-os-mode' ),
+								'css_value' => 'radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.46), transparent 22%), linear-gradient(120deg, #1d5fbf 0%, #1eb4c9 55%, #62f1dc 100%)',
 							),
 							array(
-								'id'    => 'alpine-mist',
-								'label' => __( 'Alpine', 'admin-os-mode' ),
-								'path'  => 'themes/adminos/default/wallpapers/alpine-mist.jpg',
+								'id'        => 'alpine-mist',
+								'label'     => __( 'Alpine', 'admin-os-mode' ),
+								'css_value' => 'radial-gradient(circle at 76% 22%, rgba(255, 255, 255, 0.42), transparent 24%), linear-gradient(130deg, #16406d 0%, #3a8e9b 48%, #9ac77c 100%)',
 							),
 							array(
-								'id'    => 'canyon-light',
-								'label' => __( 'Canyon', 'admin-os-mode' ),
-								'path'  => 'themes/adminos/default/wallpapers/canyon-light.jpg',
+								'id'        => 'canyon-light',
+								'label'     => __( 'Canyon', 'admin-os-mode' ),
+								'css_value' => 'radial-gradient(circle at 72% 18%, rgba(255, 231, 174, 0.45), transparent 28%), linear-gradient(125deg, #ff5c39 0%, #d83c7d 48%, #783fd6 100%)',
 							),
 							array(
-								'id'    => 'coral-ridge',
-								'label' => __( 'Coral', 'admin-os-mode' ),
-								'path'  => 'themes/adminos/default/wallpapers/coral-ridge.jpg',
+								'id'        => 'coral-ridge',
+								'label'     => __( 'Coral', 'admin-os-mode' ),
+								'css_value' => 'radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.38), transparent 24%), linear-gradient(120deg, #ff4438 0%, #ee2d7a 52%, #b22ed5 100%)',
+							),
+							array(
+								'id'        => 'lagoon-glow',
+								'label'     => __( 'Lagoon', 'admin-os-mode' ),
+								'css_value' => 'radial-gradient(circle at 80% 20%, rgba(227, 255, 241, 0.36), transparent 26%), linear-gradient(135deg, #0c6a88 0%, #18b5b7 54%, #69ddbb 100%)',
+							),
+							array(
+								'id'        => 'violet-wave',
+								'label'     => __( 'Violet', 'admin-os-mode' ),
+								'css_value' => 'radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.3), transparent 22%), linear-gradient(130deg, #2b4fcf 0%, #7042d8 46%, #df46a6 100%)',
+							),
+							array(
+								'id'        => 'sunset-field',
+								'label'     => __( 'Sunset', 'admin-os-mode' ),
+								'css_value' => 'radial-gradient(circle at 74% 18%, rgba(255, 239, 170, 0.48), transparent 24%), linear-gradient(120deg, #ff7a18 0%, #ff3f68 48%, #6d4cf5 100%)',
+							),
+							array(
+								'id'        => 'mint-haze',
+								'label'     => __( 'Mint', 'admin-os-mode' ),
+								'css_value' => 'radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.4), transparent 24%), linear-gradient(135deg, #207a68 0%, #6ac99d 52%, #b4d676 100%)',
+							),
+							array(
+								'id'        => 'nightfall',
+								'label'     => __( 'Nightfall', 'admin-os-mode' ),
+								'css_value' => 'radial-gradient(circle at 78% 18%, rgba(92, 116, 255, 0.34), transparent 28%), radial-gradient(circle at 22% 76%, rgba(0, 204, 196, 0.22), transparent 32%), linear-gradient(135deg, #121d3d 0%, #242056 50%, #0f5364 100%)',
 							),
 						),
 					),
@@ -348,20 +372,35 @@ final class Admin_OS_Mode_Theme_Registry {
 						continue;
 					}
 
-					$id   = sanitize_key( $item['id'] );
-					$file = $this->normalize_media_file( isset( $item['path'] ) ? $item['path'] : ( isset( $item['file'] ) ? $item['file'] : '' ) );
-					if ( '' === $id || empty( $file['url'] ) ) {
+					$id        = sanitize_key( $item['id'] );
+					$css_value = $this->sanitize_css_image_value( isset( $item['css_value'] ) ? $item['css_value'] : ( isset( $item['css'] ) ? $item['css'] : '' ) );
+					if ( '' === $id ) {
 						continue;
 					}
 
-					$normalized['items'][] = array(
-						'id'       => $id,
-						'label'    => isset( $item['label'] ) ? sanitize_text_field( $item['label'] ) : $id,
-						'path'     => $file['path'],
-						'url'      => $file['url'],
-						'fit'      => isset( $item['fit'] ) ? sanitize_key( $item['fit'] ) : 'cover',
-						'position' => isset( $item['position'] ) ? sanitize_text_field( $item['position'] ) : 'center center',
-					);
+					if ( '' !== $css_value ) {
+						$normalized['items'][] = array(
+							'id'        => $id,
+							'label'     => isset( $item['label'] ) ? sanitize_text_field( $item['label'] ) : $id,
+							'css_value' => $css_value,
+							'preview'   => isset( $item['preview'] ) ? $this->sanitize_css_image_value( $item['preview'] ) : $css_value,
+							'fit'       => isset( $item['fit'] ) ? sanitize_key( $item['fit'] ) : 'cover',
+							'position'  => isset( $item['position'] ) ? sanitize_text_field( $item['position'] ) : 'center center',
+						);
+						continue;
+					}
+
+					$file = $this->normalize_media_file( isset( $item['path'] ) ? $item['path'] : ( isset( $item['file'] ) ? $item['file'] : '' ) );
+					if ( ! empty( $file['url'] ) ) {
+						$normalized['items'][] = array(
+							'id'       => $id,
+							'label'    => isset( $item['label'] ) ? sanitize_text_field( $item['label'] ) : $id,
+							'path'     => $file['path'],
+							'url'      => $file['url'],
+							'fit'      => isset( $item['fit'] ) ? sanitize_key( $item['fit'] ) : 'cover',
+							'position' => isset( $item['position'] ) ? sanitize_text_field( $item['position'] ) : 'center center',
+						);
+					}
 				}
 			}
 		}
@@ -396,6 +435,37 @@ final class Admin_OS_Mode_Theme_Registry {
 	 */
 	private function normalize_media_file( $path ) {
 		return $this->normalize_media_asset( $path, false );
+	}
+
+	/**
+	 * Sanitize a theme-defined CSS wallpaper image.
+	 *
+	 * Only gradient image values are accepted here. URL-backed wallpapers must use
+	 * the path/file fields so they stay inside assets/media.
+	 *
+	 * @param mixed $value Raw CSS image value.
+	 * @return string
+	 */
+	private function sanitize_css_image_value( $value ) {
+		$value = trim( (string) $value );
+		$value = preg_replace( '/\s+/', ' ', $value );
+		$value = str_replace( ';', '', $value );
+
+		if ( '' === $value ) {
+			return '';
+		}
+
+		$lower = strtolower( $value );
+		if (
+			false !== strpos( $lower, 'url(' ) ||
+			false !== strpos( $lower, 'expression(' ) ||
+			false !== strpos( $value, '<' ) ||
+			false !== strpos( $value, '>' )
+		) {
+			return '';
+		}
+
+		return preg_match( '/(?:^|,\s*)(?:linear-gradient|radial-gradient|conic-gradient|repeating-linear-gradient|repeating-radial-gradient)\(/i', $value ) ? $value : '';
 	}
 
 	/**
