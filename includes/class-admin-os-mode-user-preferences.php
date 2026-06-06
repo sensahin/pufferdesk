@@ -398,7 +398,7 @@ final class Admin_OS_Mode_User_Preferences {
 		$sanitized = $this->default_desktop_dock;
 
 		if ( array_key_exists( 'dock_size', $desktop_dock ) ) {
-			$sanitized['dock_size'] = $this->sanitize_range( $desktop_dock['dock_size'], 36, 72, $sanitized['dock_size'] );
+			$sanitized['dock_size'] = $this->sanitize_range( $desktop_dock['dock_size'], 28, 72, $sanitized['dock_size'] );
 		}
 
 		if ( array_key_exists( 'dock_magnification', $desktop_dock ) ) {

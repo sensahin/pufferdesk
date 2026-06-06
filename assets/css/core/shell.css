@@ -69,6 +69,8 @@
 	--aos-menu-item-hover-bg: var(--aos-accent);
 	--aos-menu-item-hover-ink: var(--aos-accent-ink);
 	--aos-menu-item-disabled: rgba(23, 33, 43, 0.32);
+	--aos-menu-bar-height: 0px;
+	--aos-menu-bar-half-height: 0px;
 	--aos-layer-dock: 9000;
 	--aos-layer-menu: 10000;
 	--aos-layer-menu-popover: 10010;
@@ -118,6 +120,7 @@
 	--aos-dock-hover-scale: 1;
 	--aos-dock-icon-size: 26px;
 	--aos-dock-item-size: 48px;
+	--aos-dock-screen-edge: 18px;
 	--aos-dock-tile-size: 46px;
 	--aos-dock-tooltip-bg: rgba(38, 48, 72, 0.9);
 	--aos-dock-tooltip-border: transparent;

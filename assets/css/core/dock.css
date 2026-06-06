@@ -182,22 +182,22 @@
 .aos-shell[data-aos-dock-position="right"] .aos-dock {
 	bottom: auto;
 	flex-direction: column;
-	max-height: calc(100% - 72px);
+	max-height: calc(100% - var(--aos-menu-bar-height, 0px) - var(--aos-dock-screen-edge, 18px) - var(--aos-dock-screen-edge, 18px));
 	max-width: none;
 	overflow-x: hidden;
 	overflow-y: auto;
-	top: 50%;
+	top: calc(50% + var(--aos-menu-bar-half-height, 0px));
 }
 
 .aos-shell[data-aos-dock-position="left"] .aos-dock {
-	left: 18px;
+	left: var(--aos-dock-screen-edge, 18px);
 	right: auto;
 	transform: translateY(-50%) translateX(0);
 }
 
 .aos-shell[data-aos-dock-position="right"] .aos-dock {
 	left: auto;
-	right: 18px;
+	right: var(--aos-dock-screen-edge, 18px);
 	transform: translateY(-50%) translateX(0);
 }
 

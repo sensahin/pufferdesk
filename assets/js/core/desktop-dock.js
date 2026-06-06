@@ -55,7 +55,7 @@
 	function normalize(preferences = {}) {
 		const normalized = Object.assign({}, defaults);
 
-		normalized.dock_size = normalizeRange(preferences.dock_size, 36, 72, defaults.dock_size);
+		normalized.dock_size = normalizeRange(preferences.dock_size, 28, 72, defaults.dock_size);
 		normalized.dock_magnification = normalizeRange(preferences.dock_magnification, 0, 24, defaults.dock_magnification);
 
 		Object.keys(allowed).forEach((key) => {

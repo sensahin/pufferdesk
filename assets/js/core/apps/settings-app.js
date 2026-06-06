@@ -1188,7 +1188,7 @@
 			row.appendChild(createDesktopDockRange('dock_size', 'Size', {
 				labels: ['Small', 'Large'],
 				max: 72,
-				min: 36
+				min: 28
 			}, status));
 			row.appendChild(createDesktopDockRange('dock_magnification', 'Magnification', {
 				labels: ['Off', 'Small', 'Large'],
