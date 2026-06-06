@@ -62,10 +62,15 @@
 	--aos-menu-popover-ink: #17212b;
 	--aos-menu-popover-muted: rgba(23, 33, 43, 0.48);
 	--aos-menu-popover-separator: rgba(23, 33, 43, 0.14);
+	--aos-menu-ink: var(--aos-ink);
+	--aos-menu-muted: var(--aos-muted);
+	--aos-menu-placeholder: rgba(23, 33, 43, 0.48);
 	--aos-menu-selection-active-bg: var(--aos-accent-active-strong);
 	--aos-menu-selection-bg: var(--aos-accent-medium);
 	--aos-menu-selection-border: var(--aos-accent-soft);
 	--aos-menu-selection-shadow: none;
+	--aos-menu-text-shadow: none;
+	--aos-menu-mark-filter: none;
 	--aos-menu-item-hover-bg: var(--aos-accent);
 	--aos-menu-item-hover-ink: var(--aos-accent-ink);
 	--aos-menu-item-disabled: rgba(23, 33, 43, 0.32);
@@ -211,7 +216,7 @@
 	background: transparent;
 	border: 0;
 	border-radius: 999px;
-	color: var(--aos-ink);
+	color: var(--aos-menu-ink);
 	cursor: default;
 	display: inline-flex;
 	height: 28px;
@@ -248,7 +253,7 @@
 	background: transparent;
 	border: 0;
 	border-radius: 999px;
-	color: var(--aos-ink);
+	color: var(--aos-menu-ink);
 	cursor: default;
 	flex: 0 1 auto;
 	font-size: var(--aos-text-menu);
@@ -399,7 +404,7 @@
 }
 
 .aos-search .dashicons {
-	color: var(--aos-muted);
+	color: var(--aos-menu-muted);
 	font-size: 17px;
 	height: 17px;
 	width: 17px;
@@ -409,7 +414,7 @@
 	background: transparent;
 	border: 0;
 	box-shadow: none;
-	color: var(--aos-ink);
+	color: var(--aos-menu-ink);
 	font-size: var(--aos-text-body);
 	height: 34px;
 	min-width: 0;
@@ -419,7 +424,7 @@
 }
 
 .aos-clock {
-	color: var(--aos-muted);
+	color: var(--aos-menu-muted);
 	font-size: var(--aos-text-body);
 	justify-content: flex-end;
 	min-width: 48px;
