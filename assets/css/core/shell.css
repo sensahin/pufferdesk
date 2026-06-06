@@ -112,6 +112,7 @@
 	--aos-card-shadow: var(--aos-material-card-shadow);
 	--aos-dock-bg: var(--aos-material-clear-bg);
 	--aos-dock-border: var(--aos-material-clear-border);
+	--aos-dock-separator: var(--aos-dock-border);
 	--aos-dock-shadow: var(--aos-material-clear-shadow);
 	--aos-dock-hover-lift: 3px;
 	--aos-dock-hover-scale: 1;
