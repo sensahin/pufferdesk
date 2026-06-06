@@ -36,7 +36,7 @@ $admin_os_mode_shell_style = implode( ';', $admin_os_mode_shell_style_parts );
 $admin_os_mode_appearance = wp_parse_args(
 	is_array( $appearance ) ? $appearance : array(),
 	array(
-		'mode'              => 'light',
+		'mode'              => 'auto',
 		'window_material'   => 'clear',
 		'accent_color'      => 'multicolor',
 		'icon_widget_style' => 'default',

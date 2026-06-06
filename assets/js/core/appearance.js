@@ -4,7 +4,7 @@
 	window.AdminOSMode = window.AdminOSMode || {};
 
 	const defaults = {
-		mode: 'light',
+		mode: 'auto',
 		window_material: 'clear',
 		accent_color: 'multicolor',
 		icon_widget_style: 'default',

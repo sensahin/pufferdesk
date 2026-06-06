@@ -31,7 +31,7 @@ final class Admin_OS_Mode_User_Preferences {
 	 * @var array<string,mixed>
 	 */
 	private $default_appearance = array(
-		'mode'           => 'light',
+		'mode'           => 'auto',
 		'window_material' => 'clear',
 		'accent_color'   => 'multicolor',
 		'icon_widget_style' => 'default',
