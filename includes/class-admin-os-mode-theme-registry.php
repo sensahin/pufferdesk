@@ -72,6 +72,21 @@ final class Admin_OS_Mode_Theme_Registry {
 								'css_value' => 'linear-gradient(135deg, #ffffc4 0.000%, #ff6164 50.000%, #b00012 100.000%)',
 							),
 							array(
+								'id'        => 'breeze',
+								'label'     => __( 'Breeze', 'admin-os-mode' ),
+								'css_value' => 'linear-gradient(90deg, #07aeea 0.000%, #2bf598 100.000%)',
+							),
+							array(
+								'id'        => 'solar',
+								'label'     => __( 'Solar', 'admin-os-mode' ),
+								'css_value' => 'linear-gradient(90deg, #2a001b 0.000%, #78130c 16.667%, #ce480e 33.333%, #ff8d22 50.000%, #ffd543 66.667%, #ffff69 83.333%, #ffff8d 100.000%)',
+							),
+							array(
+								'id'        => 'azure',
+								'label'     => __( 'Azure', 'admin-os-mode' ),
+								'css_value' => 'linear-gradient(180deg, #003bff 0.000%, #004bff 8.333%, #125cff 16.667%, #2b6cff 25.000%, #447bff 33.333%, #5d8bff 41.667%, #7499ff 50.000%, #8aa7ff 58.333%, #9db3ff 66.667%, #adbfff 75.000%, #b9c9ff 83.333%, #c2d2ff 91.667%, #c6d9ff 100.000%)',
+							),
+							array(
 								'id'        => 'lagoon-glow',
 								'label'     => __( 'Lagoon', 'admin-os-mode' ),
 								'css_value' => 'radial-gradient(circle at 80% 20%, rgba(227, 255, 241, 0.36), transparent 26%), linear-gradient(135deg, #0c6a88 0%, #18b5b7 54%, #69ddbb 100%)',
