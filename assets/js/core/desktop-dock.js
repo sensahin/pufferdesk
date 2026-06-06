@@ -108,8 +108,74 @@
 		return current;
 	}
 
+	function getDockItem(target) {
+		return target && typeof target.closest === 'function'
+			? target.closest('.aos-dock-item, .aos-dock-window-item')
+			: null;
+	}
+
+	function dismissTooltip(item, shouldBlur = false) {
+		if (!item) {
+			return;
+		}
+
+		item.classList.add('is-tooltip-dismissed');
+		if (shouldBlur && typeof item.blur === 'function') {
+			item.blur();
+		}
+	}
+
+	function restoreTooltip(item) {
+		if (item) {
+			item.classList.remove('is-tooltip-dismissed');
+		}
+	}
+
+	function bindTooltipDismissal(shell) {
+		const dock = shell ? shell.querySelector('.aos-dock') : null;
+
+		if (!dock || dock.dataset.aosTooltipDismissalBound === '1') {
+			return;
+		}
+
+		dock.dataset.aosTooltipDismissalBound = '1';
+		dock.addEventListener('pointerdown', (event) => {
+			dismissTooltip(getDockItem(event.target));
+		});
+		dock.addEventListener('click', (event) => {
+			dismissTooltip(getDockItem(event.target), true);
+		});
+		dock.addEventListener('keydown', (event) => {
+			if (event.key !== 'Enter' && event.key !== ' ') {
+				return;
+			}
+
+			dismissTooltip(getDockItem(event.target));
+		});
+		dock.addEventListener('pointerout', (event) => {
+			const item = getDockItem(event.target);
+
+			if (!item || (event.relatedTarget && item.contains(event.relatedTarget))) {
+				return;
+			}
+
+			restoreTooltip(item);
+		});
+		dock.addEventListener('focusout', (event) => {
+			restoreTooltip(getDockItem(event.target));
+		});
+		document.addEventListener('pointermove', (event) => {
+			dock.querySelectorAll('.is-tooltip-dismissed').forEach((item) => {
+				if (!item.contains(event.target)) {
+					restoreTooltip(item);
+				}
+			});
+		}, { passive: true });
+	}
+
 	window.AdminOSMode.desktopDock = {
 		apply,
+		bindTooltipDismissal,
 		defaults,
 		normalize
 	};

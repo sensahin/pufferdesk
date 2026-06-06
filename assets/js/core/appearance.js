@@ -39,11 +39,11 @@
 	}
 
 	const accentColors = {
-		multicolor: defineAccent('#157a82', [21, 122, 130], {
-			focus: 0.42,
+		multicolor: defineAccent('#0a84ff', [10, 132, 255], {
+			focus: 0.38,
 			highlight: 0.2,
-			soft: 0.18,
-			medium: 0.3
+			soft: 0.16,
+			medium: 0.28
 		}),
 		blue: defineAccent('#0a84ff', [10, 132, 255], {
 			focus: 0.38,

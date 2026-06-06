@@ -275,6 +275,13 @@
 	transform: translateY(-50%) translateX(0);
 }
 
+.aos-dock-item.is-tooltip-dismissed > .aos-dock-tooltip,
+.aos-dock-window-item.is-tooltip-dismissed > .aos-dock-tooltip {
+	opacity: 0;
+	transition-delay: 0s;
+	visibility: hidden;
+}
+
 .aos-shell[data-aos-dock-auto-hide="1"] .aos-dock {
 	opacity: 0.04;
 }

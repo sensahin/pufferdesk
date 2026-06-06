@@ -67,31 +67,6 @@ final class Admin_OS_Mode_Theme_Registry {
 								'label' => __( 'Coral', 'admin-os-mode' ),
 								'path'  => 'themes/adminos/default/wallpapers/coral-ridge.jpg',
 							),
-							array(
-								'id'    => 'glacier-bloom',
-								'label' => __( 'Glacier', 'admin-os-mode' ),
-								'path'  => 'themes/adminos/default/wallpapers/glacier-bloom.jpg',
-							),
-							array(
-								'id'    => 'indigo-dunes',
-								'label' => __( 'Indigo', 'admin-os-mode' ),
-								'path'  => 'themes/adminos/default/wallpapers/indigo-dunes.jpg',
-							),
-							array(
-								'id'    => 'jade-current',
-								'label' => __( 'Jade', 'admin-os-mode' ),
-								'path'  => 'themes/adminos/default/wallpapers/jade-current.jpg',
-							),
-							array(
-								'id'    => 'lunar-peak',
-								'label' => __( 'Lunar', 'admin-os-mode' ),
-								'path'  => 'themes/adminos/default/wallpapers/lunar-peak.jpg',
-							),
-							array(
-								'id'    => 'prism-lake',
-								'label' => __( 'Prism', 'admin-os-mode' ),
-								'path'  => 'themes/adminos/default/wallpapers/prism-lake.jpg',
-							),
 						),
 					),
 					'icon_pack'   => 'themes/adminos/default/icons',

@@ -37,6 +37,7 @@
 		}
 		if (window.AdminOSMode.desktopDock) {
 			window.AdminOSMode.desktopDock.apply(shell, config.desktopDock || {});
+			window.AdminOSMode.desktopDock.bindTooltipDismissal(shell);
 		}
 		if (window.AdminOSMode.wallpaper) {
 			window.AdminOSMode.wallpaper.apply(shell, config.wallpaper || {});

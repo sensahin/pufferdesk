@@ -97,8 +97,8 @@
 		];
 		const profileItem = { id: 'profile', label: 'WordPress Account' };
 
-		function createSettingsRow(labelText, control, descriptionText = '') {
-			const row = dom.createElement('div', 'aos-settings-row');
+		function createSettingsRow(labelText, control, descriptionText = '', rowClassName = '') {
+			const row = dom.createElement('div', `aos-settings-row ${rowClassName}`.trim());
 			const labelStack = dom.createElement('span', 'aos-settings-label-stack');
 			labelStack.appendChild(dom.createElement('span', 'aos-settings-label', labelText));
 			if (descriptionText) {
@@ -1668,7 +1668,7 @@
 		appearanceSection.appendChild(createSettingsRow('Window Material', createOptionGroup('window_material', [
 			{ value: 'clear', label: 'Clear' },
 			{ value: 'tinted', label: 'Tinted' }
-		], status, 'aos-settings-preview-option', 'aos-settings-material-preview'), 'Choose your preferred look.'));
+		], status, 'aos-settings-preview-option', 'aos-settings-material-preview'), 'Choose your preferred look.', 'aos-settings-row-fluid-label'));
 
 		const themeSection = createSection('', 'aos-settings-section-theme');
 		themeSection.appendChild(createSettingsRow('Color', createAccentGroup(status)));
@@ -1680,7 +1680,7 @@
 		], status, 'aos-settings-icon-option', 'aos-settings-icon-preview')));
 
 		const windowSection = createSection('', 'aos-settings-section-windows');
-		windowSection.appendChild(createSettingsRow('Tint window background with wallpaper color', createToggle(status)));
+		windowSection.appendChild(createSettingsRow('Tint window background with wallpaper color', createToggle(status), '', 'aos-settings-row-fluid-label'));
 
 		let installedThemeSection = null;
 		if (themes.length > 1) {

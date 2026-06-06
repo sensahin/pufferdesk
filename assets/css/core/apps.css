@@ -905,14 +905,20 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	padding: 9px 16px;
 }
 
+.aos-settings-row-fluid-label {
+	grid-template-columns: minmax(0, 1fr) max-content;
+}
+
 .aos-settings-section > .aos-settings-row + .aos-settings-row {
 	border-top: 1px solid var(--aos-card-border);
 }
 
 .aos-settings-label-stack {
+	align-self: start;
 	display: grid;
 	gap: 3px;
 	min-width: 0;
+	padding-top: 2px;
 }
 
 .aos-settings-label {
@@ -927,6 +933,11 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	font-size: var(--aos-settings-text-body);
 	font-weight: var(--aos-weight-semibold);
 	line-height: var(--aos-line-height-body);
+}
+
+.aos-settings-row-fluid-label .aos-settings-label,
+.aos-settings-row-fluid-label .aos-settings-description {
+	white-space: nowrap;
 }
 
 .aos-settings-control,
