@@ -560,12 +560,64 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 	 * @return array<string,string>
 	 */
 	private function get_css_variables( $item, $preference ) {
+		$css_value   = isset( $item['css_value'] ) ? $this->sanitize_css_value( $item['css_value'] ) : 'none';
+		$layer_count = $this->count_css_image_layers( $css_value );
+		$size        = $this->sanitize_size( isset( $preference['fit'] ) ? $preference['fit'] : 'cover' );
+		$position    = $this->sanitize_position( isset( $preference['position'] ) ? $preference['position'] : 'center center' );
+
 		return array(
-			'--aos-wallpaper-image'    => isset( $item['css_value'] ) ? $this->sanitize_css_value( $item['css_value'] ) : 'none',
-			'--aos-wallpaper-size'     => $this->sanitize_size( isset( $preference['fit'] ) ? $preference['fit'] : 'cover' ),
-			'--aos-wallpaper-position' => $this->sanitize_position( isset( $preference['position'] ) ? $preference['position'] : 'center center' ),
-			'--aos-wallpaper-repeat'   => 'no-repeat',
+			'--aos-wallpaper-image'    => $css_value,
+			'--aos-wallpaper-size'     => $this->repeat_css_layer_value( $size, $layer_count ),
+			'--aos-wallpaper-position' => $this->repeat_css_layer_value( $position, $layer_count ),
+			'--aos-wallpaper-repeat'   => $this->repeat_css_layer_value( 'no-repeat', $layer_count ),
 		);
+	}
+
+	/**
+	 * Count top-level CSS background-image layers.
+	 *
+	 * @param string $css_value CSS image value.
+	 * @return int
+	 */
+	private function count_css_image_layers( $css_value ) {
+		$css_value = (string) $css_value;
+		if ( '' === trim( $css_value ) || 'none' === trim( strtolower( $css_value ) ) ) {
+			return 1;
+		}
+
+		$depth  = 0;
+		$layers = 1;
+		$length = strlen( $css_value );
+
+		for ( $index = 0; $index < $length; $index++ ) {
+			$char = $css_value[ $index ];
+			if ( '(' === $char ) {
+				$depth++;
+				continue;
+			}
+
+			if ( ')' === $char ) {
+				$depth = max( 0, $depth - 1 );
+				continue;
+			}
+
+			if ( ',' === $char && 0 === $depth ) {
+				$layers++;
+			}
+		}
+
+		return max( 1, $layers );
+	}
+
+	/**
+	 * Repeat a CSS value for each wallpaper image layer.
+	 *
+	 * @param string $value Value.
+	 * @param int    $count Layer count.
+	 * @return string
+	 */
+	private function repeat_css_layer_value( $value, $count ) {
+		return implode( ', ', array_fill( 0, max( 1, (int) $count ), $value ) );
 	}
 
 	/**
