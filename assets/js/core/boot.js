@@ -66,7 +66,8 @@
 		const menuController = window.AdminOSMode.shell.createMenuController(shell, config, {
 			commands,
 			launcher,
-			manager
+			manager,
+			restoreWindows: !skipWindowRestore
 		});
 		const contextMenuController = window.AdminOSMode.shell.createContextMenuController(shell, config, {
 			commands,

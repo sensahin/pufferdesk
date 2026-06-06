@@ -47,6 +47,58 @@
 			});
 		}
 
+		function getInitialActiveDetail() {
+			if (
+				context.restoreWindows === false ||
+				!config.storageKey ||
+				!window.AdminOSMode.session ||
+				!window.AdminOSMode.session.createSessionStore
+			) {
+				return { kind: 'desktop' };
+			}
+
+			const savedWindows = window.AdminOSMode.session.createSessionStore(config.storageKey).getSection('windows', []);
+			if (!Array.isArray(savedWindows) || !savedWindows.length) {
+				return { kind: 'desktop' };
+			}
+
+			const topSavedWindow = savedWindows
+				.filter((item) => {
+					const state = item && typeof item === 'object' && item.state && typeof item.state === 'object'
+						? item.state
+						: {};
+
+					return item
+						&& typeof item === 'object'
+						&& item.kind === 'app'
+						&& typeof item.appId === 'string'
+						&& item.appId
+						&& !state.hidden
+						&& !state.closed;
+				})
+				.sort((first, second) => {
+					const firstState = first.state && typeof first.state === 'object' ? first.state : {};
+					const secondState = second.state && typeof second.state === 'object' ? second.state : {};
+					const firstZIndex = Number.parseFloat(firstState.zIndex);
+					const secondZIndex = Number.parseFloat(secondState.zIndex);
+
+					return (Number.isFinite(secondZIndex) ? secondZIndex : 0) - (Number.isFinite(firstZIndex) ? firstZIndex : 0);
+				})[0];
+
+			if (!topSavedWindow || !appMap.has(topSavedWindow.appId)) {
+				return { kind: 'desktop' };
+			}
+
+			const app = appMap.get(topSavedWindow.appId);
+
+			return {
+				appId: app.id,
+				kind: 'app',
+				menu: app.menu || null,
+				title: app.label || labels.admin || 'Admin'
+			};
+		}
+
 		function getDefinitionForDetail(detail = {}) {
 			if (!detail.kind || detail.kind === 'desktop') {
 				return getDesktopDefinition();
@@ -258,7 +310,7 @@
 			}
 
 			bindSystemButton();
-			render({ kind: 'desktop' });
+			render(getInitialActiveDetail());
 			shell.addEventListener('adminOSMode:active-window-change', (event) => {
 				render(event.detail || { kind: 'desktop' });
 			});
