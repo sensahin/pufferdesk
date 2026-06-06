@@ -433,6 +433,16 @@ final class Admin_OS_Mode_Assets {
 		$site_url        = home_url( '/' );
 		$site_icon_url   = $this->get_site_identity_image_url();
 		$server_software = $this->get_server_software_label();
+		$tagline         = trim( get_bloginfo( 'description' ) );
+		$site_url_label  = preg_replace( '#^https?://#', '', untrailingslashit( $site_url ) );
+		$wp_label        = $wp_release_name
+			? sprintf(
+				/* translators: 1: WordPress release name, 2: WordPress version number. */
+				__( '%1$s %2$s', 'admin-os-mode' ),
+				$wp_release_name,
+				$wp_version
+			)
+			: $wp_version;
 		$rows            = array(
 			array(
 				'label' => __( 'PHP', 'admin-os-mode' ),
@@ -451,7 +461,9 @@ final class Admin_OS_Mode_Assets {
 		return array(
 			'title'         => __( 'About This Site', 'admin-os-mode' ),
 			'name'          => get_bloginfo( 'name' ),
-			'url'           => preg_replace( '#^https?://#', '', untrailingslashit( $site_url ) ),
+			'url'           => $site_url_label,
+			'tagline'       => $tagline,
+			'aboutSubtitle' => $tagline ? $tagline : $site_url_label,
 			'iconUrl'       => $site_icon_url,
 			'wordpress'     => array(
 				'icon'  => 'dashicons-wordpress',
@@ -491,10 +503,28 @@ final class Admin_OS_Mode_Assets {
 					}
 				)
 			),
-			'moreInfoLabel' => __( 'More Info...', 'admin-os-mode' ),
-			'moreInfoTitle' => __( 'Site Health Info', 'admin-os-mode' ),
-			'moreInfoUrl'   => current_user_can( 'view_site_health_checks' ) ? admin_url( 'site-health.php?tab=debug' ) : '',
-			'footer'        => sprintf(
+			'aboutRows'     => array_values(
+				array_filter(
+					array_merge(
+						$rows,
+						array(
+							array(
+								'label' => __( 'WordPress', 'admin-os-mode' ),
+								'value' => $wp_label,
+							),
+						)
+					),
+					static function ( $row ) {
+						return ! empty( $row['value'] );
+					}
+				)
+			),
+			'moreInfoLabel'   => __( 'More Info...', 'admin-os-mode' ),
+			'moreInfoCommand' => 'settings.open-panel',
+			'moreInfoPanel'   => 'general-about',
+			'moreInfoTitle'   => __( 'Site Health Info', 'admin-os-mode' ),
+			'moreInfoUrl'     => current_user_can( 'view_site_health_checks' ) ? admin_url( 'site-health.php?tab=debug' ) : '',
+			'footer'          => sprintf(
 				/* translators: %s: Admin OS Mode plugin version. */
 				__( 'Admin OS %s · Built for WordPress admin.', 'admin-os-mode' ),
 				ADMIN_OS_MODE_VERSION
