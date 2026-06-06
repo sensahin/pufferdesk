@@ -10,6 +10,7 @@
 		const layer = shell.querySelector('.aos-widget-layer');
 		const sessionStore = window.AdminOSMode.session.createSessionStore(options.storageKey || '');
 		let restoreInProgress = false;
+		let sessionSaveDisabled = false;
 		let saveTimer = null;
 
 		function readNumber(value) {
@@ -155,7 +156,7 @@
 		}
 
 		function saveSession() {
-			if (!options.storageKey || restoreInProgress) {
+			if (!options.storageKey || restoreInProgress || sessionSaveDisabled) {
 				return;
 			}
 
@@ -163,7 +164,7 @@
 		}
 
 		function scheduleSave() {
-			if (!options.storageKey || restoreInProgress) {
+			if (!options.storageKey || restoreInProgress || sessionSaveDisabled) {
 				return;
 			}
 
@@ -277,6 +278,10 @@
 
 		return {
 			bindExistingWidgets,
+			disableSessionSave() {
+				sessionSaveDisabled = true;
+				window.clearTimeout(saveTimer);
+			},
 			getWidget,
 			hideWidget,
 			restoreSession,

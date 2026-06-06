@@ -18,6 +18,12 @@ final class Admin_OS_Mode_User_Preferences {
 	const META_WALLPAPER  = 'admin_os_mode_wallpaper';
 	const META_WALLPAPER_UPLOADS = 'admin_os_mode_wallpaper_uploads';
 	const WALLPAPER_UPLOAD_LIMIT = 12;
+	const RESET_DOMAIN_APPEARANCE = 'appearance';
+	const RESET_DOMAIN_DESKTOP_DOCK = 'desktop_dock';
+	const RESET_DOMAIN_THEME = 'theme';
+	const RESET_DOMAIN_WALLPAPER = 'wallpaper';
+	const RESET_DOMAIN_WALLPAPER_UPLOADS = 'wallpaper_uploads';
+	const RESET_PROFILE_ERASE_CONTENT_SETTINGS = 'erase_content_settings';
 
 	/**
 	 * Default shell appearance preferences.
@@ -389,6 +395,57 @@ final class Admin_OS_Mode_User_Preferences {
 	}
 
 	/**
+	 * Get reset domains for a named reset profile.
+	 *
+	 * Reset profiles are intentionally scoped to Admin OS preferences. They never
+	 * delete WordPress content, users, roles, themes, plugins, or media files.
+	 *
+	 * @param string $profile Reset profile ID.
+	 * @return array<int,string>
+	 */
+	public function get_reset_domains_for_profile( $profile ) {
+		$profile = sanitize_key( (string) $profile );
+
+		if ( self::RESET_PROFILE_ERASE_CONTENT_SETTINGS !== $profile ) {
+			return array();
+		}
+
+		return array(
+			self::RESET_DOMAIN_APPEARANCE,
+			self::RESET_DOMAIN_DESKTOP_DOCK,
+			self::RESET_DOMAIN_THEME,
+			self::RESET_DOMAIN_WALLPAPER,
+			self::RESET_DOMAIN_WALLPAPER_UPLOADS,
+		);
+	}
+
+	/**
+	 * Reset persisted user preference domains.
+	 *
+	 * @param array<int,string> $domains Reset domain IDs.
+	 * @param int               $user_id Optional user ID.
+	 * @return array<int,string> Domains that were processed.
+	 */
+	public function reset_domains( $domains, $user_id = 0 ) {
+		$user_id   = $user_id ? (int) $user_id : get_current_user_id();
+		$meta_keys = $this->get_reset_meta_keys();
+		$reset     = array();
+
+		foreach ( (array) $domains as $domain ) {
+			$domain = sanitize_key( (string) $domain );
+
+			if ( ! isset( $meta_keys[ $domain ] ) ) {
+				continue;
+			}
+
+			delete_user_meta( $user_id, $meta_keys[ $domain ] );
+			$reset[] = $domain;
+		}
+
+		return array_values( array_unique( $reset ) );
+	}
+
+	/**
 	 * Sanitize a Desktop & Dock preference payload.
 	 *
 	 * @param array<string,mixed> $desktop_dock Raw Desktop & Dock data.
@@ -450,6 +507,21 @@ final class Admin_OS_Mode_User_Preferences {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * User meta keys that can be reset by Admin OS reset domains.
+	 *
+	 * @return array<string,string>
+	 */
+	private function get_reset_meta_keys() {
+		return array(
+			self::RESET_DOMAIN_APPEARANCE        => self::META_APPEARANCE,
+			self::RESET_DOMAIN_DESKTOP_DOCK      => self::META_DESKTOP_DOCK,
+			self::RESET_DOMAIN_THEME             => self::META_THEME,
+			self::RESET_DOMAIN_WALLPAPER         => self::META_WALLPAPER,
+			self::RESET_DOMAIN_WALLPAPER_UPLOADS => self::META_WALLPAPER_UPLOADS,
+		);
 	}
 
 	/**

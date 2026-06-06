@@ -12,6 +12,7 @@
 		const dialogs = context.dialogs || null;
 		const reopenPolicy = context.reopenPolicy || null;
 		const config = context.config && typeof context.config === 'object' ? context.config : {};
+		const api = window.AdminOSMode.services && window.AdminOSMode.services.api ? window.AdminOSMode.services.api : null;
 		const commands = new Map();
 		let activeDetail = { kind: 'desktop' };
 
@@ -126,6 +127,13 @@
 					reopenWindowsLabel: 'Reopen windows when logging back in',
 					title: 'Are you sure you want to log out?'
 				},
+				eraseContentSettings: {
+					cancelLabel: 'Cancel',
+					confirmLabel: 'Erase',
+					message: 'This will reset Admin OS settings, wallpaper, dock, windows, and layout for this WordPress account. WordPress site content will not be affected.',
+					overlayMessage: 'Erasing Admin OS settings...',
+					title: 'Erase All Content and Settings?'
+				},
 				restart: {
 					cancelLabel: 'Cancel',
 					confirmLabel: 'Restart',
@@ -192,10 +200,78 @@
 			}
 		}
 
+		function disableSessionPersistence() {
+			if (manager && typeof manager.disableSessionSave === 'function') {
+				manager.disableSessionSave();
+			}
+
+			if (widgetManager && typeof widgetManager.disableSessionSave === 'function') {
+				widgetManager.disableSessionSave();
+			}
+		}
+
 		function skipWindowRestoreOnce() {
 			if (reopenPolicy && typeof reopenPolicy.skipWindowRestoreOnce === 'function') {
 				reopenPolicy.skipWindowRestoreOnce();
 			}
+		}
+
+		function getLocalStorage() {
+			try {
+				return window.localStorage;
+			} catch (error) {
+				return null;
+			}
+		}
+
+		function clearSessionStore() {
+			disableSessionPersistence();
+
+			if (config.storageKey && window.AdminOSMode.session && window.AdminOSMode.session.createSessionStore) {
+				window.AdminOSMode.session.createSessionStore(config.storageKey).clear();
+				return true;
+			}
+
+			return false;
+		}
+
+		function clearAllUserSessionStores() {
+			disableSessionPersistence();
+
+			const storage = getLocalStorage();
+			const userId = Number.parseInt(config.userId, 10);
+			let removed = false;
+
+			if (storage && userId > 0) {
+				const prefix = `adminOSMode:${userId}:`;
+				const keys = [];
+
+				for (let index = 0; index < storage.length; index += 1) {
+					const key = storage.key(index);
+
+					if (key && key.startsWith(prefix) && key.endsWith(':session')) {
+						keys.push(key);
+					}
+				}
+
+				keys.forEach((key) => {
+					storage.removeItem(key);
+					removed = true;
+				});
+			}
+
+			return clearSessionStore() || removed;
+		}
+
+		function reloadShell() {
+			const shellUrl = getShellUrl();
+
+			if (shellUrl && !isCurrentShellUrl(shellUrl)) {
+				window.location.href = shellUrl.href;
+				return;
+			}
+
+			window.location.reload();
 		}
 
 		async function confirmAction(actionConfig) {
@@ -233,16 +309,7 @@
 		}
 
 		function restartShell() {
-			return runTimedAction('restart', () => {
-				const shellUrl = getShellUrl();
-
-				if (shellUrl && !isCurrentShellUrl(shellUrl)) {
-					window.location.href = shellUrl.href;
-					return;
-				}
-
-				window.location.reload();
-			});
+			return runTimedAction('restart', reloadShell);
 		}
 
 		function switchToClassicAdmin(payload) {
@@ -255,6 +322,54 @@
 			return runTimedAction('logout', () => {
 				window.location.href = payload.url || payload.target;
 			});
+		}
+
+		async function eraseContentAndSettings() {
+			const actionConfig = getActionConfig('eraseContentSettings');
+			const confirmed = dialogs && typeof dialogs.confirm === 'function'
+				? await dialogs.confirm(actionConfig)
+				: window.confirm(`${actionConfig.title}\n\n${actionConfig.message}`);
+			let overlay = null;
+
+			if (!confirmed) {
+				return;
+			}
+
+			if (!api || typeof api.post !== 'function') {
+				throw new Error('Settings service unavailable.');
+			}
+
+			if (dialogs && typeof dialogs.showBlockingOverlay === 'function') {
+				overlay = dialogs.showBlockingOverlay(actionConfig.overlayMessage || '');
+			}
+
+			try {
+				const result = await api.post('admin_os_mode_reset', {
+					profile: 'erase_content_settings'
+				});
+
+				if (!result || !result.success) {
+					const message = result && result.data && result.data.message
+						? result.data.message
+						: 'Admin OS settings could not be reset.';
+					throw new Error(message);
+				}
+
+				skipWindowRestoreOnce();
+				if (result.data && result.data.client && result.data.client.clearAllUserSessions) {
+					clearAllUserSessionStores();
+				} else {
+					clearSessionStore();
+				}
+
+				window.setTimeout(reloadShell, 180);
+			} catch (error) {
+				if (overlay && typeof overlay.close === 'function') {
+					overlay.close();
+				}
+
+				throw error;
+			}
 		}
 
 		register('noop', {
@@ -365,8 +480,18 @@
 				return Boolean(config.storageKey && window.AdminOSMode.session && window.AdminOSMode.session.createSessionStore);
 			},
 			run() {
-				window.AdminOSMode.session.createSessionStore(config.storageKey).clear();
-				window.location.href = config.shellUrl || window.location.href;
+				skipWindowRestoreOnce();
+				clearSessionStore();
+				reloadShell();
+			}
+		});
+
+		register('system.erase-content-settings', {
+			isEnabled() {
+				return Boolean(api && typeof api.post === 'function');
+			},
+			run() {
+				return eraseContentAndSettings();
 			}
 		});
 

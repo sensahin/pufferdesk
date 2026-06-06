@@ -60,6 +60,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		add_action( 'wp_ajax_admin_os_mode_save_theme', array( $this, 'save_theme' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_wallpaper', array( $this, 'save_wallpaper' ) );
 		add_action( 'wp_ajax_admin_os_mode_remove_wallpaper_upload', array( $this, 'remove_wallpaper_upload' ) );
+		add_action( 'wp_ajax_admin_os_mode_reset', array( $this, 'reset_preferences' ) );
 	}
 
 	/**
@@ -265,6 +266,48 @@ final class Admin_OS_Mode_Settings_Controller {
 			array(
 				'message'   => __( 'Photo removed.', 'admin-os-mode' ),
 				'wallpaper' => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
+			)
+		);
+	}
+
+	/**
+	 * Reset current-user Admin OS preference domains.
+	 */
+	public function reset_preferences() {
+		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to reset Admin OS settings.', 'admin-os-mode' ),
+				),
+				403
+			);
+		}
+
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+
+		$profile = sanitize_key( $this->read_post_value( 'profile' ) );
+		$domains = $this->preferences->get_reset_domains_for_profile( $profile );
+
+		if ( empty( $domains ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Choose a valid Admin OS reset option.', 'admin-os-mode' ),
+				),
+				400
+			);
+		}
+
+		$reset_domains = $this->preferences->reset_domains( $domains );
+
+		wp_send_json_success(
+			array(
+				'client'       => array(
+					'clearAllUserSessions' => true,
+					'reload'               => true,
+				),
+				'message'      => __( 'Admin OS settings were reset.', 'admin-os-mode' ),
+				'profile'      => $profile,
+				'resetDomains' => $reset_domains,
 			)
 		);
 	}

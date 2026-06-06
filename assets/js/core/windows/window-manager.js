@@ -16,6 +16,7 @@
 		let activeWindow = null;
 		let restoreInProgress = false;
 		let preserveStoredWindowsUntilChange = Boolean(options.preserveStoredWindowsUntilChange);
+		let sessionSaveDisabled = false;
 		let saveTimer = null;
 		let showDesktopActive = false;
 		let showDesktopWindows = new Set();
@@ -871,7 +872,7 @@
 		}
 
 		function saveSession() {
-			if (!options.storageKey || restoreInProgress) {
+			if (!options.storageKey || restoreInProgress || sessionSaveDisabled) {
 				return;
 			}
 
@@ -885,7 +886,7 @@
 		}
 
 		function scheduleSave() {
-			if (!options.storageKey || restoreInProgress) {
+			if (!options.storageKey || restoreInProgress || sessionSaveDisabled) {
 				return;
 			}
 
@@ -1084,6 +1085,10 @@
 			bindExistingWindows,
 			closeWindow,
 			createWindow,
+			disableSessionSave() {
+				sessionSaveDisabled = true;
+				window.clearTimeout(saveTimer);
+			},
 			focusWindow,
 			getActiveWindow() {
 				return activeWindow;

@@ -615,6 +615,21 @@ final class Admin_OS_Mode_Assets {
 							)
 						),
 					),
+					array(
+						'id'    => 'reset',
+						'items' => $this->filter_settings_rows(
+							array(
+								array(
+									'id'          => 'erase-content-settings',
+									'label'       => __( 'Erase All Content and Settings...', 'admin-os-mode' ),
+									'description' => __( 'Reset Admin OS preferences and layout for this account', 'admin-os-mode' ),
+									'icon'        => 'dashicons-trash',
+									'tone'        => 'red',
+									'command'     => 'system.erase-content-settings',
+								),
+							)
+						),
+					),
 				),
 				static function ( $group ) {
 					return ! empty( $group['items'] );
@@ -704,6 +719,13 @@ final class Admin_OS_Mode_Assets {
 					'countdownSeconds'     => 60,
 					'icon'                 => 'power',
 					'overlayMessage'       => __( 'Logging out...', 'admin-os-mode' ),
+				),
+				'eraseContentSettings' => array(
+					'title'          => __( 'Erase All Content and Settings?', 'admin-os-mode' ),
+					'message'        => __( 'This will reset Admin OS settings, wallpaper, dock, windows, and layout for this WordPress account. WordPress site content will not be affected.', 'admin-os-mode' ),
+					'confirmLabel'   => __( 'Erase', 'admin-os-mode' ),
+					'cancelLabel'    => __( 'Cancel', 'admin-os-mode' ),
+					'overlayMessage' => __( 'Erasing Admin OS settings...', 'admin-os-mode' ),
 				),
 			),
 		);
