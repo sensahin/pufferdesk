@@ -8,42 +8,78 @@
 	--aos-menu-mark-filter: none;
 	--aos-about-title-color: #25292d;
 	--aos-about-text-color: #2f3438;
-	--aos-material-sheen: linear-gradient(155deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.18) 22%, rgba(255, 255, 255, 0) 52%);
-	--aos-material-edge-highlight: rgba(255, 255, 255, 0.72);
-	--aos-material-inner-glow: rgba(255, 255, 255, 0.18);
-	--aos-material-clear-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0.18) 45%, rgba(186, 227, 240, 0.18));
-	--aos-material-clear-border: rgba(255, 255, 255, 0.58);
-	--aos-material-clear-filter: blur(42px) saturate(205%) brightness(1.07);
-	--aos-material-clear-shadow: 0 30px 80px rgba(8, 22, 34, 0.34), 0 1px 0 var(--aos-material-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-	--aos-material-regular-bg: linear-gradient(145deg, rgba(252, 254, 255, 0.72), rgba(230, 242, 247, 0.42) 54%, rgba(196, 225, 236, 0.28));
-	--aos-material-regular-border: rgba(255, 255, 255, 0.62);
-	--aos-material-regular-filter: blur(40px) saturate(185%) brightness(1.05);
-	--aos-material-regular-shadow: 0 34px 92px rgba(6, 21, 35, 0.3), 0 1px 0 var(--aos-material-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-	--aos-material-tinted-bg: linear-gradient(145deg, rgba(225, 246, 250, 0.72), rgba(177, 222, 235, 0.4) 60%, rgba(96, 171, 199, 0.22));
-	--aos-material-tinted-border: rgba(255, 255, 255, 0.52);
-	--aos-material-solid-bg: rgba(255, 255, 255, 0.94);
-	--aos-material-solid-border: rgba(20, 37, 51, 0.1);
-	--aos-material-card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(232, 244, 248, 0.26) 58%, rgba(186, 222, 235, 0.16));
-	--aos-material-card-border: rgba(255, 255, 255, 0.54);
-	--aos-material-card-filter: blur(30px) saturate(170%) brightness(1.04);
-	--aos-material-card-shadow: 0 20px 52px rgba(7, 25, 40, 0.2), 0 1px 0 rgba(255, 255, 255, 0.62) inset, 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-	--aos-material-control-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.16));
-	--aos-material-control-hover-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.24));
-	--aos-material-control-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(16, 29, 44, 0.22));
-	--aos-material-control-border: rgba(255, 255, 255, 0.32);
-	--aos-material-control-filter: blur(18px) saturate(180%);
-	--aos-material-bar-bg: transparent;
-	--aos-material-bar-border: transparent;
-	--aos-material-bar-filter: none;
-	--aos-material-bar-shadow: none;
-	--aos-material-popover-bg: linear-gradient(145deg, rgba(240, 251, 253, 0.82), rgba(215, 236, 243, 0.62) 60%, rgba(196, 224, 236, 0.5));
-	--aos-material-popover-border: rgba(255, 255, 255, 0.62);
-	--aos-material-popover-filter: blur(44px) saturate(205%) brightness(1.06);
-	--aos-material-popover-shadow: 0 22px 58px rgba(6, 22, 34, 0.32), 0 1px 0 rgba(255, 255, 255, 0.62) inset, 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
-	--aos-material-dialog-bg: linear-gradient(145deg, rgba(250, 254, 255, 0.88), rgba(226, 241, 244, 0.68) 58%, rgba(198, 226, 235, 0.48));
-	--aos-material-dialog-border: rgba(255, 255, 255, 0.68);
-	--aos-material-dialog-filter: blur(44px) saturate(195%) brightness(1.05);
-	--aos-material-dialog-shadow: 0 28px 84px rgba(7, 24, 38, 0.38), 0 1px 0 rgba(255, 255, 255, 0.58) inset, 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+	--aos-liquid-glass-sheen: linear-gradient(155deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.18) 22%, rgba(255, 255, 255, 0) 52%);
+	--aos-liquid-glass-edge-highlight: rgba(255, 255, 255, 0.72);
+	--aos-liquid-glass-inner-glow: rgba(255, 255, 255, 0.18);
+	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0.18) 45%, rgba(186, 227, 240, 0.18));
+	--aos-liquid-glass-clear-border: rgba(255, 255, 255, 0.58);
+	--aos-liquid-glass-clear-filter: blur(42px) saturate(205%) brightness(1.07);
+	--aos-liquid-glass-clear-shadow: 0 30px 80px rgba(8, 22, 34, 0.34), 0 1px 0 var(--aos-liquid-glass-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+	--aos-liquid-glass-window-bg: linear-gradient(145deg, rgba(252, 254, 255, 0.72), rgba(230, 242, 247, 0.42) 54%, rgba(196, 225, 236, 0.28));
+	--aos-liquid-glass-window-border: rgba(255, 255, 255, 0.62);
+	--aos-liquid-glass-window-filter: blur(40px) saturate(185%) brightness(1.05);
+	--aos-liquid-glass-window-shadow: 0 34px 92px rgba(6, 21, 35, 0.3), 0 1px 0 var(--aos-liquid-glass-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+	--aos-liquid-glass-tinted-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.14), rgba(255, 255, 255, 0.54) 58%, rgb(var(--aos-accent-rgb) / 0.1));
+	--aos-liquid-glass-tinted-border: rgb(var(--aos-accent-rgb) / 0.2);
+	--aos-liquid-glass-solid-bg: rgba(255, 255, 255, 0.94);
+	--aos-liquid-glass-solid-border: rgba(20, 37, 51, 0.1);
+	--aos-liquid-glass-card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(232, 244, 248, 0.26) 58%, rgba(186, 222, 235, 0.16));
+	--aos-liquid-glass-card-border: rgba(255, 255, 255, 0.54);
+	--aos-liquid-glass-card-filter: blur(30px) saturate(170%) brightness(1.04);
+	--aos-liquid-glass-card-shadow: 0 20px 52px rgba(7, 25, 40, 0.2), 0 1px 0 rgba(255, 255, 255, 0.62) inset, 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+	--aos-liquid-glass-control-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.16));
+	--aos-liquid-glass-control-hover-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.24));
+	--aos-liquid-glass-control-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(16, 29, 44, 0.22));
+	--aos-liquid-glass-control-border: rgba(255, 255, 255, 0.32);
+	--aos-liquid-glass-control-filter: blur(18px) saturate(180%);
+	--aos-liquid-glass-bar-bg: transparent;
+	--aos-liquid-glass-bar-border: transparent;
+	--aos-liquid-glass-bar-filter: none;
+	--aos-liquid-glass-bar-shadow: none;
+	--aos-liquid-glass-popover-bg: linear-gradient(145deg, rgba(240, 251, 253, 0.82), rgba(215, 236, 243, 0.62) 60%, rgba(196, 224, 236, 0.5));
+	--aos-liquid-glass-popover-border: rgba(255, 255, 255, 0.62);
+	--aos-liquid-glass-popover-filter: blur(44px) saturate(205%) brightness(1.06);
+	--aos-liquid-glass-popover-shadow: 0 22px 58px rgba(6, 22, 34, 0.32), 0 1px 0 rgba(255, 255, 255, 0.62) inset, 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+	--aos-liquid-glass-dialog-bg: linear-gradient(145deg, rgba(250, 254, 255, 0.88), rgba(226, 241, 244, 0.68) 58%, rgba(198, 226, 235, 0.48));
+	--aos-liquid-glass-dialog-border: rgba(255, 255, 255, 0.68);
+	--aos-liquid-glass-dialog-filter: blur(44px) saturate(195%) brightness(1.05);
+	--aos-liquid-glass-dialog-shadow: 0 28px 84px rgba(7, 24, 38, 0.38), 0 1px 0 rgba(255, 255, 255, 0.58) inset, 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+	--aos-material-sheen: var(--aos-liquid-glass-sheen);
+	--aos-material-edge-highlight: var(--aos-liquid-glass-edge-highlight);
+	--aos-material-inner-glow: var(--aos-liquid-glass-inner-glow);
+	--aos-material-clear-bg: var(--aos-liquid-glass-clear-bg);
+	--aos-material-clear-border: var(--aos-liquid-glass-clear-border);
+	--aos-material-clear-filter: var(--aos-liquid-glass-clear-filter);
+	--aos-material-clear-shadow: var(--aos-liquid-glass-clear-shadow);
+	--aos-material-regular-bg: var(--aos-liquid-glass-window-bg);
+	--aos-material-regular-border: var(--aos-liquid-glass-window-border);
+	--aos-material-regular-filter: var(--aos-liquid-glass-window-filter);
+	--aos-material-regular-shadow: var(--aos-liquid-glass-window-shadow);
+	--aos-material-tinted-bg: var(--aos-liquid-glass-tinted-bg);
+	--aos-material-tinted-border: var(--aos-liquid-glass-tinted-border);
+	--aos-material-solid-bg: var(--aos-liquid-glass-solid-bg);
+	--aos-material-solid-border: var(--aos-liquid-glass-solid-border);
+	--aos-material-card-bg: var(--aos-liquid-glass-card-bg);
+	--aos-material-card-border: var(--aos-liquid-glass-card-border);
+	--aos-material-card-filter: var(--aos-liquid-glass-card-filter);
+	--aos-material-card-shadow: var(--aos-liquid-glass-card-shadow);
+	--aos-material-control-bg: var(--aos-liquid-glass-control-bg);
+	--aos-material-control-hover-bg: var(--aos-liquid-glass-control-hover-bg);
+	--aos-material-control-active-bg: var(--aos-liquid-glass-control-active-bg);
+	--aos-material-control-border: var(--aos-liquid-glass-control-border);
+	--aos-material-control-filter: var(--aos-liquid-glass-control-filter);
+	--aos-material-bar-bg: var(--aos-liquid-glass-bar-bg);
+	--aos-material-bar-border: var(--aos-liquid-glass-bar-border);
+	--aos-material-bar-filter: var(--aos-liquid-glass-bar-filter);
+	--aos-material-bar-shadow: var(--aos-liquid-glass-bar-shadow);
+	--aos-material-popover-bg: var(--aos-liquid-glass-popover-bg);
+	--aos-material-popover-border: var(--aos-liquid-glass-popover-border);
+	--aos-material-popover-filter: var(--aos-liquid-glass-popover-filter);
+	--aos-material-popover-shadow: var(--aos-liquid-glass-popover-shadow);
+	--aos-material-dialog-bg: var(--aos-liquid-glass-dialog-bg);
+	--aos-material-dialog-border: var(--aos-liquid-glass-dialog-border);
+	--aos-material-dialog-filter: var(--aos-liquid-glass-dialog-filter);
+	--aos-material-dialog-shadow: var(--aos-liquid-glass-dialog-shadow);
 	--aos-settings-window-bg: linear-gradient(145deg, rgba(249, 252, 254, 0.62), rgba(227, 239, 246, 0.38) 58%, rgba(185, 219, 233, 0.24));
 	--aos-settings-body-bg: rgba(255, 255, 255, 0.18);
 	--aos-settings-sidebar-bg: linear-gradient(145deg, rgba(242, 248, 251, 0.66), rgba(215, 229, 239, 0.42) 64%, rgba(174, 210, 226, 0.24));
@@ -216,20 +252,20 @@
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-menu-bar-background="1"] {
-	--aos-material-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.18));
-	--aos-material-bar-border: rgba(255, 255, 255, 0.18);
-	--aos-material-bar-filter: blur(28px) saturate(190%) brightness(1.04);
-	--aos-material-bar-shadow: 0 1px 0 rgba(255, 255, 255, 0.16) inset, 0 10px 30px rgba(8, 20, 34, 0.12);
+	--aos-liquid-glass-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.18));
+	--aos-liquid-glass-bar-border: rgba(255, 255, 255, 0.18);
+	--aos-liquid-glass-bar-filter: blur(28px) saturate(190%) brightness(1.04);
+	--aos-liquid-glass-bar-shadow: 0 1px 0 rgba(255, 255, 255, 0.16) inset, 0 10px 30px rgba(8, 20, 34, 0.12);
 	--aos-menu-bg: var(--aos-material-bar-bg);
 	--aos-menu-border: var(--aos-material-bar-border);
 	--aos-menu-shadow: var(--aos-material-bar-shadow);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"][data-aos-menu-bar-background="1"] {
-	--aos-material-bar-bg: linear-gradient(180deg, rgba(26, 31, 38, 0.34), rgba(16, 21, 28, 0.18));
-	--aos-material-bar-border: rgba(255, 255, 255, 0.08);
-	--aos-material-bar-filter: blur(30px) saturate(180%) brightness(0.92);
-	--aos-material-bar-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 10px 30px rgba(0, 0, 0, 0.16);
+	--aos-liquid-glass-bar-bg: linear-gradient(180deg, rgba(26, 31, 38, 0.34), rgba(16, 21, 28, 0.18));
+	--aos-liquid-glass-bar-border: rgba(255, 255, 255, 0.08);
+	--aos-liquid-glass-bar-filter: blur(30px) saturate(180%) brightness(0.92);
+	--aos-liquid-glass-bar-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 10px 30px rgba(0, 0, 0, 0.16);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-brand {
@@ -718,38 +754,38 @@
 	--aos-menu-mark-filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.42));
 	--aos-about-title-color: #e7e9e8;
 	--aos-about-text-color: #d7dbda;
-	--aos-material-sheen: linear-gradient(155deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 22%, rgba(255, 255, 255, 0) 54%);
-	--aos-material-edge-highlight: rgba(255, 255, 255, 0.2);
-	--aos-material-inner-glow: rgba(255, 255, 255, 0.08);
-	--aos-material-clear-bg: linear-gradient(135deg, rgba(58, 67, 84, 0.52), rgba(18, 25, 35, 0.28) 46%, rgba(13, 33, 43, 0.24));
-	--aos-material-clear-border: rgba(255, 255, 255, 0.18);
-	--aos-material-clear-filter: blur(44px) saturate(190%) brightness(1.02);
-	--aos-material-clear-shadow: 0 30px 86px rgba(0, 0, 0, 0.52), 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-	--aos-material-regular-bg: linear-gradient(145deg, rgba(39, 45, 56, 0.76), rgba(18, 24, 34, 0.62) 54%, rgba(12, 28, 37, 0.46));
-	--aos-material-regular-border: rgba(255, 255, 255, 0.18);
-	--aos-material-regular-filter: blur(42px) saturate(180%) brightness(1.01);
-	--aos-material-regular-shadow: 0 36px 96px rgba(0, 0, 0, 0.54), 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-	--aos-material-tinted-bg: linear-gradient(145deg, rgba(29, 55, 65, 0.74), rgba(14, 31, 42, 0.6) 56%, rgba(16, 47, 58, 0.38));
-	--aos-material-tinted-border: rgba(128, 202, 222, 0.2);
-	--aos-material-solid-bg: rgba(30, 34, 43, 0.94);
-	--aos-material-solid-border: rgba(255, 255, 255, 0.14);
-	--aos-material-card-bg: linear-gradient(145deg, rgba(38, 44, 55, 0.58), rgba(17, 24, 34, 0.38) 56%, rgba(12, 33, 43, 0.28));
-	--aos-material-card-border: rgba(255, 255, 255, 0.16);
-	--aos-material-card-filter: blur(34px) saturate(165%) brightness(1);
-	--aos-material-card-shadow: 0 22px 54px rgba(0, 0, 0, 0.34), 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-	--aos-material-control-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.07));
-	--aos-material-control-hover-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-	--aos-material-control-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.27), rgba(255, 255, 255, 0.14));
-	--aos-material-control-border: rgba(255, 255, 255, 0.12);
-	--aos-material-control-filter: blur(18px) saturate(160%) brightness(1);
-	--aos-material-popover-bg: linear-gradient(145deg, rgba(40, 56, 64, 0.78), rgba(17, 28, 36, 0.68) 58%, rgba(9, 25, 33, 0.54));
-	--aos-material-popover-border: rgba(165, 190, 207, 0.34);
-	--aos-material-popover-filter: blur(46px) saturate(190%) brightness(1.02);
-	--aos-material-popover-shadow: 0 24px 66px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-	--aos-material-dialog-bg: linear-gradient(145deg, rgba(56, 77, 77, 0.74), rgba(26, 37, 38, 0.82) 58%, rgba(20, 30, 30, 0.9));
-	--aos-material-dialog-border: rgba(188, 210, 203, 0.52);
-	--aos-material-dialog-filter: blur(46px) saturate(180%) brightness(1.02);
-	--aos-material-dialog-shadow: 0 30px 82px rgba(0, 0, 0, 0.52), 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 0 0 1px rgba(255, 255, 255, 0.07) inset;
+	--aos-liquid-glass-sheen: linear-gradient(155deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 22%, rgba(255, 255, 255, 0) 54%);
+	--aos-liquid-glass-edge-highlight: rgba(255, 255, 255, 0.2);
+	--aos-liquid-glass-inner-glow: rgba(255, 255, 255, 0.08);
+	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgba(58, 67, 84, 0.52), rgba(18, 25, 35, 0.28) 46%, rgba(13, 33, 43, 0.24));
+	--aos-liquid-glass-clear-border: rgba(255, 255, 255, 0.18);
+	--aos-liquid-glass-clear-filter: blur(44px) saturate(190%) brightness(1.02);
+	--aos-liquid-glass-clear-shadow: 0 30px 86px rgba(0, 0, 0, 0.52), 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+	--aos-liquid-glass-window-bg: linear-gradient(145deg, rgba(39, 45, 56, 0.76), rgba(18, 24, 34, 0.62) 54%, rgba(12, 28, 37, 0.46));
+	--aos-liquid-glass-window-border: rgba(255, 255, 255, 0.18);
+	--aos-liquid-glass-window-filter: blur(42px) saturate(180%) brightness(1.01);
+	--aos-liquid-glass-window-shadow: 0 36px 96px rgba(0, 0, 0, 0.54), 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+	--aos-liquid-glass-tinted-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.2), rgba(18, 24, 34, 0.62) 56%, rgb(var(--aos-accent-rgb) / 0.16));
+	--aos-liquid-glass-tinted-border: rgb(var(--aos-accent-rgb) / 0.24);
+	--aos-liquid-glass-solid-bg: rgba(30, 34, 43, 0.94);
+	--aos-liquid-glass-solid-border: rgba(255, 255, 255, 0.14);
+	--aos-liquid-glass-card-bg: linear-gradient(145deg, rgba(38, 44, 55, 0.58), rgba(17, 24, 34, 0.38) 56%, rgba(12, 33, 43, 0.28));
+	--aos-liquid-glass-card-border: rgba(255, 255, 255, 0.16);
+	--aos-liquid-glass-card-filter: blur(34px) saturate(165%) brightness(1);
+	--aos-liquid-glass-card-shadow: 0 22px 54px rgba(0, 0, 0, 0.34), 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+	--aos-liquid-glass-control-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.07));
+	--aos-liquid-glass-control-hover-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+	--aos-liquid-glass-control-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.27), rgba(255, 255, 255, 0.14));
+	--aos-liquid-glass-control-border: rgba(255, 255, 255, 0.12);
+	--aos-liquid-glass-control-filter: blur(18px) saturate(160%) brightness(1);
+	--aos-liquid-glass-popover-bg: linear-gradient(145deg, rgba(40, 56, 64, 0.78), rgba(17, 28, 36, 0.68) 58%, rgba(9, 25, 33, 0.54));
+	--aos-liquid-glass-popover-border: rgba(165, 190, 207, 0.34);
+	--aos-liquid-glass-popover-filter: blur(46px) saturate(190%) brightness(1.02);
+	--aos-liquid-glass-popover-shadow: 0 24px 66px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+	--aos-liquid-glass-dialog-bg: linear-gradient(145deg, rgba(56, 77, 77, 0.74), rgba(26, 37, 38, 0.82) 58%, rgba(20, 30, 30, 0.9));
+	--aos-liquid-glass-dialog-border: rgba(188, 210, 203, 0.52);
+	--aos-liquid-glass-dialog-filter: blur(46px) saturate(180%) brightness(1.02);
+	--aos-liquid-glass-dialog-shadow: 0 30px 82px rgba(0, 0, 0, 0.52), 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 0 0 1px rgba(255, 255, 255, 0.07) inset;
 	--aos-settings-window-bg: linear-gradient(145deg, rgba(31, 36, 46, 0.76), rgba(17, 24, 33, 0.62) 58%, rgba(12, 29, 38, 0.46));
 	--aos-settings-body-bg: rgba(10, 14, 21, 0.28);
 	--aos-settings-sidebar-bg: linear-gradient(145deg, rgba(26, 31, 42, 0.72), rgba(12, 18, 28, 0.56) 64%, rgba(10, 28, 38, 0.36));
@@ -819,11 +855,11 @@
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-window-material="tinted"][data-aos-effective-appearance="light"] {
-	--aos-material-regular-bg: var(--aos-material-tinted-bg);
-	--aos-material-regular-border: var(--aos-material-tinted-border);
-	--aos-material-card-bg: linear-gradient(145deg, rgba(222, 239, 244, 0.56), rgba(204, 231, 239, 0.34));
-	--aos-material-card-border: rgba(255, 255, 255, 0.58);
-	--aos-material-clear-bg: linear-gradient(135deg, rgba(224, 241, 246, 0.48), rgba(224, 241, 246, 0.22));
+	--aos-liquid-glass-window-bg: var(--aos-liquid-glass-tinted-bg);
+	--aos-liquid-glass-window-border: var(--aos-liquid-glass-tinted-border);
+	--aos-liquid-glass-card-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.12), rgba(255, 255, 255, 0.38));
+	--aos-liquid-glass-card-border: rgb(var(--aos-accent-rgb) / 0.18);
+	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgb(var(--aos-accent-rgb) / 0.14), rgba(255, 255, 255, 0.24));
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-line: var(--aos-material-regular-border);
 	--aos-card-bg: var(--aos-material-card-bg);
@@ -835,11 +871,11 @@
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-window-material="tinted"][data-aos-effective-appearance="dark"] {
-	--aos-material-regular-bg: var(--aos-material-tinted-bg);
-	--aos-material-regular-border: var(--aos-material-tinted-border);
-	--aos-material-card-bg: linear-gradient(145deg, rgba(25, 43, 54, 0.58), rgba(17, 31, 42, 0.46));
-	--aos-material-card-border: rgba(128, 202, 222, 0.2);
-	--aos-material-clear-bg: linear-gradient(135deg, rgba(24, 43, 54, 0.56), rgba(14, 29, 40, 0.3));
+	--aos-liquid-glass-window-bg: var(--aos-liquid-glass-tinted-bg);
+	--aos-liquid-glass-window-border: var(--aos-liquid-glass-tinted-border);
+	--aos-liquid-glass-card-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.16), rgba(17, 31, 42, 0.46));
+	--aos-liquid-glass-card-border: rgb(var(--aos-accent-rgb) / 0.2);
+	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgb(var(--aos-accent-rgb) / 0.18), rgba(14, 29, 40, 0.3));
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-line: var(--aos-material-regular-border);
 	--aos-card-bg: var(--aos-material-card-bg);
@@ -906,18 +942,18 @@
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-tint-windows="0"][data-aos-effective-appearance="light"] {
-	--aos-material-clear-bg: rgba(248, 250, 252, 0.78);
-	--aos-material-card-bg: rgba(248, 250, 252, 0.78);
-	--aos-material-regular-bg: rgba(248, 250, 252, 0.78);
+	--aos-liquid-glass-clear-bg: rgba(248, 250, 252, 0.78);
+	--aos-liquid-glass-card-bg: rgba(248, 250, 252, 0.78);
+	--aos-liquid-glass-window-bg: rgba(248, 250, 252, 0.78);
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-card-bg: var(--aos-material-card-bg);
 	--aos-dock-bg: var(--aos-material-clear-bg);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-tint-windows="0"][data-aos-effective-appearance="dark"] {
-	--aos-material-clear-bg: rgba(27, 31, 39, 0.82);
-	--aos-material-card-bg: rgba(27, 31, 39, 0.82);
-	--aos-material-regular-bg: rgba(27, 31, 39, 0.82);
+	--aos-liquid-glass-clear-bg: rgba(27, 31, 39, 0.82);
+	--aos-liquid-glass-card-bg: rgba(27, 31, 39, 0.82);
+	--aos-liquid-glass-window-bg: rgba(27, 31, 39, 0.82);
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-card-bg: var(--aos-material-card-bg);
 	--aos-dock-bg: var(--aos-material-clear-bg);
@@ -941,22 +977,22 @@
 
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
 	.aos-shell[data-aos-theme="adminos"] {
-		--aos-material-sheen: none;
-		--aos-material-clear-bg: rgba(248, 250, 252, 0.96);
-		--aos-material-regular-bg: rgba(248, 250, 252, 0.96);
-		--aos-material-card-bg: rgba(248, 250, 252, 0.94);
-		--aos-material-control-bg: rgba(255, 255, 255, 0.88);
-		--aos-material-control-hover-bg: rgba(255, 255, 255, 0.96);
-		--aos-material-control-active-bg: rgba(231, 238, 244, 0.96);
-		--aos-material-popover-bg: rgba(244, 248, 250, 0.98);
-		--aos-material-dialog-bg: rgba(248, 250, 252, 0.98);
-		--aos-material-clear-filter: none;
-		--aos-material-regular-filter: none;
-		--aos-material-card-filter: none;
-		--aos-material-control-filter: none;
-		--aos-material-bar-filter: none;
-		--aos-material-popover-filter: none;
-		--aos-material-dialog-filter: none;
+		--aos-liquid-glass-sheen: none;
+		--aos-liquid-glass-clear-bg: rgba(248, 250, 252, 0.96);
+		--aos-liquid-glass-window-bg: rgba(248, 250, 252, 0.96);
+		--aos-liquid-glass-card-bg: rgba(248, 250, 252, 0.94);
+		--aos-liquid-glass-control-bg: rgba(255, 255, 255, 0.88);
+		--aos-liquid-glass-control-hover-bg: rgba(255, 255, 255, 0.96);
+		--aos-liquid-glass-control-active-bg: rgba(231, 238, 244, 0.96);
+		--aos-liquid-glass-popover-bg: rgba(244, 248, 250, 0.98);
+		--aos-liquid-glass-dialog-bg: rgba(248, 250, 252, 0.98);
+		--aos-liquid-glass-clear-filter: none;
+		--aos-liquid-glass-window-filter: none;
+		--aos-liquid-glass-card-filter: none;
+		--aos-liquid-glass-control-filter: none;
+		--aos-liquid-glass-bar-filter: none;
+		--aos-liquid-glass-popover-filter: none;
+		--aos-liquid-glass-dialog-filter: none;
 		--aos-panel: var(--aos-material-regular-bg);
 		--aos-control-bg: var(--aos-material-control-bg);
 		--aos-control-bg-hover: var(--aos-material-control-hover-bg);
@@ -972,15 +1008,15 @@
 	}
 
 	.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] {
-		--aos-material-sheen: none;
-		--aos-material-clear-bg: rgba(30, 34, 43, 0.98);
-		--aos-material-regular-bg: rgba(30, 34, 43, 0.98);
-		--aos-material-card-bg: rgba(31, 35, 44, 0.96);
-		--aos-material-control-bg: rgba(255, 255, 255, 0.1);
-		--aos-material-control-hover-bg: rgba(255, 255, 255, 0.16);
-		--aos-material-control-active-bg: rgba(255, 255, 255, 0.22);
-		--aos-material-popover-bg: rgba(31, 43, 49, 0.98);
-		--aos-material-dialog-bg: rgba(33, 40, 39, 0.98);
+		--aos-liquid-glass-sheen: none;
+		--aos-liquid-glass-clear-bg: rgba(30, 34, 43, 0.98);
+		--aos-liquid-glass-window-bg: rgba(30, 34, 43, 0.98);
+		--aos-liquid-glass-card-bg: rgba(31, 35, 44, 0.96);
+		--aos-liquid-glass-control-bg: rgba(255, 255, 255, 0.1);
+		--aos-liquid-glass-control-hover-bg: rgba(255, 255, 255, 0.16);
+		--aos-liquid-glass-control-active-bg: rgba(255, 255, 255, 0.22);
+		--aos-liquid-glass-popover-bg: rgba(31, 43, 49, 0.98);
+		--aos-liquid-glass-dialog-bg: rgba(33, 40, 39, 0.98);
 		--aos-panel: var(--aos-material-regular-bg);
 		--aos-control-bg: var(--aos-material-control-bg);
 		--aos-control-bg-hover: var(--aos-material-control-hover-bg);
@@ -998,22 +1034,22 @@
 
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
 	.aos-shell[data-aos-theme="adminos"] {
-		--aos-material-sheen: none;
-		--aos-material-clear-bg: rgba(248, 250, 252, 0.96);
-		--aos-material-regular-bg: rgba(248, 250, 252, 0.96);
-		--aos-material-card-bg: rgba(248, 250, 252, 0.94);
-		--aos-material-control-bg: rgba(255, 255, 255, 0.88);
-		--aos-material-control-hover-bg: rgba(255, 255, 255, 0.96);
-		--aos-material-control-active-bg: rgba(231, 238, 244, 0.96);
-		--aos-material-popover-bg: rgba(244, 248, 250, 0.98);
-		--aos-material-dialog-bg: rgba(248, 250, 252, 0.98);
-		--aos-material-clear-filter: none;
-		--aos-material-regular-filter: none;
-		--aos-material-card-filter: none;
-		--aos-material-control-filter: none;
-		--aos-material-bar-filter: none;
-		--aos-material-popover-filter: none;
-		--aos-material-dialog-filter: none;
+		--aos-liquid-glass-sheen: none;
+		--aos-liquid-glass-clear-bg: rgba(248, 250, 252, 0.96);
+		--aos-liquid-glass-window-bg: rgba(248, 250, 252, 0.96);
+		--aos-liquid-glass-card-bg: rgba(248, 250, 252, 0.94);
+		--aos-liquid-glass-control-bg: rgba(255, 255, 255, 0.88);
+		--aos-liquid-glass-control-hover-bg: rgba(255, 255, 255, 0.96);
+		--aos-liquid-glass-control-active-bg: rgba(231, 238, 244, 0.96);
+		--aos-liquid-glass-popover-bg: rgba(244, 248, 250, 0.98);
+		--aos-liquid-glass-dialog-bg: rgba(248, 250, 252, 0.98);
+		--aos-liquid-glass-clear-filter: none;
+		--aos-liquid-glass-window-filter: none;
+		--aos-liquid-glass-card-filter: none;
+		--aos-liquid-glass-control-filter: none;
+		--aos-liquid-glass-bar-filter: none;
+		--aos-liquid-glass-popover-filter: none;
+		--aos-liquid-glass-dialog-filter: none;
 		--aos-panel: var(--aos-material-regular-bg);
 		--aos-control-bg: var(--aos-material-control-bg);
 		--aos-control-bg-hover: var(--aos-material-control-hover-bg);
@@ -1029,15 +1065,15 @@
 	}
 
 	.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] {
-		--aos-material-sheen: none;
-		--aos-material-clear-bg: rgba(30, 34, 43, 0.98);
-		--aos-material-regular-bg: rgba(30, 34, 43, 0.98);
-		--aos-material-card-bg: rgba(31, 35, 44, 0.96);
-		--aos-material-control-bg: rgba(255, 255, 255, 0.1);
-		--aos-material-control-hover-bg: rgba(255, 255, 255, 0.16);
-		--aos-material-control-active-bg: rgba(255, 255, 255, 0.22);
-		--aos-material-popover-bg: rgba(31, 43, 49, 0.98);
-		--aos-material-dialog-bg: rgba(33, 40, 39, 0.98);
+		--aos-liquid-glass-sheen: none;
+		--aos-liquid-glass-clear-bg: rgba(30, 34, 43, 0.98);
+		--aos-liquid-glass-window-bg: rgba(30, 34, 43, 0.98);
+		--aos-liquid-glass-card-bg: rgba(31, 35, 44, 0.96);
+		--aos-liquid-glass-control-bg: rgba(255, 255, 255, 0.1);
+		--aos-liquid-glass-control-hover-bg: rgba(255, 255, 255, 0.16);
+		--aos-liquid-glass-control-active-bg: rgba(255, 255, 255, 0.22);
+		--aos-liquid-glass-popover-bg: rgba(31, 43, 49, 0.98);
+		--aos-liquid-glass-dialog-bg: rgba(33, 40, 39, 0.98);
 		--aos-panel: var(--aos-material-regular-bg);
 		--aos-control-bg: var(--aos-material-control-bg);
 		--aos-control-bg-hover: var(--aos-material-control-hover-bg);

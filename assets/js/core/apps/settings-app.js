@@ -1926,10 +1926,10 @@
 			{ value: 'light', label: 'Light' },
 			{ value: 'dark', label: 'Dark' }
 		], status, 'aos-settings-preview-option', 'aos-settings-appearance-preview')));
-		appearanceSection.appendChild(createSettingsRow('Window Material', createOptionGroup('window_material', [
+		appearanceSection.appendChild(createSettingsRow('Liquid Glass', createOptionGroup('window_material', [
 			{ value: 'clear', label: 'Clear' },
 			{ value: 'tinted', label: 'Tinted' }
-		], status, 'aos-settings-preview-option', 'aos-settings-material-preview'), 'Choose your preferred look.', 'aos-settings-row-fluid-label'));
+		], status, 'aos-settings-preview-option', 'aos-settings-material-preview'), 'Choose your preferred Liquid Glass look.', 'aos-settings-row-fluid-label'));
 
 		const themeSection = createSection('', 'aos-settings-section-theme');
 		themeSection.appendChild(createSettingsRow('Color', createAccentGroup(status)));
