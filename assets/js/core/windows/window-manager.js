@@ -14,6 +14,7 @@
 		let windowOffset = 0;
 		let windowId = 0;
 		let activeWindow = null;
+		let fullscreenState = shell.dataset.aosFullscreenWindow === '1';
 		let restoreInProgress = false;
 		let preserveStoredWindowsUntilChange = Boolean(options.preserveStoredWindowsUntilChange);
 		let sessionSaveDisabled = false;
@@ -61,6 +62,10 @@
 
 		function getMenuBarHeight() {
 			if (!menuBar) {
+				return 0;
+			}
+
+			if (shell.dataset.aosMenuBarHidden === '1') {
 				return 0;
 			}
 
@@ -258,6 +263,22 @@
 			}));
 		}
 
+		function syncFullscreenState(force = false) {
+			const fullscreen = Boolean(activeWindow && isVisibleWindow(activeWindow) && activeWindow.classList.contains('is-maximized'));
+
+			if (!force && fullscreen === fullscreenState) {
+				return;
+			}
+
+			fullscreenState = fullscreen;
+			shell.dataset.aosFullscreenWindow = fullscreen ? '1' : '0';
+			shell.dispatchEvent(new window.CustomEvent('adminOSMode:fullscreen-window-change', {
+				detail: {
+					fullscreen
+				}
+			}));
+		}
+
 		function setActiveWindow(win) {
 			activeWindow = win || null;
 			shell.querySelectorAll('.aos-window.is-active').forEach((item) => {
@@ -267,6 +288,7 @@
 				activeWindow.classList.add('is-active');
 			}
 			dispatchActiveWindowChange();
+			syncFullscreenState();
 		}
 
 		function isVisibleWindow(win) {
@@ -1073,6 +1095,10 @@
 			if (!shouldWallpaperClickShowDesktop()) {
 				exitShowDesktop(true);
 			}
+		});
+
+		shell.addEventListener('adminOSMode:menu-bar-layout-change', () => {
+			constrainVisibleWindows();
 		});
 
 		window.addEventListener('resize', () => {

@@ -100,6 +100,7 @@ final class Admin_OS_Mode_Shell_Renderer {
 		$theme        = $this->theme_registry->get_current_theme( $this->preferences );
 		$appearance   = $this->preferences->get_appearance();
 		$desktop_dock = $this->preferences->get_desktop_dock();
+		$menu_bar     = $this->preferences->get_menu_bar();
 		$wallpaper    = $this->wallpaper_registry->get_client_config( $theme, $this->preferences );
 		$this->current_theme = $theme;
 
@@ -109,6 +110,7 @@ final class Admin_OS_Mode_Shell_Renderer {
 				'appearance'   => $appearance,
 				'apps'         => $apps,
 				'desktop_dock' => $desktop_dock,
+				'menu_bar'     => $menu_bar,
 				'widgets'      => $widgets,
 				'folders'      => $folders,
 				'site_name'    => get_bloginfo( 'name' ),

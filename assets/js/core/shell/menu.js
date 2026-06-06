@@ -24,9 +24,8 @@
 				appLabel: labels.system || 'Admin OS'
 			})
 			: { groups: [] };
-		const systemGroup = {
+		const systemGroupBase = {
 			id: 'system',
-			items: getGroupedItems(systemDefinition),
 			label: systemDefinition.groups[0] && systemDefinition.groups[0].label ? systemDefinition.groups[0].label : 'Admin OS'
 		};
 		const persistentGroupIds = new Set(persistentDefinition.groups.map((group) => group.id));
@@ -148,6 +147,42 @@
 			return Boolean(group && Array.isArray(group.items) && group.items.length);
 		}
 
+		function getRecentCount() {
+			const configCount = config.menuBar && Number.parseInt(config.menuBar.recent_count, 10);
+			const datasetCount = Number.parseInt(shell.dataset.aosMenuBarRecentCount, 10);
+
+			if (Number.isFinite(configCount)) {
+				return Math.max(0, Math.min(50, configCount));
+			}
+
+			return Number.isFinite(datasetCount) ? Math.max(0, Math.min(50, datasetCount)) : 10;
+		}
+
+		function getSystemGroup() {
+			const items = getGroupedItems(systemDefinition).map((item) => {
+				if (!item || item.id !== 'recent-items') {
+					return item;
+				}
+
+				const count = getRecentCount();
+				const recentItems = window.AdminOSMode.menuBar
+					? window.AdminOSMode.menuBar.getRecentMenuItems(config, count)
+					: [];
+
+				return Object.assign({}, item, {
+					disabled: !count || !recentItems.length,
+					items: count ? recentItems : [],
+					shortcut: count && recentItems.length ? '›' : ''
+				});
+			});
+
+			return Object.assign({}, systemGroupBase, { items });
+		}
+
+		function resolveGroup(groupSource) {
+			return typeof groupSource === 'function' ? groupSource() : groupSource;
+		}
+
 		function resolveMenuItem(item) {
 			if (item.id !== 'close-active-window') {
 				return item;
@@ -237,22 +272,38 @@
 			openPopover(group, button);
 		}
 
-		function bindGroupButton(button, group) {
-			button.dataset.aosMenuGroup = group.id;
+		function bindGroupButton(button, groupSource) {
+			const initialGroup = resolveGroup(groupSource);
+			if (!initialGroup) {
+				return;
+			}
 
-			if (hasMenuItems(group)) {
+			button.dataset.aosMenuGroup = initialGroup.id;
+
+			if (hasMenuItems(initialGroup)) {
 				button.setAttribute('aria-haspopup', 'menu');
 				button.setAttribute('aria-expanded', 'false');
-				button.addEventListener('click', () => togglePopover(group, button));
+				button.addEventListener('click', () => {
+					const group = resolveGroup(groupSource);
+					if (group) {
+						togglePopover(group, button);
+					}
+				});
 				button.addEventListener('pointerenter', () => {
 					if (popover) {
-						openPopover(group, button);
+						const group = resolveGroup(groupSource);
+						if (group) {
+							openPopover(group, button);
+						}
 					}
 				});
 				button.addEventListener('keydown', (event) => {
+					const group = resolveGroup(groupSource);
 					if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
 						event.preventDefault();
-						openPopover(group, button, { focus: true });
+						if (group) {
+							openPopover(group, button, { focus: true });
+						}
 					} else if (event.key === 'Escape') {
 						closePopover();
 						button.focus();
@@ -260,6 +311,9 @@
 				});
 				return;
 			}
+
+			const group = initialGroup;
+			button.dataset.aosMenuGroup = group.id;
 
 			if (!group.command) {
 				return;
@@ -296,12 +350,12 @@
 		}
 
 		function bindSystemButton() {
-			if (!systemButton || systemButton.dataset.aosSystemMenuBound === '1' || !hasMenuItems(systemGroup)) {
+			if (!systemButton || systemButton.dataset.aosSystemMenuBound === '1' || !hasMenuItems(getSystemGroup())) {
 				return;
 			}
 
 			systemButton.dataset.aosSystemMenuBound = '1';
-			bindGroupButton(systemButton, systemGroup);
+			bindGroupButton(systemButton, getSystemGroup);
 		}
 
 		function bind() {
@@ -329,12 +383,27 @@
 					closePopover();
 				}
 			});
+			window.addEventListener('adminOSMode:recent-items-change', () => {
+				if (openGroupId === 'system') {
+					openPopover(getSystemGroup(), activeButton || systemButton);
+				}
+			});
+			shell.addEventListener('adminOSMode:menu-bar-change', () => {
+				config.menuBar = Object.assign({}, config.menuBar || {}, {
+					auto_hide: shell.dataset.aosMenuBarAutoHide || 'fullscreen',
+					recent_count: Number.parseInt(shell.dataset.aosMenuBarRecentCount, 10) || 0,
+					show_background: shell.dataset.aosMenuBarBackground === '1'
+				});
+				if (openGroupId === 'system') {
+					openPopover(getSystemGroup(), activeButton || systemButton);
+				}
+			});
 			window.addEventListener('resize', closePopover);
 		}
 
 		function getMenuDefinition() {
 			return {
-				system: systemGroup,
+				system: getSystemGroup(),
 				groups: getRenderedGroups()
 			};
 		}

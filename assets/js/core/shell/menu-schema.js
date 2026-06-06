@@ -72,6 +72,7 @@
 				disabled: Boolean(item.disabled),
 				icon: typeof item.icon === 'string' || (item.icon && typeof item.icon === 'object') ? item.icon : '',
 				id: typeof item.id === 'string' ? item.id : '',
+				items: normalizeCommandItems(item.items),
 				label: item.label,
 				panel: typeof item.panel === 'string' ? item.panel : '',
 				payload: item.payload && typeof item.payload === 'object' ? item.payload : {},

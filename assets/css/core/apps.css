@@ -913,6 +913,15 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	grid-template-columns: minmax(0, 1fr) max-content;
 }
 
+.aos-settings-menu-bar-row {
+	grid-template-columns: minmax(0, 1fr) max-content;
+	min-height: 44px;
+}
+
+.aos-settings-menu-bar-row .aos-settings-label {
+	font-size: var(--aos-settings-text-label);
+}
+
 .aos-settings-section > .aos-settings-row + .aos-settings-row {
 	border-top: 1px solid var(--aos-card-border);
 }

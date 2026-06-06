@@ -46,13 +46,35 @@
 			return app ? getAppWindowOptions(app) : null;
 		}
 
+		function addRecentItem(item) {
+			if (!window.AdminOSMode.menuBar || typeof window.AdminOSMode.menuBar.addRecentItem !== 'function') {
+				return;
+			}
+
+			window.AdminOSMode.menuBar.addRecentItem(config, item);
+		}
+
 		function openApp(appId) {
 			const options = getWindowOptions(appId);
+			const app = appMap.get(appId);
 			if (!options) {
 				return null;
 			}
 
-			return manager.createWindow(options);
+			const win = manager.createWindow(options);
+			if (app && win) {
+				addRecentItem({
+					command: 'open-app',
+					icon: app.icon,
+					id: app.id,
+					label: app.label,
+					target: app.id,
+					title: app.label,
+					type: 'app'
+				});
+			}
+
+			return win;
 		}
 
 		function openSettingsPanel(panelId) {
@@ -116,12 +138,24 @@
 		}
 
 		function openUrl(url, title, icon) {
-			manager.createWindow({
+			const win = manager.createWindow({
 				title: title || 'Admin',
 				icon: icon || 'dashicons-admin-generic',
 				windowKind: 'document',
 				url
 			});
+
+			if (win && url) {
+				addRecentItem({
+					command: 'open-url',
+					icon: icon || 'dashicons-admin-generic',
+					id: url,
+					label: title || 'Admin',
+					title: title || 'Admin',
+					type: 'document',
+					url
+				});
+			}
 		}
 
 		function createFolderAppButton(app) {
@@ -164,7 +198,7 @@
 			folderApps.forEach((app) => grid.appendChild(createFolderAppButton(app)));
 			content.appendChild(grid);
 
-			manager.createWindow({
+			const win = manager.createWindow({
 				title: folderTitle,
 				icon: folder && folder.icon ? folder.icon : 'dashicons-admin-generic',
 				content,
@@ -173,6 +207,18 @@
 				width: '560px',
 				height: '420px'
 			});
+
+			if (win) {
+				addRecentItem({
+					command: 'open-folder',
+					icon: folder && folder.icon ? folder.icon : 'dashicons-admin-generic',
+					id: folderId,
+					label: folderTitle,
+					target: folderId,
+					title: folderTitle,
+					type: 'folder'
+				});
+			}
 		}
 
 		function runSearch(query) {

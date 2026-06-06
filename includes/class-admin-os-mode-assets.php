@@ -256,6 +256,10 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/wallpaper.js',
 				'deps' => array( 'admin-os-mode-config' ),
 			),
+			'admin-os-mode-menu-bar-state' => array(
+				'path' => 'assets/js/core/menu-bar.js',
+				'deps' => array( 'admin-os-mode-config', 'admin-os-mode-session-store' ),
+			),
 			'admin-os-mode-window-factory' => array(
 				'path' => 'assets/js/core/windows/window-factory.js',
 				'deps' => array( 'admin-os-mode-dom' ),
@@ -278,7 +282,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-settings-app'   => array(
 				'path' => 'assets/js/core/apps/settings-app.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-storage', 'admin-os-mode-api-client', 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-wallpaper' ),
+				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-storage', 'admin-os-mode-api-client', 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-menu-bar-state', 'admin-os-mode-wallpaper' ),
 			),
 			'admin-os-mode-app-launcher'   => array(
 				'path' => 'assets/js/core/apps/app-launcher.js',
@@ -322,7 +326,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-boot'           => array(
 				'path' => 'assets/js/core/boot.js',
-				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-wallpaper', 'admin-os-mode-reopen-policy', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-shortcuts', 'admin-os-mode-clock' ),
+				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-menu-bar-state', 'admin-os-mode-wallpaper', 'admin-os-mode-reopen-policy', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-shortcuts', 'admin-os-mode-clock' ),
 			),
 		);
 
@@ -359,6 +363,7 @@ final class Admin_OS_Mode_Assets {
 			'classicUrl' => $this->router->get_toggle_url( false ),
 			'desktopDock' => $this->preferences->get_desktop_dock(),
 			'logoutUrl'  => wp_logout_url(),
+			'menuBar'    => $this->preferences->get_menu_bar(),
 			'settings'   => $this->get_settings_config(),
 			'shellUrl'   => $this->router->get_shell_url(),
 			'siteInfo'   => $this->get_site_info_config(),
@@ -773,6 +778,7 @@ final class Admin_OS_Mode_Assets {
 								'type' => 'separator',
 							),
 							array(
+								'id'       => 'recent-items',
 								'label'    => __( 'Recent Items', 'admin-os-mode' ),
 								'disabled' => true,
 								'icon'     => 'dashicons-backup',

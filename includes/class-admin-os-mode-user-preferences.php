@@ -14,12 +14,14 @@ final class Admin_OS_Mode_User_Preferences {
 	const META_APPEARANCE = 'admin_os_mode_appearance';
 	const META_DESKTOP_DOCK = 'admin_os_mode_desktop_dock';
 	const META_ENABLED    = 'admin_os_mode_enabled';
+	const META_MENU_BAR   = 'admin_os_mode_menu_bar';
 	const META_THEME      = 'admin_os_mode_theme';
 	const META_WALLPAPER  = 'admin_os_mode_wallpaper';
 	const META_WALLPAPER_UPLOADS = 'admin_os_mode_wallpaper_uploads';
 	const WALLPAPER_UPLOAD_LIMIT = 12;
 	const RESET_DOMAIN_APPEARANCE = 'appearance';
 	const RESET_DOMAIN_DESKTOP_DOCK = 'desktop_dock';
+	const RESET_DOMAIN_MENU_BAR = 'menu_bar';
 	const RESET_DOMAIN_THEME = 'theme';
 	const RESET_DOMAIN_WALLPAPER = 'wallpaper';
 	const RESET_DOMAIN_WALLPAPER_UPLOADS = 'wallpaper_uploads';
@@ -79,6 +81,26 @@ final class Admin_OS_Mode_User_Preferences {
 		'minimize_animation' => array( 'genie', 'scale' ),
 		'wallpaper_click'    => array( 'always', 'never' ),
 		'dim_widgets'        => array( 'automatic', 'always', 'never' ),
+	);
+
+	/**
+	 * Default Menu Bar preferences.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private $default_menu_bar = array(
+		'auto_hide'       => 'fullscreen',
+		'show_background' => false,
+		'recent_count'    => 10,
+	);
+
+	/**
+	 * Allowed Menu Bar preference values.
+	 *
+	 * @var array<string,array<int,string>>
+	 */
+	private $menu_bar_options = array(
+		'auto_hide' => array( 'always', 'desktop', 'fullscreen', 'never' ),
 	);
 
 	/**
@@ -224,6 +246,35 @@ final class Admin_OS_Mode_User_Preferences {
 		update_user_meta( $user_id, self::META_DESKTOP_DOCK, $desktop_dock );
 
 		return $desktop_dock;
+	}
+
+	/**
+	 * Get the user's Menu Bar preferences.
+	 *
+	 * @param int $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function get_menu_bar( $user_id = 0 ) {
+		$user_id  = $user_id ? (int) $user_id : get_current_user_id();
+		$menu_bar = get_user_meta( $user_id, self::META_MENU_BAR, true );
+
+		return $this->sanitize_menu_bar( is_array( $menu_bar ) ? $menu_bar : array() );
+	}
+
+	/**
+	 * Save the user's Menu Bar preferences.
+	 *
+	 * @param array<string,mixed> $menu_bar Menu Bar data.
+	 * @param int                 $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function set_menu_bar( $menu_bar, $user_id = 0 ) {
+		$user_id  = $user_id ? (int) $user_id : get_current_user_id();
+		$menu_bar = $this->sanitize_menu_bar( is_array( $menu_bar ) ? $menu_bar : array() );
+
+		update_user_meta( $user_id, self::META_MENU_BAR, $menu_bar );
+
+		return $menu_bar;
 	}
 
 	/**
@@ -413,6 +464,7 @@ final class Admin_OS_Mode_User_Preferences {
 		return array(
 			self::RESET_DOMAIN_APPEARANCE,
 			self::RESET_DOMAIN_DESKTOP_DOCK,
+			self::RESET_DOMAIN_MENU_BAR,
 			self::RESET_DOMAIN_THEME,
 			self::RESET_DOMAIN_WALLPAPER,
 			self::RESET_DOMAIN_WALLPAPER_UPLOADS,
@@ -483,6 +535,37 @@ final class Admin_OS_Mode_User_Preferences {
 	}
 
 	/**
+	 * Sanitize a Menu Bar preference payload.
+	 *
+	 * @param array<string,mixed> $menu_bar Raw Menu Bar data.
+	 * @return array<string,mixed>
+	 */
+	public function sanitize_menu_bar( $menu_bar ) {
+		$sanitized = $this->default_menu_bar;
+
+		foreach ( $this->menu_bar_options as $key => $allowed ) {
+			if ( ! array_key_exists( $key, $menu_bar ) ) {
+				continue;
+			}
+
+			$value = sanitize_key( (string) $menu_bar[ $key ] );
+			if ( in_array( $value, $allowed, true ) ) {
+				$sanitized[ $key ] = $value;
+			}
+		}
+
+		if ( array_key_exists( 'show_background', $menu_bar ) ) {
+			$sanitized['show_background'] = $this->sanitize_boolean( $menu_bar['show_background'] );
+		}
+
+		if ( array_key_exists( 'recent_count', $menu_bar ) ) {
+			$sanitized['recent_count'] = $this->sanitize_range( $menu_bar['recent_count'], 0, 50, $sanitized['recent_count'] );
+		}
+
+		return $sanitized;
+	}
+
+	/**
 	 * Sanitize an appearance preference payload.
 	 *
 	 * @param array<string,mixed> $appearance Raw appearance data.
@@ -518,6 +601,7 @@ final class Admin_OS_Mode_User_Preferences {
 		return array(
 			self::RESET_DOMAIN_APPEARANCE        => self::META_APPEARANCE,
 			self::RESET_DOMAIN_DESKTOP_DOCK      => self::META_DESKTOP_DOCK,
+			self::RESET_DOMAIN_MENU_BAR          => self::META_MENU_BAR,
 			self::RESET_DOMAIN_THEME             => self::META_THEME,
 			self::RESET_DOMAIN_WALLPAPER         => self::META_WALLPAPER,
 			self::RESET_DOMAIN_WALLPAPER_UPLOADS => self::META_WALLPAPER_UPLOADS,

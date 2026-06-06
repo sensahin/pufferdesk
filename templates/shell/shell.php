@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @var array<string,mixed>             $appearance
  * @var array<string,mixed>             $desktop_dock
+ * @var array<string,mixed>             $menu_bar
  * @var array<int,array<string,string>> $apps
  * @var array<int,array<string,mixed>>  $widgets
  * @var array<int,array<string,string>> $folders
@@ -60,6 +61,14 @@ $admin_os_mode_desktop_dock = wp_parse_args(
 		'dim_widgets'            => 'automatic',
 	)
 );
+$admin_os_mode_menu_bar     = wp_parse_args(
+	is_array( $menu_bar ) ? $menu_bar : array(),
+	array(
+		'auto_hide'       => 'fullscreen',
+		'show_background' => false,
+		'recent_count'    => 10,
+	)
+);
 $admin_os_mode_dock_size          = max( 28, min( 72, (int) $admin_os_mode_desktop_dock['dock_size'] ) );
 $admin_os_mode_dock_magnification = max( 0, min( 24, (int) $admin_os_mode_desktop_dock['dock_magnification'] ) );
 $admin_os_mode_dock_icon_size     = max( 18, (int) round( $admin_os_mode_dock_size * 0.56 ) );
@@ -72,6 +81,8 @@ $admin_os_mode_shell_style_parts[] = '--aos-dock-hover-lift:' . $admin_os_mode_d
 $admin_os_mode_shell_style_parts[] = '--aos-dock-hover-scale:' . $admin_os_mode_dock_scale;
 $admin_os_mode_shell_style          = implode( ';', $admin_os_mode_shell_style_parts );
 $admin_os_mode_effective_appearance = 'dark' === $admin_os_mode_appearance['mode'] ? 'dark' : 'light';
+$admin_os_mode_menu_bar_auto_hide   = in_array( $admin_os_mode_menu_bar['auto_hide'], array( 'always', 'desktop', 'fullscreen', 'never' ), true ) ? $admin_os_mode_menu_bar['auto_hide'] : 'fullscreen';
+$admin_os_mode_menu_bar_hidden      = in_array( $admin_os_mode_menu_bar_auto_hide, array( 'always', 'desktop' ), true );
 $admin_os_mode_shell_attributes     = array(
 	'class'                           => 'aos-shell',
 	'data-admin-os-shell'             => '',
@@ -96,6 +107,12 @@ $admin_os_mode_shell_attributes     = array(
 	'data-aos-wallpaper-click'        => $admin_os_mode_desktop_dock['wallpaper_click'],
 	'data-aos-show-widgets-desktop'   => ! empty( $admin_os_mode_desktop_dock['show_widgets_desktop'] ) ? '1' : '0',
 	'data-aos-dim-widgets'            => $admin_os_mode_desktop_dock['dim_widgets'],
+	'data-aos-fullscreen-window'      => '0',
+	'data-aos-menu-bar-auto-hide'     => $admin_os_mode_menu_bar_auto_hide,
+	'data-aos-menu-bar-background'    => ! empty( $admin_os_mode_menu_bar['show_background'] ) ? '1' : '0',
+	'data-aos-menu-bar-hidden'        => $admin_os_mode_menu_bar_hidden ? '1' : '0',
+	'data-aos-menu-bar-recent-count'  => (string) max( 0, min( 50, (int) $admin_os_mode_menu_bar['recent_count'] ) ),
+	'data-aos-menu-bar-revealed'      => '0',
 );
 if ( $admin_os_mode_shell_style ) {
 	$admin_os_mode_shell_attributes['style'] = $admin_os_mode_shell_style;

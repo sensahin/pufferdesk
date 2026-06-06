@@ -215,6 +215,23 @@
 	z-index: var(--aos-layer-menu);
 }
 
+.aos-shell[data-aos-theme="adminos"][data-aos-menu-bar-background="1"] {
+	--aos-material-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.18));
+	--aos-material-bar-border: rgba(255, 255, 255, 0.18);
+	--aos-material-bar-filter: blur(28px) saturate(190%) brightness(1.04);
+	--aos-material-bar-shadow: 0 1px 0 rgba(255, 255, 255, 0.16) inset, 0 10px 30px rgba(8, 20, 34, 0.12);
+	--aos-menu-bg: var(--aos-material-bar-bg);
+	--aos-menu-border: var(--aos-material-bar-border);
+	--aos-menu-shadow: var(--aos-material-bar-shadow);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"][data-aos-menu-bar-background="1"] {
+	--aos-material-bar-bg: linear-gradient(180deg, rgba(26, 31, 38, 0.34), rgba(16, 21, 28, 0.18));
+	--aos-material-bar-border: rgba(255, 255, 255, 0.08);
+	--aos-material-bar-filter: blur(30px) saturate(180%) brightness(0.92);
+	--aos-material-bar-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 10px 30px rgba(0, 0, 0, 0.16);
+}
+
 .aos-shell[data-aos-theme="adminos"] .aos-brand {
 	gap: 0;
 }

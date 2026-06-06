@@ -17,6 +17,7 @@
 			!window.AdminOSMode.windows ||
 			!window.AdminOSMode.widgets ||
 			!window.AdminOSMode.apps ||
+			!window.AdminOSMode.menuBar ||
 			!window.AdminOSMode.shell ||
 			!window.AdminOSMode.shell.createShellDialogs ||
 			!window.AdminOSMode.shell.createCommandRegistry ||
@@ -42,6 +43,10 @@
 		}
 		if (window.AdminOSMode.wallpaper) {
 			window.AdminOSMode.wallpaper.apply(shell, config.wallpaper || {});
+		}
+		if (window.AdminOSMode.menuBar) {
+			window.AdminOSMode.menuBar.apply(shell, config.menuBar || {});
+			window.AdminOSMode.menuBar.bindAutoHide(shell);
 		}
 
 		const reopenPolicy = window.AdminOSMode.session.createReopenPolicy(config.storageKey || '');

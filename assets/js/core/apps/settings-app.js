@@ -10,6 +10,7 @@
 		const storage = window.AdminOSMode.services.storage;
 		const appearance = window.AdminOSMode.appearance;
 		const desktopDock = window.AdminOSMode.desktopDock;
+		const menuBar = window.AdminOSMode.menuBar;
 		const wallpaper = window.AdminOSMode.wallpaper;
 		const config = context.config || window.AdminOSMode.config.get();
 		const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
@@ -25,8 +26,13 @@
 		let currentDesktopDock = desktopDock
 			? desktopDock.normalize(config.desktopDock || {})
 			: Object.assign({}, config.desktopDock || {});
+		let currentMenuBar = menuBar
+			? menuBar.normalize(config.menuBar || {})
+			: Object.assign({}, config.menuBar || {});
 		let saveTimer = null;
 		let desktopDockSaveTimer = null;
+		let menuBarSaveTimer = null;
+		let menuBarSaveSequence = 0;
 		let accentLabel = null;
 		let tintToggle = null;
 		let activeSection = 'general';
@@ -48,6 +54,7 @@
 		let wallpaperPhotoExpanded = false;
 		let mediaFrame = null;
 		const desktopDockControls = [];
+		const menuBarControls = [];
 		const sidebarButtons = [];
 		const wallpaperPhotoVisibleCount = 4;
 
@@ -84,11 +91,29 @@
 			]
 		};
 
+		const menuBarSelectOptions = {
+			auto_hide: [
+				{ value: 'always', label: 'Always' },
+				{ value: 'desktop', label: 'On Desktop Only' },
+				{ value: 'fullscreen', label: 'In Full Screen Only' },
+				{ value: 'never', label: 'Never' }
+			],
+			recent_count: [
+				{ value: '0', label: 'None' },
+				{ value: '5', label: '5' },
+				{ value: '10', label: '10' },
+				{ value: '15', label: '15' },
+				{ value: '20', label: '20' },
+				{ value: '30', label: '30' },
+				{ value: '50', label: '50' }
+			]
+		};
+
 		const sidebarItems = [
 			{ id: 'general', label: 'General', icon: 'dashicons-admin-generic', tone: 'gray' },
 			{ id: 'appearance', label: 'Appearance', icon: 'dashicons-admin-appearance', tone: 'blue' },
 			{ id: 'desktop-dock', label: 'Desktop & Dock', icon: 'dashicons-desktop', tone: 'indigo' },
-			{ id: 'menu-bar', label: 'Menu Bar', icon: 'dashicons-menu-alt3', tone: 'gray', disabled: true },
+			{ id: 'menu-bar', label: 'Menu Bar', icon: 'dashicons-menu-alt3', tone: 'gray' },
 			{ id: 'wallpaper', label: 'Wallpaper', icon: 'dashicons-format-image', tone: 'cyan' },
 			{ id: 'widgets', label: 'Widgets', icon: 'dashicons-screenoptions', tone: 'green', disabled: true },
 			{ id: 'apps', label: 'Apps', icon: 'dashicons-grid-view', tone: 'purple', disabled: true },
@@ -668,6 +693,59 @@
 			saveDesktopDock(status);
 		}
 
+		function applyMenuBar(nextMenuBar) {
+			currentMenuBar = menuBar
+				? menuBar.normalize(nextMenuBar)
+				: nextMenuBar;
+			config.menuBar = currentMenuBar;
+
+			if (menuBar && shell) {
+				menuBar.apply(shell, currentMenuBar);
+			}
+
+			syncMenuBarControls();
+		}
+
+		function saveMenuBar(status) {
+			const sequence = menuBarSaveSequence + 1;
+			menuBarSaveSequence = sequence;
+			window.clearTimeout(menuBarSaveTimer);
+
+			menuBarSaveTimer = window.setTimeout(() => {
+				const payload = Object.assign({}, currentMenuBar);
+
+				api.post('admin_os_mode_save_menu_bar', payload)
+					.then((result) => {
+						if (sequence !== menuBarSaveSequence) {
+							return;
+						}
+
+						if (!result || !result.success) {
+							status.textContent = result && result.data && result.data.message
+								? result.data.message
+								: 'Menu Bar could not be saved.';
+							return;
+						}
+
+						applyMenuBar(result.data.menuBar || currentMenuBar);
+					})
+					.catch((error) => {
+						if (sequence !== menuBarSaveSequence) {
+							return;
+						}
+
+						status.textContent = error && error.message ? error.message : 'Menu Bar could not be saved.';
+					});
+			}, 180);
+		}
+
+		function updateMenuBar(key, value, status) {
+			applyMenuBar(Object.assign({}, currentMenuBar, {
+				[key]: value
+			}));
+			saveMenuBar(status);
+		}
+
 		function syncDesktopDockControls() {
 			desktopDockControls.forEach((entry) => {
 				const value = currentDesktopDock[entry.key];
@@ -684,6 +762,21 @@
 				}
 
 				if (entry.type === 'toggle' || entry.type === 'checkbox') {
+					entry.button.setAttribute('aria-pressed', value ? 'true' : 'false');
+				}
+			});
+		}
+
+		function syncMenuBarControls() {
+			menuBarControls.forEach((entry) => {
+				const value = currentMenuBar[entry.key];
+
+				if (entry.type === 'select') {
+					entry.select.value = String(value);
+					return;
+				}
+
+				if (entry.type === 'toggle') {
 					entry.button.setAttribute('aria-pressed', value ? 'true' : 'false');
 				}
 			});
@@ -1209,6 +1302,76 @@
 
 		function createDesktopDockToggleRow(labelText, key, status, descriptionText = '') {
 			return createDesktopDockRow(labelText, createDesktopDockToggle(key, status), descriptionText);
+		}
+
+		function createMenuBarSelect(key, status) {
+			const wrap = dom.createElement('span', 'aos-settings-inline-select');
+			const select = document.createElement('select');
+
+			select.className = 'aos-settings-value-select';
+			(menuBarSelectOptions[key] || []).forEach((item) => {
+				const option = document.createElement('option');
+				option.value = item.value;
+				option.textContent = item.label;
+				option.selected = String(currentMenuBar[key]) === item.value;
+				select.appendChild(option);
+			});
+			select.addEventListener('change', () => {
+				const value = key === 'recent_count' ? Number.parseInt(select.value, 10) : select.value;
+				updateMenuBar(key, value, status);
+			});
+			wrap.appendChild(select);
+			wrap.appendChild(dom.createElement('span', 'aos-settings-select-chevrons'));
+			menuBarControls.push({
+				key,
+				select,
+				type: 'select'
+			});
+
+			return wrap;
+		}
+
+		function createMenuBarToggle(key, status) {
+			const button = document.createElement('button');
+
+			button.type = 'button';
+			button.className = 'aos-settings-toggle';
+			button.setAttribute('aria-pressed', currentMenuBar[key] ? 'true' : 'false');
+			button.addEventListener('click', () => updateMenuBar(key, !currentMenuBar[key], status));
+			button.appendChild(dom.createElement('span', 'aos-settings-toggle-knob'));
+			menuBarControls.push({
+				button,
+				key,
+				type: 'toggle'
+			});
+
+			return button;
+		}
+
+		function createMenuBarRow(labelText, control) {
+			return createSettingsRow(labelText, control, '', 'aos-settings-menu-bar-row aos-settings-row-fluid-label');
+		}
+
+		function createMenuBarPanel(status) {
+			const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-menu-bar-panel');
+			const section = createSection('', 'aos-settings-list aos-settings-menu-bar-list');
+
+			panel.dataset.aosSettingsPanel = 'menu-bar';
+			section.appendChild(createMenuBarRow(
+				'Automatically hide and show the menu bar',
+				createMenuBarSelect('auto_hide', status)
+			));
+			section.appendChild(createMenuBarRow(
+				'Show menu bar background',
+				createMenuBarToggle('show_background', status)
+			));
+			section.appendChild(createMenuBarRow(
+				'Recent documents, applications, and servers',
+				createMenuBarSelect('recent_count', status)
+			));
+			panel.appendChild(section);
+
+			return panel;
 		}
 
 		function createDesktopDockPanel(status) {
@@ -1753,6 +1916,7 @@
 		pane.appendChild(createProfilePanel());
 		pane.appendChild(appearancePanel);
 		pane.appendChild(createDesktopDockPanel(status));
+		pane.appendChild(createMenuBarPanel(status));
 		pane.appendChild(createWallpaperPanel(status));
 		pane.appendChild(status);
 
@@ -1762,6 +1926,7 @@
 		content.appendChild(main);
 		syncAppearanceControls();
 		syncDesktopDockControls();
+		syncMenuBarControls();
 		syncWallpaperControls();
 		setActiveSection(activeSection);
 		content.aosOpenPanel = (panelId) => {

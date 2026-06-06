@@ -57,6 +57,7 @@ final class Admin_OS_Mode_Settings_Controller {
 	public function hooks() {
 		add_action( 'wp_ajax_admin_os_mode_save_appearance', array( $this, 'save_appearance' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_desktop_dock', array( $this, 'save_desktop_dock' ) );
+		add_action( 'wp_ajax_admin_os_mode_save_menu_bar', array( $this, 'save_menu_bar' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_theme', array( $this, 'save_theme' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_wallpaper', array( $this, 'save_wallpaper' ) );
 		add_action( 'wp_ajax_admin_os_mode_remove_wallpaper_upload', array( $this, 'remove_wallpaper_upload' ) );
@@ -131,6 +132,37 @@ final class Admin_OS_Mode_Settings_Controller {
 			array(
 				'appearance' => $appearance,
 				'message'    => __( 'Appearance saved.', 'admin-os-mode' ),
+			)
+		);
+	}
+
+	/**
+	 * Save the current user's Menu Bar settings.
+	 */
+	public function save_menu_bar() {
+		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+				),
+				403
+			);
+		}
+
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+
+		$menu_bar = $this->preferences->set_menu_bar(
+			array(
+				'auto_hide'       => $this->read_post_value( 'auto_hide' ),
+				'show_background' => $this->read_post_value( 'show_background' ),
+				'recent_count'    => $this->read_post_value( 'recent_count' ),
+			)
+		);
+
+		wp_send_json_success(
+			array(
+				'menuBar' => $menu_bar,
+				'message' => __( 'Menu Bar saved.', 'admin-os-mode' ),
 			)
 		);
 	}
