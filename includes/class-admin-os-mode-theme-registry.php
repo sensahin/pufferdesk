@@ -400,12 +400,13 @@ final class Admin_OS_Mode_Theme_Registry {
 
 					if ( '' !== $css_value ) {
 						$normalized['items'][] = array(
-							'id'        => $id,
-							'label'     => isset( $item['label'] ) ? sanitize_text_field( $item['label'] ) : $id,
-							'css_value' => $css_value,
-							'preview'   => isset( $item['preview'] ) ? $this->sanitize_css_image_value( $item['preview'] ) : $css_value,
-							'fit'       => isset( $item['fit'] ) ? sanitize_key( $item['fit'] ) : 'cover',
-							'position'  => isset( $item['position'] ) ? sanitize_text_field( $item['position'] ) : 'center center',
+							'id'            => $id,
+							'label'         => isset( $item['label'] ) ? sanitize_text_field( $item['label'] ) : $id,
+							'css_value'     => $css_value,
+							'preview'       => isset( $item['preview'] ) ? $this->sanitize_css_image_value( $item['preview'] ) : $css_value,
+							'fit'           => isset( $item['fit'] ) ? sanitize_key( $item['fit'] ) : 'cover',
+							'position'      => isset( $item['position'] ) ? sanitize_text_field( $item['position'] ) : 'center center',
+							'menu_contrast' => $this->sanitize_menu_contrast( isset( $item['menu_contrast'] ) ? $item['menu_contrast'] : '' ),
 						);
 						continue;
 					}
@@ -413,12 +414,13 @@ final class Admin_OS_Mode_Theme_Registry {
 					$file = $this->normalize_media_file( isset( $item['path'] ) ? $item['path'] : ( isset( $item['file'] ) ? $item['file'] : '' ) );
 					if ( ! empty( $file['url'] ) ) {
 						$normalized['items'][] = array(
-							'id'       => $id,
-							'label'    => isset( $item['label'] ) ? sanitize_text_field( $item['label'] ) : $id,
-							'path'     => $file['path'],
-							'url'      => $file['url'],
-							'fit'      => isset( $item['fit'] ) ? sanitize_key( $item['fit'] ) : 'cover',
-							'position' => isset( $item['position'] ) ? sanitize_text_field( $item['position'] ) : 'center center',
+							'id'            => $id,
+							'label'         => isset( $item['label'] ) ? sanitize_text_field( $item['label'] ) : $id,
+							'path'          => $file['path'],
+							'url'           => $file['url'],
+							'fit'           => isset( $item['fit'] ) ? sanitize_key( $item['fit'] ) : 'cover',
+							'position'      => isset( $item['position'] ) ? sanitize_text_field( $item['position'] ) : 'center center',
+							'menu_contrast' => $this->sanitize_menu_contrast( isset( $item['menu_contrast'] ) ? $item['menu_contrast'] : '' ),
 						);
 					}
 				}
@@ -430,12 +432,13 @@ final class Admin_OS_Mode_Theme_Registry {
 			if ( ! empty( $file['url'] ) ) {
 				$normalized['default'] = 'default';
 				$normalized['items'][] = array(
-					'id'       => 'default',
-					'label'    => __( 'Default', 'admin-os-mode' ),
-					'path'     => $file['path'],
-					'url'      => $file['url'],
-					'fit'      => 'cover',
-					'position' => 'center center',
+					'id'            => 'default',
+					'label'         => __( 'Default', 'admin-os-mode' ),
+					'path'          => $file['path'],
+					'url'           => $file['url'],
+					'fit'           => 'cover',
+					'position'      => 'center center',
+					'menu_contrast' => 'auto',
 				);
 			}
 		}
@@ -486,6 +489,18 @@ final class Admin_OS_Mode_Theme_Registry {
 		}
 
 		return preg_match( '/(?:^|,\s*)(?:linear-gradient|radial-gradient|conic-gradient|repeating-linear-gradient|repeating-radial-gradient)\(/i', $value ) ? $value : '';
+	}
+
+	/**
+	 * Sanitize a menu contrast token.
+	 *
+	 * @param mixed $value Raw contrast value.
+	 * @return string
+	 */
+	private function sanitize_menu_contrast( $value ) {
+		$value = sanitize_key( (string) $value );
+
+		return in_array( $value, array( 'dark', 'light', 'auto' ), true ) ? $value : '';
 	}
 
 	/**

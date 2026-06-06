@@ -80,6 +80,7 @@ $admin_os_mode_shell_attributes     = array(
 	'data-aos-theme-version'          => $theme['version'],
 	'data-aos-wallpaper-type'         => ! empty( $wallpaper['preference']['type'] ) ? $wallpaper['preference']['type'] : '',
 	'data-aos-wallpaper-id'           => ! empty( $wallpaper['preference']['id'] ) ? $wallpaper['preference']['id'] : '',
+	'data-aos-menu-contrast'          => ! empty( $wallpaper['menu_contrast'] ) ? $wallpaper['menu_contrast'] : 'auto',
 	'data-aos-appearance-mode'        => $admin_os_mode_appearance['mode'],
 	'data-aos-effective-appearance'   => $admin_os_mode_effective_appearance,
 	'data-aos-window-material'        => $admin_os_mode_appearance['window_material'],

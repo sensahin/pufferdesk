@@ -785,6 +785,22 @@
 	--aos-traffic-disabled: rgba(255, 255, 255, 0.18);
 }
 
+.aos-shell[data-aos-theme="adminos"][data-aos-menu-contrast="dark"] {
+	--aos-menu-ink: rgba(12, 18, 24, 0.94);
+	--aos-menu-muted: rgba(12, 18, 24, 0.76);
+	--aos-menu-placeholder: rgba(12, 18, 24, 0.5);
+	--aos-menu-text-shadow: none;
+	--aos-menu-mark-filter: none;
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-menu-contrast="light"] {
+	--aos-menu-ink: rgba(245, 248, 252, 0.96);
+	--aos-menu-muted: rgba(245, 248, 252, 0.78);
+	--aos-menu-placeholder: rgba(245, 248, 252, 0.52);
+	--aos-menu-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.42);
+	--aos-menu-mark-filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.42));
+}
+
 .aos-shell[data-aos-theme="adminos"][data-aos-window-material="tinted"][data-aos-effective-appearance="light"] {
 	--aos-material-regular-bg: var(--aos-material-tinted-bg);
 	--aos-material-regular-border: var(--aos-material-tinted-border);
