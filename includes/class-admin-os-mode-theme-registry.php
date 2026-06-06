@@ -67,6 +67,11 @@ final class Admin_OS_Mode_Theme_Registry {
 								'css_value' => 'radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.38), transparent 24%), linear-gradient(120deg, #ff4438 0%, #ee2d7a 52%, #b22ed5 100%)',
 							),
 							array(
+								'id'        => 'ember',
+								'label'     => __( 'Ember', 'admin-os-mode' ),
+								'css_value' => 'linear-gradient(135deg, #ffffc4 0.000%, #ff6164 50.000%, #b00012 100.000%)',
+							),
+							array(
 								'id'        => 'lagoon-glow',
 								'label'     => __( 'Lagoon', 'admin-os-mode' ),
 								'css_value' => 'radial-gradient(circle at 80% 20%, rgba(227, 255, 241, 0.36), transparent 26%), linear-gradient(135deg, #0c6a88 0%, #18b5b7 54%, #69ddbb 100%)',
