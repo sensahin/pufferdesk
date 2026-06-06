@@ -77,7 +77,7 @@
 		}
 
 		const current = normalize(preferences);
-		const tileSize = Math.max(30, Math.round(current.dock_size * 0.82));
+		const tileSize = current.dock_size;
 		const iconSize = Math.max(18, Math.round(tileSize * 0.56));
 		const lift = current.dock_magnification > 0
 			? Math.round(4 + current.dock_magnification / 3)

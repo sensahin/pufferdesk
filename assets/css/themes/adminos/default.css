@@ -386,10 +386,10 @@
 	border-radius: clamp(18px, calc(var(--aos-dock-item-size, 54px) * 0.4), 30px);
 	bottom: 13px;
 	box-shadow: var(--aos-dock-shadow);
-	gap: 9px;
+	gap: 7px;
 	max-width: calc(100% - 40px);
 	overflow: visible;
-	padding: 7px 11px;
+	padding: 5px 8px;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-dock::before {
