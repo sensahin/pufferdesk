@@ -1521,7 +1521,6 @@
 			if (user.email) {
 				hero.appendChild(dom.createElement('p', '', user.email));
 			}
-			hero.appendChild(dom.createElement('span', 'aos-settings-profile-role', role));
 
 			accountSection.appendChild(createProfileActionRow({
 				description: 'Name, contact, website, and bio',

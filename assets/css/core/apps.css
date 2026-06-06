@@ -626,14 +626,6 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	margin: 2px 0 0;
 }
 
-.aos-settings-profile-role {
-	color: var(--aos-muted);
-	font-size: var(--aos-settings-text-label);
-	font-weight: 450;
-	line-height: var(--aos-line-height-body);
-	margin-top: 3px;
-}
-
 .aos-settings-profile-list {
 	padding: 0;
 }
