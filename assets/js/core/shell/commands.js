@@ -448,6 +448,15 @@
 			}
 		});
 
+		register('recent-items.clear', {
+			isEnabled() {
+				return Boolean(window.AdminOSMode.menuBar && typeof window.AdminOSMode.menuBar.clearRecentItems === 'function');
+			},
+			run() {
+				window.AdminOSMode.menuBar.clearRecentItems(config);
+			}
+		});
+
 		register('shell.restart', {
 			isEnabled() {
 				return Boolean(config.shellUrl || window.location.href);

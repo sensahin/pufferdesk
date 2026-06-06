@@ -207,6 +207,17 @@
 		return next;
 	}
 
+	function clearRecentItems(config = {}) {
+		saveRecentItems(config, []);
+		window.dispatchEvent(new window.CustomEvent('adminOSMode:recent-items-change', {
+			detail: {
+				items: []
+			}
+		}));
+
+		return [];
+	}
+
 	function getRecentMenuItems(config = {}, count = defaults.recent_count) {
 		return getRecentItems(config)
 			.slice(0, normalizeCount(count))
@@ -225,6 +236,7 @@
 		addRecentItem,
 		apply,
 		bindAutoHide,
+		clearRecentItems,
 		defaults,
 		getRecentItems,
 		getRecentMenuItems,

@@ -168,10 +168,20 @@
 				const recentItems = window.AdminOSMode.menuBar
 					? window.AdminOSMode.menuBar.getRecentMenuItems(config, count)
 					: [];
+				const submenuItems = recentItems.length
+					? recentItems.concat([
+						{ type: 'separator' },
+						{
+							command: 'recent-items.clear',
+							id: 'clear-recent-items',
+							label: 'Clear Menu'
+						}
+					])
+					: [];
 
 				return Object.assign({}, item, {
 					disabled: !count || !recentItems.length,
-					items: count ? recentItems : [],
+					items: count ? submenuItems : [],
 					shortcut: count && recentItems.length ? '›' : ''
 				});
 			});
