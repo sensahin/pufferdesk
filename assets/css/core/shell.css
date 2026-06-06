@@ -105,6 +105,8 @@
 	--aos-highlight: rgba(34, 113, 177, 0.18);
 	--aos-window-bar-bg: #fff;
 	--aos-window-bar-border: rgba(0, 0, 0, 0.08);
+	--aos-window-radius: 8px;
+	--aos-window-maximized-radius: 0;
 	--aos-window-maximized-edge: 9px;
 	--aos-window-maximized-height: calc(100% - 18px);
 	--aos-window-maximized-top: 9px;

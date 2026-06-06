@@ -3,7 +3,7 @@
 	backdrop-filter: var(--aos-material-regular-filter);
 	background: var(--aos-panel);
 	border: 1px solid var(--aos-line);
-	border-radius: 8px;
+	border-radius: var(--aos-window-radius, 8px);
 	box-shadow: var(--aos-shadow);
 	display: flex;
 	flex-direction: column;
@@ -126,7 +126,7 @@
 }
 
 .aos-window.is-maximized {
-	border-radius: 0;
+	border-radius: var(--aos-window-maximized-radius, 0);
 	height: var(--aos-window-maximized-height) !important;
 	left: var(--aos-window-maximized-edge) !important;
 	top: var(--aos-window-maximized-top) !important;

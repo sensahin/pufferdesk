@@ -49,7 +49,7 @@
 }
 
 .aos-window[data-aos-window-kind="about"] {
-	border-radius: 12px;
+	border-radius: var(--aos-about-window-radius, 12px);
 	height: 206px !important;
 	max-height: 206px;
 	max-width: 286px;
@@ -140,7 +140,7 @@
 }
 
 .aos-window[data-aos-window-kind="site-about"] {
-	border-radius: 17px;
+	border-radius: var(--aos-site-about-window-radius, 17px);
 	height: 500px !important;
 	max-height: 500px;
 	max-width: 286px;

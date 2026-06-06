@@ -83,6 +83,10 @@
 	--aos-running-indicator: #f6f7f8;
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(235, 241, 245, 0.7));
 	--aos-window-bar-border: rgba(20, 37, 51, 0.08);
+	--aos-window-radius: 24px;
+	--aos-window-maximized-radius: 12px;
+	--aos-about-window-radius: 15px;
+	--aos-site-about-window-radius: 24px;
 	--aos-window-safe-edge: 2px;
 	--aos-card-bg: var(--aos-material-card-bg);
 	--aos-card-border: var(--aos-material-card-border);
@@ -256,7 +260,7 @@
 .aos-shell[data-aos-theme="adminos"] .aos-window {
 	-webkit-backdrop-filter: var(--aos-material-regular-filter);
 	backdrop-filter: var(--aos-material-regular-filter);
-	border-radius: 12px;
+	border-radius: var(--aos-window-radius, 24px);
 	box-shadow: var(--aos-shadow);
 	min-height: 320px;
 	overflow: hidden;
@@ -274,7 +278,7 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window.is-maximized {
-	border-radius: 10px;
+	border-radius: var(--aos-window-maximized-radius, 12px);
 	height: var(--aos-window-maximized-height) !important;
 	left: var(--aos-window-maximized-edge) !important;
 	top: var(--aos-window-maximized-top) !important;
@@ -515,6 +519,7 @@
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] {
 	background: var(--aos-settings-window-bg);
+	border-radius: var(--aos-window-radius, 24px);
 	min-height: 600px;
 	min-width: 740px;
 	max-width: 740px;
@@ -526,6 +531,7 @@
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="about"] {
 	background: rgb(255, 255, 255);
+	border-radius: var(--aos-about-window-radius, 15px);
 	border-color: rgba(28, 36, 42, 0.22);
 	box-shadow: 0 24px 52px rgba(9, 28, 40, 0.26), 0 1px 0 rgba(255, 255, 255, 0.8) inset;
 	height: 206px !important;
@@ -534,6 +540,10 @@
 	min-height: 206px;
 	min-width: 286px;
 	width: 286px !important;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="site-about"] {
+	border-radius: var(--aos-site-about-window-radius, 24px);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="about"] .aos-window-titlebar {
