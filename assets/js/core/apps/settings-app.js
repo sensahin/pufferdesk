@@ -1640,6 +1640,56 @@
 			return section;
 		}
 
+		function createSettingsAboutFeatureIcon(iconName) {
+			const icon = dom.createElement('span', 'aos-settings-about-feature-icon');
+			icon.appendChild(dom.createDashicon(iconName || 'dashicons-admin-generic'));
+
+			return icon;
+		}
+
+		function createSettingsAboutFeatureCard(info = {}) {
+			if (!info || typeof info !== 'object' || !info.title) {
+				return null;
+			}
+
+			const section = createSection('', 'aos-settings-about-feature-card');
+			const row = dom.createElement('div', 'aos-settings-about-feature-row');
+			const text = dom.createElement('span', 'aos-settings-about-feature-text');
+
+			text.appendChild(dom.createElement('strong', '', info.title));
+			if (info.description) {
+				text.appendChild(dom.createElement('span', '', info.description));
+			}
+
+			row.appendChild(createSettingsAboutFeatureIcon(info.icon));
+			row.appendChild(text);
+			if (info.value) {
+				row.appendChild(dom.createElement('span', 'aos-settings-about-feature-value', info.value));
+			}
+			section.appendChild(row);
+
+			if (info.buttonLabel && info.buttonUrl) {
+				const actionRow = dom.createElement('div', 'aos-settings-about-feature-action');
+				const button = document.createElement('button');
+
+				button.type = 'button';
+				button.className = 'aos-settings-about-button';
+				button.textContent = info.buttonLabel;
+				button.addEventListener('click', () => {
+					executeMenuCommand('open-url', {
+						icon: info.buttonIcon || info.icon || 'dashicons-admin-generic',
+						label: info.buttonLabel,
+						title: info.buttonTitle || info.buttonLabel,
+						url: info.buttonUrl
+					});
+				});
+				actionRow.appendChild(button);
+				section.appendChild(actionRow);
+			}
+
+			return section;
+		}
+
 		function createSettingsAboutDiagnostics(siteInfo = {}) {
 			if (!siteInfo.moreInfoUrl) {
 				return null;
@@ -1677,6 +1727,8 @@
 			const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-about-panel');
 			const hero = dom.createElement('div', 'aos-settings-about-hero');
 			const diagnostics = createSettingsAboutDiagnostics(siteInfo);
+			const wordpressSection = createSettingsAboutFeatureCard(siteInfo.wordpress);
+			const displaySection = createSettingsAboutFeatureCard(siteInfo.display);
 
 			panel.dataset.aosSettingsPanel = 'general-about';
 			panel.dataset.aosSettingsSidebar = 'general';
@@ -1689,6 +1741,14 @@
 
 			panel.appendChild(hero);
 			panel.appendChild(createSettingsAboutInfoCard(siteInfo));
+			if (wordpressSection) {
+				panel.appendChild(createSectionHeading('WordPress'));
+				panel.appendChild(wordpressSection);
+			}
+			if (displaySection) {
+				panel.appendChild(createSectionHeading('Displays'));
+				panel.appendChild(displaySection);
+			}
 			if (diagnostics) {
 				panel.appendChild(createSectionHeading('Diagnostics'));
 				panel.appendChild(diagnostics);

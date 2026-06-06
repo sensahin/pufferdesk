@@ -1169,6 +1169,76 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	text-align: right;
 }
 
+.aos-settings-about-feature-card {
+	padding: 0;
+}
+
+.aos-settings-about-feature-row {
+	align-items: center;
+	display: grid;
+	gap: 14px;
+	grid-template-columns: 40px minmax(0, 1fr) auto;
+	min-height: 64px;
+	padding: 10px 16px;
+}
+
+.aos-settings-about-feature-icon {
+	align-items: center;
+	background: var(--aos-control-bg);
+	border-radius: 9px;
+	color: var(--aos-ink);
+	display: inline-flex;
+	height: 34px;
+	justify-content: center;
+	width: 34px;
+}
+
+.aos-settings-about-feature-icon .dashicons {
+	font-size: 24px;
+	height: 24px;
+	line-height: 24px;
+	width: 24px;
+}
+
+.aos-settings-about-feature-text {
+	display: grid;
+	gap: 2px;
+	min-width: 0;
+}
+
+.aos-settings-about-feature-text strong,
+.aos-settings-about-feature-text span,
+.aos-settings-about-feature-value {
+	font-size: var(--aos-settings-text-label);
+	line-height: var(--aos-line-height-body);
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-settings-about-feature-text strong {
+	color: var(--aos-ink);
+	font-weight: var(--aos-weight-medium);
+}
+
+.aos-settings-about-feature-text span,
+.aos-settings-about-feature-value {
+	color: var(--aos-muted);
+	font-weight: 450;
+}
+
+.aos-settings-about-feature-value {
+	text-align: right;
+}
+
+.aos-settings-about-feature-action {
+	border-top: 1px solid var(--aos-card-border);
+	display: flex;
+	justify-content: flex-end;
+	padding: 10px 16px;
+}
+
 .aos-settings-about-diagnostics {
 	padding: 0;
 }

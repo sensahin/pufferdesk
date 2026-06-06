@@ -427,20 +427,13 @@ final class Admin_OS_Mode_Assets {
 		$theme           = wp_get_theme();
 		$theme_name      = $theme->exists() ? $theme->get( 'Name' ) : __( 'Unknown', 'admin-os-mode' );
 		$theme_version   = $theme->exists() ? $theme->get( 'Version' ) : '';
-		$theme_label     = trim( $theme_name . ( $theme_version ? ' ' . $theme_version : '' ) );
+		$wp_version      = get_bloginfo( 'version' );
+		$wp_release_name = $this->get_wordpress_release_name( $wp_version );
 		$database_label  = isset( $wpdb ) && method_exists( $wpdb, 'db_version' ) ? $wpdb->db_version() : '';
 		$site_url        = home_url( '/' );
 		$site_icon_url   = $this->get_site_identity_image_url();
 		$server_software = $this->get_server_software_label();
 		$rows            = array(
-			array(
-				'label' => __( 'WordPress', 'admin-os-mode' ),
-				'value' => get_bloginfo( 'version' ),
-			),
-			array(
-				'label' => __( 'Theme', 'admin-os-mode' ),
-				'value' => $theme_label,
-			),
 			array(
 				'label' => __( 'PHP', 'admin-os-mode' ),
 				'value' => PHP_VERSION,
@@ -460,6 +453,36 @@ final class Admin_OS_Mode_Assets {
 			'name'          => get_bloginfo( 'name' ),
 			'url'           => preg_replace( '#^https?://#', '', untrailingslashit( $site_url ) ),
 			'iconUrl'       => $site_icon_url,
+			'wordpress'     => array(
+				'icon'  => 'dashicons-wordpress',
+				'title' => $wp_release_name
+					? sprintf(
+						/* translators: %s: WordPress release name. */
+						__( 'WordPress %s', 'admin-os-mode' ),
+						$wp_release_name
+					)
+					: __( 'WordPress', 'admin-os-mode' ),
+				'value' => sprintf(
+					/* translators: %s: WordPress version number. */
+					__( 'Version %s', 'admin-os-mode' ),
+					$wp_version
+				),
+			),
+			'display'       => array(
+				'buttonIcon'  => 'dashicons-admin-appearance',
+				'buttonLabel' => __( 'Theme Settings...', 'admin-os-mode' ),
+				'buttonTitle' => __( 'Themes', 'admin-os-mode' ),
+				'buttonUrl'   => current_user_can( 'switch_themes' ) ? admin_url( 'themes.php' ) : '',
+				'icon'        => 'dashicons-desktop',
+				'title'       => $theme_name,
+				'value'       => $theme_version
+					? sprintf(
+						/* translators: %s: theme version number. */
+						__( 'Version %s', 'admin-os-mode' ),
+						$theme_version
+					)
+					: '',
+			),
 			'rows'          => array_values(
 				array_filter(
 					$rows,
@@ -477,6 +500,34 @@ final class Admin_OS_Mode_Assets {
 				ADMIN_OS_MODE_VERSION
 			),
 		);
+	}
+
+	/**
+	 * WordPress release name matching the installed major/minor version.
+	 *
+	 * @param string $version WordPress version.
+	 * @return string
+	 */
+	private function get_wordpress_release_name( $version ) {
+		$release_names = array(
+			'6.0' => 'Arturo O\'Farrill',
+			'6.1' => 'Mikhail "Misha" Alperin',
+			'6.2' => 'Dolphy',
+			'6.3' => 'Lionel',
+			'6.4' => 'Shirley',
+			'6.5' => 'Regina',
+			'6.6' => 'Dorsey',
+			'6.7' => 'Rollins',
+			'6.8' => 'Cecil',
+			'6.9' => 'Gene Harris',
+			'7.0' => 'Louis Armstrong',
+		);
+
+		if ( ! preg_match( '/^(\d+\.\d+)/', (string) $version, $matches ) ) {
+			return '';
+		}
+
+		return isset( $release_names[ $matches[1] ] ) ? $release_names[ $matches[1] ] : '';
 	}
 
 	/**
