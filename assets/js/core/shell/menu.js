@@ -173,7 +173,6 @@
 						{ type: 'separator' },
 						{
 							command: 'recent-items.clear',
-							icon: 'dashicons-trash',
 							id: 'clear-recent-items',
 							label: 'Clear Menu'
 						}
