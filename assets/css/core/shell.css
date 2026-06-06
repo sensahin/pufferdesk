@@ -226,26 +226,10 @@
 	outline: none;
 }
 
-.aos-system-mark::before,
-.aos-system-mark::after {
-	content: "";
+.aos-system-mark-icon {
 	display: block;
-	position: absolute;
-}
-
-.aos-system-mark::before {
-	border: 2px solid currentColor;
-	border-radius: 5px;
-	height: 12px;
-	transform: rotate(45deg);
-	width: 12px;
-}
-
-.aos-system-mark::after {
-	background: currentColor;
-	border-radius: 50%;
-	height: 4px;
-	width: 4px;
+	height: 18px;
+	width: 18px;
 }
 
 .aos-menu-items {
