@@ -42,6 +42,7 @@ const jsSources = [
 	'assets/js/core/shell/menu-renderer.js',
 	'assets/js/core/shell/menu.js',
 	'assets/js/core/shell/context-menu.js',
+	'assets/js/core/shell/shortcuts.js',
 	'assets/js/core/shell/clock.js',
 	'assets/js/core/boot.js'
 ];

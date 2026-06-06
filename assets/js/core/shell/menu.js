@@ -289,6 +289,7 @@
 
 		return {
 			bind,
+			closePopover,
 			commands,
 			getMenuDefinition,
 			render

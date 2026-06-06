@@ -28,6 +28,28 @@
 			return standardGroupIds[index] || `menu-${index + 1}`;
 		}
 
+		function normalizeShortcut(shortcut) {
+			if (typeof shortcut === 'string') {
+				return shortcut;
+			}
+
+			if (!shortcut || typeof shortcut !== 'object') {
+				return '';
+			}
+
+			const normalized = {
+				allowInTextFields: shortcut.allowInTextFields === true,
+				key: typeof shortcut.key === 'string' ? shortcut.key : '',
+				label: typeof shortcut.label === 'string' ? shortcut.label : '',
+				modifiers: Array.isArray(shortcut.modifiers)
+					? shortcut.modifiers.filter((modifier) => typeof modifier === 'string')
+					: [],
+				preventDefault: shortcut.preventDefault !== false
+			};
+
+			return normalized.key || normalized.label ? normalized : '';
+		}
+
 		function normalizeCommandItem(item) {
 			if (typeof item === 'string') {
 				return item ? { label: item } : null;
@@ -53,7 +75,7 @@
 				label: item.label,
 				panel: typeof item.panel === 'string' ? item.panel : '',
 				payload: item.payload && typeof item.payload === 'object' ? item.payload : {},
-				shortcut: typeof item.shortcut === 'string' ? item.shortcut : '',
+				shortcut: normalizeShortcut(item.shortcut),
 				target: typeof item.target === 'string' ? item.target : '',
 				title: typeof item.title === 'string' ? item.title : '',
 				url: typeof item.url === 'string' ? item.url : ''

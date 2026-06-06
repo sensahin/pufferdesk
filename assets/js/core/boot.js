@@ -23,7 +23,8 @@
 			!window.AdminOSMode.shell.createMenuSchema ||
 			!window.AdminOSMode.shell.createMenuItemRenderer ||
 			!window.AdminOSMode.shell.createMenuController ||
-			!window.AdminOSMode.shell.createContextMenuController
+			!window.AdminOSMode.shell.createContextMenuController ||
+			!window.AdminOSMode.shell.createShortcutController
 		) {
 			return;
 		}
@@ -73,9 +74,14 @@
 			manager,
 			widgetManager
 		});
+		const shortcutController = window.AdminOSMode.shell.createShortcutController(shell, {
+			commands,
+			menuController
+		});
 
 		menuController.bind();
 		contextMenuController.bind();
+		shortcutController.bind();
 		widgetManager.bindExistingWidgets();
 		widgetManager.restoreSession();
 		manager.bindExistingWindows();
@@ -95,6 +101,7 @@
 		};
 		window.AdminOSMode.contextMenuController = contextMenuController;
 		window.AdminOSMode.shellDialogs = dialogs;
+		window.AdminOSMode.shortcutController = shortcutController;
 		window.AdminOSMode.menuController = menuController;
 		window.AdminOSMode.menuCommands = commands;
 	}

@@ -426,7 +426,10 @@ final class Admin_OS_Mode_App_Registry {
 			}
 
 			if ( ! empty( $item['shortcut'] ) ) {
-				$menu_item['shortcut'] = sanitize_text_field( $item['shortcut'] );
+				$shortcut = $this->normalize_menu_shortcut( $item['shortcut'] );
+				if ( ! empty( $shortcut ) ) {
+					$menu_item['shortcut'] = $shortcut;
+				}
 			}
 
 			if ( ! empty( $item['target'] ) ) {
@@ -553,6 +556,65 @@ final class Admin_OS_Mode_App_Registry {
 	}
 
 	/**
+	 * Normalize a keyboard shortcut descriptor.
+	 *
+	 * Shortcuts may be plain display strings like "⌘W" or structured arrays
+	 * with key/modifiers for future platform-specific expansion.
+	 *
+	 * @param mixed $shortcut Raw shortcut descriptor.
+	 * @return string|array<string,mixed>
+	 */
+	private function normalize_menu_shortcut( $shortcut ) {
+		if ( is_string( $shortcut ) ) {
+			return sanitize_text_field( $shortcut );
+		}
+
+		if ( ! is_array( $shortcut ) ) {
+			return '';
+		}
+
+		$normalized = array();
+
+		if ( ! empty( $shortcut['label'] ) && is_string( $shortcut['label'] ) ) {
+			$normalized['label'] = sanitize_text_field( $shortcut['label'] );
+		}
+
+		if ( ! empty( $shortcut['key'] ) && is_string( $shortcut['key'] ) ) {
+			$normalized['key'] = sanitize_text_field( $shortcut['key'] );
+		}
+
+		if ( ! empty( $shortcut['keyLabel'] ) && is_string( $shortcut['keyLabel'] ) ) {
+			$normalized['keyLabel'] = sanitize_text_field( $shortcut['keyLabel'] );
+		}
+
+		if ( ! empty( $shortcut['modifiers'] ) && is_array( $shortcut['modifiers'] ) ) {
+			$allowed_modifiers = array( 'alt', 'ctrl', 'meta', 'shift' );
+			$modifiers         = array();
+
+			foreach ( $shortcut['modifiers'] as $modifier ) {
+				$modifier = sanitize_key( (string) $modifier );
+				if ( in_array( $modifier, $allowed_modifiers, true ) && ! in_array( $modifier, $modifiers, true ) ) {
+					$modifiers[] = $modifier;
+				}
+			}
+
+			if ( ! empty( $modifiers ) ) {
+				$normalized['modifiers'] = $modifiers;
+			}
+		}
+
+		if ( ! empty( $shortcut['allowInTextFields'] ) ) {
+			$normalized['allowInTextFields'] = true;
+		}
+
+		if ( isset( $shortcut['preventDefault'] ) && false === (bool) $shortcut['preventDefault'] ) {
+			$normalized['preventDefault'] = false;
+		}
+
+		return empty( $normalized['label'] ) && empty( $normalized['key'] ) ? '' : $normalized;
+	}
+
+	/**
 	 * Default app menu groups.
 	 *
 	 * @param string $app_label Active app label.
@@ -571,6 +633,35 @@ final class Admin_OS_Mode_App_Registry {
 							$app_label
 						),
 						'command' => 'open-about',
+					),
+					array( 'type' => 'separator' ),
+					array(
+						'label'    => sprintf(
+							/* translators: %s: app label. */
+							__( 'Hide %s', 'admin-os-mode' ),
+							$app_label
+						),
+						'command'  => 'window.hide',
+						'shortcut' => '⌘H',
+					),
+					array(
+						'label'    => __( 'Hide Others', 'admin-os-mode' ),
+						'command'  => 'window.hide-others',
+						'shortcut' => '⌥⌘H',
+					),
+					array(
+						'label'   => __( 'Show All', 'admin-os-mode' ),
+						'command' => 'window.show-all',
+					),
+					array( 'type' => 'separator' ),
+					array(
+						'label'    => sprintf(
+							/* translators: %s: app label. */
+							__( 'Quit %s', 'admin-os-mode' ),
+							$app_label
+						),
+						'command'  => 'window.close',
+						'shortcut' => '⌘Q',
 					),
 				),
 			),
@@ -594,16 +685,18 @@ final class Admin_OS_Mode_App_Registry {
 				'label' => __( 'Window', 'admin-os-mode' ),
 				'items' => array(
 					array(
-						'label'   => __( 'Minimize', 'admin-os-mode' ),
-						'command' => 'window.minimize',
+						'label'    => __( 'Minimize', 'admin-os-mode' ),
+						'command'  => 'window.minimize',
+						'shortcut' => '⌘M',
 					),
 					array(
 						'label'   => __( 'Zoom', 'admin-os-mode' ),
 						'command' => 'window.toggle-maximize',
 					),
 					array(
-						'label'   => __( 'Close', 'admin-os-mode' ),
-						'command' => 'window.close',
+						'label'    => __( 'Close', 'admin-os-mode' ),
+						'command'  => 'window.close',
+						'shortcut' => '⌘W',
 					),
 				),
 			),

@@ -19,6 +19,18 @@
 			return Boolean(item.disabled || (item.command && !commands.canExecute(item, detail)));
 		}
 
+		function getShortcutLabel(shortcut) {
+			if (typeof shortcut === 'string') {
+				return shortcut;
+			}
+
+			if (shortcut && typeof shortcut === 'object' && typeof shortcut.label === 'string') {
+				return shortcut.label;
+			}
+
+			return '';
+		}
+
 		function createMenuItemIcon(item) {
 			if (!hasIcon(item)) {
 				return null;
@@ -64,7 +76,7 @@
 
 			const shortcut = document.createElement('span');
 			shortcut.className = 'aos-menu-item-shortcut';
-			shortcut.textContent = item.shortcut || '';
+			shortcut.textContent = getShortcutLabel(item.shortcut);
 			button.appendChild(shortcut);
 
 			if (item.command && !disabled) {

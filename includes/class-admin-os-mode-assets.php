@@ -312,13 +312,17 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/shell/context-menu.js',
 				'deps' => array( 'admin-os-mode-config', 'admin-os-mode-menu-commands', 'admin-os-mode-menu-schema', 'admin-os-mode-menu-renderer' ),
 			),
+			'admin-os-mode-shortcuts'      => array(
+				'path' => 'assets/js/core/shell/shortcuts.js',
+				'deps' => array( 'admin-os-mode-menu-commands', 'admin-os-mode-menu' ),
+			),
 			'admin-os-mode-clock'          => array(
 				'path' => 'assets/js/core/shell/clock.js',
 				'deps' => array( 'admin-os-mode-config' ),
 			),
 			'admin-os-mode-boot'           => array(
 				'path' => 'assets/js/core/boot.js',
-				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-wallpaper', 'admin-os-mode-reopen-policy', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-clock' ),
+				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-wallpaper', 'admin-os-mode-reopen-policy', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-shortcuts', 'admin-os-mode-clock' ),
 			),
 		);
 
@@ -778,10 +782,11 @@ final class Admin_OS_Mode_Assets {
 								'type' => 'separator',
 							),
 							array(
-								'id'      => 'close-active-window',
-								'label'   => __( 'Close Active App', 'admin-os-mode' ),
-								'command' => 'window.close',
-								'icon'    => 'dashicons-dismiss',
+								'id'       => 'close-active-window',
+								'label'    => __( 'Close Active App', 'admin-os-mode' ),
+								'command'  => 'window.close',
+								'icon'     => 'dashicons-dismiss',
+								'shortcut' => '⌘W',
 							),
 							array(
 								'type' => 'separator',

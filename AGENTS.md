@@ -127,6 +127,7 @@ Menus:
 - Menu definitions use the canonical shape `array( 'groups' => array( ... ) )`.
 - Each group should define `id`, `label`, and `items`; supported group IDs are `site`, `app`, `file`, `edit`, `view`, `go`, `window`, and `help`.
 - Menu command items should define `label` plus optional `command`, `target`, `url`, `title`, `icon`, `shortcut`, `payload`, and `disabled`.
+- `shortcut` is executable data, not decorative text. Use macOS-style strings such as `⌘W`, `⌘M`, `⌘H`, `⌥⌘H`, or a structured descriptor with `key`, `modifiers`, `label`, `allowInTextFields`, and `preventDefault`. The keyboard engine lives in `assets/js/core/shell/shortcuts.js`.
 - Commands are registered in `assets/js/core/shell/commands.js`; schema normalization is in `assets/js/core/shell/menu-schema.js`; shared menu item rendering is in `assets/js/core/shell/menu-renderer.js`; top menu rendering is in `assets/js/core/shell/menu.js`.
 - Context menus are registered and rendered through `assets/js/core/shell/context-menu.js`. Context targets should use stable `data-aos-context` and `data-aos-context-id` attributes rather than one-off event handlers.
 - Supported context target types include `desktop`, `app`, `desktop-app`, `dock-app`, `folder`, `desktop-folder`, `window`, and `widget`.
