@@ -97,21 +97,23 @@ final class Admin_OS_Mode_Shell_Renderer {
 		$apps    = $this->app_registry->get_apps();
 		$widgets = $this->widget_registry->get_widgets();
 		$folders = $this->app_registry->get_folders( $apps );
-		$theme      = $this->theme_registry->get_current_theme( $this->preferences );
-		$appearance = $this->preferences->get_appearance();
-		$wallpaper  = $this->wallpaper_registry->get_client_config( $theme, $this->preferences );
+		$theme        = $this->theme_registry->get_current_theme( $this->preferences );
+		$appearance   = $this->preferences->get_appearance();
+		$desktop_dock = $this->preferences->get_desktop_dock();
+		$wallpaper    = $this->wallpaper_registry->get_client_config( $theme, $this->preferences );
 		$this->current_theme = $theme;
 
 		$this->render_template(
 			'shell/shell.php',
 			array(
-				'appearance' => $appearance,
-				'apps'       => $apps,
-				'widgets'    => $widgets,
-				'folders'    => $folders,
-				'site_name'  => get_bloginfo( 'name' ),
-				'theme'      => $theme,
-				'wallpaper'  => $wallpaper,
+				'appearance'   => $appearance,
+				'apps'         => $apps,
+				'desktop_dock' => $desktop_dock,
+				'widgets'      => $widgets,
+				'folders'      => $folders,
+				'site_name'    => get_bloginfo( 'name' ),
+				'theme'        => $theme,
+				'wallpaper'    => $wallpaper,
 			)
 		);
 	}

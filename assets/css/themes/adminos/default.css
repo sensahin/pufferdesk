@@ -85,7 +85,7 @@
 	--aos-accent-medium: rgba(10, 132, 255, 0.28);
 	--aos-accent-active: rgba(10, 132, 255, 0.82);
 	--aos-accent-active-strong: linear-gradient(180deg, rgba(10, 132, 255, 0.92), rgba(10, 132, 255, 0.78));
-	--aos-running-indicator: #f6f7f8;
+	--aos-running-indicator: rgba(12, 18, 24, 0.88);
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(235, 241, 245, 0.7));
 	--aos-window-bar-border: rgba(20, 37, 51, 0.08);
 	--aos-window-radius: 24px;
@@ -116,6 +116,90 @@
 	--aos-weight-widget-clock: var(--aos-weight-heading);
 }
 
+.aos-shell[data-aos-theme="adminos"][data-aos-accent-color="purple"] {
+	--aos-accent: #9b3fb0;
+	--aos-accent-rgb: 155 63 176;
+	--aos-accent-ink: #fff;
+	--aos-accent-soft: rgba(155, 63, 176, 0.16);
+	--aos-accent-medium: rgba(155, 63, 176, 0.28);
+	--aos-accent-active: rgba(155, 63, 176, 0.82);
+	--aos-accent-active-strong: linear-gradient(180deg, rgba(155, 63, 176, 0.92), rgba(155, 63, 176, 0.78));
+	--aos-focus-ring: rgba(155, 63, 176, 0.34);
+	--aos-highlight: rgba(155, 63, 176, 0.18);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-accent-color="pink"] {
+	--aos-accent: #f0449a;
+	--aos-accent-rgb: 240 68 154;
+	--aos-accent-ink: #fff;
+	--aos-accent-soft: rgba(240, 68, 154, 0.16);
+	--aos-accent-medium: rgba(240, 68, 154, 0.28);
+	--aos-accent-active: rgba(240, 68, 154, 0.82);
+	--aos-accent-active-strong: linear-gradient(180deg, rgba(240, 68, 154, 0.92), rgba(240, 68, 154, 0.78));
+	--aos-focus-ring: rgba(240, 68, 154, 0.34);
+	--aos-highlight: rgba(240, 68, 154, 0.18);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-accent-color="red"] {
+	--aos-accent: #ed333b;
+	--aos-accent-rgb: 237 51 59;
+	--aos-accent-ink: #fff;
+	--aos-accent-soft: rgba(237, 51, 59, 0.16);
+	--aos-accent-medium: rgba(237, 51, 59, 0.28);
+	--aos-accent-active: rgba(237, 51, 59, 0.82);
+	--aos-accent-active-strong: linear-gradient(180deg, rgba(237, 51, 59, 0.92), rgba(237, 51, 59, 0.78));
+	--aos-focus-ring: rgba(237, 51, 59, 0.34);
+	--aos-highlight: rgba(237, 51, 59, 0.18);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-accent-color="orange"] {
+	--aos-accent: #ff7a16;
+	--aos-accent-rgb: 255 122 22;
+	--aos-accent-ink: #fff;
+	--aos-accent-soft: rgba(255, 122, 22, 0.16);
+	--aos-accent-medium: rgba(255, 122, 22, 0.28);
+	--aos-accent-active: rgba(255, 122, 22, 0.82);
+	--aos-accent-active-strong: linear-gradient(180deg, rgba(255, 122, 22, 0.92), rgba(255, 122, 22, 0.78));
+	--aos-focus-ring: rgba(255, 122, 22, 0.34);
+	--aos-highlight: rgba(255, 122, 22, 0.18);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-accent-color="yellow"] {
+	--aos-accent: #ffc226;
+	--aos-accent-rgb: 255 194 38;
+	--aos-accent-ink: #2f2815;
+	--aos-accent-soft: rgba(255, 194, 38, 0.16);
+	--aos-accent-medium: rgba(255, 194, 38, 0.28);
+	--aos-accent-active: rgba(255, 194, 38, 0.82);
+	--aos-accent-active-strong: linear-gradient(180deg, rgba(255, 194, 38, 0.92), rgba(255, 194, 38, 0.78));
+	--aos-focus-ring: rgba(255, 194, 38, 0.34);
+	--aos-highlight: rgba(255, 194, 38, 0.2);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-accent-color="green"] {
+	--aos-accent: #58b947;
+	--aos-accent-rgb: 88 185 71;
+	--aos-accent-ink: #fff;
+	--aos-accent-soft: rgba(88, 185, 71, 0.16);
+	--aos-accent-medium: rgba(88, 185, 71, 0.28);
+	--aos-accent-active: rgba(88, 185, 71, 0.82);
+	--aos-accent-active-strong: linear-gradient(180deg, rgba(88, 185, 71, 0.92), rgba(88, 185, 71, 0.78));
+	--aos-focus-ring: rgba(88, 185, 71, 0.34);
+	--aos-highlight: rgba(88, 185, 71, 0.18);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-accent-color="graphite"] {
+	--aos-accent: #8e8e93;
+	--aos-accent-rgb: 142 142 147;
+	--aos-accent-ink: #fff;
+	--aos-accent-soft: rgba(142, 142, 147, 0.16);
+	--aos-accent-medium: rgba(142, 142, 147, 0.28);
+	--aos-accent-active: rgba(142, 142, 147, 0.82);
+	--aos-accent-active-strong: linear-gradient(180deg, rgba(142, 142, 147, 0.92), rgba(142, 142, 147, 0.78));
+	--aos-focus-ring: rgba(142, 142, 147, 0.34);
+	--aos-highlight: rgba(142, 142, 147, 0.18);
+}
+
 .aos-shell[data-aos-theme="adminos"] .aos-menu-bar {
 	-webkit-backdrop-filter: var(--aos-material-bar-filter);
 	backdrop-filter: var(--aos-material-bar-filter);
@@ -142,7 +226,6 @@
 	width: 22px;
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-system-mark:hover,
 .aos-shell[data-aos-theme="adminos"] .aos-system-mark:focus,
 .aos-shell[data-aos-theme="adminos"] .aos-system-mark.is-active {
 	-webkit-backdrop-filter: var(--aos-material-control-filter);
@@ -151,6 +234,15 @@
 	color: var(--aos-accent-ink);
 	filter: none;
 	outline: none;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-system-mark:hover:not(:focus):not(.is-active) {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: transparent;
+	box-shadow: none;
+	color: var(--aos-menu-ink);
+	filter: var(--aos-menu-mark-filter);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-system-mark:active {
@@ -169,7 +261,6 @@
 	text-shadow: var(--aos-menu-text-shadow);
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-menu-items button:hover,
 .aos-shell[data-aos-theme="adminos"] .aos-menu-items button:focus,
 .aos-shell[data-aos-theme="adminos"] .aos-menu-items button.is-active {
 	-webkit-backdrop-filter: var(--aos-material-control-filter);
@@ -177,6 +268,15 @@
 	background: var(--aos-menu-selection-bg);
 	color: var(--aos-accent-ink);
 	text-shadow: none;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-menu-items button:hover:not(:focus):not(.is-active) {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: transparent;
+	box-shadow: none;
+	color: var(--aos-menu-ink);
+	text-shadow: var(--aos-menu-text-shadow);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-menu-items button.is-active {
@@ -199,7 +299,6 @@
 	width: 22px;
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-search:hover,
 .aos-shell[data-aos-theme="adminos"] .aos-search:focus-within {
 	-webkit-backdrop-filter: var(--aos-material-control-filter);
 	backdrop-filter: var(--aos-material-control-filter);
@@ -213,7 +312,6 @@
 	width: 180px;
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-search:hover .dashicons,
 .aos-shell[data-aos-theme="adminos"] .aos-search:focus-within .dashicons {
 	color: var(--aos-accent-ink);
 	text-shadow: none;
@@ -466,7 +564,7 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-dock-item.is-running::after {
-	background: rgba(248, 250, 252, 0.95);
+	background: var(--aos-running-indicator, var(--aos-accent));
 	bottom: -2px;
 	height: 4px;
 	width: 4px;
