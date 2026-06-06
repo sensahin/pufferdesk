@@ -180,6 +180,9 @@
 
 			activePanel = panelId;
 			activeSection = panel.dataset.aosSettingsSidebar || panelId;
+			if (settingsRoot) {
+				settingsRoot.dataset.aosSettingsActivePanel = activePanel;
+			}
 			updateSidebarSelection(activeSection);
 			if (paneTitle) {
 				paneTitle.textContent = panel.dataset.aosSettingsTitle || getSidebarItem(activeSection).label;

@@ -148,12 +148,12 @@
 	--aos-line-height-display: 1.05;
 	--aos-line-height-caption: 1.2;
 	--aos-line-height-body: 1.25;
-	--aos-weight-medium: 520;
+	--aos-weight-medium: 500;
 	--aos-weight-semibold: 600;
-	--aos-weight-strong: 650;
+	--aos-weight-strong: 620;
 	--aos-weight-bold: 700;
-	--aos-weight-heading: 720;
-	--aos-weight-display: 760;
+	--aos-weight-heading: 650;
+	--aos-weight-display: 700;
 	--aos-weight-widget-clock: var(--aos-weight-strong);
 	color: var(--aos-ink);
 	font-family: var(--aos-font-ui);
