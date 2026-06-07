@@ -12,6 +12,21 @@
 	outline: none;
 }
 
+.aos-desktop-marquee {
+	background: var(--aos-desktop-marquee-bg, rgba(36, 88, 202, 0.16));
+	border: 1px solid var(--aos-desktop-marquee-border, rgba(36, 88, 202, 0.52));
+	border-radius: 6px;
+	box-shadow: 0 0 0 1px var(--aos-desktop-marquee-inner-border, rgba(255, 255, 255, 0.18)) inset;
+	opacity: 0;
+	pointer-events: none;
+	position: absolute;
+	z-index: 29;
+}
+
+.aos-desktop-marquee.is-active {
+	opacity: 1;
+}
+
 .aos-app-icon {
 	align-items: center;
 	background: var(--aos-tile-bg);

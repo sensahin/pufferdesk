@@ -156,6 +156,9 @@
 	--aos-desktop-icon-selection-icon-inset: -7px -10px -7px;
 	--aos-desktop-icon-selection-icon-radius: 10px;
 	--aos-desktop-icon-selection-ink: var(--aos-accent-ink);
+	--aos-desktop-marquee-bg: rgb(var(--aos-accent-rgb) / 0.16);
+	--aos-desktop-marquee-border: rgb(var(--aos-accent-rgb) / 0.54);
+	--aos-desktop-marquee-inner-border: rgba(255, 255, 255, 0.18);
 	--aos-desktop-rename-bg: transparent;
 	--aos-desktop-rename-border: var(--aos-accent);
 	--aos-desktop-rename-ink: #1d1d1f;

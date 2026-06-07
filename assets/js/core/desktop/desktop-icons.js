@@ -14,7 +14,8 @@
 		let dragZIndex = 20;
 		let activeDropTarget = null;
 		let currentSortMode = 'none';
-		let selectedIcon = null;
+		const selectedIcons = new Set();
+		let primarySelectedIcon = null;
 		const sortModes = [
 			'none',
 			'snap-to-grid',
@@ -224,26 +225,130 @@
 			}
 		}
 
-		function clearSelectedIcon() {
-			if (selectedIcon) {
-				selectedIcon.classList.remove('is-selected');
-				selectedIcon.setAttribute('aria-pressed', 'false');
-				selectedIcon = null;
+		function isSelectableIcon(icon) {
+			if (!icon || icon.classList.contains('is-renaming')) {
+				return false;
 			}
+
+			return !icon.hidden;
 		}
 
-		function selectIcon(icon) {
-			if (!icon || icon.classList.contains('is-renaming')) {
+		function setIconSelected(icon, selected) {
+			if (!icon) {
 				return;
 			}
 
-			if (selectedIcon && selectedIcon !== icon) {
-				clearSelectedIcon();
+			icon.classList.toggle('is-selected', selected);
+			icon.setAttribute('aria-pressed', selected ? 'true' : 'false');
+			if (selected) {
+				selectedIcons.add(icon);
+				primarySelectedIcon = icon;
+			} else {
+				selectedIcons.delete(icon);
+				if (primarySelectedIcon === icon) {
+					primarySelectedIcon = null;
+				}
+			}
+		}
+
+		function normalizeSelectedIcons() {
+			Array.from(selectedIcons).forEach((icon) => {
+				if (!isSelectableIcon(icon) || !desktop.contains(icon)) {
+					setIconSelected(icon, false);
+				}
+			});
+
+			if (primarySelectedIcon && !selectedIcons.has(primarySelectedIcon)) {
+				primarySelectedIcon = null;
 			}
 
-			selectedIcon = icon;
-			selectedIcon.classList.add('is-selected');
-			selectedIcon.setAttribute('aria-pressed', 'true');
+			return Array.from(selectedIcons);
+		}
+
+		function clearSelectedIcons() {
+			normalizeSelectedIcons().forEach((icon) => setIconSelected(icon, false));
+			primarySelectedIcon = null;
+		}
+
+		function selectOnlyIcon(icon) {
+			if (!isSelectableIcon(icon)) {
+				return;
+			}
+
+			normalizeSelectedIcons().forEach((selectedIcon) => {
+				if (selectedIcon !== icon) {
+					setIconSelected(selectedIcon, false);
+				}
+			});
+			setIconSelected(icon, true);
+		}
+
+		function addIconToSelection(icon) {
+			if (isSelectableIcon(icon)) {
+				setIconSelected(icon, true);
+			}
+		}
+
+		function toggleIconSelection(icon) {
+			if (isSelectableIcon(icon)) {
+				setIconSelected(icon, !selectedIcons.has(icon));
+			}
+		}
+
+		function applySelectionFromBase(baseIcons, icons, mode = 'replace') {
+			const nextIcons = icons instanceof Set
+				? new Set(Array.from(icons).filter(isSelectableIcon))
+				: new Set(Array.isArray(icons) ? icons.filter(isSelectableIcon) : []);
+			const nextSelection = baseIcons instanceof Set ? new Set(baseIcons) : new Set();
+
+			if (mode === 'replace') {
+				getIcons().forEach((icon) => setIconSelected(icon, nextIcons.has(icon)));
+				return;
+			}
+
+			if (mode === 'add') {
+				nextIcons.forEach((icon) => nextSelection.add(icon));
+				getIcons().forEach((icon) => setIconSelected(icon, nextSelection.has(icon)));
+				return;
+			}
+
+			if (mode === 'toggle') {
+				nextIcons.forEach((icon) => {
+					if (nextSelection.has(icon)) {
+						nextSelection.delete(icon);
+					} else {
+						nextSelection.add(icon);
+					}
+				});
+				getIcons().forEach((icon) => setIconSelected(icon, nextSelection.has(icon)));
+			}
+		}
+
+		function getSelectionMode(event) {
+			if (event && (event.metaKey || event.ctrlKey)) {
+				return 'toggle';
+			}
+
+			return event && event.shiftKey ? 'add' : 'replace';
+		}
+
+		function getPrimarySelectedIcon() {
+			normalizeSelectedIcons();
+
+			if (primarySelectedIcon && selectedIcons.has(primarySelectedIcon)) {
+				return primarySelectedIcon;
+			}
+
+			return selectedIcons.values().next().value || null;
+		}
+
+		function rectsIntersect(first, second) {
+			return !(
+				first.right < second.left
+				|| first.left > second.right
+				|| first.bottom < second.top
+				|| first.top > second.bottom
+			);
 		}
 
 		function focusDesktopKeyboardTarget() {
@@ -259,6 +364,9 @@
 		}
 
 		function renameSelectedIcon() {
+			const selected = normalizeSelectedIcons();
+			const selectedIcon = selected.length === 1 ? getPrimarySelectedIcon() : null;
+
 			if (!selectedIcon || selectedIcon.hidden || selectedIcon.classList.contains('is-renaming')) {
 				return false;
 			}
@@ -538,6 +646,153 @@
 			}, 0);
 		}
 
+		function getDragItems(sourceIcon) {
+			const selected = normalizeSelectedIcons();
+			const dragIcons = selectedIcons.has(sourceIcon) ? selected : [sourceIcon];
+
+			return dragIcons.filter(isSelectableIcon).map((icon) => {
+				const layer = getIconLayer(icon);
+				const layerRect = layer.getBoundingClientRect();
+				const rect = icon.getBoundingClientRect();
+
+				return {
+					icon,
+					layer,
+					startLeft: rect.left - layerRect.left,
+					startTop: rect.top - layerRect.top
+				};
+			});
+		}
+
+		function moveDragItems(items, deltaX, deltaY) {
+			items.forEach((item) => {
+				const maxLeft = item.layer.clientWidth - item.icon.offsetWidth;
+				const maxTop = item.layer.clientHeight - item.icon.offsetHeight;
+
+				item.icon.style.left = `${clamp(item.startLeft + deltaX, 0, maxLeft)}px`;
+				item.icon.style.top = `${clamp(item.startTop + deltaY, 0, maxTop)}px`;
+			});
+		}
+
+		function setDragItemsDragging(items, dragging) {
+			items.forEach((item) => {
+				item.icon.classList.toggle('is-dragging', dragging);
+				if (dragging) {
+					item.icon.style.zIndex = String(++dragZIndex);
+				}
+			});
+		}
+
+		function ensureMarquee() {
+			let marquee = desktop.querySelector('.aos-desktop-marquee');
+			if (marquee) {
+				return marquee;
+			}
+
+			marquee = document.createElement('div');
+			marquee.className = 'aos-desktop-marquee';
+			marquee.setAttribute('aria-hidden', 'true');
+			desktop.appendChild(marquee);
+
+			return marquee;
+		}
+
+		function setMarqueeRect(marquee, rect) {
+			marquee.style.left = `${rect.left}px`;
+			marquee.style.top = `${rect.top}px`;
+			marquee.style.width = `${rect.width}px`;
+			marquee.style.height = `${rect.height}px`;
+		}
+
+		function getMarqueeRect(startX, startY, currentX, currentY, desktopRect) {
+			const x1 = clamp(startX - desktopRect.left, 0, desktopRect.width);
+			const y1 = clamp(startY - desktopRect.top, 0, desktopRect.height);
+			const x2 = clamp(currentX - desktopRect.left, 0, desktopRect.width);
+			const y2 = clamp(currentY - desktopRect.top, 0, desktopRect.height);
+			const left = Math.min(x1, x2);
+			const top = Math.min(y1, y2);
+
+			return {
+				bottom: Math.max(y1, y2),
+				height: Math.abs(y2 - y1),
+				left,
+				right: Math.max(x1, x2),
+				top,
+				width: Math.abs(x2 - x1)
+			};
+		}
+
+		function getIntersectingIcons(marqueeRect, desktopRect) {
+			return getVisibleIcons().filter((icon) => {
+				if (icon.classList.contains('is-renaming')) {
+					return false;
+				}
+
+				const iconRect = icon.getBoundingClientRect();
+				const relativeRect = {
+					bottom: iconRect.bottom - desktopRect.top,
+					left: iconRect.left - desktopRect.left,
+					right: iconRect.right - desktopRect.left,
+					top: iconRect.top - desktopRect.top
+				};
+
+				return rectsIntersect(marqueeRect, relativeRect);
+			});
+		}
+
+		function startDesktopMarquee(event) {
+			if (!desktop || event.button !== 0 || isTextEditingTarget(event.target)) {
+				return;
+			}
+
+			const mode = getSelectionMode(event);
+			const baseSelection = mode === 'replace' ? new Set() : new Set(normalizeSelectedIcons());
+			const desktopRect = desktop.getBoundingClientRect();
+			const startX = event.clientX;
+			const startY = event.clientY;
+			const marquee = ensureMarquee();
+			let moved = false;
+
+			if (mode === 'replace') {
+				clearSelectedIcons();
+			}
+			focusDesktopKeyboardTarget();
+			event.preventDefault();
+
+			const move = (moveEvent) => {
+				const deltaX = moveEvent.clientX - startX;
+				const deltaY = moveEvent.clientY - startY;
+
+				if (!moved && Math.abs(deltaX) + Math.abs(deltaY) < 4) {
+					return;
+				}
+
+				moved = true;
+				moveEvent.preventDefault();
+				const rect = getMarqueeRect(startX, startY, moveEvent.clientX, moveEvent.clientY, desktopRect);
+				setMarqueeRect(marquee, rect);
+				marquee.classList.add('is-active');
+				applySelectionFromBase(baseSelection, getIntersectingIcons(rect, desktopRect), mode);
+			};
+
+			const up = () => {
+				window.removeEventListener('pointermove', move);
+				window.removeEventListener('pointerup', up);
+				window.removeEventListener('pointercancel', up);
+				marquee.classList.remove('is-active');
+				setMarqueeRect(marquee, {
+					height: 0,
+					left: 0,
+					top: 0,
+					width: 0
+				});
+			};
+
+			window.addEventListener('pointermove', move);
+			window.addEventListener('pointerup', up);
+			window.addEventListener('pointercancel', up);
+		}
+
 		function makeDraggable(icon) {
 			if (!desktop || icon.dataset.aosDesktopIconBound === '1') {
 				return;
@@ -558,31 +813,35 @@
 					return;
 				}
 
-				selectIcon(icon);
+				if (event.metaKey || event.ctrlKey) {
+					toggleIconSelection(icon);
+				} else if (event.shiftKey) {
+					addIconToSelection(icon);
+				} else if (!selectedIcons.has(icon) || selectedIcons.size <= 1) {
+					selectOnlyIcon(icon);
+				} else {
+					primarySelectedIcon = icon;
+				}
 				focusDesktopKeyboardTarget();
 			}, true);
 
 			icon.addEventListener('pointerdown', (event) => {
-				if (event.button !== 0 || event.ctrlKey || event.metaKey || event.target.closest('a, input, select, textarea, [contenteditable="true"], [contenteditable="plaintext-only"]')) {
+				if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.target.closest('a, input, select, textarea, [contenteditable="true"], [contenteditable="plaintext-only"]')) {
 					return;
 				}
 
-				selectIcon(icon);
+				if (!selectedIcons.has(icon)) {
+					selectOnlyIcon(icon);
+				} else {
+					primarySelectedIcon = icon;
+				}
 				focusDesktopKeyboardTarget();
 				event.preventDefault();
 
-				const layer = getIconLayer(icon);
-				const layerRect = layer.getBoundingClientRect();
-				const rect = icon.getBoundingClientRect();
 				const startX = event.clientX;
 				const startY = event.clientY;
-				const startLeft = rect.left - layerRect.left;
-				const startTop = rect.top - layerRect.top;
+				const dragItems = getDragItems(icon);
 				let moved = false;
-
-				icon.style.left = `${startLeft}px`;
-				icon.style.top = `${startTop}px`;
-				icon.style.zIndex = String(++dragZIndex);
 
 				if (typeof icon.setPointerCapture === 'function') {
 					icon.setPointerCapture(event.pointerId);
@@ -598,14 +857,10 @@
 
 					moved = true;
 					moveEvent.preventDefault();
-					icon.classList.add('is-dragging');
+					setDragItemsDragging(dragItems, true);
 
-					const maxLeft = layer.clientWidth - icon.offsetWidth;
-					const maxTop = layer.clientHeight - icon.offsetHeight;
-
-					icon.style.left = `${clamp(startLeft + deltaX, 0, maxLeft)}px`;
-					icon.style.top = `${clamp(startTop + deltaY, 0, maxTop)}px`;
-					setDropTarget(getFolderDropTarget(icon, moveEvent.clientX, moveEvent.clientY));
+					moveDragItems(dragItems, deltaX, deltaY);
+					setDropTarget(dragItems.length === 1 ? getFolderDropTarget(icon, moveEvent.clientX, moveEvent.clientY) : null);
 				};
 
 				const up = (upEvent) => {
@@ -613,7 +868,7 @@
 					window.removeEventListener('pointermove', move);
 					window.removeEventListener('pointerup', up);
 					window.removeEventListener('pointercancel', up);
-					icon.classList.remove('is-dragging');
+					setDragItemsDragging(dragItems, false);
 					clearDropTarget();
 
 					if (typeof icon.releasePointerCapture === 'function' && icon.hasPointerCapture(upEvent.pointerId)) {
@@ -621,7 +876,7 @@
 					}
 
 					if (moved) {
-						if (dropTarget && typeof options.onDropOnFolder === 'function') {
+						if (dragItems.length === 1 && dropTarget && typeof options.onDropOnFolder === 'function') {
 							options.onDropOnFolder(getDropDetail(icon, dropTarget));
 						}
 
@@ -667,8 +922,7 @@
 			}
 			desktop.addEventListener('pointerdown', (event) => {
 				if (event.target === desktop) {
-					clearSelectedIcon();
-					focusDesktopKeyboardTarget();
+					startDesktopMarquee(event);
 				}
 			});
 			desktop.addEventListener('keydown', (event) => {
