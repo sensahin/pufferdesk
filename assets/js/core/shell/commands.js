@@ -38,6 +38,18 @@
 			return null;
 		}
 
+		function getWindowById(windowId) {
+			return windowId
+				? shell.querySelector(`.aos-window[data-aos-window-id="${dom.escapeAttribute(windowId)}"]:not(.is-closed)`)
+				: null;
+		}
+
+		function getTargetWindowFrame(detail = activeDetail) {
+			const win = getTargetWindow(detail);
+
+			return win ? win.querySelector('iframe.aos-app-frame') : null;
+		}
+
 		function normalizeFolderToolbarDisplayMode(mode) {
 			return folderToolbarDisplayModes.has(mode) ? mode : '';
 		}
@@ -161,6 +173,12 @@
 
 		function setActiveDetail(detail = {}) {
 			activeDetail = detail && typeof detail === 'object' ? detail : { kind: 'desktop' };
+		}
+
+		function refreshActiveMenu(detail = activeDetail) {
+			shell.dispatchEvent(new window.CustomEvent('adminOSMode:active-window-change', {
+				detail
+			}));
 		}
 
 		function getAppTargetFromDetail(detail = {}) {
@@ -513,6 +531,15 @@
 			}
 		});
 
+		register('folder.refresh', {
+			isEnabled(payload, detail) {
+				return Boolean(launcher && typeof launcher.refreshFolderWindow === 'function' && getFolderIdFromPayload(payload, detail));
+			},
+			run(payload, detail) {
+				launcher.refreshFolderWindow(getFolderIdFromPayload(payload, detail));
+			}
+		});
+
 		register('folder.rename', {
 			isEnabled(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
@@ -607,6 +634,10 @@
 					detail: {
 						mode
 					}
+				}));
+				refreshActiveMenu(Object.assign({}, activeDetail, detail || {}, {
+					toolbarDisplay: mode,
+					windowElement: win
 				}));
 			}
 		});
@@ -718,6 +749,7 @@
 			},
 			run(payload) {
 				desktopIconManager.setSortMode(payload.mode);
+				refreshActiveMenu(activeDetail);
 			}
 		});
 
@@ -748,6 +780,15 @@
 			}
 		});
 
+		register('window.focus-id', {
+			isEnabled(payload) {
+				return Boolean(manager && typeof manager.focusWindow === 'function' && getWindowById(payload.target));
+			},
+			run(payload) {
+				manager.focusWindow(getWindowById(payload.target));
+			}
+		});
+
 		register('window.close', {
 			isEnabled(payload, detail) {
 				return Boolean(manager && typeof manager.closeWindow === 'function' && getTargetWindow(detail));
@@ -773,6 +814,63 @@
 			},
 			run(payload, detail) {
 				window.open(getWindowBrowserUrl(detail, payload.url || payload.target), '_blank', 'noopener');
+			}
+		});
+
+		register('window.reload', {
+			isEnabled(payload, detail) {
+				return Boolean(getTargetWindowFrame(detail));
+			},
+			run(payload, detail) {
+				const frame = getTargetWindowFrame(detail);
+				const src = frame ? frame.getAttribute('src') : '';
+
+				if (!frame) {
+					return;
+				}
+
+				try {
+					if (frame.contentWindow && frame.contentWindow.location) {
+						frame.contentWindow.location.reload();
+						return;
+					}
+				} catch (error) {
+					// Fall back to resetting the iframe source when direct reload is blocked.
+				}
+
+				if (src) {
+					frame.setAttribute('src', src);
+				}
+			}
+		});
+
+		register('window.history-back', {
+			isEnabled(payload, detail) {
+				return Boolean(getTargetWindowFrame(detail));
+			},
+			run(payload, detail) {
+				const frame = getTargetWindowFrame(detail);
+
+				try {
+					if (frame && frame.contentWindow && frame.contentWindow.history) {
+						frame.contentWindow.history.back();
+					}
+				} catch (error) {}
+			}
+		});
+
+		register('window.history-forward', {
+			isEnabled(payload, detail) {
+				return Boolean(getTargetWindowFrame(detail));
+			},
+			run(payload, detail) {
+				const frame = getTargetWindowFrame(detail);
+
+				try {
+					if (frame && frame.contentWindow && frame.contentWindow.history) {
+						frame.contentWindow.history.forward();
+					}
+				} catch (error) {}
 			}
 		});
 

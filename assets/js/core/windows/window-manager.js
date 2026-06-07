@@ -249,11 +249,20 @@
 				};
 			}
 
+			const folderId = win.dataset.aosFolderWindow || win.dataset.aosFolderInfoWindow || '';
+			const id = folderId || win.dataset.aosAppWindow || getWindowId(win);
+
 			return {
 				appId: win.dataset.aosAppWindow || '',
+				folderId,
+				id,
 				kind: win.dataset.aosWindowKind || (win.dataset.aosAppWindow ? 'app' : 'window'),
 				menu: win.aosMenu || null,
-				title: win.dataset.aosWindowTitle || win.getAttribute('aria-label') || ''
+				title: win.dataset.aosWindowTitle || win.getAttribute('aria-label') || '',
+				toolbarDisplay: win.dataset.aosFolderToolbarDisplay || '',
+				url: win.dataset.aosWindowUrl || '',
+				windowElement: win,
+				windowId: getWindowId(win)
 			};
 		}
 

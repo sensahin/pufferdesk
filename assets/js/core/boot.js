@@ -97,6 +97,7 @@
 		});
 		const menuController = window.AdminOSMode.shell.createMenuController(shell, config, {
 			commands,
+			desktopIconManager,
 			launcher,
 			manager,
 			restoreWindows: !skipWindowRestore

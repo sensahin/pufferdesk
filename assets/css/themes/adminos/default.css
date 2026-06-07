@@ -164,6 +164,8 @@
 	--aos-icon-widget-widget-border: var(--aos-card-border);
 	--aos-icon-widget-widget-shadow: var(--aos-card-shadow);
 	--aos-icon-widget-widget-icon: var(--aos-accent);
+	--aos-folder-icon-filter: none;
+	--aos-folder-icon-opacity: 1;
 	--aos-running-indicator: rgba(12, 18, 24, 0.88);
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 247, 247, 0.84));
 	--aos-window-bar-border: rgba(60, 60, 67, 0.12);
@@ -711,6 +713,21 @@
 	width: var(--aos-dock-tile-size, 54px);
 }
 
+.aos-shell[data-aos-theme="adminos"] .aos-desktop-folder .aos-app-icon,
+.aos-shell[data-aos-theme="adminos"] .aos-finder-sidebar-icon {
+	background: transparent;
+	border-color: transparent;
+	box-shadow: none;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-desktop-folder .aos-icon-image,
+.aos-shell[data-aos-theme="adminos"] .aos-finder-sidebar-icon .aos-icon-image,
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder-info"] .aos-info-panel-icon .aos-icon-image,
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder-info"] .aos-window-titlebar-label-icon .aos-icon-image {
+	filter: var(--aos-folder-icon-filter);
+	opacity: var(--aos-folder-icon-opacity);
+}
+
 .aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-dock-item:has(.aos-icon-image),
 .aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-dock-window-item:has(.aos-icon-image),
 .aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] .aos-dock-item:has(.aos-icon-image),
@@ -1243,6 +1260,8 @@
 	--aos-icon-widget-widget-border: rgba(255, 255, 255, 0.15);
 	--aos-icon-widget-widget-shadow: 0 20px 50px rgba(0, 0, 0, 0.36), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
 	--aos-icon-widget-widget-icon: rgba(246, 248, 251, 0.94);
+	--aos-folder-icon-filter: brightness(0.68) saturate(0.82) contrast(1.12);
+	--aos-folder-icon-opacity: 0.96;
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] {
@@ -1263,6 +1282,8 @@
 	--aos-icon-widget-widget-border: rgba(255, 255, 255, 0.34);
 	--aos-icon-widget-widget-shadow: 0 18px 46px rgba(8, 24, 38, 0.16), 0 1px 0 rgba(255, 255, 255, 0.22) inset;
 	--aos-icon-widget-widget-icon: var(--aos-ink);
+	--aos-folder-icon-filter: saturate(0.66) contrast(0.94) brightness(1.12);
+	--aos-folder-icon-opacity: 0.78;
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] {
@@ -1283,6 +1304,8 @@
 	--aos-icon-widget-widget-border: rgb(var(--aos-accent-rgb) / 0.3);
 	--aos-icon-widget-widget-shadow: 0 20px 52px rgb(var(--aos-accent-rgb) / 0.18), 0 1px 0 rgba(255, 255, 255, 0.22) inset;
 	--aos-icon-widget-widget-icon: var(--aos-accent);
+	--aos-folder-icon-filter: grayscale(1) sepia(1) saturate(4.8) hue-rotate(var(--aos-accent-hue-shift)) brightness(0.9) contrast(0.98);
+	--aos-folder-icon-opacity: 0.88;
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"][data-aos-icon-widget-style="clear"] {
@@ -1297,6 +1320,8 @@
 	--aos-icon-widget-widget-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(20, 30, 38, 0.22));
 	--aos-icon-widget-widget-border: rgba(255, 255, 255, 0.16);
 	--aos-icon-widget-widget-icon: rgba(246, 248, 251, 0.94);
+	--aos-folder-icon-filter: saturate(0.6) contrast(0.96) brightness(0.9);
+	--aos-folder-icon-opacity: 0.72;
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"][data-aos-icon-widget-style="tinted"] {
@@ -1308,6 +1333,7 @@
 
 .aos-shell[data-aos-theme="adminos"][data-aos-accent-color="graphite"][data-aos-icon-widget-style="tinted"] {
 	--aos-icon-widget-image-filter: grayscale(1) saturate(0.18) brightness(0.9) contrast(0.98);
+	--aos-folder-icon-filter: grayscale(1) saturate(0.2) brightness(0.88) contrast(1.02);
 }
 
 @supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {

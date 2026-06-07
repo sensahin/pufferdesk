@@ -13,6 +13,8 @@
 		const schema = window.AdminOSMode.shell.createMenuSchema(labels);
 		const commands = context.commands || window.AdminOSMode.shell.createCommandRegistry(shell, context);
 		const itemRenderer = window.AdminOSMode.shell.createMenuItemRenderer(commands);
+		const desktopIconManager = context.desktopIconManager || null;
+		const standardGroupIds = ['app', 'file', 'edit', 'view', 'go', 'window', 'help'];
 		let activeDetail = { kind: 'desktop' };
 		const persistentDefinition = menuConfig.persistent
 			? schema.normalizeDefinition(menuConfig.persistent, {
@@ -35,15 +37,16 @@
 		let openGroupId = '';
 
 		function getDesktopDefinition() {
-			return schema.normalizeDefinition(menuConfig.desktop, {
+			return completeDefinition(schema.normalizeDefinition(menuConfig.desktop, {
 				includeGo: true
-			});
+			}), { kind: 'desktop' });
 		}
 
 		function getDefaultAppDefinition(detail = {}) {
-			return schema.getDefaultDefinition({
-				appLabel: detail.title || labels.admin || 'Admin'
-			});
+			return completeDefinition(schema.getDefaultDefinition({
+				appLabel: detail.title || labels.admin || 'Admin',
+				includeGo: true
+			}), detail);
 		}
 
 		function getInitialActiveDetail() {
@@ -98,23 +101,374 @@
 			};
 		}
 
+		function commandItem(label, command, options = {}) {
+			return Object.assign({
+				command,
+				label
+			}, options);
+		}
+
+		function separator() {
+			return { type: 'separator' };
+		}
+
+		function getLabel(key, fallback) {
+			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
+		}
+
+		function getGroupLabel(id, detail = {}) {
+			if (id === 'app') {
+				return detail.title || getLabel('admin', 'Admin');
+			}
+
+			return getLabel(id, id.charAt(0).toUpperCase() + id.slice(1));
+		}
+
+		function isWindowDetail(detail = {}) {
+			return Boolean(detail.kind && detail.kind !== 'desktop');
+		}
+
+		function isFolderDetail(detail = {}) {
+			return detail.kind === 'folder' || detail.kind === 'folder-info' || Boolean(detail.folderId);
+		}
+
+		function isFolderWindowDetail(detail = {}) {
+			return detail.kind === 'folder';
+		}
+
+		function getActiveFolderId(detail = {}) {
+			return detail.folderId || (detail.kind === 'folder' ? detail.id : '');
+		}
+
+		function getDesktopSortMode() {
+			return desktopIconManager && typeof desktopIconManager.getSortMode === 'function'
+				? desktopIconManager.getSortMode()
+				: 'none';
+		}
+
+		function getFolderToolbarDisplayMode(detail = {}) {
+			return ['icon-text', 'icon-only', 'text-only'].includes(detail.toolbarDisplay)
+				? detail.toolbarDisplay
+				: 'icon-text';
+		}
+
+		function hasBrowserTabTarget(detail = {}) {
+			const app = detail.appId ? appMap.get(detail.appId) : null;
+
+			return Boolean(!isFolderDetail(detail) && (detail.url || (app && app.url)));
+		}
+
+		function sortByItem(label, mode) {
+			return commandItem(label, 'desktop.sort-icons', {
+				icon: getDesktopSortMode() === mode ? 'dashicons-yes' : '',
+				payload: {
+					mode
+				}
+			});
+		}
+
+		function folderToolbarDisplayItem(label, mode, detail = {}) {
+			return commandItem(label, 'folder.toolbar-display', {
+				icon: getFolderToolbarDisplayMode(detail) === mode ? 'dashicons-yes' : '',
+				id: `folder-toolbar-${mode}`,
+				payload: {
+					mode
+				}
+			});
+		}
+
+		function getFileItems(detail = {}) {
+			const folderId = getActiveFolderId(detail);
+			const items = [];
+
+			if (!isWindowDetail(detail) || isFolderWindowDetail(detail)) {
+				items.push(commandItem('New Folder', 'folder.create', {
+					icon: 'dashicons-category',
+					shortcut: '⇧⌘N'
+				}));
+			}
+
+			if (folderId) {
+				items.push(commandItem('Get Info', 'folder.get-info', {
+					icon: 'dashicons-info-outline',
+					shortcut: '⌘I',
+					target: folderId
+				}));
+			}
+
+			if (isWindowDetail(detail)) {
+				if (items.length) {
+					items.push(separator());
+				}
+
+				if (hasBrowserTabTarget(detail)) {
+					items.push(commandItem('Open in Browser Tab', 'window.open-browser-tab', {
+						icon: 'dashicons-external'
+					}));
+					items.push(separator());
+				}
+
+				items.push(commandItem('Close Window', 'window.close', {
+					icon: 'dashicons-dismiss',
+					shortcut: '⌘W'
+				}));
+			}
+
+			if (!items.length) {
+				items.push(commandItem('System Settings...', 'open-app', {
+					icon: 'dashicons-admin-customizer',
+					target: 'os-settings'
+				}));
+			}
+
+			return items;
+		}
+
+		function getEditItems() {
+			return [
+				{ disabled: true, label: 'Undo', shortcut: '⌘Z' },
+				{ disabled: true, label: 'Redo', shortcut: '⇧⌘Z' },
+				separator(),
+				{ disabled: true, label: 'Cut', shortcut: '⌘X' },
+				{ disabled: true, label: 'Copy', shortcut: '⌘C' },
+				{ disabled: true, label: 'Paste', shortcut: '⌘V' },
+				separator(),
+				{ disabled: true, label: 'Select All', shortcut: '⌘A' }
+			];
+		}
+
+		function getSortByItems() {
+			return [
+				sortByItem('None', 'none'),
+				separator(),
+				sortByItem('Snap to Grid', 'snap-to-grid'),
+				separator(),
+				sortByItem('Name', 'name'),
+				sortByItem('Kind', 'kind'),
+				sortByItem('Last Modified By', 'last-modified-by'),
+				sortByItem('Date Last Opened', 'date-last-opened'),
+				sortByItem('Date Added', 'date-added'),
+				sortByItem('Date Modified', 'date-modified'),
+				sortByItem('Date Created', 'date-created'),
+				sortByItem('Size', 'size')
+			];
+		}
+
+		function getViewItems(detail = {}) {
+			if (!isWindowDetail(detail)) {
+				return [
+					{
+						icon: 'dashicons-sort',
+						id: 'sort-by',
+						items: getSortByItems(),
+						label: 'Sort By'
+					},
+					separator(),
+					commandItem('Reset Layout', 'session.reset-layout', {
+						icon: 'dashicons-update'
+					})
+				];
+			}
+
+			if (isFolderWindowDetail(detail)) {
+				return [
+					commandItem('Refresh', 'folder.refresh', {
+						icon: 'dashicons-update',
+						target: getActiveFolderId(detail)
+					}),
+					separator(),
+					folderToolbarDisplayItem('Icon and Text', 'icon-text', detail),
+					folderToolbarDisplayItem('Icon Only', 'icon-only', detail),
+					folderToolbarDisplayItem('Text Only', 'text-only', detail),
+					separator(),
+					commandItem('Zoom', 'window.toggle-maximize', {
+						icon: 'dashicons-fullscreen-alt'
+					})
+				];
+			}
+
+			return [
+				commandItem('Reload Page', 'window.reload', {
+					icon: 'dashicons-update',
+					shortcut: '⌘R'
+				}),
+				separator(),
+				commandItem('Zoom', 'window.toggle-maximize', {
+					icon: 'dashicons-fullscreen-alt'
+				})
+			];
+		}
+
+		function getGoAppItems() {
+			const preferredIds = ['dashboard', 'posts', 'pages', 'media', 'comments', 'appearance', 'plugins', 'users', 'settings', 'tools', 'site-health', 'os-settings'];
+
+			return preferredIds
+				.map((appId) => appMap.get(appId))
+				.filter(Boolean)
+				.map((app) => commandItem(app.label || app.id, 'open-app', {
+					icon: app.icon || 'dashicons-admin-generic',
+					target: app.id
+				}));
+		}
+
+		function getGoItems(detail = {}) {
+			const items = [];
+			if (isWindowDetail(detail) && !isFolderDetail(detail)) {
+				items.push(
+					commandItem('Back', 'window.history-back', {
+						icon: 'dashicons-arrow-left-alt2',
+						shortcut: '⌘['
+					}),
+					commandItem('Forward', 'window.history-forward', {
+						icon: 'dashicons-arrow-right-alt2',
+						shortcut: '⌘]'
+					}),
+					separator()
+				);
+			}
+
+			items.push(...getGoAppItems());
+
+			return items;
+		}
+
+		function getOpenWindowItems() {
+			const windows = Array.from(shell.querySelectorAll('.aos-window:not(.is-closed)'));
+			if (!windows.length) {
+				return [];
+			}
+
+			return windows.map((win) => {
+				const title = win.dataset.aosWindowTitle || win.getAttribute('aria-label') || 'Window';
+				const id = win.dataset.aosWindowId || '';
+				return commandItem(title, 'window.focus-id', {
+					icon: win.classList.contains('is-active') ? 'dashicons-yes' : '',
+					target: id
+				});
+			});
+		}
+
+		function getWindowItems(detail = {}, existingItems = []) {
+			const baseItems = existingItems.length ? existingItems : (
+				isWindowDetail(detail)
+					? [
+						commandItem('Minimize', 'window.minimize', {
+							icon: 'dashicons-minus',
+							shortcut: '⌘M'
+						}),
+						commandItem('Zoom', 'window.toggle-maximize', {
+							icon: 'dashicons-fullscreen-alt'
+						}),
+						commandItem('Close', 'window.close', {
+							icon: 'dashicons-dismiss',
+							shortcut: '⌘W'
+						})
+					]
+					: [
+						commandItem('Show All', 'window.show-all', {
+							icon: 'dashicons-visibility'
+						})
+					]
+			);
+			const openWindowItems = getOpenWindowItems();
+
+			if (!openWindowItems.length) {
+				return baseItems;
+			}
+
+			return baseItems.concat([separator()], openWindowItems);
+		}
+
+		function getHelpItems() {
+			return [
+				commandItem('About This Site', 'open-site-about', {
+					icon: 'dashicons-info-outline'
+				}),
+				commandItem('WordPress Documentation', 'open-external-url', {
+					icon: 'dashicons-editor-help',
+					url: 'https://wordpress.org/documentation/'
+				}),
+				commandItem('Support Forums', 'open-external-url', {
+					icon: 'dashicons-sos',
+					url: 'https://wordpress.org/support/forums/'
+				})
+			];
+		}
+
+		function getDefaultItemsForGroup(group, detail = {}) {
+			switch (group.id) {
+				case 'file':
+					return getFileItems(detail);
+				case 'edit':
+					return getEditItems();
+				case 'view':
+					return getViewItems(detail);
+				case 'go':
+					return getGoItems(detail);
+				case 'window':
+					return getWindowItems(detail, group.items);
+				case 'help':
+					return getHelpItems(detail);
+				default:
+					return group.items;
+			}
+		}
+
+		function resolveGroupItems(group, detail = {}) {
+			const items = Array.isArray(group.items) ? group.items : [];
+
+			if (items.length) {
+				return group.id === 'window' ? getWindowItems(detail, items) : items;
+			}
+
+			return getDefaultItemsForGroup(Object.assign({}, group, { items }), detail);
+		}
+
+		function completeDefinition(definition, detail = {}) {
+			const groups = Array.isArray(definition.groups) ? definition.groups : [];
+			const byId = new Map(groups.map((group) => [group.id, group]));
+			const ordered = [];
+
+			standardGroupIds.forEach((id) => {
+				const group = byId.get(id) || {
+					id,
+					items: [],
+					label: getGroupLabel(id, detail)
+				};
+
+				ordered.push(Object.assign({}, group, {
+					items: resolveGroupItems(group, detail),
+					label: group.label || getGroupLabel(id, detail)
+				}));
+				byId.delete(id);
+			});
+
+			byId.forEach((group) => {
+				ordered.push(group);
+			});
+
+			return {
+				groups: ordered.filter((group) => group.id !== 'app' || group.items.length)
+			};
+		}
+
 		function getDefinitionForDetail(detail = {}) {
 			if (!detail.kind || detail.kind === 'desktop') {
 				return getDesktopDefinition();
 			}
 
 			if (detail.menu) {
-				return schema.normalizeDefinition(detail.menu, {
+				return completeDefinition(schema.normalizeDefinition(detail.menu, {
 					appLabel: detail.title || labels.admin || 'Admin'
-				});
+				}), detail);
 			}
 
 			if (detail.appId && appMap.has(detail.appId)) {
 				const app = appMap.get(detail.appId);
 				if (app.menu) {
-					return schema.normalizeDefinition(app.menu, {
+					return completeDefinition(schema.normalizeDefinition(app.menu, {
 						appLabel: app.label || detail.title || labels.admin || 'Admin'
-					});
+					}), detail);
 				}
 			}
 
