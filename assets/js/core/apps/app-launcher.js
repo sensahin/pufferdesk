@@ -11,6 +11,7 @@
 		const appMap = new Map(apps.map((app) => [app.id, app]));
 		const folderMap = new Map(folders.map((folder) => [folder.id, folder]));
 		const folderWindowHistory = new WeakMap();
+		const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
 		let folderProvider = null;
 		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object'
 			? config.menu.labels
@@ -307,6 +308,27 @@
 			};
 		}
 
+		function getFolderToolbarDisplayMode(win) {
+			const mode = win && win.dataset ? win.dataset.aosFolderToolbarDisplay : '';
+
+			return folderToolbarDisplayModes.has(mode) ? mode : 'icon-text';
+		}
+
+		function setFolderToolbarDisplayMode(win, mode) {
+			const normalized = folderToolbarDisplayModes.has(mode) ? mode : 'icon-text';
+			const toolbar = win ? win.querySelector('.aos-finder-toolbar') : null;
+
+			if (win && win.dataset) {
+				win.dataset.aosFolderToolbarDisplay = normalized;
+			}
+
+			if (toolbar) {
+				toolbar.dataset.aosFolderToolbarDisplay = normalized;
+			}
+
+			return normalized;
+		}
+
 		function navigateFolderHistory(win, offset) {
 			const state = win ? getFolderWindowState(win) : null;
 			const nextIndex = state ? state.index + offset : -1;
@@ -362,11 +384,17 @@
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = `aos-finder-toolbar-button aos-finder-toolbar-button-${action.id}`;
-			button.disabled = true;
+			button.tabIndex = -1;
+			button.dataset.aosNoDrag = '';
 			button.dataset.aosToolbarAction = action.id;
+			button.setAttribute('aria-disabled', 'true');
 			button.setAttribute('aria-label', action.label);
 			button.appendChild(createFolderToolbarIcon(action));
 			button.appendChild(dom.createElement('span', 'aos-finder-toolbar-label', action.label));
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+			});
 
 			return button;
 		}
@@ -570,6 +598,13 @@
 				window.requestAnimationFrame(() => syncFolderToolbarOverflow(win));
 			};
 
+			if (win.aosFolderToolbarDisplayHandler) {
+				win.removeEventListener('adminOSMode:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
+			}
+
+			win.aosFolderToolbarDisplayHandler = sync;
+			win.addEventListener('adminOSMode:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
+
 			sync();
 
 			if (typeof window.ResizeObserver === 'function') {
@@ -629,6 +664,7 @@
 			const folder = getFolder(folderId);
 			const folderApps = getFolderApps(folderId);
 			const removable = isUserFolder(folderId);
+			const toolbarDisplayMode = getFolderToolbarDisplayMode(win);
 			const main = dom.createElement('main', 'aos-settings-main aos-finder-main');
 			const header = dom.createElement('header', 'aos-settings-pane-header aos-finder-toolbar');
 			const leading = dom.createElement('div', 'aos-finder-toolbar-leading');
@@ -637,7 +673,12 @@
 			const title = dom.createElement('h1', 'aos-finder-title', folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin'));
 			const pane = dom.createElement('div', 'aos-settings-pane aos-finder-pane');
 
+			header.dataset.aosContext = 'folder-toolbar';
+			header.dataset.aosContextId = folderId;
+			header.dataset.aosContextLabel = 'Folder Toolbar';
 			header.dataset.aosDragHandle = '';
+			header.dataset.aosFolderId = folderId;
+			header.dataset.aosFolderToolbarDisplay = toolbarDisplayMode;
 			history.dataset.aosNoDrag = '';
 			history.appendChild(createFolderHistoryButton('back', win));
 			history.appendChild(createFolderHistoryButton('forward', win));
@@ -707,6 +748,7 @@
 			}
 
 			updateFolderWindowMeta(win, folderId);
+			setFolderToolbarDisplayMode(win, getFolderToolbarDisplayMode(win));
 			body.replaceChildren(createFolderContent(folderId, win));
 			if (manager && typeof manager.makeDraggable === 'function') {
 				manager.makeDraggable(win);

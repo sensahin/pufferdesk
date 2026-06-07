@@ -78,6 +78,25 @@
 			];
 		}
 
+		function getFolderToolbarDisplayMode(detail = {}) {
+			const mode = detail.windowElement && detail.windowElement.dataset
+				? detail.windowElement.dataset.aosFolderToolbarDisplay
+				: '';
+
+			return ['icon-text', 'icon-only', 'text-only'].includes(mode) ? mode : 'icon-text';
+		}
+
+		function folderToolbarDisplayItem(label, mode, detail = {}) {
+			const active = getFolderToolbarDisplayMode(detail) === mode;
+
+			return commandItem(label, 'folder.toolbar-display', {
+				icon: active ? 'dashicons-yes' : '',
+				payload: {
+					mode
+				}
+			});
+		}
+
 		function getAppItems(app, detail = {}) {
 			if (!app) {
 				return [];
@@ -273,6 +292,19 @@
 			]
 		}));
 		registerProvider('desktop-folder', (detail) => providers.get('folder')(detail));
+
+		registerProvider('folder-toolbar', (detail) => ({
+			groups: [
+				{
+					id: 'display',
+					items: [
+						folderToolbarDisplayItem('Icon and Text', 'icon-text', detail),
+						folderToolbarDisplayItem('Icon Only', 'icon-only', detail),
+						folderToolbarDisplayItem('Text Only', 'text-only', detail)
+					]
+				}
+			]
+		}));
 
 		registerProvider('window', (detail) => {
 			const app = detail.appId ? appMap.get(detail.appId) : null;

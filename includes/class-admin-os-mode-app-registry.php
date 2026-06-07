@@ -471,50 +471,15 @@ final class Admin_OS_Mode_App_Registry {
 	}
 
 	/**
-	 * Folder registry derived from visible apps.
+	 * Built-in folder registry.
+	 *
+	 * User-created desktop folders are stored separately in user preferences.
 	 *
 	 * @param array<int,array<string,mixed>> $apps Visible apps.
 	 * @return array<int,array<string,mixed>>
 	 */
 	public function get_folders( $apps ) {
-		$counts = array();
-		foreach ( $apps as $app ) {
-			$group            = isset( $app['group'] ) ? $app['group'] : 'system';
-			$counts[ $group ] = isset( $counts[ $group ] ) ? $counts[ $group ] + 1 : 1;
-		}
-
-		$folders = array(
-			array(
-				'id'    => 'content',
-				'label' => __( 'Content', 'admin-os-mode' ),
-				'icon'  => $this->theme_icon( 'folder-content.svg', 'dashicons-category' ),
-			),
-			array(
-				'id'    => 'site',
-				'label' => __( 'Site', 'admin-os-mode' ),
-				'icon'  => $this->theme_icon( 'folder-site.svg', 'dashicons-admin-site-alt3' ),
-			),
-			array(
-				'id'    => 'system',
-				'label' => __( 'System', 'admin-os-mode' ),
-				'icon'  => $this->theme_icon( 'folder-system.svg', 'dashicons-admin-generic' ),
-			),
-		);
-
-		$folders = array_values(
-			array_filter(
-				$folders,
-				static function ( $folder ) use ( $counts ) {
-					return ! empty( $counts[ $folder['id'] ] );
-				}
-			)
-		);
-
-		foreach ( $folders as $index => $folder ) {
-			$folders[ $index ]['icon'] = Admin_OS_Mode_Icon_Renderer::normalize( $folder['icon'] );
-		}
-
-		return $folders;
+		return array();
 	}
 
 	/**

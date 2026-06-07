@@ -16,6 +16,7 @@
 		const config = context.config && typeof context.config === 'object' ? context.config : {};
 		const api = window.AdminOSMode.services && window.AdminOSMode.services.api ? window.AdminOSMode.services.api : null;
 		const commands = new Map();
+		const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
 		let activeDetail = { kind: 'desktop' };
 
 		function getTargetWindow(detail = activeDetail) {
@@ -35,6 +36,20 @@
 			}
 
 			return null;
+		}
+
+		function normalizeFolderToolbarDisplayMode(mode) {
+			return folderToolbarDisplayModes.has(mode) ? mode : '';
+		}
+
+		function getFolderToolbarWindow(detail = activeDetail) {
+			const win = getTargetWindow(detail);
+
+			if (!win || !win.dataset || win.dataset.aosWindowKind !== 'folder') {
+				return null;
+			}
+
+			return win;
 		}
 
 		function getTargetWidget(detail = activeDetail) {
@@ -566,6 +581,33 @@
 			},
 			run(payload, detail) {
 				folderManager.removeAppFromFolder(payload.target || getFolderAppTargetFromDetail(detail), payload.folderId || (detail && detail.folderId) || '');
+			}
+		});
+
+		register('folder.toolbar-display', {
+			isEnabled(payload, detail) {
+				return Boolean(getFolderToolbarWindow(detail) && normalizeFolderToolbarDisplayMode(payload.mode));
+			},
+			run(payload, detail) {
+				const win = getFolderToolbarWindow(detail);
+				const mode = normalizeFolderToolbarDisplayMode(payload.mode);
+				const toolbar = win ? win.querySelector('.aos-finder-toolbar') : null;
+
+				if (!win || !mode) {
+					return;
+				}
+
+				win.dataset.aosFolderToolbarDisplay = mode;
+
+				if (toolbar) {
+					toolbar.dataset.aosFolderToolbarDisplay = mode;
+				}
+
+				win.dispatchEvent(new window.CustomEvent('adminOSMode:folder-toolbar-display-change', {
+					detail: {
+						mode
+					}
+				}));
 			}
 		});
 

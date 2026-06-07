@@ -10,6 +10,7 @@
 		const api = window.AdminOSMode.services && window.AdminOSMode.services.api ? window.AdminOSMode.services.api : null;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const systemFolders = Array.isArray(config.folders) ? config.folders : [];
+		const defaultFolderIcon = { type: 'theme', name: 'folder.svg', fallback: 'dashicons-category' };
 		const appMap = new Map(apps.map((app) => [app.id, app]));
 		const systemFolderMap = new Map(systemFolders.map((folder) => [folder.id, Object.assign({ kind: 'system', user: false }, folder)]));
 		let userFolders = [];
@@ -35,7 +36,7 @@
 			const contentFolder = systemFolders.find((folder) => folder.id === 'content');
 			const folder = contentFolder || systemFolders[0] || null;
 
-			return folder && folder.icon ? folder.icon : 'dashicons-category';
+			return folder && folder.icon ? folder.icon : defaultFolderIcon;
 		}
 
 		function getTakenLabels(exceptId = '') {

@@ -744,7 +744,15 @@ final class Admin_OS_Mode_User_Preferences {
 				),
 				'comment'      => isset( $folder['comment'] ) ? sanitize_textarea_field( (string) $folder['comment'] ) : '',
 				'createdAt'    => $this->sanitize_desktop_folder_timestamp( isset( $folder['createdAt'] ) ? $folder['createdAt'] : '', gmdate( 'c' ) ),
-				'icon'         => Admin_OS_Mode_Icon_Renderer::normalize( isset( $folder['icon'] ) ? $folder['icon'] : 'dashicons-category' ),
+				'icon'         => Admin_OS_Mode_Icon_Renderer::normalize(
+					isset( $folder['icon'] )
+						? $folder['icon']
+						: array(
+							'type'     => 'theme',
+							'name'     => 'folder.svg',
+							'fallback' => 'dashicons-category',
+						)
+				),
 				'id'           => $id,
 				'label'        => $label,
 				'lastOpenedAt' => $this->sanitize_desktop_folder_timestamp( isset( $folder['lastOpenedAt'] ) ? $folder['lastOpenedAt'] : '', '' ),
