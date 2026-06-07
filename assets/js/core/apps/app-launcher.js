@@ -340,6 +340,245 @@
 			return button;
 		}
 
+		function createFolderToolbarIcon(action) {
+			const icon = dom.createElement('span', `aos-finder-toolbar-icon aos-finder-toolbar-icon-${action.id}`);
+
+			if (action.icon) {
+				icon.appendChild(dom.createDashicon(action.icon));
+			}
+
+			if (action.badge) {
+				icon.appendChild(dom.createElement('span', `aos-finder-toolbar-badge aos-finder-toolbar-badge-${action.badge}`));
+			}
+
+			if (action.disclosure) {
+				icon.appendChild(dom.createElement('span', 'aos-finder-toolbar-disclosure'));
+			}
+
+			return icon;
+		}
+
+		function createFolderToolbarButton(action) {
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.className = `aos-finder-toolbar-button aos-finder-toolbar-button-${action.id}`;
+			button.disabled = true;
+			button.dataset.aosToolbarAction = action.id;
+			button.setAttribute('aria-label', action.label);
+			button.appendChild(createFolderToolbarIcon(action));
+			button.appendChild(dom.createElement('span', 'aos-finder-toolbar-label', action.label));
+
+			return button;
+		}
+
+		function getFolderToolbarActions() {
+			return [
+				{ id: 'view', label: 'View', icon: 'dashicons-grid-view', disclosure: true },
+				{ id: 'group', label: 'Group', icon: 'dashicons-list-view', disclosure: true },
+				{ id: 'share', label: 'Share', icon: 'dashicons-share' },
+				{ id: 'tags', label: 'Edit Tags', icon: 'dashicons-tag' },
+				{ id: 'delete', label: 'Delete', icon: 'dashicons-trash' },
+				{ id: 'info', label: 'Get Info', icon: 'dashicons-info-outline' },
+				{ id: 'new-folder', label: 'New Folder', icon: 'dashicons-category', badge: 'plus' },
+				{ id: 'action', label: 'Action', icon: 'dashicons-ellipsis' },
+				{ id: 'search', label: 'Search', icon: 'dashicons-search' }
+			];
+		}
+
+		function createFolderToolbarOverflowButton() {
+			const button = document.createElement('button');
+			const icon = dom.createElement('span', 'aos-finder-toolbar-icon aos-finder-toolbar-icon-overflow');
+
+			button.type = 'button';
+			button.className = 'aos-finder-toolbar-button aos-finder-toolbar-overflow-button';
+			button.dataset.aosNoDrag = '';
+			button.setAttribute('aria-label', 'More Toolbar Items');
+			icon.append(
+				dom.createElement('span', 'aos-finder-toolbar-overflow-chevron'),
+				dom.createElement('span', 'aos-finder-toolbar-overflow-chevron')
+			);
+			button.appendChild(icon);
+
+			return button;
+		}
+
+		function createFolderToolbarOverflowMenuItem(action) {
+			const item = dom.createElement('div', 'aos-finder-toolbar-overflow-menu-item');
+			const label = dom.createElement('span', 'aos-finder-toolbar-overflow-menu-label', action.label);
+
+			item.setAttribute('role', 'menuitem');
+			item.setAttribute('aria-disabled', 'true');
+			item.append(createFolderToolbarIcon(action), label);
+
+			return item;
+		}
+
+		function setFolderToolbarOverflowMenu(actions, hiddenIds) {
+			const menu = actions ? actions.querySelector('.aos-finder-toolbar-overflow-menu') : null;
+			const hiddenSet = new Set(hiddenIds);
+			if (!menu) {
+				return;
+			}
+
+			menu.replaceChildren();
+			getFolderToolbarActions()
+				.filter((action) => hiddenSet.has(action.id))
+				.forEach((action) => {
+					menu.appendChild(createFolderToolbarOverflowMenuItem(action));
+				});
+		}
+
+		function createFolderToolbarActions() {
+			const actions = dom.createElement('div', 'aos-finder-toolbar-actions');
+			const overflow = dom.createElement('div', 'aos-finder-toolbar-overflow');
+			const overflowButton = createFolderToolbarOverflowButton();
+			const overflowMenu = dom.createElement('div', 'aos-finder-toolbar-overflow-menu');
+			const toolbarActions = getFolderToolbarActions();
+			const searchAction = toolbarActions.find((action) => action.id === 'search');
+
+			actions.dataset.aosNoDrag = '';
+			overflow.hidden = true;
+			overflowMenu.hidden = true;
+			overflowMenu.setAttribute('role', 'menu');
+			overflowButton.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				const willOpen = overflowMenu.hidden;
+				overflowMenu.hidden = !willOpen;
+				overflowButton.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+				if (willOpen) {
+					window.setTimeout(() => {
+						document.addEventListener('pointerdown', () => {
+							overflowMenu.hidden = true;
+							overflowButton.setAttribute('aria-expanded', 'false');
+						}, { once: true });
+					}, 0);
+				}
+			});
+			overflowButton.setAttribute('aria-expanded', 'false');
+			overflow.append(overflowButton, overflowMenu);
+
+			toolbarActions
+				.filter((action) => action.id !== 'search')
+				.forEach((action) => {
+					actions.appendChild(createFolderToolbarButton(action));
+				});
+			actions.appendChild(overflow);
+			if (searchAction) {
+				actions.appendChild(createFolderToolbarButton(searchAction));
+			}
+
+			return actions;
+		}
+
+		function syncFolderToolbarOverflow(win) {
+			const toolbar = win ? win.querySelector('.aos-finder-toolbar') : null;
+			const title = win ? win.querySelector('.aos-finder-title') : null;
+			const actions = win ? win.querySelector('.aos-finder-toolbar-actions') : null;
+			const overflow = actions ? actions.querySelector('.aos-finder-toolbar-overflow') : null;
+			const overflowMenu = overflow ? overflow.querySelector('.aos-finder-toolbar-overflow-menu') : null;
+			const buttons = actions
+				? Array.from(actions.querySelectorAll('[data-aos-toolbar-action]'))
+				: [];
+			const hideOrder = ['action', 'new-folder', 'info', 'delete', 'tags', 'share', 'group', 'view'];
+			const hiddenIds = [];
+
+			function readPixels(value, fallback = 0) {
+				const parsed = Number.parseFloat(value);
+
+				return Number.isFinite(parsed) ? parsed : fallback;
+			}
+
+			function getVisibleToolbarItems() {
+				return actions
+					? Array.from(actions.children).filter((item) => {
+						return !item.hidden && (
+							item.classList.contains('aos-finder-toolbar-button')
+							|| item.classList.contains('aos-finder-toolbar-overflow')
+						);
+					})
+					: [];
+			}
+
+			function toolbarItemsFit() {
+				const toolbarRect = toolbar ? toolbar.getBoundingClientRect() : null;
+				const toolbarStyles = toolbar ? window.getComputedStyle(toolbar) : null;
+				const titleRect = title ? title.getBoundingClientRect() : null;
+				const items = getVisibleToolbarItems();
+				const firstItem = items[0] || null;
+				const lastItem = items[items.length - 1] || null;
+				const rightEdge = toolbarRect && toolbarStyles
+					? toolbarRect.right - readPixels(toolbarStyles.paddingRight)
+					: 0;
+				const minTitleGap = toolbarStyles
+					? readPixels(toolbarStyles.gap, 38)
+					: 38;
+				const rightFits = !lastItem || lastItem.getBoundingClientRect().right <= rightEdge + 1;
+				const gapFits = !titleRect || !firstItem || firstItem.getBoundingClientRect().left - titleRect.right >= minTitleGap - 1;
+
+				return rightFits && gapFits;
+			}
+
+			if (!toolbar || !actions || !overflow || !buttons.length) {
+				return;
+			}
+
+			buttons.forEach((button) => {
+				button.hidden = false;
+			});
+			overflow.hidden = true;
+			if (overflowMenu) {
+				overflowMenu.hidden = true;
+			}
+
+			if (toolbarItemsFit()) {
+				setFolderToolbarOverflowMenu(actions, hiddenIds);
+				return;
+			}
+
+			overflow.hidden = false;
+			hideOrder.some((actionId) => {
+				const button = actions.querySelector(`[data-aos-toolbar-action="${actionId}"]`);
+				if (!button || button.hidden) {
+					return false;
+				}
+
+				button.hidden = true;
+				hiddenIds.push(actionId);
+
+				return toolbarItemsFit();
+			});
+
+			if (!hiddenIds.length) {
+				overflow.hidden = true;
+			}
+
+			setFolderToolbarOverflowMenu(actions, hiddenIds);
+		}
+
+		function bindFolderToolbarOverflow(win) {
+			const toolbar = win ? win.querySelector('.aos-finder-toolbar') : null;
+			if (!toolbar) {
+				return;
+			}
+
+			if (win.aosFolderToolbarResizeObserver && typeof win.aosFolderToolbarResizeObserver.disconnect === 'function') {
+				win.aosFolderToolbarResizeObserver.disconnect();
+			}
+
+			const sync = () => {
+				window.requestAnimationFrame(() => syncFolderToolbarOverflow(win));
+			};
+
+			sync();
+
+			if (typeof window.ResizeObserver === 'function') {
+				win.aosFolderToolbarResizeObserver = new window.ResizeObserver(sync);
+				win.aosFolderToolbarResizeObserver.observe(toolbar);
+				win.aosFolderToolbarResizeObserver.observe(win);
+			}
+		}
+
 		function createFolderSidebarIcon(folder) {
 			const icon = dom.createElement('span', 'aos-settings-sidebar-icon aos-settings-sidebar-icon-blue aos-finder-sidebar-icon');
 			icon.appendChild(dom.createIcon(folder && folder.icon ? folder.icon : 'dashicons-category'));
@@ -392,6 +631,8 @@
 			const removable = isUserFolder(folderId);
 			const main = dom.createElement('main', 'aos-settings-main aos-finder-main');
 			const header = dom.createElement('header', 'aos-settings-pane-header aos-finder-toolbar');
+			const leading = dom.createElement('div', 'aos-finder-toolbar-leading');
+			const historyGroup = dom.createElement('div', 'aos-finder-toolbar-history-group');
 			const history = dom.createElement('div', 'aos-settings-history aos-finder-history');
 			const title = dom.createElement('h1', 'aos-finder-title', folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin'));
 			const pane = dom.createElement('div', 'aos-settings-pane aos-finder-pane');
@@ -400,7 +641,9 @@
 			history.dataset.aosNoDrag = '';
 			history.appendChild(createFolderHistoryButton('back', win));
 			history.appendChild(createFolderHistoryButton('forward', win));
-			header.append(history, title);
+			historyGroup.append(history, dom.createElement('span', 'aos-finder-toolbar-caption', 'Back/Forward'));
+			leading.append(historyGroup, title);
+			header.append(leading, createFolderToolbarActions());
 
 			if (!folderApps.length) {
 				const empty = document.createElement('p');
@@ -468,6 +711,7 @@
 			if (manager && typeof manager.makeDraggable === 'function') {
 				manager.makeDraggable(win);
 			}
+			bindFolderToolbarOverflow(win);
 
 			if (options.touch !== false) {
 				const provider = getFolderProvider();
@@ -535,8 +779,8 @@
 				content: placeholder,
 				bodyClass: 'aos-window-body aos-folder-body aos-finder-body',
 				windowKind: 'folder',
-				width: '725px',
-				height: '500px'
+				width: '1020px',
+				height: '540px'
 			});
 
 			if (win) {

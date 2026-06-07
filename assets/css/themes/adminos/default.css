@@ -931,6 +931,13 @@
 	padding-top: var(--aos-settings-sidebar-inset);
 }
 
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder"] .aos-finder-toolbar-icon {
+	-webkit-backdrop-filter: var(--aos-material-control-filter);
+	backdrop-filter: var(--aos-material-control-filter);
+	background: var(--aos-material-control-bg);
+	border-color: var(--aos-material-control-border);
+}
+
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] .aos-settings-pane {
 	padding-left: var(--aos-settings-main-edge);
 }

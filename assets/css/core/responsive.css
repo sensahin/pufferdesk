@@ -38,8 +38,23 @@
 	}
 
 	.aos-window[data-aos-window-kind="folder"] {
+		--aos-finder-toolbar-gap: 30px;
 		--aos-settings-sidebar-width: 196px;
+		--aos-finder-toolbar-icon-size: 30px;
 		min-width: 0;
+	}
+
+	.aos-settings-pane-header.aos-finder-toolbar {
+		gap: 10px;
+		min-height: 76px;
+	}
+
+	.aos-finder-toolbar-actions {
+		gap: 5px;
+	}
+
+	.aos-finder-toolbar-button {
+		min-width: 42px;
 	}
 
 	.aos-settings-pane-header {
@@ -109,5 +124,17 @@
 	.aos-finder-toolbar,
 	.aos-settings-pane-header {
 		padding-left: 96px;
+	}
+
+	.aos-settings-pane-header.aos-finder-toolbar {
+		min-height: 62px;
+	}
+
+	.aos-finder-toolbar-actions {
+		display: none;
+	}
+
+	.aos-finder-toolbar-caption {
+		display: none;
 	}
 }
