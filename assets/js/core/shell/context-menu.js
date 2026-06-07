@@ -470,9 +470,30 @@
 				|| '';
 		}
 
+		function getContextWindowElement(target) {
+			if (!target || !target.classList || !target.dataset) {
+				return null;
+			}
+
+			if (target.classList.contains('aos-window')) {
+				return target;
+			}
+
+			const closest = target.closest('.aos-window');
+			if (closest) {
+				return closest;
+			}
+
+			const windowId = target.dataset.aosRestoreWindowId || target.dataset.aosWindowId || '';
+			return windowId
+				? shell.querySelector(`.aos-window[data-aos-window-id="${window.AdminOSMode.dom.escapeAttribute(windowId)}"]:not(.is-closed)`)
+				: null;
+		}
+
 		function getTargetDetail(target) {
 			const type = target.dataset.aosContext || 'desktop';
 			const id = target.dataset.aosContextId || target.dataset.aosOpenApp || target.dataset.aosOpenFolder || target.dataset.aosWidget || '';
+			const windowElement = getContextWindowElement(target);
 			const app = id && Array.isArray(config.apps) ? config.apps.find((item) => item.id === id) : null;
 			const folder = id && folderManager && typeof folderManager.getFolder === 'function'
 				? folderManager.getFolder(id)
@@ -480,7 +501,7 @@
 			const widget = id && Array.isArray(config.widgets) ? config.widgets.find((item) => item.id === id) : null;
 			const detail = {
 				app,
-				appId: target.dataset.aosAppWindow || (app ? app.id : ''),
+				appId: target.dataset.aosAppWindow || (windowElement && windowElement.dataset ? windowElement.dataset.aosAppWindow : '') || (app ? app.id : ''),
 				folder,
 				folderId: target.dataset.aosFolderId || '',
 				id,
@@ -491,11 +512,15 @@
 				widget,
 				widgetElement: target.dataset.aosWidget ? target : null,
 				widgetId: target.dataset.aosWidget || '',
-				windowElement: target.classList.contains('aos-window') ? target : target.closest('.aos-window')
+				windowElement
 			};
 
 			if (!detail.label) {
 				detail.label = app && app.label ? app.label : folder && folder.label ? folder.label : widget && widget.label ? widget.label : '';
+			}
+
+			if (!detail.label && windowElement && windowElement.dataset) {
+				detail.label = windowElement.dataset.aosWindowTitle || windowElement.getAttribute('aria-label') || '';
 			}
 
 			return detail;

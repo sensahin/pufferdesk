@@ -12,6 +12,27 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Admin_OS_Mode_App_Registry {
 	/**
+	 * Installed plugin headers, keyed by plugin basename.
+	 *
+	 * @var array<string,array<string,mixed>>|null
+	 */
+	private $installed_plugins = null;
+
+	/**
+	 * Runtime cache for resolved plugin headers.
+	 *
+	 * @var array<string,array<string,mixed>>
+	 */
+	private $plugin_header_cache = array();
+
+	/**
+	 * Runtime cache for admin menu slug owner lookups.
+	 *
+	 * @var array<string,string>
+	 */
+	private $plugin_owner_cache = array();
+
+	/**
 	 * App registry for the first shell.
 	 *
 	 * @return array<int,array<string,mixed>>
@@ -215,20 +236,26 @@ final class Admin_OS_Mode_App_Registry {
 				continue;
 			}
 
-			$url_key = $this->get_url_key( $url );
-			$index   = isset( $by_id[ $id ] )
+			$url_key      = $this->get_url_key( $url );
+			$plugin_about = $this->get_admin_menu_plugin_about( $slug );
+			$index        = isset( $by_id[ $id ] )
 				? $by_id[ $id ]
 				: ( isset( $by_url[ $url_key ] ) ? $by_url[ $url_key ] : null );
 
 			if ( null !== $index ) {
 				if ( ! isset( $used[ $index ] ) ) {
-					$ordered[]      = $apps[ $index ];
+					$matched_app = $apps[ $index ];
+					if ( ! empty( $plugin_about ) && empty( $matched_app['about'] ) ) {
+						$matched_app['about'] = $plugin_about;
+					}
+
+					$ordered[]      = $matched_app;
 					$used[ $index ] = true;
 				}
 				continue;
 			}
 
-			$ordered[] = array(
+			$menu_app = array(
 				'id'     => $id,
 				'label'  => $label,
 				'url'    => $url,
@@ -237,6 +264,12 @@ final class Admin_OS_Mode_App_Registry {
 				'cap'    => $cap ? $cap : 'read',
 				'source' => 'wp-menu',
 			);
+
+			if ( ! empty( $plugin_about ) ) {
+				$menu_app['about'] = $plugin_about;
+			}
+
+			$ordered[] = $menu_app;
 		}
 
 		foreach ( $apps as $index => $app ) {
@@ -468,6 +501,460 @@ final class Admin_OS_Mode_App_Registry {
 	 */
 	private function get_url_key( $url ) {
 		return untrailingslashit( esc_url_raw( $url ) );
+	}
+
+	/**
+	 * Build About metadata for a WordPress admin menu item backed by a plugin.
+	 *
+	 * @param string $slug Menu slug.
+	 * @return array<string,mixed>
+	 */
+	private function get_admin_menu_plugin_about( $slug ) {
+		$plugin_file = $this->get_admin_menu_plugin_file( $slug );
+		if ( '' === $plugin_file ) {
+			return array();
+		}
+
+		$plugin = $this->get_plugin_headers( $plugin_file );
+		$name   = isset( $plugin['Name'] ) ? $this->sanitize_plugin_header( $plugin['Name'] ) : '';
+		if ( '' === $name ) {
+			return array();
+		}
+
+		$version = isset( $plugin['Version'] ) ? $this->sanitize_plugin_header( $plugin['Version'] ) : '';
+		$author  = isset( $plugin['AuthorName'] ) && '' !== $plugin['AuthorName']
+			? $this->sanitize_plugin_header( $plugin['AuthorName'] )
+			: ( isset( $plugin['Author'] ) ? $this->sanitize_plugin_header( $plugin['Author'] ) : '' );
+		$lines   = array();
+
+		if ( '' !== $version ) {
+			$lines[] = sprintf(
+				/* translators: %s: plugin version. */
+				__( 'Version %s', 'admin-os-mode' ),
+				$version
+			);
+		}
+
+		if ( '' !== $author ) {
+			$lines[] = sprintf(
+				/* translators: %s: plugin author name. */
+				__( 'By %s', 'admin-os-mode' ),
+				$author
+			);
+		}
+
+		return array(
+			'name'      => $name,
+			'version'   => isset( $lines[0] ) ? $lines[0] : '',
+			'copyright' => isset( $lines[1] ) ? $lines[1] : '',
+			'rights'    => '',
+			'lines'     => $lines,
+		);
+	}
+
+	/**
+	 * Resolve the plugin file that owns a WordPress admin menu slug.
+	 *
+	 * @param string $slug Menu slug.
+	 * @return string Plugin basename, or empty string when unknown.
+	 */
+	private function get_admin_menu_plugin_file( $slug ) {
+		$cache_key = md5( $slug );
+		if ( isset( $this->plugin_owner_cache[ $cache_key ] ) ) {
+			return $this->plugin_owner_cache[ $cache_key ];
+		}
+
+		$plugin_file = $this->get_admin_menu_callback_plugin_file( $slug );
+		if ( '' === $plugin_file ) {
+			$plugin_file = $this->get_admin_menu_slug_plugin_file( $slug );
+		}
+
+		$this->plugin_owner_cache[ $cache_key ] = $plugin_file;
+
+		return $plugin_file;
+	}
+
+	/**
+	 * Resolve a plugin owner from the admin page callback registered by WordPress.
+	 *
+	 * @param string $slug Menu slug.
+	 * @return string Plugin basename, or empty string when unknown.
+	 */
+	private function get_admin_menu_callback_plugin_file( $slug ) {
+		global $wp_filter;
+
+		$this->load_plugin_functions();
+
+		if ( ! function_exists( 'get_plugin_page_hookname' ) ) {
+			return '';
+		}
+
+		$page_slug = function_exists( 'plugin_basename' ) ? plugin_basename( $slug ) : $slug;
+		$hook_name = get_plugin_page_hookname( $page_slug, '' );
+		if ( '' === $hook_name || empty( $wp_filter[ $hook_name ] ) ) {
+			return '';
+		}
+
+		$hook      = $wp_filter[ $hook_name ];
+		$callbacks = is_object( $hook ) && isset( $hook->callbacks ) && is_array( $hook->callbacks )
+			? $hook->callbacks
+			: ( is_array( $hook ) ? $hook : array() );
+
+		foreach ( $callbacks as $priority_callbacks ) {
+			if ( ! is_array( $priority_callbacks ) ) {
+				continue;
+			}
+
+			foreach ( $priority_callbacks as $callback ) {
+				if ( ! is_array( $callback ) || empty( $callback['function'] ) ) {
+					continue;
+				}
+
+				$source_file = $this->get_callback_source_file( $callback['function'] );
+				$plugin_file = $this->get_plugin_file_from_source_file( $source_file );
+				if ( '' !== $plugin_file ) {
+					return $plugin_file;
+				}
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Resolve a plugin owner from direct slug/header matches.
+	 *
+	 * @param string $slug Menu slug.
+	 * @return string Plugin basename, or empty string when unknown.
+	 */
+	private function get_admin_menu_slug_plugin_file( $slug ) {
+		$this->load_plugin_functions();
+
+		$page_slug = function_exists( 'plugin_basename' ) ? plugin_basename( $slug ) : $slug;
+		$plugins   = $this->get_installed_plugins();
+
+		if ( isset( $plugins[ $page_slug ] ) ) {
+			return $page_slug;
+		}
+
+		$slug_token = $this->normalize_plugin_lookup_token( $page_slug );
+		if ( '' === $slug_token ) {
+			return '';
+		}
+
+		foreach ( $plugins as $plugin_file => $plugin ) {
+			$candidates = array(
+				dirname( $plugin_file ),
+				basename( $plugin_file, '.php' ),
+				isset( $plugin['TextDomain'] ) ? $plugin['TextDomain'] : '',
+				isset( $plugin['Name'] ) ? $plugin['Name'] : '',
+			);
+
+			foreach ( $candidates as $candidate ) {
+				if ( $slug_token === $this->normalize_plugin_lookup_token( $candidate ) ) {
+					return $plugin_file;
+				}
+			}
+		}
+
+		return preg_match( '/^[a-z0-9_-]+$/i', $page_slug )
+			? $this->get_plugin_file_from_menu_slug_source( $slug_token )
+			: '';
+	}
+
+	/**
+	 * Resolve a plugin owner by scanning active plugin entry files for a menu slug.
+	 *
+	 * This is a narrow fallback for plugins that use a product slug unrelated to
+	 * their directory, text domain, or visible name.
+	 *
+	 * @param string $slug_token Normalized menu slug token.
+	 * @return string Plugin basename, or empty string when unknown.
+	 */
+	private function get_plugin_file_from_menu_slug_source( $slug_token ) {
+		if ( strlen( $slug_token ) < 4 || ! defined( 'WP_PLUGIN_DIR' ) ) {
+			return '';
+		}
+
+		foreach ( $this->get_installed_plugins() as $plugin_file => $plugin ) {
+			if ( ! $this->is_plugin_active_for_about_lookup( $plugin_file ) ) {
+				continue;
+			}
+
+			if ( $this->plugin_source_contains_menu_slug( $plugin_file, $slug_token ) ) {
+				return $plugin_file;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Whether a plugin source tree contains a plain menu slug.
+	 *
+	 * @param string $plugin_file Plugin basename.
+	 * @param string $slug_token  Normalized menu slug token.
+	 * @return bool
+	 */
+	private function plugin_source_contains_menu_slug( $plugin_file, $slug_token ) {
+		$plugin_root = trailingslashit( WP_PLUGIN_DIR );
+		$main_path   = $plugin_root . $plugin_file;
+		if ( $this->source_file_contains_menu_slug( $main_path, $slug_token ) ) {
+			return true;
+		}
+
+		$plugin_dir = dirname( $plugin_file );
+		if ( '.' === $plugin_dir || '' === $plugin_dir ) {
+			return false;
+		}
+
+		$root = $plugin_root . $plugin_dir;
+		if ( ! is_dir( $root ) || ! is_readable( $root ) ) {
+			return false;
+		}
+
+		$scanned_files = 0;
+		$scanned_bytes = 0;
+		try {
+			$iterator = new RecursiveIteratorIterator(
+				new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS )
+			);
+		} catch ( Exception $e ) {
+			return false;
+		}
+
+		foreach ( $iterator as $file ) {
+			if ( $scanned_files >= 200 || $scanned_bytes >= 4194304 ) {
+				break;
+			}
+
+			if ( ! $file->isFile() || 'php' !== strtolower( $file->getExtension() ) ) {
+				continue;
+			}
+
+			$path = $file->getPathname();
+			if ( wp_normalize_path( $path ) === wp_normalize_path( $main_path ) ) {
+				continue;
+			}
+
+			$relative = ltrim( str_replace( wp_normalize_path( $root ), '', wp_normalize_path( $path ) ), '/' );
+			if ( preg_match( '#(^|/)(?:node_modules|tests?|vendor)(/|$)#i', $relative ) ) {
+				continue;
+			}
+
+			$size = $file->getSize();
+			if ( $size <= 0 || $size > 262144 || $scanned_bytes + $size > 4194304 ) {
+				continue;
+			}
+
+			++$scanned_files;
+			$scanned_bytes += $size;
+			if ( $this->source_file_contains_menu_slug( $path, $slug_token ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether a source file contains a normalized menu slug.
+	 *
+	 * @param string $path       Source path.
+	 * @param string $slug_token Normalized menu slug token.
+	 * @return bool
+	 */
+	private function source_file_contains_menu_slug( $path, $slug_token ) {
+		if ( ! is_file( $path ) || ! is_readable( $path ) || filesize( $path ) > 262144 ) {
+			return false;
+		}
+
+		$contents = file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Local plugin source is needed for bounded menu ownership discovery.
+		if ( ! is_string( $contents ) ) {
+			return false;
+		}
+
+		$lower_contents = strtolower( $contents );
+		return false !== strpos( $lower_contents, $slug_token )
+			|| false !== strpos( $this->normalize_plugin_lookup_token( $contents ), $slug_token );
+	}
+
+	/**
+	 * Get the source filename for a callable.
+	 *
+	 * @param mixed $callback Callback value.
+	 * @return string
+	 */
+	private function get_callback_source_file( $callback ) {
+		try {
+			if ( is_array( $callback ) && 2 === count( $callback ) ) {
+				$reflection = new ReflectionMethod( $callback[0], $callback[1] );
+
+				return (string) $reflection->getFileName();
+			}
+
+			if ( is_string( $callback ) && function_exists( $callback ) ) {
+				$reflection = new ReflectionFunction( $callback );
+
+				return (string) $reflection->getFileName();
+			}
+
+			if ( $callback instanceof Closure ) {
+				$reflection = new ReflectionFunction( $callback );
+
+				return (string) $reflection->getFileName();
+			}
+
+			if ( is_object( $callback ) && method_exists( $callback, '__invoke' ) ) {
+				$reflection = new ReflectionMethod( $callback, '__invoke' );
+
+				return (string) $reflection->getFileName();
+			}
+		} catch ( Exception $e ) {
+			return '';
+		}
+
+		return '';
+	}
+
+	/**
+	 * Resolve a plugin basename from a source file inside WP_PLUGIN_DIR.
+	 *
+	 * @param string $source_file Source file path.
+	 * @return string Plugin basename, or empty string when unknown.
+	 */
+	private function get_plugin_file_from_source_file( $source_file ) {
+		if ( '' === $source_file || ! defined( 'WP_PLUGIN_DIR' ) ) {
+			return '';
+		}
+
+		$source_file = wp_normalize_path( $source_file );
+		$plugin_dir  = trailingslashit( wp_normalize_path( WP_PLUGIN_DIR ) );
+		if ( 0 !== strpos( $source_file, $plugin_dir ) ) {
+			return '';
+		}
+
+		$relative = ltrim( substr( $source_file, strlen( $plugin_dir ) ), '/' );
+
+		return $this->get_plugin_file_from_relative_path( $relative );
+	}
+
+	/**
+	 * Resolve a plugin basename from a file path relative to WP_PLUGIN_DIR.
+	 *
+	 * @param string $relative_path Relative path.
+	 * @return string Plugin basename, or empty string when unknown.
+	 */
+	private function get_plugin_file_from_relative_path( $relative_path ) {
+		$plugins = $this->get_installed_plugins();
+		if ( isset( $plugins[ $relative_path ] ) ) {
+			return $relative_path;
+		}
+
+		$parts = explode( '/', $relative_path );
+		if ( empty( $parts[0] ) ) {
+			return '';
+		}
+
+		$plugin_dir = $parts[0] . '/';
+		foreach ( $plugins as $plugin_file => $plugin ) {
+			if ( 0 === strpos( $plugin_file, $plugin_dir ) ) {
+				return $plugin_file;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Load WordPress plugin helper functions when needed.
+	 *
+	 * @return void
+	 */
+	private function load_plugin_functions() {
+		if ( ( ! function_exists( 'get_plugins' ) || ! function_exists( 'get_plugin_data' ) ) && file_exists( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+	}
+
+	/**
+	 * Get installed plugin headers from WordPress.
+	 *
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function get_installed_plugins() {
+		$this->load_plugin_functions();
+
+		if ( null === $this->installed_plugins ) {
+			$this->installed_plugins = function_exists( 'get_plugins' ) ? get_plugins() : array();
+		}
+
+		return is_array( $this->installed_plugins ) ? $this->installed_plugins : array();
+	}
+
+	/**
+	 * Get translated plugin headers for one plugin file.
+	 *
+	 * @param string $plugin_file Plugin basename.
+	 * @return array<string,mixed>
+	 */
+	private function get_plugin_headers( $plugin_file ) {
+		$this->load_plugin_functions();
+
+		if ( isset( $this->plugin_header_cache[ $plugin_file ] ) ) {
+			return $this->plugin_header_cache[ $plugin_file ];
+		}
+
+		$path = defined( 'WP_PLUGIN_DIR' ) ? trailingslashit( WP_PLUGIN_DIR ) . $plugin_file : '';
+		if ( '' === $path || ! is_readable( $path ) || ! function_exists( 'get_plugin_data' ) ) {
+			$this->plugin_header_cache[ $plugin_file ] = array();
+
+			return array();
+		}
+
+		$headers = get_plugin_data( $path, false, true );
+		$this->plugin_header_cache[ $plugin_file ] = is_array( $headers ) ? $headers : array();
+
+		return $this->plugin_header_cache[ $plugin_file ];
+	}
+
+	/**
+	 * Whether a plugin is active enough to use for fallback source lookup.
+	 *
+	 * @param string $plugin_file Plugin basename.
+	 * @return bool
+	 */
+	private function is_plugin_active_for_about_lookup( $plugin_file ) {
+		$this->load_plugin_functions();
+
+		if ( function_exists( 'is_plugin_active' ) && is_plugin_active( $plugin_file ) ) {
+			return true;
+		}
+
+		return function_exists( 'is_plugin_active_for_network' ) && is_plugin_active_for_network( $plugin_file );
+	}
+
+	/**
+	 * Normalize plugin lookup strings for loose slug comparisons.
+	 *
+	 * @param string $value Raw value.
+	 * @return string
+	 */
+	private function normalize_plugin_lookup_token( $value ) {
+		$value = strtolower( wp_strip_all_tags( (string) $value ) );
+		$value = preg_replace( '/[^a-z0-9]+/', '-', $value );
+
+		return is_string( $value ) ? trim( $value, '-' ) : '';
+	}
+
+	/**
+	 * Sanitize a plugin header value for the shell runtime payload.
+	 *
+	 * @param mixed $value Raw header value.
+	 * @return string
+	 */
+	private function sanitize_plugin_header( $value ) {
+		return sanitize_text_field( trim( wp_strip_all_tags( html_entity_decode( (string) $value, ENT_QUOTES ) ) ) );
 	}
 
 	/**
@@ -1021,24 +1508,35 @@ final class Admin_OS_Mode_App_Registry {
 		$name  = ! empty( $about['name'] ) ? sanitize_text_field( $about['name'] ) : $fallback_name;
 		$year  = gmdate( 'Y' );
 		$icon  = isset( $about['icon'] ) ? Admin_OS_Mode_Icon_Renderer::normalize( $about['icon'] ) : $fallback_icon;
+		$lines = array();
+
+		if ( ! empty( $about['lines'] ) && is_array( $about['lines'] ) ) {
+			foreach ( $about['lines'] as $line ) {
+				$line = sanitize_text_field( (string) $line );
+				if ( '' !== $line ) {
+					$lines[] = $line;
+				}
+			}
+		}
 
 		return array(
 			'name'      => $name,
-			'version'   => ! empty( $about['version'] )
-				? sanitize_text_field( $about['version'] )
+			'version'   => array_key_exists( 'version', $about )
+				? sanitize_text_field( (string) $about['version'] )
 				: sprintf(
 					/* translators: %s: plugin version. */
 					__( 'Version %s', 'admin-os-mode' ),
 					ADMIN_OS_MODE_VERSION
 				),
-			'copyright' => ! empty( $about['copyright'] )
-				? sanitize_text_field( $about['copyright'] )
+			'copyright' => array_key_exists( 'copyright', $about )
+				? sanitize_text_field( (string) $about['copyright'] )
 				: sprintf(
 					/* translators: %s: current year. */
 					__( 'Copyright (c) %s Admin OS Mode contributors.', 'admin-os-mode' ),
 					$year
 				),
-			'rights'    => ! empty( $about['rights'] ) ? sanitize_text_field( $about['rights'] ) : __( 'Licensed under GPLv2 or later.', 'admin-os-mode' ),
+			'rights'    => array_key_exists( 'rights', $about ) ? sanitize_text_field( (string) $about['rights'] ) : __( 'Licensed under GPLv2 or later.', 'admin-os-mode' ),
+			'lines'     => $lines,
 			'icon'      => $icon,
 		);
 	}

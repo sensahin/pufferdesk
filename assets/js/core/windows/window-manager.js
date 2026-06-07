@@ -522,8 +522,14 @@
 
 			button.type = 'button';
 			button.className = 'aos-dock-window-item';
+			button.dataset.aosContext = 'window';
+			button.dataset.aosContextId = id;
+			button.dataset.aosContextLabel = title;
 			button.dataset.aosRestoreWindowId = id;
 			button.dataset.aosDockTooltip = title;
+			if (win.dataset.aosAppWindow) {
+				button.dataset.aosAppWindow = win.dataset.aosAppWindow;
+			}
 			button.setAttribute('aria-label', `Restore ${title}`);
 			if (icon) {
 				button.appendChild(icon.cloneNode(true));

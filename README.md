@@ -1,6 +1,6 @@
 === Admin OS Mode ===
-Contributors: senolsahin
-Tags: admin, dashboard, desktop, workspace
+Contributors: senols
+Tags: desktop, admin, ui, productivity, ai
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
