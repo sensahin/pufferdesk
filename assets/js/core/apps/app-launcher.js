@@ -32,7 +32,7 @@
 				options.bodyClass = 'aos-window-body aos-settings-body';
 				options.contextMenu = false;
 				options.resizeMode = 'vertical';
-				options.width = '740px';
+				options.width = '725px';
 				options.height = '680px';
 				return options;
 			}

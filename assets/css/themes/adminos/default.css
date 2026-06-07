@@ -772,8 +772,8 @@
 	background: var(--aos-settings-window-bg);
 	border-radius: var(--aos-window-radius, 24px);
 	min-height: 600px;
-	min-width: 740px;
-	max-width: 740px;
+	min-width: 725px;
+	max-width: 725px;
 }
 
 /* Keep the glass sidebar out of transform animation so backdrop sampling is ready before reveal. */
@@ -884,7 +884,9 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] .aos-settings-pane-header {
+	padding-bottom: 4px;
 	padding-left: var(--aos-settings-main-edge);
+	padding-top: var(--aos-settings-sidebar-inset);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] .aos-settings-pane {
