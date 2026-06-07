@@ -142,6 +142,11 @@
 		if (!manager.isPreservingStoredWindows()) {
 			manager.restoreSession((appId) => launcher.getWindowOptions(appId));
 		}
+		(Array.isArray(config.appLoginItems) ? config.appLoginItems : []).forEach((appId) => {
+			if (typeof appId === 'string' && appId && typeof launcher.openApp === 'function') {
+				launcher.openApp(appId);
+			}
+		});
 		launcher.bindShellClicks();
 		window.AdminOSMode.shell.bindSearch(shell, launcher, config);
 		window.AdminOSMode.shell.bindClock(shell, config);

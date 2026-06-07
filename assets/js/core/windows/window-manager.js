@@ -370,6 +370,23 @@
 			return shell.querySelector(`[data-aos-open-app="${dom.escapeAttribute(appId)}"].aos-dock-item`);
 		}
 
+		function getAppWindow(appId) {
+			return appId
+				? desktop.querySelector(`[data-aos-app-window="${dom.escapeAttribute(appId)}"]:not(.is-closed)`)
+				: null;
+		}
+
+		function getAppWindowState(appId) {
+			const win = getAppWindow(appId);
+
+			return {
+				hidden: Boolean(win && (win.classList.contains('is-hidden') || win.classList.contains('is-minimizing') || win.classList.contains('is-show-desktop-hidden'))),
+				open: Boolean(win),
+				visible: Boolean(isVisibleWindow(win)),
+				windowElement: win
+			};
+		}
+
 		function getMinimizedDockItem(win) {
 			const id = win && win.dataset.aosWindowId;
 
@@ -1136,6 +1153,7 @@
 			getActiveWindow() {
 				return activeWindow;
 			},
+			getAppWindowState,
 			hasHiddenWindows,
 			hideOtherWindows,
 			isPreservingStoredWindows() {

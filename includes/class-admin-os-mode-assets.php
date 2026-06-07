@@ -289,9 +289,13 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/apps/site-about-window.js',
 				'deps' => array( 'admin-os-mode-dom' ),
 			),
+			'admin-os-mode-app-surfaces'   => array(
+				'path' => 'assets/js/core/apps/app-surfaces.js',
+				'deps' => array( 'admin-os-mode-dom' ),
+			),
 			'admin-os-mode-settings-app'   => array(
 				'path' => 'assets/js/core/apps/settings-app.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-storage', 'admin-os-mode-api-client', 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-menu-bar-state', 'admin-os-mode-wallpaper' ),
+				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-storage', 'admin-os-mode-api-client', 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-menu-bar-state', 'admin-os-mode-wallpaper', 'admin-os-mode-app-surfaces' ),
 			),
 			'admin-os-mode-app-launcher'   => array(
 				'path' => 'assets/js/core/apps/app-launcher.js',
@@ -307,7 +311,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-menu-commands'  => array(
 				'path' => 'assets/js/core/shell/commands.js',
-				'deps' => array( 'admin-os-mode-dom' ),
+				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-app-surfaces' ),
 			),
 			'admin-os-mode-menu-schema'    => array(
 				'path' => 'assets/js/core/shell/menu-schema.js',
@@ -369,6 +373,7 @@ final class Admin_OS_Mode_Assets {
 		return array(
 			'appearance' => $this->preferences->get_appearance(),
 			'appLocations' => $app_locations,
+			'appLoginItems' => $this->preferences->get_app_login_items( $apps ),
 			'apps'       => $apps,
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 			'classicUrl' => $this->router->get_toggle_url( false ),

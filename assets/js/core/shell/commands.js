@@ -15,6 +15,16 @@
 		const reopenPolicy = context.reopenPolicy || null;
 		const config = context.config && typeof context.config === 'object' ? context.config : {};
 		const api = window.AdminOSMode.services && window.AdminOSMode.services.api ? window.AdminOSMode.services.api : null;
+		const apps = Array.isArray(config.apps) ? config.apps : [];
+		const appMap = new Map(apps.map((app) => [app.id, app]));
+		const appSurfaceManager = window.AdminOSMode.apps && typeof window.AdminOSMode.apps.createAppSurfaceManager === 'function'
+			? window.AdminOSMode.apps.createAppSurfaceManager(shell, config, {
+				apps,
+				desktopIconManager,
+				folderManager,
+				preserveUnknown: true
+			})
+			: null;
 		const commands = new Map();
 		const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
 		let activeDetail = { kind: 'desktop' };
@@ -24,15 +34,15 @@
 				return detail.windowElement;
 			}
 
+			if (detail && detail.appId) {
+				return shell.querySelector(`.aos-window[data-aos-app-window="${dom.escapeAttribute(detail.appId)}"]:not(.is-closed)`);
+			}
+
 			if (manager && typeof manager.getActiveWindow === 'function') {
 				const activeWindow = manager.getActiveWindow();
 				if (activeWindow) {
 					return activeWindow;
 				}
-			}
-
-			if (detail && detail.appId) {
-				return shell.querySelector(`[data-aos-app-window="${dom.escapeAttribute(detail.appId)}"]`);
 			}
 
 			return null;
@@ -196,6 +206,117 @@
 
 		function getFolderIdFromPayload(payload = {}, detail = {}) {
 			return payload.folderId || payload.target || (detail && detail.folderId) || getFolderTargetFromDetail(detail);
+		}
+
+		function getAppIdFromPayload(payload = {}, detail = {}) {
+			return payload.target || payload.appId || getAppTargetFromDetail(detail) || (detail && detail.id) || '';
+		}
+
+		function normalizeAppLocations(locations = {}) {
+			return appSurfaceManager ? appSurfaceManager.normalizeLocations(locations) : {};
+		}
+
+		function getAppLocation(appId) {
+			const locations = normalizeAppLocations(config.appLocations || {});
+			return locations[appId] || 'dock';
+		}
+
+		function applyAppLocations(locations = {}) {
+			config.appLocations = normalizeAppLocations(locations);
+			if (appSurfaceManager) {
+				appSurfaceManager.render(config.appLocations);
+			}
+		}
+
+		function saveAppLocations(nextLocations) {
+			const previous = normalizeAppLocations(config.appLocations || {});
+			applyAppLocations(nextLocations);
+
+			if (!api || typeof api.post !== 'function') {
+				return Promise.reject(new Error('Settings service unavailable.'));
+			}
+
+			return api.post('admin_os_mode_save_app_locations', {
+				locations: JSON.stringify(config.appLocations)
+			}).then((result) => {
+				if (!result || !result.success) {
+					applyAppLocations(previous);
+					throw new Error(result && result.data && result.data.message ? result.data.message : 'App locations could not be saved.');
+				}
+
+				applyAppLocations(result.data.appLocations || config.appLocations);
+			}).catch((error) => {
+				applyAppLocations(previous);
+				throw error;
+			});
+		}
+
+		function setAppDockPresence(appId, keepInDock) {
+			const app = appMap.get(appId);
+			const locations = normalizeAppLocations(config.appLocations || {});
+			const current = getAppLocation(appId);
+
+			if (!app) {
+				return Promise.reject(new Error('App unavailable.'));
+			}
+
+			if (keepInDock) {
+				locations[appId] = current === 'desktop' ? 'both' : current === 'hidden' ? 'dock' : current;
+			} else {
+				locations[appId] = current === 'both' ? 'desktop' : current === 'dock' ? 'hidden' : current;
+			}
+
+			return saveAppLocations(locations);
+		}
+
+		function normalizeAppLoginItems(items = config.appLoginItems || []) {
+			const normalized = [];
+			const seen = new Set();
+
+			(Array.isArray(items) ? items : []).forEach((item) => {
+				const appId = String(item || '');
+				if (!appId || seen.has(appId) || !appMap.has(appId)) {
+					return;
+				}
+
+				seen.add(appId);
+				normalized.push(appId);
+			});
+
+			return normalized;
+		}
+
+		function saveAppLoginItems(items) {
+			const previous = normalizeAppLoginItems(config.appLoginItems || []);
+			config.appLoginItems = normalizeAppLoginItems(items);
+
+			if (!api || typeof api.post !== 'function') {
+				config.appLoginItems = previous;
+				return Promise.reject(new Error('Settings service unavailable.'));
+			}
+
+			return api.post('admin_os_mode_save_app_login_items', {
+				items: JSON.stringify(config.appLoginItems)
+			}).then((result) => {
+				if (!result || !result.success) {
+					config.appLoginItems = previous;
+					throw new Error(result && result.data && result.data.message ? result.data.message : 'Login items could not be saved.');
+				}
+
+				config.appLoginItems = normalizeAppLoginItems(result.data.appLoginItems || config.appLoginItems);
+			}).catch((error) => {
+				config.appLoginItems = previous;
+				throw error;
+			});
+		}
+
+		function toggleAppLoginItem(appId) {
+			const items = normalizeAppLoginItems(config.appLoginItems || []);
+			const nextItems = items.includes(appId)
+				? items.filter((item) => item !== appId)
+				: items.concat(appId);
+
+			return saveAppLoginItems(nextItems);
 		}
 
 		function getSystemActions() {
@@ -650,6 +771,33 @@
 			},
 			run(payload) {
 				launcher.openSettingsPanel(payload.panel);
+			}
+		});
+
+		register('app.keep-in-dock', {
+			isEnabled(payload, detail) {
+				return Boolean(api && appSurfaceManager && appMap.has(getAppIdFromPayload(payload, detail)));
+			},
+			run(payload, detail) {
+				return setAppDockPresence(getAppIdFromPayload(payload, detail), true);
+			}
+		});
+
+		register('app.remove-from-dock', {
+			isEnabled(payload, detail) {
+				return Boolean(api && appSurfaceManager && appMap.has(getAppIdFromPayload(payload, detail)));
+			},
+			run(payload, detail) {
+				return setAppDockPresence(getAppIdFromPayload(payload, detail), false);
+			}
+		});
+
+		register('app.toggle-login-item', {
+			isEnabled(payload, detail) {
+				return Boolean(api && appMap.has(getAppIdFromPayload(payload, detail)));
+			},
+			run(payload, detail) {
+				return toggleAppLoginItem(getAppIdFromPayload(payload, detail));
 			}
 		});
 

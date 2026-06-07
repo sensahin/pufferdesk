@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Admin_OS_Mode_User_Preferences {
 	const META_APPEARANCE = 'admin_os_mode_appearance';
+	const META_APP_LOGIN_ITEMS = 'admin_os_mode_app_login_items';
 	const META_APP_LOCATIONS = 'admin_os_mode_app_locations';
 	const META_DESKTOP_DOCK = 'admin_os_mode_desktop_dock';
 	const META_DESKTOP_FOLDERS = 'admin_os_mode_desktop_folders';
@@ -22,6 +23,7 @@ final class Admin_OS_Mode_User_Preferences {
 	const META_WALLPAPER_UPLOADS = 'admin_os_mode_wallpaper_uploads';
 	const WALLPAPER_UPLOAD_LIMIT = 12;
 	const RESET_DOMAIN_APPEARANCE = 'appearance';
+	const RESET_DOMAIN_APP_LOGIN_ITEMS = 'app_login_items';
 	const RESET_DOMAIN_APP_LOCATIONS = 'app_locations';
 	const RESET_DOMAIN_DESKTOP_DOCK = 'desktop_dock';
 	const RESET_DOMAIN_DESKTOP_FOLDERS = 'desktop_folders';
@@ -287,6 +289,41 @@ final class Admin_OS_Mode_User_Preferences {
 		update_user_meta( $user_id, self::META_APP_LOCATIONS, $app_locations );
 
 		return $app_locations;
+	}
+
+	/**
+	 * Get apps that should open when Admin OS starts.
+	 *
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param int                            $user_id Optional user ID.
+	 * @return array<int,string>
+	 */
+	public function get_app_login_items( $apps, $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$items   = get_user_meta( $user_id, self::META_APP_LOGIN_ITEMS, true );
+
+		return $this->sanitize_app_login_items( is_array( $items ) ? $items : array(), $apps );
+	}
+
+	/**
+	 * Save apps that should open when Admin OS starts.
+	 *
+	 * @param array<int,mixed>               $items App IDs.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param int                            $user_id Optional user ID.
+	 * @return array<int,string>
+	 */
+	public function set_app_login_items( $items, $apps, $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$items   = $this->sanitize_app_login_items( is_array( $items ) ? $items : array(), $apps );
+
+		if ( empty( $items ) ) {
+			delete_user_meta( $user_id, self::META_APP_LOGIN_ITEMS );
+		} else {
+			update_user_meta( $user_id, self::META_APP_LOGIN_ITEMS, $items );
+		}
+
+		return $items;
 	}
 
 	/**
@@ -684,6 +721,39 @@ final class Admin_OS_Mode_User_Preferences {
 	}
 
 	/**
+	 * Sanitize app login item IDs.
+	 *
+	 * @param array<int,mixed>               $items Raw app IDs.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @return array<int,string>
+	 */
+	private function sanitize_app_login_items( $items, $apps ) {
+		$available = array();
+		$sanitized = array();
+
+		foreach ( (array) $apps as $app ) {
+			if ( ! is_array( $app ) || empty( $app['id'] ) ) {
+				continue;
+			}
+
+			$available[ sanitize_key( (string) $app['id'] ) ] = true;
+		}
+
+		foreach ( (array) $items as $raw_id ) {
+			$id = sanitize_key( (string) $raw_id );
+			if ( '' === $id || isset( $sanitized[ $id ] ) ) {
+				continue;
+			}
+
+			if ( isset( $available[ $id ] ) || $this->should_preserve_deferred_app_location( $id ) ) {
+				$sanitized[ $id ] = $id;
+			}
+		}
+
+		return array_values( $sanitized );
+	}
+
+	/**
 	 * Whether an app location key may be preserved without a current registry match.
 	 *
 	 * Plugin-derived WordPress menu apps can be visible during a full admin page
@@ -890,6 +960,7 @@ final class Admin_OS_Mode_User_Preferences {
 	private function get_reset_meta_keys() {
 		return array(
 			self::RESET_DOMAIN_APPEARANCE        => self::META_APPEARANCE,
+			self::RESET_DOMAIN_APP_LOGIN_ITEMS   => self::META_APP_LOGIN_ITEMS,
 			self::RESET_DOMAIN_APP_LOCATIONS     => self::META_APP_LOCATIONS,
 			self::RESET_DOMAIN_DESKTOP_DOCK      => self::META_DESKTOP_DOCK,
 			self::RESET_DOMAIN_DESKTOP_FOLDERS   => self::META_DESKTOP_FOLDERS,

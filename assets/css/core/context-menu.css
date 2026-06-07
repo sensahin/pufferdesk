@@ -11,3 +11,63 @@
 .aos-context-menu .aos-menu-item.has-icon {
 	grid-template-columns: 16px minmax(0, 1fr) auto;
 }
+
+.aos-context-menu[data-aos-context-menu="dock-app"] {
+	border-radius: 20px;
+	min-width: 222px;
+	padding: 10px;
+}
+
+.aos-context-menu[data-aos-context-menu="dock-app"]::after {
+	background: var(--aos-menu-popover-bg);
+	border: solid var(--aos-menu-popover-border);
+	border-width: 0 1px 1px 0;
+	bottom: -10px;
+	content: "";
+	height: 20px;
+	left: calc(var(--aos-dock-context-tail-left, 50%) - 10px);
+	position: absolute;
+	transform: rotate(45deg);
+	width: 20px;
+	z-index: 0;
+}
+
+.aos-context-menu[data-aos-context-menu="dock-app"][data-aos-dock-context-placement="right"]::after,
+.aos-context-menu[data-aos-context-menu="dock-app"][data-aos-dock-context-placement="left"]::after {
+	bottom: auto;
+	top: calc(var(--aos-dock-context-tail-top, 50%) - 10px);
+}
+
+.aos-context-menu[data-aos-context-menu="dock-app"][data-aos-dock-context-placement="right"]::after {
+	border-width: 0 0 1px 1px;
+	left: -10px;
+}
+
+.aos-context-menu[data-aos-context-menu="dock-app"][data-aos-dock-context-placement="left"]::after {
+	border-width: 1px 1px 0 0;
+	left: auto;
+	right: -10px;
+}
+
+.aos-context-menu[data-aos-context-menu="dock-app"] .aos-menu-item {
+	border-radius: 8px;
+	font-size: 16px;
+	height: 34px;
+	grid-template-columns: minmax(0, 1fr) auto;
+	padding: 0 20px;
+}
+
+.aos-context-menu[data-aos-context-menu="dock-app"] .aos-menu-item-shortcut {
+	font-size: 18px;
+	min-width: 18px;
+}
+
+.aos-context-menu[data-aos-context-menu="dock-app"] .aos-menu-separator {
+	margin: 8px 20px;
+}
+
+.aos-context-menu[data-aos-context-menu="dock-app"] .aos-menu-submenu-popover {
+	border-radius: 18px;
+	min-width: 220px;
+	padding: 10px;
+}

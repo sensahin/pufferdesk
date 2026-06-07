@@ -17,6 +17,9 @@
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const themes = Array.isArray(config.themes) ? config.themes : [];
 		const shell = document.querySelector('[data-admin-os-shell]');
+		const appSurfaceManager = window.AdminOSMode.apps.createAppSurfaceManager(shell, config, {
+			apps
+		});
 		let optionGroups = [];
 		let currentAppearance = appearance
 			? appearance.normalize(config.appearance || {})
@@ -700,144 +703,11 @@
 		}
 
 		function normalizeAppLocations(locations = {}) {
-			const allowedLocations = ['dock', 'desktop', 'both', 'hidden'];
-			const normalized = {};
-
-			apps.forEach((app) => {
-				if (!app || !app.id) {
-					return;
-				}
-
-				const location = typeof locations[app.id] === 'string' ? locations[app.id] : 'dock';
-				normalized[app.id] = allowedLocations.includes(location) ? location : 'dock';
-			});
-
-			return normalized;
-		}
-
-		function appIsShownIn(app, surface) {
-			const location = currentAppLocations[app.id] || 'dock';
-
-			return location === 'both' || location === surface;
-		}
-
-		function createDockAppButton(app) {
-			const button = document.createElement('button');
-			const tooltip = dom.createElement('span', 'aos-dock-tooltip', app.label || app.id);
-			const screenReaderText = dom.createElement('span', 'screen-reader-text', app.label || app.id);
-
-			button.type = 'button';
-			button.className = 'aos-dock-item';
-			button.dataset.aosContext = 'dock-app';
-			button.dataset.aosContextId = app.id;
-			button.dataset.aosContextLabel = app.label || app.id;
-			button.dataset.aosDockTooltip = app.label || app.id;
-			button.dataset.aosOpenApp = app.id;
-			button.setAttribute('aria-label', app.label || app.id);
-			button.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
-			tooltip.setAttribute('aria-hidden', 'true');
-			button.append(tooltip, screenReaderText);
-
-			return button;
-		}
-
-		function createDesktopAppButton(app) {
-			const button = document.createElement('button');
-			const icon = dom.createElement('span', 'aos-app-icon');
-			const label = dom.createElement('span', 'aos-desktop-app-label', app.label || app.id);
-
-			button.type = 'button';
-			button.className = 'aos-desktop-icon aos-desktop-app';
-			button.dataset.aosContext = 'desktop-app';
-			button.dataset.aosContextId = app.id;
-			button.dataset.aosContextLabel = app.label || app.id;
-			button.dataset.aosDesktopIcon = '';
-			button.dataset.aosDesktopIconId = `app:${app.id}`;
-			button.dataset.aosDesktopIconKind = 'app';
-			button.dataset.aosOpenApp = app.id;
-			button.setAttribute('aria-label', app.label || app.id);
-			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
-			button.append(icon, label);
-
-			return button;
-		}
-
-		function syncRunningDockItems() {
-			if (!shell) {
-				return;
-			}
-
-			shell.querySelectorAll('.aos-dock-item.is-running').forEach((button) => {
-				button.classList.remove('is-running');
-			});
-			shell.querySelectorAll('.aos-window[data-aos-app-window]:not(.is-closed)').forEach((win) => {
-				const appId = win.dataset.aosAppWindow;
-				const button = appId
-					? shell.querySelector(`.aos-dock-item[data-aos-open-app="${dom.escapeAttribute(appId)}"]`)
-					: null;
-
-				if (button) {
-					button.classList.add('is-running');
-				}
-			});
+			return appSurfaceManager.normalizeLocations(locations);
 		}
 
 		function renderAppLocationSurfaces() {
-			if (!shell) {
-				return;
-			}
-
-			const dock = shell.querySelector('.aos-dock');
-			if (dock) {
-				const minimizedWindows = dock.querySelector('.aos-dock-minimized-windows');
-				Array.from(dock.children).forEach((child) => {
-					if (child.classList && child.classList.contains('aos-dock-item')) {
-						child.remove();
-					}
-				});
-				apps
-					.filter((app) => appIsShownIn(app, 'dock'))
-					.forEach((app) => {
-						dock.insertBefore(createDockAppButton(app), minimizedWindows || null);
-					});
-				syncRunningDockItems();
-			}
-
-			const desktop = shell.querySelector('.aos-desktop');
-			if (!desktop) {
-				return;
-			}
-
-			const desktopApps = apps.filter((app) => appIsShownIn(app, 'desktop'));
-			let layer = desktop.querySelector('.aos-desktop-apps');
-
-			if (!desktopApps.length) {
-				if (layer) {
-					layer.remove();
-				}
-				if (window.AdminOSMode.desktopFolderManager && typeof window.AdminOSMode.desktopFolderManager.syncDesktopAppVisibility === 'function') {
-					window.AdminOSMode.desktopFolderManager.syncDesktopAppVisibility();
-				}
-				if (window.AdminOSMode.desktopIconManager && typeof window.AdminOSMode.desktopIconManager.rebind === 'function') {
-					window.AdminOSMode.desktopIconManager.rebind();
-				}
-				return;
-			}
-
-			if (!layer) {
-				layer = dom.createElement('section', 'aos-desktop-apps aos-desktop-icon-layer');
-				layer.setAttribute('aria-label', 'Desktop apps');
-				const folderLayer = desktop.querySelector('.aos-desktop-folders');
-				desktop.insertBefore(layer, folderLayer ? folderLayer.nextSibling : desktop.firstChild);
-			}
-
-			layer.replaceChildren(...desktopApps.map(createDesktopAppButton));
-			if (window.AdminOSMode.desktopFolderManager && typeof window.AdminOSMode.desktopFolderManager.syncDesktopAppVisibility === 'function') {
-				window.AdminOSMode.desktopFolderManager.syncDesktopAppVisibility();
-			}
-			if (window.AdminOSMode.desktopIconManager && typeof window.AdminOSMode.desktopIconManager.rebind === 'function') {
-				window.AdminOSMode.desktopIconManager.rebind();
-			}
+			appSurfaceManager.render(currentAppLocations);
 		}
 
 		function applyAppLocations(nextAppLocations) {

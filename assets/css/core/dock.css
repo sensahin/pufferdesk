@@ -282,6 +282,28 @@
 	visibility: hidden;
 }
 
+.aos-dock-item.is-context-menu-active {
+	background: var(--aos-control-bg-hover);
+	box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+	outline: none;
+	transform: translateY(1px) scale(0.94);
+	transition-duration: 90ms;
+}
+
+.aos-shell[data-aos-dock-position="left"] .aos-dock-item.is-context-menu-active {
+	transform: translateX(1px) scale(0.94);
+}
+
+.aos-shell[data-aos-dock-position="right"] .aos-dock-item.is-context-menu-active {
+	transform: translateX(-1px) scale(0.94);
+}
+
+.aos-dock-item.is-context-menu-active > .aos-dock-tooltip {
+	opacity: 0;
+	transition-delay: 0s;
+	visibility: hidden;
+}
+
 .aos-shell[data-aos-dock-auto-hide="1"] .aos-dock {
 	opacity: 0.04;
 }

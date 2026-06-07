@@ -10,6 +10,7 @@
 		const widgetMap = new Map((Array.isArray(config.widgets) ? config.widgets : []).map((widget) => [widget.id, widget]));
 		const desktopIconManager = context.desktopIconManager || null;
 		const folderManager = context.folderManager || null;
+		const manager = context.manager || null;
 		const providers = new Map();
 		const menuSchema = schema || window.AdminOSMode.shell.createMenuSchema();
 
@@ -48,6 +49,21 @@
 			return desktopIconManager && typeof desktopIconManager.getSortMode === 'function'
 				? desktopIconManager.getSortMode()
 				: 'none';
+		}
+
+		function getAppWindowState(appId) {
+			if (manager && typeof manager.getAppWindowState === 'function') {
+				return manager.getAppWindowState(appId);
+			}
+
+			const win = appId ? document.querySelector(`[data-aos-app-window="${window.AdminOSMode.dom.escapeAttribute(appId)}"]:not(.is-closed)`) : null;
+
+			return {
+				hidden: Boolean(win && (win.classList.contains('is-hidden') || win.classList.contains('is-minimizing') || win.classList.contains('is-show-desktop-hidden'))),
+				open: Boolean(win),
+				visible: Boolean(win && !win.classList.contains('is-hidden') && !win.classList.contains('is-minimizing') && !win.classList.contains('is-show-desktop-hidden')),
+				windowElement: win
+			};
 		}
 
 		function sortByItem(label, mode) {
@@ -149,6 +165,69 @@
 			items.push(
 				commandItem('About', 'open-about', {
 					icon: 'dashicons-info-outline',
+					target: app.id
+				})
+			);
+
+			return items;
+		}
+
+		function getDockOptionsItem(app, state) {
+			const optionItems = [
+				state.open
+					? commandItem('Keep in Dock', 'app.keep-in-dock', {
+						target: app.id
+					})
+					: commandItem('Remove from Dock', 'app.remove-from-dock', {
+						target: app.id
+					}),
+				commandItem('Open at Login', 'app.toggle-login-item', {
+					target: app.id
+				})
+			];
+
+			return {
+				id: 'dock-options',
+				items: optionItems,
+				label: 'Options'
+			};
+		}
+
+		function getDockAppItems(app) {
+			if (!app) {
+				return [];
+			}
+
+			const state = getAppWindowState(app.id);
+			const items = [];
+
+			if (state.open) {
+				items.push(
+					commandItem(state.hidden ? 'Show' : 'Hide', state.hidden ? 'window.focus' : 'window.hide', {
+						target: app.id
+					}),
+					commandItem('Quit', 'window.close', {
+						target: app.id
+					})
+				);
+			} else {
+				items.push(commandItem('Open', 'open-app', {
+					target: app.id
+				}));
+			}
+
+			if (app.url) {
+				items.push(commandItem('Open in Browser Tab', 'window.open-browser-tab', {
+					title: app.label || '',
+					url: app.url
+				}));
+			}
+
+			items.push(getDockOptionsItem(app, state));
+
+			items.push(
+				separator(),
+				commandItem('About', 'open-about', {
 					target: app.id
 				})
 			);
@@ -277,7 +356,7 @@
 				groups: [
 					{
 						id: 'primary',
-						items: getAppItems(app, detail)
+						items: getDockAppItems(app)
 					}
 				]
 			};
@@ -382,6 +461,7 @@
 		const folderManager = context.folderManager || null;
 		let popover = null;
 		let activeDetail = null;
+		let activeContextTarget = null;
 
 		function getTargetLabel(target) {
 			return target.dataset.aosContextLabel
@@ -440,6 +520,11 @@
 		}
 
 		function closeMenu() {
+			if (activeContextTarget) {
+				activeContextTarget.classList.remove('is-context-menu-active');
+				activeContextTarget = null;
+			}
+
 			if (popover) {
 				popover.remove();
 				popover = null;
@@ -448,8 +533,64 @@
 			activeDetail = null;
 		}
 
-		function positionMenu(clientX, clientY) {
+		function clampPosition(value, min, max) {
+			return Math.min(Math.max(min, value), max);
+		}
+
+		function positionDockMenu(detail = {}) {
+			const target = detail.targetElement;
+			if (!popover || !target || typeof target.getBoundingClientRect !== 'function') {
+				return false;
+			}
+
+			const shellRect = shell.getBoundingClientRect();
+			const targetRect = target.getBoundingClientRect();
+			const dockPosition = shell.dataset.aosDockPosition || 'bottom';
+			const minLeft = 8;
+			const minTop = 8;
+			const maxLeft = Math.max(minLeft, shell.clientWidth - popover.offsetWidth - 8);
+			const maxTop = Math.max(minTop, shell.clientHeight - popover.offsetHeight - 8);
+			const targetCenterX = targetRect.left - shellRect.left + (targetRect.width / 2);
+			const targetCenterY = targetRect.top - shellRect.top + (targetRect.height / 2);
+			const gap = 26;
+			let left = targetCenterX - (popover.offsetWidth / 2);
+			let top = targetRect.top - shellRect.top - popover.offsetHeight - gap;
+			let placement = 'above';
+
+			popover.style.removeProperty('--aos-dock-context-tail-left');
+			popover.style.removeProperty('--aos-dock-context-tail-top');
+
+			if (dockPosition === 'left') {
+				placement = 'right';
+				left = targetRect.right - shellRect.left + gap;
+				top = targetCenterY - (popover.offsetHeight / 2);
+			} else if (dockPosition === 'right') {
+				placement = 'left';
+				left = targetRect.left - shellRect.left - popover.offsetWidth - gap;
+				top = targetCenterY - (popover.offsetHeight / 2);
+			}
+
+			left = clampPosition(Math.round(left), minLeft, maxLeft);
+			top = clampPosition(Math.round(top), minTop, maxTop);
+			popover.dataset.aosDockContextPlacement = placement;
+			popover.style.left = `${left}px`;
+			popover.style.top = `${top}px`;
+
+			if (placement === 'above') {
+				popover.style.setProperty('--aos-dock-context-tail-left', `${Math.round(targetCenterX - left)}px`);
+			} else {
+				popover.style.setProperty('--aos-dock-context-tail-top', `${Math.round(targetCenterY - top)}px`);
+			}
+
+			return true;
+		}
+
+		function positionMenu(clientX, clientY, detail = {}) {
 			if (!popover) {
+				return;
+			}
+
+			if (detail.type === 'dock-app' && positionDockMenu(detail)) {
 				return;
 			}
 
@@ -463,6 +604,15 @@
 
 			popover.style.left = `${left}px`;
 			popover.style.top = `${top}px`;
+		}
+
+		function activateContextTarget(detail = {}) {
+			if (!detail.targetElement || detail.type !== 'dock-app') {
+				return;
+			}
+
+			activeContextTarget = detail.targetElement;
+			activeContextTarget.classList.add('is-context-menu-active', 'is-tooltip-dismissed');
 		}
 
 		function hasMenuItems(menuDefinition) {
@@ -502,7 +652,8 @@
 			}));
 
 			shell.appendChild(popover);
-			positionMenu(point.x, point.y);
+			activateContextTarget(activeDetail);
+			positionMenu(point.x, point.y, activeDetail);
 
 			return true;
 		}

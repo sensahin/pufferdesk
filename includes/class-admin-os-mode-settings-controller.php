@@ -66,6 +66,7 @@ final class Admin_OS_Mode_Settings_Controller {
 	 */
 	public function hooks() {
 		add_action( 'wp_ajax_admin_os_mode_save_appearance', array( $this, 'save_appearance' ) );
+		add_action( 'wp_ajax_admin_os_mode_save_app_login_items', array( $this, 'save_app_login_items' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_app_locations', array( $this, 'save_app_locations' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_desktop_dock', array( $this, 'save_desktop_dock' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_desktop_folders', array( $this, 'save_desktop_folders' ) );
@@ -144,6 +145,39 @@ final class Admin_OS_Mode_Settings_Controller {
 			array(
 				'appLocations' => $app_locations,
 				'message'      => __( 'App locations saved.', 'admin-os-mode' ),
+			)
+		);
+	}
+
+	/**
+	 * Save apps that should open when Admin OS starts.
+	 */
+	public function save_app_login_items() {
+		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+				),
+				403
+			);
+		}
+
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+
+		$raw_items = isset( $_POST['items'] )
+			? sanitize_text_field( wp_unslash( $_POST['items'] ) )
+			: array();
+		$items     = is_string( $raw_items ) ? json_decode( $raw_items, true ) : $raw_items;
+		$apps      = $this->app_registry->get_apps();
+		$items     = $this->preferences->set_app_login_items(
+			is_array( $items ) ? $items : array(),
+			$apps
+		);
+
+		wp_send_json_success(
+			array(
+				'appLoginItems' => $items,
+				'message'       => __( 'Login items saved.', 'admin-os-mode' ),
 			)
 		);
 	}

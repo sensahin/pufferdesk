@@ -188,6 +188,7 @@
 	width: max-content;
 	-webkit-box-orient: vertical;
 	-webkit-line-clamp: 2;
+	line-clamp: 2;
 	overflow-wrap: anywhere;
 	word-break: normal;
 	z-index: 1;
@@ -233,6 +234,7 @@
 	width: var(--aos-desktop-rename-width, max-content);
 	-webkit-box-orient: initial;
 	-webkit-line-clamp: initial;
+	line-clamp: initial;
 	word-break: break-word;
 }
 
