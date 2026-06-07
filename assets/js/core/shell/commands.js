@@ -9,6 +9,8 @@
 		const launcher = context.launcher || null;
 		const manager = context.manager || null;
 		const widgetManager = context.widgetManager || null;
+		const desktopIconManager = context.desktopIconManager || null;
+		const folderManager = context.folderManager || null;
 		const dialogs = context.dialogs || null;
 		const reopenPolicy = context.reopenPolicy || null;
 		const config = context.config && typeof context.config === 'object' ? context.config : {};
@@ -151,6 +153,26 @@
 			return appId.startsWith('about-') ? appId.slice(6) : appId;
 		}
 
+		function getFolderTargetFromDetail(detail = {}) {
+			return detail && detail.id ? detail.id : '';
+		}
+
+		function getFolderAppTargetFromDetail(detail = {}) {
+			return detail && detail.id ? detail.id : '';
+		}
+
+		function getFolderIdFromPayload(payload = {}, detail = {}) {
+			return payload.folderId || payload.target || (detail && detail.folderId) || getFolderTargetFromDetail(detail);
+		}
+
+		async function promptText(options = {}) {
+			if (dialogs && typeof dialogs.prompt === 'function') {
+				return dialogs.prompt(options);
+			}
+
+			return window.prompt(options.message || options.title || '', options.value || '');
+		}
+
 		function getSystemActions() {
 			return config.system && config.system.actions && typeof config.system.actions === 'object'
 				? config.system.actions
@@ -241,6 +263,14 @@
 			if (widgetManager && typeof widgetManager.saveSession === 'function') {
 				widgetManager.saveSession();
 			}
+
+			if (desktopIconManager && typeof desktopIconManager.saveSession === 'function') {
+				desktopIconManager.saveSession();
+			}
+
+			if (folderManager && typeof folderManager.saveSession === 'function') {
+				folderManager.saveSession();
+			}
 		}
 
 		function disableSessionPersistence() {
@@ -250,6 +280,14 @@
 
 			if (widgetManager && typeof widgetManager.disableSessionSave === 'function') {
 				widgetManager.disableSessionSave();
+			}
+
+			if (desktopIconManager && typeof desktopIconManager.disableSessionSave === 'function') {
+				desktopIconManager.disableSessionSave();
+			}
+
+			if (folderManager && typeof folderManager.disableSessionSave === 'function') {
+				folderManager.disableSessionSave();
 			}
 		}
 
@@ -437,6 +475,100 @@
 			}
 		});
 
+		register('folder.create', {
+			isEnabled() {
+				return Boolean(folderManager && typeof folderManager.createFolder === 'function');
+			},
+			run(payload, detail) {
+				const folder = folderManager.createFolder('untitled folder', [], {
+					point: detail && detail.contextPoint ? detail.contextPoint : null
+				});
+				if (folder && typeof folderManager.startInlineRename === 'function') {
+					folderManager.startInlineRename(folder.id);
+				}
+			}
+		});
+
+		register('folder.get-info', {
+			isEnabled(payload, detail) {
+				return Boolean(launcher && typeof launcher.openFolderInfo === 'function' && getFolderIdFromPayload(payload, detail));
+			},
+			run(payload, detail) {
+				launcher.openFolderInfo(getFolderIdFromPayload(payload, detail));
+			}
+		});
+
+		register('folder.rename', {
+			isEnabled(payload, detail) {
+				const folderId = getFolderIdFromPayload(payload, detail);
+				return Boolean(folderManager && typeof folderManager.isUserFolder === 'function' && folderManager.isUserFolder(folderId));
+			},
+			async run(payload, detail) {
+				const folderId = getFolderIdFromPayload(payload, detail);
+				const folder = folderManager.getFolder(folderId);
+				const nextLabel = await promptText({
+					cancelLabel: 'Cancel',
+					confirmLabel: 'Rename',
+					message: 'Enter a new name for this folder.',
+					title: 'Rename Folder',
+					value: folder && folder.label ? folder.label : ''
+				});
+
+				if (nextLabel === null || !String(nextLabel).trim()) {
+					return;
+				}
+
+				folderManager.renameFolder(folderId, nextLabel);
+			}
+		});
+
+		register('folder.delete', {
+			isEnabled(payload, detail) {
+				const folderId = getFolderIdFromPayload(payload, detail);
+				return Boolean(folderManager && typeof folderManager.isUserFolder === 'function' && folderManager.isUserFolder(folderId));
+			},
+			async run(payload, detail) {
+				const folderId = getFolderIdFromPayload(payload, detail);
+				const folder = folderManager.getFolder(folderId);
+				const confirmed = dialogs && typeof dialogs.confirm === 'function'
+					? await dialogs.confirm({
+						cancelLabel: 'Cancel',
+						confirmLabel: 'Delete',
+						message: 'The apps inside this folder will stay available in their configured locations.',
+						title: `Delete "${folder && folder.label ? folder.label : 'Folder'}"?`
+					})
+					: window.confirm(`Delete "${folder && folder.label ? folder.label : 'Folder'}"?`);
+
+				if (confirmed) {
+					folderManager.deleteFolder(folderId);
+				}
+			}
+		});
+
+		register('folder.add-app', {
+			isEnabled(payload, detail) {
+				const appId = payload.target || getFolderAppTargetFromDetail(detail);
+				const folderId = payload.folderId || '';
+
+				return Boolean(folderManager && appId && folderId && typeof folderManager.addAppToFolder === 'function' && folderManager.isUserFolder(folderId));
+			},
+			run(payload, detail) {
+				folderManager.addAppToFolder(payload.target || getFolderAppTargetFromDetail(detail), payload.folderId);
+			}
+		});
+
+		register('folder.remove-app', {
+			isEnabled(payload, detail) {
+				const appId = payload.target || getFolderAppTargetFromDetail(detail);
+				const folderId = payload.folderId || (detail && detail.folderId) || '';
+
+				return Boolean(folderManager && appId && folderId && typeof folderManager.removeAppFromFolder === 'function' && folderManager.isUserFolder(folderId));
+			},
+			run(payload, detail) {
+				folderManager.removeAppFromFolder(payload.target || getFolderAppTargetFromDetail(detail), payload.folderId || (detail && detail.folderId) || '');
+			}
+		});
+
 		register('open-about', {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.openAbout === 'function' && (payload.target || getAppTargetFromDetail(detail)));
@@ -535,6 +667,15 @@
 				skipWindowRestoreOnce();
 				clearSessionStore();
 				reloadShell();
+			}
+		});
+
+		register('desktop.sort-icons', {
+			isEnabled(payload) {
+				return Boolean(desktopIconManager && typeof desktopIconManager.setSortMode === 'function' && payload.mode);
+			},
+			run(payload) {
+				desktopIconManager.setSortMode(payload.mode);
 			}
 		});
 

@@ -16,6 +16,9 @@
 			!window.AdminOSMode.session.createReopenPolicy ||
 			!window.AdminOSMode.windows ||
 			!window.AdminOSMode.widgets ||
+			!window.AdminOSMode.desktop ||
+			!window.AdminOSMode.desktop.createDesktopIconManager ||
+			!window.AdminOSMode.desktop.createFolderManager ||
 			!window.AdminOSMode.apps ||
 			!window.AdminOSMode.menuBar ||
 			!window.AdminOSMode.shell ||
@@ -58,14 +61,38 @@
 		const widgetManager = window.AdminOSMode.widgets.createWidgetManager(shell, {
 			storageKey: config.storageKey || ''
 		});
+		let folderManager = null;
+		const desktopIconManager = window.AdminOSMode.desktop.createDesktopIconManager(shell, {
+			canDropOnFolder(detail) {
+				return Boolean(
+					folderManager
+					&& detail.sourceKind === 'app'
+					&& detail.targetKind === 'folder'
+					&& typeof folderManager.isUserFolder === 'function'
+					&& folderManager.isUserFolder(detail.targetId)
+				);
+			},
+			onDropOnFolder(detail) {
+				if (folderManager && typeof folderManager.addAppToFolder === 'function') {
+					folderManager.addAppToFolder(detail.sourceId, detail.targetId);
+				}
+			},
+			storageKey: config.storageKey || ''
+		});
 		const launcher = window.AdminOSMode.apps.createAppLauncher(shell, manager, config);
+		folderManager = window.AdminOSMode.desktop.createFolderManager(shell, launcher, config);
+		if (typeof launcher.setFolderProvider === 'function') {
+			launcher.setFolderProvider(folderManager);
+		}
 		const dialogs = window.AdminOSMode.shell.createShellDialogs(shell);
 		const commands = window.AdminOSMode.shell.createCommandRegistry(shell, {
 			config,
 			dialogs,
+			folderManager,
 			launcher,
 			manager,
 			reopenPolicy,
+			desktopIconManager,
 			widgetManager
 		});
 		const menuController = window.AdminOSMode.shell.createMenuController(shell, config, {
@@ -76,6 +103,8 @@
 		});
 		const contextMenuController = window.AdminOSMode.shell.createContextMenuController(shell, config, {
 			commands,
+			desktopIconManager,
+			folderManager,
 			launcher,
 			manager,
 			widgetManager
@@ -88,6 +117,10 @@
 		menuController.bind();
 		contextMenuController.bind();
 		shortcutController.bind();
+		folderManager.restoreSession();
+		desktopIconManager.bindExistingIcons();
+		desktopIconManager.restoreSession();
+		folderManager.syncDesktopAppVisibility();
 		widgetManager.bindExistingWidgets();
 		widgetManager.restoreSession();
 		manager.bindExistingWindows();
@@ -102,10 +135,13 @@
 			openAbout: launcher.openAbout,
 			openApp: launcher.openApp,
 			openFolder: launcher.openFolder,
+			openFolderInfo: launcher.openFolderInfo,
 			openSiteAbout: launcher.openSiteAbout,
 			openUrl: launcher.openUrl
 		};
 		window.AdminOSMode.contextMenuController = contextMenuController;
+		window.AdminOSMode.desktopFolderManager = folderManager;
+		window.AdminOSMode.desktopIconManager = desktopIconManager;
 		window.AdminOSMode.shellDialogs = dialogs;
 		window.AdminOSMode.shortcutController = shortcutController;
 		window.AdminOSMode.menuController = menuController;

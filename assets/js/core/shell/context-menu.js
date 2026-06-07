@@ -4,10 +4,12 @@
 	window.AdminOSMode = window.AdminOSMode || {};
 	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
 
-	window.AdminOSMode.shell.createContextMenuRegistry = function createContextMenuRegistry(config = {}, schema = null) {
+	window.AdminOSMode.shell.createContextMenuRegistry = function createContextMenuRegistry(config = {}, schema = null, context = {}) {
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const folderMap = new Map((Array.isArray(config.folders) ? config.folders : []).map((folder) => [folder.id, folder]));
 		const widgetMap = new Map((Array.isArray(config.widgets) ? config.widgets : []).map((widget) => [widget.id, widget]));
+		const desktopIconManager = context.desktopIconManager || null;
+		const folderManager = context.folderManager || null;
 		const providers = new Map();
 		const menuSchema = schema || window.AdminOSMode.shell.createMenuSchema();
 
@@ -22,21 +24,117 @@
 			return { type: 'separator' };
 		}
 
-		function getAppItems(app) {
+		function getFolders() {
+			return folderManager && typeof folderManager.getFolders === 'function'
+				? folderManager.getFolders()
+				: (Array.isArray(config.folders) ? config.folders : []);
+		}
+
+		function getFolder(folderId) {
+			const managedFolder = folderManager && typeof folderManager.getFolder === 'function' ? folderManager.getFolder(folderId) : null;
+
+			return managedFolder || folderMap.get(folderId);
+		}
+
+		function getUserFolders() {
+			return getFolders().filter((folder) => folder && folder.user === true);
+		}
+
+		function isUserFolder(folderId) {
+			return Boolean(folderManager && typeof folderManager.isUserFolder === 'function' && folderManager.isUserFolder(folderId));
+		}
+
+		function getDesktopSortMode() {
+			return desktopIconManager && typeof desktopIconManager.getSortMode === 'function'
+				? desktopIconManager.getSortMode()
+				: 'none';
+		}
+
+		function sortByItem(label, mode) {
+			const active = getDesktopSortMode() === mode;
+
+			return commandItem(label, 'desktop.sort-icons', {
+				icon: active ? 'dashicons-yes' : '',
+				payload: {
+					mode
+				}
+			});
+		}
+
+		function getSortByItems() {
+			return [
+				sortByItem('None', 'none'),
+				separator(),
+				sortByItem('Snap to Grid', 'snap-to-grid'),
+				separator(),
+				sortByItem('Name', 'name'),
+				sortByItem('Kind', 'kind'),
+				sortByItem('Last Modified By', 'last-modified-by'),
+				sortByItem('Date Last Opened', 'date-last-opened'),
+				sortByItem('Date Added', 'date-added'),
+				sortByItem('Date Modified', 'date-modified'),
+				sortByItem('Date Created', 'date-created'),
+				sortByItem('Size', 'size')
+			];
+		}
+
+		function getAppItems(app, detail = {}) {
 			if (!app) {
 				return [];
 			}
 
-			return [
+			const folderId = detail.folderId || '';
+			const addToFolderItems = getUserFolders()
+				.filter((folder) => folder.id !== folderId)
+				.map((folder) => commandItem(folder.label, 'folder.add-app', {
+					icon: folder.icon || 'dashicons-category',
+					payload: {
+						folderId: folder.id
+					},
+					target: app.id
+				}));
+			const items = [
 				commandItem('Open', 'open-app', {
 					icon: app.icon || 'dashicons-admin-generic',
 					target: app.id
-				}),
+				})
+			];
+
+			if (app.url) {
+				items.push(commandItem('Open in Browser Tab', 'window.open-browser-tab', {
+					icon: 'dashicons-external',
+					title: app.label || '',
+					url: app.url
+				}));
+			}
+
+			if (folderId && isUserFolder(folderId)) {
+				items.push(commandItem('Remove from Folder', 'folder.remove-app', {
+					icon: 'dashicons-no-alt',
+					payload: {
+						folderId
+					},
+					target: app.id
+				}));
+			}
+
+			if (addToFolderItems.length) {
+				items.push({
+					icon: 'dashicons-category',
+					id: folderId ? 'move-to-folder' : 'add-to-folder',
+					items: addToFolderItems,
+					label: folderId ? 'Move to Folder' : 'Add to Folder'
+				});
+			}
+
+			items.push(
 				commandItem('About', 'open-about', {
 					icon: 'dashicons-info-outline',
 					target: app.id
 				})
-			];
+			);
+
+			return items;
 		}
 
 		function getFolderItems(folder) {
@@ -44,12 +142,32 @@
 				return [];
 			}
 
-			return [
+			const items = [
 				commandItem('Open', 'open-folder', {
 					icon: folder.icon || 'dashicons-category',
 					target: folder.id
+				}),
+				commandItem('Get Info', 'folder.get-info', {
+					icon: 'dashicons-info-outline',
+					target: folder.id
 				})
 			];
+
+			if (folder.user === true || isUserFolder(folder.id)) {
+				items.push(
+					separator(),
+					commandItem('Rename', 'folder.rename', {
+						icon: 'dashicons-edit',
+						target: folder.id
+					}),
+					commandItem('Delete', 'folder.delete', {
+						icon: 'dashicons-trash',
+						target: folder.id
+					})
+				);
+			}
+
+			return items;
 		}
 
 		function getWindowBrowserUrl(detail = {}, app = null) {
@@ -96,6 +214,16 @@
 				{
 					id: 'primary',
 					items: [
+						commandItem('New Folder', 'folder.create', {
+							icon: 'dashicons-category'
+						}),
+						{
+							icon: 'dashicons-sort',
+							id: 'sort-by',
+							items: getSortByItems(),
+							label: 'Sort By'
+						},
+						separator(),
 						commandItem('Change Wallpaper...', 'settings.open-panel', {
 							icon: 'dashicons-format-image',
 							panel: 'wallpaper'
@@ -117,11 +245,12 @@
 			groups: [
 				{
 					id: 'primary',
-					items: getAppItems(detail.app || appMap.get(detail.id))
+					items: getAppItems(detail.app || appMap.get(detail.id), detail)
 				}
 			]
 		}));
 		registerProvider('desktop-app', (detail) => providers.get('app')(detail));
+		registerProvider('folder-app', (detail) => providers.get('app')(detail));
 
 		registerProvider('dock-app', (detail) => {
 			const app = detail.app || appMap.get(detail.id);
@@ -129,7 +258,7 @@
 				groups: [
 					{
 						id: 'primary',
-						items: getAppItems(app)
+						items: getAppItems(app, detail)
 					}
 				]
 			};
@@ -139,7 +268,7 @@
 			groups: [
 				{
 					id: 'primary',
-					items: getFolderItems(detail.folder || folderMap.get(detail.id))
+					items: getFolderItems(detail.folder || getFolder(detail.id))
 				}
 			]
 		}));
@@ -216,8 +345,9 @@
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
 		const schema = window.AdminOSMode.shell.createMenuSchema(labels);
 		const commands = context.commands || window.AdminOSMode.shell.createCommandRegistry(shell, context);
-		const registry = context.registry || window.AdminOSMode.shell.createContextMenuRegistry(config, schema);
+		const registry = context.registry || window.AdminOSMode.shell.createContextMenuRegistry(config, schema, context);
 		const itemRenderer = window.AdminOSMode.shell.createMenuItemRenderer(commands);
+		const folderManager = context.folderManager || null;
 		let popover = null;
 		let activeDetail = null;
 
@@ -232,12 +362,15 @@
 			const type = target.dataset.aosContext || 'desktop';
 			const id = target.dataset.aosContextId || target.dataset.aosOpenApp || target.dataset.aosOpenFolder || target.dataset.aosWidget || '';
 			const app = id && Array.isArray(config.apps) ? config.apps.find((item) => item.id === id) : null;
-			const folder = id && Array.isArray(config.folders) ? config.folders.find((item) => item.id === id) : null;
+			const folder = id && folderManager && typeof folderManager.getFolder === 'function'
+				? folderManager.getFolder(id)
+				: (id && Array.isArray(config.folders) ? config.folders.find((item) => item.id === id) : null);
 			const widget = id && Array.isArray(config.widgets) ? config.widgets.find((item) => item.id === id) : null;
 			const detail = {
 				app,
 				appId: target.dataset.aosAppWindow || (app ? app.id : ''),
 				folder,
+				folderId: target.dataset.aosFolderId || '',
 				id,
 				kind: type,
 				label: getTargetLabel(target),
@@ -305,19 +438,25 @@
 		}
 
 		function openMenu(detail, point) {
-			const menuDefinition = registry.getMenuForTarget(detail);
+			const nextDetail = Object.assign({}, detail, {
+				contextPoint: {
+					clientX: point.x,
+					clientY: point.y
+				}
+			});
+			const menuDefinition = registry.getMenuForTarget(nextDetail);
 			if (!hasMenuItems(menuDefinition)) {
 				closeMenu();
 				return false;
 			}
 
 			closeMenu();
-			activeDetail = detail;
+			activeDetail = nextDetail;
 			popover = document.createElement('div');
 			popover.className = 'aos-menu-popover aos-context-menu';
-			popover.dataset.aosContextMenu = detail.type;
+			popover.dataset.aosContextMenu = activeDetail.type;
 			popover.setAttribute('role', 'menu');
-			popover.setAttribute('aria-label', detail.label || 'Context menu');
+			popover.setAttribute('aria-label', activeDetail.label || 'Context menu');
 			popover.replaceChildren(...menuDefinition.groups.flatMap((group, groupIndex) => {
 				const groupItems = group.items.map((item) => itemRenderer.createItem(item, activeDetail, closeMenu));
 				if (groupIndex === 0) {

@@ -24,6 +24,14 @@ defined( 'ABSPATH' ) || exit;
 >
 	<?php
 	$this->render_part(
+		'desktop/folders.php',
+		array(
+			'folders' => $folders,
+			'theme'   => $theme,
+		)
+	);
+
+	$this->render_part(
 		'desktop/apps.php',
 		array(
 			'apps'  => isset( $desktop_apps ) && is_array( $desktop_apps ) ? $desktop_apps : array(),

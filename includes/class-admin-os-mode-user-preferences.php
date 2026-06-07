@@ -14,6 +14,7 @@ final class Admin_OS_Mode_User_Preferences {
 	const META_APPEARANCE = 'admin_os_mode_appearance';
 	const META_APP_LOCATIONS = 'admin_os_mode_app_locations';
 	const META_DESKTOP_DOCK = 'admin_os_mode_desktop_dock';
+	const META_DESKTOP_FOLDERS = 'admin_os_mode_desktop_folders';
 	const META_ENABLED    = 'admin_os_mode_enabled';
 	const META_MENU_BAR   = 'admin_os_mode_menu_bar';
 	const META_THEME      = 'admin_os_mode_theme';
@@ -23,6 +24,7 @@ final class Admin_OS_Mode_User_Preferences {
 	const RESET_DOMAIN_APPEARANCE = 'appearance';
 	const RESET_DOMAIN_APP_LOCATIONS = 'app_locations';
 	const RESET_DOMAIN_DESKTOP_DOCK = 'desktop_dock';
+	const RESET_DOMAIN_DESKTOP_FOLDERS = 'desktop_folders';
 	const RESET_DOMAIN_MENU_BAR = 'menu_bar';
 	const RESET_DOMAIN_THEME = 'theme';
 	const RESET_DOMAIN_WALLPAPER = 'wallpaper';
@@ -288,6 +290,41 @@ final class Admin_OS_Mode_User_Preferences {
 	}
 
 	/**
+	 * Get the user's desktop folders.
+	 *
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param int                            $user_id Optional user ID.
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function get_desktop_folders( $apps, $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$folders = get_user_meta( $user_id, self::META_DESKTOP_FOLDERS, true );
+
+		return $this->sanitize_desktop_folders( is_array( $folders ) ? $folders : array(), $apps );
+	}
+
+	/**
+	 * Save the user's desktop folders.
+	 *
+	 * @param array<int,array<string,mixed>> $folders Desktop folder data.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param int                            $user_id Optional user ID.
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function set_desktop_folders( $folders, $apps, $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$folders = $this->sanitize_desktop_folders( is_array( $folders ) ? $folders : array(), $apps );
+
+		if ( empty( $folders ) ) {
+			delete_user_meta( $user_id, self::META_DESKTOP_FOLDERS );
+		} else {
+			update_user_meta( $user_id, self::META_DESKTOP_FOLDERS, $folders );
+		}
+
+		return $folders;
+	}
+
+	/**
 	 * Filter apps for a shell launch surface.
 	 *
 	 * @param array<int,array<string,mixed>> $apps Available apps.
@@ -535,6 +572,7 @@ final class Admin_OS_Mode_User_Preferences {
 			self::RESET_DOMAIN_APPEARANCE,
 			self::RESET_DOMAIN_APP_LOCATIONS,
 			self::RESET_DOMAIN_DESKTOP_DOCK,
+			self::RESET_DOMAIN_DESKTOP_FOLDERS,
 			self::RESET_DOMAIN_MENU_BAR,
 			self::RESET_DOMAIN_THEME,
 			self::RESET_DOMAIN_WALLPAPER,
@@ -661,6 +699,128 @@ final class Admin_OS_Mode_User_Preferences {
 	}
 
 	/**
+	 * Sanitize desktop folder definitions.
+	 *
+	 * @param array<int,array<string,mixed>> $folders Raw desktop folders.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function sanitize_desktop_folders( $folders, $apps ) {
+		$sanitized      = array();
+		$folder_ids     = array();
+		$folder_labels  = array();
+		$reserved_ids   = array( 'content', 'site', 'system' );
+		$available_apps = array();
+
+		foreach ( (array) $apps as $app ) {
+			if ( ! is_array( $app ) || empty( $app['id'] ) ) {
+				continue;
+			}
+
+			$available_apps[ sanitize_key( (string) $app['id'] ) ] = true;
+		}
+
+		foreach ( (array) $folders as $folder ) {
+			if ( ! is_array( $folder ) ) {
+				continue;
+			}
+
+			$id = isset( $folder['id'] ) ? sanitize_key( (string) $folder['id'] ) : '';
+			if ( '' === $id || isset( $folder_ids[ $id ] ) || in_array( $id, $reserved_ids, true ) ) {
+				continue;
+			}
+
+			$label = isset( $folder['label'] ) ? sanitize_text_field( (string) $folder['label'] ) : '';
+			$label = '' !== $label ? $label : __( 'untitled folder', 'admin-os-mode' );
+			$label = $this->get_unique_desktop_folder_label( $label, $folder_labels );
+
+			$folder_ids[ $id ] = true;
+			$folder_labels[ strtolower( $label ) ] = true;
+
+			$sanitized[] = array(
+				'appIds'       => $this->sanitize_desktop_folder_app_ids(
+					isset( $folder['appIds'] ) && is_array( $folder['appIds'] ) ? $folder['appIds'] : array(),
+					$available_apps
+				),
+				'comment'      => isset( $folder['comment'] ) ? sanitize_textarea_field( (string) $folder['comment'] ) : '',
+				'createdAt'    => $this->sanitize_desktop_folder_timestamp( isset( $folder['createdAt'] ) ? $folder['createdAt'] : '', gmdate( 'c' ) ),
+				'icon'         => Admin_OS_Mode_Icon_Renderer::normalize( isset( $folder['icon'] ) ? $folder['icon'] : 'dashicons-category' ),
+				'id'           => $id,
+				'label'        => $label,
+				'lastOpenedAt' => $this->sanitize_desktop_folder_timestamp( isset( $folder['lastOpenedAt'] ) ? $folder['lastOpenedAt'] : '', '' ),
+				'modifiedAt'   => $this->sanitize_desktop_folder_timestamp( isset( $folder['modifiedAt'] ) ? $folder['modifiedAt'] : '', '' ),
+			);
+
+			if ( count( $sanitized ) >= 100 ) {
+				break;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize app ids inside a desktop folder.
+	 *
+	 * @param array<int,mixed>        $app_ids Raw app IDs.
+	 * @param array<string,bool>      $available_apps App IDs visible in the current registry.
+	 * @return array<int,string>
+	 */
+	private function sanitize_desktop_folder_app_ids( $app_ids, $available_apps ) {
+		$sanitized = array();
+
+		foreach ( $app_ids as $app_id ) {
+			$app_id = sanitize_key( (string) $app_id );
+			if ( '' === $app_id || isset( $sanitized[ $app_id ] ) ) {
+				continue;
+			}
+
+			if ( isset( $available_apps[ $app_id ] ) || $this->should_preserve_deferred_app_location( $app_id ) ) {
+				$sanitized[ $app_id ] = $app_id;
+			}
+		}
+
+		return array_values( $sanitized );
+	}
+
+	/**
+	 * Sanitize a desktop folder timestamp.
+	 *
+	 * @param mixed  $value Raw timestamp.
+	 * @param string $fallback Fallback timestamp.
+	 * @return string
+	 */
+	private function sanitize_desktop_folder_timestamp( $value, $fallback ) {
+		if ( '' === $value || null === $value ) {
+			return $fallback;
+		}
+
+		$time = strtotime( (string) $value );
+
+		return false === $time ? $fallback : gmdate( 'c', $time );
+	}
+
+	/**
+	 * Return a unique desktop folder label.
+	 *
+	 * @param string             $label Raw label.
+	 * @param array<string,bool> $taken Already used lower-case labels.
+	 * @return string
+	 */
+	private function get_unique_desktop_folder_label( $label, $taken ) {
+		$base   = $label;
+		$next   = $base;
+		$suffix = 2;
+
+		while ( isset( $taken[ strtolower( $next ) ] ) ) {
+			$next = sprintf( '%s %d', $base, $suffix );
+			$suffix++;
+		}
+
+		return $next;
+	}
+
+	/**
 	 * Sanitize a Menu Bar preference payload.
 	 *
 	 * @param array<string,mixed> $menu_bar Raw Menu Bar data.
@@ -724,6 +884,7 @@ final class Admin_OS_Mode_User_Preferences {
 			self::RESET_DOMAIN_APPEARANCE        => self::META_APPEARANCE,
 			self::RESET_DOMAIN_APP_LOCATIONS     => self::META_APP_LOCATIONS,
 			self::RESET_DOMAIN_DESKTOP_DOCK      => self::META_DESKTOP_DOCK,
+			self::RESET_DOMAIN_DESKTOP_FOLDERS   => self::META_DESKTOP_FOLDERS,
 			self::RESET_DOMAIN_MENU_BAR          => self::META_MENU_BAR,
 			self::RESET_DOMAIN_THEME             => self::META_THEME,
 			self::RESET_DOMAIN_WALLPAPER         => self::META_WALLPAPER,

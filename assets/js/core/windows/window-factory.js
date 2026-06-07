@@ -58,6 +58,23 @@
 
 			titlebar.appendChild(controls);
 
+			if (options.titlebarLabel) {
+				const label = document.createElement('span');
+				label.className = 'aos-window-titlebar-label';
+				if (options.titlebarIcon && window.AdminOSMode.dom && typeof window.AdminOSMode.dom.createIcon === 'function') {
+					const icon = document.createElement('span');
+					icon.className = 'aos-window-titlebar-label-icon';
+					icon.appendChild(window.AdminOSMode.dom.createIcon(options.titlebarIcon));
+					label.appendChild(icon);
+				}
+
+				const text = document.createElement('span');
+				text.className = 'aos-window-titlebar-label-text';
+				text.textContent = options.titlebarLabel;
+				label.appendChild(text);
+				titlebar.appendChild(label);
+			}
+
 			return titlebar;
 		}
 

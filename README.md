@@ -12,7 +12,7 @@ Admin OS Mode turns the WordPress dashboard entry point into a desktop-style adm
 
 == Description ==
 
-Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe Admin OS experience: a top menu bar, desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
+Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe Admin OS experience: a top menu bar, generated and user-created desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
 
 == Current foundation features ==
 
@@ -20,7 +20,7 @@ Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. T
 - Per-user mode preference.
 - Dashboard entry redirects to OS Mode by default.
 - Emergency one-request classic override: `/wp-admin/index.php?admin_os_classic=1`.
-- Admin OS shell with system menu, site title menu, app menu bar, right-click context menus, desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
+- Admin OS shell with system menu, site title menu, app menu bar, right-click context menus, generated and user-created desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
 - Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave more like OS windows.
 
 == Notes ==
@@ -57,6 +57,7 @@ The foundation separates shell behavior from OS appearance:
   - `session/` owns per-user, per-theme workspace session sections.
   - `windows/` owns window creation, drag/focus behavior, and window state serialization.
   - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
+  - `desktop/` owns desktop icon layout plus user-created folder rendering and membership behavior.
   - `apps/` owns app launching and native app content such as System Settings.
   - `shell/` owns global shell controls such as search, clock behavior, menu commands, top menus, and context menus.
 - `assets/css/themes/` owns theme-specific visual language.
@@ -146,7 +147,7 @@ Wallpapers are managed by `Admin_OS_Mode_Wallpaper_Registry`. It combines theme-
 
 Future phases can add optional alternate theme packs such as Redmond-style, classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the Admin OS identity rather than depending on another platform owner’s brand assets.
 
-Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows` and `widgets`, so future desktop icons, spaces, or theme-specific surfaces can join without replacing the whole session payload. Windows track app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state.
+Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows`, `widgets`, and desktop icon layout, so future spaces or theme-specific surfaces can join without replacing the whole session payload. Windows track app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state. User-created desktop folder definitions and membership are persisted in WordPress user meta so they follow the WordPress user across browsers; only their icon positions remain session layout state.
 
 Widgets are registered through `Admin_OS_Mode_Widget_Registry` and can be extended with the `admin_os_mode_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, and session section.
 

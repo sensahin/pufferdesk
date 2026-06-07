@@ -331,6 +331,84 @@
 			});
 		}
 
+		function prompt(options = {}) {
+			closeActiveDialog();
+
+			return new Promise((resolve) => {
+				const title = options.title || '';
+				const message = options.message || '';
+				const value = typeof options.value === 'string' ? options.value : '';
+				const confirmLabel = options.confirmLabel || 'OK';
+				const cancelLabel = options.cancelLabel || 'Cancel';
+				const titleId = `aos-shell-dialog-title-${Date.now()}`;
+				const messageId = `aos-shell-dialog-message-${Date.now()}`;
+
+				const layer = document.createElement('div');
+				layer.className = 'aos-shell-dialog-layer';
+
+				const dialog = document.createElement('div');
+				dialog.className = 'aos-shell-dialog aos-shell-prompt-dialog';
+				dialog.setAttribute('role', 'dialog');
+				dialog.setAttribute('aria-modal', 'true');
+				dialog.setAttribute('aria-labelledby', titleId);
+				dialog.setAttribute('aria-describedby', messageId);
+
+				const titleElement = document.createElement('h2');
+				titleElement.className = 'aos-shell-dialog-title';
+				titleElement.id = titleId;
+				titleElement.textContent = title;
+
+				const messageElement = document.createElement('p');
+				messageElement.className = 'aos-shell-dialog-message';
+				messageElement.id = messageId;
+				messageElement.textContent = message;
+
+				const input = document.createElement('input');
+				input.className = 'aos-shell-dialog-input';
+				input.type = 'text';
+				input.value = value;
+
+				const actions = document.createElement('div');
+				actions.className = 'aos-shell-dialog-actions';
+
+				const cancelButton = createButton(cancelLabel, 'aos-shell-dialog-button');
+				const confirmButton = createButton(confirmLabel, 'aos-shell-dialog-button aos-shell-dialog-button-primary');
+
+				function finish(nextValue) {
+					layer.removeEventListener('keydown', onKeyDown);
+					closeActiveDialog();
+					resolve(nextValue);
+				}
+
+				function onKeyDown(event) {
+					if (event.key === 'Escape') {
+						event.preventDefault();
+						finish(null);
+					} else if (event.key === 'Enter' && event.target === input) {
+						event.preventDefault();
+						finish(input.value);
+					}
+				}
+
+				cancelButton.addEventListener('click', () => finish(null));
+				confirmButton.addEventListener('click', () => finish(input.value));
+				layer.addEventListener('keydown', onKeyDown);
+
+				actions.append(cancelButton, confirmButton);
+				dialog.append(titleElement, messageElement, input, actions);
+				bindDialogDrag(layer, dialog);
+				layer.appendChild(dialog);
+				shell.appendChild(layer);
+				activeDialog = layer;
+
+				window.requestAnimationFrame(() => {
+					layer.classList.add('is-visible');
+					input.focus({ preventScroll: true });
+					input.select();
+				});
+			});
+		}
+
 		function showBlockingOverlay(message) {
 			if (activeOverlay) {
 				removeLayer(activeOverlay);
@@ -368,6 +446,7 @@
 		return {
 			confirm,
 			confirmTimedAction,
+			prompt,
 			showBlockingOverlay
 		};
 	};

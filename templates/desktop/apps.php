@@ -16,14 +16,17 @@ if ( empty( $apps ) ) {
 	return;
 }
 ?>
-<section class="aos-desktop-apps" aria-label="<?php esc_attr_e( 'Desktop apps', 'admin-os-mode' ); ?>">
+<section class="aos-desktop-apps aos-desktop-icon-layer" aria-label="<?php esc_attr_e( 'Desktop apps', 'admin-os-mode' ); ?>">
 	<?php foreach ( $apps as $admin_os_mode_app ) : ?>
 		<button
 			type="button"
-			class="aos-desktop-app"
+			class="aos-desktop-icon aos-desktop-app"
 			data-aos-context="desktop-app"
 			data-aos-context-id="<?php echo esc_attr( $admin_os_mode_app['id'] ); ?>"
 			data-aos-context-label="<?php echo esc_attr( $admin_os_mode_app['label'] ); ?>"
+			data-aos-desktop-icon
+			data-aos-desktop-icon-id="<?php echo esc_attr( 'app:' . $admin_os_mode_app['id'] ); ?>"
+			data-aos-desktop-icon-kind="app"
 			data-aos-open-app="<?php echo esc_attr( $admin_os_mode_app['id'] ); ?>"
 			aria-label="<?php echo esc_attr( $admin_os_mode_app['label'] ); ?>"
 		>

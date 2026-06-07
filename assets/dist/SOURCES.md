@@ -31,6 +31,8 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/windows/window-factory.js
 - assets/js/core/windows/window-manager.js
 - assets/js/core/widgets/widget-manager.js
+- assets/js/core/desktop/desktop-icons.js
+- assets/js/core/desktop/folder-manager.js
 - assets/js/core/apps/about-window.js
 - assets/js/core/apps/site-about-window.js
 - assets/js/core/apps/settings-app.js

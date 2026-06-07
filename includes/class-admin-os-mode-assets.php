@@ -273,6 +273,14 @@ final class Admin_OS_Mode_Assets {
 				'path' => 'assets/js/core/widgets/widget-manager.js',
 				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-session-store' ),
 			),
+			'admin-os-mode-desktop-icons'  => array(
+				'path' => 'assets/js/core/desktop/desktop-icons.js',
+				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-session-store' ),
+			),
+			'admin-os-mode-folder-manager' => array(
+				'path' => 'assets/js/core/desktop/folder-manager.js',
+				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-api-client' ),
+			),
 			'admin-os-mode-about-window'   => array(
 				'path' => 'assets/js/core/apps/about-window.js',
 				'deps' => array( 'admin-os-mode-dom' ),
@@ -327,7 +335,7 @@ final class Admin_OS_Mode_Assets {
 			),
 			'admin-os-mode-boot'           => array(
 				'path' => 'assets/js/core/boot.js',
-				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-menu-bar-state', 'admin-os-mode-wallpaper', 'admin-os-mode-reopen-policy', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-shortcuts', 'admin-os-mode-clock' ),
+				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-menu-bar-state', 'admin-os-mode-wallpaper', 'admin-os-mode-reopen-policy', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-desktop-icons', 'admin-os-mode-folder-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-shortcuts', 'admin-os-mode-clock' ),
 			),
 		);
 
@@ -365,6 +373,7 @@ final class Admin_OS_Mode_Assets {
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 			'classicUrl' => $this->router->get_toggle_url( false ),
 			'desktopDock' => $this->preferences->get_desktop_dock(),
+			'desktopFolders' => $this->preferences->get_desktop_folders( $apps ),
 			'logoutUrl'  => wp_logout_url(),
 			'menuBar'    => $this->preferences->get_menu_bar(),
 			'settings'   => $this->get_settings_config(),

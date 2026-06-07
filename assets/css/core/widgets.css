@@ -25,6 +25,10 @@
 	user-select: none;
 }
 
+.aos-widget[hidden] {
+	display: none !important;
+}
+
 .aos-widget.is-dragging {
 	box-shadow: var(--aos-shadow);
 }

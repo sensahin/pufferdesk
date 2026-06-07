@@ -251,6 +251,40 @@
 	gap: 7px;
 }
 
+.aos-window-titlebar-label {
+	align-items: center;
+	color: var(--aos-muted);
+	display: inline-flex;
+	font-size: var(--aos-text-body);
+	font-weight: var(--aos-weight-semibold);
+	gap: 7px;
+	line-height: 1;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.aos-window-titlebar-label-icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+	height: 18px;
+	width: 18px;
+}
+
+.aos-window-titlebar-label-icon .aos-icon-image,
+.aos-window-titlebar-label-icon .dashicons {
+	font-size: 18px;
+	height: 18px;
+	line-height: 18px;
+	width: 18px;
+}
+
+.aos-window-titlebar-label-text {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 .aos-window-control {
 	background: var(--aos-control-bg);
 	border: 0;

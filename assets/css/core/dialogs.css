@@ -75,6 +75,27 @@
 	margin: 0;
 }
 
+.aos-shell-dialog-input {
+	appearance: none;
+	background: rgba(255, 255, 255, 0.18);
+	border: 1px solid var(--aos-dialog-button-border);
+	border-radius: 7px;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+	color: var(--aos-dialog-ink);
+	font-family: var(--aos-font-ui);
+	font-size: 13px;
+	line-height: 1.2;
+	min-height: 28px;
+	outline: none;
+	padding: 5px 8px;
+	width: 100%;
+}
+
+.aos-shell-dialog-input:focus {
+	border-color: var(--aos-accent);
+	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(36, 88, 202, 0.28));
+}
+
 .aos-shell-dialog-actions {
 	display: flex;
 	gap: 8px;

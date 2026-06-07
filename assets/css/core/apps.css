@@ -44,8 +44,257 @@
 	padding: 18px;
 }
 
+.aos-folder-content {
+	min-height: 100%;
+}
+
 .aos-folder-body .aos-app-grid {
 	grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+}
+
+.aos-folder-empty {
+	align-items: center;
+	color: var(--aos-muted);
+	display: flex;
+	font-size: var(--aos-text-body);
+	height: 100%;
+	justify-content: center;
+	margin: 0;
+	min-height: 180px;
+}
+
+.aos-window[data-aos-window-kind="folder-info"] {
+	--aos-info-panel-bg: var(--aos-panel);
+	--aos-info-panel-border: var(--aos-window-bar-border, var(--aos-line));
+	--aos-info-panel-chevron: var(--aos-muted);
+	--aos-info-panel-disabled: var(--aos-muted);
+	--aos-info-panel-field-bg: var(--aos-control-bg);
+	--aos-info-panel-field-border: var(--aos-line);
+	--aos-info-panel-ink: var(--aos-ink);
+	--aos-info-panel-muted: var(--aos-muted);
+	--aos-info-panel-tag-border: var(--aos-line);
+
+	background: var(--aos-info-panel-bg);
+	border-radius: 18px;
+	max-width: 414px;
+	min-width: 360px;
+	width: 414px !important;
+}
+
+.aos-window[data-aos-window-kind="folder-info"] .aos-window-titlebar {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: var(--aos-info-panel-bg);
+	border-bottom-color: var(--aos-info-panel-border);
+	min-height: 34px;
+	padding: 0 11px;
+}
+
+.aos-window[data-aos-window-kind="folder-info"] .aos-window-titlebar-label {
+	color: var(--aos-info-panel-muted);
+	font-size: 12px;
+}
+
+.aos-info-panel-body {
+	background: var(--aos-info-panel-bg, rgba(24, 24, 25, 0.96));
+	color: var(--aos-info-panel-ink, var(--aos-ink));
+	flex: 0 0 auto;
+	overflow: visible;
+	padding: 0;
+}
+
+.aos-info-panel[data-aos-info-panel-layout="inspector"] {
+	font-size: 12px;
+	font-weight: var(--aos-weight-medium);
+	line-height: 1.18;
+}
+
+.aos-info-panel-header {
+	align-items: center;
+	display: grid;
+	gap: 9px;
+	grid-template-columns: 48px minmax(0, 1fr) auto;
+	padding: 12px 12px 10px;
+}
+
+.aos-info-panel-icon {
+	align-items: center;
+	display: flex;
+	height: 42px;
+	justify-content: center;
+	width: 48px;
+}
+
+.aos-info-panel-icon .aos-icon-image,
+.aos-info-panel-icon .dashicons {
+	font-size: 40px;
+	height: 40px;
+	line-height: 40px;
+	width: 40px;
+}
+
+.aos-info-panel-headline {
+	min-width: 0;
+}
+
+.aos-info-panel[data-aos-info-panel-layout="inspector"] .aos-info-panel-title {
+	color: var(--aos-info-panel-ink, var(--aos-ink));
+	font-size: 15px;
+	font-weight: var(--aos-weight-bold);
+	letter-spacing: 0;
+	line-height: 1.1;
+	margin: 0 0 4px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-info-panel[data-aos-info-panel-layout="inspector"] .aos-info-panel-subtitle,
+.aos-info-panel-muted {
+	color: var(--aos-info-panel-muted, var(--aos-muted));
+	font-size: 11.5px;
+	font-weight: var(--aos-weight-semibold);
+	margin: 0;
+}
+
+.aos-info-panel-meta {
+	color: var(--aos-info-panel-ink, var(--aos-ink));
+	font-size: 14px;
+	font-weight: var(--aos-weight-bold);
+	justify-self: end;
+	white-space: nowrap;
+}
+
+.aos-info-panel-tags {
+	align-items: center;
+	border: 1px solid var(--aos-info-panel-tag-border, var(--aos-line));
+	color: var(--aos-info-panel-muted, var(--aos-muted));
+	display: flex;
+	font-size: 12px;
+	font-weight: var(--aos-weight-semibold);
+	min-height: 30px;
+	padding: 0 10px;
+}
+
+.aos-info-panel-section {
+	border-top: 1px solid var(--aos-info-panel-border, var(--aos-line));
+}
+
+.aos-info-panel-summary {
+	color: var(--aos-info-panel-ink, var(--aos-ink));
+	cursor: default;
+	font-size: 12px;
+	font-weight: var(--aos-weight-bold);
+	list-style: none;
+	padding: 6px 12px;
+	user-select: none;
+}
+
+.aos-info-panel-summary::-webkit-details-marker {
+	display: none;
+}
+
+.aos-info-panel-summary::before {
+	border-color: var(--aos-info-panel-chevron, var(--aos-muted));
+	border-style: solid;
+	border-width: 0 2px 2px 0;
+	content: "";
+	display: inline-block;
+	height: 6px;
+	margin: 0 8px 2px 0;
+	transform: rotate(45deg);
+	width: 6px;
+}
+
+.aos-info-panel-section:not([open]) .aos-info-panel-summary::before {
+	margin-bottom: 0;
+	transform: rotate(-45deg);
+}
+
+.aos-info-panel-section-body {
+	padding: 2px 15px 9px 42px;
+}
+
+.aos-info-panel-row {
+	display: grid;
+	gap: 6px;
+	grid-template-columns: max-content minmax(0, 1fr);
+}
+
+.aos-info-panel-term {
+	color: var(--aos-info-panel-ink, var(--aos-ink));
+	font-weight: var(--aos-weight-bold);
+	text-align: right;
+}
+
+.aos-info-panel-value {
+	color: var(--aos-info-panel-ink, var(--aos-ink));
+	font-weight: var(--aos-weight-semibold);
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.aos-info-panel-checks {
+	display: grid;
+	gap: 6px;
+	margin-top: 13px;
+}
+
+.aos-info-panel-checkbox {
+	align-items: center;
+	color: var(--aos-info-panel-ink, var(--aos-ink));
+	display: inline-flex;
+	font-weight: var(--aos-weight-semibold);
+	gap: 7px;
+}
+
+.aos-info-panel-checkbox input {
+	accent-color: var(--aos-accent);
+	height: 14px;
+	margin: 0;
+	width: 14px;
+}
+
+.aos-info-panel-checkbox input:disabled {
+	opacity: 0.38;
+}
+
+.aos-info-panel-checkbox.is-disabled {
+	color: var(--aos-info-panel-disabled, var(--aos-muted));
+	margin-top: 7px;
+}
+
+.aos-info-panel-name-input,
+.aos-info-panel-comments {
+	background: var(--aos-info-panel-field-bg, var(--aos-control-bg));
+	border: 1px solid var(--aos-info-panel-field-border, var(--aos-line));
+	border-radius: 7px;
+	color: var(--aos-info-panel-ink, var(--aos-ink));
+	font: inherit;
+	outline: none;
+	width: 100%;
+}
+
+.aos-info-panel-name-input {
+	height: 27px;
+	padding: 0 8px;
+}
+
+.aos-info-panel-comments {
+	min-height: 58px;
+	padding: 7px 8px;
+	resize: vertical;
+}
+
+.aos-info-panel-name-input:focus,
+.aos-info-panel-comments:focus {
+	border-color: var(--aos-accent);
+	box-shadow: 0 0 0 3px var(--aos-focus-ring);
+}
+
+.aos-info-panel-name-input:disabled,
+.aos-info-panel-comments:disabled {
+	color: var(--aos-info-panel-disabled, var(--aos-muted));
 }
 
 .aos-window[data-aos-window-kind="about"] {
@@ -1396,11 +1645,11 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 }
 
 .aos-settings-app-location-row .aos-settings-inline-select {
-	min-width: 132px;
+	min-width: 96px;
 }
 
 .aos-settings-app-location-row .aos-settings-value-select {
-	min-width: 132px;
+	min-width: 96px;
 }
 
 .aos-settings-desktop-dock-row .aos-settings-label {
@@ -1416,10 +1665,18 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 
 .aos-settings-inline-select {
 	align-items: center;
+	background: transparent;
+	border-radius: 12px;
 	display: inline-flex;
 	justify-self: end;
-	min-height: 28px;
+	min-height: 24px;
 	position: relative;
+	transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.aos-settings-inline-select:hover,
+.aos-settings-inline-select:focus-within {
+	background: rgba(142, 142, 147, 0.16);
 }
 
 .aos-shell .aos-settings-inline-select .aos-settings-value-select {
@@ -1435,12 +1692,12 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	font-family: inherit;
 	font-size: var(--aos-settings-text-label);
 	font-weight: var(--aos-weight-semibold);
-	height: 28px;
+	height: 24px;
 	line-height: var(--aos-line-height-body);
 	margin: 0;
-	min-height: 28px;
-	min-width: 116px;
-	padding: 0 30px 0 8px !important;
+	min-height: 24px;
+	min-width: 88px;
+	padding: 0 28px 0 10px !important;
 	position: relative;
 	text-align: right;
 	text-align-last: right;
@@ -1460,15 +1717,17 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 .aos-settings-select-chevrons {
 	background: rgba(142, 142, 147, 0.22);
 	border-radius: 50%;
-	height: 23px;
+	height: 22px;
 	pointer-events: none;
 	position: absolute;
-	right: 0;
-	width: 23px;
+	right: 1px;
+	transition: background-color 120ms ease;
+	width: 22px;
 }
 
+.aos-settings-inline-select:hover .aos-settings-select-chevrons,
 .aos-settings-inline-select:focus-within .aos-settings-select-chevrons {
-	background: var(--aos-accent);
+	background: rgba(142, 142, 147, 0.32);
 }
 
 .aos-settings-select-chevrons::before,
@@ -1477,14 +1736,17 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	border-top: 2px solid var(--aos-muted);
 	content: "";
 	height: 5px;
-	left: 8px;
+	left: 7.5px;
 	position: absolute;
+	transition: border-color 120ms ease;
 	width: 5px;
 }
 
+.aos-settings-inline-select:hover .aos-settings-select-chevrons::before,
+.aos-settings-inline-select:hover .aos-settings-select-chevrons::after,
 .aos-settings-inline-select:focus-within .aos-settings-select-chevrons::before,
 .aos-settings-inline-select:focus-within .aos-settings-select-chevrons::after {
-	border-color: var(--aos-accent-ink);
+	border-color: var(--aos-ink);
 }
 
 .aos-settings-select-chevrons::before {

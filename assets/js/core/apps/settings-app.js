@@ -747,10 +747,13 @@
 			const label = dom.createElement('span', 'aos-desktop-app-label', app.label || app.id);
 
 			button.type = 'button';
-			button.className = 'aos-desktop-app';
+			button.className = 'aos-desktop-icon aos-desktop-app';
 			button.dataset.aosContext = 'desktop-app';
 			button.dataset.aosContextId = app.id;
 			button.dataset.aosContextLabel = app.label || app.id;
+			button.dataset.aosDesktopIcon = '';
+			button.dataset.aosDesktopIconId = `app:${app.id}`;
+			button.dataset.aosDesktopIconKind = 'app';
 			button.dataset.aosOpenApp = app.id;
 			button.setAttribute('aria-label', app.label || app.id);
 			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
@@ -812,16 +815,29 @@
 				if (layer) {
 					layer.remove();
 				}
+				if (window.AdminOSMode.desktopFolderManager && typeof window.AdminOSMode.desktopFolderManager.syncDesktopAppVisibility === 'function') {
+					window.AdminOSMode.desktopFolderManager.syncDesktopAppVisibility();
+				}
+				if (window.AdminOSMode.desktopIconManager && typeof window.AdminOSMode.desktopIconManager.rebind === 'function') {
+					window.AdminOSMode.desktopIconManager.rebind();
+				}
 				return;
 			}
 
 			if (!layer) {
-				layer = dom.createElement('section', 'aos-desktop-apps');
+				layer = dom.createElement('section', 'aos-desktop-apps aos-desktop-icon-layer');
 				layer.setAttribute('aria-label', 'Desktop apps');
-				desktop.insertBefore(layer, desktop.firstChild);
+				const folderLayer = desktop.querySelector('.aos-desktop-folders');
+				desktop.insertBefore(layer, folderLayer ? folderLayer.nextSibling : desktop.firstChild);
 			}
 
 			layer.replaceChildren(...desktopApps.map(createDesktopAppButton));
+			if (window.AdminOSMode.desktopFolderManager && typeof window.AdminOSMode.desktopFolderManager.syncDesktopAppVisibility === 'function') {
+				window.AdminOSMode.desktopFolderManager.syncDesktopAppVisibility();
+			}
+			if (window.AdminOSMode.desktopIconManager && typeof window.AdminOSMode.desktopIconManager.rebind === 'function') {
+				window.AdminOSMode.desktopIconManager.rebind();
+			}
 		}
 
 		function applyAppLocations(nextAppLocations) {
@@ -1170,7 +1186,10 @@
 				option.selected = currentDesktopDock[key] === item.value;
 				select.appendChild(option);
 			});
-			select.addEventListener('change', () => updateDesktopDock(key, select.value, status));
+			select.addEventListener('change', () => {
+				updateDesktopDock(key, select.value, status);
+				select.blur();
+			});
 			wrap.appendChild(select);
 			wrap.appendChild(dom.createElement('span', 'aos-settings-select-chevrons'));
 			desktopDockControls.push({
@@ -1219,7 +1238,10 @@
 				option.selected = (currentAppLocations[app.id] || 'dock') === item.value;
 				select.appendChild(option);
 			});
-			select.addEventListener('change', () => updateAppLocation(app.id, select.value, status));
+			select.addEventListener('change', () => {
+				updateAppLocation(app.id, select.value, status);
+				select.blur();
+			});
 			wrap.appendChild(select);
 			wrap.appendChild(dom.createElement('span', 'aos-settings-select-chevrons'));
 			appLocationControls.push({
@@ -1530,6 +1552,7 @@
 			select.addEventListener('change', () => {
 				const value = key === 'recent_count' ? Number.parseInt(select.value, 10) : select.value;
 				updateMenuBar(key, value, status);
+				select.blur();
 			});
 			wrap.appendChild(select);
 			wrap.appendChild(dom.createElement('span', 'aos-settings-select-chevrons'));

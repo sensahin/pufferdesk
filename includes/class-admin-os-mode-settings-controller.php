@@ -68,6 +68,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		add_action( 'wp_ajax_admin_os_mode_save_appearance', array( $this, 'save_appearance' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_app_locations', array( $this, 'save_app_locations' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_desktop_dock', array( $this, 'save_desktop_dock' ) );
+		add_action( 'wp_ajax_admin_os_mode_save_desktop_folders', array( $this, 'save_desktop_folders' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_menu_bar', array( $this, 'save_menu_bar' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_theme', array( $this, 'save_theme' ) );
 		add_action( 'wp_ajax_admin_os_mode_save_wallpaper', array( $this, 'save_wallpaper' ) );
@@ -143,6 +144,41 @@ final class Admin_OS_Mode_Settings_Controller {
 			array(
 				'appLocations' => $app_locations,
 				'message'      => __( 'App locations saved.', 'admin-os-mode' ),
+			)
+		);
+	}
+
+	/**
+	 * Save the current user's desktop folders.
+	 */
+	public function save_desktop_folders() {
+		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to change Admin OS folders.', 'admin-os-mode' ),
+				),
+				403
+			);
+		}
+
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The settings nonce is verified above.
+		$raw_folders = isset( $_POST['folders'] ) && ! is_array( $_POST['folders'] )
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The settings nonce is verified above.
+			? sanitize_textarea_field( wp_unslash( $_POST['folders'] ) )
+			: '[]';
+		$folders = is_string( $raw_folders ) ? json_decode( $raw_folders, true ) : array();
+		$apps    = $this->app_registry->get_apps();
+		$folders = $this->preferences->set_desktop_folders(
+			is_array( $folders ) ? $folders : array(),
+			$apps
+		);
+
+		wp_send_json_success(
+			array(
+				'desktopFolders' => $folders,
+				'message'        => __( 'Desktop folders saved.', 'admin-os-mode' ),
 			)
 		);
 	}
