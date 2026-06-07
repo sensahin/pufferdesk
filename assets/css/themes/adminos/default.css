@@ -780,8 +780,22 @@
 	max-width: 725px;
 }
 
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder"] {
+	--aos-settings-main-edge: 8px;
+	--aos-settings-sidebar-gap: 4px;
+	--aos-settings-sidebar-inset: 10px;
+	--aos-settings-sidebar-panel-radius: 22px;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: var(--aos-settings-window-bg);
+	border-radius: var(--aos-window-radius, 24px);
+	min-height: 460px;
+	min-width: 640px;
+}
+
 /* Keep the glass sidebar out of transform animation so backdrop sampling is ready before reveal. */
-.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"].is-opening {
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"].is-opening,
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder"].is-opening {
 	animation: aos-adminos-settings-window-open 160ms ease-out both;
 }
 
@@ -799,6 +813,15 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] .aos-window-titlebar {
+	background: transparent;
+	left: var(--aos-settings-sidebar-inset);
+	min-height: 44px;
+	padding-left: 12px;
+	top: var(--aos-settings-sidebar-inset);
+	width: calc(var(--aos-settings-sidebar-width) - var(--aos-settings-sidebar-inset) - var(--aos-settings-sidebar-gap));
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder"] .aos-window-titlebar {
 	background: transparent;
 	left: var(--aos-settings-sidebar-inset);
 	min-height: 44px;
@@ -876,9 +899,14 @@
 	z-index: 0;
 }
 
-.aos-shell[data-aos-theme="adminos"] .aos-settings-sidebar > * {
+.aos-shell[data-aos-theme="adminos"] .aos-settings-sidebar > *:not(.aos-split-sidebar-drag-zone) {
 	position: relative;
 	z-index: 1;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-settings-sidebar > .aos-split-sidebar-drag-zone {
+	position: absolute;
+	z-index: 2;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-settings-main {
@@ -887,7 +915,17 @@
 	z-index: 1;
 }
 
+.aos-shell[data-aos-theme="adminos"] .aos-finder-main {
+	background: var(--aos-settings-main-bg);
+}
+
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] .aos-settings-pane-header {
+	padding-bottom: 4px;
+	padding-left: var(--aos-settings-main-edge);
+	padding-top: var(--aos-settings-sidebar-inset);
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder"] .aos-finder-toolbar {
 	padding-bottom: 4px;
 	padding-left: var(--aos-settings-main-edge);
 	padding-top: var(--aos-settings-sidebar-inset);
@@ -1150,6 +1188,10 @@
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-window[data-aos-app-window="os-settings"] {
+	background: var(--aos-settings-window-bg);
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-window[data-aos-window-kind="folder"] {
 	background: var(--aos-settings-window-bg);
 }
 

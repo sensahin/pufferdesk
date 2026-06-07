@@ -10,6 +10,7 @@
 		const folders = Array.isArray(config.folders) ? config.folders : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
 		const folderMap = new Map(folders.map((folder) => [folder.id, folder]));
+		const folderWindowHistory = new WeakMap();
 		let folderProvider = null;
 		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object'
 			? config.menu.labels
@@ -37,6 +38,15 @@
 			const folder = provider && typeof provider.getFolder === 'function' ? provider.getFolder(folderId) : null;
 
 			return folder || folderMap.get(folderId) || null;
+		}
+
+		function getFolders() {
+			const provider = getFolderProvider();
+			const availableFolders = provider && typeof provider.getFolders === 'function'
+				? provider.getFolders()
+				: folders;
+
+			return Array.isArray(availableFolders) ? availableFolders.filter(Boolean) : [];
 		}
 
 		function getFolderApps(folderId) {
@@ -244,26 +254,229 @@
 			return button;
 		}
 
-		function createFolderContent(folderId) {
+		function getFolderTitle(folder) {
+			const folderLabel = folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin');
+
+			return `${folderLabel} ${getMenuLabel('folder_suffix', 'Folder')}`;
+		}
+
+		function getFolderWindowState(win) {
+			let state = folderWindowHistory.get(win);
+			if (!state) {
+				state = {
+					entries: [],
+					index: -1
+				};
+				folderWindowHistory.set(win, state);
+			}
+
+			return state;
+		}
+
+		function updateFolderWindowHistory(win, folderId, options = {}) {
+			const state = getFolderWindowState(win);
+
+			if (options.reset || state.index < 0) {
+				state.entries = [folderId];
+				state.index = 0;
+				return state;
+			}
+
+			if (options.replace) {
+				state.entries[state.index] = folderId;
+				return state;
+			}
+
+			if (state.entries[state.index] === folderId) {
+				return state;
+			}
+
+			state.entries = state.entries.slice(0, state.index + 1);
+			state.entries.push(folderId);
+			state.index = state.entries.length - 1;
+
+			return state;
+		}
+
+		function getFolderWindowHistoryState(win) {
+			const state = win ? getFolderWindowState(win) : null;
+
+			return {
+				canBack: Boolean(state && state.index > 0),
+				canForward: Boolean(state && state.index >= 0 && state.index < state.entries.length - 1)
+			};
+		}
+
+		function navigateFolderHistory(win, offset) {
+			const state = win ? getFolderWindowState(win) : null;
+			const nextIndex = state ? state.index + offset : -1;
+			const nextFolderId = state && nextIndex >= 0 && nextIndex < state.entries.length ? state.entries[nextIndex] : '';
+
+			if (!nextFolderId) {
+				return false;
+			}
+
+			state.index = nextIndex;
+			return renderFolderWindow(win, nextFolderId, {
+				updateHistory: false
+			});
+		}
+
+		function createFolderHistoryButton(direction, win) {
+			const button = document.createElement('button');
+			const history = getFolderWindowHistoryState(win);
+			const canNavigate = direction === 'back' ? history.canBack : history.canForward;
+			button.type = 'button';
+			button.className = `aos-settings-history-button aos-settings-history-button-${direction} aos-finder-history-button`;
+			button.disabled = !canNavigate;
+			button.setAttribute('aria-label', direction === 'back' ? 'Back' : 'Forward');
+			button.appendChild(dom.createElement('span', 'aos-settings-history-chevron'));
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				navigateFolderHistory(win, direction === 'back' ? -1 : 1);
+			});
+
+			return button;
+		}
+
+		function createFolderSidebarIcon(folder) {
+			const icon = dom.createElement('span', 'aos-settings-sidebar-icon aos-settings-sidebar-icon-blue aos-finder-sidebar-icon');
+			icon.appendChild(dom.createIcon(folder && folder.icon ? folder.icon : 'dashicons-category'));
+
+			return icon;
+		}
+
+		function createFolderSidebar(folderId, win) {
+			const sidebar = dom.createElement('aside', 'aos-settings-sidebar aos-finder-sidebar');
+			const dragZone = dom.createElement('div', 'aos-split-sidebar-drag-zone');
+			const nav = dom.createElement('nav', 'aos-settings-sidebar-nav aos-finder-sidebar-nav');
+
+			sidebar.setAttribute('aria-label', 'Folders');
+			dragZone.dataset.aosDragHandle = '';
+			dragZone.setAttribute('aria-hidden', 'true');
+			sidebar.appendChild(dragZone);
+			sidebar.appendChild(dom.createElement('div', 'aos-finder-sidebar-heading', 'Folders'));
+
+			getFolders().forEach((folder) => {
+				const button = document.createElement('button');
+				button.type = 'button';
+				button.className = 'aos-settings-sidebar-item aos-finder-sidebar-item';
+				button.dataset.aosContext = 'folder';
+				button.dataset.aosContextId = folder.id;
+				button.dataset.aosContextLabel = folder.label || 'Folder';
+				button.appendChild(createFolderSidebarIcon(folder));
+				button.appendChild(dom.createElement('span', 'aos-settings-sidebar-label', folder.label || 'Folder'));
+				if (folder.id === folderId) {
+					button.classList.add('is-active');
+					button.setAttribute('aria-current', 'page');
+				}
+				button.addEventListener('click', (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+					if (win && folder.id !== folderId) {
+						renderFolderWindow(win, folder.id);
+					}
+				});
+				nav.appendChild(button);
+			});
+
+			sidebar.appendChild(nav);
+
+			return sidebar;
+		}
+
+		function createFolderMain(folderId, win) {
+			const folder = getFolder(folderId);
 			const folderApps = getFolderApps(folderId);
 			const removable = isUserFolder(folderId);
-			const content = document.createElement('div');
-			content.className = 'aos-folder-content';
+			const main = dom.createElement('main', 'aos-settings-main aos-finder-main');
+			const header = dom.createElement('header', 'aos-settings-pane-header aos-finder-toolbar');
+			const history = dom.createElement('div', 'aos-settings-history aos-finder-history');
+			const title = dom.createElement('h1', 'aos-finder-title', folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin'));
+			const pane = dom.createElement('div', 'aos-settings-pane aos-finder-pane');
+
+			header.dataset.aosDragHandle = '';
+			history.dataset.aosNoDrag = '';
+			history.appendChild(createFolderHistoryButton('back', win));
+			history.appendChild(createFolderHistoryButton('forward', win));
+			header.append(history, title);
 
 			if (!folderApps.length) {
 				const empty = document.createElement('p');
 				empty.className = 'aos-folder-empty';
 				empty.textContent = 'No items';
-				content.appendChild(empty);
-				return content;
+				pane.appendChild(empty);
+				main.append(header, pane);
+				return main;
 			}
 
 			const grid = document.createElement('div');
-			grid.className = 'aos-app-grid';
+			grid.className = 'aos-app-grid aos-finder-grid';
 			folderApps.forEach((app) => grid.appendChild(createFolderAppButton(app, folderId, removable)));
-			content.appendChild(grid);
+			pane.appendChild(grid);
+			main.append(header, pane);
+
+			return main;
+		}
+
+		function createFolderContent(folderId, win = null) {
+			const content = document.createElement('div');
+			content.className = 'aos-folder-content';
+			content.append(createFolderSidebar(folderId, win), createFolderMain(folderId, win));
 
 			return content;
+		}
+
+		function updateFolderWindowMeta(win, folderId) {
+			const folder = getFolder(folderId);
+			const folderTitle = getFolderTitle(folder);
+			const titlebarLabel = win ? win.querySelector('.aos-window-titlebar-label-text') : null;
+
+			if (!win || !folder) {
+				return false;
+			}
+
+			win.dataset.aosFolderWindow = folderId;
+			win.dataset.aosContextId = folderId;
+			win.dataset.aosContextLabel = folderTitle;
+			win.dataset.aosWindowTitle = folderTitle;
+			win.setAttribute('aria-label', `${folderTitle} window`);
+			if (titlebarLabel) {
+				titlebarLabel.textContent = folderTitle;
+			}
+
+			return true;
+		}
+
+		function renderFolderWindow(win, folderId, options = {}) {
+			const folder = getFolder(folderId);
+			const body = win ? win.querySelector('.aos-window-body') : null;
+			if (!win || !body || !folder) {
+				return false;
+			}
+
+			if (options.updateHistory !== false) {
+				updateFolderWindowHistory(win, folderId, {
+					replace: Boolean(options.replaceHistory),
+					reset: Boolean(options.resetHistory)
+				});
+			}
+
+			updateFolderWindowMeta(win, folderId);
+			body.replaceChildren(createFolderContent(folderId, win));
+			if (manager && typeof manager.makeDraggable === 'function') {
+				manager.makeDraggable(win);
+			}
+
+			if (options.touch !== false) {
+				const provider = getFolderProvider();
+				if (provider && typeof provider.touchFolderOpened === 'function') {
+					provider.touchFolderOpened(folderId);
+				}
+			}
+
+			return true;
 		}
 
 		function getFolderWindow(folderId) {
@@ -276,19 +489,15 @@
 
 		function refreshFolderWindow(folderId) {
 			const win = getFolderWindow(folderId);
-			const body = win ? win.querySelector('.aos-window-body') : null;
 			const folder = getFolder(folderId);
-			if (!win || !body || !folder) {
+			if (!win || !folder) {
 				return false;
 			}
 
-			const folderTitle = `${folder.label} ${getMenuLabel('folder_suffix', 'Folder')}`;
-			win.dataset.aosContextLabel = folderTitle;
-			win.dataset.aosWindowTitle = folderTitle;
-			win.setAttribute('aria-label', `${folderTitle} window`);
-			body.replaceChildren(createFolderContent(folderId));
-
-			return true;
+			return renderFolderWindow(win, folderId, {
+				replaceHistory: true,
+				touch: false
+			});
 		}
 
 		function closeFolderWindow(folderId) {
@@ -304,38 +513,36 @@
 
 		function openFolder(folderId) {
 			const folder = getFolder(folderId);
-			const folderLabel = folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin');
-			const folderTitle = `${folderLabel} ${getMenuLabel('folder_suffix', 'Folder')}`;
+			const folderTitle = getFolderTitle(folder);
 			const existing = getFolderWindow(folderId);
 
 			if (!folder) {
 				return null;
 			}
 
-			const provider = getFolderProvider();
-			if (provider && typeof provider.touchFolderOpened === 'function') {
-				provider.touchFolderOpened(folderId);
-			}
-
 			if (existing) {
-				refreshFolderWindow(folderId);
+				renderFolderWindow(existing, folderId, {
+					replaceHistory: true
+				});
 				manager.focusWindow(existing);
 				return existing;
 			}
 
+			const placeholder = document.createElement('div');
 			const win = manager.createWindow({
 				title: folderTitle,
 				icon: folder && folder.icon ? folder.icon : 'dashicons-admin-generic',
-				content: createFolderContent(folderId),
-				bodyClass: 'aos-window-body aos-folder-body',
+				content: placeholder,
+				bodyClass: 'aos-window-body aos-folder-body aos-finder-body',
 				windowKind: 'folder',
-				width: '560px',
-				height: '420px'
+				width: '725px',
+				height: '500px'
 			});
 
 			if (win) {
-				win.dataset.aosFolderWindow = folderId;
-				win.dataset.aosContextId = folderId;
+				renderFolderWindow(win, folderId, {
+					resetHistory: true
+				});
 				addRecentItem({
 					command: 'open-folder',
 					icon: folder && folder.icon ? folder.icon : 'dashicons-admin-generic',

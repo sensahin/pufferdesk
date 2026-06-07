@@ -37,6 +37,11 @@
 		min-width: 0;
 	}
 
+	.aos-window[data-aos-window-kind="folder"] {
+		--aos-settings-sidebar-width: 196px;
+		min-width: 0;
+	}
+
 	.aos-settings-pane-header {
 		padding: 14px 18px 8px;
 	}
@@ -82,15 +87,18 @@
 }
 
 @media (max-width: 720px) {
+	.aos-folder-content,
 	.aos-settings {
 		grid-template-columns: 1fr;
 	}
 
+	.aos-finder-sidebar,
 	.aos-settings-sidebar {
 		display: none;
 	}
 
-	.aos-window[data-aos-app-window="os-settings"] .aos-window-titlebar {
+	.aos-window[data-aos-app-window="os-settings"] .aos-window-titlebar,
+	.aos-window[data-aos-window-kind="folder"] .aos-window-titlebar {
 		width: 112px;
 	}
 
@@ -98,6 +106,7 @@
 		display: none;
 	}
 
+	.aos-finder-toolbar,
 	.aos-settings-pane-header {
 		padding-left: 96px;
 	}

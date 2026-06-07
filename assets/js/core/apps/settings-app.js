@@ -2022,10 +2022,15 @@
 
 		function createSettingsSidebar() {
 			const sidebar = dom.createElement('aside', 'aos-settings-sidebar');
+			const dragZone = dom.createElement('div', 'aos-split-sidebar-drag-zone');
 			const search = dom.createElement('label', 'aos-settings-search-field');
 			const searchInput = document.createElement('input');
 			const nav = dom.createElement('nav', 'aos-settings-sidebar-nav');
 			const navItems = [];
+
+			dragZone.dataset.aosDragHandle = '';
+			dragZone.setAttribute('aria-hidden', 'true');
+			sidebar.appendChild(dragZone);
 
 			search.appendChild(dom.createDashicon('dashicons-search'));
 			searchInput.type = 'search';
@@ -2080,6 +2085,7 @@
 			const history = dom.createElement('div', 'aos-settings-history');
 			const titleElement = dom.createElement('h1', '', title);
 			header.dataset.aosDragHandle = '';
+			history.dataset.aosNoDrag = '';
 
 			['back', 'forward'].forEach((direction) => {
 				const button = document.createElement('button');

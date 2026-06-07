@@ -584,6 +584,14 @@
 			enterShowDesktop();
 		}
 
+		function isDragExcludedTarget(target) {
+			return Boolean(
+				target
+				&& typeof target.closest === 'function'
+				&& target.closest('button, input, select, textarea, a, [contenteditable="true"], [data-aos-no-drag]')
+			);
+		}
+
 		function makeDraggable(win) {
 			const handles = Array.from(win.querySelectorAll('[data-aos-drag-handle]'));
 
@@ -599,7 +607,7 @@
 				handle.dataset.aosDragBound = '1';
 
 				handle.addEventListener('dblclick', (event) => {
-					if (event.target.closest('button')) {
+					if (isDragExcludedTarget(event.target)) {
 						return;
 					}
 
@@ -612,7 +620,7 @@
 				});
 
 				handle.addEventListener('pointerdown', (event) => {
-					if (event.target.closest('button') || win.classList.contains('is-maximized')) {
+					if (isDragExcludedTarget(event.target) || win.classList.contains('is-maximized')) {
 						return;
 					}
 
