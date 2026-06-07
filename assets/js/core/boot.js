@@ -77,6 +77,20 @@
 					folderManager.addAppToFolder(detail.sourceId, detail.targetId);
 				}
 			},
+			onRenameIcon(detail) {
+				if (
+					!folderManager
+					|| !detail
+					|| detail.kind !== 'folder'
+					|| typeof folderManager.isUserFolder !== 'function'
+					|| typeof folderManager.startInlineRename !== 'function'
+					|| !folderManager.isUserFolder(detail.id)
+				) {
+					return false;
+				}
+
+				return folderManager.startInlineRename(detail.id);
+			},
 			storageKey: config.storageKey || ''
 		});
 		const launcher = window.AdminOSMode.apps.createAppLauncher(shell, manager, config);

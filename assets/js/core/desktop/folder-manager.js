@@ -246,7 +246,7 @@
 
 			const layerRect = layer.getBoundingClientRect();
 			const iconWidth = icon ? icon.offsetWidth || 74 : 74;
-			const iconHeight = icon ? icon.offsetHeight || 76 : 76;
+			const iconHeight = icon ? icon.offsetHeight || 94 : 94;
 			const left = point.clientX - layerRect.left - Math.round(iconWidth / 2);
 			const top = point.clientY - layerRect.top - Math.round(iconHeight / 2);
 
@@ -549,6 +549,28 @@
 
 			const originalLabel = folder.label || 'untitled folder';
 			let finished = false;
+			const renameMetrics = (() => {
+				const iconRect = icon.getBoundingClientRect();
+				const labelRect = label.getBoundingClientRect();
+
+				if (!iconRect.width || !labelRect.width || !labelRect.height) {
+					return null;
+				}
+
+				return {
+					left: labelRect.left - iconRect.left + (labelRect.width / 2),
+					top: labelRect.top - iconRect.top,
+					width: labelRect.width,
+					height: labelRect.height
+				};
+			})();
+
+			if (renameMetrics) {
+				icon.style.setProperty('--aos-desktop-rename-left', `${renameMetrics.left.toFixed(2)}px`);
+				icon.style.setProperty('--aos-desktop-rename-top', `${renameMetrics.top.toFixed(2)}px`);
+				icon.style.setProperty('--aos-desktop-rename-width', `${Math.ceil(renameMetrics.width)}px`);
+				icon.style.setProperty('--aos-desktop-rename-height', `${Math.ceil(renameMetrics.height)}px`);
+			}
 
 			function cleanup() {
 				label.removeEventListener('blur', onBlur);
@@ -559,6 +581,10 @@
 				label.removeAttribute('spellcheck');
 				delete label.dataset.aosInlineRename;
 				icon.classList.remove('is-renaming');
+				icon.style.removeProperty('--aos-desktop-rename-left');
+				icon.style.removeProperty('--aos-desktop-rename-top');
+				icon.style.removeProperty('--aos-desktop-rename-width');
+				icon.style.removeProperty('--aos-desktop-rename-height');
 			}
 
 			function finish(commit) {

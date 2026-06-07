@@ -198,14 +198,6 @@
 			return payload.folderId || payload.target || (detail && detail.folderId) || getFolderTargetFromDetail(detail);
 		}
 
-		async function promptText(options = {}) {
-			if (dialogs && typeof dialogs.prompt === 'function') {
-				return dialogs.prompt(options);
-			}
-
-			return window.prompt(options.message || options.title || '', options.value || '');
-		}
-
 		function getSystemActions() {
 			return config.system && config.system.actions && typeof config.system.actions === 'object'
 				? config.system.actions
@@ -543,24 +535,16 @@
 		register('folder.rename', {
 			isEnabled(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
-				return Boolean(folderManager && typeof folderManager.isUserFolder === 'function' && folderManager.isUserFolder(folderId));
+				return Boolean(
+					folderManager
+					&& typeof folderManager.isUserFolder === 'function'
+					&& typeof folderManager.startInlineRename === 'function'
+					&& folderManager.isUserFolder(folderId)
+				);
 			},
-			async run(payload, detail) {
+			run(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
-				const folder = folderManager.getFolder(folderId);
-				const nextLabel = await promptText({
-					cancelLabel: 'Cancel',
-					confirmLabel: 'Rename',
-					message: 'Enter a new name for this folder.',
-					title: 'Rename Folder',
-					value: folder && folder.label ? folder.label : ''
-				});
-
-				if (nextLabel === null || !String(nextLabel).trim()) {
-					return;
-				}
-
-				folderManager.renameFolder(folderId, nextLabel);
+				folderManager.startInlineRename(folderId);
 			}
 		});
 

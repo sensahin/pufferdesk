@@ -8,6 +8,10 @@
 	position: relative;
 }
 
+.aos-desktop:focus {
+	outline: none;
+}
+
 .aos-app-icon {
 	align-items: center;
 	background: var(--aos-tile-bg);
@@ -30,7 +34,7 @@
 	display: grid;
 	gap: 14px 10px;
 	grid-auto-flow: column;
-	grid-template-rows: repeat(auto-fill, 76px);
+	grid-template-rows: repeat(auto-fill, 94px);
 	inset: 24px 24px 112px auto;
 	justify-content: end;
 	pointer-events: none;
@@ -49,6 +53,7 @@
 
 .aos-desktop-icon {
 	align-items: center;
+	align-content: start;
 	appearance: none;
 	background: transparent;
 	border: 0;
@@ -56,8 +61,10 @@
 	cursor: default;
 	display: grid;
 	font-family: inherit;
-	gap: 5px;
-	height: 76px;
+	gap: var(--aos-desktop-icon-label-gap, 10px);
+	grid-template-columns: 100%;
+	grid-template-rows: 48px minmax(0, auto);
+	height: 94px;
 	justify-items: center;
 	padding: 0;
 	pointer-events: auto;
@@ -85,34 +92,47 @@
 	transition: opacity 120ms ease;
 }
 
-.aos-desktop-icon:hover::before,
-.aos-desktop-icon:focus-visible::before,
-.aos-desktop-icon.is-dragging::before,
-.aos-desktop-icon.is-drop-target::before,
-.aos-desktop-icon.is-renaming::before {
+.aos-desktop-icon.is-drop-target::before {
 	opacity: 1;
+}
+
+.aos-desktop-icon.is-selected:not(.is-dragging):not(.is-drop-target):not(.is-renaming)::before {
+	opacity: 0;
 }
 
 .aos-desktop-icon:focus {
 	outline: none;
 }
 
-.aos-desktop-icon:focus-visible .aos-app-icon {
-	box-shadow: 0 0 0 3px var(--aos-focus-ring), var(--aos-tile-shadow);
-}
-
 .aos-desktop-icon .aos-app-icon {
 	border-radius: 12px;
 	height: 48px;
+	isolation: isolate;
 	position: relative;
 	transition: box-shadow 120ms ease, transform 120ms ease;
 	width: 48px;
 	z-index: 1;
 }
 
-.aos-desktop-icon:hover .aos-app-icon,
-.aos-desktop-icon:focus-visible .aos-app-icon {
-	transform: translateY(-1px);
+.aos-desktop-icon .aos-app-icon::before {
+	background: var(--aos-desktop-icon-selection-icon-bg, rgba(255, 255, 255, 0.16));
+	border-radius: var(--aos-desktop-icon-selection-icon-radius, 10px);
+	content: "";
+	inset: var(--aos-desktop-icon-selection-icon-inset, -7px -10px);
+	opacity: 0;
+	position: absolute;
+	transition: opacity 120ms ease;
+	z-index: 0;
+}
+
+.aos-desktop-icon .aos-app-icon > * {
+	position: relative;
+	z-index: 1;
+}
+
+.aos-desktop-icon.is-selected:not(.is-dragging) .aos-app-icon::before,
+.aos-desktop-icon.is-renaming .aos-app-icon::before {
+	opacity: 1;
 }
 
 .aos-desktop-icon.is-dragging {
@@ -140,36 +160,79 @@
 }
 
 .aos-desktop-app-label {
-	display: block;
+	display: -webkit-box;
 	font-size: var(--aos-text-caption);
 	font-weight: var(--aos-weight-medium);
 	line-height: var(--aos-line-height-caption);
-	max-width: 74px;
+	max-height: 2.4em;
+	max-width: var(--aos-desktop-label-line-width, 18ch);
 	overflow: hidden;
 	position: relative;
 	text-overflow: ellipsis;
-	white-space: nowrap;
+	white-space: normal;
+	width: max-content;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow-wrap: anywhere;
+	word-break: normal;
 	z-index: 1;
 }
 
-.aos-desktop-icon.is-renaming .aos-desktop-app-label {
-	background: rgba(255, 255, 255, 0.94);
-	border: 1px solid rgba(0, 0, 0, 0.18);
+.aos-desktop-icon.is-selected .aos-desktop-app-label {
+	background: var(--aos-desktop-icon-selection-bg, rgba(36, 88, 202, 0.82));
 	border-radius: 4px;
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
-	color: #1d1d1f;
-	cursor: text;
-	line-height: 1.18;
-	max-width: 96px;
-	min-height: 18px;
-	min-width: 74px;
-	outline: none;
-	overflow: visible;
-	padding: 2px 4px;
+	color: var(--aos-desktop-icon-selection-ink, #fff);
+	margin-inline: -3px;
+	padding-inline: 3px;
 	text-shadow: none;
+}
+
+.aos-desktop-icon.is-renaming .aos-desktop-app-label {
+	background: var(--aos-desktop-rename-bg, transparent);
+	border: 0;
+	border-radius: 4px;
+	box-sizing: border-box;
+	box-shadow: var(--aos-desktop-rename-shadow, 0 1px 4px rgba(0, 0, 0, 0.22));
+	color: var(--aos-desktop-rename-ink, #1d1d1f);
+	cursor: text;
+	display: block;
+	left: var(--aos-desktop-rename-left, 50%);
+	line-height: var(--aos-line-height-caption);
+	margin-inline: 0;
+	max-height: 86px;
+	max-width: min(256px, calc(100vw - 48px));
+	min-height: var(--aos-desktop-rename-height, 0);
+	min-width: var(--aos-desktop-rename-width, 0);
+	outline: 1px solid var(--aos-desktop-rename-border, rgba(0, 0, 0, 0.18));
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding: 0 3px;
+	position: absolute;
+	scrollbar-color: var(--aos-desktop-rename-scrollbar-thumb, rgba(60, 60, 67, 0.52)) var(--aos-desktop-rename-scrollbar-track, rgba(60, 60, 67, 0.12));
+	scrollbar-width: thin;
+	text-shadow: none;
+	top: var(--aos-desktop-rename-top, calc(48px + var(--aos-desktop-icon-label-gap, 10px)));
+	transform: translateX(-50%);
 	user-select: text;
 	white-space: normal;
+	width: var(--aos-desktop-rename-width, max-content);
+	-webkit-box-orient: initial;
+	-webkit-line-clamp: initial;
 	word-break: break-word;
+}
+
+.aos-desktop-icon.is-renaming .aos-desktop-app-label::-webkit-scrollbar {
+	width: 8px;
+}
+
+.aos-desktop-icon.is-renaming .aos-desktop-app-label::-webkit-scrollbar-track {
+	background: var(--aos-desktop-rename-scrollbar-track, rgba(60, 60, 67, 0.12));
+	border-radius: 999px;
+}
+
+.aos-desktop-icon.is-renaming .aos-desktop-app-label::-webkit-scrollbar-thumb {
+	background: var(--aos-desktop-rename-scrollbar-thumb, rgba(60, 60, 67, 0.52));
+	border-radius: 999px;
 }
 
 .aos-desktop-icon.is-renaming .aos-desktop-app-label::selection {

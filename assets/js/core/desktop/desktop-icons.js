@@ -14,6 +14,7 @@
 		let dragZIndex = 20;
 		let activeDropTarget = null;
 		let currentSortMode = 'none';
+		let selectedIcon = null;
 		const sortModes = [
 			'none',
 			'snap-to-grid',
@@ -85,6 +86,10 @@
 				kind: icon.dataset.aosDesktopIconKind || 'item',
 				key: getIconKey(icon)
 			};
+		}
+
+		function isTextEditingTarget(target) {
+			return Boolean(target && typeof target.closest === 'function' && target.closest('a, input, select, textarea, [contenteditable="true"], [contenteditable="plaintext-only"]'));
 		}
 
 		function normalizeSortMode(mode) {
@@ -219,6 +224,54 @@
 			}
 		}
 
+		function clearSelectedIcon() {
+			if (selectedIcon) {
+				selectedIcon.classList.remove('is-selected');
+				selectedIcon.setAttribute('aria-pressed', 'false');
+				selectedIcon = null;
+			}
+		}
+
+		function selectIcon(icon) {
+			if (!icon || icon.classList.contains('is-renaming')) {
+				return;
+			}
+
+			if (selectedIcon && selectedIcon !== icon) {
+				clearSelectedIcon();
+			}
+
+			selectedIcon = icon;
+			selectedIcon.classList.add('is-selected');
+			selectedIcon.setAttribute('aria-pressed', 'true');
+		}
+
+		function focusDesktopKeyboardTarget() {
+			if (!desktop || typeof desktop.focus !== 'function') {
+				return;
+			}
+
+			if (!desktop.hasAttribute('tabindex')) {
+				desktop.setAttribute('tabindex', '-1');
+			}
+
+			desktop.focus({ preventScroll: true });
+		}
+
+		function renameSelectedIcon() {
+			if (!selectedIcon || selectedIcon.hidden || selectedIcon.classList.contains('is-renaming')) {
+				return false;
+			}
+
+			if (typeof options.onRenameIcon !== 'function') {
+				return false;
+			}
+
+			return Boolean(options.onRenameIcon(Object.assign(getIconDetail(selectedIcon), {
+				iconElement: selectedIcon
+			})));
+		}
+
 		function setDropTarget(target) {
 			if (activeDropTarget === target) {
 				return;
@@ -246,7 +299,7 @@
 		function getDefaultState(icon, index) {
 			const layer = getIconLayer(icon);
 			const iconWidth = icon.offsetWidth || 74;
-			const iconHeight = icon.offsetHeight || 76;
+			const iconHeight = icon.offsetHeight || 94;
 			const topInset = 24;
 			const rightInset = 24;
 			const columnGap = 10;
@@ -269,7 +322,7 @@
 		function getGridMetrics(icon) {
 			const layer = getIconLayer(icon);
 			const iconWidth = icon.offsetWidth || 74;
-			const iconHeight = icon.offsetHeight || 76;
+			const iconHeight = icon.offsetHeight || 94;
 			const topInset = 24;
 			const rightInset = 24;
 			const columnGap = 10;
@@ -492,6 +545,7 @@
 
 			icon.dataset.aosDesktopIconBound = '1';
 			icon.draggable = false;
+			icon.setAttribute('aria-pressed', icon.classList.contains('is-selected') ? 'true' : 'false');
 			icon.querySelectorAll('img').forEach((image) => {
 				image.draggable = false;
 			});
@@ -501,7 +555,11 @@
 					event.preventDefault();
 					event.stopPropagation();
 					delete icon.dataset.aosSuppressClick;
+					return;
 				}
+
+				selectIcon(icon);
+				focusDesktopKeyboardTarget();
 			}, true);
 
 			icon.addEventListener('pointerdown', (event) => {
@@ -509,6 +567,8 @@
 					return;
 				}
 
+				selectIcon(icon);
+				focusDesktopKeyboardTarget();
 				event.preventDefault();
 
 				const layer = getIconLayer(icon);
@@ -591,8 +651,44 @@
 		}
 
 		function bindExistingIcons() {
+			bindDesktopSelection();
 			markLayersManaged();
 			getIcons().forEach(makeDraggable);
+		}
+
+		function bindDesktopSelection() {
+			if (!desktop || desktop.dataset.aosDesktopSelectionBound === '1') {
+				return;
+			}
+
+			desktop.dataset.aosDesktopSelectionBound = '1';
+			if (!desktop.hasAttribute('tabindex')) {
+				desktop.setAttribute('tabindex', '-1');
+			}
+			desktop.addEventListener('pointerdown', (event) => {
+				if (event.target === desktop) {
+					clearSelectedIcon();
+					focusDesktopKeyboardTarget();
+				}
+			});
+			desktop.addEventListener('keydown', (event) => {
+				if (
+					event.defaultPrevented
+					|| event.key !== 'Enter'
+					|| event.altKey
+					|| event.ctrlKey
+					|| event.metaKey
+					|| event.shiftKey
+					|| isTextEditingTarget(event.target)
+				) {
+					return;
+				}
+
+				if (renameSelectedIcon()) {
+					event.preventDefault();
+					event.stopPropagation();
+				}
+			});
 		}
 
 		function restoreSession() {

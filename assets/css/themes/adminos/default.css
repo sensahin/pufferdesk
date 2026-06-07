@@ -109,6 +109,8 @@
 	--aos-settings-main-bg: rgb(255, 255, 255);
 	--aos-settings-card-bg: rgb(247, 247, 247);
 	--aos-settings-card-border: rgba(60, 60, 67, 0.08);
+	--aos-finder-sidebar-active-bg: rgba(60, 60, 67, 0.1);
+	--aos-finder-sidebar-active-ink: var(--aos-accent);
 	--aos-line: var(--aos-material-regular-border);
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-shadow: var(--aos-material-regular-shadow);
@@ -147,6 +149,19 @@
 	--aos-accent-medium: rgba(36, 88, 202, 0.28);
 	--aos-accent-active: rgba(36, 88, 202, 0.82);
 	--aos-accent-active-strong: linear-gradient(180deg, rgba(36, 88, 202, 0.92), rgba(36, 88, 202, 0.78));
+	--aos-desktop-icon-label-gap: 12px;
+	--aos-desktop-label-line-width: 18ch;
+	--aos-desktop-icon-selection-bg: var(--aos-accent-active);
+	--aos-desktop-icon-selection-icon-bg: rgba(60, 60, 67, 0.14);
+	--aos-desktop-icon-selection-icon-inset: -7px -10px -7px;
+	--aos-desktop-icon-selection-icon-radius: 10px;
+	--aos-desktop-icon-selection-ink: var(--aos-accent-ink);
+	--aos-desktop-rename-bg: transparent;
+	--aos-desktop-rename-border: var(--aos-accent);
+	--aos-desktop-rename-ink: #1d1d1f;
+	--aos-desktop-rename-shadow: 0 0 0 2px rgb(var(--aos-accent-rgb) / 0.34), 0 6px 14px rgba(15, 23, 42, 0.18);
+	--aos-desktop-rename-scrollbar-thumb: rgba(60, 60, 67, 0.46);
+	--aos-desktop-rename-scrollbar-track: rgba(60, 60, 67, 0.12);
 	--aos-icon-widget-app-surface-bg: transparent;
 	--aos-icon-widget-app-surface-border: transparent;
 	--aos-icon-widget-app-surface-border-width: 0;
@@ -164,8 +179,8 @@
 	--aos-icon-widget-widget-border: var(--aos-card-border);
 	--aos-icon-widget-widget-shadow: var(--aos-card-shadow);
 	--aos-icon-widget-widget-icon: var(--aos-accent);
-	--aos-folder-icon-filter: none;
-	--aos-folder-icon-opacity: 1;
+	--aos-folder-icon-filter: grayscale(1) sepia(1) saturate(4.8) hue-rotate(var(--aos-accent-hue-shift)) brightness(0.92) contrast(0.98);
+	--aos-folder-icon-opacity: 0.94;
 	--aos-running-indicator: rgba(12, 18, 24, 0.88);
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 247, 247, 0.84));
 	--aos-window-bar-border: rgba(60, 60, 67, 0.12);
@@ -1003,6 +1018,13 @@
 	--aos-menu-mark-filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.42));
 	--aos-about-title-color: #e7e9e8;
 	--aos-about-text-color: #d7dbda;
+	--aos-desktop-icon-selection-icon-bg: rgba(255, 255, 255, 0.12);
+	--aos-desktop-rename-bg: transparent;
+	--aos-desktop-rename-border: var(--aos-accent);
+	--aos-desktop-rename-ink: rgba(246, 248, 251, 0.98);
+	--aos-desktop-rename-shadow: 0 0 0 2px rgb(var(--aos-accent-rgb) / 0.42), 0 8px 18px rgba(0, 0, 0, 0.3);
+	--aos-desktop-rename-scrollbar-thumb: rgba(235, 235, 245, 0.52);
+	--aos-desktop-rename-scrollbar-track: rgba(235, 235, 245, 0.12);
 	--aos-liquid-glass-sheen: linear-gradient(155deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.06) 24%, rgba(255, 255, 255, 0) 56%);
 	--aos-liquid-glass-edge-highlight: rgba(255, 255, 255, 0.16);
 	--aos-liquid-glass-inner-glow: rgba(255, 255, 255, 0.06);
@@ -1064,6 +1086,7 @@
 	--aos-settings-main-bg: rgb(30, 30, 30);
 	--aos-settings-card-bg: rgb(37, 37, 37);
 	--aos-settings-card-border: rgba(230, 230, 230, 0.075);
+	--aos-finder-sidebar-active-bg: rgba(255, 255, 255, 0.09);
 	--aos-line: var(--aos-material-regular-border);
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-shadow: var(--aos-material-regular-shadow);
@@ -1260,7 +1283,7 @@
 	--aos-icon-widget-widget-border: rgba(255, 255, 255, 0.15);
 	--aos-icon-widget-widget-shadow: 0 20px 50px rgba(0, 0, 0, 0.36), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
 	--aos-icon-widget-widget-icon: rgba(246, 248, 251, 0.94);
-	--aos-folder-icon-filter: brightness(0.68) saturate(0.82) contrast(1.12);
+	--aos-folder-icon-filter: grayscale(1) sepia(1) saturate(4.4) hue-rotate(var(--aos-accent-hue-shift)) brightness(0.62) contrast(1.08);
 	--aos-folder-icon-opacity: 0.96;
 }
 
@@ -1282,7 +1305,7 @@
 	--aos-icon-widget-widget-border: rgba(255, 255, 255, 0.34);
 	--aos-icon-widget-widget-shadow: 0 18px 46px rgba(8, 24, 38, 0.16), 0 1px 0 rgba(255, 255, 255, 0.22) inset;
 	--aos-icon-widget-widget-icon: var(--aos-ink);
-	--aos-folder-icon-filter: saturate(0.66) contrast(0.94) brightness(1.12);
+	--aos-folder-icon-filter: grayscale(1) sepia(1) saturate(4.2) hue-rotate(var(--aos-accent-hue-shift)) brightness(1.08) contrast(0.9);
 	--aos-folder-icon-opacity: 0.78;
 }
 
@@ -1320,7 +1343,7 @@
 	--aos-icon-widget-widget-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(20, 30, 38, 0.22));
 	--aos-icon-widget-widget-border: rgba(255, 255, 255, 0.16);
 	--aos-icon-widget-widget-icon: rgba(246, 248, 251, 0.94);
-	--aos-folder-icon-filter: saturate(0.6) contrast(0.96) brightness(0.9);
+	--aos-folder-icon-filter: grayscale(1) sepia(1) saturate(4) hue-rotate(var(--aos-accent-hue-shift)) brightness(0.84) contrast(0.94);
 	--aos-folder-icon-opacity: 0.72;
 }
 
@@ -1329,6 +1352,10 @@
 	--aos-icon-widget-surface-bg: linear-gradient(160deg, rgb(var(--aos-accent-rgb) / 0.48), rgb(var(--aos-accent-rgb) / 0.22));
 	--aos-icon-widget-tile-bg: linear-gradient(180deg, rgb(var(--aos-accent-rgb) / 0.78), rgb(var(--aos-accent-rgb) / 0.52));
 	--aos-icon-widget-widget-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.22), rgba(16, 24, 32, 0.34));
+}
+
+.aos-shell[data-aos-theme="adminos"][data-aos-accent-color="graphite"] {
+	--aos-folder-icon-filter: grayscale(1) saturate(0.2) brightness(0.9) contrast(1.02);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-accent-color="graphite"][data-aos-icon-widget-style="tinted"] {

@@ -687,10 +687,6 @@
 			header.append(leading, createFolderToolbarActions());
 
 			if (!folderApps.length) {
-				const empty = document.createElement('p');
-				empty.className = 'aos-folder-empty';
-				empty.textContent = 'No items';
-				pane.appendChild(empty);
 				main.append(header, pane);
 				return main;
 			}
@@ -1009,6 +1005,9 @@
 
 				const folderButton = event.target.closest('[data-aos-open-folder]');
 				if (folderButton) {
+					if (folderButton.matches('.aos-desktop-folder')) {
+						return;
+					}
 					openFolder(folderButton.dataset.aosOpenFolder);
 					return;
 				}
@@ -1018,6 +1017,16 @@
 					openUrl(urlButton.dataset.aosOpenUrl, urlButton.dataset.aosTitle, urlButton.dataset.aosIcon);
 					return;
 				}
+			});
+
+			shell.addEventListener('dblclick', (event) => {
+				const folderButton = event.target.closest('[data-aos-open-folder]');
+				if (!folderButton || !folderButton.matches('.aos-desktop-folder') || folderButton.classList.contains('is-renaming')) {
+					return;
+				}
+
+				event.preventDefault();
+				openFolder(folderButton.dataset.aosOpenFolder);
 			});
 		}
 
