@@ -350,6 +350,10 @@ If a comment describes behavior that changed, update or delete it.
 
 No dead code. No abandoned experiments. No duplicate implementations.
 
+## Process Cleanup
+
+Before finishing a task, stop any long-running process, watcher, local server, browser automation tab, or temporary background job started for that task. Re-check for stale processes when browser automation, dev servers, package scripts, WP-CLI, or visual smoke tests were used. Do not kill unrelated user apps, WordPress/MAMP services, Codex infrastructure, or macOS system services unless the project owner explicitly asks for that specific process to be stopped. Report any process intentionally left running.
+
 ## When Unsure
 
 If a change affects routing, saved user layout, theme inheritance, release packaging, security, or WordPress compatibility, stop and inspect the relevant existing classes before editing.

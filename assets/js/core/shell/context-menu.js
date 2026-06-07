@@ -553,34 +553,23 @@
 			const targetCenterX = targetRect.left - shellRect.left + (targetRect.width / 2);
 			const targetCenterY = targetRect.top - shellRect.top + (targetRect.height / 2);
 			const gap = 26;
-			let left = targetCenterX - (popover.offsetWidth / 2);
+			const preferredMenuOffset = clampPosition(Math.round(popover.offsetWidth * 0.24), 52, 66);
+			let left = targetCenterX - preferredMenuOffset;
 			let top = targetRect.top - shellRect.top - popover.offsetHeight - gap;
-			let placement = 'above';
-
-			popover.style.removeProperty('--aos-dock-context-tail-left');
-			popover.style.removeProperty('--aos-dock-context-tail-top');
 
 			if (dockPosition === 'left') {
-				placement = 'right';
 				left = targetRect.right - shellRect.left + gap;
 				top = targetCenterY - (popover.offsetHeight / 2);
 			} else if (dockPosition === 'right') {
-				placement = 'left';
 				left = targetRect.left - shellRect.left - popover.offsetWidth - gap;
 				top = targetCenterY - (popover.offsetHeight / 2);
 			}
 
 			left = clampPosition(Math.round(left), minLeft, maxLeft);
 			top = clampPosition(Math.round(top), minTop, maxTop);
-			popover.dataset.aosDockContextPlacement = placement;
+			delete popover.dataset.aosDockContextPlacement;
 			popover.style.left = `${left}px`;
 			popover.style.top = `${top}px`;
-
-			if (placement === 'above') {
-				popover.style.setProperty('--aos-dock-context-tail-left', `${Math.round(targetCenterX - left)}px`);
-			} else {
-				popover.style.setProperty('--aos-dock-context-tail-top', `${Math.round(targetCenterY - top)}px`);
-			}
 
 			return true;
 		}
