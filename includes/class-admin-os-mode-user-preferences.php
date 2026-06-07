@@ -12,6 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class Admin_OS_Mode_User_Preferences {
 	const META_APPEARANCE = 'admin_os_mode_appearance';
+	const META_APP_LOCATIONS = 'admin_os_mode_app_locations';
 	const META_DESKTOP_DOCK = 'admin_os_mode_desktop_dock';
 	const META_ENABLED    = 'admin_os_mode_enabled';
 	const META_MENU_BAR   = 'admin_os_mode_menu_bar';
@@ -20,6 +21,7 @@ final class Admin_OS_Mode_User_Preferences {
 	const META_WALLPAPER_UPLOADS = 'admin_os_mode_wallpaper_uploads';
 	const WALLPAPER_UPLOAD_LIMIT = 12;
 	const RESET_DOMAIN_APPEARANCE = 'appearance';
+	const RESET_DOMAIN_APP_LOCATIONS = 'app_locations';
 	const RESET_DOMAIN_DESKTOP_DOCK = 'desktop_dock';
 	const RESET_DOMAIN_MENU_BAR = 'menu_bar';
 	const RESET_DOMAIN_THEME = 'theme';
@@ -81,6 +83,13 @@ final class Admin_OS_Mode_User_Preferences {
 		'wallpaper_click'    => array( 'always', 'never' ),
 		'dim_widgets'        => array( 'automatic', 'always', 'never' ),
 	);
+
+	/**
+	 * Allowed app location values.
+	 *
+	 * @var array<int,string>
+	 */
+	private $app_location_options = array( 'dock', 'desktop', 'both', 'hidden' );
 
 	/**
 	 * Default Menu Bar preferences.
@@ -245,6 +254,68 @@ final class Admin_OS_Mode_User_Preferences {
 		update_user_meta( $user_id, self::META_DESKTOP_DOCK, $desktop_dock );
 
 		return $desktop_dock;
+	}
+
+	/**
+	 * Get the user's app placement preferences.
+	 *
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param int                            $user_id Optional user ID.
+	 * @return array<string,string>
+	 */
+	public function get_app_locations( $apps, $user_id = 0 ) {
+		$user_id       = $user_id ? (int) $user_id : get_current_user_id();
+		$app_locations = get_user_meta( $user_id, self::META_APP_LOCATIONS, true );
+
+		return $this->sanitize_app_locations( is_array( $app_locations ) ? $app_locations : array(), $apps );
+	}
+
+	/**
+	 * Save the user's app placement preferences.
+	 *
+	 * @param array<string,mixed>             $app_locations App location data.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param int                            $user_id Optional user ID.
+	 * @return array<string,string>
+	 */
+	public function set_app_locations( $app_locations, $apps, $user_id = 0 ) {
+		$user_id       = $user_id ? (int) $user_id : get_current_user_id();
+		$app_locations = $this->sanitize_app_locations( is_array( $app_locations ) ? $app_locations : array(), $apps );
+
+		update_user_meta( $user_id, self::META_APP_LOCATIONS, $app_locations );
+
+		return $app_locations;
+	}
+
+	/**
+	 * Filter apps for a shell launch surface.
+	 *
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param array<string,string>           $app_locations App location map.
+	 * @param string                         $surface Surface ID, either dock or desktop.
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function filter_apps_for_surface( $apps, $app_locations, $surface ) {
+		$surface = sanitize_key( (string) $surface );
+		if ( ! in_array( $surface, array( 'dock', 'desktop' ), true ) ) {
+			return array();
+		}
+
+		return array_values(
+			array_filter(
+				(array) $apps,
+				function ( $app ) use ( $app_locations, $surface ) {
+					if ( ! is_array( $app ) || empty( $app['id'] ) ) {
+						return false;
+					}
+
+					$id       = sanitize_key( (string) $app['id'] );
+					$location = isset( $app_locations[ $id ] ) ? $app_locations[ $id ] : 'dock';
+
+					return 'both' === $location || $surface === $location;
+				}
+			)
+		);
 	}
 
 	/**
@@ -462,6 +533,7 @@ final class Admin_OS_Mode_User_Preferences {
 
 		return array(
 			self::RESET_DOMAIN_APPEARANCE,
+			self::RESET_DOMAIN_APP_LOCATIONS,
 			self::RESET_DOMAIN_DESKTOP_DOCK,
 			self::RESET_DOMAIN_MENU_BAR,
 			self::RESET_DOMAIN_THEME,
@@ -534,6 +606,61 @@ final class Admin_OS_Mode_User_Preferences {
 	}
 
 	/**
+	 * Sanitize app placement preferences.
+	 *
+	 * @param array<string,mixed>             $app_locations Raw app location data.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @return array<string,string>
+	 */
+	private function sanitize_app_locations( $app_locations, $apps ) {
+		$sanitized = array();
+
+		foreach ( (array) $apps as $app ) {
+			if ( ! is_array( $app ) || empty( $app['id'] ) ) {
+				continue;
+			}
+
+			$id       = sanitize_key( (string) $app['id'] );
+			$location = isset( $app_locations[ $id ] ) ? sanitize_key( (string) $app_locations[ $id ] ) : 'dock';
+
+			if ( ! in_array( $location, $this->app_location_options, true ) ) {
+				$location = 'dock';
+			}
+
+			$sanitized[ $id ] = $location;
+		}
+
+		foreach ( (array) $app_locations as $raw_id => $raw_location ) {
+			$id = sanitize_key( (string) $raw_id );
+			if ( isset( $sanitized[ $id ] ) || ! $this->should_preserve_deferred_app_location( $id ) ) {
+				continue;
+			}
+
+			$location = sanitize_key( (string) $raw_location );
+			if ( in_array( $location, $this->app_location_options, true ) ) {
+				$sanitized[ $id ] = $location;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Whether an app location key may be preserved without a current registry match.
+	 *
+	 * Plugin-derived WordPress menu apps can be visible during a full admin page
+	 * request but absent during admin-ajax.php depending on how the plugin wires its
+	 * menu hooks. Preserve those per-user choices so the shell can apply them when
+	 * the app appears again.
+	 *
+	 * @param string $id App ID.
+	 * @return bool
+	 */
+	private function should_preserve_deferred_app_location( $id ) {
+		return strlen( $id ) <= 120 && 0 === strpos( $id, 'wp-admin-' );
+	}
+
+	/**
 	 * Sanitize a Menu Bar preference payload.
 	 *
 	 * @param array<string,mixed> $menu_bar Raw Menu Bar data.
@@ -595,6 +722,7 @@ final class Admin_OS_Mode_User_Preferences {
 	private function get_reset_meta_keys() {
 		return array(
 			self::RESET_DOMAIN_APPEARANCE        => self::META_APPEARANCE,
+			self::RESET_DOMAIN_APP_LOCATIONS     => self::META_APP_LOCATIONS,
 			self::RESET_DOMAIN_DESKTOP_DOCK      => self::META_DESKTOP_DOCK,
 			self::RESET_DOMAIN_MENU_BAR          => self::META_MENU_BAR,
 			self::RESET_DOMAIN_THEME             => self::META_THEME,

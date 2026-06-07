@@ -105,10 +105,11 @@ final class Admin_OS_Mode_Assets {
 			wp_enqueue_media();
 		}
 
-		$apps    = $this->app_registry->get_apps();
-		$folders = $this->app_registry->get_folders( $apps );
-		$widgets = $this->widget_registry->get_widgets();
-		$theme   = $this->theme_registry->get_current_theme( $this->preferences );
+		$apps          = $this->app_registry->get_apps();
+		$app_locations = $this->preferences->get_app_locations( $apps );
+		$folders       = $this->app_registry->get_folders( $apps );
+		$widgets       = $this->widget_registry->get_widgets();
+		$theme         = $this->theme_registry->get_current_theme( $this->preferences );
 
 		foreach ( $theme['stylesheet_stack'] as $index => $stylesheet ) {
 			$stylesheet_path = ADMIN_OS_MODE_DIR . 'assets/css/themes/' . $stylesheet;
@@ -131,7 +132,7 @@ final class Admin_OS_Mode_Assets {
 
 		wp_add_inline_script(
 			$config_handle,
-			'window.adminOSMode = ' . wp_json_encode( $this->get_runtime_config( $apps, $folders, $widgets, $theme ) ) . ';',
+			'window.adminOSMode = ' . wp_json_encode( $this->get_runtime_config( $apps, $folders, $widgets, $theme, $app_locations ) ) . ';',
 			'before'
 		);
 	}
@@ -350,14 +351,16 @@ final class Admin_OS_Mode_Assets {
 	 * @param array<int,array<string,mixed>> $folders Folders.
 	 * @param array<int,array<string,mixed>> $widgets Widgets.
 	 * @param array<string,mixed>            $theme Current theme.
+	 * @param array<string,string>           $app_locations App location map.
 	 * @return array<string,mixed>
 	 */
-	private function get_runtime_config( $apps, $folders, $widgets, $theme ) {
+	private function get_runtime_config( $apps, $folders, $widgets, $theme, $app_locations ) {
 		$current_user = wp_get_current_user();
 		$role_label   = $this->get_user_role_label( $current_user );
 
 		return array(
 			'appearance' => $this->preferences->get_appearance(),
+			'appLocations' => $app_locations,
 			'apps'       => $apps,
 			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
 			'classicUrl' => $this->router->get_toggle_url( false ),

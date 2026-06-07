@@ -52,6 +52,15 @@
 			];
 		}
 
+		function getWindowBrowserUrl(detail = {}, app = null) {
+			const win = detail.windowElement || null;
+			if (win && win.dataset && win.dataset.aosWindowUrl) {
+				return win.dataset.aosWindowUrl;
+			}
+
+			return app && typeof app.url === 'string' ? app.url : '';
+		}
+
 		function normalizeMenu(definition, detail = {}) {
 			const normalized = menuSchema.normalizeDefinition(definition, {
 				appLabel: detail.label || 'Context Menu'
@@ -138,17 +147,29 @@
 
 		registerProvider('window', (detail) => {
 			const app = detail.appId ? appMap.get(detail.appId) : null;
+			const browserUrl = getWindowBrowserUrl(detail, app);
 			const items = [
 				commandItem('Bring to Front', 'window.focus', {
 					icon: 'dashicons-editor-expand'
-				}),
+				})
+			];
+
+			if (browserUrl) {
+				items.push(commandItem('Open in Browser Tab', 'window.open-browser-tab', {
+					icon: 'dashicons-external',
+					title: detail.label || (app && app.label ? app.label : ''),
+					url: browserUrl
+				}));
+			}
+
+			items.push(
 				commandItem('Minimize', 'window.minimize', {
 					icon: 'dashicons-minus'
 				}),
 				commandItem('Close', 'window.close', {
 					icon: 'dashicons-no-alt'
 				})
-			];
+			);
 
 			if (app) {
 				items.push(separator(), commandItem('About', 'open-about', {

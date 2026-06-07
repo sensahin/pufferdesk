@@ -9,6 +9,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * @var array<int,array<string,string>> $apps
+ * @var array<int,array<string,string>> $desktop_apps
+ * @var array<int,array<string,string>> $dock_apps
  * @var array<int,array<string,mixed>>  $widgets
  * @var array<int,array<string,string>> $folders
  * @var array<string,mixed>             $theme
@@ -22,6 +24,14 @@ defined( 'ABSPATH' ) || exit;
 >
 	<?php
 	$this->render_part(
+		'desktop/apps.php',
+		array(
+			'apps'  => isset( $desktop_apps ) && is_array( $desktop_apps ) ? $desktop_apps : array(),
+			'theme' => $theme,
+		)
+	);
+
+	$this->render_part(
 		'widgets/desktop.php',
 		array(
 			'widgets' => $widgets,
@@ -32,7 +42,7 @@ defined( 'ABSPATH' ) || exit;
 	$this->render_part(
 		'shell/dock.php',
 		array(
-			'apps' => $apps,
+			'apps'  => isset( $dock_apps ) && is_array( $dock_apps ) ? $dock_apps : $apps,
 			'theme' => $theme,
 		)
 	);

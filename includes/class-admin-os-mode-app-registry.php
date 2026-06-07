@@ -129,6 +129,8 @@ final class Admin_OS_Mode_App_Registry {
 			);
 		}
 
+		$apps = $this->merge_admin_menu_apps( $apps );
+
 		$apps = array_values(
 			array_filter(
 				$apps,
@@ -154,6 +156,318 @@ final class Admin_OS_Mode_App_Registry {
 		$apps = apply_filters( 'admin_os_mode_apps', $apps );
 
 		return $this->normalize_apps( $apps );
+	}
+
+	/**
+	 * Merge visible WordPress top-level admin menu items into the app registry.
+	 *
+	 * Curated built-in apps are retained as overrides while the final order follows
+	 * the WordPress admin menu where possible.
+	 *
+	 * @param array<int,array<string,mixed>> $apps Curated apps.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function merge_admin_menu_apps( $apps ) {
+		$menu_items = $this->get_admin_menu_items();
+
+		if ( empty( $menu_items ) ) {
+			return $apps;
+		}
+
+		$by_id  = array();
+		$by_url = array();
+		foreach ( $apps as $index => $app ) {
+			if ( ! is_array( $app ) ) {
+				continue;
+			}
+
+			if ( ! empty( $app['id'] ) ) {
+				$by_id[ sanitize_key( (string) $app['id'] ) ] = $index;
+			}
+			if ( ! empty( $app['url'] ) ) {
+				$by_url[ $this->get_url_key( (string) $app['url'] ) ] = $index;
+			}
+		}
+
+		$ordered = array();
+		$used    = array();
+
+		foreach ( $menu_items as $item ) {
+			if ( ! is_array( $item ) || empty( $item[2] ) ) {
+				continue;
+			}
+
+			$slug = (string) $item[2];
+			if ( $this->is_skipped_admin_menu_item( $slug, $item ) ) {
+				continue;
+			}
+
+			$cap = isset( $item[1] ) ? (string) $item[1] : 'read';
+			if ( '' !== $cap && ! current_user_can( $cap ) ) {
+				continue;
+			}
+
+			$menu_title = isset( $item[0] ) ? (string) $item[0] : '';
+			$id         = $this->get_admin_menu_app_id( $slug );
+			$url        = $this->get_admin_menu_url( $slug );
+			$label      = $this->get_admin_menu_label( $menu_title );
+			if ( '' === $id || '' === $url || '' === $label ) {
+				continue;
+			}
+
+			$url_key = $this->get_url_key( $url );
+			$index   = isset( $by_id[ $id ] )
+				? $by_id[ $id ]
+				: ( isset( $by_url[ $url_key ] ) ? $by_url[ $url_key ] : null );
+
+			if ( null !== $index ) {
+				if ( ! isset( $used[ $index ] ) ) {
+					$ordered[]      = $apps[ $index ];
+					$used[ $index ] = true;
+				}
+				continue;
+			}
+
+			$ordered[] = array(
+				'id'     => $id,
+				'label'  => $label,
+				'url'    => $url,
+				'icon'   => $this->get_admin_menu_icon( isset( $item[6] ) ? (string) $item[6] : '', $menu_title ),
+				'group'  => 'site',
+				'cap'    => $cap ? $cap : 'read',
+				'source' => 'wp-menu',
+			);
+		}
+
+		foreach ( $apps as $index => $app ) {
+			if ( ! isset( $used[ $index ] ) ) {
+				$ordered[] = $app;
+			}
+		}
+
+		return $ordered;
+	}
+
+	/**
+	 * Get WordPress admin menu items, building an AJAX-safe snapshot when needed.
+	 *
+	 * WordPress does not normally populate the top-level $menu array during
+	 * admin-ajax.php requests, but the settings save endpoint still needs the same
+	 * plugin-derived app IDs that the shell rendered on the full admin page.
+	 *
+	 * @return array<int,array<int,mixed>>
+	 */
+	private function get_admin_menu_items() {
+		global $menu, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv, $_registered_pages, $_parent_pages, $_wp_real_parent_file;
+
+		if ( is_array( $menu ) && ! empty( $menu ) ) {
+			return $menu;
+		}
+
+		if ( ! is_admin() || did_action( 'admin_menu' ) ) {
+			return is_array( $menu ) ? $menu : array();
+		}
+
+		if ( ! function_exists( 'add_menu_page' ) && file_exists( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		if ( ! function_exists( 'add_menu_page' ) ) {
+			return array();
+		}
+
+		$menu                 = is_array( $menu ) ? $menu : array();
+		$submenu              = is_array( $submenu ) ? $submenu : array();
+		$_wp_menu_nopriv     = is_array( $_wp_menu_nopriv ) ? $_wp_menu_nopriv : array();
+		$_wp_submenu_nopriv  = is_array( $_wp_submenu_nopriv ) ? $_wp_submenu_nopriv : array();
+		$_registered_pages   = is_array( $_registered_pages ) ? $_registered_pages : array();
+		$_parent_pages       = is_array( $_parent_pages ) ? $_parent_pages : array();
+		$_wp_real_parent_file = is_array( $_wp_real_parent_file ) ? $_wp_real_parent_file : array();
+
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook used to build an admin menu snapshot for AJAX saves.
+		do_action( 'admin_menu', '' );
+
+		return is_array( $menu ) ? $menu : array();
+	}
+
+	/**
+	 * Whether a WordPress admin menu item should not become an Admin OS app.
+	 *
+	 * @param string             $slug Menu slug.
+	 * @param array<int,mixed>   $item Raw menu item.
+	 * @return bool
+	 */
+	private function is_skipped_admin_menu_item( $slug, $item ) {
+		if ( Admin_OS_Mode_Router::PAGE_SLUG === $slug ) {
+			return true;
+		}
+
+		if ( false !== strpos( $slug, 'separator' ) ) {
+			return true;
+		}
+
+		$classes = isset( $item[4] ) ? (string) $item[4] : '';
+
+		return false !== strpos( $classes, 'wp-menu-separator' );
+	}
+
+	/**
+	 * Build a stable app ID for a WordPress admin menu slug.
+	 *
+	 * @param string $slug Menu slug.
+	 * @return string
+	 */
+	private function get_admin_menu_app_id( $slug ) {
+		$core_ids = array(
+			'edit-comments.php'           => 'comments',
+			'edit.php'                    => 'posts',
+			'edit.php?post_type=page'     => 'pages',
+			'index.php'                   => 'dashboard',
+			'options-general.php'         => 'settings',
+			'plugins.php'                 => 'plugins',
+			'themes.php'                  => 'appearance',
+			'tools.php'                   => 'tools',
+			'upload.php'                  => 'media',
+			'users.php'                   => 'users',
+			'admin.php?page=wc-admin'     => 'woocommerce',
+		);
+
+		if ( isset( $core_ids[ $slug ] ) ) {
+			return $core_ids[ $slug ];
+		}
+
+		$id = preg_replace( '/[^a-z0-9]+/', '-', strtolower( $slug ) );
+		$id = is_string( $id ) ? trim( $id, '-' ) : '';
+
+		return $id ? 'wp-admin-' . sanitize_key( $id ) : '';
+	}
+
+	/**
+	 * Get a WordPress admin URL for a menu slug.
+	 *
+	 * @param string $slug Menu slug.
+	 * @return string
+	 */
+	private function get_admin_menu_url( $slug ) {
+		if ( preg_match( '#^https?://#i', $slug ) ) {
+			return esc_url_raw( $slug );
+		}
+
+		if ( false !== strpos( $slug, '.php' ) ) {
+			return admin_url( $slug );
+		}
+
+		return admin_url( 'admin.php?page=' . rawurlencode( $slug ) );
+	}
+
+	/**
+	 * Normalize a WordPress admin menu label.
+	 *
+	 * @param string $label Raw menu title.
+	 * @return string
+	 */
+	private function get_admin_menu_label( $label ) {
+		$label = preg_replace( '#<span[^>]*>.*?</span>#is', '', $label );
+		$label = wp_strip_all_tags( is_string( $label ) ? $label : '' );
+
+		return sanitize_text_field( trim( $label ) );
+	}
+
+	/**
+	 * Normalize a WordPress admin menu icon.
+	 *
+	 * @param string $icon       Raw menu icon.
+	 * @param string $menu_title Raw menu title.
+	 * @return string|array<string,string>
+	 */
+	private function get_admin_menu_icon( $icon, $menu_title = '' ) {
+		$icon = trim( $icon );
+		if ( '' === $icon || 'none' === $icon ) {
+			$title_icon = $this->get_admin_menu_title_icon( $menu_title );
+
+			return $title_icon ? $title_icon : 'dashicons-admin-generic';
+		}
+
+		if ( 'dashicons-admin-generic' === $icon ) {
+			$title_icon = $this->get_admin_menu_title_icon( $menu_title );
+
+			return $title_icon ? $title_icon : $icon;
+		}
+
+		if ( 0 === strpos( $icon, 'dashicons-' ) ) {
+			return $icon;
+		}
+
+		$url = $this->get_admin_menu_image_url( $icon );
+
+		return $url ? array(
+			'type' => 'image',
+			'url'  => $url,
+		) : 'dashicons-admin-generic';
+	}
+
+	/**
+	 * Extract an image icon from plugin menu title HTML.
+	 *
+	 * Some plugins embed an image inside the menu title instead of using
+	 * add_menu_page()'s icon argument to avoid WordPress SVG color filtering.
+	 *
+	 * @param string $menu_title Raw menu title.
+	 * @return array<string,string>|null
+	 */
+	private function get_admin_menu_title_icon( $menu_title ) {
+		if ( '' === $menu_title || false === stripos( $menu_title, '<img' ) ) {
+			return null;
+		}
+
+		if ( ! preg_match( '#<img[^>]+src=[\'"]([^\'"]+)[\'"][^>]*>#i', $menu_title, $matches ) ) {
+			return null;
+		}
+
+		$url = $this->get_admin_menu_image_url( html_entity_decode( $matches[1], ENT_QUOTES ) );
+		if ( '' === $url ) {
+			return null;
+		}
+
+		return array(
+			'type' => 'image',
+			'url'  => $url,
+		);
+	}
+
+	/**
+	 * Normalize an image URL found in WordPress admin menu metadata.
+	 *
+	 * @param string $url Raw image URL.
+	 * @return string
+	 */
+	private function get_admin_menu_image_url( $url ) {
+		$url = trim( html_entity_decode( (string) $url, ENT_QUOTES ) );
+		if ( $this->is_admin_menu_data_image_url( $url ) ) {
+			return $url;
+		}
+
+		return esc_url_raw( $url );
+	}
+
+	/**
+	 * Check whether a data URI is a narrow image-only admin menu icon.
+	 *
+	 * @param string $url Raw image URL.
+	 * @return bool
+	 */
+	private function is_admin_menu_data_image_url( $url ) {
+		return (bool) preg_match( '#^data:image/(?:png|gif|jpe?g|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$#', $url );
+	}
+
+	/**
+	 * Normalize URL values for registry matching.
+	 *
+	 * @param string $url URL.
+	 * @return string
+	 */
+	private function get_url_key( $url ) {
+		return untrailingslashit( esc_url_raw( $url ) );
 	}
 
 	/**

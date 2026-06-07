@@ -24,6 +24,69 @@
 	width: 27px;
 }
 
+.aos-desktop-apps {
+	align-content: start;
+	display: grid;
+	gap: 14px 10px;
+	grid-auto-flow: column;
+	grid-template-rows: repeat(auto-fill, 76px);
+	inset: 24px 24px 112px auto;
+	justify-content: end;
+	pointer-events: none;
+	position: absolute;
+	z-index: 9;
+}
+
+.aos-desktop-app {
+	align-items: center;
+	appearance: none;
+	background: transparent;
+	border: 0;
+	color: #fff;
+	cursor: default;
+	display: grid;
+	font-family: inherit;
+	gap: 5px;
+	justify-items: center;
+	padding: 0;
+	pointer-events: auto;
+	text-align: center;
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.62);
+	width: 74px;
+}
+
+.aos-desktop-app:focus {
+	outline: none;
+}
+
+.aos-desktop-app:focus-visible .aos-app-icon {
+	box-shadow: 0 0 0 3px var(--aos-focus-ring), var(--aos-tile-shadow);
+}
+
+.aos-desktop-app .aos-app-icon {
+	border-radius: 12px;
+	height: 48px;
+	width: 48px;
+}
+
+.aos-desktop-app .aos-icon-image {
+	height: 40px;
+	object-fit: contain;
+	object-position: center;
+	width: 40px;
+}
+
+.aos-desktop-app-label {
+	display: block;
+	font-size: var(--aos-text-caption);
+	font-weight: var(--aos-weight-medium);
+	line-height: var(--aos-line-height-caption);
+	max-width: 74px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .aos-shell[data-aos-show-widgets-desktop="0"] .aos-widget-layer {
 	display: none;
 }

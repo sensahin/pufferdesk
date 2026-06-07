@@ -94,9 +94,12 @@ final class Admin_OS_Mode_Shell_Renderer {
 			wp_die( esc_html__( 'You do not have permission to use Admin OS Mode.', 'admin-os-mode' ) );
 		}
 
-		$apps    = $this->app_registry->get_apps();
-		$widgets = $this->widget_registry->get_widgets();
-		$folders = $this->app_registry->get_folders( $apps );
+		$apps          = $this->app_registry->get_apps();
+		$app_locations = $this->preferences->get_app_locations( $apps );
+		$dock_apps     = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'dock' );
+		$desktop_apps  = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'desktop' );
+		$widgets       = $this->widget_registry->get_widgets();
+		$folders       = $this->app_registry->get_folders( $apps );
 		$theme        = $this->theme_registry->get_current_theme( $this->preferences );
 		$appearance   = $this->preferences->get_appearance();
 		$desktop_dock = $this->preferences->get_desktop_dock();
@@ -109,7 +112,9 @@ final class Admin_OS_Mode_Shell_Renderer {
 			array(
 				'appearance'   => $appearance,
 				'apps'         => $apps,
+				'desktop_apps' => $desktop_apps,
 				'desktop_dock' => $desktop_dock,
+				'dock_apps'    => $dock_apps,
 				'menu_bar'     => $menu_bar,
 				'widgets'      => $widgets,
 				'folders'      => $folders,

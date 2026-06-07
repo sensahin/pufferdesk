@@ -89,6 +89,7 @@ final class Admin_OS_Mode_Plugin {
 		);
 		$this->settings_controller = new Admin_OS_Mode_Settings_Controller(
 			$preferences,
+			$app_registry,
 			$theme_registry,
 			$wallpaper_registry
 		);

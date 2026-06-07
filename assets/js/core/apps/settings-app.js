@@ -14,6 +14,7 @@
 		const wallpaper = window.AdminOSMode.wallpaper;
 		const config = context.config || window.AdminOSMode.config.get();
 		const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
+		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const themes = Array.isArray(config.themes) ? config.themes : [];
 		const shell = document.querySelector('[data-admin-os-shell]');
 		let optionGroups = [];
@@ -26,11 +27,13 @@
 		let currentDesktopDock = desktopDock
 			? desktopDock.normalize(config.desktopDock || {})
 			: Object.assign({}, config.desktopDock || {});
+		let currentAppLocations = normalizeAppLocations(config.appLocations || {});
 		let currentMenuBar = menuBar
 			? menuBar.normalize(config.menuBar || {})
 			: Object.assign({}, config.menuBar || {});
 		let saveTimer = null;
 		let desktopDockSaveTimer = null;
+		let appLocationSaveTimer = null;
 		let menuBarSaveTimer = null;
 		let menuBarSaveSequence = 0;
 		let accentLabel = null;
@@ -53,6 +56,7 @@
 		let wallpaperPhotoExpanded = false;
 		let mediaFrame = null;
 		const desktopDockControls = [];
+		const appLocationControls = [];
 		const menuBarControls = [];
 		const sidebarButtons = [];
 		const wallpaperPhotoVisibleCount = 4;
@@ -89,6 +93,13 @@
 				{ value: 'never', label: 'Never' }
 			]
 		};
+
+		const appLocationOptions = [
+			{ value: 'dock', label: 'Dock' },
+			{ value: 'desktop', label: 'Desktop' },
+			{ value: 'both', label: 'Dock & Desktop' },
+			{ value: 'hidden', label: 'Hidden' }
+		];
 
 		const menuBarSelectOptions = {
 			auto_hide: [
@@ -688,6 +699,170 @@
 			saveDesktopDock(status);
 		}
 
+		function normalizeAppLocations(locations = {}) {
+			const allowedLocations = ['dock', 'desktop', 'both', 'hidden'];
+			const normalized = {};
+
+			apps.forEach((app) => {
+				if (!app || !app.id) {
+					return;
+				}
+
+				const location = typeof locations[app.id] === 'string' ? locations[app.id] : 'dock';
+				normalized[app.id] = allowedLocations.includes(location) ? location : 'dock';
+			});
+
+			return normalized;
+		}
+
+		function appIsShownIn(app, surface) {
+			const location = currentAppLocations[app.id] || 'dock';
+
+			return location === 'both' || location === surface;
+		}
+
+		function createDockAppButton(app) {
+			const button = document.createElement('button');
+			const tooltip = dom.createElement('span', 'aos-dock-tooltip', app.label || app.id);
+			const screenReaderText = dom.createElement('span', 'screen-reader-text', app.label || app.id);
+
+			button.type = 'button';
+			button.className = 'aos-dock-item';
+			button.dataset.aosContext = 'dock-app';
+			button.dataset.aosContextId = app.id;
+			button.dataset.aosContextLabel = app.label || app.id;
+			button.dataset.aosDockTooltip = app.label || app.id;
+			button.dataset.aosOpenApp = app.id;
+			button.setAttribute('aria-label', app.label || app.id);
+			button.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
+			tooltip.setAttribute('aria-hidden', 'true');
+			button.append(tooltip, screenReaderText);
+
+			return button;
+		}
+
+		function createDesktopAppButton(app) {
+			const button = document.createElement('button');
+			const icon = dom.createElement('span', 'aos-app-icon');
+			const label = dom.createElement('span', 'aos-desktop-app-label', app.label || app.id);
+
+			button.type = 'button';
+			button.className = 'aos-desktop-app';
+			button.dataset.aosContext = 'desktop-app';
+			button.dataset.aosContextId = app.id;
+			button.dataset.aosContextLabel = app.label || app.id;
+			button.dataset.aosOpenApp = app.id;
+			button.setAttribute('aria-label', app.label || app.id);
+			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
+			button.append(icon, label);
+
+			return button;
+		}
+
+		function syncRunningDockItems() {
+			if (!shell) {
+				return;
+			}
+
+			shell.querySelectorAll('.aos-dock-item.is-running').forEach((button) => {
+				button.classList.remove('is-running');
+			});
+			shell.querySelectorAll('.aos-window[data-aos-app-window]:not(.is-closed)').forEach((win) => {
+				const appId = win.dataset.aosAppWindow;
+				const button = appId
+					? shell.querySelector(`.aos-dock-item[data-aos-open-app="${dom.escapeAttribute(appId)}"]`)
+					: null;
+
+				if (button) {
+					button.classList.add('is-running');
+				}
+			});
+		}
+
+		function renderAppLocationSurfaces() {
+			if (!shell) {
+				return;
+			}
+
+			const dock = shell.querySelector('.aos-dock');
+			if (dock) {
+				const minimizedWindows = dock.querySelector('.aos-dock-minimized-windows');
+				Array.from(dock.children).forEach((child) => {
+					if (child.classList && child.classList.contains('aos-dock-item')) {
+						child.remove();
+					}
+				});
+				apps
+					.filter((app) => appIsShownIn(app, 'dock'))
+					.forEach((app) => {
+						dock.insertBefore(createDockAppButton(app), minimizedWindows || null);
+					});
+				syncRunningDockItems();
+			}
+
+			const desktop = shell.querySelector('.aos-desktop');
+			if (!desktop) {
+				return;
+			}
+
+			const desktopApps = apps.filter((app) => appIsShownIn(app, 'desktop'));
+			let layer = desktop.querySelector('.aos-desktop-apps');
+
+			if (!desktopApps.length) {
+				if (layer) {
+					layer.remove();
+				}
+				return;
+			}
+
+			if (!layer) {
+				layer = dom.createElement('section', 'aos-desktop-apps');
+				layer.setAttribute('aria-label', 'Desktop apps');
+				desktop.insertBefore(layer, desktop.firstChild);
+			}
+
+			layer.replaceChildren(...desktopApps.map(createDesktopAppButton));
+		}
+
+		function applyAppLocations(nextAppLocations) {
+			currentAppLocations = normalizeAppLocations(nextAppLocations);
+			config.appLocations = currentAppLocations;
+			syncAppLocationControls();
+			renderAppLocationSurfaces();
+		}
+
+		function saveAppLocations(status) {
+			window.clearTimeout(appLocationSaveTimer);
+			status.textContent = 'Saving...';
+
+			appLocationSaveTimer = window.setTimeout(() => {
+				api.post('admin_os_mode_save_app_locations', {
+					locations: JSON.stringify(currentAppLocations)
+				})
+					.then((result) => {
+						if (!result || !result.success) {
+							status.textContent = result && result.data && result.data.message
+								? result.data.message
+								: 'App locations could not be saved.';
+							return;
+						}
+
+						applyAppLocations(result.data.appLocations || currentAppLocations);
+						status.textContent = result.data.message || 'App locations saved.';
+					})
+					.catch((error) => {
+						status.textContent = error && error.message ? error.message : 'App locations could not be saved.';
+					});
+			}, 180);
+		}
+
+		function updateAppLocation(appId, location, status) {
+			applyAppLocations(Object.assign({}, currentAppLocations, {
+				[appId]: location
+			}));
+			saveAppLocations(status);
+		}
+
 		function applyMenuBar(nextMenuBar) {
 			currentMenuBar = menuBar
 				? menuBar.normalize(nextMenuBar)
@@ -759,6 +934,12 @@
 				if (entry.type === 'toggle' || entry.type === 'checkbox') {
 					entry.button.setAttribute('aria-pressed', value ? 'true' : 'false');
 				}
+			});
+		}
+
+		function syncAppLocationControls() {
+			appLocationControls.forEach((entry) => {
+				entry.select.value = currentAppLocations[entry.appId] || 'dock';
 			});
 		}
 
@@ -1016,6 +1197,59 @@
 			});
 
 			return button;
+		}
+
+		function createAppLocationIcon(app) {
+			const icon = dom.createElement('span', 'aos-settings-row-icon aos-settings-sidebar-icon-gray');
+
+			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
+
+			return icon;
+		}
+
+		function createAppLocationSelect(app, status) {
+			const wrap = dom.createElement('span', 'aos-settings-inline-select');
+			const select = document.createElement('select');
+
+			select.className = 'aos-settings-value-select';
+			appLocationOptions.forEach((item) => {
+				const option = document.createElement('option');
+				option.value = item.value;
+				option.textContent = item.label;
+				option.selected = (currentAppLocations[app.id] || 'dock') === item.value;
+				select.appendChild(option);
+			});
+			select.addEventListener('change', () => updateAppLocation(app.id, select.value, status));
+			wrap.appendChild(select);
+			wrap.appendChild(dom.createElement('span', 'aos-settings-select-chevrons'));
+			appLocationControls.push({
+				appId: app.id,
+				select
+			});
+
+			return wrap;
+		}
+
+		function createAppLocationRow(app, status) {
+			const row = dom.createElement('div', 'aos-settings-row aos-settings-app-location-row');
+
+			row.appendChild(createAppLocationIcon(app));
+			row.appendChild(dom.createElement('span', 'aos-settings-label', app.label || app.id));
+			row.appendChild(createAppLocationSelect(app, status));
+
+			return row;
+		}
+
+		function createAppLocationSection(status) {
+			const section = createSection('', 'aos-settings-list aos-settings-app-location-list');
+
+			apps.forEach((app) => {
+				if (app && app.id) {
+					section.appendChild(createAppLocationRow(app, status));
+				}
+			});
+
+			return section;
 		}
 
 		function createDesktopDockRow(labelText, control, descriptionText = '') {
@@ -1355,6 +1589,7 @@
 			const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-desktop-dock-panel');
 			const dockSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
 			const behaviorSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+			const appsSection = createAppLocationSection(status);
 			const desktopSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
 			const widgetsSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
 
@@ -1380,6 +1615,8 @@
 			panel.appendChild(createDesktopDockSliderSection(status));
 			panel.appendChild(dockSection);
 			panel.appendChild(behaviorSection);
+			panel.appendChild(createSectionHeading('Apps'));
+			panel.appendChild(appsSection);
 			panel.appendChild(createSectionHeading('Desktop'));
 			panel.appendChild(desktopSection);
 			panel.appendChild(createSectionHeading('Widgets'));

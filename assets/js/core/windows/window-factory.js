@@ -71,6 +71,9 @@
 			win.dataset.aosResizeMode = options.resizeMode || 'both';
 			win.dataset.aosWindowKind = options.windowKind || (options.appId ? 'app' : 'window');
 			win.dataset.aosWindowTitle = options.title || '';
+			if (options.url) {
+				win.dataset.aosWindowUrl = options.url;
+			}
 			if (options.contextMenu === false) {
 				win.dataset.aosContextMenuDisabled = '1';
 			}

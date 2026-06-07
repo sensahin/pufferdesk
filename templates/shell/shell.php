@@ -14,6 +14,8 @@ defined( 'ABSPATH' ) || exit;
  * @var array<string,mixed>             $desktop_dock
  * @var array<string,mixed>             $menu_bar
  * @var array<int,array<string,string>> $apps
+ * @var array<int,array<string,string>> $desktop_apps
+ * @var array<int,array<string,string>> $dock_apps
  * @var array<int,array<string,mixed>>  $widgets
  * @var array<int,array<string,string>> $folders
  * @var string                          $site_name
@@ -136,10 +138,12 @@ if ( $admin_os_mode_shell_style ) {
 	$this->render_part(
 		'shell/desktop.php',
 		array(
-			'apps'    => $apps,
-			'widgets' => $widgets,
-			'folders' => $folders,
-			'theme'   => $theme,
+			'apps'         => $apps,
+			'desktop_apps' => isset( $desktop_apps ) && is_array( $desktop_apps ) ? $desktop_apps : array(),
+			'dock_apps'    => isset( $dock_apps ) && is_array( $dock_apps ) ? $dock_apps : $apps,
+			'widgets'      => $widgets,
+			'folders'      => $folders,
+			'theme'        => $theme,
 		)
 	);
 	?>

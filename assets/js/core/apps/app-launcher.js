@@ -18,6 +18,12 @@
 			return typeof menuLabels[key] === 'string' && menuLabels[key] ? menuLabels[key] : fallback;
 		}
 
+		function isHiddenFromLaunchSurfaces(app) {
+			const locations = config.appLocations && typeof config.appLocations === 'object' ? config.appLocations : {};
+
+			return Boolean(app && app.id && locations[app.id] === 'hidden');
+		}
+
 		function getAppWindowOptions(app) {
 			const options = {
 				appId: app.id,
@@ -227,7 +233,7 @@
 				return null;
 			}
 
-			return apps.find((app) => app.label.toLowerCase().includes(needle) || app.id.includes(needle)) || null;
+			return apps.find((app) => !isHiddenFromLaunchSurfaces(app) && (app.label.toLowerCase().includes(needle) || app.id.includes(needle))) || null;
 		}
 
 		function bindShellClicks() {

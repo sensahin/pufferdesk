@@ -47,6 +47,49 @@
 			return null;
 		}
 
+		function removeIframeParam(url) {
+			if (!url) {
+				return '';
+			}
+
+			try {
+				const next = new URL(url, window.location.origin);
+				next.searchParams.delete('admin_os_iframe');
+				return next.toString();
+			} catch (error) {
+				return url;
+			}
+		}
+
+		function getWindowBrowserUrl(detail = activeDetail, fallback = '') {
+			const win = getTargetWindow(detail);
+			let url = '';
+
+			if (win) {
+				const frame = win.querySelector('iframe.aos-app-frame');
+
+				if (frame) {
+					try {
+						url = frame.contentWindow && frame.contentWindow.location
+							? frame.contentWindow.location.href
+							: '';
+					} catch (error) {
+						url = '';
+					}
+
+					if (!url || url === 'about:blank') {
+						url = frame.getAttribute('src') || '';
+					}
+				}
+
+				if (!url && win.dataset) {
+					url = win.dataset.aosWindowUrl || '';
+				}
+			}
+
+			return removeIframeParam(url || fallback);
+		}
+
 		function getPayload(item = {}) {
 			return Object.assign({}, item.payload && typeof item.payload === 'object' ? item.payload : {}, {
 				icon: item.icon || '',
@@ -538,6 +581,15 @@
 			},
 			run(payload, detail) {
 				manager.minimizeWindow(getTargetWindow(detail));
+			}
+		});
+
+		register('window.open-browser-tab', {
+			isEnabled(payload, detail) {
+				return Boolean(getWindowBrowserUrl(detail, payload.url || payload.target));
+			},
+			run(payload, detail) {
+				window.open(getWindowBrowserUrl(detail, payload.url || payload.target), '_blank', 'noopener');
 			}
 		});
 

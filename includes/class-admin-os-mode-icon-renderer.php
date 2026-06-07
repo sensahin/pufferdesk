@@ -67,12 +67,26 @@ final class Admin_OS_Mode_Icon_Renderer {
 		$icon = self::resolve( $icon, $theme );
 
 		if ( 'image' === $icon['type'] && ! empty( $icon['url'] ) ) {
-			printf(
-				'<img class="aos-icon-image" src="%s" alt="%s" aria-hidden="true" loading="lazy" decoding="async" />',
-				esc_url( $icon['url'] ),
-				esc_attr( $icon['alt'] )
-			);
-			return;
+			$url = trim( (string) $icon['url'] );
+			if ( self::is_data_image_url( $url ) ) {
+				printf(
+					'<img class="aos-icon-image" src="%s" alt="%s" aria-hidden="true" loading="lazy" decoding="async" />',
+					esc_attr( $url ),
+					esc_attr( $icon['alt'] )
+				);
+				return;
+			}
+
+			if ( '' !== esc_url( $url ) ) {
+				printf(
+					'<img class="aos-icon-image" src="%s" alt="%s" aria-hidden="true" loading="lazy" decoding="async" />',
+					esc_url( $url ),
+					esc_attr( $icon['alt'] )
+				);
+				return;
+			}
+
+			$icon = self::normalize_dashicon( '' );
 		}
 
 		printf(
@@ -155,7 +169,12 @@ final class Admin_OS_Mode_Icon_Renderer {
 	 */
 	private static function get_image_url( $icon ) {
 		if ( ! empty( $icon['url'] ) ) {
-			return esc_url_raw( $icon['url'] );
+			$url = trim( (string) $icon['url'] );
+			if ( self::is_data_image_url( $url ) ) {
+				return $url;
+			}
+
+			return esc_url_raw( $url );
 		}
 
 		if ( empty( $icon['src'] ) ) {
@@ -213,6 +232,16 @@ final class Admin_OS_Mode_Icon_Renderer {
 			(string) $version,
 			ADMIN_OS_MODE_URL . 'assets/media/' . $path
 		);
+	}
+
+	/**
+	 * Check whether a data URI is a narrow image-only icon.
+	 *
+	 * @param string $url Image URL.
+	 * @return bool
+	 */
+	private static function is_data_image_url( $url ) {
+		return (bool) preg_match( '#^data:image/(?:png|gif|jpe?g|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$#', $url );
 	}
 
 	/**
