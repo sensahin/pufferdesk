@@ -120,7 +120,11 @@
 	--aos-menu-active-bg: var(--aos-accent-active-strong);
 	--aos-menu-popover-bg: var(--aos-material-popover-bg);
 	--aos-menu-popover-border: var(--aos-material-popover-border);
+	--aos-menu-popover-filter: var(--aos-material-popover-filter);
+	--aos-menu-popover-radius: 18px;
 	--aos-menu-popover-shadow: var(--aos-material-popover-shadow);
+	--aos-menu-popover-sheen: var(--aos-material-sheen);
+	--aos-menu-popover-sheen-opacity: 0.56;
 	--aos-menu-popover-ink: #1c252d;
 	--aos-menu-popover-muted: rgba(28, 37, 45, 0.38);
 	--aos-menu-popover-separator: rgba(28, 37, 45, 0.16);
@@ -1125,7 +1129,11 @@
 	--aos-menu-active-bg: var(--aos-accent-active-strong);
 	--aos-menu-popover-bg: var(--aos-material-popover-bg);
 	--aos-menu-popover-border: var(--aos-material-popover-border);
+	--aos-menu-popover-filter: var(--aos-material-popover-filter);
+	--aos-menu-popover-radius: 18px;
 	--aos-menu-popover-shadow: var(--aos-material-popover-shadow);
+	--aos-menu-popover-sheen: var(--aos-material-sheen);
+	--aos-menu-popover-sheen-opacity: 0.42;
 	--aos-menu-popover-ink: #f3f6fb;
 	--aos-menu-popover-muted: rgba(243, 246, 251, 0.46);
 	--aos-menu-popover-separator: rgba(243, 246, 251, 0.18);

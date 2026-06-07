@@ -58,7 +58,11 @@
 	--aos-menu-active-bg: var(--aos-accent-active-strong);
 	--aos-menu-popover-bg: var(--aos-material-popover-bg);
 	--aos-menu-popover-border: var(--aos-material-popover-border);
+	--aos-menu-popover-filter: var(--aos-material-popover-filter);
+	--aos-menu-popover-radius: 18px;
 	--aos-menu-popover-shadow: var(--aos-material-popover-shadow);
+	--aos-menu-popover-sheen: var(--aos-material-sheen, linear-gradient(155deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0)));
+	--aos-menu-popover-sheen-opacity: 0.5;
 	--aos-menu-popover-ink: #17212b;
 	--aos-menu-popover-muted: rgba(23, 33, 43, 0.48);
 	--aos-menu-popover-separator: rgba(23, 33, 43, 0.14);
@@ -305,13 +309,14 @@
 }
 
 .aos-menu-popover {
-	-webkit-backdrop-filter: var(--aos-material-popover-filter);
-	backdrop-filter: var(--aos-material-popover-filter);
+	-webkit-backdrop-filter: var(--aos-menu-popover-filter);
+	backdrop-filter: var(--aos-menu-popover-filter);
 	background: var(--aos-menu-popover-bg);
 	border: 1px solid var(--aos-menu-popover-border);
-	border-radius: 10px;
+	border-radius: var(--aos-menu-popover-radius);
 	box-shadow: var(--aos-menu-popover-shadow);
 	color: var(--aos-menu-popover-ink);
+	isolation: isolate;
 	min-width: 248px;
 	overflow: visible;
 	padding: 6px;
@@ -321,11 +326,11 @@
 }
 
 .aos-menu-popover::before {
-	background: var(--aos-material-sheen, linear-gradient(155deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0)));
+	background: var(--aos-menu-popover-sheen);
 	border-radius: inherit;
 	content: "";
 	inset: 0;
-	opacity: 0.5;
+	opacity: var(--aos-menu-popover-sheen-opacity);
 	pointer-events: none;
 	position: absolute;
 	z-index: 0;
@@ -360,11 +365,11 @@
 }
 
 .aos-menu-submenu-popover {
-	-webkit-backdrop-filter: var(--aos-material-popover-filter);
-	backdrop-filter: var(--aos-material-popover-filter);
+	-webkit-backdrop-filter: var(--aos-menu-popover-filter);
+	backdrop-filter: var(--aos-menu-popover-filter);
 	background: var(--aos-menu-popover-bg);
 	border: 1px solid var(--aos-menu-popover-border);
-	border-radius: 10px;
+	border-radius: var(--aos-menu-popover-radius);
 	box-shadow: var(--aos-menu-popover-shadow);
 	color: var(--aos-menu-popover-ink);
 	display: none;
@@ -382,11 +387,11 @@
 }
 
 .aos-menu-submenu-popover::before {
-	background: var(--aos-material-sheen, linear-gradient(155deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0)));
+	background: var(--aos-menu-popover-sheen);
 	border-radius: inherit;
 	content: "";
 	inset: 0;
-	opacity: 0.5;
+	opacity: var(--aos-menu-popover-sheen-opacity);
 	pointer-events: none;
 	position: absolute;
 	z-index: 0;
