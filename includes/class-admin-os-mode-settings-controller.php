@@ -124,7 +124,6 @@ final class Admin_OS_Mode_Settings_Controller {
 				'window_material'   => $this->read_post_value( 'window_material' ),
 				'accent_color'      => $this->read_post_value( 'accent_color' ),
 				'icon_widget_style' => $this->read_post_value( 'icon_widget_style' ),
-				'tint_windows'      => $this->read_post_value( 'tint_windows' ),
 			)
 		);
 

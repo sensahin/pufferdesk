@@ -37,7 +37,6 @@ final class Admin_OS_Mode_User_Preferences {
 		'window_material' => 'clear',
 		'accent_color'   => 'multicolor',
 		'icon_widget_style' => 'default',
-		'tint_windows'   => true,
 	);
 
 	/**
@@ -583,10 +582,6 @@ final class Admin_OS_Mode_User_Preferences {
 			if ( in_array( $value, $allowed, true ) ) {
 				$sanitized[ $key ] = $value;
 			}
-		}
-
-		if ( array_key_exists( 'tint_windows', $appearance ) ) {
-			$sanitized['tint_windows'] = $this->sanitize_boolean( $appearance['tint_windows'] );
 		}
 
 		return $sanitized;

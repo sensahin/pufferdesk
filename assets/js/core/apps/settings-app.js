@@ -34,7 +34,6 @@
 		let menuBarSaveTimer = null;
 		let menuBarSaveSequence = 0;
 		let accentLabel = null;
-		let tintToggle = null;
 		let activeSection = 'general';
 		let activePanel = 'general';
 		let paneTitle = null;
@@ -437,10 +436,6 @@
 
 			if (accentLabel) {
 				accentLabel.textContent = getAccentOption(currentAppearance.accent_color).label;
-			}
-
-			if (tintToggle) {
-				tintToggle.setAttribute('aria-pressed', currentAppearance.tint_windows ? 'true' : 'false');
 			}
 		}
 
@@ -950,24 +945,6 @@
 			select.appendChild(option);
 
 			return createSettingsRow(labelText, select);
-		}
-
-		function createToggle(status) {
-			const button = document.createElement('button');
-			button.type = 'button';
-			button.className = 'aos-settings-toggle';
-			button.setAttribute('aria-pressed', currentAppearance.tint_windows ? 'true' : 'false');
-			button.addEventListener('click', () => {
-				updateAppearance('tint_windows', !currentAppearance.tint_windows, status);
-				button.setAttribute('aria-pressed', currentAppearance.tint_windows ? 'true' : 'false');
-			});
-
-			const knob = dom.createElement('span', 'aos-settings-toggle-knob');
-			knob.setAttribute('aria-hidden', 'true');
-			button.appendChild(knob);
-			tintToggle = button;
-
-			return button;
 		}
 
 		function createDesktopDockRange(key, labelText, options, status) {
@@ -1939,9 +1916,6 @@
 			{ value: 'tinted', label: 'Tinted' }
 		], status, 'aos-settings-icon-option', 'aos-settings-icon-preview')));
 
-		const windowSection = createSection('', 'aos-settings-section-windows');
-		windowSection.appendChild(createSettingsRow('Tint window background with wallpaper color', createToggle(status), '', 'aos-settings-row-fluid-label'));
-
 		let installedThemeSection = null;
 		if (themes.length > 1) {
 			const themeSelect = document.createElement('select');
@@ -1964,8 +1938,6 @@
 		appearancePanel.appendChild(appearanceSection);
 		appearancePanel.appendChild(createSectionHeading('Theme'));
 		appearancePanel.appendChild(themeSection);
-		appearancePanel.appendChild(createSectionHeading('Windows'));
-		appearancePanel.appendChild(windowSection);
 		if (installedThemeSection) {
 			appearancePanel.appendChild(createSectionHeading('Installed Theme'));
 			appearancePanel.appendChild(installedThemeSection);

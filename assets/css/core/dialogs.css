@@ -110,7 +110,7 @@
 }
 
 .aos-shell-dialog-button:focus-visible {
-	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(10, 132, 255, 0.28));
+	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(36, 88, 202, 0.28));
 }
 
 .aos-shell-dialog-button-primary {
@@ -243,7 +243,7 @@
 }
 
 .aos-shell-action-dialog-checkbox input:focus-visible + .aos-shell-action-dialog-checkbox-box {
-	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(10, 132, 255, 0.28));
+	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(36, 88, 202, 0.28));
 }
 
 .aos-shell-action-dialog-checkbox input:checked + .aos-shell-action-dialog-checkbox-box::after {

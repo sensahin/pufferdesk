@@ -812,7 +812,19 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	height: 28px;
 	justify-content: center;
 	padding: 0;
+	transition: background-color 120ms ease, color 120ms ease;
 	width: 32px;
+}
+
+.aos-settings-history-button:hover:not(:disabled),
+.aos-settings-history-button:focus-visible:not(:disabled) {
+	background: var(--aos-control-bg-hover);
+	outline: none;
+}
+
+.aos-settings-history-button:active:not(:disabled) {
+	background: var(--aos-accent-soft);
+	color: var(--aos-accent);
 }
 
 .aos-settings-history-button + .aos-settings-history-button {
@@ -1585,7 +1597,7 @@ button.aos-settings-action-row:active {
 }
 
 .aos-settings-section-toggle:focus-visible {
-	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(10, 132, 255, 0.28));
+	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(36, 88, 202, 0.28));
 	outline: none;
 }
 
@@ -2019,7 +2031,7 @@ button.aos-settings-action-row:active {
 }
 
 .aos-settings-swatch-dot {
-	background: var(--aos-swatch-color, #0a84ff);
+	background: var(--aos-swatch-color, #2458ca);
 	background-clip: padding-box;
 	border: 1px solid rgba(0, 0, 0, 0.12);
 	border-radius: 50%;
@@ -2038,11 +2050,11 @@ button.aos-settings-action-row:active {
 }
 
 .aos-settings-swatch-multicolor {
-	--aos-swatch-color: conic-gradient(#ff3b30, #ff9500, #ffcc00, #34c759, #0a84ff, #af52de, #ff3b30);
+	--aos-swatch-color: conic-gradient(#ff3b30, #ff9500, #ffcc00, #34c759, #2458ca, #af52de, #ff3b30);
 }
 
 .aos-settings-swatch-blue {
-	--aos-swatch-color: #0a84ff;
+	--aos-swatch-color: #2458ca;
 }
 
 .aos-settings-swatch-purple {

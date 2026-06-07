@@ -1,6 +1,6 @@
 .aos-shell[data-aos-theme="adminos"] {
-	--aos-ink: #17212b;
-	--aos-muted: #5b6d7b;
+	--aos-ink: #1d1d1f;
+	--aos-muted: rgba(60, 60, 67, 0.66);
 	--aos-menu-ink: rgba(12, 18, 24, 0.94);
 	--aos-menu-muted: rgba(12, 18, 24, 0.76);
 	--aos-menu-placeholder: rgba(12, 18, 24, 0.5);
@@ -8,39 +8,39 @@
 	--aos-menu-mark-filter: none;
 	--aos-about-title-color: #25292d;
 	--aos-about-text-color: #2f3438;
-	--aos-liquid-glass-sheen: linear-gradient(155deg, rgba(255, 255, 255, 0.52) 0%, rgba(255, 255, 255, 0.18) 22%, rgba(255, 255, 255, 0) 52%);
-	--aos-liquid-glass-edge-highlight: rgba(255, 255, 255, 0.72);
-	--aos-liquid-glass-inner-glow: rgba(255, 255, 255, 0.18);
-	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0.18) 45%, rgba(186, 227, 240, 0.18));
-	--aos-liquid-glass-clear-border: rgba(255, 255, 255, 0.58);
+	--aos-liquid-glass-sheen: linear-gradient(155deg, rgba(255, 255, 255, 0.48) 0%, rgba(255, 255, 255, 0.16) 24%, rgba(255, 255, 255, 0) 54%);
+	--aos-liquid-glass-edge-highlight: rgba(255, 255, 255, 0.62);
+	--aos-liquid-glass-inner-glow: rgba(255, 255, 255, 0.14);
+	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.62), rgba(250, 250, 250, 0.38) 46%, rgba(247, 247, 247, 0.24));
+	--aos-liquid-glass-clear-border: rgba(255, 255, 255, 0.52);
 	--aos-liquid-glass-clear-filter: blur(42px) saturate(205%) brightness(1.07);
-	--aos-liquid-glass-clear-shadow: 0 30px 80px rgba(8, 22, 34, 0.34), 0 1px 0 var(--aos-liquid-glass-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-	--aos-liquid-glass-window-bg: linear-gradient(145deg, rgba(252, 254, 255, 0.72), rgba(230, 242, 247, 0.42) 54%, rgba(196, 225, 236, 0.28));
-	--aos-liquid-glass-window-border: rgba(255, 255, 255, 0.62);
+	--aos-liquid-glass-clear-shadow: 0 30px 80px rgba(34, 48, 54, 0.18), 0 1px 0 var(--aos-liquid-glass-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+	--aos-liquid-glass-window-bg: rgba(255, 255, 255, 0.96);
+	--aos-liquid-glass-window-border: rgba(60, 60, 67, 0.16);
 	--aos-liquid-glass-window-filter: blur(40px) saturate(185%) brightness(1.05);
-	--aos-liquid-glass-window-shadow: 0 34px 92px rgba(6, 21, 35, 0.3), 0 1px 0 var(--aos-liquid-glass-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-	--aos-liquid-glass-tinted-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.14), rgba(255, 255, 255, 0.54) 58%, rgb(var(--aos-accent-rgb) / 0.1));
-	--aos-liquid-glass-tinted-border: rgb(var(--aos-accent-rgb) / 0.2);
-	--aos-liquid-glass-solid-bg: rgba(255, 255, 255, 0.94);
-	--aos-liquid-glass-solid-border: rgba(20, 37, 51, 0.1);
-	--aos-liquid-glass-card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgba(232, 244, 248, 0.26) 58%, rgba(186, 222, 235, 0.16));
-	--aos-liquid-glass-card-border: rgba(255, 255, 255, 0.54);
+	--aos-liquid-glass-window-shadow: 0 34px 92px rgba(34, 48, 54, 0.16), 0 1px 0 var(--aos-liquid-glass-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+	--aos-liquid-glass-tinted-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.08), rgba(255, 255, 255, 0.82) 58%, rgb(var(--aos-accent-rgb) / 0.06));
+	--aos-liquid-glass-tinted-border: rgb(var(--aos-accent-rgb) / 0.16);
+	--aos-liquid-glass-solid-bg: rgba(255, 255, 255, 0.96);
+	--aos-liquid-glass-solid-border: rgba(60, 60, 67, 0.12);
+	--aos-liquid-glass-card-bg: rgba(247, 247, 247, 0.96);
+	--aos-liquid-glass-card-border: rgba(60, 60, 67, 0.08);
 	--aos-liquid-glass-card-filter: blur(30px) saturate(170%) brightness(1.04);
-	--aos-liquid-glass-card-shadow: 0 20px 52px rgba(7, 25, 40, 0.2), 0 1px 0 rgba(255, 255, 255, 0.62) inset, 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-	--aos-liquid-glass-control-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.16));
-	--aos-liquid-glass-control-hover-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.24));
-	--aos-liquid-glass-control-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(16, 29, 44, 0.22));
-	--aos-liquid-glass-control-border: rgba(255, 255, 255, 0.32);
+	--aos-liquid-glass-card-shadow: 0 18px 46px rgba(34, 48, 54, 0.1), 0 1px 0 rgba(255, 255, 255, 0.58) inset;
+	--aos-liquid-glass-control-bg: linear-gradient(180deg, rgba(242, 242, 242, 0.86), rgba(232, 232, 232, 0.72));
+	--aos-liquid-glass-control-hover-bg: linear-gradient(180deg, rgba(247, 247, 247, 0.9), rgba(238, 238, 238, 0.78));
+	--aos-liquid-glass-control-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(226, 226, 226, 0.82));
+	--aos-liquid-glass-control-border: rgba(60, 60, 67, 0.08);
 	--aos-liquid-glass-control-filter: blur(18px) saturate(180%);
 	--aos-liquid-glass-bar-bg: transparent;
 	--aos-liquid-glass-bar-border: transparent;
 	--aos-liquid-glass-bar-filter: none;
 	--aos-liquid-glass-bar-shadow: none;
-	--aos-liquid-glass-popover-bg: linear-gradient(145deg, rgba(240, 251, 253, 0.82), rgba(215, 236, 243, 0.62) 60%, rgba(196, 224, 236, 0.5));
-	--aos-liquid-glass-popover-border: rgba(255, 255, 255, 0.62);
+	--aos-liquid-glass-popover-bg: linear-gradient(145deg, rgba(250, 250, 250, 0.9), rgba(247, 247, 247, 0.78) 60%, rgba(242, 242, 242, 0.68));
+	--aos-liquid-glass-popover-border: rgba(60, 60, 67, 0.14);
 	--aos-liquid-glass-popover-filter: blur(44px) saturate(205%) brightness(1.06);
 	--aos-liquid-glass-popover-shadow: 0 22px 58px rgba(6, 22, 34, 0.32), 0 1px 0 rgba(255, 255, 255, 0.62) inset, 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
-	--aos-liquid-glass-dialog-bg: linear-gradient(145deg, rgba(250, 254, 255, 0.88), rgba(226, 241, 244, 0.68) 58%, rgba(198, 226, 235, 0.48));
+	--aos-liquid-glass-dialog-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(250, 250, 250, 0.84) 58%, rgba(247, 247, 247, 0.72));
 	--aos-liquid-glass-dialog-border: rgba(255, 255, 255, 0.68);
 	--aos-liquid-glass-dialog-filter: blur(44px) saturate(195%) brightness(1.05);
 	--aos-liquid-glass-dialog-shadow: 0 28px 84px rgba(7, 24, 38, 0.38), 0 1px 0 rgba(255, 255, 255, 0.58) inset, 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
@@ -80,10 +80,35 @@
 	--aos-material-dialog-border: var(--aos-liquid-glass-dialog-border);
 	--aos-material-dialog-filter: var(--aos-liquid-glass-dialog-filter);
 	--aos-material-dialog-shadow: var(--aos-liquid-glass-dialog-shadow);
-	--aos-settings-window-bg: linear-gradient(145deg, rgba(249, 252, 254, 0.62), rgba(227, 239, 246, 0.38) 58%, rgba(185, 219, 233, 0.24));
-	--aos-settings-body-bg: rgba(255, 255, 255, 0.18);
-	--aos-settings-sidebar-bg: linear-gradient(145deg, rgba(242, 248, 251, 0.66), rgba(215, 229, 239, 0.42) 64%, rgba(174, 210, 226, 0.24));
-	--aos-settings-main-bg: rgba(248, 250, 252, 0.18);
+	--aos-settings-window-bg: transparent;
+	--aos-settings-body-bg: transparent;
+	--aos-settings-sidebar-bg:
+		linear-gradient(90deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.975) 44%, rgba(255, 255, 255, 0.992) 90%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(246, 246, 246, 0.028) 28%, rgba(232, 232, 232, 0.018));
+	--aos-settings-sidebar-border: rgba(255, 255, 255, 0.28);
+	--aos-settings-sidebar-reflection-filter: blur(38px) saturate(44%) brightness(1.08) contrast(0.62);
+	--aos-settings-sidebar-reflection-mask:
+		linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.014) 7%, transparent 15%, transparent 100%),
+		linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.08) 7%, transparent 16%, transparent 86%, rgba(0, 0, 0, 0.06) 94%, rgba(0, 0, 0, 0.18) 100%),
+		radial-gradient(circle at 0% 0%, rgba(0, 0, 0, 0.2), transparent 28%),
+		radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 0.12), transparent 24%),
+		radial-gradient(circle at 0% 100%, rgba(0, 0, 0, 0.14), transparent 26%),
+		radial-gradient(circle at 100% 100%, rgba(0, 0, 0, 0.1), transparent 22%);
+	--aos-settings-sidebar-reflection-opacity: 0.018;
+	--aos-settings-sidebar-gloss:
+		linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.046) 10%, rgba(255, 255, 255, 0.01) 45%, rgba(60, 60, 67, 0.012) 78%, rgba(60, 60, 67, 0.026) 100%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.048) 8%, transparent 25%, transparent 86%, rgba(255, 255, 255, 0.12));
+	--aos-settings-sidebar-shadow:
+		inset 0 0 0 1px rgba(255, 255, 255, 0.3),
+		inset 1px 1px 0 rgba(255, 255, 255, 0.34),
+		inset -1px 0 0 rgba(60, 60, 67, 0.035),
+		inset 0 -1px 0 rgba(255, 255, 255, 0.24);
+	--aos-settings-sidebar-filter: blur(8px) saturate(70%) brightness(1.02) contrast(0.94);
+	--aos-settings-search-bg: rgba(72, 72, 72, 0.075);
+	--aos-settings-search-filter: blur(6px) saturate(72%) brightness(1.02);
+	--aos-settings-main-bg: rgb(255, 255, 255);
+	--aos-settings-card-bg: rgb(247, 247, 247);
+	--aos-settings-card-border: rgba(60, 60, 67, 0.08);
 	--aos-line: var(--aos-material-regular-border);
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-shadow: var(--aos-material-regular-shadow);
@@ -114,14 +139,14 @@
 	--aos-tile-bg: var(--aos-material-solid-bg);
 	--aos-tile-border: rgba(255, 255, 255, 0.68);
 	--aos-tile-shadow: var(--aos-material-card-shadow);
-	--aos-accent: #0a84ff;
+	--aos-accent: #2458ca;
 	--aos-accent-hue-shift: 170deg;
-	--aos-accent-rgb: 10 132 255;
+	--aos-accent-rgb: 36 88 202;
 	--aos-accent-ink: #fff;
-	--aos-accent-soft: rgba(10, 132, 255, 0.16);
-	--aos-accent-medium: rgba(10, 132, 255, 0.28);
-	--aos-accent-active: rgba(10, 132, 255, 0.82);
-	--aos-accent-active-strong: linear-gradient(180deg, rgba(10, 132, 255, 0.92), rgba(10, 132, 255, 0.78));
+	--aos-accent-soft: rgba(36, 88, 202, 0.16);
+	--aos-accent-medium: rgba(36, 88, 202, 0.28);
+	--aos-accent-active: rgba(36, 88, 202, 0.82);
+	--aos-accent-active-strong: linear-gradient(180deg, rgba(36, 88, 202, 0.92), rgba(36, 88, 202, 0.78));
 	--aos-icon-widget-app-surface-bg: transparent;
 	--aos-icon-widget-app-surface-border: transparent;
 	--aos-icon-widget-app-surface-border-width: 0;
@@ -140,8 +165,8 @@
 	--aos-icon-widget-widget-shadow: var(--aos-card-shadow);
 	--aos-icon-widget-widget-icon: var(--aos-accent);
 	--aos-running-indicator: rgba(12, 18, 24, 0.88);
-	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(235, 241, 245, 0.7));
-	--aos-window-bar-border: rgba(20, 37, 51, 0.08);
+	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 247, 247, 0.84));
+	--aos-window-bar-border: rgba(60, 60, 67, 0.12);
 	--aos-window-radius: 24px;
 	--aos-window-maximized-radius: 12px;
 	--aos-about-window-radius: 15px;
@@ -151,20 +176,20 @@
 	--aos-card-border: var(--aos-material-card-border);
 	--aos-card-shadow: var(--aos-material-card-shadow);
 	--aos-dock-bg: var(--aos-material-clear-bg);
-	--aos-dock-glass-bg: linear-gradient(180deg, rgba(238, 249, 255, 0.34), rgba(183, 224, 238, 0.22));
-	--aos-dock-border: rgba(245, 252, 255, 0.34);
+	--aos-dock-glass-bg: linear-gradient(180deg, rgba(184, 235, 244, 0.34), rgba(75, 187, 211, 0.26));
+	--aos-dock-border: rgba(216, 250, 255, 0.38);
 	--aos-dock-bottom-border: transparent;
-	--aos-dock-separator: rgba(232, 247, 255, 0.32);
-	--aos-dock-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+	--aos-dock-separator: rgba(220, 249, 255, 0.32);
+	--aos-dock-shadow: 0 1px 0 rgba(255, 255, 255, 0.22) inset;
 	--aos-dock-screen-edge: 18px;
-	--aos-dock-tooltip-bg: rgba(214, 239, 247, 0.9);
+	--aos-dock-tooltip-bg: rgba(203, 239, 247, 0.92);
 	--aos-dock-tooltip-border: transparent;
 	--aos-dock-tooltip-color: rgba(22, 29, 34, 0.92);
 	--aos-dock-tooltip-shadow: none;
 	--aos-focus-ring: rgba(83, 165, 196, 0.42);
 	--aos-scrollbar-track: rgba(255, 255, 255, 0.08);
-	--aos-scrollbar-thumb: rgba(60, 72, 82, 0.34);
-	--aos-scrollbar-thumb-hover: rgba(60, 72, 82, 0.48);
+	--aos-scrollbar-thumb: rgba(122, 122, 122, 0.74);
+	--aos-scrollbar-thumb-hover: rgba(105, 105, 105, 0.84);
 	--aos-text-widget-clock: 36px;
 	--aos-traffic-disabled: rgba(0, 0, 0, 0.16);
 	--aos-weight-widget-clock: var(--aos-weight-heading);
@@ -696,32 +721,30 @@
 .aos-shell[data-aos-theme="adminos"] .aos-settings-section,
 .aos-shell[data-aos-theme="adminos"] .aos-settings-control,
 .aos-shell[data-aos-theme="adminos"] .aos-settings-button {
-	-webkit-backdrop-filter: var(--aos-material-card-filter);
-	backdrop-filter: var(--aos-material-card-filter);
-	border-color: var(--aos-card-border);
+	border-color: var(--aos-settings-card-border, var(--aos-card-border));
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-settings-section {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: var(--aos-settings-card-bg, var(--aos-card-bg));
 	border-radius: 16px;
-	box-shadow: var(--aos-card-shadow);
+	box-shadow: none;
 	position: relative;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-settings-summary-card {
-	box-shadow: var(--aos-card-shadow);
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: var(--aos-settings-card-bg, var(--aos-card-bg));
+	border-color: var(--aos-settings-card-border, var(--aos-card-border));
+	box-shadow: none;
 	position: relative;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-settings-section::before,
 .aos-shell[data-aos-theme="adminos"] .aos-settings-summary-card::before {
-	background: var(--aos-material-sheen);
-	border-radius: inherit;
-	content: "";
-	inset: 0;
-	opacity: 0.42;
-	pointer-events: none;
-	position: absolute;
-	z-index: 0;
+	display: none;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-settings-section > *,
@@ -740,6 +763,12 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] {
+	--aos-settings-main-edge: 8px;
+	--aos-settings-sidebar-gap: 4px;
+	--aos-settings-sidebar-inset: 10px;
+	--aos-settings-sidebar-panel-radius: 22px;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
 	background: var(--aos-settings-window-bg);
 	border-radius: var(--aos-window-radius, 24px);
 	min-height: 600px;
@@ -747,8 +776,31 @@
 	max-width: 740px;
 }
 
+/* Keep the glass sidebar out of transform animation so backdrop sampling is ready before reveal. */
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"].is-opening {
+	animation: aos-adminos-settings-window-open 160ms ease-out both;
+}
+
+@keyframes aos-adminos-settings-window-open {
+	0%,
+	18% {
+		opacity: 0;
+		transform: none;
+	}
+
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] .aos-window-titlebar {
 	background: transparent;
+	left: var(--aos-settings-sidebar-inset);
+	min-height: 44px;
+	padding-left: 12px;
+	top: var(--aos-settings-sidebar-inset);
+	width: calc(var(--aos-settings-sidebar-width) - var(--aos-settings-sidebar-inset) - var(--aos-settings-sidebar-gap));
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="about"] {
@@ -778,14 +830,65 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-settings-sidebar {
-	-webkit-backdrop-filter: var(--aos-material-regular-filter);
-	backdrop-filter: var(--aos-material-regular-filter);
+	-webkit-backdrop-filter: var(--aos-settings-sidebar-filter);
+	backdrop-filter: var(--aos-settings-sidebar-filter);
 	background: var(--aos-settings-sidebar-bg);
-	border-color: var(--aos-material-regular-border);
+	border: 1px solid var(--aos-settings-sidebar-border);
+	border-radius: var(--aos-settings-sidebar-panel-radius);
+	box-shadow:
+		var(--aos-settings-sidebar-shadow),
+		0 0 0 9999px var(--aos-settings-main-bg);
+	isolation: isolate;
+	margin: var(--aos-settings-sidebar-inset) var(--aos-settings-sidebar-gap) var(--aos-settings-sidebar-inset) var(--aos-settings-sidebar-inset);
+	position: relative;
+	z-index: 0;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-settings-sidebar::before {
+	-webkit-mask-image: var(--aos-settings-sidebar-reflection-mask);
+	background: var(--aos-wallpaper-image);
+	background-attachment: fixed;
+	background-position: var(--aos-wallpaper-position);
+	background-repeat: var(--aos-wallpaper-repeat);
+	background-size: var(--aos-wallpaper-size);
+	border-radius: inherit;
+	content: "";
+	filter: var(--aos-settings-sidebar-reflection-filter);
+	inset: 0;
+	mask-image: var(--aos-settings-sidebar-reflection-mask);
+	opacity: var(--aos-settings-sidebar-reflection-opacity);
+	pointer-events: none;
+	position: absolute;
+	z-index: 0;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-settings-sidebar::after {
+	background: var(--aos-settings-sidebar-gloss);
+	border-radius: inherit;
+	content: "";
+	inset: 0;
+	pointer-events: none;
+	position: absolute;
+	z-index: 0;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-settings-sidebar > * {
+	position: relative;
+	z-index: 1;
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-settings-main {
 	background: var(--aos-settings-main-bg);
+	position: relative;
+	z-index: 1;
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] .aos-settings-pane-header {
+	padding-left: var(--aos-settings-main-edge);
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] .aos-settings-pane {
+	padding-left: var(--aos-settings-main-edge);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-settings-sidebar-icon,
@@ -814,9 +917,17 @@
 	border-color: var(--aos-material-control-border);
 }
 
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] .aos-settings-sidebar .aos-settings-search-field {
+	-webkit-backdrop-filter: var(--aos-settings-search-filter);
+	backdrop-filter: var(--aos-settings-search-filter);
+	background: var(--aos-settings-search-bg);
+	border-color: rgba(255, 255, 255, 0.035);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] {
-	--aos-ink: #e4e7eb;
-	--aos-muted: #a4abb4;
+	--aos-ink: #e7ecea;
+	--aos-muted: rgba(225, 231, 229, 0.58);
 	--aos-menu-ink: rgba(245, 248, 252, 0.96);
 	--aos-menu-muted: rgba(245, 248, 252, 0.78);
 	--aos-menu-placeholder: rgba(245, 248, 252, 0.52);
@@ -824,42 +935,67 @@
 	--aos-menu-mark-filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.42));
 	--aos-about-title-color: #e7e9e8;
 	--aos-about-text-color: #d7dbda;
-	--aos-liquid-glass-sheen: linear-gradient(155deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 22%, rgba(255, 255, 255, 0) 54%);
-	--aos-liquid-glass-edge-highlight: rgba(255, 255, 255, 0.2);
-	--aos-liquid-glass-inner-glow: rgba(255, 255, 255, 0.08);
-	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgba(58, 67, 84, 0.52), rgba(18, 25, 35, 0.28) 46%, rgba(13, 33, 43, 0.24));
-	--aos-liquid-glass-clear-border: rgba(255, 255, 255, 0.18);
+	--aos-liquid-glass-sheen: linear-gradient(155deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.06) 24%, rgba(255, 255, 255, 0) 56%);
+	--aos-liquid-glass-edge-highlight: rgba(255, 255, 255, 0.16);
+	--aos-liquid-glass-inner-glow: rgba(255, 255, 255, 0.06);
+	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgba(37, 37, 37, 0.58), rgba(30, 30, 30, 0.44) 46%, rgba(24, 24, 24, 0.36));
+	--aos-liquid-glass-clear-border: rgba(220, 220, 220, 0.16);
 	--aos-liquid-glass-clear-filter: blur(44px) saturate(190%) brightness(1.02);
-	--aos-liquid-glass-clear-shadow: 0 30px 86px rgba(0, 0, 0, 0.52), 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-	--aos-liquid-glass-window-bg: linear-gradient(145deg, rgba(39, 45, 56, 0.76), rgba(18, 24, 34, 0.62) 54%, rgba(12, 28, 37, 0.46));
-	--aos-liquid-glass-window-border: rgba(255, 255, 255, 0.18);
+	--aos-liquid-glass-clear-shadow: 0 30px 86px rgba(0, 0, 0, 0.42), 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+	--aos-liquid-glass-window-bg: rgba(30, 30, 30, 0.96);
+	--aos-liquid-glass-window-border: rgba(150, 150, 150, 0.24);
 	--aos-liquid-glass-window-filter: blur(42px) saturate(180%) brightness(1.01);
-	--aos-liquid-glass-window-shadow: 0 36px 96px rgba(0, 0, 0, 0.54), 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-	--aos-liquid-glass-tinted-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.2), rgba(18, 24, 34, 0.62) 56%, rgb(var(--aos-accent-rgb) / 0.16));
-	--aos-liquid-glass-tinted-border: rgb(var(--aos-accent-rgb) / 0.24);
-	--aos-liquid-glass-solid-bg: rgba(30, 34, 43, 0.94);
-	--aos-liquid-glass-solid-border: rgba(255, 255, 255, 0.14);
-	--aos-liquid-glass-card-bg: linear-gradient(145deg, rgba(38, 44, 55, 0.58), rgba(17, 24, 34, 0.38) 56%, rgba(12, 33, 43, 0.28));
-	--aos-liquid-glass-card-border: rgba(255, 255, 255, 0.16);
+	--aos-liquid-glass-window-shadow: 0 36px 96px rgba(0, 0, 0, 0.46), 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+	--aos-liquid-glass-tinted-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.1), rgba(30, 30, 30, 0.8) 56%, rgb(var(--aos-accent-rgb) / 0.07));
+	--aos-liquid-glass-tinted-border: rgb(var(--aos-accent-rgb) / 0.2);
+	--aos-liquid-glass-solid-bg: rgba(30, 30, 30, 0.96);
+	--aos-liquid-glass-solid-border: rgba(230, 230, 230, 0.1);
+	--aos-liquid-glass-card-bg: rgba(37, 37, 37, 0.96);
+	--aos-liquid-glass-card-border: rgba(230, 230, 230, 0.075);
 	--aos-liquid-glass-card-filter: blur(34px) saturate(165%) brightness(1);
-	--aos-liquid-glass-card-shadow: 0 22px 54px rgba(0, 0, 0, 0.34), 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-	--aos-liquid-glass-control-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.07));
-	--aos-liquid-glass-control-hover-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-	--aos-liquid-glass-control-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.27), rgba(255, 255, 255, 0.14));
-	--aos-liquid-glass-control-border: rgba(255, 255, 255, 0.12);
+	--aos-liquid-glass-card-shadow: 0 22px 54px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+	--aos-liquid-glass-control-bg: linear-gradient(180deg, rgba(55, 55, 55, 0.72), rgba(47, 47, 47, 0.64));
+	--aos-liquid-glass-control-hover-bg: linear-gradient(180deg, rgba(64, 64, 64, 0.78), rgba(54, 54, 54, 0.7));
+	--aos-liquid-glass-control-active-bg: linear-gradient(180deg, rgba(72, 72, 72, 0.82), rgba(59, 59, 59, 0.74));
+	--aos-liquid-glass-control-border: rgba(230, 230, 230, 0.08);
 	--aos-liquid-glass-control-filter: blur(18px) saturate(160%) brightness(1);
-	--aos-liquid-glass-popover-bg: linear-gradient(145deg, rgba(40, 56, 64, 0.78), rgba(17, 28, 36, 0.68) 58%, rgba(9, 25, 33, 0.54));
-	--aos-liquid-glass-popover-border: rgba(165, 190, 207, 0.34);
+	--aos-liquid-glass-popover-bg: linear-gradient(145deg, rgba(44, 52, 55, 0.86), rgba(37, 46, 49, 0.78) 58%, rgba(28, 37, 40, 0.66));
+	--aos-liquid-glass-popover-border: rgba(126, 143, 143, 0.34);
 	--aos-liquid-glass-popover-filter: blur(46px) saturate(190%) brightness(1.02);
 	--aos-liquid-glass-popover-shadow: 0 24px 66px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
 	--aos-liquid-glass-dialog-bg: linear-gradient(145deg, rgba(56, 77, 77, 0.74), rgba(26, 37, 38, 0.82) 58%, rgba(20, 30, 30, 0.9));
 	--aos-liquid-glass-dialog-border: rgba(188, 210, 203, 0.52);
 	--aos-liquid-glass-dialog-filter: blur(46px) saturate(180%) brightness(1.02);
 	--aos-liquid-glass-dialog-shadow: 0 30px 82px rgba(0, 0, 0, 0.52), 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 0 0 1px rgba(255, 255, 255, 0.07) inset;
-	--aos-settings-window-bg: linear-gradient(145deg, rgba(31, 36, 46, 0.76), rgba(17, 24, 33, 0.62) 58%, rgba(12, 29, 38, 0.46));
-	--aos-settings-body-bg: rgba(10, 14, 21, 0.28);
-	--aos-settings-sidebar-bg: linear-gradient(145deg, rgba(26, 31, 42, 0.72), rgba(12, 18, 28, 0.56) 64%, rgba(10, 28, 38, 0.36));
-	--aos-settings-main-bg: rgba(21, 25, 36, 0.42);
+	--aos-settings-window-bg: transparent;
+	--aos-settings-body-bg: transparent;
+	--aos-settings-sidebar-bg:
+		linear-gradient(90deg, rgba(31, 31, 31, 0.93), rgba(29, 29, 29, 0.975) 42%, rgba(24, 24, 24, 0.992) 90%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.003) 28%, rgba(0, 0, 0, 0.034));
+	--aos-settings-sidebar-border: rgba(228, 228, 228, 0.11);
+	--aos-settings-sidebar-reflection-filter: blur(38px) saturate(46%) brightness(0.56) contrast(0.58);
+	--aos-settings-sidebar-reflection-mask:
+		linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.018) 7%, transparent 15%, transparent 100%),
+		linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.12) 7%, transparent 16%, transparent 86%, rgba(0, 0, 0, 0.08) 94%, rgba(0, 0, 0, 0.28) 100%),
+		radial-gradient(circle at 0% 0%, rgba(0, 0, 0, 0.34), transparent 28%),
+		radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 0.2), transparent 24%),
+		radial-gradient(circle at 0% 100%, rgba(0, 0, 0, 0.22), transparent 26%),
+		radial-gradient(circle at 100% 100%, rgba(0, 0, 0, 0.16), transparent 22%);
+	--aos-settings-sidebar-reflection-opacity: 0.026;
+	--aos-settings-sidebar-gloss:
+		linear-gradient(90deg, rgba(255, 255, 255, 0.066), rgba(255, 255, 255, 0.018) 9%, rgba(255, 255, 255, 0.002) 43%, rgba(0, 0, 0, 0.03) 78%, rgba(0, 0, 0, 0.06) 100%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02) 7%, transparent 24%, transparent 86%, rgba(255, 255, 255, 0.052));
+	--aos-settings-sidebar-shadow:
+		inset 0 0 0 1px rgba(228, 235, 233, 0.07),
+		inset 1px 1px 0 rgba(255, 255, 255, 0.18),
+		inset -1px 0 0 rgba(228, 235, 233, 0.055),
+		inset 0 -1px 0 rgba(228, 235, 233, 0.16);
+	--aos-settings-sidebar-filter: blur(8px) saturate(72%) brightness(0.58) contrast(0.92);
+	--aos-settings-search-bg: rgba(49, 49, 49, 0.72);
+	--aos-settings-search-filter: blur(6px) saturate(72%) brightness(0.78);
+	--aos-settings-main-bg: rgb(30, 30, 30);
+	--aos-settings-card-bg: rgb(37, 37, 37);
+	--aos-settings-card-border: rgba(230, 230, 230, 0.075);
 	--aos-line: var(--aos-material-regular-border);
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-shadow: var(--aos-material-regular-shadow);
@@ -877,18 +1013,18 @@
 	--aos-icon-widget-tile-border: rgba(255, 255, 255, 0.16);
 	--aos-icon-widget-widget-icon: var(--aos-accent);
 	--aos-running-indicator: rgba(244, 247, 251, 0.92);
-	--aos-window-bar-bg: linear-gradient(180deg, rgba(42, 47, 58, 0.9), rgba(26, 30, 38, 0.72));
-	--aos-window-bar-border: rgba(255, 255, 255, 0.11);
+	--aos-window-bar-bg: linear-gradient(180deg, rgba(37, 46, 49, 0.92), rgba(33, 42, 44, 0.8));
+	--aos-window-bar-border: rgba(228, 235, 233, 0.1);
 	--aos-card-bg: var(--aos-material-card-bg);
 	--aos-card-border: var(--aos-material-card-border);
 	--aos-card-shadow: var(--aos-material-card-shadow);
 	--aos-dock-bg: var(--aos-material-clear-bg);
-	--aos-dock-glass-bg: linear-gradient(180deg, rgba(122, 138, 164, 0.28), rgba(70, 89, 120, 0.22));
-	--aos-dock-border: rgba(236, 243, 255, 0.18);
+	--aos-dock-glass-bg: linear-gradient(180deg, rgba(23, 145, 170, 0.52), rgba(6, 121, 146, 0.44));
+	--aos-dock-border: rgba(126, 228, 242, 0.25);
 	--aos-dock-bottom-border: transparent;
-	--aos-dock-separator: rgba(238, 244, 255, 0.22);
-	--aos-dock-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset;
-	--aos-dock-tooltip-bg: rgba(38, 49, 86, 0.9);
+	--aos-dock-separator: rgba(165, 235, 246, 0.22);
+	--aos-dock-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+	--aos-dock-tooltip-bg: rgba(20, 72, 88, 0.94);
 	--aos-dock-tooltip-border: transparent;
 	--aos-dock-tooltip-color: rgba(255, 255, 255, 0.94);
 	--aos-dock-tooltip-shadow: none;
@@ -935,33 +1071,43 @@
 .aos-shell[data-aos-theme="adminos"][data-aos-window-material="tinted"][data-aos-effective-appearance="light"] {
 	--aos-liquid-glass-window-bg: var(--aos-liquid-glass-tinted-bg);
 	--aos-liquid-glass-window-border: var(--aos-liquid-glass-tinted-border);
-	--aos-liquid-glass-card-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.12), rgba(255, 255, 255, 0.38));
-	--aos-liquid-glass-card-border: rgb(var(--aos-accent-rgb) / 0.18);
-	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgb(var(--aos-accent-rgb) / 0.14), rgba(255, 255, 255, 0.24));
+	--aos-liquid-glass-card-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.08), rgba(247, 247, 247, 0.82));
+	--aos-liquid-glass-card-border: rgb(var(--aos-accent-rgb) / 0.16);
+	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgb(var(--aos-accent-rgb) / 0.08), rgba(250, 250, 250, 0.38));
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-line: var(--aos-material-regular-border);
 	--aos-card-bg: var(--aos-material-card-bg);
 	--aos-card-border: var(--aos-material-card-border);
 	--aos-dock-bg: var(--aos-material-clear-bg);
-	--aos-window-bar-bg: linear-gradient(180deg, rgba(239, 250, 252, 0.86), rgba(219, 236, 242, 0.72));
-	--aos-settings-window-bg: linear-gradient(145deg, rgba(230, 244, 247, 0.72), rgba(209, 231, 240, 0.54));
-	--aos-settings-sidebar-bg: linear-gradient(145deg, rgba(222, 239, 244, 0.68), rgba(200, 224, 235, 0.5));
+	--aos-window-bar-bg: linear-gradient(180deg, rgb(var(--aos-accent-rgb) / 0.06), rgba(247, 247, 247, 0.84));
+	--aos-settings-window-bg: transparent;
+	--aos-settings-sidebar-bg:
+		linear-gradient(90deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.975) 44%, rgba(255, 255, 255, 0.992) 90%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(246, 246, 246, 0.028) 28%, rgba(232, 232, 232, 0.018));
+	--aos-settings-sidebar-reflection-opacity: 0.018;
+	--aos-settings-main-bg: rgb(255, 255, 255);
+	--aos-settings-card-bg: rgb(247, 247, 247);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-window-material="tinted"][data-aos-effective-appearance="dark"] {
 	--aos-liquid-glass-window-bg: var(--aos-liquid-glass-tinted-bg);
 	--aos-liquid-glass-window-border: var(--aos-liquid-glass-tinted-border);
-	--aos-liquid-glass-card-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.16), rgba(17, 31, 42, 0.46));
+	--aos-liquid-glass-card-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.1), rgba(37, 37, 37, 0.74));
 	--aos-liquid-glass-card-border: rgb(var(--aos-accent-rgb) / 0.2);
-	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgb(var(--aos-accent-rgb) / 0.18), rgba(14, 29, 40, 0.3));
+	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgb(var(--aos-accent-rgb) / 0.12), rgba(30, 30, 30, 0.42));
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-line: var(--aos-material-regular-border);
 	--aos-card-bg: var(--aos-material-card-bg);
 	--aos-card-border: var(--aos-material-card-border);
 	--aos-dock-bg: var(--aos-material-clear-bg);
-	--aos-window-bar-bg: linear-gradient(180deg, rgba(35, 55, 67, 0.92), rgba(22, 34, 44, 0.76));
-	--aos-settings-window-bg: linear-gradient(145deg, rgba(26, 38, 48, 0.82), rgba(17, 29, 39, 0.76));
-	--aos-settings-sidebar-bg: linear-gradient(145deg, rgba(25, 39, 50, 0.76), rgba(14, 24, 34, 0.66));
+	--aos-window-bar-bg: linear-gradient(180deg, rgb(var(--aos-accent-rgb) / 0.14), rgba(33, 42, 44, 0.8));
+	--aos-settings-window-bg: transparent;
+	--aos-settings-sidebar-bg:
+		linear-gradient(90deg, rgba(31, 31, 31, 0.93), rgba(29, 29, 29, 0.975) 42%, rgba(24, 24, 24, 0.992) 90%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.003) 28%, rgba(0, 0, 0, 0.034));
+	--aos-settings-sidebar-reflection-opacity: 0.026;
+	--aos-settings-main-bg: rgb(30, 30, 30);
+	--aos-settings-card-bg: rgb(37, 37, 37);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-app-launcher {
@@ -1003,7 +1149,7 @@
 
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-sidebar {
 	background: var(--aos-settings-sidebar-bg);
-	border-color: var(--aos-material-regular-border);
+	border-color: var(--aos-settings-sidebar-border);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-main {
@@ -1019,27 +1165,9 @@
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-section,
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-control,
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-settings-button {
-	background: var(--aos-card-bg);
-	border-color: var(--aos-card-border);
+	background: var(--aos-settings-card-bg, var(--aos-card-bg));
+	border-color: var(--aos-settings-card-border, var(--aos-card-border));
 	color: var(--aos-ink);
-}
-
-.aos-shell[data-aos-theme="adminos"][data-aos-tint-windows="0"][data-aos-effective-appearance="light"] {
-	--aos-liquid-glass-clear-bg: rgba(248, 250, 252, 0.78);
-	--aos-liquid-glass-card-bg: rgba(248, 250, 252, 0.78);
-	--aos-liquid-glass-window-bg: rgba(248, 250, 252, 0.78);
-	--aos-panel: var(--aos-material-regular-bg);
-	--aos-card-bg: var(--aos-material-card-bg);
-	--aos-dock-bg: var(--aos-material-clear-bg);
-}
-
-.aos-shell[data-aos-theme="adminos"][data-aos-tint-windows="0"][data-aos-effective-appearance="dark"] {
-	--aos-liquid-glass-clear-bg: rgba(27, 31, 39, 0.82);
-	--aos-liquid-glass-card-bg: rgba(27, 31, 39, 0.82);
-	--aos-liquid-glass-window-bg: rgba(27, 31, 39, 0.82);
-	--aos-panel: var(--aos-material-regular-bg);
-	--aos-card-bg: var(--aos-material-card-bg);
-	--aos-dock-bg: var(--aos-material-clear-bg);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] {
@@ -1161,14 +1289,14 @@
 
 	.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] {
 		--aos-liquid-glass-sheen: none;
-		--aos-liquid-glass-clear-bg: rgba(30, 34, 43, 0.98);
-		--aos-liquid-glass-window-bg: rgba(30, 34, 43, 0.98);
-		--aos-liquid-glass-card-bg: rgba(31, 35, 44, 0.96);
+		--aos-liquid-glass-clear-bg: rgba(30, 30, 30, 0.98);
+		--aos-liquid-glass-window-bg: rgba(30, 30, 30, 0.98);
+		--aos-liquid-glass-card-bg: rgba(37, 37, 37, 0.96);
 		--aos-liquid-glass-control-bg: rgba(255, 255, 255, 0.1);
 		--aos-liquid-glass-control-hover-bg: rgba(255, 255, 255, 0.16);
 		--aos-liquid-glass-control-active-bg: rgba(255, 255, 255, 0.22);
-		--aos-liquid-glass-popover-bg: rgba(31, 43, 49, 0.98);
-		--aos-liquid-glass-dialog-bg: rgba(33, 40, 39, 0.98);
+		--aos-liquid-glass-popover-bg: rgba(37, 37, 37, 0.98);
+		--aos-liquid-glass-dialog-bg: rgba(30, 30, 30, 0.98);
 		--aos-panel: var(--aos-material-regular-bg);
 		--aos-control-bg: var(--aos-material-control-bg);
 		--aos-control-bg-hover: var(--aos-material-control-hover-bg);
@@ -1177,10 +1305,10 @@
 		--aos-dock-glass-bg: var(--aos-dock-bg);
 		--aos-menu-popover-bg: var(--aos-material-popover-bg);
 		--aos-dialog-bg: var(--aos-material-dialog-bg);
-		--aos-settings-window-bg: rgba(28, 31, 40, 0.98);
-		--aos-settings-body-bg: rgba(12, 16, 22, 0.92);
-		--aos-settings-sidebar-bg: rgba(22, 24, 33, 0.98);
-		--aos-settings-main-bg: rgba(29, 30, 40, 0.98);
+		--aos-settings-window-bg: rgba(30, 30, 30, 0.98);
+		--aos-settings-body-bg: rgba(30, 30, 30, 0.92);
+		--aos-settings-sidebar-bg: rgba(27, 27, 27, 0.98);
+		--aos-settings-main-bg: rgba(30, 30, 30, 0.98);
 	}
 }
 
@@ -1218,14 +1346,14 @@
 
 	.aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] {
 		--aos-liquid-glass-sheen: none;
-		--aos-liquid-glass-clear-bg: rgba(30, 34, 43, 0.98);
-		--aos-liquid-glass-window-bg: rgba(30, 34, 43, 0.98);
-		--aos-liquid-glass-card-bg: rgba(31, 35, 44, 0.96);
+		--aos-liquid-glass-clear-bg: rgba(30, 30, 30, 0.98);
+		--aos-liquid-glass-window-bg: rgba(30, 30, 30, 0.98);
+		--aos-liquid-glass-card-bg: rgba(37, 37, 37, 0.96);
 		--aos-liquid-glass-control-bg: rgba(255, 255, 255, 0.1);
 		--aos-liquid-glass-control-hover-bg: rgba(255, 255, 255, 0.16);
 		--aos-liquid-glass-control-active-bg: rgba(255, 255, 255, 0.22);
-		--aos-liquid-glass-popover-bg: rgba(31, 43, 49, 0.98);
-		--aos-liquid-glass-dialog-bg: rgba(33, 40, 39, 0.98);
+		--aos-liquid-glass-popover-bg: rgba(37, 37, 37, 0.98);
+		--aos-liquid-glass-dialog-bg: rgba(30, 30, 30, 0.98);
 		--aos-panel: var(--aos-material-regular-bg);
 		--aos-control-bg: var(--aos-material-control-bg);
 		--aos-control-bg-hover: var(--aos-material-control-hover-bg);
@@ -1234,10 +1362,10 @@
 		--aos-dock-glass-bg: var(--aos-dock-bg);
 		--aos-menu-popover-bg: var(--aos-material-popover-bg);
 		--aos-dialog-bg: var(--aos-material-dialog-bg);
-		--aos-settings-window-bg: rgba(28, 31, 40, 0.98);
-		--aos-settings-body-bg: rgba(12, 16, 22, 0.92);
-		--aos-settings-sidebar-bg: rgba(22, 24, 33, 0.98);
-		--aos-settings-main-bg: rgba(29, 30, 40, 0.98);
+		--aos-settings-window-bg: rgba(30, 30, 30, 0.98);
+		--aos-settings-body-bg: rgba(30, 30, 30, 0.92);
+		--aos-settings-sidebar-bg: rgba(27, 27, 27, 0.98);
+		--aos-settings-main-bg: rgba(30, 30, 30, 0.98);
 	}
 }
 

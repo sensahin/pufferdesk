@@ -7,8 +7,7 @@
 		mode: 'auto',
 		window_material: 'clear',
 		accent_color: 'multicolor',
-		icon_widget_style: 'default',
-		tint_windows: true
+		icon_widget_style: 'default'
 	};
 
 	const allowed = {
@@ -40,14 +39,14 @@
 	}
 
 	const accentColors = {
-		multicolor: defineAccent('#0a84ff', [10, 132, 255], {
+		multicolor: defineAccent('#2458ca', [36, 88, 202], {
 			focus: 0.38,
 			hueShift: '170deg',
 			highlight: 0.2,
 			soft: 0.16,
 			medium: 0.28
 		}),
-		blue: defineAccent('#0a84ff', [10, 132, 255], {
+		blue: defineAccent('#2458ca', [36, 88, 202], {
 			focus: 0.38,
 			hueShift: '170deg',
 			highlight: 0.2
@@ -87,27 +86,12 @@
 		return allowed[key] && allowed[key].includes(next) ? next : defaults[key];
 	}
 
-	function normalizeBoolean(value) {
-		if (typeof value === 'boolean') {
-			return value;
-		}
-
-		if (typeof value === 'number') {
-			return value === 1;
-		}
-
-		return ['1', 'true', 'yes', 'on'].includes(String(value).toLowerCase());
-	}
-
 	function normalize(appearance = {}) {
 		return {
 			mode: getAllowedValue('mode', appearance.mode),
 			window_material: getAllowedValue('window_material', appearance.window_material),
 			accent_color: getAllowedValue('accent_color', appearance.accent_color),
-			icon_widget_style: getAllowedValue('icon_widget_style', appearance.icon_widget_style),
-			tint_windows: Object.prototype.hasOwnProperty.call(appearance, 'tint_windows')
-				? normalizeBoolean(appearance.tint_windows)
-				: defaults.tint_windows
+			icon_widget_style: getAllowedValue('icon_widget_style', appearance.icon_widget_style)
 		};
 	}
 
@@ -149,7 +133,6 @@
 		shell.dataset.aosWindowMaterial = currentAppearance.window_material;
 		shell.dataset.aosAccentColor = currentAppearance.accent_color;
 		shell.dataset.aosIconWidgetStyle = currentAppearance.icon_widget_style;
-		shell.dataset.aosTintWindows = currentAppearance.tint_windows ? '1' : '0';
 		applyAccent(shell, currentAppearance.accent_color);
 
 		return currentAppearance;
