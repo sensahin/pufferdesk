@@ -242,6 +242,10 @@
 	z-index: 2;
 }
 
+.aos-window[data-aos-window-controls-placement="right"] .aos-window-titlebar {
+	grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .aos-window-titlebar:active {
 	cursor: default;
 }
@@ -249,6 +253,14 @@
 .aos-window-controls {
 	display: inline-flex;
 	gap: 7px;
+}
+
+.aos-window[data-aos-window-controls-placement="right"] .aos-window-controls {
+	justify-self: end;
+}
+
+.aos-window[data-aos-window-controls-style="hidden"] .aos-window-controls {
+	display: none;
 }
 
 .aos-window-titlebar-label {
@@ -262,6 +274,16 @@
 	min-width: 0;
 	overflow: hidden;
 	white-space: nowrap;
+}
+
+.aos-window[data-aos-window-title-alignment="center"] .aos-window-titlebar-label {
+	justify-self: center;
+	text-align: center;
+}
+
+.aos-window[data-aos-window-title-alignment="right"] .aos-window-titlebar-label {
+	justify-self: end;
+	text-align: right;
 }
 
 .aos-window-titlebar-label-icon {

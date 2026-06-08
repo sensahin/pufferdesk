@@ -407,25 +407,26 @@ final class WP_AdminOS_Assets {
 		$role_label   = $this->get_user_role_label( $current_user );
 
 		return array(
-			'appearance' => $this->preferences->get_appearance(),
-			'appLocations' => $app_locations,
-			'appLoginItems' => $this->preferences->get_app_login_items( $apps ),
-			'apps'       => $apps,
-			'ajaxUrl'    => admin_url( 'admin-ajax.php' ),
-			'classicUrl' => $this->router->get_toggle_url( false ),
-			'desktopDock' => $this->preferences->get_desktop_dock(),
+			'appearance'     => $this->preferences->get_appearance(),
+			'appLocations'   => $app_locations,
+			'appLoginItems'  => $this->preferences->get_app_login_items( $apps ),
+			'apps'           => $apps,
+			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
+			'classicUrl'     => $this->router->get_toggle_url( false ),
+			'desktopDock'    => $this->preferences->get_desktop_dock(),
 			'desktopFolders' => $this->preferences->get_desktop_folders( $apps ),
-			'logoutUrl'  => wp_logout_url(),
-			'menuBar'    => $this->preferences->get_menu_bar(),
-			'settings'   => $this->get_settings_config(),
-			'shellUrl'   => $this->router->get_shell_url(),
-			'siteInfo'   => $this->get_site_info_config(),
-			'siteName'   => get_bloginfo( 'name' ),
-			'system'     => $this->get_system_config(),
-			'themes'     => $this->theme_registry->get_selectable_themes(),
-			'wallpaper'  => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
-			'userId'     => get_current_user_id(),
-			'user'       => array(
+			'logoutUrl'      => wp_logout_url(),
+			'menuBar'        => $this->preferences->get_menu_bar(),
+			'settings'       => $this->get_settings_config( $theme ),
+			'shellChrome'    => isset( $theme['shell'] ) ? $theme['shell'] : array(),
+			'shellUrl'       => $this->router->get_shell_url(),
+			'siteInfo'       => $this->get_site_info_config(),
+			'siteName'       => get_bloginfo( 'name' ),
+			'system'         => $this->get_system_config(),
+			'themes'         => $this->theme_registry->get_selectable_themes(),
+			'wallpaper'      => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
+			'userId'         => get_current_user_id(),
+			'user'           => array(
 				'avatar'     => get_avatar_url( $current_user->ID, array( 'size' => 192 ) ),
 				'email'      => $current_user->user_email,
 				'name'       => $current_user->display_name ? $current_user->display_name : $current_user->user_login,
@@ -433,12 +434,13 @@ final class WP_AdminOS_Assets {
 				'role'       => $role_label,
 				'subtitle'   => $role_label,
 			),
-			'storageKey' => 'wpAdminOS:' . get_current_user_id() . ':' . $theme['id'] . ':session',
-			'nonce'      => wp_create_nonce( WP_AdminOS_Settings_Controller::NONCE_ACTION ),
-			'folders'    => $folders,
-			'menu'       => $this->get_menu_config(),
-			'theme'      => $theme,
-			'widgets'    => $widgets,
+			'storageKey'   => 'wpAdminOS:' . get_current_user_id() . ':' . $theme['id'] . ':session',
+			'nonce'        => wp_create_nonce( WP_AdminOS_Settings_Controller::NONCE_ACTION ),
+			'folders'      => $folders,
+			'menu'         => $this->get_menu_config( $theme ),
+			'theme'        => $theme,
+			'widgets'      => $widgets,
+			'windowChrome' => isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array(),
 		);
 	}
 
@@ -651,36 +653,99 @@ final class WP_AdminOS_Assets {
 	}
 
 	/**
+	 * Theme-provided shell labels with release-safe defaults.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @return array<string,string>
+	 */
+	private function get_theme_shell_labels( $theme = array() ) {
+		$defaults = array(
+			'launcher'             => __( 'Dock', 'wp-adminos' ),
+			'desktop_launcher'     => __( 'Desktop & Dock', 'wp-adminos' ),
+			'launcher_and_desktop' => __( 'Dock & Desktop', 'wp-adminos' ),
+			'launcher_position'    => __( 'Dock position on screen', 'wp-adminos' ),
+			'auto_hide_launcher'   => __( 'Automatically hide and show the Dock', 'wp-adminos' ),
+			'launcher_options'     => __( 'Options', 'wp-adminos' ),
+			'keep_in_launcher'     => __( 'Keep in Dock', 'wp-adminos' ),
+			'remove_from_launcher' => __( 'Remove from Dock', 'wp-adminos' ),
+			'open_at_login'        => __( 'Open at Login', 'wp-adminos' ),
+			'menu_bar'             => __( 'Menu Bar', 'wp-adminos' ),
+			'menu_bar_auto_hide'   => __( 'Automatically hide and show the menu bar', 'wp-adminos' ),
+			'menu_bar_background'  => __( 'Show menu bar background', 'wp-adminos' ),
+		);
+		$labels   = isset( $theme['shell']['labels'] ) && is_array( $theme['shell']['labels'] )
+			? $theme['shell']['labels']
+			: array();
+
+		return wp_parse_args( $labels, $defaults );
+	}
+
+	/**
+	 * Theme-provided window control labels with defaults.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @return array<string,string>
+	 */
+	private function get_theme_window_control_labels( $theme = array() ) {
+		$defaults = array(
+			'close'    => __( 'Close', 'wp-adminos' ),
+			'minimize' => __( 'Minimize', 'wp-adminos' ),
+			'maximize' => __( 'Maximize', 'wp-adminos' ),
+		);
+		$labels   = isset( $theme['window_chrome']['controls']['labels'] ) && is_array( $theme['window_chrome']['controls']['labels'] )
+			? $theme['window_chrome']['controls']['labels']
+			: array();
+
+		return wp_parse_args( $labels, $defaults );
+	}
+
+	/**
 	 * Settings data used by native System Settings panels.
 	 *
+	 * @param array<string,mixed> $theme Current theme.
 	 * @return array<string,mixed>
 	 */
-	private function get_settings_config() {
+	private function get_settings_config( $theme = array() ) {
 		return array(
 			'general' => array(
 				'description' => __( 'Manage site information, updates, language, privacy, and WordPress tools.', 'wp-adminos' ),
 				'groups'      => $this->get_general_settings_groups(),
 			),
-			'labels'  => $this->get_settings_labels_config(),
+			'labels'  => $this->get_settings_labels_config( $theme ),
 		);
 	}
 
 	/**
 	 * Localized labels and option lists used by native System Settings panels.
 	 *
+	 * @param array<string,mixed> $theme Current theme.
 	 * @return array<string,mixed>
 	 */
-	private function get_settings_labels_config() {
+	private function get_settings_labels_config( $theme = array() ) {
+		$shell_labels           = $this->get_theme_shell_labels( $theme );
+		$launcher_label         = $shell_labels['launcher'];
+		$desktop_launcher_label = $shell_labels['desktop_launcher'];
+		$launcher_and_desktop   = $shell_labels['launcher_and_desktop'];
+		$menu_bar_label         = $shell_labels['menu_bar'];
+
 		return array(
 			'status'       => array(
 				'saving'                 => __( 'Saving...', 'wp-adminos' ),
 				'removing'               => __( 'Removing...', 'wp-adminos' ),
 				'appearanceSaveError'    => __( 'Appearance could not be saved.', 'wp-adminos' ),
 				'appearanceSaved'        => __( 'Appearance saved.', 'wp-adminos' ),
-				'desktopDockSaveError'   => __( 'Desktop & Dock could not be saved.', 'wp-adminos' ),
+				'desktopDockSaveError'   => sprintf(
+					/* translators: %s: theme-specific desktop and launcher settings label. */
+					__( '%s could not be saved.', 'wp-adminos' ),
+					$desktop_launcher_label
+				),
 				'appLocationsSaveError'  => __( 'App locations could not be saved.', 'wp-adminos' ),
 				'appLocationsSaved'      => __( 'App locations saved.', 'wp-adminos' ),
-				'menuBarSaveError'       => __( 'Menu Bar could not be saved.', 'wp-adminos' ),
+				'menuBarSaveError'       => sprintf(
+					/* translators: %s: theme-specific menu bar label. */
+					__( '%s could not be saved.', 'wp-adminos' ),
+					$menu_bar_label
+				),
 				'wallpaperSaveError'     => __( 'Wallpaper could not be saved.', 'wp-adminos' ),
 				'wallpaperSaved'         => __( 'Wallpaper saved.', 'wp-adminos' ),
 				'photoRemoveError'       => __( 'Photo could not be removed.', 'wp-adminos' ),
@@ -713,13 +778,13 @@ final class WP_AdminOS_Assets {
 					),
 					array(
 						'id'    => 'desktop-dock',
-						'label' => __( 'Desktop & Dock', 'wp-adminos' ),
+						'label' => $desktop_launcher_label,
 						'icon'  => 'dashicons-desktop',
 						'tone'  => 'indigo',
 					),
 					array(
 						'id'    => 'menu-bar',
-						'label' => __( 'Menu Bar', 'wp-adminos' ),
+						'label' => $menu_bar_label,
 						'icon'  => 'dashicons-menu-alt3',
 						'tone'  => 'gray',
 					),
@@ -829,7 +894,7 @@ final class WP_AdminOS_Assets {
 			),
 			'desktopDock'  => array(
 				'headings' => array(
-					'dock'    => __( 'Dock', 'wp-adminos' ),
+					'dock'    => $launcher_label,
 					'apps'    => __( 'Apps', 'wp-adminos' ),
 					'desktop' => __( 'Desktop', 'wp-adminos' ),
 					'widgets' => __( 'Widgets', 'wp-adminos' ),
@@ -837,10 +902,10 @@ final class WP_AdminOS_Assets {
 				'rows'     => array(
 					'dockSize'                 => __( 'Size', 'wp-adminos' ),
 					'dockMagnification'        => __( 'Magnification', 'wp-adminos' ),
-					'dockPosition'             => __( 'Dock position on screen', 'wp-adminos' ),
+					'dockPosition'             => $shell_labels['launcher_position'],
 					'minimizeAnimation'         => __( 'Minimized window animation', 'wp-adminos' ),
 					'minimizeIntoAppIcon'       => __( 'Minimize windows into application icon', 'wp-adminos' ),
-					'autoHideDock'              => __( 'Automatically hide and show the Dock', 'wp-adminos' ),
+					'autoHideDock'              => $shell_labels['auto_hide_launcher'],
 					'animateOpeningApps'        => __( 'Animate opening applications', 'wp-adminos' ),
 					'showOpenIndicators'        => __( 'Show indicators for open applications', 'wp-adminos' ),
 					'wallpaperClick'            => __( 'Click wallpaper to show desktop', 'wp-adminos' ),
@@ -874,16 +939,16 @@ final class WP_AdminOS_Assets {
 					),
 				),
 				'appLocationOptions' => array(
-					array( 'value' => 'dock', 'label' => __( 'Dock', 'wp-adminos' ) ),
+					array( 'value' => 'dock', 'label' => $launcher_label ),
 					array( 'value' => 'desktop', 'label' => __( 'Desktop', 'wp-adminos' ) ),
-					array( 'value' => 'both', 'label' => __( 'Dock & Desktop', 'wp-adminos' ) ),
+					array( 'value' => 'both', 'label' => $launcher_and_desktop ),
 					array( 'value' => 'hidden', 'label' => __( 'Hidden', 'wp-adminos' ) ),
 				),
 			),
 			'menuBar'      => array(
 				'rows'          => array(
-					'autoHide'       => __( 'Automatically hide and show the menu bar', 'wp-adminos' ),
-					'showBackground' => __( 'Show menu bar background', 'wp-adminos' ),
+					'autoHide'       => $shell_labels['menu_bar_auto_hide'],
+					'showBackground' => $shell_labels['menu_bar_background'],
 					'recentCount'    => __( 'Recent documents, applications, and servers', 'wp-adminos' ),
 				),
 				'selectOptions' => array(
@@ -1134,11 +1199,14 @@ final class WP_AdminOS_Assets {
 	/**
 	 * Localized menu defaults for the active-app menu bar.
 	 *
+	 * @param array<string,mixed> $theme Current theme.
 	 * @return array<string,mixed>
 	 */
-	private function get_menu_config() {
-		$current_user = wp_get_current_user();
-		$user_label   = $current_user->display_name ? $current_user->display_name : $current_user->user_login;
+	private function get_menu_config( $theme = array() ) {
+		$current_user          = wp_get_current_user();
+		$user_label            = $current_user->display_name ? $current_user->display_name : $current_user->user_login;
+		$shell_labels          = $this->get_theme_shell_labels( $theme );
+		$window_control_labels = $this->get_theme_window_control_labels( $theme );
 
 		return array(
 			'system'     => array(
@@ -1271,15 +1339,23 @@ final class WP_AdminOS_Assets {
 				),
 			),
 			'labels'     => array(
-				'site'          => get_bloginfo( 'name' ),
-				'file'          => __( 'File', 'wp-adminos' ),
-				'edit'          => __( 'Edit', 'wp-adminos' ),
-				'view'          => __( 'View', 'wp-adminos' ),
-				'go'            => __( 'Go', 'wp-adminos' ),
-				'window'        => __( 'Window', 'wp-adminos' ),
-				'help'          => __( 'Help', 'wp-adminos' ),
-				'admin'         => __( 'Admin', 'wp-adminos' ),
-				'folder_suffix' => __( 'Folder', 'wp-adminos' ),
+				'site'                   => get_bloginfo( 'name' ),
+				'file'                   => __( 'File', 'wp-adminos' ),
+				'edit'                   => __( 'Edit', 'wp-adminos' ),
+				'view'                   => __( 'View', 'wp-adminos' ),
+				'go'                     => __( 'Go', 'wp-adminos' ),
+				'window'                 => __( 'Window', 'wp-adminos' ),
+				'help'                   => __( 'Help', 'wp-adminos' ),
+				'admin'                  => __( 'Admin', 'wp-adminos' ),
+				'folder_suffix'          => __( 'Folder', 'wp-adminos' ),
+				'launcher'               => $shell_labels['launcher'],
+				'launcher_options'       => $shell_labels['launcher_options'],
+				'keep_in_launcher'       => $shell_labels['keep_in_launcher'],
+				'remove_from_launcher'   => $shell_labels['remove_from_launcher'],
+				'open_at_login'          => $shell_labels['open_at_login'],
+				'window_close'           => $window_control_labels['close'],
+				'window_minimize'        => $window_control_labels['minimize'],
+				'window_maximize'        => $window_control_labels['maximize'],
 			),
 		);
 	}

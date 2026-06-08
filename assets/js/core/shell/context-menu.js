@@ -8,6 +8,8 @@
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const folderMap = new Map((Array.isArray(config.folders) ? config.folders : []).map((folder) => [folder.id, folder]));
 		const widgetMap = new Map((Array.isArray(config.widgets) ? config.widgets : []).map((widget) => [widget.id, widget]));
+		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
+		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
 		const desktopIconManager = context.desktopIconManager || null;
 		const folderManager = context.folderManager || null;
 		const manager = context.manager || null;
@@ -19,6 +21,10 @@
 				command,
 				label
 			}, options);
+		}
+
+		function getLabel(key, fallback) {
+			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
 		}
 
 		function separator() {
@@ -175,13 +181,13 @@
 		function getDockOptionsItem(app, state) {
 			const optionItems = [
 				state.open
-					? commandItem('Keep in Dock', 'app.keep-in-dock', {
+					? commandItem(getLabel('keep_in_launcher', 'Keep in Dock'), 'app.keep-in-dock', {
 						target: app.id
 					})
-					: commandItem('Remove from Dock', 'app.remove-from-dock', {
+					: commandItem(getLabel('remove_from_launcher', 'Remove from Dock'), 'app.remove-from-dock', {
 						target: app.id
 					}),
-				commandItem('Open at Login', 'app.toggle-login-item', {
+				commandItem(getLabel('open_at_login', 'Open at Login'), 'app.toggle-login-item', {
 					target: app.id
 				})
 			];
@@ -189,7 +195,7 @@
 			return {
 				id: 'dock-options',
 				items: optionItems,
-				label: 'Options'
+				label: getLabel('launcher_options', 'Options')
 			};
 		}
 
@@ -403,10 +409,10 @@
 			}
 
 			items.push(
-				commandItem('Minimize', 'window.minimize', {
+				commandItem(getLabel('window_minimize', 'Minimize'), 'window.minimize', {
 					icon: 'dashicons-minus'
 				}),
-				commandItem('Close', 'window.close', {
+				commandItem(getLabel('window_close', 'Close'), 'window.close', {
 					icon: 'dashicons-no-alt'
 				})
 			);

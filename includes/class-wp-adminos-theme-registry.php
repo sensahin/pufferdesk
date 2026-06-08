@@ -26,6 +26,44 @@ final class WP_AdminOS_Theme_Registry {
 				'version'        => 'base',
 				'version_label'  => __( 'Base', 'wp-adminos' ),
 				'stylesheet'     => 'adminos/base.css',
+				'shell'          => array(
+					'chrome'      => 'global-menu-dock',
+					'top_bar'     => 'menu-bar',
+					'launcher'    => 'dock',
+					'system_menu' => 'mark',
+					'app_menu'    => 'global',
+					'status_area' => 'menu-bar',
+					'labels'      => array(
+						'launcher'             => __( 'Dock', 'wp-adminos' ),
+						'desktop_launcher'     => __( 'Desktop & Dock', 'wp-adminos' ),
+						'launcher_and_desktop' => __( 'Dock & Desktop', 'wp-adminos' ),
+						'launcher_position'    => __( 'Dock position on screen', 'wp-adminos' ),
+						'auto_hide_launcher'   => __( 'Automatically hide and show the Dock', 'wp-adminos' ),
+						'launcher_options'     => __( 'Options', 'wp-adminos' ),
+						'keep_in_launcher'     => __( 'Keep in Dock', 'wp-adminos' ),
+						'remove_from_launcher' => __( 'Remove from Dock', 'wp-adminos' ),
+						'open_at_login'        => __( 'Open at Login', 'wp-adminos' ),
+						'menu_bar'             => __( 'Menu Bar', 'wp-adminos' ),
+						'menu_bar_auto_hide'   => __( 'Automatically hide and show the menu bar', 'wp-adminos' ),
+						'menu_bar_background'  => __( 'Show menu bar background', 'wp-adminos' ),
+					),
+				),
+				'window_chrome'  => array(
+					'controls' => array(
+						'placement' => 'left',
+						'order'     => array( 'close', 'minimize', 'maximize' ),
+						'style'     => 'traffic',
+						'labels'    => array(
+							'close'    => __( 'Close', 'wp-adminos' ),
+							'minimize' => __( 'Minimize', 'wp-adminos' ),
+							'maximize' => __( 'Maximize', 'wp-adminos' ),
+						),
+					),
+					'title'    => array(
+						'alignment' => 'left',
+						'show_icon' => true,
+					),
+				),
 				'abstract'       => true,
 			),
 			'adminos' => array(
@@ -124,8 +162,8 @@ final class WP_AdminOS_Theme_Registry {
 		 *
 		 * Theme keys are stable IDs. Values accept:
 		 * id, label, family, family_label, version, version_label, parent,
-			 * stylesheet, stylesheets, media, wallpaper, wallpapers, icon_pack,
-			 * cursor_pack, and abstract.
+		 * stylesheet, stylesheets, media, wallpaper, wallpapers, icon_pack,
+		 * cursor_pack, shell, window_chrome, and abstract.
 		 *
 		 * @param array<string,array<string,mixed>> $themes Registered themes.
 		 */
@@ -175,6 +213,8 @@ final class WP_AdminOS_Theme_Registry {
 				'parent'        => $resolved['parent'],
 				'ancestors'     => $resolved['ancestors'],
 				'media'         => $resolved['media'],
+				'shell'         => $resolved['shell'],
+				'window_chrome' => $resolved['window_chrome'],
 			);
 		}
 
@@ -212,10 +252,12 @@ final class WP_AdminOS_Theme_Registry {
 				'version'        => isset( $theme['version'] ) ? sanitize_text_field( $theme['version'] ) : '',
 				'version_label'  => isset( $theme['version_label'] ) ? sanitize_text_field( $theme['version_label'] ) : '',
 				'parent'         => isset( $theme['parent'] ) ? sanitize_key( $theme['parent'] ) : '',
-					'stylesheets'    => $this->normalize_stylesheets( $theme ),
-					'media'          => $this->normalize_media( $theme ),
-					'abstract'       => ! empty( $theme['abstract'] ),
-				);
+				'stylesheets'    => $this->normalize_stylesheets( $theme ),
+				'media'          => $this->normalize_media( $theme ),
+				'shell'          => $this->normalize_shell_config( isset( $theme['shell'] ) ? $theme['shell'] : array() ),
+				'window_chrome'  => $this->normalize_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() ),
+				'abstract'       => ! empty( $theme['abstract'] ),
+			);
 		}
 
 		return $normalized;
@@ -238,6 +280,8 @@ final class WP_AdminOS_Theme_Registry {
 		if ( isset( $seen[ $theme_id ] ) ) {
 			$theme['stylesheet_stack'] = $theme['stylesheets'];
 			$theme['ancestors']        = array();
+			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
+			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
 			return $theme;
 		}
 
@@ -246,14 +290,18 @@ final class WP_AdminOS_Theme_Registry {
 		if ( '' === $parent_id || empty( $themes[ $parent_id ] ) ) {
 			$theme['stylesheet_stack'] = $theme['stylesheets'];
 			$theme['ancestors']        = array();
+			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
+			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
 			return $theme;
 		}
 
 		$parent = $this->resolve_theme( $parent_id, $themes, $seen );
 
-			$theme['family']            = $theme['family'] ? $theme['family'] : $parent['family'];
-			$theme['family_label']      = $theme['family_label'] ? $theme['family_label'] : $parent['family_label'];
-			$theme['media']             = $this->merge_media( $parent['media'], $theme['media'] );
+		$theme['family']           = $theme['family'] ? $theme['family'] : $parent['family'];
+		$theme['family_label']     = $theme['family_label'] ? $theme['family_label'] : $parent['family_label'];
+		$theme['media']            = $this->merge_media( $parent['media'], $theme['media'] );
+		$theme['shell']            = $this->complete_shell_config( $this->merge_theme_config( $parent['shell'], $theme['shell'] ) );
+		$theme['window_chrome']    = $this->complete_window_chrome_config( $this->merge_theme_config( $parent['window_chrome'], $theme['window_chrome'] ) );
 		$theme['stylesheet_stack']  = array_values( array_unique( array_merge( $parent['stylesheet_stack'], $theme['stylesheets'] ) ) );
 		$theme['ancestors']         = array_merge( $parent['ancestors'], array( $parent['id'] ) );
 
@@ -366,6 +414,289 @@ final class WP_AdminOS_Theme_Registry {
 		}
 
 		return $merged;
+	}
+
+	/**
+	 * Default shell surface contract for themes.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_default_shell_config() {
+		return array(
+			'chrome'      => 'global-menu-dock',
+			'top_bar'     => 'menu-bar',
+			'launcher'    => 'dock',
+			'system_menu' => 'mark',
+			'app_menu'    => 'global',
+			'status_area' => 'menu-bar',
+			'labels'      => array(
+				'launcher'             => __( 'Dock', 'wp-adminos' ),
+				'desktop_launcher'     => __( 'Desktop & Dock', 'wp-adminos' ),
+				'launcher_and_desktop' => __( 'Dock & Desktop', 'wp-adminos' ),
+				'launcher_position'    => __( 'Dock position on screen', 'wp-adminos' ),
+				'auto_hide_launcher'   => __( 'Automatically hide and show the Dock', 'wp-adminos' ),
+				'launcher_options'     => __( 'Options', 'wp-adminos' ),
+				'keep_in_launcher'     => __( 'Keep in Dock', 'wp-adminos' ),
+				'remove_from_launcher' => __( 'Remove from Dock', 'wp-adminos' ),
+				'open_at_login'        => __( 'Open at Login', 'wp-adminos' ),
+				'menu_bar'             => __( 'Menu Bar', 'wp-adminos' ),
+				'menu_bar_auto_hide'   => __( 'Automatically hide and show the menu bar', 'wp-adminos' ),
+				'menu_bar_background'  => __( 'Show menu bar background', 'wp-adminos' ),
+			),
+		);
+	}
+
+	/**
+	 * Default window chrome contract for themes.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_default_window_chrome_config() {
+		return array(
+			'controls' => array(
+				'placement' => 'left',
+				'order'     => array( 'close', 'minimize', 'maximize' ),
+				'style'     => 'traffic',
+				'labels'    => array(
+					'close'    => __( 'Close', 'wp-adminos' ),
+					'minimize' => __( 'Minimize', 'wp-adminos' ),
+					'maximize' => __( 'Maximize', 'wp-adminos' ),
+				),
+			),
+			'title'    => array(
+				'alignment' => 'left',
+				'show_icon' => true,
+			),
+		);
+	}
+
+	/**
+	 * Normalize a theme shell surface contract.
+	 *
+	 * @param mixed $shell Raw shell config.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_shell_config( $shell ) {
+		if ( ! is_array( $shell ) ) {
+			return array();
+		}
+
+		$normalized = array();
+		$fields     = array(
+			'chrome'      => array( 'global-menu-dock', 'taskbar', 'minimal' ),
+			'top_bar'     => array( 'menu-bar', 'taskbar', 'none' ),
+			'launcher'    => array( 'dock', 'taskbar', 'none' ),
+			'system_menu' => array( 'mark', 'start', 'none' ),
+			'app_menu'    => array( 'global', 'window', 'none' ),
+			'status_area' => array( 'menu-bar', 'taskbar', 'none' ),
+		);
+
+		foreach ( $fields as $field => $allowed ) {
+			if ( ! array_key_exists( $field, $shell ) ) {
+				continue;
+			}
+
+			$value = sanitize_key( (string) $shell[ $field ] );
+			if ( in_array( $value, $allowed, true ) ) {
+				$normalized[ $field ] = $value;
+			}
+		}
+
+		if ( isset( $shell['labels'] ) && is_array( $shell['labels'] ) ) {
+			$normalized['labels'] = $this->normalize_string_map( $shell['labels'] );
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize a theme window chrome contract.
+	 *
+	 * @param mixed $window_chrome Raw window chrome config.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_window_chrome_config( $window_chrome ) {
+		if ( ! is_array( $window_chrome ) ) {
+			return array();
+		}
+
+		$normalized = array();
+		$controls   = isset( $window_chrome['controls'] ) && is_array( $window_chrome['controls'] )
+			? $window_chrome['controls']
+			: array();
+		$title      = isset( $window_chrome['title'] ) && is_array( $window_chrome['title'] )
+			? $window_chrome['title']
+			: array();
+
+		if ( array_key_exists( 'placement', $controls ) ) {
+			$placement = sanitize_key( (string) $controls['placement'] );
+			if ( in_array( $placement, array( 'left', 'right' ), true ) ) {
+				$normalized['controls']['placement'] = $placement;
+			}
+		}
+
+		if ( array_key_exists( 'style', $controls ) ) {
+			$style = sanitize_key( (string) $controls['style'] );
+			if ( in_array( $style, array( 'traffic', 'caption', 'toolbar', 'hidden' ), true ) ) {
+				$normalized['controls']['style'] = $style;
+			}
+		}
+
+		if ( isset( $controls['order'] ) ) {
+			$order = $this->normalize_window_control_order( $controls['order'] );
+			if ( ! empty( $order ) ) {
+				$normalized['controls']['order'] = $order;
+			}
+		}
+
+		if ( isset( $controls['labels'] ) && is_array( $controls['labels'] ) ) {
+			$labels = $this->normalize_string_map( $controls['labels'], array( 'close', 'minimize', 'maximize' ) );
+			if ( ! empty( $labels ) ) {
+				$normalized['controls']['labels'] = $labels;
+			}
+		}
+
+		if ( array_key_exists( 'alignment', $title ) ) {
+			$alignment = sanitize_key( (string) $title['alignment'] );
+			if ( in_array( $alignment, array( 'left', 'center', 'right' ), true ) ) {
+				$normalized['title']['alignment'] = $alignment;
+			}
+		}
+
+		if ( array_key_exists( 'show_icon', $title ) ) {
+			$normalized['title']['show_icon'] = (bool) $title['show_icon'];
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Merge a partial theme config over a parent config.
+	 *
+	 * @param mixed $parent Parent config.
+	 * @param mixed $child Child config.
+	 * @return mixed
+	 */
+	private function merge_theme_config( $parent, $child ) {
+		if ( ! is_array( $parent ) || ! is_array( $child ) ) {
+			return $child;
+		}
+
+		$merged = $parent;
+		foreach ( $child as $key => $value ) {
+			if (
+				isset( $merged[ $key ] )
+				&& is_array( $merged[ $key ] )
+				&& is_array( $value )
+				&& $this->is_associative_array( $merged[ $key ] )
+				&& $this->is_associative_array( $value )
+			) {
+				$merged[ $key ] = $this->merge_theme_config( $merged[ $key ], $value );
+				continue;
+			}
+
+			$merged[ $key ] = $value;
+		}
+
+		return $merged;
+	}
+
+	/**
+	 * Apply defaults to a shell config.
+	 *
+	 * @param mixed $shell Shell config.
+	 * @return array<string,mixed>
+	 */
+	private function complete_shell_config( $shell ) {
+		return $this->merge_theme_config(
+			$this->get_default_shell_config(),
+			is_array( $shell ) ? $shell : array()
+		);
+	}
+
+	/**
+	 * Apply defaults to a window chrome config.
+	 *
+	 * @param mixed $window_chrome Window chrome config.
+	 * @return array<string,mixed>
+	 */
+	private function complete_window_chrome_config( $window_chrome ) {
+		return $this->merge_theme_config(
+			$this->get_default_window_chrome_config(),
+			is_array( $window_chrome ) ? $window_chrome : array()
+		);
+	}
+
+	/**
+	 * Normalize a map of labels.
+	 *
+	 * @param mixed    $labels Raw labels.
+	 * @param string[] $allowed_keys Optional allowed label keys.
+	 * @return array<string,string>
+	 */
+	private function normalize_string_map( $labels, $allowed_keys = array() ) {
+		$normalized = array();
+		if ( ! is_array( $labels ) ) {
+			return $normalized;
+		}
+
+		foreach ( $labels as $key => $value ) {
+			$key = sanitize_key( (string) $key );
+			if ( '' === $key || ( ! empty( $allowed_keys ) && ! in_array( $key, $allowed_keys, true ) ) ) {
+				continue;
+			}
+
+			if ( ! is_scalar( $value ) ) {
+				continue;
+			}
+
+			$value = sanitize_text_field( $value );
+			if ( '' !== $value ) {
+				$normalized[ $key ] = $value;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize the order of supported window controls.
+	 *
+	 * @param mixed $order Raw order.
+	 * @return string[]
+	 */
+	private function normalize_window_control_order( $order ) {
+		if ( is_string( $order ) ) {
+			$order = preg_split( '/[\s,]+/', $order );
+		}
+
+		if ( ! is_array( $order ) ) {
+			return array();
+		}
+
+		$normalized = array();
+		foreach ( $order as $control ) {
+			$control = sanitize_key( (string) $control );
+			if ( in_array( $control, array( 'close', 'minimize', 'maximize' ), true ) && ! in_array( $control, $normalized, true ) ) {
+				$normalized[] = $control;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Whether an array uses string keys.
+	 *
+	 * @param array<mixed> $value Value to inspect.
+	 * @return bool
+	 */
+	private function is_associative_array( $value ) {
+		if ( array() === $value ) {
+			return false;
+		}
+
+		return array_keys( $value ) !== range( 0, count( $value ) - 1 );
 	}
 
 	/**

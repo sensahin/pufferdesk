@@ -119,6 +119,47 @@ Template resolution supports theme-specific overrides. The renderer checks paths
 
 For example, a Windows family can override `templates/themes/windows/windows/titlebar.php` without replacing the whole shell.
 
+Theme shell chrome is data-driven. A theme can declare its shell model and runtime labels without changing core behavior:
+
+```php
+'shell' => array(
+	'chrome'      => 'global-menu-dock',
+	'top_bar'     => 'menu-bar',
+	'launcher'    => 'dock',
+	'system_menu' => 'mark',
+	'app_menu'    => 'global',
+	'status_area' => 'menu-bar',
+	'labels'      => array(
+		'launcher'             => __( 'Dock', 'wp-adminos' ),
+		'desktop_launcher'     => __( 'Desktop & Dock', 'wp-adminos' ),
+		'launcher_and_desktop' => __( 'Dock & Desktop', 'wp-adminos' ),
+		'keep_in_launcher'     => __( 'Keep in Dock', 'wp-adminos' ),
+		'remove_from_launcher' => __( 'Remove from Dock', 'wp-adminos' ),
+	),
+),
+```
+
+Window chrome is also theme metadata. Core still owns window behavior, but themes can choose control placement, control order, visual style hooks, title alignment, and control labels:
+
+```php
+'window_chrome' => array(
+	'controls' => array(
+		'placement' => 'left',
+		'order'     => array( 'close', 'minimize', 'maximize' ),
+		'style'     => 'traffic',
+		'labels'    => array(
+			'close'    => __( 'Close', 'wp-adminos' ),
+			'minimize' => __( 'Minimize', 'wp-adminos' ),
+			'maximize' => __( 'Maximize', 'wp-adminos' ),
+		),
+	),
+	'title'    => array(
+		'alignment' => 'left',
+		'show_icon' => true,
+	),
+),
+```
+
 Themes support family/version inheritance. A concrete theme can declare a parent theme and receives its stylesheet stack before its own styles are loaded:
 
 ```php

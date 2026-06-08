@@ -70,6 +70,37 @@ $wp_adminos_menu_bar     = wp_parse_args(
 		'recent_count'    => 10,
 	)
 );
+$wp_adminos_theme_shell  = wp_parse_args(
+	isset( $theme['shell'] ) && is_array( $theme['shell'] ) ? $theme['shell'] : array(),
+	array(
+		'chrome'      => 'global-menu-dock',
+		'top_bar'     => 'menu-bar',
+		'launcher'    => 'dock',
+		'system_menu' => 'mark',
+		'app_menu'    => 'global',
+		'status_area' => 'menu-bar',
+	)
+);
+$wp_adminos_window_chrome = wp_parse_args(
+	isset( $theme['window_chrome'] ) && is_array( $theme['window_chrome'] ) ? $theme['window_chrome'] : array(),
+	array(
+		'controls' => array(),
+		'title'    => array(),
+	)
+);
+$wp_adminos_window_controls = wp_parse_args(
+	isset( $wp_adminos_window_chrome['controls'] ) && is_array( $wp_adminos_window_chrome['controls'] ) ? $wp_adminos_window_chrome['controls'] : array(),
+	array(
+		'placement' => 'left',
+		'style'     => 'traffic',
+	)
+);
+$wp_adminos_window_title = wp_parse_args(
+	isset( $wp_adminos_window_chrome['title'] ) && is_array( $wp_adminos_window_chrome['title'] ) ? $wp_adminos_window_chrome['title'] : array(),
+	array(
+		'alignment' => 'left',
+	)
+);
 $wp_adminos_dock_size          = max( 28, min( 72, (int) $wp_adminos_desktop_dock['dock_size'] ) );
 $wp_adminos_dock_magnification = max( 0, min( 24, (int) $wp_adminos_desktop_dock['dock_magnification'] ) );
 $wp_adminos_dock_icon_size     = max( 18, (int) round( $wp_adminos_dock_size * 0.56 ) );
@@ -86,10 +117,19 @@ $wp_adminos_menu_bar_auto_hide   = in_array( $wp_adminos_menu_bar['auto_hide'], 
 $wp_adminos_menu_bar_hidden      = in_array( $wp_adminos_menu_bar_auto_hide, array( 'always', 'desktop' ), true );
 $wp_adminos_shell_attributes     = array(
 	'class'                           => 'aos-shell',
-	'data-wp-adminos-shell'             => '',
+	'data-wp-adminos-shell'           => '',
 	'data-aos-theme'                  => $theme['id'],
 	'data-aos-theme-family'           => $theme['family'],
 	'data-aos-theme-version'          => $theme['version'],
+	'data-aos-shell-chrome'           => $wp_adminos_theme_shell['chrome'],
+	'data-aos-shell-top-bar'          => $wp_adminos_theme_shell['top_bar'],
+	'data-aos-shell-launcher'         => $wp_adminos_theme_shell['launcher'],
+	'data-aos-shell-system-menu'      => $wp_adminos_theme_shell['system_menu'],
+	'data-aos-shell-app-menu'         => $wp_adminos_theme_shell['app_menu'],
+	'data-aos-shell-status-area'      => $wp_adminos_theme_shell['status_area'],
+	'data-aos-window-controls-placement' => $wp_adminos_window_controls['placement'],
+	'data-aos-window-controls-style'  => $wp_adminos_window_controls['style'],
+	'data-aos-window-title-alignment' => $wp_adminos_window_title['alignment'],
 	'data-aos-wallpaper-type'         => ! empty( $wallpaper['preference']['type'] ) ? $wallpaper['preference']['type'] : '',
 	'data-aos-wallpaper-id'           => ! empty( $wallpaper['preference']['id'] ) ? $wallpaper['preference']['id'] : '',
 	'data-aos-menu-contrast'          => ! empty( $wallpaper['menu_contrast'] ) ? $wallpaper['menu_contrast'] : 'auto',
