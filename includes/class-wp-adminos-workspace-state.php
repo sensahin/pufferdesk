@@ -244,11 +244,33 @@ final class WP_AdminOS_Workspace_State {
 					continue;
 				}
 
-				$sanitized[] = array(
+				$folder_tabs      = $this->sanitize_folder_tabs(
+					isset( $window['tabs'] ) ? $window['tabs'] : array(),
+					$available_folders
+				);
+				$active_tab_id    = isset( $window['activeTabId'] ) && is_scalar( $window['activeTabId'] )
+					? sanitize_key( (string) $window['activeTabId'] )
+					: '';
+				$active_tab_id    = $this->sanitize_active_folder_tab_id( $active_tab_id, $folder_tabs );
+				$active_tab       = '' !== $active_tab_id ? $this->get_folder_tab_by_id( $folder_tabs, $active_tab_id ) : null;
+				$active_folder_id = is_array( $active_tab ) && ! empty( $active_tab['folderId'] ) ? sanitize_key( (string) $active_tab['folderId'] ) : '';
+
+				if ( $this->is_allowed_folder_id( $active_folder_id, $available_folders ) ) {
+					$folder_id = $active_folder_id;
+				}
+
+				$folder_window = array(
 					'kind'     => 'folder',
 					'folderId' => $folder_id,
 					'state'    => $state,
 				);
+
+				if ( ! empty( $folder_tabs ) ) {
+					$folder_window['tabs']        = $folder_tabs;
+					$folder_window['activeTabId'] = $active_tab_id;
+				}
+
+				$sanitized[] = $folder_window;
 			} else {
 				if ( ! $this->is_allowed_app_id( $app_id, $available_apps ) ) {
 					continue;
@@ -267,6 +289,126 @@ final class WP_AdminOS_Workspace_State {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Sanitize folder tab records inside a folder window.
+	 *
+	 * @param mixed              $tabs Raw tab records.
+	 * @param array<string,bool> $available_folders Available folder IDs.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function sanitize_folder_tabs( $tabs, $available_folders ) {
+		$sanitized = array();
+		$seen      = array();
+
+		foreach ( is_array( $tabs ) ? $tabs : array() as $tab ) {
+			if ( ! is_array( $tab ) ) {
+				continue;
+			}
+
+			$tab_id = isset( $tab['id'] ) && is_scalar( $tab['id'] )
+				? sanitize_key( (string) $tab['id'] )
+				: '';
+			if ( '' === $tab_id ) {
+				$tab_id = 'folder-tab-' . ( count( $sanitized ) + 1 );
+			}
+
+			$base_tab_id = $tab_id;
+			$suffix      = 2;
+			while ( isset( $seen[ $tab_id ] ) ) {
+				$tab_id = $base_tab_id . '-' . $suffix;
+				$suffix++;
+			}
+
+			$entries = array();
+			foreach ( isset( $tab['entries'] ) && is_array( $tab['entries'] ) ? $tab['entries'] : array() as $entry ) {
+				if ( ! is_scalar( $entry ) ) {
+					continue;
+				}
+
+				$entry_id = sanitize_key( (string) $entry );
+				if ( ! $this->is_allowed_folder_id( $entry_id, $available_folders ) ) {
+					continue;
+				}
+
+				$entries[] = $entry_id;
+				if ( count( $entries ) >= 80 ) {
+					break;
+				}
+			}
+
+			$folder_id = isset( $tab['folderId'] ) && is_scalar( $tab['folderId'] )
+				? sanitize_key( (string) $tab['folderId'] )
+				: '';
+			$index     = isset( $tab['index'] ) ? $this->sanitize_number( $tab['index'], 0, 79 ) : null;
+
+			if ( empty( $entries ) && $this->is_allowed_folder_id( $folder_id, $available_folders ) ) {
+				$entries = array( $folder_id );
+				$index   = 0;
+			}
+
+			if ( empty( $entries ) ) {
+				continue;
+			}
+
+			$index = null === $index ? count( $entries ) - 1 : min( $index, count( $entries ) - 1 );
+			if ( ! $this->is_allowed_folder_id( $folder_id, $available_folders ) ) {
+				$folder_id = $entries[ $index ];
+			} elseif ( $entries[ $index ] !== $folder_id ) {
+				$entries[ $index ] = $folder_id;
+			}
+
+			$sanitized[] = array(
+				'id'       => $tab_id,
+				'folderId' => $folder_id,
+				'entries'  => array_values( $entries ),
+				'index'    => $index,
+			);
+			$seen[ $tab_id ] = true;
+
+			if ( count( $sanitized ) >= 30 ) {
+				break;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize an active folder tab ID against sanitized tabs.
+	 *
+	 * @param string                         $tab_id Active tab ID.
+	 * @param array<int,array<string,mixed>> $tabs Sanitized tabs.
+	 * @return string
+	 */
+	private function sanitize_active_folder_tab_id( $tab_id, $tabs ) {
+		if ( '' !== $tab_id ) {
+			foreach ( $tabs as $tab ) {
+				if ( isset( $tab['id'] ) && $tab['id'] === $tab_id ) {
+					return $tab_id;
+				}
+			}
+		}
+
+		return isset( $tabs[0]['id'] ) ? (string) $tabs[0]['id'] : '';
+	}
+
+	/**
+	 * Get a sanitized folder tab by ID.
+	 *
+	 * @param array<int,array<string,mixed>> $tabs Sanitized tabs.
+	 * @param string                         $tab_id Tab ID.
+	 * @return array<string,mixed>|null
+	 */
+	private function get_folder_tab_by_id( $tabs, $tab_id ) {
+		foreach ( $tabs as $tab ) {
+			if ( isset( $tab['id'] ) && $tab['id'] === $tab_id ) {
+				return $tab;
+			}
+		}
+
+		return null;
 	}
 
 	/**

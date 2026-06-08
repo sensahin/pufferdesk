@@ -644,6 +644,17 @@
 			}
 		});
 
+		register('open-folder-tab', {
+			isEnabled(payload, detail) {
+				return Boolean(launcher && typeof launcher.openFolderTab === 'function' && getFolderIdFromPayload(payload, detail));
+			},
+			run(payload, detail) {
+				launcher.openFolderTab(getFolderIdFromPayload(payload, detail), {
+					windowElement: detail && detail.windowElement ? detail.windowElement : null
+				});
+			}
+		});
+
 		register('folder.create', {
 			isEnabled() {
 				return Boolean(folderManager && typeof folderManager.createFolder === 'function');

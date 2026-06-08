@@ -251,6 +251,10 @@
 					icon: folder.icon || 'dashicons-category',
 					target: folder.id
 				}),
+				commandItem(getLabel('open_in_new_tab', 'Open in New Tab'), 'open-folder-tab', {
+					icon: 'dashicons-plus-alt2',
+					target: folder.id
+				}),
 				commandItem('Get Info', 'folder.get-info', {
 					icon: 'dashicons-info-outline',
 					target: folder.id

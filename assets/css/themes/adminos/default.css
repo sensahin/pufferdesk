@@ -111,6 +111,17 @@
 	--aos-settings-card-border: rgba(60, 60, 67, 0.08);
 	--aos-finder-sidebar-active-bg: rgba(60, 60, 67, 0.1);
 	--aos-finder-sidebar-active-ink: var(--aos-accent);
+	--aos-finder-tabbar-bg: rgb(245, 245, 245);
+	--aos-finder-tabbar-border: rgba(60, 60, 67, 0.14);
+	--aos-finder-tab-bg: rgba(60, 60, 67, 0.035);
+	--aos-finder-tab-hover-bg: rgba(60, 60, 67, 0.07);
+	--aos-finder-tab-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(232, 232, 232, 0.72));
+	--aos-finder-tab-active-border: rgba(60, 60, 67, 0.16);
+	--aos-finder-tab-close-bg: rgba(60, 60, 67, 0.14);
+	--aos-finder-tab-close-hover-bg: rgba(60, 60, 67, 0.22);
+	--aos-finder-tab-add-bg: rgba(60, 60, 67, 0.052);
+	--aos-finder-tab-add-hover-bg: rgba(60, 60, 67, 0.095);
+	--aos-finder-tab-add-border: rgba(60, 60, 67, 0.13);
 	--aos-line: var(--aos-material-regular-border);
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-shadow: var(--aos-material-regular-shadow);
@@ -1068,11 +1079,20 @@
 	padding-top: var(--aos-settings-sidebar-inset);
 }
 
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder"] .aos-finder-tabs {
+	padding-left: var(--aos-settings-main-edge);
+}
+
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder"] .aos-finder-toolbar-icon {
 	-webkit-backdrop-filter: var(--aos-material-control-filter);
 	backdrop-filter: var(--aos-material-control-filter);
 	background: var(--aos-material-control-bg);
 	border-color: var(--aos-material-control-border);
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder"] .aos-finder-tab-add {
+	-webkit-backdrop-filter: var(--aos-material-control-filter);
+	backdrop-filter: var(--aos-material-control-filter);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-app-window="os-settings"] .aos-settings-pane {
@@ -1198,6 +1218,18 @@
 	--aos-settings-card-bg: rgb(37, 37, 37);
 	--aos-settings-card-border: rgba(230, 230, 230, 0.075);
 	--aos-finder-sidebar-active-bg: rgba(255, 255, 255, 0.09);
+	--aos-finder-sidebar-active-ink: var(--aos-accent);
+	--aos-finder-tabbar-bg: rgb(37, 37, 37);
+	--aos-finder-tabbar-border: rgba(230, 230, 230, 0.12);
+	--aos-finder-tab-bg: rgba(255, 255, 255, 0.035);
+	--aos-finder-tab-hover-bg: rgba(255, 255, 255, 0.075);
+	--aos-finder-tab-active-bg: linear-gradient(180deg, rgba(96, 96, 96, 0.72), rgba(72, 72, 72, 0.62));
+	--aos-finder-tab-active-border: rgba(230, 230, 230, 0.14);
+	--aos-finder-tab-close-bg: rgba(255, 255, 255, 0.13);
+	--aos-finder-tab-close-hover-bg: rgba(255, 255, 255, 0.22);
+	--aos-finder-tab-add-bg: rgba(255, 255, 255, 0.062);
+	--aos-finder-tab-add-hover-bg: rgba(255, 255, 255, 0.11);
+	--aos-finder-tab-add-border: rgba(230, 230, 230, 0.12);
 	--aos-line: var(--aos-material-regular-border);
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-shadow: var(--aos-material-regular-shadow);

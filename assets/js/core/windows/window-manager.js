@@ -924,12 +924,22 @@
 
 				if (win.dataset.aosWindowKind === 'folder') {
 					const folderId = win.dataset.aosFolderWindow;
+					const tabState = typeof win.aosSerializeFolderTabs === 'function'
+						? win.aosSerializeFolderTabs()
+						: null;
 					if (folderId) {
-						windows.push({
+						const folderWindow = {
 							kind: 'folder',
 							folderId,
 							state: readWindowState(win)
-						});
+						};
+
+						if (tabState && Array.isArray(tabState.tabs) && tabState.tabs.length) {
+							folderWindow.activeTabId = tabState.activeTabId || '';
+							folderWindow.tabs = tabState.tabs;
+						}
+
+						windows.push(folderWindow);
 					}
 					return;
 				}
@@ -1127,9 +1137,11 @@
 				if (item.kind === 'folder') {
 					if (item.folderId && resolver && typeof resolver.openFolder === 'function') {
 						resolver.openFolder(item.folderId, {
+							activeTabId: item.activeTabId || '',
 							recordRecent: false,
 							skipFocus: true,
 							state: item.state,
+							tabs: Array.isArray(item.tabs) ? item.tabs : null,
 							touch: false
 						});
 					}

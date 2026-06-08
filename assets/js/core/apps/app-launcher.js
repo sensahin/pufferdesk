@@ -12,6 +12,7 @@
 		const folderMap = new Map(folders.map((folder) => [folder.id, folder]));
 		const folderWindowHistory = new WeakMap();
 		const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
+		let folderTabSequence = 0;
 		let folderProvider = null;
 		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object'
 			? config.menu.labels
@@ -274,42 +275,152 @@
 			return `${folderLabel} ${getMenuLabel('folder_suffix', 'Folder')}`;
 		}
 
-		function getFolderWindowState(win) {
-			let state = folderWindowHistory.get(win);
+		function getFolderLabel(folderId) {
+			const folder = getFolder(folderId);
+
+			return folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin');
+		}
+
+		function createFolderTab(folderId, options = {}) {
+			const tabId = options.id || `folder-tab-${Date.now()}-${++folderTabSequence}`;
+			const entries = Array.isArray(options.entries) && options.entries.length
+				? options.entries.filter((entry) => getFolder(entry))
+				: [folderId];
+			const index = Number.isInteger(options.index)
+				? Math.max(0, Math.min(options.index, entries.length - 1))
+				: Math.max(0, entries.length - 1);
+			const activeFolderId = entries[index] || folderId;
+
+			return {
+				entries: entries.length ? entries : [folderId],
+				folderId: activeFolderId,
+				id: tabId,
+				index
+			};
+		}
+
+		function getFolderWindowTabs(win, fallbackFolderId = '') {
+			let state = win ? folderWindowHistory.get(win) : null;
+
 			if (!state) {
 				state = {
-					entries: [],
-					index: -1
+					activeTabId: '',
+					tabs: []
 				};
-				folderWindowHistory.set(win, state);
+				if (win) {
+					folderWindowHistory.set(win, state);
+				}
+			}
+
+			if (!state.tabs.length && fallbackFolderId) {
+				const tab = createFolderTab(fallbackFolderId);
+				state.tabs.push(tab);
+				state.activeTabId = tab.id;
+			}
+
+			if (!state.activeTabId && state.tabs[0]) {
+				state.activeTabId = state.tabs[0].id;
 			}
 
 			return state;
 		}
 
-		function updateFolderWindowHistory(win, folderId, options = {}) {
-			const state = getFolderWindowState(win);
+		function getActiveFolderTab(win, fallbackFolderId = '') {
+			const state = getFolderWindowTabs(win, fallbackFolderId);
+			let tab = state.tabs.find((item) => item.id === state.activeTabId) || state.tabs[0] || null;
 
-			if (options.reset || state.index < 0) {
-				state.entries = [folderId];
-				state.index = 0;
-				return state;
+			if (!tab && fallbackFolderId) {
+				tab = createFolderTab(fallbackFolderId);
+				state.tabs.push(tab);
+				state.activeTabId = tab.id;
+			}
+
+			return tab;
+		}
+
+		function setFolderWindowTabs(win, rawTabs = [], activeTabId = '', fallbackFolderId = '') {
+			const state = getFolderWindowTabs(win);
+			const tabs = [];
+			const seen = new Set();
+
+			(Array.isArray(rawTabs) ? rawTabs : []).forEach((tab) => {
+				if (!tab || typeof tab !== 'object') {
+					return;
+				}
+
+				const folderId = typeof tab.folderId === 'string' && getFolder(tab.folderId) ? tab.folderId : '';
+				const entries = Array.isArray(tab.entries) ? tab.entries.filter((entry) => getFolder(entry)) : [];
+				const effectiveFolderId = folderId || entries[Number.isInteger(tab.index) ? tab.index : entries.length - 1] || fallbackFolderId;
+				if (!effectiveFolderId || !getFolder(effectiveFolderId)) {
+					return;
+				}
+
+				const normalized = createFolderTab(effectiveFolderId, {
+					entries: entries.length ? entries : [effectiveFolderId],
+					id: typeof tab.id === 'string' && tab.id && !seen.has(tab.id) ? tab.id : '',
+					index: Number.isInteger(tab.index) ? tab.index : entries.length - 1
+				});
+
+				seen.add(normalized.id);
+				tabs.push(normalized);
+			});
+
+			if (!tabs.length && fallbackFolderId && getFolder(fallbackFolderId)) {
+				tabs.push(createFolderTab(fallbackFolderId));
+			}
+
+			state.tabs = tabs;
+			state.activeTabId = tabs.some((tab) => tab.id === activeTabId)
+				? activeTabId
+				: tabs[0] ? tabs[0].id : '';
+
+			return state;
+		}
+
+		function getFolderWindowState(win) {
+			const tab = getActiveFolderTab(win);
+
+			if (!tab) {
+				return {
+					entries: [],
+					index: -1
+				};
+			}
+
+			return tab;
+		}
+
+		function updateFolderWindowHistory(win, folderId, options = {}) {
+			const tab = getActiveFolderTab(win, folderId);
+
+			if (!tab) {
+				return null;
+			}
+
+			if (options.reset || tab.index < 0) {
+				tab.entries = [folderId];
+				tab.folderId = folderId;
+				tab.index = 0;
+				return tab;
 			}
 
 			if (options.replace) {
-				state.entries[state.index] = folderId;
-				return state;
+				tab.entries[tab.index] = folderId;
+				tab.folderId = folderId;
+				return tab;
 			}
 
-			if (state.entries[state.index] === folderId) {
-				return state;
+			if (tab.entries[tab.index] === folderId) {
+				tab.folderId = folderId;
+				return tab;
 			}
 
-			state.entries = state.entries.slice(0, state.index + 1);
-			state.entries.push(folderId);
-			state.index = state.entries.length - 1;
+			tab.entries = tab.entries.slice(0, tab.index + 1);
+			tab.entries.push(folderId);
+			tab.folderId = folderId;
+			tab.index = tab.entries.length - 1;
 
-			return state;
+			return tab;
 		}
 
 		function getFolderWindowHistoryState(win) {
@@ -343,15 +454,16 @@
 		}
 
 		function navigateFolderHistory(win, offset) {
-			const state = win ? getFolderWindowState(win) : null;
-			const nextIndex = state ? state.index + offset : -1;
-			const nextFolderId = state && nextIndex >= 0 && nextIndex < state.entries.length ? state.entries[nextIndex] : '';
+			const tab = win ? getFolderWindowState(win) : null;
+			const nextIndex = tab ? tab.index + offset : -1;
+			const nextFolderId = tab && nextIndex >= 0 && nextIndex < tab.entries.length ? tab.entries[nextIndex] : '';
 
 			if (!nextFolderId) {
 				return false;
 			}
 
-			state.index = nextIndex;
+			tab.index = nextIndex;
+			tab.folderId = nextFolderId;
 			return renderFolderWindow(win, nextFolderId, {
 				updateHistory: false
 			});
@@ -627,6 +739,227 @@
 			}
 		}
 
+		function getFolderTabTitle(tab) {
+			return getFolderLabel(tab && tab.folderId ? tab.folderId : '');
+		}
+
+		function serializeFolderTabs(win) {
+			const state = getFolderWindowTabs(win, win && win.dataset ? win.dataset.aosFolderWindow : '');
+
+			return {
+				activeTabId: state.activeTabId || '',
+				tabs: state.tabs.map((tab) => ({
+					entries: tab.entries.slice(),
+					folderId: tab.folderId,
+					id: tab.id,
+					index: tab.index
+				}))
+			};
+		}
+
+		function saveFolderWindowSession() {
+			if (manager && typeof manager.saveSession === 'function') {
+				manager.saveSession();
+			}
+		}
+
+		function getActiveFolderWindow() {
+			const activeWindow = manager && typeof manager.getActiveWindow === 'function'
+				? manager.getActiveWindow()
+				: null;
+
+			if (activeWindow && activeWindow.dataset && activeWindow.dataset.aosWindowKind === 'folder' && !activeWindow.classList.contains('is-closed')) {
+				return activeWindow;
+			}
+
+			return shell.querySelector('.aos-window[data-aos-window-kind="folder"]:not(.is-closed)');
+		}
+
+		function getFolderWindowWithTab(folderId) {
+			if (!folderId) {
+				return null;
+			}
+
+			return Array.from(shell.querySelectorAll('.aos-window[data-aos-window-kind="folder"]:not(.is-closed)'))
+				.find((win) => {
+					const state = folderWindowHistory.get(win);
+
+					return Boolean(state && Array.isArray(state.tabs) && state.tabs.some((tab) => tab.folderId === folderId));
+				}) || null;
+		}
+
+		function focusFolderWindow(win, options = {}) {
+			if (win && options.skipFocus !== true && manager && typeof manager.focusWindow === 'function') {
+				manager.focusWindow(win);
+			}
+		}
+
+		function recordFolderOpen(folderId, folder) {
+			const folderTitle = getFolderTitle(folder);
+
+			addRecentItem({
+				command: 'open-folder',
+				icon: folder && folder.icon ? folder.icon : 'dashicons-admin-generic',
+				id: folderId,
+				label: folderTitle,
+				target: folderId,
+				title: folderTitle,
+				type: 'folder'
+			});
+		}
+
+		function activateFolderTab(win, tabId, options = {}) {
+			const state = getFolderWindowTabs(win);
+			const tab = state.tabs.find((item) => item.id === tabId);
+
+			if (!win || !tab) {
+				return false;
+			}
+
+			state.activeTabId = tab.id;
+			const rendered = renderFolderWindow(win, tab.folderId, {
+				updateHistory: false,
+				touch: options.touch
+			});
+
+			if (rendered) {
+				saveFolderWindowSession();
+			}
+
+			return rendered;
+		}
+
+		function closeFolderTab(win, tabId) {
+			const state = getFolderWindowTabs(win);
+			const index = state.tabs.findIndex((tab) => tab.id === tabId);
+
+			if (!win || index < 0) {
+				return false;
+			}
+
+			if (state.tabs.length <= 1) {
+				if (manager && typeof manager.closeWindow === 'function') {
+					manager.closeWindow(win, '');
+				}
+				return true;
+			}
+
+			const closingActive = state.activeTabId === tabId;
+			state.tabs.splice(index, 1);
+			if (closingActive) {
+				const nextTab = state.tabs[Math.min(index, state.tabs.length - 1)];
+				state.activeTabId = nextTab ? nextTab.id : '';
+			}
+
+			const activeTab = getActiveFolderTab(win);
+			const rendered = activeTab ? renderFolderWindow(win, activeTab.folderId, {
+				updateHistory: false,
+				touch: false
+			}) : false;
+
+			if (rendered) {
+				saveFolderWindowSession();
+			}
+
+			return rendered;
+		}
+
+		function addFolderTab(win, folderId, options = {}) {
+			if (!win || !getFolder(folderId)) {
+				return null;
+			}
+
+			const state = getFolderWindowTabs(win, folderId);
+			const tab = createFolderTab(folderId);
+			state.tabs.push(tab);
+			state.activeTabId = tab.id;
+			const rendered = renderFolderWindow(win, folderId, {
+				updateHistory: false,
+				touch: options.touch
+			});
+
+			if (rendered) {
+				saveFolderWindowSession();
+			}
+
+			return tab;
+		}
+
+		function createFolderTabCloseButton(win, tab) {
+			const button = document.createElement('button');
+			const label = getFolderTabTitle(tab);
+
+			button.type = 'button';
+			button.className = 'aos-finder-tab-close';
+			button.dataset.aosNoDrag = '';
+			button.setAttribute('aria-label', `${getMenuLabel('close_tab', 'Close Tab')}: ${label}`);
+			button.appendChild(dom.createElement('span', 'aos-finder-tab-close-icon'));
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				closeFolderTab(win, tab.id);
+			});
+
+			return button;
+		}
+
+		function createFolderTabButton(win, tab, activeTabId) {
+			const item = dom.createElement('div', `aos-finder-tab${tab.id === activeTabId ? ' is-active' : ''}`);
+			const button = document.createElement('button');
+			const label = getFolderTabTitle(tab);
+
+			item.setAttribute('role', 'presentation');
+			button.type = 'button';
+			button.className = 'aos-finder-tab-button';
+			button.dataset.aosNoDrag = '';
+			button.setAttribute('aria-selected', tab.id === activeTabId ? 'true' : 'false');
+			button.setAttribute('role', 'tab');
+			button.textContent = label;
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				activateFolderTab(win, tab.id);
+			});
+
+			item.append(createFolderTabCloseButton(win, tab), button);
+
+			return item;
+		}
+
+		function createFolderTabs(win) {
+			const state = getFolderWindowTabs(win, win && win.dataset ? win.dataset.aosFolderWindow : '');
+			const tabBar = dom.createElement('div', 'aos-finder-tabs');
+			const list = dom.createElement('div', 'aos-finder-tab-list');
+			const addButton = document.createElement('button');
+			const activeTab = getActiveFolderTab(win);
+
+			if (state.tabs.length < 2) {
+				return null;
+			}
+
+			tabBar.dataset.aosNoDrag = '';
+			tabBar.setAttribute('aria-label', getMenuLabel('folder_tabs', 'Folder Tabs'));
+			list.setAttribute('role', 'tablist');
+			state.tabs.forEach((tab) => {
+				list.appendChild(createFolderTabButton(win, tab, state.activeTabId));
+			});
+
+			addButton.type = 'button';
+			addButton.className = 'aos-finder-tab-add';
+			addButton.dataset.aosNoDrag = '';
+			addButton.setAttribute('aria-label', getMenuLabel('new_tab', 'New Tab'));
+			addButton.appendChild(dom.createElement('span', 'aos-finder-tab-add-icon'));
+			addButton.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				addFolderTab(win, activeTab && activeTab.folderId ? activeTab.folderId : state.tabs[0] ? state.tabs[0].folderId : '');
+			});
+
+			tabBar.append(list, addButton);
+
+			return tabBar;
+		}
+
 		function createFolderSidebarIcon(folder) {
 			const icon = dom.createElement('span', 'aos-settings-sidebar-icon aos-settings-sidebar-icon-blue aos-finder-sidebar-icon');
 			icon.appendChild(dom.createIcon(folder && folder.icon ? folder.icon : 'dashicons-category'));
@@ -684,6 +1017,7 @@
 			const historyGroup = dom.createElement('div', 'aos-finder-toolbar-history-group');
 			const history = dom.createElement('div', 'aos-settings-history aos-finder-history');
 			const title = dom.createElement('h1', 'aos-finder-title', folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin'));
+			const tabs = createFolderTabs(win);
 			const pane = dom.createElement('div', 'aos-settings-pane aos-finder-pane');
 
 			header.dataset.aosContext = 'folder-toolbar';
@@ -700,7 +1034,7 @@
 			header.append(leading, createFolderToolbarActions());
 
 			if (!folderApps.length) {
-				main.append(header, pane);
+				main.append(...[header, tabs, pane].filter(Boolean));
 				return main;
 			}
 
@@ -708,7 +1042,7 @@
 			grid.className = 'aos-app-grid aos-finder-grid';
 			folderApps.forEach((app) => grid.appendChild(createFolderAppButton(app, folderId, removable)));
 			pane.appendChild(grid);
-			main.append(header, pane);
+			main.append(...[header, tabs, pane].filter(Boolean));
 
 			return main;
 		}
@@ -743,20 +1077,42 @@
 		}
 
 		function renderFolderWindow(win, folderId, options = {}) {
-			const folder = getFolder(folderId);
 			const body = win ? win.querySelector('.aos-window-body') : null;
-			if (!win || !body || !folder) {
+			if (!win || !body) {
 				return false;
 			}
 
-			if (options.updateHistory !== false) {
+			if (Array.isArray(options.tabs)) {
+				setFolderWindowTabs(win, options.tabs, options.activeTabId || '', folderId);
+				const activeTab = getActiveFolderTab(win, folderId);
+				folderId = activeTab && activeTab.folderId ? activeTab.folderId : folderId;
+			}
+
+			const folder = getFolder(folderId);
+			if (!folder) {
+				return false;
+			}
+
+			if (options.updateHistory !== false && !Array.isArray(options.tabs)) {
 				updateFolderWindowHistory(win, folderId, {
 					replace: Boolean(options.replaceHistory),
 					reset: Boolean(options.resetHistory)
 				});
+			} else {
+				const activeTab = getActiveFolderTab(win, folderId);
+				if (activeTab) {
+					activeTab.folderId = folderId;
+					if (!Array.isArray(activeTab.entries) || !activeTab.entries.length) {
+						activeTab.entries = [folderId];
+						activeTab.index = 0;
+					}
+					activeTab.index = Math.max(0, Math.min(activeTab.index, activeTab.entries.length - 1));
+					activeTab.entries[activeTab.index] = folderId;
+				}
 			}
 
 			updateFolderWindowMeta(win, folderId);
+			win.aosSerializeFolderTabs = () => serializeFolderTabs(win);
 			setFolderToolbarDisplayMode(win, getFolderToolbarDisplayMode(win));
 			body.replaceChildren(createFolderContent(folderId, win));
 			if (manager && typeof manager.makeDraggable === 'function') {
@@ -769,6 +1125,10 @@
 				if (provider && typeof provider.touchFolderOpened === 'function') {
 					provider.touchFolderOpened(folderId);
 				}
+			}
+
+			if (options.save !== false) {
+				saveFolderWindowSession();
 			}
 
 			return true;
@@ -806,6 +1166,31 @@
 			return true;
 		}
 
+		function openFolderTab(folderId, options = {}) {
+			const folder = getFolder(folderId);
+			const targetWindow = options.windowElement && options.windowElement.dataset && options.windowElement.dataset.aosWindowKind === 'folder'
+				? options.windowElement
+				: getActiveFolderWindow();
+
+			if (!folder) {
+				return null;
+			}
+
+			if (!targetWindow) {
+				return openFolder(folderId, options);
+			}
+
+			addFolderTab(targetWindow, folderId, {
+				touch: options.touch
+			});
+			focusFolderWindow(targetWindow, options);
+			if (options.recordRecent !== false) {
+				recordFolderOpen(folderId, folder);
+			}
+
+			return targetWindow;
+		}
+
 		function openFolder(folderId, options = {}) {
 			const folder = getFolder(folderId);
 			const folderTitle = getFolderTitle(folder);
@@ -829,6 +1214,25 @@
 				return existing;
 			}
 
+			const tabWindow = getFolderWindowWithTab(folderId);
+			if (tabWindow) {
+				const tabState = folderWindowHistory.get(tabWindow);
+				const tab = tabState && Array.isArray(tabState.tabs)
+					? tabState.tabs.find((item) => item.folderId === folderId)
+					: null;
+
+				if (tab) {
+					activateFolderTab(tabWindow, tab.id, {
+						touch: options.touch
+					});
+					if (options.state && typeof manager.applyWindowState === 'function') {
+						manager.applyWindowState(tabWindow, options.state);
+					}
+					focusFolderWindow(tabWindow, options);
+					return tabWindow;
+				}
+			}
+
 			const placeholder = document.createElement('div');
 			const win = manager.createWindow({
 				title: folderTitle,
@@ -844,19 +1248,13 @@
 
 			if (win) {
 				renderFolderWindow(win, folderId, {
+					activeTabId: options.activeTabId || '',
 					resetHistory: true,
+					tabs: Array.isArray(options.tabs) ? options.tabs : null,
 					touch: options.touch
 				});
 				if (options.recordRecent !== false) {
-					addRecentItem({
-						command: 'open-folder',
-						icon: folder && folder.icon ? folder.icon : 'dashicons-admin-generic',
-						id: folderId,
-						label: folderTitle,
-						target: folderId,
-						title: folderTitle,
-						type: 'folder'
-					});
+					recordFolderOpen(folderId, folder);
 				}
 			}
 
@@ -1072,6 +1470,7 @@
 			openAbout,
 			openApp,
 			openFolder,
+			openFolderTab,
 			openFolderInfo,
 			openSettingsPanel,
 			openSiteAbout,

@@ -163,6 +163,7 @@
 			openAbout: launcher.openAbout,
 			openApp: launcher.openApp,
 			openFolder: launcher.openFolder,
+			openFolderTab: launcher.openFolderTab,
 			openFolderInfo: launcher.openFolderInfo,
 			openSiteAbout: launcher.openSiteAbout,
 			openUrl: launcher.openUrl

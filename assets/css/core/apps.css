@@ -49,6 +49,19 @@
 	--aos-settings-text-title: var(--aos-theme-settings-text-title, 16px);
 	--aos-finder-toolbar-gap: 38px;
 	--aos-finder-toolbar-icon-size: 34px;
+	--aos-finder-tabbar-bg: var(--aos-panel);
+	--aos-finder-tabbar-border: var(--aos-line);
+	--aos-finder-tab-bg: transparent;
+	--aos-finder-tab-hover-bg: var(--aos-control-bg-hover);
+	--aos-finder-tab-active-bg: var(--aos-control-bg);
+	--aos-finder-tab-active-border: var(--aos-card-border);
+	--aos-finder-tab-ink: var(--aos-ink);
+	--aos-finder-tab-muted: var(--aos-muted);
+	--aos-finder-tab-close-bg: rgba(60, 60, 67, 0.16);
+	--aos-finder-tab-close-hover-bg: rgba(60, 60, 67, 0.24);
+	--aos-finder-tab-add-bg: var(--aos-control-bg);
+	--aos-finder-tab-add-hover-bg: var(--aos-control-bg-hover);
+	--aos-finder-tab-add-border: var(--aos-card-border);
 	min-height: 460px;
 	min-width: 640px;
 }
@@ -111,12 +124,15 @@
 
 .aos-finder-main {
 	background: var(--aos-panel);
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
 	min-width: 0;
 }
 
 .aos-settings-pane-header.aos-finder-toolbar {
 	align-items: start;
-	border-bottom: 1px solid var(--aos-line);
+	border-bottom: 0;
 	box-sizing: border-box;
 	display: flex;
 	gap: var(--aos-finder-toolbar-gap, 38px);
@@ -394,8 +410,200 @@
 	line-height: 1.1;
 }
 
+.aos-finder-tabs {
+	align-items: end;
+	background: var(--aos-finder-tabbar-bg);
+	border-bottom: 1px solid var(--aos-finder-tabbar-border);
+	box-sizing: border-box;
+	display: flex;
+	flex: 0 0 auto;
+	gap: 6px;
+	min-height: 31px;
+	min-width: 0;
+	padding: 0 8px 4px;
+}
+
+.aos-finder-tab-list {
+	align-items: end;
+	display: flex;
+	flex: 1 1 auto;
+	gap: 4px;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.aos-finder-tab {
+	align-items: center;
+	background: var(--aos-finder-tab-bg);
+	border: 1px solid transparent;
+	border-radius: 8px;
+	box-sizing: border-box;
+	color: var(--aos-finder-tab-muted);
+	display: grid;
+	flex: 1 1 164px;
+	grid-template-columns: 24px minmax(0, 1fr) 24px;
+	grid-template-rows: 1fr;
+	height: 24px;
+	max-width: 340px;
+	min-width: 104px;
+	position: relative;
+	transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.aos-finder-tab:hover {
+	background: var(--aos-finder-tab-hover-bg);
+}
+
+.aos-finder-tab.is-active {
+	background: var(--aos-finder-tab-active-bg);
+	border-color: var(--aos-finder-tab-active-border);
+	color: var(--aos-finder-tab-ink);
+}
+
+.aos-finder-tab-button {
+	-webkit-user-select: none;
+	appearance: none;
+	background: transparent;
+	border: 0;
+	color: inherit;
+	cursor: default;
+	font: inherit;
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-semibold);
+	grid-column: 1 / -1;
+	grid-row: 1;
+	height: 100%;
+	letter-spacing: var(--aos-letter-spacing-default);
+	line-height: 1;
+	min-width: 0;
+	overflow: hidden;
+	padding: 0 24px;
+	text-align: center;
+	text-overflow: ellipsis;
+	user-select: none;
+	white-space: nowrap;
+}
+
+.aos-finder-tab-button:focus {
+	outline: none;
+}
+
+.aos-finder-tab-close,
+.aos-finder-tab-add {
+	-webkit-user-select: none;
+	align-items: center;
+	appearance: none;
+	border-radius: 999px;
+	cursor: default;
+	display: flex;
+	font-family: inherit;
+	justify-content: center;
+	position: relative;
+	user-select: none;
+}
+
+.aos-finder-tab-close {
+	background: transparent;
+	border: 0;
+	color: currentColor;
+	grid-column: 1;
+	grid-row: 1;
+	height: 16px;
+	justify-self: center;
+	opacity: 0;
+	padding: 0;
+	pointer-events: none;
+	transition: background-color 120ms ease, opacity 120ms ease, transform 120ms ease;
+	width: 16px;
+	z-index: 1;
+}
+
+.aos-finder-tab:hover .aos-finder-tab-close,
+.aos-finder-tab:focus-within .aos-finder-tab-close {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+.aos-finder-tab-close:hover,
+.aos-finder-tab-close:focus {
+	background: var(--aos-finder-tab-close-hover-bg);
+	outline: none;
+	transform: scale(1.04);
+}
+
+.aos-finder-tab-close:active {
+	background: var(--aos-finder-tab-close-bg);
+	transform: scale(0.96);
+}
+
+.aos-finder-tab-close-icon,
+.aos-finder-tab-add-icon {
+	height: 12px;
+	position: relative;
+	width: 12px;
+}
+
+.aos-finder-tab-close-icon::before,
+.aos-finder-tab-close-icon::after,
+.aos-finder-tab-add-icon::before,
+.aos-finder-tab-add-icon::after {
+	background: currentColor;
+	border-radius: 999px;
+	content: "";
+	left: 50%;
+	position: absolute;
+	top: 50%;
+	transform-origin: center;
+}
+
+.aos-finder-tab-close-icon::before,
+.aos-finder-tab-close-icon::after {
+	height: 1.5px;
+	width: 8px;
+}
+
+.aos-finder-tab-close-icon::before {
+	transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.aos-finder-tab-close-icon::after {
+	transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.aos-finder-tab-add {
+	background: var(--aos-finder-tab-add-bg);
+	border: 1px solid var(--aos-finder-tab-add-border);
+	color: var(--aos-finder-tab-muted);
+	flex: 0 0 28px;
+	height: 28px;
+	margin-bottom: -1px;
+	padding: 0;
+	width: 28px;
+}
+
+.aos-finder-tab-add:hover,
+.aos-finder-tab-add:focus {
+	background: var(--aos-finder-tab-add-hover-bg);
+	color: var(--aos-finder-tab-ink);
+	outline: none;
+}
+
+.aos-finder-tab-add-icon::before {
+	height: 1.6px;
+	transform: translate(-50%, -50%);
+	width: 11px;
+}
+
+.aos-finder-tab-add-icon::after {
+	height: 11px;
+	transform: translate(-50%, -50%);
+	width: 1.6px;
+}
+
 .aos-finder-pane {
 	display: block;
+	flex: 1 1 auto;
+	min-height: 0;
 	overflow-y: auto;
 	padding: 24px 20px 22px;
 }
@@ -1521,6 +1729,20 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	overflow-y: auto;
 	padding: 8px 24px 26px;
 	width: 100%;
+}
+
+.aos-settings-main.aos-finder-main {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+.aos-settings-pane.aos-finder-pane {
+	display: block;
+	flex: 1 1 auto;
+	gap: 0;
+	min-height: 0;
+	padding: 24px 20px 22px;
 }
 
 .aos-settings-pane-panel {
