@@ -74,16 +74,30 @@
 }
 
 .aos-clock-widget {
-	justify-content: space-between;
+	container-type: inline-size;
+	justify-content: center;
+	padding: 14px 16px;
+}
+
+.aos-clock-widget-face {
+	align-content: center;
+	cursor: default;
+	display: grid;
+	gap: 4px;
+	height: 100%;
+	min-height: 0;
+	width: 100%;
 }
 
 .aos-widget-clock-time {
 	display: block;
 	font-family: var(--aos-font-display);
-	font-size: var(--aos-text-widget-clock);
+	font-size: clamp(28px, 20cqw, var(--aos-text-widget-clock));
 	font-weight: var(--aos-weight-widget-clock);
 	letter-spacing: var(--aos-letter-spacing-default);
 	line-height: var(--aos-line-height-tight);
+	overflow: hidden;
+	text-overflow: ellipsis;
 	white-space: nowrap;
 }
 

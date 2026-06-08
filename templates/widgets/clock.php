@@ -27,14 +27,12 @@ $wp_adminos_time = current_time( 'timestamp' );
 	<?php WP_AdminOS_Widget_Layout::render_attributes( $widget, isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array() ); ?>
 	aria-label="<?php echo esc_attr( $widget['label'] ); ?>"
 >
-	<div class="aos-widget-handle" data-aos-widget-drag-handle>
-		<span class="aos-widget-icon"><?php WP_AdminOS_Icon_Renderer::render( $widget['icon'], $theme ); ?></span>
-		<strong><?php echo esc_html( $widget['label'] ); ?></strong>
+	<div class="aos-clock-widget-face" data-aos-widget-drag-handle>
+		<time class="aos-widget-clock-time" data-aos-widget-clock datetime="<?php echo esc_attr( wp_date( DATE_W3C, $wp_adminos_time ) ); ?>">
+			<?php echo esc_html( wp_date( get_option( 'time_format' ), $wp_adminos_time ) ); ?>
+		</time>
+		<time class="aos-widget-clock-date" data-aos-widget-clock-date datetime="<?php echo esc_attr( wp_date( 'Y-m-d', $wp_adminos_time ) ); ?>">
+			<?php echo esc_html( wp_date( 'D, M j', $wp_adminos_time ) ); ?>
+		</time>
 	</div>
-	<time class="aos-widget-clock-time" data-aos-widget-clock datetime="<?php echo esc_attr( wp_date( DATE_W3C, $wp_adminos_time ) ); ?>">
-		<?php echo esc_html( wp_date( get_option( 'time_format' ), $wp_adminos_time ) ); ?>
-	</time>
-	<time class="aos-widget-clock-date" data-aos-widget-clock-date datetime="<?php echo esc_attr( wp_date( 'Y-m-d', $wp_adminos_time ) ); ?>">
-		<?php echo esc_html( wp_date( get_option( 'date_format' ), $wp_adminos_time ) ); ?>
-	</time>
 </section>
