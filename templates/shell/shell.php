@@ -21,6 +21,7 @@ defined( 'ABSPATH' ) || exit;
  * @var string                          $site_name
  * @var array<string,mixed>             $theme
  * @var array<string,mixed>             $wallpaper
+ * @var array<string,mixed>             $workspace_state
  */
 $wp_adminos_shell_style_parts = array();
 if ( ! empty( $wallpaper['css_variables'] ) && is_array( $wallpaper['css_variables'] ) ) {
@@ -253,12 +254,13 @@ if ( $wp_adminos_shell_style ) {
 	$this->render_part(
 		'shell/desktop.php',
 		array(
-			'apps'         => $apps,
-			'desktop_apps' => isset( $desktop_apps ) && is_array( $desktop_apps ) ? $desktop_apps : array(),
-			'dock_apps'    => isset( $dock_apps ) && is_array( $dock_apps ) ? $dock_apps : $apps,
-			'widgets'      => $widgets,
-			'folders'      => $folders,
-			'theme'        => $theme,
+			'apps'            => $apps,
+			'desktop_apps'    => isset( $desktop_apps ) && is_array( $desktop_apps ) ? $desktop_apps : array(),
+			'dock_apps'       => isset( $dock_apps ) && is_array( $dock_apps ) ? $dock_apps : $apps,
+			'widgets'         => $widgets,
+			'folders'         => $folders,
+			'theme'           => $theme,
+			'workspace_state' => isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array(),
 		)
 	);
 	?>

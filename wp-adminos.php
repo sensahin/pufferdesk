@@ -26,6 +26,7 @@ require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-icon-renderer.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-app-registry.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-widget-registry.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-widget-layout.php';
+require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-desktop-layout.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-theme-registry.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-wallpaper-registry.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-workspace-state.php';

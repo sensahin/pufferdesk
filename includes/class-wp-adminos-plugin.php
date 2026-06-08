@@ -85,7 +85,8 @@ final class WP_AdminOS_Plugin {
 			$app_registry,
 			$widget_registry,
 			$theme_registry,
-			$wallpaper_registry
+			$wallpaper_registry,
+			$workspace_state
 		);
 		$this->assets   = new WP_AdminOS_Assets(
 			$this->router,

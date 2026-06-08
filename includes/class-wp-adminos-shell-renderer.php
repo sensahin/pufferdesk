@@ -54,6 +54,13 @@ final class WP_AdminOS_Shell_Renderer {
 	private $wallpaper_registry;
 
 	/**
+	 * Workspace state service.
+	 *
+	 * @var WP_AdminOS_Workspace_State
+	 */
+	private $workspace_state;
+
+	/**
 	 * Current resolved theme during a render pass.
 	 *
 	 * @var array<string,mixed>|null
@@ -69,6 +76,7 @@ final class WP_AdminOS_Shell_Renderer {
 	 * @param WP_AdminOS_Widget_Registry  $widget_registry Widget registry.
 	 * @param WP_AdminOS_Theme_Registry   $theme_registry Theme registry.
 	 * @param WP_AdminOS_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
+	 * @param WP_AdminOS_Workspace_State    $workspace_state Workspace state service.
 	 */
 	public function __construct(
 		WP_AdminOS_Router $router,
@@ -76,7 +84,8 @@ final class WP_AdminOS_Shell_Renderer {
 		WP_AdminOS_App_Registry $app_registry,
 		WP_AdminOS_Widget_Registry $widget_registry,
 		WP_AdminOS_Theme_Registry $theme_registry,
-		WP_AdminOS_Wallpaper_Registry $wallpaper_registry
+		WP_AdminOS_Wallpaper_Registry $wallpaper_registry,
+		WP_AdminOS_Workspace_State $workspace_state
 	) {
 		$this->router             = $router;
 		$this->preferences        = $preferences;
@@ -84,6 +93,7 @@ final class WP_AdminOS_Shell_Renderer {
 		$this->widget_registry    = $widget_registry;
 		$this->theme_registry     = $theme_registry;
 		$this->wallpaper_registry = $wallpaper_registry;
+		$this->workspace_state    = $workspace_state;
 	}
 
 	/**
@@ -94,33 +104,37 @@ final class WP_AdminOS_Shell_Renderer {
 			wp_die( esc_html__( 'You do not have permission to use WP adminOS.', 'wp-adminos' ) );
 		}
 
-		$apps          = $this->app_registry->get_apps();
-		$app_locations = $this->preferences->get_app_locations( $apps );
-		$dock_apps     = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'dock' );
-		$desktop_apps  = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'desktop' );
-		$widgets       = $this->widget_registry->get_widgets();
-		$folders       = $this->app_registry->get_folders( $apps );
-		$theme        = $this->theme_registry->get_current_theme( $this->preferences );
-		$appearance   = $this->preferences->get_appearance();
-		$desktop_dock = $this->preferences->get_desktop_dock();
-		$menu_bar     = $this->preferences->get_menu_bar();
-		$wallpaper    = $this->wallpaper_registry->get_client_config( $theme, $this->preferences );
+		$apps              = $this->app_registry->get_apps();
+		$app_locations     = $this->preferences->get_app_locations( $apps );
+		$dock_apps         = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'dock' );
+		$desktop_apps      = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'desktop' );
+		$widgets           = $this->widget_registry->get_widgets();
+		$folders           = $this->app_registry->get_folders( $apps );
+		$desktop_folders   = $this->preferences->get_desktop_folders( $apps );
+		$workspace_folders = array_merge( $folders, $desktop_folders );
+		$theme             = $this->theme_registry->get_current_theme( $this->preferences );
+		$appearance        = $this->preferences->get_appearance();
+		$desktop_dock      = $this->preferences->get_desktop_dock();
+		$menu_bar          = $this->preferences->get_menu_bar();
+		$wallpaper         = $this->wallpaper_registry->get_client_config( $theme, $this->preferences );
+		$workspace_state   = $this->workspace_state->get_state( $theme['id'], $apps, $widgets, $workspace_folders );
 		$this->current_theme = $theme;
 
 		$this->render_template(
 			'shell/shell.php',
 			array(
-				'appearance'   => $appearance,
-				'apps'         => $apps,
-				'desktop_apps' => $desktop_apps,
-				'desktop_dock' => $desktop_dock,
-				'dock_apps'    => $dock_apps,
-				'menu_bar'     => $menu_bar,
-				'widgets'      => $widgets,
-				'folders'      => $folders,
-				'site_name'    => get_bloginfo( 'name' ),
-				'theme'        => $theme,
-				'wallpaper'    => $wallpaper,
+				'appearance'      => $appearance,
+				'apps'            => $apps,
+				'desktop_apps'    => $desktop_apps,
+				'desktop_dock'    => $desktop_dock,
+				'dock_apps'       => $dock_apps,
+				'menu_bar'        => $menu_bar,
+				'widgets'         => $widgets,
+				'folders'         => $folders,
+				'site_name'       => get_bloginfo( 'name' ),
+				'theme'           => $theme,
+				'wallpaper'       => $wallpaper,
+				'workspace_state' => $workspace_state,
 			)
 		);
 	}

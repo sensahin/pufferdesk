@@ -214,7 +214,9 @@
 			}
 
 			widget.dataset.aosWidgetBound = '1';
-			applyWidgetState(widget, null);
+			if (widget.dataset.aosLayoutRestored !== '1') {
+				applyWidgetState(widget, null);
+			}
 			makeDraggable(widget);
 
 			if (widget.dataset.aosWidgetNative === 'clock') {

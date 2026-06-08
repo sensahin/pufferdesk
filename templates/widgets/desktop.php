@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @var array<int,array<string,mixed>> $widgets
  * @var array<string,mixed>            $theme
+ * @var array<string,mixed>            $workspace_state
  */
 
 if ( empty( $widgets ) ) {
@@ -27,8 +28,9 @@ if ( empty( $widgets ) ) {
 		$this->render_part(
 			$wp_adminos_template,
 			array(
-				'widget' => $wp_adminos_widget,
-				'theme'  => $theme,
+				'widget'          => $wp_adminos_widget,
+				'theme'           => $theme,
+				'workspace_state' => isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array(),
 			)
 		);
 		?>

@@ -15,9 +15,10 @@ final class WP_AdminOS_Widget_Layout {
 	 * Render widget layout attributes for a desktop widget element.
 	 *
 	 * @param array<string,mixed> $widget Widget data.
+	 * @param array<string,mixed> $workspace_state Workspace state.
 	 */
-	public static function render_attributes( $widget ) {
-		foreach ( self::get_attributes( $widget ) as $name => $value ) {
+	public static function render_attributes( $widget, $workspace_state = array() ) {
+		foreach ( self::get_attributes( $widget, $workspace_state ) as $name => $value ) {
 			printf(
 				"\n\t%s=\"%s\"",
 				esc_attr( $name ),
@@ -30,9 +31,10 @@ final class WP_AdminOS_Widget_Layout {
 	 * Build widget layout attributes.
 	 *
 	 * @param array<string,mixed> $widget Widget data.
+	 * @param array<string,mixed> $workspace_state Workspace state.
 	 * @return array<string,string>
 	 */
-	private static function get_attributes( $widget ) {
+	private static function get_attributes( $widget, $workspace_state = array() ) {
 		$position = isset( $widget['default_position'] ) && is_array( $widget['default_position'] ) ? $widget['default_position'] : array();
 		$size     = isset( $widget['default_size'] ) && is_array( $widget['default_size'] ) ? $widget['default_size'] : array();
 		$left     = isset( $position['left'] ) ? absint( $position['left'] ) : null;
@@ -52,6 +54,7 @@ final class WP_AdminOS_Widget_Layout {
 
 		$attributes = array();
 		$style      = array();
+		$saved      = self::get_saved_widget_state( $widget, $workspace_state );
 
 		if ( null !== $left ) {
 			$attributes['data-aos-widget-left'] = (string) $left;
@@ -71,8 +74,57 @@ final class WP_AdminOS_Widget_Layout {
 
 		$attributes['data-aos-widget-width']  = (string) $width;
 		$attributes['data-aos-widget-height'] = (string) $height;
-		$attributes['style']                  = implode( ';', array_merge( $style, array( sprintf( 'width:%dpx', $width ), sprintf( 'height:%dpx', $height ) ) ) ) . ';';
+
+		if ( ! empty( $saved ) ) {
+			$saved_left   = isset( $saved['left'] ) ? absint( $saved['left'] ) : $left;
+			$saved_top    = isset( $saved['top'] ) ? absint( $saved['top'] ) : $top;
+			$saved_width  = isset( $saved['width'] ) ? max( 120, absint( $saved['width'] ) ) : $width;
+			$saved_height = isset( $saved['height'] ) ? max( 80, absint( $saved['height'] ) ) : $height;
+			if ( null !== $saved_left && null !== $saved_top ) {
+				$style = array(
+					sprintf( 'left:%dpx', $saved_left ),
+					sprintf( 'top:%dpx', $saved_top ),
+				);
+			}
+			$width  = $saved_width;
+			$height = $saved_height;
+			$attributes['data-aos-layout-restored'] = '1';
+
+			if ( ! empty( $saved['hidden'] ) ) {
+				$attributes['hidden'] = 'hidden';
+			}
+		}
+
+		$attributes['style'] = implode( ';', array_merge( $style, array( sprintf( 'width:%dpx', $width ), sprintf( 'height:%dpx', $height ) ) ) ) . ';';
 
 		return $attributes;
+	}
+
+	/**
+	 * Get a saved widget state by widget ID.
+	 *
+	 * @param array<string,mixed> $widget Widget data.
+	 * @param array<string,mixed> $workspace_state Workspace state.
+	 * @return array<string,mixed>
+	 */
+	private static function get_saved_widget_state( $widget, $workspace_state ) {
+		$widget_id = isset( $widget['id'] ) ? sanitize_key( (string) $widget['id'] ) : '';
+		$widgets   = isset( $workspace_state['widgets'] ) && is_array( $workspace_state['widgets'] ) ? $workspace_state['widgets'] : array();
+
+		if ( '' === $widget_id ) {
+			return array();
+		}
+
+		foreach ( $widgets as $item ) {
+			if ( ! is_array( $item ) || empty( $item['id'] ) || empty( $item['state'] ) || ! is_array( $item['state'] ) ) {
+				continue;
+			}
+
+			if ( $widget_id === sanitize_key( (string) $item['id'] ) ) {
+				return $item['state'];
+			}
+		}
+
+		return array();
 	}
 }

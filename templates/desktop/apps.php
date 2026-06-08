@@ -10,13 +10,19 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @var array<int,array<string,mixed>>  $apps
  * @var array<string,mixed>             $theme
+ * @var array<string,mixed>             $workspace_state
  */
 
 if ( empty( $apps ) ) {
 	return;
 }
+
+$wp_adminos_workspace_state      = isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array();
+$wp_adminos_apps_layer_restored  = WP_AdminOS_Desktop_Layout::layer_has_saved_icon_positions( $apps, $wp_adminos_workspace_state, 'app' );
+$wp_adminos_apps_layer_class     = 'aos-desktop-apps aos-desktop-icon-layer';
+$wp_adminos_apps_layer_class    .= $wp_adminos_apps_layer_restored ? ' is-managed' : '';
 ?>
-<section class="aos-desktop-apps aos-desktop-icon-layer" aria-label="<?php esc_attr_e( 'Desktop apps', 'wp-adminos' ); ?>">
+<section class="<?php echo esc_attr( $wp_adminos_apps_layer_class ); ?>" aria-label="<?php esc_attr_e( 'Desktop apps', 'wp-adminos' ); ?>">
 	<?php foreach ( $apps as $wp_adminos_app ) : ?>
 		<?php
 		$wp_adminos_app_label   = isset( $wp_adminos_app['label'] ) ? (string) $wp_adminos_app['label'] : '';
@@ -44,6 +50,9 @@ if ( empty( $apps ) ) {
 			data-aos-desktop-icon-id="<?php echo esc_attr( 'app:' . $wp_adminos_app['id'] ); ?>"
 			data-aos-desktop-icon-kind="app"
 			data-aos-open-app="<?php echo esc_attr( $wp_adminos_app['id'] ); ?>"
+			<?php if ( $wp_adminos_apps_layer_restored ) : ?>
+				<?php WP_AdminOS_Desktop_Layout::render_icon_attributes( 'app:' . $wp_adminos_app['id'], $wp_adminos_workspace_state ); ?>
+			<?php endif; ?>
 			aria-label="<?php echo esc_attr( $wp_adminos_aria_label ); ?>"
 		>
 			<span class="aos-app-icon">

@@ -10,6 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @var array<string,mixed> $widget
  * @var array<string,mixed> $theme
+ * @var array<string,mixed> $workspace_state
  */
 
 $wp_adminos_time = current_time( 'timestamp' );
@@ -23,7 +24,7 @@ $wp_adminos_time = current_time( 'timestamp' );
 	data-aos-widget-kind="<?php echo esc_attr( $widget['kind'] ); ?>"
 	data-aos-widget-native="<?php echo esc_attr( $widget['native'] ); ?>"
 	data-aos-widget-refresh="<?php echo esc_attr( $widget['refresh_interval'] ); ?>"
-	<?php WP_AdminOS_Widget_Layout::render_attributes( $widget ); ?>
+	<?php WP_AdminOS_Widget_Layout::render_attributes( $widget, isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array() ); ?>
 	aria-label="<?php echo esc_attr( $widget['label'] ); ?>"
 >
 	<div class="aos-widget-handle" data-aos-widget-drag-handle>
