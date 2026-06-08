@@ -15,6 +15,7 @@ The foundation matters more than short-term visual hacks.
 Always:
 
 - Keep changes modular, small, and aligned with the existing structure.
+- Before implementing a feature, behavior, UI state, or visual pattern, search and read the existing codebase for an equivalent or adjacent implementation. Reuse, extend, or refactor the existing contract before creating a new one; if a new implementation is truly needed, document why the existing pattern does not fit.
 - Prefer registries, templates, and theme overrides over hard-coded one-off behavior.
 - Treat WP adminOS as the bundled product identity. Polish it with familiar desktop patterns, but do not add a redundant platform clone as a second bundled theme.
 - Preserve Classic Admin as a reliable fallback.
@@ -242,7 +243,6 @@ CSS:
 - Avoid one-note palettes and unmaintainable selector sprawl.
 - Keep selectors semantic and aligned with template structure.
 - Do not add visual polish by hard-coding theme-specific values into core component files.
-- Before creating new hover, selected, active, pressed, or right-click visual states, inspect the existing surface that already handles the same object type and reuse its markup classes, state classes, and CSS variables. For desktop/folder/trash objects, prefer the established desktop icon selection contract instead of inventing a parallel highlight mechanism.
 - Divider and separator lines must use neutral divider tokens such as `--aos-line`, `--aos-divider`, `--aos-divider-soft`, or component-specific divider variables. Do not route dividers through accent, wallpaper, tinted-material, or translucent glass border tokens; check Settings, Finder/folder windows, and window titlebars when changing shared border variables.
 
 Accessibility:
