@@ -52,20 +52,73 @@
 			return location === 'both' || location === surface;
 		}
 
+		function normalizeAppBadge(app) {
+			const badge = app && app.badge && typeof app.badge === 'object' ? app.badge : null;
+			if (!badge) {
+				return null;
+			}
+
+			const text = typeof badge.text === 'string' || typeof badge.text === 'number'
+				? String(badge.text).trim()
+				: '';
+			if (!text || text === '0') {
+				return null;
+			}
+
+			const allowedTones = ['attention', 'neutral', 'update'];
+			const tone = typeof badge.tone === 'string' && allowedTones.includes(badge.tone)
+				? badge.tone
+				: 'attention';
+
+			return {
+				ariaLabel: typeof badge.aria_label === 'string' ? badge.aria_label.trim() : '',
+				text,
+				tone
+			};
+		}
+
+		function getAppLabel(app) {
+			return app.label || app.id;
+		}
+
+		function getAppButtonLabel(app) {
+			const label = getAppLabel(app);
+			const badge = normalizeAppBadge(app);
+
+			return badge && badge.ariaLabel ? `${label}, ${badge.ariaLabel}` : label;
+		}
+
+		function createAppBadge(app) {
+			const badge = normalizeAppBadge(app);
+			if (!badge) {
+				return null;
+			}
+
+			const element = dom.createElement('span', `aos-app-badge aos-app-badge-${badge.tone}`, badge.text);
+			element.setAttribute('aria-hidden', 'true');
+
+			return element;
+		}
+
 		function createDockAppButton(app) {
 			const button = document.createElement('button');
-			const tooltip = dom.createElement('span', 'aos-dock-tooltip', app.label || app.id);
-			const screenReaderText = dom.createElement('span', 'screen-reader-text', app.label || app.id);
+			const label = getAppLabel(app);
+			const tooltip = dom.createElement('span', 'aos-dock-tooltip', label);
+			const screenReaderText = dom.createElement('span', 'screen-reader-text', label);
+			const badge = createAppBadge(app);
 
 			button.type = 'button';
 			button.className = 'aos-dock-item';
 			button.dataset.aosContext = 'dock-app';
 			button.dataset.aosContextId = app.id;
-			button.dataset.aosContextLabel = app.label || app.id;
-			button.dataset.aosDockTooltip = app.label || app.id;
+			button.dataset.aosContextLabel = label;
+			button.dataset.aosDockTooltip = label;
 			button.dataset.aosOpenApp = app.id;
-			button.setAttribute('aria-label', app.label || app.id);
+			button.setAttribute('aria-label', getAppButtonLabel(app));
 			button.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
+			if (badge) {
+				button.appendChild(badge);
+			}
 			tooltip.setAttribute('aria-hidden', 'true');
 			button.append(tooltip, screenReaderText);
 
@@ -75,20 +128,25 @@
 		function createDesktopAppButton(app) {
 			const button = document.createElement('button');
 			const icon = dom.createElement('span', 'aos-app-icon');
-			const label = dom.createElement('span', 'aos-desktop-app-label', app.label || app.id);
+			const label = getAppLabel(app);
+			const badge = createAppBadge(app);
+			const labelElement = dom.createElement('span', 'aos-desktop-app-label', label);
 
 			button.type = 'button';
 			button.className = 'aos-desktop-icon aos-desktop-app';
 			button.dataset.aosContext = 'desktop-app';
 			button.dataset.aosContextId = app.id;
-			button.dataset.aosContextLabel = app.label || app.id;
+			button.dataset.aosContextLabel = label;
 			button.dataset.aosDesktopIcon = '';
 			button.dataset.aosDesktopIconId = `app:${app.id}`;
 			button.dataset.aosDesktopIconKind = 'app';
 			button.dataset.aosOpenApp = app.id;
-			button.setAttribute('aria-label', app.label || app.id);
+			button.setAttribute('aria-label', getAppButtonLabel(app));
 			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
-			button.append(icon, label);
+			if (badge) {
+				icon.appendChild(badge);
+			}
+			button.append(icon, labelElement);
 
 			return button;
 		}

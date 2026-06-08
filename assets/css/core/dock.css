@@ -70,6 +70,11 @@
 	width: var(--aos-dock-tile-size, 26px);
 }
 
+.aos-dock-item > .aos-app-badge {
+	right: -6px;
+	top: -6px;
+}
+
 .aos-dock-tooltip {
 	-webkit-backdrop-filter: blur(26px) saturate(170%);
 	backdrop-filter: blur(26px) saturate(170%);

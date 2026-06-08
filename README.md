@@ -88,7 +88,7 @@ Apps and folders use structured icon descriptors internally. Dashicon strings st
 );
 ```
 
-Apps are registered through `WP_AdminOS_App_Registry` or the `wp_adminos_apps` filter. Iframe apps provide a `url`; native apps provide `kind => native` and a stable `native` renderer ID. JavaScript native app windows are registered with `window.WPAdminOS.apps.registerNativeAppRenderer( nativeId, renderer )`, and the renderer returns reusable window options such as `content`, `bodyClass`, `width`, `height`, and `resizeMode`. The app launcher stays generic and does not special-case individual native apps.
+Apps are registered through `WP_AdminOS_App_Registry` or the `wp_adminos_apps` filter. Iframe apps provide a `url`; native apps provide `kind => native` and a stable `native` renderer ID. JavaScript native app windows are registered with `window.WPAdminOS.apps.registerNativeAppRenderer( nativeId, renderer )`, and the renderer returns reusable window options such as `content`, `bodyClass`, `width`, `height`, and `resizeMode`. Apps may define a `badge` with `text`, optional `count`, `tone`, and `aria_label`; top-level WordPress admin menu count spans are normalized into this same badge shape for dock and desktop app icons. The app launcher stays generic and does not special-case individual native apps.
 
 System Settings uses PHP-provided `settings.labels` runtime data for user-facing panel labels, option lists, and status messages. The browser-side `assets/js/core/apps/settings/labels.js` module merges that translated runtime data with local fallbacks before the panel factories render.
 

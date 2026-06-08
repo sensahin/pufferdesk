@@ -119,6 +119,7 @@ Apps:
 
 - Register apps through `WP_AdminOS_App_Registry` or the `wp_adminos_apps` filter.
 - Apps should define `id`, `label`, `cap`, `group`, `icon`, and either iframe data (`url`) or native data (`kind => native`, `native`).
+- Apps may define a normalized `badge` with `text`, optional `count`, `tone`, and `aria_label`; WordPress menu count spans are extracted into this shape for top-level menu apps.
 - Apps may define reusable `about` metadata with `name`, `version`, `copyright`, `rights`, and `icon`; do not hard-code app-specific about windows.
 - About metadata must stay GPL-compatible for WordPress distribution. Do not use "All rights reserved" defaults in plugin UI.
 - App-specific top menu behavior belongs in the app's `menu` definition, not in hard-coded menu bar conditionals.
