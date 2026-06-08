@@ -1023,6 +1023,9 @@
 			shell.addEventListener('click', (event) => {
 				const appButton = event.target.closest('[data-aos-open-app]');
 				if (appButton) {
+					if (appButton.matches('.aos-desktop-app')) {
+						return;
+					}
 					openApp(appButton.dataset.aosOpenApp);
 					return;
 				}
@@ -1044,6 +1047,13 @@
 			});
 
 			shell.addEventListener('dblclick', (event) => {
+				const appButton = event.target.closest('[data-aos-open-app]');
+				if (appButton && appButton.matches('.aos-desktop-app')) {
+					event.preventDefault();
+					openApp(appButton.dataset.aosOpenApp);
+					return;
+				}
+
 				const folderButton = event.target.closest('[data-aos-open-folder]');
 				if (!folderButton || !folderButton.matches('.aos-desktop-folder') || folderButton.classList.contains('is-renaming')) {
 					return;

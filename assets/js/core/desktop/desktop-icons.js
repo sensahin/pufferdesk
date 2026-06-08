@@ -295,6 +295,18 @@
 			}
 		}
 
+		function selectIconFromPlainAction(icon) {
+			if (!isSelectableIcon(icon)) {
+				return;
+			}
+
+			if (!selectedIcons.has(icon) || selectedIcons.size <= 1) {
+				selectOnlyIcon(icon);
+			} else {
+				primarySelectedIcon = icon;
+			}
+		}
+
 		function applySelectionFromBase(baseIcons, icons, mode = 'replace') {
 			const nextIcons = icons instanceof Set
 				? new Set(Array.from(icons).filter(isSelectableIcon))
@@ -817,24 +829,33 @@
 					toggleIconSelection(icon);
 				} else if (event.shiftKey) {
 					addIconToSelection(icon);
-				} else if (!selectedIcons.has(icon) || selectedIcons.size <= 1) {
-					selectOnlyIcon(icon);
 				} else {
-					primarySelectedIcon = icon;
+					selectIconFromPlainAction(icon);
 				}
 				focusDesktopKeyboardTarget();
 			}, true);
 
+			icon.addEventListener('contextmenu', (event) => {
+				if (isTextEditingTarget(event.target)) {
+					return;
+				}
+
+				selectIconFromPlainAction(icon);
+				focusDesktopKeyboardTarget();
+			}, true);
+
 			icon.addEventListener('pointerdown', (event) => {
+				if (event.button === 0 && event.ctrlKey && !event.metaKey && !event.shiftKey && !isTextEditingTarget(event.target)) {
+					selectIconFromPlainAction(icon);
+					focusDesktopKeyboardTarget();
+					return;
+				}
+
 				if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.target.closest('a, input, select, textarea, [contenteditable="true"], [contenteditable="plaintext-only"]')) {
 					return;
 				}
 
-				if (!selectedIcons.has(icon)) {
-					selectOnlyIcon(icon);
-				} else {
-					primarySelectedIcon = icon;
-				}
+				selectIconFromPlainAction(icon);
 				focusDesktopKeyboardTarget();
 				event.preventDefault();
 
