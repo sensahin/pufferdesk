@@ -1968,8 +1968,15 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 }
 
 .aos-settings-range-field {
+	--aos-settings-range-fill-bg: var(--aos-accent);
+	--aos-settings-range-thumb-bg: #eff0f2;
+	--aos-settings-range-thumb-height: 16px;
+	--aos-settings-range-thumb-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+	--aos-settings-range-thumb-width: 20px;
+	--aos-settings-range-track-bg: rgba(142, 142, 147, 0.38);
+	--aos-settings-range-track-height: 4px;
 	display: grid;
-	gap: 8px;
+	gap: 7px;
 	min-width: 0;
 }
 
@@ -1984,29 +1991,54 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	appearance: none;
 	accent-color: var(--aos-accent);
 	background: transparent;
-	height: 15px;
+	height: var(--aos-settings-range-thumb-height);
 	width: 100%;
 }
 
 .aos-settings-range-field input[type="range"]::-webkit-slider-runnable-track {
-	background: linear-gradient(90deg, var(--aos-accent), var(--aos-accent)) 0 50% / var(--aos-range-fill, 32%) 3px no-repeat, rgba(142, 142, 147, 0.35);
+	background:
+		linear-gradient(90deg, var(--aos-settings-range-fill-bg), var(--aos-settings-range-fill-bg)) 0 50% / var(--aos-range-fill, 32%) var(--aos-settings-range-track-height) no-repeat,
+		var(--aos-settings-range-track-bg);
 	border-radius: 999px;
-	height: 3px;
+	height: var(--aos-settings-range-track-height);
 }
 
 .aos-settings-range-field input[type="range"]::-webkit-slider-thumb {
 	appearance: none;
-	background: #e9eaec;
+	background: var(--aos-settings-range-thumb-bg);
 	border: 0;
-	border-radius: 50%;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
-	height: 22px;
-	margin-top: -9.5px;
-	width: 22px;
+	border-radius: 999px;
+	box-shadow: var(--aos-settings-range-thumb-shadow);
+	height: var(--aos-settings-range-thumb-height);
+	margin-top: calc((var(--aos-settings-range-track-height) - var(--aos-settings-range-thumb-height)) / 2);
+	width: var(--aos-settings-range-thumb-width);
 }
 
 .aos-settings-range-field input[type="range"]:focus {
 	outline: none;
+}
+
+.aos-settings-range-field input[type="range"]::-moz-range-track {
+	background: var(--aos-settings-range-track-bg);
+	border: 0;
+	border-radius: 999px;
+	height: var(--aos-settings-range-track-height);
+}
+
+.aos-settings-range-field input[type="range"]::-moz-range-progress {
+	background: var(--aos-settings-range-fill-bg);
+	border: 0;
+	border-radius: 999px;
+	height: var(--aos-settings-range-track-height);
+}
+
+.aos-settings-range-field input[type="range"]::-moz-range-thumb {
+	background: var(--aos-settings-range-thumb-bg);
+	border: 0;
+	border-radius: 999px;
+	box-shadow: var(--aos-settings-range-thumb-shadow);
+	height: var(--aos-settings-range-thumb-height);
+	width: var(--aos-settings-range-thumb-width);
 }
 
 .aos-settings-range-legend {
