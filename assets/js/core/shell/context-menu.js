@@ -465,9 +465,12 @@
 		const registry = context.registry || window.WPAdminOS.shell.createContextMenuRegistry(config, schema, context);
 		const itemRenderer = window.WPAdminOS.shell.createMenuItemRenderer(commands);
 		const folderManager = context.folderManager || null;
+		const dockLongPressDelay = 560;
+		const dockLongPressMoveTolerance = 8;
 		let popover = null;
 		let activeDetail = null;
 		let activeContextTarget = null;
+		let dockLongPress = null;
 
 		function getTargetLabel(target) {
 			return target.dataset.aosContextLabel
@@ -678,6 +681,25 @@
 			return true;
 		}
 
+		function openForElement(target, point = {}) {
+			if (!target || !shell.contains(target)) {
+				closeMenu();
+				return false;
+			}
+
+			const detail = getTargetDetail(target);
+			if (!detail || !detail.type) {
+				closeMenu();
+				return false;
+			}
+
+			const rect = typeof target.getBoundingClientRect === 'function' ? target.getBoundingClientRect() : null;
+			return openMenu(detail, {
+				x: Number.isFinite(point.x) ? point.x : rect ? rect.left + (rect.width / 2) : 0,
+				y: Number.isFinite(point.y) ? point.y : rect ? rect.top + (rect.height / 2) : 0
+			});
+		}
+
 		function openFromEvent(event) {
 			const disabled = event.target.closest('[data-aos-context-menu-disabled="1"]');
 			if (disabled && shell.contains(disabled)) {
@@ -707,6 +729,95 @@
 			return opened;
 		}
 
+		function getDockLongPressTarget(target) {
+			const item = target && typeof target.closest === 'function'
+				? target.closest('[data-aos-context="dock-app"]')
+				: null;
+
+			return item && shell.contains(item) ? item : null;
+		}
+
+		function clearDockLongPress() {
+			if (!dockLongPress) {
+				return;
+			}
+
+			window.clearTimeout(dockLongPress.timer);
+			dockLongPress.target.classList.remove('is-dock-pressing');
+			dockLongPress = null;
+		}
+
+		function markDockLongPressOpened(target) {
+			target.dataset.aosDockLongPressOpen = '1';
+			window.setTimeout(() => {
+				if (target.dataset.aosDockLongPressOpen === '1') {
+					delete target.dataset.aosDockLongPressOpen;
+				}
+			}, 600);
+		}
+
+		function bindDockLongPress() {
+			shell.addEventListener('pointerdown', (event) => {
+				if (event.button !== 0 || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+					return;
+				}
+
+				const target = getDockLongPressTarget(event.target);
+				if (!target) {
+					return;
+				}
+
+				clearDockLongPress();
+				target.classList.add('is-dock-pressing', 'is-tooltip-dismissed');
+				dockLongPress = {
+					pointerId: event.pointerId,
+					startX: event.clientX,
+					startY: event.clientY,
+					target,
+					timer: window.setTimeout(() => {
+						const opened = openForElement(target, {
+							x: event.clientX,
+							y: event.clientY
+						});
+
+						target.classList.remove('is-dock-pressing');
+						dockLongPress = null;
+						if (opened) {
+							markDockLongPressOpened(target);
+							if (typeof target.blur === 'function') {
+								target.blur();
+							}
+						}
+					}, dockLongPressDelay)
+				};
+			}, true);
+
+			window.addEventListener('pointermove', (event) => {
+				if (!dockLongPress || event.pointerId !== dockLongPress.pointerId) {
+					return;
+				}
+
+				const deltaX = event.clientX - dockLongPress.startX;
+				const deltaY = event.clientY - dockLongPress.startY;
+				if (Math.abs(deltaX) + Math.abs(deltaY) > dockLongPressMoveTolerance) {
+					clearDockLongPress();
+				}
+			}, { passive: true });
+
+			window.addEventListener('pointerup', clearDockLongPress);
+			window.addEventListener('pointercancel', clearDockLongPress);
+			shell.addEventListener('click', (event) => {
+				const target = getDockLongPressTarget(event.target);
+				if (!target || target.dataset.aosDockLongPressOpen !== '1') {
+					return;
+				}
+
+				delete target.dataset.aosDockLongPressOpen;
+				event.preventDefault();
+				event.stopPropagation();
+			}, true);
+		}
+
 		function bind() {
 			shell.addEventListener('contextmenu', openFromEvent);
 			shell.addEventListener('pointerdown', (event) => {
@@ -714,6 +825,7 @@
 					openFromEvent(event);
 				}
 			});
+			bindDockLongPress();
 			document.addEventListener('pointerdown', (event) => {
 				if (popover && !popover.contains(event.target)) {
 					closeMenu();
@@ -731,6 +843,7 @@
 		return {
 			bind,
 			closeMenu,
+			openForElement,
 			openMenu,
 			registry
 		};

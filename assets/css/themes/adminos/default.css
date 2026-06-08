@@ -815,9 +815,13 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-dock-item.is-context-menu-active,
+.aos-shell[data-aos-theme="adminos"] .aos-dock-item.is-dock-pressing,
 .aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="dark"] .aos-dock-item.is-dock-pressing:has(.aos-icon-image),
 .aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image),
-.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image) {
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="clear"] .aos-dock-item.is-dock-pressing:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-icon-widget-style="tinted"] .aos-dock-item.is-dock-pressing:has(.aos-icon-image) {
 	background: var(--aos-dock-pressed-bg);
 	box-shadow: var(--aos-dock-pressed-shadow);
 	outline: none;
@@ -825,21 +829,31 @@
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-dock-position="left"] .aos-dock-item.is-context-menu-active,
+.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="left"] .aos-dock-item.is-dock-pressing,
 .aos-shell[data-aos-theme="adminos"][data-aos-dock-position="left"][data-aos-icon-widget-style="dark"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="left"][data-aos-icon-widget-style="dark"] .aos-dock-item.is-dock-pressing:has(.aos-icon-image),
 .aos-shell[data-aos-theme="adminos"][data-aos-dock-position="left"][data-aos-icon-widget-style="clear"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image),
-.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="left"][data-aos-icon-widget-style="tinted"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image) {
+.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="left"][data-aos-icon-widget-style="clear"] .aos-dock-item.is-dock-pressing:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="left"][data-aos-icon-widget-style="tinted"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="left"][data-aos-icon-widget-style="tinted"] .aos-dock-item.is-dock-pressing:has(.aos-icon-image) {
 	transform: translateX(2px) scale(0.9);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-dock-position="right"] .aos-dock-item.is-context-menu-active,
+.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="right"] .aos-dock-item.is-dock-pressing,
 .aos-shell[data-aos-theme="adminos"][data-aos-dock-position="right"][data-aos-icon-widget-style="dark"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="right"][data-aos-icon-widget-style="dark"] .aos-dock-item.is-dock-pressing:has(.aos-icon-image),
 .aos-shell[data-aos-theme="adminos"][data-aos-dock-position="right"][data-aos-icon-widget-style="clear"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image),
-.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="right"][data-aos-icon-widget-style="tinted"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image) {
+.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="right"][data-aos-icon-widget-style="clear"] .aos-dock-item.is-dock-pressing:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="right"][data-aos-icon-widget-style="tinted"] .aos-dock-item.is-context-menu-active:has(.aos-icon-image),
+.aos-shell[data-aos-theme="adminos"][data-aos-dock-position="right"][data-aos-icon-widget-style="tinted"] .aos-dock-item.is-dock-pressing:has(.aos-icon-image) {
 	transform: translateX(-2px) scale(0.9);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-dock-item.is-context-menu-active .dashicons,
-.aos-shell[data-aos-theme="adminos"] .aos-dock-item.is-context-menu-active .aos-icon-image {
+.aos-shell[data-aos-theme="adminos"] .aos-dock-item.is-context-menu-active .aos-icon-image,
+.aos-shell[data-aos-theme="adminos"] .aos-dock-item.is-dock-pressing .dashicons,
+.aos-shell[data-aos-theme="adminos"] .aos-dock-item.is-dock-pressing .aos-icon-image {
 	filter: var(--aos-dock-pressed-icon-filter);
 	opacity: var(--aos-dock-pressed-icon-opacity);
 	transform: translateY(1px) scale(0.96);
