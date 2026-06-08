@@ -428,7 +428,7 @@ final class WP_AdminOS_Assets {
 			'classicUrl'     => $this->router->get_toggle_url( false ),
 			'desktopDock'    => $this->preferences->get_desktop_dock(),
 			'desktopFolders' => $desktop_folders,
-			'logoutUrl'      => wp_logout_url(),
+			'logoutUrl'      => $this->get_logout_url(),
 			'menuBar'        => $this->preferences->get_menu_bar(),
 			'settings'       => $this->get_settings_config( $theme ),
 			'shellChrome'    => isset( $theme['shell'] ) ? $theme['shell'] : array(),
@@ -465,6 +465,18 @@ final class WP_AdminOS_Assets {
 			'widgets'      => $widgets,
 			'windowChrome' => isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array(),
 		);
+	}
+
+	/**
+	 * Build a logout URL suitable for runtime command data.
+	 *
+	 * WordPress logout helpers escape ampersands for HTML output. Runtime command
+	 * payloads need raw query separators so nonce parameters survive navigation.
+	 *
+	 * @return string
+	 */
+	private function get_logout_url() {
+		return esc_url_raw( html_entity_decode( wp_logout_url(), ENT_QUOTES ) );
 	}
 
 	/**
@@ -1300,7 +1312,7 @@ final class WP_AdminOS_Assets {
 									$user_label
 								),
 								'command' => 'user.logout',
-								'url'     => wp_logout_url(),
+								'url'     => $this->get_logout_url(),
 								'icon'    => 'dashicons-migrate',
 							),
 						),

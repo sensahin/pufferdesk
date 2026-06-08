@@ -101,15 +101,15 @@ final class WP_AdminOS_Router {
 	 */
 	public function get_toggle_url( $enabled ) {
 		$redirect = $enabled ? $this->get_shell_url() : admin_url( 'index.php' );
-		$url      = add_query_arg(
+
+		return add_query_arg(
 			array(
-				'wp_adminos' => $enabled ? '1' : '0',
+				'wp_adminos'   => $enabled ? '1' : '0',
 				'redirect_to'   => $redirect,
+				'_wpnonce'      => wp_create_nonce( self::NONCE_TOGGLE ),
 			),
 			admin_url( 'index.php' )
 		);
-
-		return wp_nonce_url( $url, self::NONCE_TOGGLE );
 	}
 
 	/**
