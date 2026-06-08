@@ -112,6 +112,7 @@ final class WP_AdminOS_Workspace_State {
 		return array(
 			'version'      => self::VERSION,
 			'updatedAt'    => 0,
+			'dockApps'     => array(),
 			'windows'      => array(),
 			'widgets'      => array(),
 			'desktopIcons' => array(),
@@ -137,6 +138,7 @@ final class WP_AdminOS_Workspace_State {
 		return array(
 			'version'      => self::VERSION,
 			'updatedAt'    => isset( $state['updatedAt'] ) ? $this->sanitize_timestamp( $state['updatedAt'] ) : $default['updatedAt'],
+			'dockApps'     => $this->sanitize_dock_apps( isset( $state['dockApps'] ) ? $state['dockApps'] : array(), $apps ),
 			'windows'      => $this->sanitize_windows( isset( $state['windows'] ) ? $state['windows'] : array(), $apps, $folders ),
 			'widgets'      => $this->sanitize_widgets( isset( $state['widgets'] ) ? $state['widgets'] : array(), $widgets ),
 			'desktopIcons' => $this->sanitize_desktop_icons( isset( $state['desktopIcons'] ) ? $state['desktopIcons'] : array(), $apps, $folders ),
@@ -156,6 +158,53 @@ final class WP_AdminOS_Workspace_State {
 		$theme_id = '' !== $theme_id ? $theme_id : 'default';
 
 		return self::META_PREFIX . '_' . absint( get_current_blog_id() ) . '_' . $theme_id;
+	}
+
+	/**
+	 * Order Dock apps from a sanitized workspace state while preserving new apps.
+	 *
+	 * @param array<int,array<string,mixed>> $apps Apps currently visible in the Dock.
+	 * @param array<string,mixed>            $state Workspace state.
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function order_apps_for_dock( $apps, $state ) {
+		if ( empty( $apps ) || empty( $state['dockApps'] ) || ! is_array( $state['dockApps'] ) ) {
+			return array_values( (array) $apps );
+		}
+
+		$by_id   = array();
+		$ordered = array();
+
+		foreach ( (array) $apps as $app ) {
+			if ( ! is_array( $app ) || empty( $app['id'] ) ) {
+				continue;
+			}
+
+			$by_id[ sanitize_key( (string) $app['id'] ) ] = $app;
+		}
+
+		foreach ( $state['dockApps'] as $app_id ) {
+			$app_id = sanitize_key( (string) $app_id );
+			if ( ! isset( $by_id[ $app_id ] ) ) {
+				continue;
+			}
+
+			$ordered[] = $by_id[ $app_id ];
+			unset( $by_id[ $app_id ] );
+		}
+
+		foreach ( (array) $apps as $app ) {
+			if ( ! is_array( $app ) || empty( $app['id'] ) ) {
+				continue;
+			}
+
+			$app_id = sanitize_key( (string) $app['id'] );
+			if ( isset( $by_id[ $app_id ] ) ) {
+				$ordered[] = $app;
+			}
+		}
+
+		return $ordered;
 	}
 
 	/**
@@ -213,6 +262,35 @@ final class WP_AdminOS_Workspace_State {
 			}
 
 			if ( count( $sanitized ) >= 80 ) {
+				break;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize Dock app order.
+	 *
+	 * @param mixed                          $dock_apps Raw Dock app IDs.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @return array<int,string>
+	 */
+	private function sanitize_dock_apps( $dock_apps, $apps ) {
+		$available = $this->get_available_ids( $apps );
+		$sanitized = array();
+		$seen      = array();
+
+		foreach ( is_array( $dock_apps ) ? $dock_apps : array() as $app_id ) {
+			$app_id = sanitize_key( (string) $app_id );
+			if ( '' === $app_id || isset( $seen[ $app_id ] ) || ! $this->is_allowed_app_id( $app_id, $available ) ) {
+				continue;
+			}
+
+			$sanitized[]     = $app_id;
+			$seen[ $app_id ] = true;
+
+			if ( count( $sanitized ) >= 300 ) {
 				break;
 			}
 		}

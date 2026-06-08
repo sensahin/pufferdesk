@@ -114,6 +114,7 @@
 			button.dataset.aosContextLabel = label;
 			button.dataset.aosDockTooltip = label;
 			button.dataset.aosOpenApp = app.id;
+			button.draggable = false;
 			button.setAttribute('aria-label', getAppButtonLabel(app));
 			button.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
 			if (badge) {
@@ -193,16 +194,19 @@
 
 			if (dock) {
 				const minimizedWindows = dock.querySelector('.aos-dock-minimized-windows');
+				const dockApps = apps.filter((app) => appIsShownIn(app, 'dock', normalizedLocations));
+				const orderedDockApps = window.WPAdminOS.desktopDock && typeof window.WPAdminOS.desktopDock.orderApps === 'function'
+					? window.WPAdminOS.desktopDock.orderApps(dockApps, config)
+					: dockApps;
+
 				Array.from(dock.children).forEach((child) => {
 					if (child.classList && child.classList.contains('aos-dock-item')) {
 						child.remove();
 					}
 				});
-				apps
-					.filter((app) => appIsShownIn(app, 'dock', normalizedLocations))
-					.forEach((app) => {
-						dock.insertBefore(createDockAppButton(app), minimizedWindows || null);
-					});
+				orderedDockApps.forEach((app) => {
+					dock.insertBefore(createDockAppButton(app), minimizedWindows || null);
+				});
 				syncRunningDockItems();
 			}
 

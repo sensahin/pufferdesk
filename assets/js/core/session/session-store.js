@@ -32,6 +32,7 @@
 			return {
 				version: Number.parseInt(workspace.version, 10) || 2,
 				updatedAt: 0,
+				dockApps: [],
 				windows: [],
 				widgets: [],
 				desktopIcons: [],
@@ -69,6 +70,7 @@
 			return Object.assign(defaults, session, {
 				version: defaults.version,
 				updatedAt: getUpdatedAt(session),
+				dockApps: Array.isArray(session.dockApps) ? session.dockApps : [],
 				windows: Array.isArray(session.windows) ? session.windows : [],
 				widgets: Array.isArray(session.widgets) ? session.widgets : [],
 				desktopIcons: Array.isArray(session.desktopIcons) ? session.desktopIcons : [],

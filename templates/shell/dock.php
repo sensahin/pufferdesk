@@ -38,6 +38,7 @@ defined( 'ABSPATH' ) || exit;
 			data-aos-context-label="<?php echo esc_attr( $wp_adminos_app_label ); ?>"
 			data-aos-dock-tooltip="<?php echo esc_attr( $wp_adminos_app_label ); ?>"
 			data-aos-open-app="<?php echo esc_attr( $wp_adminos_app['id'] ); ?>"
+			draggable="false"
 			aria-label="<?php echo esc_attr( $wp_adminos_aria_label ); ?>"
 		>
 			<?php WP_AdminOS_Icon_Renderer::render( $wp_adminos_app['icon'], $theme ); ?>

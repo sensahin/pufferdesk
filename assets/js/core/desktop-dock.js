@@ -108,9 +108,168 @@
 		return current;
 	}
 
+	function isObject(value) {
+		return value && typeof value === 'object' && !Array.isArray(value);
+	}
+
+	function getWorkspaceState(config = {}) {
+		return isObject(config.workspaceState) ? config.workspaceState : {};
+	}
+
+	function getAppId(app) {
+		return app && typeof app.id === 'string' ? app.id : '';
+	}
+
+	function normalizeDockOrder(order = [], apps = []) {
+		const available = new Set((Array.isArray(apps) ? apps : []).map(getAppId).filter(Boolean));
+		const seen = new Set();
+		const normalized = [];
+
+		(Array.isArray(order) ? order : []).forEach((appId) => {
+			const id = typeof appId === 'string' ? appId : '';
+			if (!id || seen.has(id) || (available.size && !available.has(id))) {
+				return;
+			}
+
+			seen.add(id);
+			normalized.push(id);
+		});
+
+		return normalized;
+	}
+
+	function getDockOrder(config = {}) {
+		const state = getWorkspaceState(config);
+
+		return normalizeDockOrder(state.dockApps || [], config.apps || []);
+	}
+
+	function orderApps(apps = [], config = {}) {
+		const availableApps = Array.isArray(apps) ? apps.filter(Boolean) : [];
+		const order = getDockOrder(config);
+		if (!order.length) {
+			return availableApps.slice();
+		}
+
+		const byId = new Map(availableApps.map((app) => [getAppId(app), app]));
+		const ordered = [];
+
+		order.forEach((appId) => {
+			if (!byId.has(appId)) {
+				return;
+			}
+
+			ordered.push(byId.get(appId));
+			byId.delete(appId);
+		});
+
+		availableApps.forEach((app) => {
+			const appId = getAppId(app);
+			if (byId.has(appId)) {
+				ordered.push(app);
+			}
+		});
+
+		return ordered;
+	}
+
 	function getDockItem(target) {
 		return target && typeof target.closest === 'function'
 			? target.closest('.aos-dock-item, .aos-dock-window-item')
+			: null;
+	}
+
+	function getDockAppItem(target, dock) {
+		const item = target && typeof target.closest === 'function'
+			? target.closest('.aos-dock-item[data-aos-open-app]')
+			: null;
+
+		return item && dock && dock.contains(item) ? item : null;
+	}
+
+	function getDockAppItems(dock) {
+		if (!dock) {
+			return [];
+		}
+
+		return Array.from(dock.children).filter((child) => (
+			child.classList
+			&& child.classList.contains('aos-dock-item')
+			&& child.dataset
+			&& child.dataset.aosOpenApp
+		));
+	}
+
+	function getMinimizedWindowContainer(dock) {
+		return dock ? dock.querySelector('.aos-dock-minimized-windows') : null;
+	}
+
+	function getDockOrderFromDom(dock) {
+		return getDockAppItems(dock)
+			.map((item) => item.dataset.aosOpenApp || '')
+			.filter(Boolean);
+	}
+
+	function arraysEqual(first = [], second = []) {
+		return first.length === second.length && first.every((value, index) => value === second[index]);
+	}
+
+	function applyOrderToDock(shell, config = {}) {
+		const dock = shell ? shell.querySelector('.aos-dock') : null;
+		const order = getDockOrder(config);
+		if (!dock || !order.length) {
+			return false;
+		}
+
+		const dockItems = getDockAppItems(dock);
+		const byId = new Map(dockItems.map((item) => [item.dataset.aosOpenApp || '', item]));
+		const orderedItems = [];
+		const minimizedWindows = getMinimizedWindowContainer(dock);
+
+		order.forEach((appId) => {
+			if (!byId.has(appId)) {
+				return;
+			}
+
+			orderedItems.push(byId.get(appId));
+			byId.delete(appId);
+		});
+
+		dockItems.forEach((item) => {
+			const appId = item.dataset.aosOpenApp || '';
+			if (byId.has(appId)) {
+				orderedItems.push(item);
+			}
+		});
+
+		orderedItems.forEach((item) => {
+			dock.insertBefore(item, minimizedWindows || null);
+		});
+
+		return true;
+	}
+
+	function saveDockOrder(config = {}, sessionStore, order = []) {
+		const normalized = normalizeDockOrder(order, config.apps || []);
+		config.workspaceState = Object.assign({}, getWorkspaceState(config), {
+			dockApps: normalized
+		});
+
+		if (sessionStore && typeof sessionStore.saveSection === 'function') {
+			sessionStore.saveSection('dockApps', normalized);
+			return true;
+		}
+
+		return false;
+	}
+
+	function createSessionStore(config = {}, options = {}) {
+		const storageKey = options.storageKey || config.storageKey || '';
+
+		return storageKey
+			&& window.WPAdminOS.session
+			&& typeof window.WPAdminOS.session.createSessionStore === 'function'
+			? window.WPAdminOS.session.createSessionStore(storageKey)
 			: null;
 	}
 
@@ -173,10 +332,205 @@
 		}, { passive: true });
 	}
 
+	function bindReordering(shell, config = {}, options = {}) {
+		const dock = shell ? shell.querySelector('.aos-dock') : null;
+		const sessionStore = createSessionStore(config, options);
+		const moveTolerance = 8;
+		let drag = null;
+
+		if (!dock || dock.dataset.aosDockReorderBound === '1') {
+			return;
+		}
+
+		dock.dataset.aosDockReorderBound = '1';
+		applyOrderToDock(shell, config);
+
+		function isVerticalDock() {
+			const position = shell && shell.dataset ? shell.dataset.aosDockPosition : 'bottom';
+
+			return position === 'left' || position === 'right';
+		}
+
+		function getInsertBeforeItem(event) {
+			const vertical = isVerticalDock();
+			const coordinate = vertical ? event.clientY : event.clientX;
+			const items = getDockAppItems(dock).filter((item) => item !== drag.item);
+
+			return items.find((item) => {
+				const rect = item.getBoundingClientRect();
+				const center = vertical ? rect.top + (rect.height / 2) : rect.left + (rect.width / 2);
+
+				return coordinate < center;
+			}) || getMinimizedWindowContainer(dock) || null;
+		}
+
+		function startDrag(event) {
+			drag.dragging = true;
+			drag.item.classList.remove('is-dock-reorder-pending');
+			drag.item.classList.add('is-dock-reordering', 'is-tooltip-dismissed');
+			dock.classList.add('is-reordering');
+			shell.dataset.aosDockReordering = '1';
+
+			if (typeof drag.item.setPointerCapture === 'function') {
+				try {
+					drag.item.setPointerCapture(event.pointerId);
+				} catch (error) {
+					// Pointer capture can fail if the browser already released the pointer.
+				}
+			}
+		}
+
+		function isDockMenuPressActive(item) {
+			return Boolean(
+				item
+				&& item.classList
+				&& (
+					item.classList.contains('is-context-menu-active')
+					|| item.dataset.aosDockLongPressOpen === '1'
+				)
+			);
+		}
+
+		function endDrag(event, shouldSave = true) {
+			if (!drag) {
+				return;
+			}
+
+			const didDrag = drag.dragging;
+			const item = drag.item;
+			const changed = didDrag && !arraysEqual(drag.originalOrder, getDockOrderFromDom(dock));
+
+			if (didDrag && !shouldSave && drag.originalOrder.length) {
+				config.workspaceState = Object.assign({}, getWorkspaceState(config), {
+					dockApps: drag.originalOrder
+				});
+				applyOrderToDock(shell, config);
+			}
+
+			item.classList.remove('is-dock-reorder-pending', 'is-dock-reordering', 'is-tooltip-dismissed');
+			dock.classList.remove('is-reordering');
+			delete shell.dataset.aosDockReordering;
+
+			if (didDrag) {
+				item.dataset.aosDockReorderSuppressClick = '1';
+				window.setTimeout(() => {
+					if (item.dataset.aosDockReorderSuppressClick === '1') {
+						delete item.dataset.aosDockReorderSuppressClick;
+					}
+				}, 450);
+			}
+
+			if (shouldSave && changed) {
+				saveDockOrder(config, sessionStore, getDockOrderFromDom(dock));
+			}
+
+			if (event && didDrag) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+
+			drag = null;
+		}
+
+		dock.addEventListener('pointerdown', (event) => {
+			if (event.button !== 0 || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+				return;
+			}
+
+			const item = getDockAppItem(event.target, dock);
+			if (!item || item.closest('.aos-dock-minimized-windows')) {
+				return;
+			}
+
+			if (isDockMenuPressActive(item)) {
+				return;
+			}
+
+			drag = {
+				dragging: false,
+				item,
+				originalOrder: getDockOrderFromDom(dock),
+				pointerId: event.pointerId,
+				startX: event.clientX,
+				startY: event.clientY
+			};
+			item.classList.add('is-dock-reorder-pending');
+		});
+
+		window.addEventListener('pointermove', (event) => {
+			if (!drag || event.pointerId !== drag.pointerId || !dock.contains(drag.item)) {
+				return;
+			}
+
+			const deltaX = event.clientX - drag.startX;
+			const deltaY = event.clientY - drag.startY;
+
+			if (!drag.dragging && isDockMenuPressActive(drag.item)) {
+				endDrag(null, false);
+				return;
+			}
+
+			if (!drag.dragging && Math.abs(deltaX) + Math.abs(deltaY) <= moveTolerance) {
+				return;
+			}
+
+			if (!drag.dragging) {
+				startDrag(event);
+			}
+
+			dock.insertBefore(drag.item, getInsertBeforeItem(event));
+			event.preventDefault();
+		});
+
+		window.addEventListener('pointerup', (event) => {
+			if (!drag || event.pointerId !== drag.pointerId) {
+				return;
+			}
+
+			endDrag(event, true);
+		});
+
+		window.addEventListener('pointercancel', (event) => {
+			if (!drag || event.pointerId !== drag.pointerId) {
+				return;
+			}
+
+			endDrag(event, false);
+		});
+
+		shell.addEventListener('click', (event) => {
+			const item = getDockAppItem(event.target, dock);
+			if (!item || item.dataset.aosDockReorderSuppressClick !== '1') {
+				return;
+			}
+
+			delete item.dataset.aosDockReorderSuppressClick;
+			event.preventDefault();
+			event.stopPropagation();
+		}, true);
+
+		window.addEventListener('wpAdminOS:workspace-state-changed', (event) => {
+			if (drag && drag.dragging) {
+				return;
+			}
+
+			const state = event && event.detail && isObject(event.detail.state) ? event.detail.state : null;
+			if (state) {
+				config.workspaceState = state;
+			}
+			applyOrderToDock(shell, config);
+		});
+	}
+
 	window.WPAdminOS.desktopDock = {
 		apply,
+		applyOrderToDock,
 		bindTooltipDismissal,
+		bindReordering,
 		defaults,
-		normalize
+		getDockOrder,
+		normalize,
+		normalizeDockOrder,
+		orderApps
 	};
 })();

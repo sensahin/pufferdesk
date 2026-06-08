@@ -261,7 +261,7 @@ final class WP_AdminOS_Assets {
 			),
 			'wp-adminos-desktop-dock'   => array(
 				'path' => 'assets/js/core/desktop-dock.js',
-				'deps' => array( 'wp-adminos-config' ),
+				'deps' => array( 'wp-adminos-config', 'wp-adminos-session-store' ),
 			),
 			'wp-adminos-wallpaper'      => array(
 				'path' => 'assets/js/core/wallpaper.js',

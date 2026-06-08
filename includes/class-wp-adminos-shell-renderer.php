@@ -118,6 +118,7 @@ final class WP_AdminOS_Shell_Renderer {
 		$menu_bar          = $this->preferences->get_menu_bar();
 		$wallpaper         = $this->wallpaper_registry->get_client_config( $theme, $this->preferences );
 		$workspace_state   = $this->workspace_state->get_state( $theme['id'], $apps, $widgets, $workspace_folders );
+		$dock_apps         = $this->workspace_state->order_apps_for_dock( $dock_apps, $workspace_state );
 		$this->current_theme = $theme;
 
 		$this->render_template(

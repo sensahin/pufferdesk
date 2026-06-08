@@ -43,6 +43,11 @@
 		if (window.WPAdminOS.desktopDock) {
 			window.WPAdminOS.desktopDock.apply(shell, config.desktopDock || {});
 			window.WPAdminOS.desktopDock.bindTooltipDismissal(shell);
+			if (typeof window.WPAdminOS.desktopDock.bindReordering === 'function') {
+				window.WPAdminOS.desktopDock.bindReordering(shell, config, {
+					storageKey: config.storageKey || ''
+				});
+			}
 		}
 		if (window.WPAdminOS.wallpaper) {
 			window.WPAdminOS.wallpaper.apply(shell, config.wallpaper || {});
