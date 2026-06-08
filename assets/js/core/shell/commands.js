@@ -345,6 +345,13 @@
 					overlayMessage: 'Erasing WP adminOS settings...',
 					title: 'Erase All Content and Settings?'
 				},
+				emptyTrash: {
+					cancelLabel: 'Cancel',
+					confirmLabel: 'Empty Trash',
+					icon: 'dashicons-trash',
+					message: 'This permanently deletes all trashed WP adminOS folder records. Apps and plugins are not deleted.',
+					title: 'Empty Trash?'
+				},
 				restart: {
 					cancelLabel: 'Cancel',
 					confirmLabel: 'Restart',
@@ -770,14 +777,17 @@
 				);
 			},
 			async run() {
-				const confirmed = dialogs && typeof dialogs.confirm === 'function'
-					? await dialogs.confirm({
-						cancelLabel: 'Cancel',
-						confirmLabel: 'Empty Trash',
-						message: 'This permanently deletes all trashed WP adminOS folder records. Apps and plugins are not deleted.',
-						title: 'Empty Trash?'
-					})
-					: window.confirm('Empty Trash?');
+				const actionConfig = getActionConfig('emptyTrash');
+				let confirmed = false;
+
+				if (dialogs && typeof dialogs.confirmActionDialog === 'function') {
+					const result = await dialogs.confirmActionDialog(actionConfig);
+					confirmed = Boolean(result && result.confirmed);
+				} else if (dialogs && typeof dialogs.confirm === 'function') {
+					confirmed = await dialogs.confirm(actionConfig);
+				} else {
+					confirmed = window.confirm('Empty Trash?');
+				}
 
 				if (confirmed) {
 					folderManager.emptyTrash();

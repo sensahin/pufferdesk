@@ -238,9 +238,7 @@
 			}
 
 			if (app.id === 'trash') {
-				items.push(commandItem(getLabel('empty_trash', 'Empty Trash'), 'trash.empty', {
-					icon: 'dashicons-trash'
-				}));
+				items.push(commandItem(getLabel('empty_trash', 'Empty Trash'), 'trash.empty'));
 			}
 
 			items.push(getDockOptionsItem(app, state));

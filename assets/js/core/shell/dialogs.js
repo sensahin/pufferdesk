@@ -213,12 +213,13 @@
 			});
 		}
 
-		function confirmTimedAction(options = {}) {
+		function confirmActionDialog(options = {}, settings = {}) {
 			closeActiveDialog();
 
 			return new Promise((resolve) => {
+				const hasTimer = settings.timed === true;
 				const secondsTotal = Number.parseInt(options.countdownSeconds, 10);
-				const countdownSeconds = Number.isFinite(secondsTotal) && secondsTotal > 0 ? secondsTotal : 60;
+				const countdownSeconds = hasTimer && Number.isFinite(secondsTotal) && secondsTotal > 0 ? secondsTotal : 60;
 				const title = options.title || '';
 				const messageTemplate = options.message || '';
 				const confirmLabel = options.confirmLabel || 'OK';
@@ -275,7 +276,12 @@
 				const confirmButton = createButton(confirmLabel, 'aos-shell-dialog-button aos-shell-dialog-button-primary');
 
 				function updateMessage() {
-					renderCountdownMessage(messageElement, messageTemplate, remaining, countdownDigitCount);
+					if (hasTimer) {
+						renderCountdownMessage(messageElement, messageTemplate, remaining, countdownDigitCount);
+						return;
+					}
+
+					messageElement.textContent = messageTemplate;
 				}
 
 				function finish(confirmed, reason) {
@@ -300,14 +306,16 @@
 				}
 
 				updateMessage();
-				timerId = window.setInterval(() => {
-					remaining -= 1;
-					updateMessage();
+				if (hasTimer) {
+					timerId = window.setInterval(() => {
+						remaining -= 1;
+						updateMessage();
 
-					if (remaining <= 0) {
-						finish(true, 'timeout');
-					}
-				}, 1000);
+						if (remaining <= 0) {
+							finish(true, 'timeout');
+						}
+					}, 1000);
+				}
 
 				cancelButton.addEventListener('click', () => finish(false, 'cancel'));
 				confirmButton.addEventListener('click', () => finish(true, 'confirm'));
@@ -328,6 +336,12 @@
 					layer.classList.add('is-visible');
 					confirmButton.focus({ preventScroll: true });
 				});
+			});
+		}
+
+		function confirmTimedAction(options = {}) {
+			return confirmActionDialog(options, {
+				timed: true
 			});
 		}
 
@@ -445,6 +459,7 @@
 
 		return {
 			confirm,
+			confirmActionDialog,
 			confirmTimedAction,
 			prompt,
 			showBlockingOverlay

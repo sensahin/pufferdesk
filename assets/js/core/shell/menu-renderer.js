@@ -19,6 +19,10 @@
 			return Boolean(item && Array.isArray(item.items) && item.items.length);
 		}
 
+		function shouldRenderIcon(detail) {
+			return !(detail && detail.type === 'dock-app');
+		}
+
 		function getItemDisabled(item, detail) {
 			if (hasSubmenu(item)) {
 				return Boolean(item.disabled);
@@ -39,8 +43,8 @@
 			return '';
 		}
 
-		function createMenuItemIcon(item) {
-			if (!hasIcon(item)) {
+		function createMenuItemIcon(item, detail = {}) {
+			if (!shouldRenderIcon(detail) || !hasIcon(item)) {
 				return null;
 			}
 
@@ -51,8 +55,8 @@
 			return icon;
 		}
 
-		function appendMenuItemContent(button, item, submenu = false) {
-			const icon = createMenuItemIcon(item);
+		function appendMenuItemContent(button, item, submenu = false, detail = {}) {
+			const icon = createMenuItemIcon(item, detail);
 			if (icon) {
 				button.classList.add('has-icon');
 				button.appendChild(icon);
@@ -83,7 +87,7 @@
 			button.setAttribute('role', 'menuitem');
 			button.setAttribute('aria-haspopup', 'menu');
 			button.setAttribute('aria-expanded', 'false');
-			appendMenuItemContent(button, item, true);
+			appendMenuItemContent(button, item, true, detail);
 
 			subPopover.className = 'aos-menu-submenu-popover';
 			subPopover.setAttribute('role', 'menu');
@@ -165,7 +169,7 @@
 				button.setAttribute('aria-disabled', 'true');
 			}
 
-			appendMenuItemContent(button, item);
+			appendMenuItemContent(button, item, false, detail);
 
 			if (item.command && !disabled) {
 				button.addEventListener('click', () => {

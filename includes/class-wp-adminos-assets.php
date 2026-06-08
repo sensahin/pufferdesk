@@ -1229,6 +1229,13 @@ final class WP_AdminOS_Assets {
 					'cancelLabel'    => __( 'Cancel', 'wp-adminos' ),
 					'overlayMessage' => __( 'Erasing WP adminOS settings...', 'wp-adminos' ),
 				),
+				'emptyTrash' => array(
+					'title'        => __( 'Empty Trash?', 'wp-adminos' ),
+					'message'      => __( 'This permanently deletes all trashed WP adminOS folder records. Apps and plugins are not deleted.', 'wp-adminos' ),
+					'confirmLabel' => __( 'Empty Trash', 'wp-adminos' ),
+					'cancelLabel'  => __( 'Cancel', 'wp-adminos' ),
+					'icon'         => 'dashicons-trash',
+				),
 			),
 		);
 	}
