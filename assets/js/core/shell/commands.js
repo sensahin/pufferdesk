@@ -212,6 +212,12 @@
 			return payload.target || payload.appId || getAppTargetFromDetail(detail) || (detail && detail.id) || '';
 		}
 
+		function isFixedDockApp(appId) {
+			const app = appMap.get(appId);
+
+			return Boolean(app && app.dock && typeof app.dock === 'object' && app.dock.fixed === true);
+		}
+
 		function normalizeAppLocations(locations = {}) {
 			return appSurfaceManager ? appSurfaceManager.normalizeLocations(locations) : {};
 		}
@@ -258,6 +264,10 @@
 
 			if (!app) {
 				return Promise.reject(new Error('App unavailable.'));
+			}
+
+			if (isFixedDockApp(appId)) {
+				return Promise.reject(new Error('App has a fixed Dock placement.'));
 			}
 
 			if (keepInDock) {
@@ -879,7 +889,9 @@
 
 		register('app.keep-in-dock', {
 			isEnabled(payload, detail) {
-				return Boolean(api && appSurfaceManager && appMap.has(getAppIdFromPayload(payload, detail)));
+				const appId = getAppIdFromPayload(payload, detail);
+
+				return Boolean(api && appSurfaceManager && appMap.has(appId) && !isFixedDockApp(appId));
 			},
 			run(payload, detail) {
 				return setAppDockPresence(getAppIdFromPayload(payload, detail), true);
@@ -888,7 +900,9 @@
 
 		register('app.remove-from-dock', {
 			isEnabled(payload, detail) {
-				return Boolean(api && appSurfaceManager && appMap.has(getAppIdFromPayload(payload, detail)));
+				const appId = getAppIdFromPayload(payload, detail);
+
+				return Boolean(api && appSurfaceManager && appMap.has(appId) && !isFixedDockApp(appId));
 			},
 			run(payload, detail) {
 				return setAppDockPresence(getAppIdFromPayload(payload, detail), false);

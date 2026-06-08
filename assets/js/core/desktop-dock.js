@@ -120,8 +120,17 @@
 		return app && typeof app.id === 'string' ? app.id : '';
 	}
 
+	function isFixedDockApp(app) {
+		return Boolean(app && app.dock && typeof app.dock === 'object' && app.dock.fixed === true);
+	}
+
+	function isFixedDockItem(item) {
+		return Boolean(item && item.dataset && item.dataset.aosDockFixed);
+	}
+
 	function normalizeDockOrder(order = [], apps = []) {
-		const available = new Set((Array.isArray(apps) ? apps : []).map(getAppId).filter(Boolean));
+		const availableApps = Array.isArray(apps) ? apps : [];
+		const available = new Set(availableApps.filter((app) => !isFixedDockApp(app)).map(getAppId).filter(Boolean));
 		const seen = new Set();
 		const normalized = [];
 
@@ -146,12 +155,14 @@
 
 	function orderApps(apps = [], config = {}) {
 		const availableApps = Array.isArray(apps) ? apps.filter(Boolean) : [];
+		const fixedApps = availableApps.filter(isFixedDockApp);
+		const regularApps = availableApps.filter((app) => !isFixedDockApp(app));
 		const order = getDockOrder(config);
 		if (!order.length) {
-			return availableApps.slice();
+			return regularApps.concat(fixedApps);
 		}
 
-		const byId = new Map(availableApps.map((app) => [getAppId(app), app]));
+		const byId = new Map(regularApps.map((app) => [getAppId(app), app]));
 		const ordered = [];
 
 		order.forEach((appId) => {
@@ -163,14 +174,14 @@
 			byId.delete(appId);
 		});
 
-		availableApps.forEach((app) => {
+		regularApps.forEach((app) => {
 			const appId = getAppId(app);
 			if (byId.has(appId)) {
 				ordered.push(app);
 			}
 		});
 
-		return ordered;
+		return ordered.concat(fixedApps);
 	}
 
 	function getDockItem(target) {
@@ -184,7 +195,7 @@
 			? target.closest('.aos-dock-item[data-aos-open-app]')
 			: null;
 
-		return item && dock && dock.contains(item) ? item : null;
+		return item && dock && dock.contains(item) && !isFixedDockItem(item) ? item : null;
 	}
 
 	function getDockAppItems(dock) {
@@ -197,11 +208,12 @@
 			&& child.classList.contains('aos-dock-item')
 			&& child.dataset
 			&& child.dataset.aosOpenApp
+			&& !isFixedDockItem(child)
 		));
 	}
 
-	function getMinimizedWindowContainer(dock) {
-		return dock ? dock.querySelector('.aos-dock-minimized-windows') : null;
+	function getDockEndAnchor(dock) {
+		return dock ? dock.querySelector('.aos-dock-separator, .aos-dock-minimized-windows, .aos-dock-item[data-aos-dock-fixed]') : null;
 	}
 
 	function getDockOrderFromDom(dock) {
@@ -224,7 +236,7 @@
 		const dockItems = getDockAppItems(dock);
 		const byId = new Map(dockItems.map((item) => [item.dataset.aosOpenApp || '', item]));
 		const orderedItems = [];
-		const minimizedWindows = getMinimizedWindowContainer(dock);
+		const dockEndAnchor = getDockEndAnchor(dock);
 
 		order.forEach((appId) => {
 			if (!byId.has(appId)) {
@@ -243,7 +255,7 @@
 		});
 
 		orderedItems.forEach((item) => {
-			dock.insertBefore(item, minimizedWindows || null);
+			dock.insertBefore(item, dockEndAnchor || null);
 		});
 
 		return true;
@@ -362,7 +374,7 @@
 				const center = vertical ? rect.top + (rect.height / 2) : rect.left + (rect.width / 2);
 
 				return coordinate < center;
-			}) || getMinimizedWindowContainer(dock) || null;
+			}) || getDockEndAnchor(dock) || null;
 		}
 
 		function getLayoutAnimationItems() {
@@ -449,7 +461,7 @@
 			}
 
 			animateDockLayout(() => {
-				dock.insertBefore(drag.placeholder, before || getMinimizedWindowContainer(dock) || null);
+				dock.insertBefore(drag.placeholder, before || getDockEndAnchor(dock) || null);
 			});
 		}
 
@@ -546,7 +558,7 @@
 				if (placeholder) {
 					dock.insertBefore(item, placeholder);
 				} else {
-					dock.insertBefore(item, getMinimizedWindowContainer(dock) || null);
+					dock.insertBefore(item, getDockEndAnchor(dock) || null);
 				}
 				clearFloatingItemStyles(item);
 				if (placeholder) {
@@ -719,6 +731,7 @@
 		bindReordering,
 		defaults,
 		getDockOrder,
+		isFixedDockApp,
 		normalize,
 		normalizeDockOrder,
 		orderApps

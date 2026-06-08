@@ -144,6 +144,10 @@ final class WP_AdminOS_App_Registry {
 				'icon'   => $this->theme_icon( 'trash-empty.svg', 'dashicons-trash' ),
 				'group'  => 'system',
 				'cap'    => self::DEFAULT_CAPABILITY,
+				'dock'   => array(
+					'fixed'     => true,
+					'placement' => 'end',
+				),
 				'kind'   => 'native',
 				'native' => 'trash',
 			),
@@ -176,7 +180,7 @@ final class WP_AdminOS_App_Registry {
 		 * Filter the shell app registry.
 		 *
 		 * Each app accepts id, label, url, icon, group, cap, kind, native,
-		 * window_persistence, and menu.
+		 * dock, window_persistence, and menu.
 		 * Missing, empty, or non-scalar cap values default to read during normalization.
 		 * Icons may be a Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-admin-post' )
@@ -1303,6 +1307,7 @@ final class WP_AdminOS_App_Registry {
 
 			$url    = isset( $app['url'] ) ? esc_url_raw( $app['url'] ) : '';
 			$native = isset( $app['native'] ) ? sanitize_key( $app['native'] ) : '';
+			$dock   = $this->normalize_dock( isset( $app['dock'] ) ? $app['dock'] : array() );
 			$badge  = $this->normalize_badge( isset( $app['badge'] ) ? $app['badge'] : array() );
 
 			/**
@@ -1334,6 +1339,7 @@ final class WP_AdminOS_App_Registry {
 				'cap'                => $cap,
 				'kind'               => $kind,
 				'native'             => $native,
+				'dock'               => $dock,
 				'window_persistence' => $window_persistence,
 				'menu'               => $this->normalize_menu_definition( isset( $app['menu'] ) ? $app['menu'] : array(), $label ),
 			);
@@ -1346,6 +1352,33 @@ final class WP_AdminOS_App_Registry {
 		}
 
 		return $normalized;
+	}
+
+	/**
+	 * Normalize optional Dock behavior metadata.
+	 *
+	 * @param mixed $dock Raw Dock metadata.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_dock( $dock ) {
+		if ( ! is_array( $dock ) ) {
+			return array();
+		}
+
+		$fixed = ! empty( $dock['fixed'] );
+		if ( ! $fixed ) {
+			return array();
+		}
+
+		$placement = isset( $dock['placement'] ) ? sanitize_key( (string) $dock['placement'] ) : 'end';
+		if ( ! in_array( $placement, array( 'end' ), true ) ) {
+			$placement = 'end';
+		}
+
+		return array(
+			'fixed'     => true,
+			'placement' => $placement,
+		);
 	}
 
 	/**

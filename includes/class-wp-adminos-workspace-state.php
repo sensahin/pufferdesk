@@ -168,15 +168,25 @@ final class WP_AdminOS_Workspace_State {
 	 * @return array<int,array<string,mixed>>
 	 */
 	public function order_apps_for_dock( $apps, $state ) {
-		if ( empty( $apps ) || empty( $state['dockApps'] ) || ! is_array( $state['dockApps'] ) ) {
+		if ( empty( $apps ) ) {
 			return array_values( (array) $apps );
+		}
+
+		if ( empty( $state['dockApps'] ) || ! is_array( $state['dockApps'] ) ) {
+			return $this->order_fixed_dock_apps_last( $apps );
 		}
 
 		$by_id   = array();
 		$ordered = array();
+		$fixed   = array();
 
 		foreach ( (array) $apps as $app ) {
 			if ( ! is_array( $app ) || empty( $app['id'] ) ) {
+				continue;
+			}
+
+			if ( $this->is_fixed_dock_app( $app ) ) {
+				$fixed[] = $app;
 				continue;
 			}
 
@@ -204,7 +214,28 @@ final class WP_AdminOS_Workspace_State {
 			}
 		}
 
-		return $ordered;
+		return array_merge( $ordered, $fixed );
+	}
+
+	/**
+	 * Move fixed Dock apps to the end while preserving relative order.
+	 *
+	 * @param array<int,array<string,mixed>> $apps Apps.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function order_fixed_dock_apps_last( $apps ) {
+		$regular = array();
+		$fixed   = array();
+
+		foreach ( (array) $apps as $app ) {
+			if ( is_array( $app ) && $this->is_fixed_dock_app( $app ) ) {
+				$fixed[] = $app;
+			} else {
+				$regular[] = $app;
+			}
+		}
+
+		return array_merge( $regular, $fixed );
 	}
 
 	/**
@@ -420,12 +451,13 @@ final class WP_AdminOS_Workspace_State {
 	 */
 	private function sanitize_dock_apps( $dock_apps, $apps ) {
 		$available = $this->get_available_ids( $apps );
+		$fixed     = $this->get_fixed_dock_app_ids( $apps );
 		$sanitized = array();
 		$seen      = array();
 
 		foreach ( is_array( $dock_apps ) ? $dock_apps : array() as $app_id ) {
 			$app_id = sanitize_key( (string) $app_id );
-			if ( '' === $app_id || isset( $seen[ $app_id ] ) || ! $this->is_allowed_app_id( $app_id, $available ) ) {
+			if ( '' === $app_id || isset( $seen[ $app_id ] ) || isset( $fixed[ $app_id ] ) || ! $this->is_allowed_app_id( $app_id, $available ) ) {
 				continue;
 			}
 
@@ -438,6 +470,39 @@ final class WP_AdminOS_Workspace_State {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Get IDs for fixed Dock apps.
+	 *
+	 * @param array<int,array<string,mixed>> $apps Apps.
+	 * @return array<string,bool>
+	 */
+	private function get_fixed_dock_app_ids( $apps ) {
+		$fixed = array();
+
+		foreach ( (array) $apps as $app ) {
+			if ( ! is_array( $app ) || empty( $app['id'] ) || ! $this->is_fixed_dock_app( $app ) ) {
+				continue;
+			}
+
+			$fixed[ sanitize_key( (string) $app['id'] ) ] = true;
+		}
+
+		return $fixed;
+	}
+
+	/**
+	 * Determine whether an app has a fixed Dock placement.
+	 *
+	 * @param array<string,mixed> $app App data.
+	 * @return bool
+	 */
+	private function is_fixed_dock_app( $app ) {
+		return is_array( $app )
+			&& ! empty( $app['dock'] )
+			&& is_array( $app['dock'] )
+			&& ! empty( $app['dock']['fixed'] );
 	}
 
 	/**

@@ -137,11 +137,18 @@
 
 .aos-dock-minimized-windows {
 	align-items: center;
-	border-left: 1px solid var(--aos-dock-separator, var(--aos-dock-border));
 	display: flex;
 	gap: 8px;
-	margin-left: 5px;
-	padding-left: 10px;
+}
+
+.aos-dock-separator {
+	background: var(--aos-dock-separator, var(--aos-dock-border));
+	border-radius: 999px;
+	flex: 0 0 1px;
+	height: calc(var(--aos-dock-item-size, 48px) * 0.72);
+	margin: 0 2px;
+	opacity: 0.9;
+	pointer-events: none;
 }
 
 .aos-dock-window-item {
@@ -211,6 +218,14 @@
 	left: auto;
 	right: var(--aos-dock-screen-edge, 18px);
 	transform: translateY(-50%) translateX(0);
+}
+
+.aos-shell[data-aos-dock-position="left"] .aos-dock-separator,
+.aos-shell[data-aos-dock-position="right"] .aos-dock-separator {
+	flex-basis: 1px;
+	height: 1px;
+	margin: 2px 0;
+	width: calc(var(--aos-dock-item-size, 48px) * 0.72);
 }
 
 .aos-shell[data-aos-dock-position="left"] .aos-dock-item:hover,

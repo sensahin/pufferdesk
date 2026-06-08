@@ -26,6 +26,11 @@
 					return;
 				}
 
+				if (isFixedDockApp(app)) {
+					normalized[app.id] = 'dock';
+					return;
+				}
+
 				const location = typeof locations[app.id] === 'string' ? locations[app.id] : 'dock';
 				normalized[app.id] = allowedLocations.includes(location) ? location : 'dock';
 			});
@@ -47,9 +52,17 @@
 		}
 
 		function appIsShownIn(app, surface, locations = normalizeLocations(config.appLocations || {})) {
+			if (isFixedDockApp(app)) {
+				return surface === 'dock';
+			}
+
 			const location = app && app.id ? locations[app.id] || 'dock' : 'dock';
 
 			return location === 'both' || location === surface;
+		}
+
+		function isFixedDockApp(app) {
+			return Boolean(app && app.dock && typeof app.dock === 'object' && app.dock.fixed === true);
 		}
 
 		function normalizeAppBadge(app) {
@@ -100,20 +113,31 @@
 			return element;
 		}
 
-		function createDockAppButton(app) {
+		function createDockSeparator() {
+			const separator = dom.createElement('span', 'aos-dock-separator');
+			separator.setAttribute('aria-hidden', 'true');
+
+			return separator;
+		}
+
+		function createDockAppButton(app, options = {}) {
 			const button = document.createElement('button');
 			const label = getAppLabel(app);
 			const tooltip = dom.createElement('span', 'aos-dock-tooltip', label);
 			const screenReaderText = dom.createElement('span', 'screen-reader-text', label);
 			const badge = createAppBadge(app);
+			const fixed = options.fixed === true || isFixedDockApp(app);
 
 			button.type = 'button';
-			button.className = 'aos-dock-item';
+			button.className = fixed ? 'aos-dock-item aos-dock-fixed-item' : 'aos-dock-item';
 			button.dataset.aosContext = 'dock-app';
 			button.dataset.aosContextId = app.id;
 			button.dataset.aosContextLabel = label;
 			button.dataset.aosDockTooltip = label;
 			button.dataset.aosOpenApp = app.id;
+			if (fixed) {
+				button.dataset.aosDockFixed = app.dock && app.dock.placement ? app.dock.placement : 'end';
+			}
 			button.draggable = false;
 			button.setAttribute('aria-label', getAppButtonLabel(app));
 			button.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
@@ -198,18 +222,28 @@
 			if (dock) {
 				const minimizedWindows = dock.querySelector('.aos-dock-minimized-windows');
 				const dockApps = apps.filter((app) => appIsShownIn(app, 'dock', normalizedLocations));
+				const fixedDockApps = dockApps.filter(isFixedDockApp);
+				const regularDockApps = dockApps.filter((app) => !isFixedDockApp(app));
 				const orderedDockApps = window.WPAdminOS.desktopDock && typeof window.WPAdminOS.desktopDock.orderApps === 'function'
-					? window.WPAdminOS.desktopDock.orderApps(dockApps, config)
-					: dockApps;
+					? window.WPAdminOS.desktopDock.orderApps(regularDockApps, config)
+					: regularDockApps;
 
 				Array.from(dock.children).forEach((child) => {
-					if (child.classList && child.classList.contains('aos-dock-item')) {
+					if (child.classList && (child.classList.contains('aos-dock-item') || child.classList.contains('aos-dock-separator'))) {
 						child.remove();
 					}
 				});
 				orderedDockApps.forEach((app) => {
 					dock.insertBefore(createDockAppButton(app), minimizedWindows || null);
 				});
+				if (fixedDockApps.length) {
+					dock.insertBefore(createDockSeparator(), minimizedWindows || null);
+					fixedDockApps.forEach((app) => {
+						dock.appendChild(createDockAppButton(app, {
+							fixed: true
+						}));
+					});
+				}
 				syncRunningDockItems();
 			}
 
@@ -252,6 +286,7 @@
 			appIsShownIn,
 			createDesktopAppButton,
 			createDockAppButton,
+			isFixedDockApp,
 			normalizeLocations,
 			render,
 			syncRunningDockItems

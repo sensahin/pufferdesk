@@ -124,6 +124,7 @@ Apps:
 - Apps derived from WordPress top-level admin menu items should inherit the menu item's capability so dock, desktop, launcher, and native admin visibility stay aligned.
 - Apps may define `window_persistence` as `workspace` or `none`. Use `workspace` for stable app windows that should reopen with the workspace, and `none` for transient/helper surfaces.
 - Apps may define a normalized `badge` with `text`, optional `count`, `tone`, and `aria_label`; WordPress menu count spans are extracted into this shape for top-level menu apps.
+- Apps may define Dock metadata such as `dock.fixed` and `dock.placement` for system Dock slots. Generic controllers must respect fixed metadata for visibility, ordering, dragging, persistence, and menu options; do not let fixed shell items inherit ordinary app controls unless those actions are explicitly supported.
 - Apps may define reusable `about` metadata with `name`, `version`, `copyright`, `rights`, and `icon`; do not hard-code app-specific about windows.
 - About metadata must stay GPL-compatible for WordPress distribution. Do not use "All rights reserved" defaults in plugin UI.
 - App-specific top menu behavior belongs in the app's `menu` definition, not in hard-coded menu bar conditionals.
@@ -357,6 +358,20 @@ When adding a feature, decide where it belongs:
 - New image/icon/wallpaper assets belong in `assets/media/`.
 
 Prefer data-driven registration over hard-coded conditionals. If future OS families or versions will need to change something, make it a registry field, theme field, template override, or scoped CSS variable.
+
+## Feature Integration Checklist
+
+Before treating a new feature, UI behavior, setting, app, widget, menu item, or persistence change as finished, check the affected system from all relevant angles. If an item does not apply, no code is needed; make that decision intentionally instead of ignoring the area.
+
+- Existing patterns: search for equivalent or adjacent implementations first, then reuse, extend, or refactor the existing registry, template, command, menu, selection, dialog, or state contract.
+- Themeability: decide whether the change belongs in core structure or theme skin. Use theme metadata, template overrides, CSS variables, and scoped theme CSS when future OS families may need a different presentation.
+- Visual adaptiveness: verify dark/light mode, accent colors, material styles, typography tokens, responsive layouts, hover/pressed/selected/disabled states, and high-contrast or reduced-motion implications where relevant.
+- Surface alignment: check whether related desktop, Dock, windows, folders, widgets, menus, context menus, dialogs, Settings panels, search, launcher, and toolbar surfaces need matching UI or behavior updates.
+- Runtime labels and i18n: move user-facing or theme-family-specific labels into PHP/runtime config or translation paths when they may vary by locale, theme, or shell vocabulary.
+- State and persistence: decide whether the feature needs per-user, per-site, per-theme, or per-session state. Use the existing workspace sections, user preferences, revision/conflict handling, and browser sync patterns instead of overwriting broad state blobs.
+- Reset and erase flows: check whether Reset Layout, erase content/settings, default state, reopen policy, fresh shell load, multi-browser reloads, and stale saved data need updates.
+- Permissions and WordPress safety: verify capabilities, nonces, sanitization, escaping, admin routing, Classic Admin fallback, and iframe/classic compatibility for any privileged or state-changing path.
+- Extension contracts and docs: update registries, filters, public data shapes, `AGENTS.md`, README, build scripts, source manifests, and generated assets when the feature changes a contract or release surface.
 
 ## Cleanup Standard
 

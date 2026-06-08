@@ -423,6 +423,10 @@ final class WP_AdminOS_User_Preferences {
 					$id       = sanitize_key( (string) $app['id'] );
 					$location = isset( $app_locations[ $id ] ) ? $app_locations[ $id ] : 'dock';
 
+					if ( $this->is_fixed_dock_app( $app ) ) {
+						return 'dock' === $surface;
+					}
+
 					return 'both' === $location || $surface === $location;
 				}
 			)
@@ -740,6 +744,9 @@ final class WP_AdminOS_User_Preferences {
 			if ( ! in_array( $location, $this->app_location_options, true ) ) {
 				$location = 'dock';
 			}
+			if ( $this->is_fixed_dock_app( $app ) ) {
+				$location = 'dock';
+			}
 
 			$sanitized[ $id ] = $location;
 		}
@@ -757,6 +764,19 @@ final class WP_AdminOS_User_Preferences {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Determine whether an app has a fixed Dock placement.
+	 *
+	 * @param array<string,mixed> $app App data.
+	 * @return bool
+	 */
+	private function is_fixed_dock_app( $app ) {
+		return is_array( $app )
+			&& ! empty( $app['dock'] )
+			&& is_array( $app['dock'] )
+			&& ! empty( $app['dock']['fixed'] );
 	}
 
 	/**

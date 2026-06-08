@@ -80,6 +80,10 @@
 			};
 		}
 
+		function isFixedDockApp(app) {
+			return Boolean(app && app.dock && typeof app.dock === 'object' && app.dock.fixed === true);
+		}
+
 		function sortByItem(label, mode) {
 			const active = getDesktopSortMode() === mode;
 
@@ -212,6 +216,15 @@
 				return [];
 			}
 
+			if (app.id === 'trash') {
+				return [
+					commandItem('Open', 'open-app', {
+						target: app.id
+					}),
+					commandItem(getLabel('empty_trash', 'Empty Trash'), 'trash.empty')
+				];
+			}
+
 			const state = getAppWindowState(app.id);
 			const items = [];
 
@@ -237,11 +250,9 @@
 				}));
 			}
 
-			if (app.id === 'trash') {
-				items.push(commandItem(getLabel('empty_trash', 'Empty Trash'), 'trash.empty'));
+			if (!isFixedDockApp(app)) {
+				items.push(getDockOptionsItem(app, state));
 			}
-
-			items.push(getDockOptionsItem(app, state));
 
 			items.push(
 				separator(),

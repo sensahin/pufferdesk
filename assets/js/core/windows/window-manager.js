@@ -492,16 +492,23 @@
 			}
 		}
 
+		function getDockFixedEndItem() {
+			return dock ? dock.querySelector('.aos-dock-item[data-aos-dock-fixed="end"]') : null;
+		}
+
 		function getMinimizedDockContainer() {
 			if (!dock) {
 				return null;
 			}
 
+			const fixedEndItem = getDockFixedEndItem();
 			let container = dock.querySelector('.aos-dock-minimized-windows');
 			if (!container) {
 				container = document.createElement('span');
 				container.className = 'aos-dock-minimized-windows';
-				dock.appendChild(container);
+				dock.insertBefore(container, fixedEndItem || null);
+			} else if (fixedEndItem && container.nextElementSibling !== fixedEndItem) {
+				dock.insertBefore(container, fixedEndItem);
 			}
 
 			return container;

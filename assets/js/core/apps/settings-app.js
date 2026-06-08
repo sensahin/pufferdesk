@@ -1046,7 +1046,7 @@
 			const section = createSection('', 'aos-settings-list aos-settings-app-location-list');
 
 			apps.forEach((app) => {
-				if (app && app.id) {
+				if (app && app.id && !(app.dock && typeof app.dock === 'object' && app.dock.fixed === true)) {
 					section.appendChild(createAppLocationRow(app, status));
 				}
 			});
