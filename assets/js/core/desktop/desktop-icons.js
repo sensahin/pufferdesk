@@ -983,7 +983,17 @@
 			scheduleSave();
 		}
 
+		function handleWorkspaceStateChanged(event) {
+			const detail = event && event.detail && typeof event.detail === 'object' ? event.detail : {};
+			if (!options.storageKey || detail.storageKey !== options.storageKey || restoreInProgress) {
+				return;
+			}
+
+			restoreSession();
+		}
+
 		window.addEventListener('beforeunload', saveSession);
+		window.addEventListener('wpAdminOS:workspace-state-changed', handleWorkspaceStateChanged);
 		window.addEventListener('resize', () => {
 			window.clearTimeout(saveTimer);
 			saveTimer = window.setTimeout(clampToDesktop, 160);

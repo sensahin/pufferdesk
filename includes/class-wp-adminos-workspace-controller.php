@@ -106,16 +106,36 @@ final class WP_AdminOS_Workspace_Controller {
 	public function save_state() {
 		$this->authorize();
 
-		$theme_id = $this->get_request_theme_id();
-		$context  = $this->get_workspace_context();
-		$payload  = $this->read_json_payload( 'state' );
-		$state    = $this->workspace_state->set_state(
+		$theme_id            = $this->get_request_theme_id();
+		$context             = $this->get_workspace_context();
+		$payload             = $this->read_json_payload( 'state' );
+		$expected_updated_at = $this->read_timestamp_value( 'expected_updated_at' );
+		$state               = $this->workspace_state->set_state(
 			$theme_id,
 			is_array( $payload ) ? $payload : array(),
 			$context['apps'],
 			$context['widgets'],
-			$context['folders']
+			$context['folders'],
+			0,
+			$expected_updated_at
 		);
+
+		if ( is_wp_error( $state ) ) {
+			$error_data = $state->get_error_data();
+			$status     = is_array( $error_data ) && ! empty( $error_data['status'] ) ? absint( $error_data['status'] ) : 400;
+
+			wp_send_json_error(
+				array(
+					'conflict'            => 'wp_adminos_workspace_conflict' === $state->get_error_code(),
+					'currentUpdatedAt'    => is_array( $error_data ) && isset( $error_data['current_updated_at'] ) ? absint( $error_data['current_updated_at'] ) : 0,
+					'message'             => $state->get_error_message(),
+					'workspaceState'      => is_array( $error_data ) && isset( $error_data['workspace_state'] ) && is_array( $error_data['workspace_state'] )
+						? $error_data['workspace_state']
+						: $this->workspace_state->get_state( $theme_id, $context['apps'], $context['widgets'], $context['folders'] ),
+				),
+				$status
+			);
+		}
 
 		wp_send_json_success(
 			array(
@@ -222,6 +242,21 @@ final class WP_AdminOS_Workspace_Controller {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- AJAX handlers verify the settings nonce before calling this helper.
 		return sanitize_text_field( wp_unslash( $_POST[ $key ] ) );
+	}
+
+	/**
+	 * Read a JavaScript millisecond timestamp from POST.
+	 *
+	 * @param string $key POST key.
+	 * @return int
+	 */
+	private function read_timestamp_value( $key ) {
+		$value = $this->read_post_value( $key );
+		if ( '' === $value || ! is_numeric( $value ) ) {
+			return 0;
+		}
+
+		return max( 0, min( PHP_INT_MAX, (int) round( (float) $value ) ) );
 	}
 
 	/**

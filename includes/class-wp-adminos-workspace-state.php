@@ -40,15 +40,29 @@ final class WP_AdminOS_Workspace_State {
 	 * @param array<int,array<string,mixed>> $widgets Available widgets.
 	 * @param array<int,array<string,mixed>> $folders Available folders.
 	 * @param int                            $user_id Optional user ID.
-	 * @return array<string,mixed>
+	 * @param int                            $expected_updated_at Last server revision known to the client.
+	 * @return array<string,mixed>|WP_Error
 	 */
-	public function set_state( $theme_id, $state, $apps, $widgets, $folders = array(), $user_id = 0 ) {
-		$user_id = $user_id ? (int) $user_id : get_current_user_id();
-		$state   = $this->sanitize_state( is_array( $state ) ? $state : array(), $apps, $widgets, $folders );
+	public function set_state( $theme_id, $state, $apps, $widgets, $folders = array(), $user_id = 0, $expected_updated_at = 0 ) {
+		$user_id             = $user_id ? (int) $user_id : get_current_user_id();
+		$current_state       = $this->get_state( $theme_id, $apps, $widgets, $folders, $user_id );
+		$current_updated_at  = $this->sanitize_timestamp( isset( $current_state['updatedAt'] ) ? $current_state['updatedAt'] : 0 );
+		$expected_updated_at = $this->sanitize_timestamp( $expected_updated_at );
 
-		if ( empty( $state['updatedAt'] ) ) {
-			$state['updatedAt'] = $this->now_milliseconds();
+		if ( $expected_updated_at < $current_updated_at ) {
+			return new WP_Error(
+				'wp_adminos_workspace_conflict',
+				__( 'Workspace layout changed in another browser window. The latest layout was kept.', 'wp-adminos' ),
+				array(
+					'current_updated_at' => $current_updated_at,
+					'status'             => 409,
+					'workspace_state'    => $current_state,
+				)
+			);
 		}
+
+		$state              = $this->sanitize_state( is_array( $state ) ? $state : array(), $apps, $widgets, $folders );
+		$state['updatedAt'] = max( $this->now_milliseconds(), $current_updated_at + 1 );
 
 		update_user_meta( $user_id, $this->get_meta_key( $theme_id ), $state );
 
@@ -123,7 +137,7 @@ final class WP_AdminOS_Workspace_State {
 		return array(
 			'version'      => self::VERSION,
 			'updatedAt'    => isset( $state['updatedAt'] ) ? $this->sanitize_timestamp( $state['updatedAt'] ) : $default['updatedAt'],
-			'windows'      => $this->sanitize_windows( isset( $state['windows'] ) ? $state['windows'] : array(), $apps ),
+			'windows'      => $this->sanitize_windows( isset( $state['windows'] ) ? $state['windows'] : array(), $apps, $folders ),
 			'widgets'      => $this->sanitize_widgets( isset( $state['widgets'] ) ? $state['widgets'] : array(), $widgets ),
 			'desktopIcons' => $this->sanitize_desktop_icons( isset( $state['desktopIcons'] ) ? $state['desktopIcons'] : array(), $apps, $folders ),
 			'desktopSort'  => $this->sanitize_desktop_sort( isset( $state['desktopSort'] ) ? $state['desktopSort'] : array() ),
@@ -149,36 +163,54 @@ final class WP_AdminOS_Workspace_State {
 	 *
 	 * @param mixed                          $windows Raw window records.
 	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param array<int,array<string,mixed>> $folders Available folders.
 	 * @return array<int,array<string,mixed>>
 	 */
-	private function sanitize_windows( $windows, $apps ) {
-		$available = $this->get_available_ids( $apps );
-		$sanitized = array();
+	private function sanitize_windows( $windows, $apps, $folders = array() ) {
+		$available_apps    = $this->get_available_ids( $apps );
+		$available_folders = $this->get_available_ids( $folders );
+		$sanitized         = array();
 
 		foreach ( is_array( $windows ) ? $windows : array() as $window ) {
 			if ( ! is_array( $window ) ) {
 				continue;
 			}
 
-			$app_id = isset( $window['appId'] ) ? sanitize_key( (string) $window['appId'] ) : '';
-			if ( ! $this->is_allowed_app_id( $app_id, $available ) ) {
-				continue;
-			}
-
-			$sanitized[] = array(
-				'kind'  => 'app',
-				'appId' => $app_id,
-				'state' => $this->sanitize_rect_state(
-					isset( $window['state'] ) && is_array( $window['state'] ) ? $window['state'] : array(),
-					array(
-						'min_width'  => 240,
-						'min_height' => 160,
-						'z_index'    => true,
-						'closed'     => true,
-						'maximized'  => true,
-					)
-				),
+			$kind      = isset( $window['kind'] ) ? sanitize_key( (string) $window['kind'] ) : 'app';
+			$app_id    = isset( $window['appId'] ) ? sanitize_key( (string) $window['appId'] ) : '';
+			$folder_id = isset( $window['folderId'] ) ? sanitize_key( (string) $window['folderId'] ) : '';
+			$state     = $this->sanitize_rect_state(
+				isset( $window['state'] ) && is_array( $window['state'] ) ? $window['state'] : array(),
+				array(
+					'min_width'  => 240,
+					'min_height' => 160,
+					'z_index'    => true,
+					'closed'     => true,
+					'maximized'  => true,
+				)
 			);
+
+			if ( 'folder' === $kind ) {
+				if ( ! $this->is_allowed_folder_id( $folder_id, $available_folders ) ) {
+					continue;
+				}
+
+				$sanitized[] = array(
+					'kind'     => 'folder',
+					'folderId' => $folder_id,
+					'state'    => $state,
+				);
+			} else {
+				if ( ! $this->is_allowed_app_id( $app_id, $available_apps ) ) {
+					continue;
+				}
+
+				$sanitized[] = array(
+					'kind'  => 'app',
+					'appId' => $app_id,
+					'state' => $state,
+				);
+			}
 
 			if ( count( $sanitized ) >= 80 ) {
 				break;

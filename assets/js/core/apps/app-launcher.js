@@ -114,6 +114,10 @@
 				menu: app.menu || null
 			};
 
+			if (app.window_persistence === 'none') {
+				options.persist = false;
+			}
+
 			if (app.kind === 'native') {
 				return getNativeAppWindowOptions(app, options);
 			}
@@ -802,7 +806,7 @@
 			return true;
 		}
 
-		function openFolder(folderId) {
+		function openFolder(folderId, options = {}) {
 			const folder = getFolder(folderId);
 			const folderTitle = getFolderTitle(folder);
 			const existing = getFolderWindow(folderId);
@@ -813,9 +817,15 @@
 
 			if (existing) {
 				renderFolderWindow(existing, folderId, {
-					replaceHistory: true
+					replaceHistory: true,
+					touch: options.touch
 				});
-				manager.focusWindow(existing);
+				if (options.state && typeof manager.applyWindowState === 'function') {
+					manager.applyWindowState(existing, options.state);
+				}
+				if (options.skipFocus !== true) {
+					manager.focusWindow(existing);
+				}
 				return existing;
 			}
 
@@ -826,23 +836,28 @@
 				content: placeholder,
 				bodyClass: 'aos-window-body aos-folder-body aos-finder-body',
 				windowKind: 'folder',
+				state: options.state || null,
+				skipFocus: options.skipFocus === true,
 				width: '1020px',
 				height: '540px'
 			});
 
 			if (win) {
 				renderFolderWindow(win, folderId, {
-					resetHistory: true
+					resetHistory: true,
+					touch: options.touch
 				});
-				addRecentItem({
-					command: 'open-folder',
-					icon: folder && folder.icon ? folder.icon : 'dashicons-admin-generic',
-					id: folderId,
-					label: folderTitle,
-					target: folderId,
-					title: folderTitle,
-					type: 'folder'
-				});
+				if (options.recordRecent !== false) {
+					addRecentItem({
+						command: 'open-folder',
+						icon: folder && folder.icon ? folder.icon : 'dashicons-admin-generic',
+						id: folderId,
+						label: folderTitle,
+						target: folderId,
+						title: folderTitle,
+						type: 'folder'
+					});
+				}
 			}
 
 			return win;

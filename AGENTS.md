@@ -121,6 +121,7 @@ Apps:
 - Apps should define `id`, `label`, `cap`, `group`, `icon`, and either iframe data (`url`) or native data (`kind => native`, `native`).
 - App `cap` values are normalized as WordPress capability keys and default to `read` when missing, empty, or non-scalar. Use `read` only for current-user shell features; privileged WordPress screens or actions must use their exact WordPress capability.
 - Apps derived from WordPress top-level admin menu items should inherit the menu item's capability so dock, desktop, launcher, and native admin visibility stay aligned.
+- Apps may define `window_persistence` as `workspace` or `none`. Use `workspace` for stable app windows that should reopen with the workspace, and `none` for transient/helper surfaces.
 - Apps may define a normalized `badge` with `text`, optional `count`, `tone`, and `aria_label`; WordPress menu count spans are extracted into this shape for top-level menu apps.
 - Apps may define reusable `about` metadata with `name`, `version`, `copyright`, `rights`, and `icon`; do not hard-code app-specific about windows.
 - About metadata must stay GPL-compatible for WordPress distribution. Do not use "All rights reserved" defaults in plugin UI.
@@ -200,9 +201,12 @@ Icons:
 
 Session:
 
-- Use `assets/js/core/session/session-store.js` for persisted shell layout. It should treat WordPress user meta, via `WP_AdminOS_Workspace_State`, as durable state and browser `localStorage` as cache/fallback only.
+- Use `assets/js/core/session/session-store.js` for persisted shell layout. It should treat WordPress user meta, via `WP_AdminOS_Workspace_State`, as durable state and browser `localStorage` as cache only.
 - Use `assets/js/core/session/reopen-policy.js` for one-time shell reopen behavior; do not clear stored layout just to skip reopening windows for one transition.
 - Store layout by named section, such as `windows`, `widgets`, `desktopIcons`, `desktopSort`, and `recentItems`.
+- The `windows` section may persist stable `app` and `folder` window records. Keep transient windows such as About, info panels, dialogs, and one-off document helpers out of workspace restoration.
+- Workspace saves must include the last accepted server `updatedAt` revision and must not silently overwrite newer server state. Conflict responses should adopt or merge the newer server state.
+- Same-browser workspace sync may use `BroadcastChannel`; do not imply cross-browser live sync unless a remote polling or push mechanism exists.
 - Do not overwrite the whole session blob from one module.
 - New desktop object types should add their own section instead of hijacking `windows` or `widgets`.
 - Keep workspace state scoped by site, user, and theme. Theme-specific layouts are expected because OS families can use different shell geometry.

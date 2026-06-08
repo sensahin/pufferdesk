@@ -917,17 +917,31 @@
 		function serializeWindows() {
 			const windows = [];
 
-			desktop.querySelectorAll('[data-aos-app-window]').forEach((win) => {
-				const appId = win.dataset.aosAppWindow;
-				if (!appId || win.dataset.aosPersist === '0') {
+			desktop.querySelectorAll('.aos-window').forEach((win) => {
+				if (win.dataset.aosPersist === '0') {
 					return;
 				}
 
-				windows.push({
-					kind: 'app',
-					appId,
-					state: readWindowState(win)
-				});
+				if (win.dataset.aosWindowKind === 'folder') {
+					const folderId = win.dataset.aosFolderWindow;
+					if (folderId) {
+						windows.push({
+							kind: 'folder',
+							folderId,
+							state: readWindowState(win)
+						});
+					}
+					return;
+				}
+
+				const appId = win.dataset.aosAppWindow;
+				if (appId) {
+					windows.push({
+						kind: 'app',
+						appId,
+						state: readWindowState(win)
+					});
+				}
 			});
 
 			return windows;
@@ -1085,7 +1099,19 @@
 			});
 		}
 
-		function restoreSession(appResolver) {
+		function getAppRestoreOptions(resolver, appId) {
+			if (typeof resolver === 'function') {
+				return resolver(appId);
+			}
+
+			if (resolver && typeof resolver.getAppOptions === 'function') {
+				return resolver.getAppOptions(appId);
+			}
+
+			return null;
+		}
+
+		function restoreSession(resolver) {
 			const windows = sessionStore.getSection('windows', []);
 			if (!Array.isArray(windows)) {
 				return;
@@ -1098,11 +1124,23 @@
 					return;
 				}
 
-				if (item.kind !== 'app' || !item.appId || typeof appResolver !== 'function') {
+				if (item.kind === 'folder') {
+					if (item.folderId && resolver && typeof resolver.openFolder === 'function') {
+						resolver.openFolder(item.folderId, {
+							recordRecent: false,
+							skipFocus: true,
+							state: item.state,
+							touch: false
+						});
+					}
 					return;
 				}
 
-				const appOptions = appResolver(item.appId);
+				if (item.kind !== 'app' || !item.appId) {
+					return;
+				}
+
+				const appOptions = getAppRestoreOptions(resolver, item.appId);
 				if (!appOptions) {
 					return;
 				}
@@ -1148,6 +1186,7 @@
 		window.addEventListener('beforeunload', saveSession);
 
 		return {
+			applyWindowState,
 			bindExistingWindows,
 			closeWindow,
 			createWindow,

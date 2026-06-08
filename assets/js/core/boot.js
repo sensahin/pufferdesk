@@ -140,7 +140,10 @@
 		widgetManager.restoreSession();
 		manager.bindExistingWindows();
 		if (!manager.isPreservingStoredWindows()) {
-			manager.restoreSession((appId) => launcher.getWindowOptions(appId));
+			manager.restoreSession({
+				getAppOptions: (appId) => launcher.getWindowOptions(appId),
+				openFolder: (folderId, restoreOptions) => launcher.openFolder(folderId, restoreOptions)
+			});
 		}
 		(Array.isArray(config.appLoginItems) ? config.appLoginItems : []).forEach((appId) => {
 			if (typeof appId === 'string' && appId && typeof launcher.openApp === 'function') {

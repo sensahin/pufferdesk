@@ -166,7 +166,8 @@ final class WP_AdminOS_App_Registry {
 		/**
 		 * Filter the shell app registry.
 		 *
-		 * Each app accepts id, label, url, icon, group, cap, kind, native, and menu.
+		 * Each app accepts id, label, url, icon, group, cap, kind, native,
+		 * window_persistence, and menu.
 		 * Missing, empty, or non-scalar cap values default to read during normalization.
 		 * Icons may be a Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-admin-post' )
@@ -1272,11 +1273,12 @@ final class WP_AdminOS_App_Registry {
 				continue;
 			}
 
-			$id    = sanitize_key( $app['id'] );
-			$label = sanitize_text_field( $app['label'] );
-			$icon  = isset( $app['icon'] ) ? WP_AdminOS_Icon_Renderer::normalize( $app['icon'] ) : WP_AdminOS_Icon_Renderer::normalize( 'dashicons-admin-generic' );
-			$group = isset( $app['group'] ) ? sanitize_key( $app['group'] ) : 'system';
-			$kind  = isset( $app['kind'] ) ? sanitize_key( $app['kind'] ) : 'iframe';
+			$id                 = sanitize_key( $app['id'] );
+			$label              = sanitize_text_field( $app['label'] );
+			$icon               = isset( $app['icon'] ) ? WP_AdminOS_Icon_Renderer::normalize( $app['icon'] ) : WP_AdminOS_Icon_Renderer::normalize( 'dashicons-admin-generic' );
+			$group              = isset( $app['group'] ) ? sanitize_key( $app['group'] ) : 'system';
+			$kind               = isset( $app['kind'] ) ? sanitize_key( $app['kind'] ) : 'iframe';
+			$window_persistence = isset( $app['window_persistence'] ) ? sanitize_key( (string) $app['window_persistence'] ) : 'workspace';
 			if ( '' === $id || '' === $label ) {
 				continue;
 			}
@@ -1285,6 +1287,9 @@ final class WP_AdminOS_App_Registry {
 			}
 			if ( ! in_array( $kind, array( 'iframe', 'native' ), true ) ) {
 				$kind = 'iframe';
+			}
+			if ( ! in_array( $window_persistence, array( 'workspace', 'none' ), true ) ) {
+				$window_persistence = 'workspace';
 			}
 
 			$url    = isset( $app['url'] ) ? esc_url_raw( $app['url'] ) : '';
@@ -1311,16 +1316,17 @@ final class WP_AdminOS_App_Registry {
 			}
 
 			$normalized_app = array(
-				'id'     => $id,
-				'label'  => $label,
-				'url'    => $url,
-				'icon'   => $icon,
-				'about'  => $this->normalize_about( isset( $app['about'] ) ? $app['about'] : array(), $label, $icon ),
-				'group'  => $group,
-				'cap'    => $cap,
-				'kind'   => $kind,
-				'native' => $native,
-				'menu'   => $this->normalize_menu_definition( isset( $app['menu'] ) ? $app['menu'] : array(), $label ),
+				'id'                 => $id,
+				'label'              => $label,
+				'url'                => $url,
+				'icon'               => $icon,
+				'about'              => $this->normalize_about( isset( $app['about'] ) ? $app['about'] : array(), $label, $icon ),
+				'group'              => $group,
+				'cap'                => $cap,
+				'kind'               => $kind,
+				'native'             => $native,
+				'window_persistence' => $window_persistence,
+				'menu'               => $this->normalize_menu_definition( isset( $app['menu'] ) ? $app['menu'] : array(), $label ),
 			);
 
 			if ( ! empty( $badge ) ) {
