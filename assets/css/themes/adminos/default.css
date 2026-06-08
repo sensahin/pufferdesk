@@ -200,11 +200,15 @@
 	--aos-card-border: var(--aos-material-card-border);
 	--aos-card-shadow: var(--aos-material-card-shadow);
 	--aos-dock-bg: var(--aos-material-clear-bg);
-	--aos-dock-glass-bg: linear-gradient(180deg, rgba(184, 235, 244, 0.34), rgba(75, 187, 211, 0.26));
-	--aos-dock-border: rgba(216, 250, 255, 0.38);
-	--aos-dock-bottom-border: transparent;
+	--aos-dock-glass-bg:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.12) 42%, rgba(255, 255, 255, 0.06)),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.025) 18%, rgba(255, 255, 255, 0.025) 82%, rgba(255, 255, 255, 0.1)),
+		rgba(255, 255, 255, 0.055);
+	--aos-dock-glass-filter: blur(18px) saturate(190%) brightness(1.12) contrast(1.02);
+	--aos-dock-border: rgba(255, 255, 255, 0.46);
+	--aos-dock-bottom-border: rgba(255, 255, 255, 0.16);
 	--aos-dock-separator: rgba(220, 249, 255, 0.32);
-	--aos-dock-shadow: 0 1px 0 rgba(255, 255, 255, 0.22) inset;
+	--aos-dock-shadow: 0 18px 42px rgba(8, 28, 42, 0.14), 0 1px 0 rgba(255, 255, 255, 0.58) inset, 0 -1px 0 rgba(255, 255, 255, 0.14) inset, 1px 0 0 rgba(255, 255, 255, 0.18) inset, -1px 0 0 rgba(255, 255, 255, 0.12) inset;
 	--aos-dock-screen-edge: 18px;
 	--aos-dock-tooltip-bg: rgba(203, 239, 247, 0.92);
 	--aos-dock-tooltip-border: transparent;
@@ -665,15 +669,17 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-dock {
-	-webkit-backdrop-filter: var(--aos-material-clear-filter);
-	backdrop-filter: var(--aos-material-clear-filter);
+	-webkit-backdrop-filter: var(--aos-dock-glass-filter, var(--aos-material-clear-filter));
+	backdrop-filter: var(--aos-dock-glass-filter, var(--aos-material-clear-filter));
 	background: var(--aos-dock-glass-bg, var(--aos-dock-bg));
+	background-clip: padding-box;
 	border-color: var(--aos-dock-border);
 	border-bottom-color: var(--aos-dock-bottom-border, var(--aos-dock-border));
 	border-radius: clamp(18px, calc(var(--aos-dock-item-size, 54px) * 0.4), 30px);
 	bottom: 13px;
 	box-shadow: var(--aos-dock-shadow);
 	gap: 7px;
+	isolation: isolate;
 	max-width: calc(100% - 40px);
 	overflow: visible;
 	padding: 5px 8px;
@@ -686,12 +692,12 @@
 
 .aos-shell[data-aos-theme="adminos"] .aos-dock::before {
 	background:
-		linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08) 42%, rgba(255, 255, 255, 0)),
-		linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04) 16%, rgba(255, 255, 255, 0.04) 84%, rgba(255, 255, 255, 0.16));
+		linear-gradient(180deg, rgba(255, 255, 255, 0.56), rgba(255, 255, 255, 0.14) 18%, rgba(255, 255, 255, 0) 46%),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.035) 16%, transparent 50%, rgba(255, 255, 255, 0.035) 84%, rgba(255, 255, 255, 0.2));
 	border-radius: inherit;
 	content: "";
 	inset: 0;
-	opacity: 0.78;
+	opacity: 0.42;
 	pointer-events: none;
 	position: absolute;
 	z-index: 0;
@@ -1169,11 +1175,15 @@
 	--aos-card-border: var(--aos-material-card-border);
 	--aos-card-shadow: var(--aos-material-card-shadow);
 	--aos-dock-bg: var(--aos-material-clear-bg);
-	--aos-dock-glass-bg: linear-gradient(180deg, rgba(23, 145, 170, 0.52), rgba(6, 121, 146, 0.44));
-	--aos-dock-border: rgba(126, 228, 242, 0.25);
-	--aos-dock-bottom-border: transparent;
-	--aos-dock-separator: rgba(165, 235, 246, 0.22);
-	--aos-dock-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+	--aos-dock-glass-bg:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.06) 42%, rgba(255, 255, 255, 0.03)),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.018) 18%, rgba(255, 255, 255, 0.018) 82%, rgba(255, 255, 255, 0.08)),
+		rgba(7, 33, 46, 0.18);
+	--aos-dock-glass-filter: blur(18px) saturate(185%) brightness(1.02) contrast(1.06);
+	--aos-dock-border: rgba(255, 255, 255, 0.2);
+	--aos-dock-bottom-border: rgba(255, 255, 255, 0.08);
+	--aos-dock-separator: rgba(255, 255, 255, 0.16);
+	--aos-dock-shadow: 0 20px 48px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.22) inset, 0 -1px 0 rgba(255, 255, 255, 0.06) inset, 1px 0 0 rgba(255, 255, 255, 0.08) inset, -1px 0 0 rgba(255, 255, 255, 0.06) inset;
 	--aos-dock-tooltip-bg: rgba(20, 72, 88, 0.94);
 	--aos-dock-tooltip-border: transparent;
 	--aos-dock-tooltip-color: rgba(255, 255, 255, 0.94);
