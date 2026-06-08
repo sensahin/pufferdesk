@@ -36,6 +36,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/apps/about-window.js
 - assets/js/core/apps/site-about-window.js
 - assets/js/core/apps/app-surfaces.js
+- assets/js/core/apps/native-apps.js
 - assets/js/core/apps/settings-app.js
 - assets/js/core/apps/app-launcher.js
 - assets/js/core/shell/search.js

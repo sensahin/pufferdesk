@@ -90,6 +90,21 @@
 			} : null);
 		}
 
+		function getNativeAppWindowOptions(app, baseOptions) {
+			const getOptions = window.WPAdminOS.apps.getNativeAppWindowOptions;
+			const nativeOptions = typeof getOptions === 'function'
+				? getOptions(app.native, {
+					app,
+					baseOptions,
+					config,
+					manager,
+					shell
+				})
+				: null;
+
+			return nativeOptions ? Object.assign({}, baseOptions, nativeOptions) : null;
+		}
+
 		function getAppWindowOptions(app) {
 			const options = {
 				appId: app.id,
@@ -99,14 +114,8 @@
 				menu: app.menu || null
 			};
 
-			if (app.kind === 'native' && app.native === 'settings') {
-				options.content = window.WPAdminOS.apps.createSettingsApp({ config });
-				options.bodyClass = 'aos-window-body aos-settings-body';
-				options.contextMenu = false;
-				options.resizeMode = 'vertical';
-				options.width = '725px';
-				options.height = '680px';
-				return options;
+			if (app.kind === 'native') {
+				return getNativeAppWindowOptions(app, options);
 			}
 
 			options.url = app.url;

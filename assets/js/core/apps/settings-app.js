@@ -2109,4 +2109,15 @@
 
 		return content;
 	};
+
+	if (typeof window.WPAdminOS.apps.registerNativeAppRenderer === 'function') {
+		window.WPAdminOS.apps.registerNativeAppRenderer('settings', ({ config }) => ({
+			bodyClass: 'aos-window-body aos-settings-body',
+			contextMenu: false,
+			content: window.WPAdminOS.apps.createSettingsApp({ config }),
+			height: '680px',
+			resizeMode: 'vertical',
+			width: '725px'
+		}));
+	}
 })();

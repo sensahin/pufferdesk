@@ -293,13 +293,17 @@ final class WP_AdminOS_Assets {
 				'path' => 'assets/js/core/apps/app-surfaces.js',
 				'deps' => array( 'wp-adminos-dom' ),
 			),
+			'wp-adminos-native-apps'     => array(
+				'path' => 'assets/js/core/apps/native-apps.js',
+				'deps' => array(),
+			),
 			'wp-adminos-settings-app'   => array(
 				'path' => 'assets/js/core/apps/settings-app.js',
-				'deps' => array( 'wp-adminos-dom', 'wp-adminos-storage', 'wp-adminos-api-client', 'wp-adminos-appearance', 'wp-adminos-desktop-dock', 'wp-adminos-menu-bar-state', 'wp-adminos-wallpaper', 'wp-adminos-app-surfaces' ),
+				'deps' => array( 'wp-adminos-dom', 'wp-adminos-storage', 'wp-adminos-api-client', 'wp-adminos-appearance', 'wp-adminos-desktop-dock', 'wp-adminos-menu-bar-state', 'wp-adminos-wallpaper', 'wp-adminos-app-surfaces', 'wp-adminos-native-apps' ),
 			),
 			'wp-adminos-app-launcher'   => array(
 				'path' => 'assets/js/core/apps/app-launcher.js',
-				'deps' => array( 'wp-adminos-dom', 'wp-adminos-about-window', 'wp-adminos-site-about-window', 'wp-adminos-settings-app' ),
+				'deps' => array( 'wp-adminos-dom', 'wp-adminos-about-window', 'wp-adminos-site-about-window', 'wp-adminos-native-apps', 'wp-adminos-settings-app' ),
 			),
 			'wp-adminos-search'         => array(
 				'path' => 'assets/js/core/shell/search.js',

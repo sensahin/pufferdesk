@@ -310,7 +310,7 @@ Use this pattern because Finder can recreate `.DS_Store`, and Plugin Check shoul
 The GitHub repository is private:
 
 ```bash
-https://github.com/sensahin/wp-adminos.git
+https://github.com/sensahin/wpadminos.git
 ```
 
 Before committing:

@@ -33,6 +33,13 @@ final class WP_AdminOS_App_Registry {
 	private $plugin_owner_cache = array();
 
 	/**
+	 * Runtime cache for WordPress admin menu items.
+	 *
+	 * @var array<int,array<int,mixed>>|null
+	 */
+	private $admin_menu_items = null;
+
+	/**
 	 * App registry for the first shell.
 	 *
 	 * @return array<int,array<string,mixed>>
@@ -293,12 +300,18 @@ final class WP_AdminOS_App_Registry {
 	private function get_admin_menu_items() {
 		global $menu, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv, $_registered_pages, $_parent_pages, $_wp_real_parent_file;
 
-		if ( is_array( $menu ) && ! empty( $menu ) ) {
-			return $menu;
+		if ( null !== $this->admin_menu_items ) {
+			return $this->admin_menu_items;
 		}
 
-		if ( ! is_admin() || did_action( 'admin_menu' ) ) {
-			return is_array( $menu ) ? $menu : array();
+		if ( is_array( $menu ) && ! empty( $menu ) ) {
+			return $this->cache_admin_menu_items( $menu );
+		}
+
+		if ( ! $this->should_build_admin_menu_snapshot() ) {
+			return is_array( $menu ) && did_action( 'admin_menu' )
+				? $this->cache_admin_menu_items( $menu )
+				: ( is_array( $menu ) ? $menu : array() );
 		}
 
 		if ( ! function_exists( 'add_menu_page' ) && file_exists( ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
@@ -306,7 +319,7 @@ final class WP_AdminOS_App_Registry {
 		}
 
 		if ( ! function_exists( 'add_menu_page' ) ) {
-			return array();
+			return $this->cache_admin_menu_items( array() );
 		}
 
 		$menu                 = is_array( $menu ) ? $menu : array();
@@ -320,7 +333,44 @@ final class WP_AdminOS_App_Registry {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook used to build an admin menu snapshot for AJAX saves.
 		do_action( 'admin_menu', '' );
 
-		return is_array( $menu ) ? $menu : array();
+		return $this->cache_admin_menu_items( is_array( $menu ) ? $menu : array() );
+	}
+
+	/**
+	 * Whether WP adminOS should build a WordPress admin menu snapshot.
+	 *
+	 * @return bool
+	 */
+	private function should_build_admin_menu_snapshot() {
+		$doing_ajax = function_exists( 'wp_doing_ajax' ) && wp_doing_ajax();
+
+		if ( ! is_admin() || ! $doing_ajax || did_action( 'admin_menu' ) || doing_action( 'admin_menu' ) ) {
+			return false;
+		}
+
+		/**
+		 * Filter whether WP adminOS should build a fallback admin menu snapshot.
+		 *
+		 * The fallback is only considered during admin-ajax.php requests where
+		 * WordPress has not populated the global admin menu. Disabling this avoids
+		 * firing the core admin_menu hook during AJAX, but plugin-derived app IDs
+		 * may no longer be available for settings saves in that request.
+		 *
+		 * @param bool $build Whether to build the snapshot.
+		 */
+		return (bool) apply_filters( 'wp_adminos_build_admin_menu_snapshot', true );
+	}
+
+	/**
+	 * Cache WordPress admin menu items for this request.
+	 *
+	 * @param array<int,array<int,mixed>> $items Admin menu items.
+	 * @return array<int,array<int,mixed>>
+	 */
+	private function cache_admin_menu_items( $items ) {
+		$this->admin_menu_items = is_array( $items ) ? $items : array();
+
+		return $this->admin_menu_items;
 	}
 
 	/**
