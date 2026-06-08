@@ -13,9 +13,13 @@
 		const defaultFolderIcon = { type: 'theme', name: 'folder.svg', fallback: 'dashicons-category' };
 		const appMap = new Map(apps.map((app) => [app.id, app]));
 		const systemFolderMap = new Map(systemFolders.map((folder) => [folder.id, Object.assign({ kind: 'system', user: false }, folder)]));
+		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object' ? config.menu.labels : {};
+		const trashFolderId = 'trash';
 		let userFolders = [];
+		let trashItems = [];
 		let sessionSaveDisabled = false;
 		let saveTimer = null;
+		let trashSaveTimer = null;
 		let idCounter = 0;
 
 		function readNumber(value) {
@@ -37,6 +41,27 @@
 			const folder = contentFolder || systemFolders[0] || null;
 
 			return folder && folder.icon ? folder.icon : defaultFolderIcon;
+		}
+
+		function getMenuLabel(key, fallback) {
+			return typeof menuLabels[key] === 'string' && menuLabels[key] ? menuLabels[key] : fallback;
+		}
+
+		function getTrashFolder() {
+			const app = appMap.get(trashFolderId) || {};
+
+			return {
+				icon: app.icon || 'dashicons-trash',
+				id: trashFolderId,
+				kind: 'system',
+				label: getMenuLabel('trash', 'Trash'),
+				special: 'trash',
+				user: false
+			};
+		}
+
+		function isTrashFolderId(folderId) {
+			return folderId === trashFolderId;
 		}
 
 		function getTakenLabels(exceptId = '') {
@@ -81,7 +106,7 @@
 			}
 
 			const id = normalizeId(folder.id);
-			if (!id || systemFolderMap.has(id)) {
+			if (!id || systemFolderMap.has(id) || id === trashFolderId) {
 				return null;
 			}
 
@@ -121,8 +146,8 @@
 			});
 		}
 
-		function serializeFolders() {
-			return userFolders.map((folder) => ({
+		function serializeFolder(folder) {
+			return {
 				appIds: normalizeAppIds(folder.appIds),
 				comment: folder.comment || '',
 				createdAt: folder.createdAt || '',
@@ -131,6 +156,79 @@
 				label: folder.label,
 				lastOpenedAt: folder.lastOpenedAt || '',
 				modifiedAt: folder.modifiedAt || ''
+			};
+		}
+
+		function serializeFolders() {
+			return userFolders.map(serializeFolder);
+		}
+
+		function normalizeTrashRestore(restore = {}) {
+			const normalized = {
+				previousParent: 'desktop'
+			};
+			const position = restore && restore.desktopPosition && typeof restore.desktopPosition === 'object'
+				? restore.desktopPosition
+				: null;
+			const left = position ? readNumber(position.left) : null;
+			const top = position ? readNumber(position.top) : null;
+
+			if (Number.isFinite(left) || Number.isFinite(top)) {
+				normalized.desktopPosition = {};
+				if (Number.isFinite(left)) {
+					normalized.desktopPosition.left = Math.max(0, Math.round(left));
+				}
+				if (Number.isFinite(top)) {
+					normalized.desktopPosition.top = Math.max(0, Math.round(top));
+				}
+			}
+
+			return normalized;
+		}
+
+		function normalizeTrashItem(item) {
+			if (!item || typeof item !== 'object' || (item.type && item.type !== 'folder')) {
+				return null;
+			}
+
+			const folder = normalizeFolder(item.folder);
+			if (!folder) {
+				return null;
+			}
+
+			return {
+				folder: serializeFolder(folder),
+				icon: item.icon || folder.icon || getDefaultFolderIcon(),
+				id: normalizeId(item.id) || `folder-${folder.id}`,
+				label: String(item.label || folder.label || 'Folder').trim() || 'Folder',
+				restore: normalizeTrashRestore(item.restore),
+				trashedAt: normalizeTimestamp(item.trashedAt, new Date().toISOString()),
+				type: 'folder'
+			};
+		}
+
+		function loadTrash() {
+			const stored = Array.isArray(config.desktopTrash) ? config.desktopTrash : [];
+			const seen = new Set();
+			trashItems = stored.map(normalizeTrashItem).filter((item) => {
+				if (!item || seen.has(item.id)) {
+					return false;
+				}
+
+				seen.add(item.id);
+				return true;
+			});
+		}
+
+		function serializeTrash() {
+			return trashItems.map((item) => ({
+				folder: serializeFolder(item.folder),
+				icon: item.icon || item.folder.icon || getDefaultFolderIcon(),
+				id: item.id,
+				label: item.label || item.folder.label || 'Folder',
+				restore: normalizeTrashRestore(item.restore),
+				trashedAt: item.trashedAt || '',
+				type: 'folder'
 			}));
 		}
 
@@ -161,6 +259,35 @@
 
 			window.clearTimeout(saveTimer);
 			saveTimer = window.setTimeout(saveFolders, 120);
+		}
+
+		function saveTrash() {
+			if (sessionSaveDisabled || !api || typeof api.post !== 'function') {
+				return;
+			}
+
+			window.clearTimeout(trashSaveTimer);
+			trashSaveTimer = null;
+
+			const items = serializeTrash();
+			config.desktopTrash = items;
+
+			api.post('wp_adminos_save_desktop_trash', {
+				items: JSON.stringify(items)
+			}).then((result) => {
+				if (result && result.success && result.data && Array.isArray(result.data.desktopTrash)) {
+					config.desktopTrash = result.data.desktopTrash;
+				}
+			}).catch(() => {});
+		}
+
+		function scheduleTrashSave() {
+			if (sessionSaveDisabled || !api || typeof api.post !== 'function') {
+				return;
+			}
+
+			window.clearTimeout(trashSaveTimer);
+			trashSaveTimer = window.setTimeout(saveTrash, 120);
 		}
 
 		function ensureFolderLayer() {
@@ -238,6 +365,93 @@
 				: null;
 		}
 
+		function getTrashCount() {
+			return trashItems.length;
+		}
+
+		function getTrashItems() {
+			return serializeTrash();
+		}
+
+		function getTrashItem(trashId) {
+			const item = trashItems.find((trashItem) => trashItem.id === trashId);
+
+			return item ? serializeTrash().find((trashItem) => trashItem.id === trashId) || null : null;
+		}
+
+		function syncTrashSurfaceState() {
+			if (!shell) {
+				return;
+			}
+
+			const count = getTrashCount();
+			const label = count > 0 ? `Trash, ${count} item${count === 1 ? '' : 's'}` : 'Trash';
+
+			shell.querySelectorAll('[data-aos-open-app="trash"]').forEach((button) => {
+				let badge = button.querySelector('.aos-trash-badge');
+				const badgeHost = button.classList.contains('aos-desktop-app')
+					? button.querySelector('.aos-app-icon') || button
+					: button;
+				const beforeNode = badgeHost === button
+					? button.querySelector('.aos-dock-tooltip, .screen-reader-text')
+					: null;
+
+				button.classList.toggle('is-trash-full', count > 0);
+				button.dataset.aosTrashState = count > 0 ? 'full' : 'empty';
+				button.setAttribute('aria-label', label);
+
+				if (count <= 0) {
+					if (badge) {
+						badge.remove();
+					}
+					return;
+				}
+
+				if (!badge) {
+					badge = dom.createElement('span', 'aos-app-badge aos-app-badge-neutral aos-trash-badge');
+					badge.setAttribute('aria-hidden', 'true');
+					badgeHost.insertBefore(badge, beforeNode);
+				}
+				badge.textContent = String(count);
+			});
+		}
+
+		function dispatchTrashChange() {
+			syncTrashSurfaceState();
+			shell.dispatchEvent(new window.CustomEvent('wpAdminOS:trash-change', {
+				detail: {
+					count: getTrashCount(),
+					items: getTrashItems()
+				}
+			}));
+		}
+
+		function getFolderDesktopPosition(folderId) {
+			const icon = getFolderIcon(folderId);
+			const layer = icon ? icon.closest('.aos-desktop-icon-layer') : null;
+			const left = icon ? readNumber(icon.style.left) : null;
+			const top = icon ? readNumber(icon.style.top) : null;
+
+			if (Number.isFinite(left) && Number.isFinite(top)) {
+				return {
+					left: Math.max(0, Math.round(left)),
+					top: Math.max(0, Math.round(top))
+				};
+			}
+
+			if (!icon || !layer) {
+				return null;
+			}
+
+			const iconRect = icon.getBoundingClientRect();
+			const layerRect = layer.getBoundingClientRect();
+
+			return {
+				left: Math.max(0, Math.round(iconRect.left - layerRect.left)),
+				top: Math.max(0, Math.round(iconRect.top - layerRect.top))
+			};
+		}
+
 		function getPointPosition(point, icon) {
 			const layer = ensureFolderLayer();
 			if (!layer || !point || !Number.isFinite(point.clientX) || !Number.isFinite(point.clientY)) {
@@ -288,13 +502,21 @@
 		}
 
 		function getFolder(folderId) {
+			if (isTrashFolderId(folderId)) {
+				return getTrashFolder();
+			}
+
 			return getUserFolder(folderId) || systemFolderMap.get(folderId) || null;
 		}
 
 		function getFolders() {
-			return systemFolders
+			const folders = systemFolders
 				.map((folder) => Object.assign({ kind: 'system', user: false }, folder))
 				.concat(userFolders.map((folder) => Object.assign({}, folder)));
+
+			return folders.some((folder) => folder && folder.id === trashFolderId)
+				? folders
+				: folders.concat(getTrashFolder());
 		}
 
 		function isUserFolder(folderId) {
@@ -310,6 +532,10 @@
 		}
 
 		function getFolderApps(folderId) {
+			if (isTrashFolderId(folderId)) {
+				return [];
+			}
+
 			const userFolder = getUserFolder(folderId);
 
 			if (userFolder) {
@@ -325,6 +551,31 @@
 			const folder = getFolder(folderId);
 			if (!folder) {
 				return null;
+			}
+
+			if (isTrashFolderId(folderId)) {
+				return {
+					canComment: false,
+					canRename: false,
+					comment: '',
+					createdAt: '',
+					icon: folder.icon || 'dashicons-trash',
+					id: folder.id,
+					itemCount: trashItems.length,
+					items: trashItems.map((item) => ({
+						id: item.id,
+						label: item.label || 'Folder',
+						source: 'trash',
+						url: ''
+					})),
+					kind: 'Trash',
+					label: folder.label || 'Trash',
+					lastOpenedAt: '',
+					modifiedAt: '',
+					source: 'WP adminOS Trash',
+					user: false,
+					where: 'WP adminOS Desktop'
+				};
 			}
 
 			const folderApps = getFolderApps(folderId);
@@ -433,6 +684,114 @@
 			return folder;
 		}
 
+		function closeFolderSurfaces(folderId) {
+			if (launcher && typeof launcher.closeFolderWindow === 'function') {
+				launcher.closeFolderWindow(folderId);
+			}
+			if (launcher && typeof launcher.closeFolderInfoWindow === 'function') {
+				launcher.closeFolderInfoWindow(folderId);
+			}
+		}
+
+		function removeTrashItemByFolderId(folderId) {
+			const itemId = `folder-${folderId}`;
+			const index = trashItems.findIndex((item) => item.id === itemId || (item.folder && item.folder.id === folderId));
+
+			if (index >= 0) {
+				trashItems.splice(index, 1);
+			}
+		}
+
+		function moveFolderToTrash(folderId) {
+			const index = userFolders.findIndex((folder) => folder.id === folderId);
+			if (index < 0) {
+				return false;
+			}
+
+			const folder = userFolders[index];
+			const trashedAt = new Date().toISOString();
+			const trashItem = {
+				folder: serializeFolder(folder),
+				icon: folder.icon || getDefaultFolderIcon(),
+				id: `folder-${folder.id}`,
+				label: folder.label || 'Folder',
+				restore: {
+					desktopPosition: getFolderDesktopPosition(folder.id),
+					previousParent: 'desktop'
+				},
+				trashedAt,
+				type: 'folder'
+			};
+
+			removeTrashItemByFolderId(folder.id);
+			trashItems.unshift(normalizeTrashItem(trashItem));
+			trashItems = trashItems.filter(Boolean).slice(0, 100);
+			userFolders.splice(index, 1);
+			renderUserFolders();
+			syncDesktopAppVisibility();
+			refreshDesktopIcons();
+			saveDesktopIconSession();
+			closeFolderSurfaces(folderId);
+			scheduleSave();
+			scheduleTrashSave();
+			dispatchTrashChange();
+
+			return true;
+		}
+
+		function restoreTrashItem(trashId) {
+			const index = trashItems.findIndex((item) => item.id === trashId);
+			const item = index >= 0 ? trashItems[index] : null;
+			const restored = item ? normalizeFolder(item.folder) : null;
+
+			if (!item || item.type !== 'folder' || !restored) {
+				return null;
+			}
+
+			if (getFolder(restored.id)) {
+				restored.id = `user-folder-${Date.now().toString(36)}-${idCounter += 1}`;
+			}
+
+			restored.label = uniqueLabel(restored.label || item.label || 'Folder', restored.id);
+			markFolderModified(restored);
+			trashItems.splice(index, 1);
+			userFolders.push(restored);
+			renderUserFolders();
+			syncDesktopAppVisibility();
+			refreshDesktopIcons();
+			positionFolderIcon(restored.id, item.restore && item.restore.desktopPosition ? item.restore.desktopPosition : null);
+			scheduleSave();
+			scheduleTrashSave();
+			dispatchTrashChange();
+
+			return restored;
+		}
+
+		function deleteTrashItem(trashId) {
+			const index = trashItems.findIndex((item) => item.id === trashId);
+			if (index < 0) {
+				return false;
+			}
+
+			trashItems.splice(index, 1);
+			scheduleTrashSave();
+			dispatchTrashChange();
+
+			return true;
+		}
+
+		function emptyTrash() {
+			if (!trashItems.length) {
+				return false;
+			}
+
+			trashItems = [];
+			scheduleTrashSave();
+			dispatchTrashChange();
+
+			return true;
+		}
+
 		function deleteFolder(folderId) {
 			const index = userFolders.findIndex((folder) => folder.id === folderId);
 			if (index < 0) {
@@ -443,12 +802,8 @@
 			renderUserFolders();
 			syncDesktopAppVisibility();
 			refreshDesktopIcons();
-			if (launcher && typeof launcher.closeFolderWindow === 'function') {
-				launcher.closeFolderWindow(folderId);
-			}
-			if (launcher && typeof launcher.closeFolderInfoWindow === 'function') {
-				launcher.closeFolderInfoWindow(folderId);
-			}
+			saveDesktopIconSession();
+			closeFolderSurfaces(folderId);
 			scheduleSave();
 
 			return true;
@@ -645,34 +1000,51 @@
 
 		function restoreSession() {
 			loadFolders();
+			loadTrash();
 			renderUserFolders();
 			syncDesktopAppVisibility();
+			dispatchTrashChange();
 		}
 
-		window.addEventListener('beforeunload', saveFolders);
+		window.addEventListener('beforeunload', () => {
+			saveFolders();
+			saveTrash();
+		});
 
 		return {
 			addAppToFolder,
 			createFolder,
 			deleteFolder,
+			deleteTrashItem,
 			disableSessionSave() {
 				sessionSaveDisabled = true;
 				window.clearTimeout(saveTimer);
+				window.clearTimeout(trashSaveTimer);
 			},
+			emptyTrash,
 			getFolder,
 			getFolderApps,
 			getFolderInfo,
 			getFolders,
+			getTrashCount,
+			getTrashItem,
+			getTrashItems,
 			getUserFolderForApp,
 			hasApp,
 			isUserFolder,
+			moveFolderToTrash,
 			removeAppFromFolder,
 			renameFolder,
+			restoreTrashItem,
 			setFolderComment,
 			restoreSession,
-			saveSession: saveFolders,
+			saveSession() {
+				saveFolders();
+				saveTrash();
+			},
 			startInlineRename,
 			syncDesktopAppVisibility,
+			syncTrashSurfaceState,
 			touchFolderOpened
 		};
 	};

@@ -16,28 +16,28 @@
 	--aos-liquid-glass-clear-filter: blur(42px) saturate(205%) brightness(1.07);
 	--aos-liquid-glass-clear-shadow: 0 30px 80px rgba(34, 48, 54, 0.18), 0 1px 0 var(--aos-liquid-glass-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
 	--aos-liquid-glass-window-bg: rgba(255, 255, 255, 0.96);
-	--aos-liquid-glass-window-border: rgba(60, 60, 67, 0.16);
+	--aos-liquid-glass-window-border: rgba(64, 64, 64, 0.16);
 	--aos-liquid-glass-window-filter: blur(40px) saturate(185%) brightness(1.05);
 	--aos-liquid-glass-window-shadow: 0 34px 92px rgba(34, 48, 54, 0.16), 0 1px 0 var(--aos-liquid-glass-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
 	--aos-liquid-glass-tinted-bg: linear-gradient(145deg, rgb(var(--aos-accent-rgb) / 0.08), rgba(255, 255, 255, 0.82) 58%, rgb(var(--aos-accent-rgb) / 0.06));
 	--aos-liquid-glass-tinted-border: rgb(var(--aos-accent-rgb) / 0.16);
 	--aos-liquid-glass-solid-bg: rgba(255, 255, 255, 0.96);
-	--aos-liquid-glass-solid-border: rgba(60, 60, 67, 0.12);
+	--aos-liquid-glass-solid-border: rgba(64, 64, 64, 0.12);
 	--aos-liquid-glass-card-bg: rgba(247, 247, 247, 0.96);
-	--aos-liquid-glass-card-border: rgba(60, 60, 67, 0.08);
+	--aos-liquid-glass-card-border: rgba(64, 64, 64, 0.08);
 	--aos-liquid-glass-card-filter: blur(30px) saturate(170%) brightness(1.04);
 	--aos-liquid-glass-card-shadow: 0 18px 46px rgba(34, 48, 54, 0.1), 0 1px 0 rgba(255, 255, 255, 0.58) inset;
 	--aos-liquid-glass-control-bg: linear-gradient(180deg, rgba(242, 242, 242, 0.86), rgba(232, 232, 232, 0.72));
 	--aos-liquid-glass-control-hover-bg: linear-gradient(180deg, rgba(247, 247, 247, 0.9), rgba(238, 238, 238, 0.78));
 	--aos-liquid-glass-control-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(226, 226, 226, 0.82));
-	--aos-liquid-glass-control-border: rgba(60, 60, 67, 0.08);
+	--aos-liquid-glass-control-border: rgba(64, 64, 64, 0.08);
 	--aos-liquid-glass-control-filter: blur(18px) saturate(180%);
 	--aos-liquid-glass-bar-bg: transparent;
 	--aos-liquid-glass-bar-border: transparent;
 	--aos-liquid-glass-bar-filter: none;
 	--aos-liquid-glass-bar-shadow: none;
 	--aos-liquid-glass-popover-bg: linear-gradient(145deg, rgba(250, 250, 250, 0.9), rgba(247, 247, 247, 0.78) 60%, rgba(242, 242, 242, 0.68));
-	--aos-liquid-glass-popover-border: rgba(60, 60, 67, 0.14);
+	--aos-liquid-glass-popover-border: rgba(64, 64, 64, 0.14);
 	--aos-liquid-glass-popover-filter: blur(44px) saturate(205%) brightness(1.06);
 	--aos-liquid-glass-popover-shadow: 0 22px 58px rgba(6, 22, 34, 0.32), 0 1px 0 rgba(255, 255, 255, 0.62) inset, 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
 	--aos-liquid-glass-dialog-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(250, 250, 250, 0.84) 58%, rgba(247, 247, 247, 0.72));
@@ -85,7 +85,7 @@
 	--aos-settings-sidebar-bg:
 		linear-gradient(90deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.975) 44%, rgba(255, 255, 255, 0.992) 90%),
 		linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(246, 246, 246, 0.028) 28%, rgba(232, 232, 232, 0.018));
-	--aos-settings-sidebar-border: rgba(255, 255, 255, 0.28);
+	--aos-settings-sidebar-border: var(--aos-divider);
 	--aos-settings-sidebar-reflection-filter: blur(38px) saturate(44%) brightness(1.08) contrast(0.62);
 	--aos-settings-sidebar-reflection-mask:
 		linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.014) 7%, transparent 15%, transparent 100%),
@@ -108,21 +108,24 @@
 	--aos-settings-search-filter: blur(6px) saturate(72%) brightness(1.02);
 	--aos-settings-main-bg: rgb(255, 255, 255);
 	--aos-settings-card-bg: rgb(247, 247, 247);
-	--aos-settings-card-border: rgba(60, 60, 67, 0.08);
+	--aos-divider: rgb(218, 218, 218);
+	--aos-divider-soft: rgb(231, 231, 231);
+	--aos-settings-card-border: var(--aos-divider-soft);
 	--aos-finder-sidebar-active-bg: rgba(60, 60, 67, 0.1);
-	--aos-finder-sidebar-active-ink: var(--aos-accent);
+	--aos-finder-sidebar-active-ink: var(--aos-ink);
+	--aos-finder-divider: var(--aos-divider);
 	--aos-finder-tabbar-bg: rgb(245, 245, 245);
-	--aos-finder-tabbar-border: rgba(60, 60, 67, 0.14);
+	--aos-finder-tabbar-border: var(--aos-finder-divider);
 	--aos-finder-tab-bg: rgba(60, 60, 67, 0.035);
 	--aos-finder-tab-hover-bg: rgba(60, 60, 67, 0.07);
 	--aos-finder-tab-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(232, 232, 232, 0.72));
-	--aos-finder-tab-active-border: rgba(60, 60, 67, 0.16);
+	--aos-finder-tab-active-border: rgba(64, 64, 64, 0.16);
 	--aos-finder-tab-close-bg: rgba(60, 60, 67, 0.14);
 	--aos-finder-tab-close-hover-bg: rgba(60, 60, 67, 0.22);
 	--aos-finder-tab-add-bg: rgba(60, 60, 67, 0.052);
 	--aos-finder-tab-add-hover-bg: rgba(60, 60, 67, 0.095);
-	--aos-finder-tab-add-border: rgba(60, 60, 67, 0.13);
-	--aos-line: var(--aos-material-regular-border);
+	--aos-finder-tab-add-border: rgba(64, 64, 64, 0.13);
+	--aos-line: var(--aos-divider);
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-shadow: var(--aos-material-regular-shadow);
 	--aos-menu-bg: var(--aos-material-bar-bg);
@@ -201,14 +204,14 @@
 	--aos-folder-icon-opacity: 0.94;
 	--aos-running-indicator: rgba(12, 18, 24, 0.88);
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 247, 247, 0.84));
-	--aos-window-bar-border: rgba(60, 60, 67, 0.12);
+	--aos-window-bar-border: var(--aos-divider);
 	--aos-window-radius: 24px;
 	--aos-window-maximized-radius: 12px;
 	--aos-about-window-radius: 15px;
 	--aos-site-about-window-radius: 24px;
 	--aos-window-safe-edge: 2px;
 	--aos-card-bg: var(--aos-material-card-bg);
-	--aos-card-border: var(--aos-material-card-border);
+	--aos-card-border: var(--aos-divider-soft);
 	--aos-card-shadow: var(--aos-material-card-shadow);
 	--aos-dock-bg: var(--aos-material-clear-bg);
 	--aos-dock-glass-bg:
@@ -1074,12 +1077,19 @@
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder"] .aos-finder-toolbar {
+	border-bottom-color: var(--aos-finder-divider);
 	padding-bottom: 4px;
 	padding-left: var(--aos-settings-main-edge);
 	padding-top: var(--aos-settings-sidebar-inset);
 }
 
 .aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder"] .aos-finder-tabs {
+	border-bottom-color: var(--aos-finder-divider);
+	padding-left: var(--aos-settings-main-edge);
+}
+
+.aos-shell[data-aos-theme="adminos"] .aos-window[data-aos-window-kind="folder"] .aos-finder-subbar {
+	border-bottom-color: var(--aos-finder-divider);
 	padding-left: var(--aos-settings-main-edge);
 }
 
@@ -1193,7 +1203,7 @@
 	--aos-settings-sidebar-bg:
 		linear-gradient(90deg, rgba(31, 31, 31, 0.93), rgba(29, 29, 29, 0.975) 42%, rgba(24, 24, 24, 0.992) 90%),
 		linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.003) 28%, rgba(0, 0, 0, 0.034));
-	--aos-settings-sidebar-border: rgba(228, 228, 228, 0.11);
+	--aos-settings-sidebar-border: var(--aos-divider);
 	--aos-settings-sidebar-reflection-filter: blur(38px) saturate(46%) brightness(0.56) contrast(0.58);
 	--aos-settings-sidebar-reflection-mask:
 		linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.018) 7%, transparent 15%, transparent 100%),
@@ -1216,11 +1226,14 @@
 	--aos-settings-search-filter: blur(6px) saturate(72%) brightness(0.78);
 	--aos-settings-main-bg: rgb(30, 30, 30);
 	--aos-settings-card-bg: rgb(37, 37, 37);
-	--aos-settings-card-border: rgba(230, 230, 230, 0.075);
+	--aos-divider: rgb(58, 58, 58);
+	--aos-divider-soft: rgb(49, 49, 49);
+	--aos-settings-card-border: var(--aos-divider-soft);
 	--aos-finder-sidebar-active-bg: rgba(255, 255, 255, 0.09);
-	--aos-finder-sidebar-active-ink: var(--aos-accent);
+	--aos-finder-sidebar-active-ink: var(--aos-ink);
+	--aos-finder-divider: var(--aos-divider);
 	--aos-finder-tabbar-bg: rgb(37, 37, 37);
-	--aos-finder-tabbar-border: rgba(230, 230, 230, 0.12);
+	--aos-finder-tabbar-border: var(--aos-finder-divider);
 	--aos-finder-tab-bg: rgba(255, 255, 255, 0.035);
 	--aos-finder-tab-hover-bg: rgba(255, 255, 255, 0.075);
 	--aos-finder-tab-active-bg: linear-gradient(180deg, rgba(96, 96, 96, 0.72), rgba(72, 72, 72, 0.62));
@@ -1230,7 +1243,7 @@
 	--aos-finder-tab-add-bg: rgba(255, 255, 255, 0.062);
 	--aos-finder-tab-add-hover-bg: rgba(255, 255, 255, 0.11);
 	--aos-finder-tab-add-border: rgba(230, 230, 230, 0.12);
-	--aos-line: var(--aos-material-regular-border);
+	--aos-line: var(--aos-divider);
 	--aos-panel: var(--aos-material-regular-bg);
 	--aos-shadow: var(--aos-material-regular-shadow);
 	--aos-control-bg: var(--aos-material-control-bg);
@@ -1248,9 +1261,9 @@
 	--aos-icon-widget-widget-icon: var(--aos-accent);
 	--aos-running-indicator: rgba(244, 247, 251, 0.92);
 	--aos-window-bar-bg: linear-gradient(180deg, rgba(37, 46, 49, 0.92), rgba(33, 42, 44, 0.8));
-	--aos-window-bar-border: rgba(228, 235, 233, 0.1);
+	--aos-window-bar-border: var(--aos-divider);
 	--aos-card-bg: var(--aos-material-card-bg);
-	--aos-card-border: var(--aos-material-card-border);
+	--aos-card-border: var(--aos-divider-soft);
 	--aos-card-shadow: var(--aos-material-card-shadow);
 	--aos-dock-bg: var(--aos-material-clear-bg);
 	--aos-dock-glass-bg:
@@ -1321,11 +1334,13 @@
 	--aos-liquid-glass-card-border: rgb(var(--aos-accent-rgb) / 0.16);
 	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgb(var(--aos-accent-rgb) / 0.08), rgba(250, 250, 250, 0.38));
 	--aos-panel: var(--aos-material-regular-bg);
-	--aos-line: var(--aos-material-regular-border);
+	--aos-line: var(--aos-divider);
 	--aos-card-bg: var(--aos-material-card-bg);
-	--aos-card-border: var(--aos-material-card-border);
+	--aos-card-border: var(--aos-divider-soft);
 	--aos-dock-bg: var(--aos-material-clear-bg);
 	--aos-window-bar-bg: linear-gradient(180deg, rgb(var(--aos-accent-rgb) / 0.06), rgba(247, 247, 247, 0.84));
+	--aos-window-bar-border: var(--aos-divider);
+	--aos-finder-divider: var(--aos-divider);
 	--aos-settings-window-bg: transparent;
 	--aos-settings-sidebar-bg:
 		linear-gradient(90deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.975) 44%, rgba(255, 255, 255, 0.992) 90%),
@@ -1333,6 +1348,7 @@
 	--aos-settings-sidebar-reflection-opacity: 0.018;
 	--aos-settings-main-bg: rgb(255, 255, 255);
 	--aos-settings-card-bg: rgb(247, 247, 247);
+	--aos-settings-card-border: var(--aos-divider-soft);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-window-material="tinted"][data-aos-effective-appearance="dark"] {
@@ -1342,11 +1358,13 @@
 	--aos-liquid-glass-card-border: rgb(var(--aos-accent-rgb) / 0.2);
 	--aos-liquid-glass-clear-bg: linear-gradient(135deg, rgb(var(--aos-accent-rgb) / 0.12), rgba(30, 30, 30, 0.42));
 	--aos-panel: var(--aos-material-regular-bg);
-	--aos-line: var(--aos-material-regular-border);
+	--aos-line: var(--aos-divider);
 	--aos-card-bg: var(--aos-material-card-bg);
-	--aos-card-border: var(--aos-material-card-border);
+	--aos-card-border: var(--aos-divider-soft);
 	--aos-dock-bg: var(--aos-material-clear-bg);
 	--aos-window-bar-bg: linear-gradient(180deg, rgb(var(--aos-accent-rgb) / 0.14), rgba(33, 42, 44, 0.8));
+	--aos-window-bar-border: var(--aos-divider);
+	--aos-finder-divider: var(--aos-divider);
 	--aos-settings-window-bg: transparent;
 	--aos-settings-sidebar-bg:
 		linear-gradient(90deg, rgba(31, 31, 31, 0.93), rgba(29, 29, 29, 0.975) 42%, rgba(24, 24, 24, 0.992) 90%),
@@ -1354,6 +1372,7 @@
 	--aos-settings-sidebar-reflection-opacity: 0.026;
 	--aos-settings-main-bg: rgb(30, 30, 30);
 	--aos-settings-card-bg: rgb(37, 37, 37);
+	--aos-settings-card-border: var(--aos-divider-soft);
 }
 
 .aos-shell[data-aos-theme="adminos"][data-aos-effective-appearance="dark"] .aos-app-launcher {

@@ -137,12 +137,12 @@ Menus:
 - `shortcut` is executable data, not decorative text. Use macOS-style strings such as `⌘W`, `⌘M`, `⌘H`, `⌥⌘H`, or a structured descriptor with `key`, `modifiers`, `label`, `allowInTextFields`, and `preventDefault`. The keyboard engine lives in `assets/js/core/shell/shortcuts.js`.
 - Commands are registered in `assets/js/core/shell/commands.js`; schema normalization is in `assets/js/core/shell/menu-schema.js`; shared menu item rendering is in `assets/js/core/shell/menu-renderer.js`; top menu rendering is in `assets/js/core/shell/menu.js`.
 - Context menus are registered and rendered through `assets/js/core/shell/context-menu.js`. Context targets should use stable `data-aos-context` and `data-aos-context-id` attributes rather than one-off event handlers.
-- Supported context target types include `desktop`, `app`, `desktop-app`, `dock-app`, `folder`, `desktop-folder`, `window`, and `widget`.
+- Supported context target types include `desktop`, `app`, `desktop-app`, `dock-app`, `folder`, `desktop-folder`, `trash-item`, `window`, and `widget`.
 - Context menu providers should compose common command-backed items with target-specific items. Do not add right-click behavior inside dock, desktop, widget, or window modules unless it is exposing target state to the shared context menu system.
 - Runtime modules that need custom behavior should register commands through `window.WPAdminOS.menuCommands.register()` after boot, staying inside the `window.WPAdminOS` namespace.
 - Dropdown rendering must stay generic and schema-driven. App-specific items belong in app `menu` definitions.
 - Do not add app-specific menu conditionals to `templates/shell/menu-bar.php` or the menu renderer. Add command-backed data to the registry/schema instead.
-- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-folder-tab`, `open-url`, `open-about`, `open-system-about`, `open-external-url`, `navigate-url`, `shell.restart`, `shell.switch-classic`, `user.logout`, `session.reset-layout`, `folder.refresh`, `widget.hide`, `window.focus`, `window.focus-id`, `window.close`, `window.minimize`, `window.reload`, `window.history-back`, `window.history-forward`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
+- Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-folder-tab`, `open-url`, `open-about`, `open-system-about`, `open-external-url`, `navigate-url`, `shell.restart`, `shell.switch-classic`, `user.logout`, `session.reset-layout`, `folder.refresh`, `trash.restore`, `trash.delete-immediately`, `trash.empty`, `widget.hide`, `window.focus`, `window.focus-id`, `window.close`, `window.minimize`, `window.reload`, `window.history-back`, `window.history-forward`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
 
 Widgets:
 
@@ -242,6 +242,8 @@ CSS:
 - Avoid one-note palettes and unmaintainable selector sprawl.
 - Keep selectors semantic and aligned with template structure.
 - Do not add visual polish by hard-coding theme-specific values into core component files.
+- Before creating new hover, selected, active, pressed, or right-click visual states, inspect the existing surface that already handles the same object type and reuse its markup classes, state classes, and CSS variables. For desktop/folder/trash objects, prefer the established desktop icon selection contract instead of inventing a parallel highlight mechanism.
+- Divider and separator lines must use neutral divider tokens such as `--aos-line`, `--aos-divider`, `--aos-divider-soft`, or component-specific divider variables. Do not route dividers through accent, wallpaper, tinted-material, or translucent glass border tokens; check Settings, Finder/folder windows, and window titlebars when changing shared border variables.
 
 Accessibility:
 

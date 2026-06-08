@@ -49,8 +49,9 @@
 	--aos-settings-text-title: var(--aos-theme-settings-text-title, 16px);
 	--aos-finder-toolbar-gap: 38px;
 	--aos-finder-toolbar-icon-size: 34px;
+	--aos-finder-divider: var(--aos-line);
 	--aos-finder-tabbar-bg: var(--aos-panel);
-	--aos-finder-tabbar-border: var(--aos-line);
+	--aos-finder-tabbar-border: var(--aos-finder-divider);
 	--aos-finder-tab-bg: transparent;
 	--aos-finder-tab-hover-bg: var(--aos-control-bg-hover);
 	--aos-finder-tab-active-bg: var(--aos-control-bg);
@@ -132,7 +133,7 @@
 
 .aos-settings-pane-header.aos-finder-toolbar {
 	align-items: start;
-	border-bottom: 0;
+	border-bottom: 1px solid var(--aos-finder-divider, var(--aos-line));
 	box-sizing: border-box;
 	display: flex;
 	gap: var(--aos-finder-toolbar-gap, 38px);
@@ -616,6 +617,68 @@
 
 .aos-folder-body .aos-app-launcher {
 	min-height: 84px;
+}
+
+.aos-folder-body .aos-finder-trash-grid {
+	grid-template-columns: repeat(auto-fill, minmax(74px, 92px));
+	gap: 22px 20px;
+	justify-content: start;
+}
+
+.aos-finder-trash-item {
+	color: var(--aos-ink);
+	justify-self: center;
+	text-shadow: none;
+	touch-action: manipulation;
+}
+
+.aos-finder-subbar {
+	align-items: center;
+	border-bottom: 1px solid var(--aos-finder-divider, var(--aos-line));
+	box-sizing: border-box;
+	display: flex;
+	flex: 0 0 auto;
+	gap: 12px;
+	justify-content: space-between;
+	min-height: 30px;
+	padding: 4px 20px;
+}
+
+.aos-finder-subbar-title {
+	color: var(--aos-muted);
+	font-size: var(--aos-settings-text-label);
+	font-weight: var(--aos-weight-semibold);
+	line-height: var(--aos-line-height-tight);
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aos-trash-empty-control {
+	appearance: none;
+	background: var(--aos-control-bg);
+	border: 1px solid var(--aos-card-border);
+	border-radius: 6px;
+	color: var(--aos-ink);
+	cursor: default;
+	font: inherit;
+	font-size: var(--aos-settings-text-caption);
+	font-weight: var(--aos-weight-semibold);
+	line-height: 1;
+	min-height: 18px;
+	padding: 2px 8px;
+}
+
+.aos-trash-empty-control:hover:not(:disabled),
+.aos-trash-empty-control:focus-visible:not(:disabled) {
+	background: var(--aos-control-bg-hover);
+	outline: none;
+}
+
+.aos-trash-empty-control:disabled {
+	color: var(--aos-muted);
+	opacity: 0.58;
 }
 
 .aos-window[data-aos-window-kind="folder-info"] {

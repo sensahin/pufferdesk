@@ -99,6 +99,7 @@
 	.aos-settings-swatch-label {
 		text-align: left;
 	}
+
 }
 
 @media (max-width: 720px) {
@@ -137,4 +138,5 @@
 	.aos-finder-toolbar-caption {
 		display: none;
 	}
+
 }

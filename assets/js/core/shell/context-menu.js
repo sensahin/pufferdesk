@@ -51,6 +51,14 @@
 			return Boolean(folderManager && typeof folderManager.isUserFolder === 'function' && folderManager.isUserFolder(folderId));
 		}
 
+		function getTrashItem(trashId) {
+			return folderManager && typeof folderManager.getTrashItem === 'function' ? folderManager.getTrashItem(trashId) : null;
+		}
+
+		function isTrashFolder(folder) {
+			return Boolean(folder && folder.id === 'trash');
+		}
+
 		function getDesktopSortMode() {
 			return desktopIconManager && typeof desktopIconManager.getSortMode === 'function'
 				? desktopIconManager.getSortMode()
@@ -229,6 +237,12 @@
 				}));
 			}
 
+			if (app.id === 'trash') {
+				items.push(commandItem(getLabel('empty_trash', 'Empty Trash'), 'trash.empty', {
+					icon: 'dashicons-trash'
+				}));
+			}
+
 			items.push(getDockOptionsItem(app, state));
 
 			items.push(
@@ -244,6 +258,23 @@
 		function getFolderItems(folder) {
 			if (!folder) {
 				return [];
+			}
+
+			if (isTrashFolder(folder)) {
+				return [
+					commandItem('Open', 'open-folder', {
+						icon: folder.icon || 'dashicons-trash',
+						target: folder.id
+					}),
+					commandItem(getLabel('open_in_new_tab', 'Open in New Tab'), 'open-folder-tab', {
+						icon: 'dashicons-plus-alt2',
+						target: folder.id
+					}),
+					separator(),
+					commandItem(getLabel('empty_trash', 'Empty Trash'), 'trash.empty', {
+						icon: 'dashicons-trash'
+					})
+				];
 			}
 
 			const items = [
@@ -268,7 +299,7 @@
 						icon: 'dashicons-edit',
 						target: folder.id
 					}),
-					commandItem('Delete', 'folder.delete', {
+					commandItem(getLabel('move_to_trash', 'Move to Trash'), 'folder.delete', {
 						icon: 'dashicons-trash',
 						target: folder.id
 					})
@@ -276,6 +307,25 @@
 			}
 
 			return items;
+		}
+
+		function getTrashItemItems(item, fallbackId = '') {
+			const trashId = item && item.id ? item.id : fallbackId;
+
+			if (!trashId) {
+				return [];
+			}
+
+			return [
+				commandItem(getLabel('put_back', 'Put Back'), 'trash.restore', {
+					icon: 'dashicons-undo',
+					target: trashId
+				}),
+				commandItem(getLabel('delete_immediately', 'Delete Immediately'), 'trash.delete-immediately', {
+					icon: 'dashicons-trash',
+					target: trashId
+				})
+			];
 		}
 
 		function getWindowBrowserUrl(detail = {}, app = null) {
@@ -381,6 +431,14 @@
 			]
 		}));
 		registerProvider('desktop-folder', (detail) => providers.get('folder')(detail));
+		registerProvider('trash-item', (detail) => ({
+			groups: [
+				{
+					id: 'primary',
+					items: getTrashItemItems(detail.trashItem || getTrashItem(detail.id), detail.id)
+				}
+			]
+		}));
 
 		registerProvider('folder-toolbar', (detail) => ({
 			groups: [
@@ -477,6 +535,10 @@
 		let dockLongPress = null;
 		let activeDockPressMenu = null;
 
+		function getTrashItem(trashId) {
+			return folderManager && typeof folderManager.getTrashItem === 'function' ? folderManager.getTrashItem(trashId) : null;
+		}
+
 		function getTargetLabel(target) {
 			return target.dataset.aosContextLabel
 				|| target.getAttribute('aria-label')
@@ -512,6 +574,7 @@
 			const folder = id && folderManager && typeof folderManager.getFolder === 'function'
 				? folderManager.getFolder(id)
 				: (id && Array.isArray(config.folders) ? config.folders.find((item) => item.id === id) : null);
+			const trashItem = type === 'trash-item' && id ? getTrashItem(id) : null;
 			const widget = id && Array.isArray(config.widgets) ? config.widgets.find((item) => item.id === id) : null;
 			const detail = {
 				app,
@@ -523,6 +586,8 @@
 				label: getTargetLabel(target),
 				targetElement: target,
 				type,
+				trashItem,
+				trashItemId: target.dataset.aosTrashItemId || '',
 				widget,
 				widgetElement: target.dataset.aosWidget ? target : null,
 				widgetId: target.dataset.aosWidget || '',
@@ -530,7 +595,7 @@
 			};
 
 			if (!detail.label) {
-				detail.label = app && app.label ? app.label : folder && folder.label ? folder.label : widget && widget.label ? widget.label : '';
+				detail.label = app && app.label ? app.label : folder && folder.label ? folder.label : trashItem && trashItem.label ? trashItem.label : widget && widget.label ? widget.label : '';
 			}
 
 			if (!detail.label && windowElement && windowElement.dataset) {
@@ -637,12 +702,15 @@
 		}
 
 		function activateContextTarget(detail = {}) {
-			if (!detail.targetElement || detail.type !== 'dock-app') {
+			if (!detail.targetElement || !['dock-app', 'trash-item'].includes(detail.type)) {
 				return;
 			}
 
 			activeContextTarget = detail.targetElement;
-			activeContextTarget.classList.add('is-context-menu-active', 'is-tooltip-dismissed');
+			activeContextTarget.classList.add('is-context-menu-active');
+			if (detail.type === 'dock-app') {
+				activeContextTarget.classList.add('is-tooltip-dismissed');
+			}
 		}
 
 		function hasMenuItems(menuDefinition) {

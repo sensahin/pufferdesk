@@ -16,6 +16,7 @@ final class WP_AdminOS_User_Preferences {
 	const META_APP_LOCATIONS = 'wp_adminos_app_locations';
 	const META_DESKTOP_DOCK = 'wp_adminos_desktop_dock';
 	const META_DESKTOP_FOLDERS = 'wp_adminos_desktop_folders';
+	const META_DESKTOP_TRASH = 'wp_adminos_desktop_trash';
 	const META_ENABLED    = 'wp_adminos_enabled';
 	const META_MENU_BAR   = 'wp_adminos_menu_bar';
 	const META_THEME      = 'wp_adminos_theme';
@@ -27,6 +28,7 @@ final class WP_AdminOS_User_Preferences {
 	const RESET_DOMAIN_APP_LOCATIONS = 'app_locations';
 	const RESET_DOMAIN_DESKTOP_DOCK = 'desktop_dock';
 	const RESET_DOMAIN_DESKTOP_FOLDERS = 'desktop_folders';
+	const RESET_DOMAIN_DESKTOP_TRASH = 'desktop_trash';
 	const RESET_DOMAIN_MENU_BAR = 'menu_bar';
 	const RESET_DOMAIN_THEME = 'theme';
 	const RESET_DOMAIN_WALLPAPER = 'wallpaper';
@@ -362,6 +364,41 @@ final class WP_AdminOS_User_Preferences {
 	}
 
 	/**
+	 * Get the user's desktop Trash.
+	 *
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param int                            $user_id Optional user ID.
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function get_desktop_trash( $apps, $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$items   = get_user_meta( $user_id, self::META_DESKTOP_TRASH, true );
+
+		return $this->sanitize_desktop_trash( is_array( $items ) ? $items : array(), $apps );
+	}
+
+	/**
+	 * Save the user's desktop Trash.
+	 *
+	 * @param array<int,array<string,mixed>> $items Desktop Trash item data.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param int                            $user_id Optional user ID.
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function set_desktop_trash( $items, $apps, $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$items   = $this->sanitize_desktop_trash( is_array( $items ) ? $items : array(), $apps );
+
+		if ( empty( $items ) ) {
+			delete_user_meta( $user_id, self::META_DESKTOP_TRASH );
+		} else {
+			update_user_meta( $user_id, self::META_DESKTOP_TRASH, $items );
+		}
+
+		return $items;
+	}
+
+	/**
 	 * Filter apps for a shell launch surface.
 	 *
 	 * @param array<int,array<string,mixed>> $apps Available apps.
@@ -611,6 +648,7 @@ final class WP_AdminOS_User_Preferences {
 			self::RESET_DOMAIN_APP_LOCATIONS,
 			self::RESET_DOMAIN_DESKTOP_DOCK,
 			self::RESET_DOMAIN_DESKTOP_FOLDERS,
+			self::RESET_DOMAIN_DESKTOP_TRASH,
 			self::RESET_DOMAIN_MENU_BAR,
 			self::RESET_DOMAIN_THEME,
 			self::RESET_DOMAIN_WALLPAPER,
@@ -770,6 +808,100 @@ final class WP_AdminOS_User_Preferences {
 	}
 
 	/**
+	 * Sanitize desktop Trash records.
+	 *
+	 * Desktop Trash currently stores WP adminOS-owned user folder snapshots only.
+	 * Apps inside those folders are registry references; they are never deleted by
+	 * Trash and missing plugin-derived references are dropped during sanitization.
+	 *
+	 * @param array<int,array<string,mixed>> $items Raw Trash records.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function sanitize_desktop_trash( $items, $apps ) {
+		$sanitized = array();
+		$seen      = array();
+
+		foreach ( (array) $items as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+
+			$type = isset( $item['type'] ) ? sanitize_key( (string) $item['type'] ) : 'folder';
+			if ( 'folder' !== $type ) {
+				continue;
+			}
+
+			$folder = $this->sanitize_desktop_folders(
+				array( isset( $item['folder'] ) && is_array( $item['folder'] ) ? $item['folder'] : array() ),
+				$apps
+			);
+			if ( empty( $folder[0] ) ) {
+				continue;
+			}
+
+			$folder = $folder[0];
+			$id     = isset( $item['id'] ) ? sanitize_key( (string) $item['id'] ) : '';
+			$id     = '' !== $id ? $id : 'folder-' . $folder['id'];
+			if ( isset( $seen[ $id ] ) ) {
+				continue;
+			}
+
+			$label = isset( $item['label'] ) ? sanitize_text_field( (string) $item['label'] ) : '';
+			$label = '' !== $label ? $label : $folder['label'];
+
+			$sanitized[] = array(
+				'folder'    => $folder,
+				'icon'      => WP_AdminOS_Icon_Renderer::normalize( isset( $item['icon'] ) ? $item['icon'] : $folder['icon'] ),
+				'id'        => $id,
+				'label'     => $label,
+				'restore'   => $this->sanitize_desktop_trash_restore( isset( $item['restore'] ) && is_array( $item['restore'] ) ? $item['restore'] : array() ),
+				'trashedAt' => $this->sanitize_desktop_folder_timestamp( isset( $item['trashedAt'] ) ? $item['trashedAt'] : '', gmdate( 'c' ) ),
+				'type'      => 'folder',
+			);
+			$seen[ $id ] = true;
+
+			if ( count( $sanitized ) >= 100 ) {
+				break;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize desktop Trash restore metadata.
+	 *
+	 * @param array<string,mixed> $restore Raw restore metadata.
+	 * @return array<string,mixed>
+	 */
+	private function sanitize_desktop_trash_restore( $restore ) {
+		$sanitized = array(
+			'previousParent' => 'desktop',
+		);
+
+		if ( isset( $restore['desktopPosition'] ) && is_array( $restore['desktopPosition'] ) ) {
+			$position = array();
+			$left     = $this->sanitize_layout_number( isset( $restore['desktopPosition']['left'] ) ? $restore['desktopPosition']['left'] : null );
+			$top      = $this->sanitize_layout_number( isset( $restore['desktopPosition']['top'] ) ? $restore['desktopPosition']['top'] : null );
+
+			if ( null !== $left ) {
+				$position['left'] = $left;
+			}
+
+			if ( null !== $top ) {
+				$position['top'] = $top;
+			}
+
+			if ( ! empty( $position ) ) {
+				$sanitized['desktopPosition'] = $position;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
 	 * Sanitize desktop folder definitions.
 	 *
 	 * @param array<int,array<string,mixed>> $folders Raw desktop folders.
@@ -780,7 +912,7 @@ final class WP_AdminOS_User_Preferences {
 		$sanitized      = array();
 		$folder_ids     = array();
 		$folder_labels  = array();
-		$reserved_ids   = array( 'content', 'site', 'system' );
+		$reserved_ids   = array( 'content', 'site', 'system', 'trash' );
 		$available_apps = array();
 
 		foreach ( (array) $apps as $app ) {
@@ -836,6 +968,20 @@ final class WP_AdminOS_User_Preferences {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Sanitize a layout coordinate.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return int|null
+	 */
+	private function sanitize_layout_number( $value ) {
+		if ( ! is_numeric( $value ) ) {
+			return null;
+		}
+
+		return max( 0, min( 5000, (int) round( (float) $value ) ) );
 	}
 
 	/**
@@ -965,6 +1111,7 @@ final class WP_AdminOS_User_Preferences {
 			self::RESET_DOMAIN_APP_LOCATIONS     => self::META_APP_LOCATIONS,
 			self::RESET_DOMAIN_DESKTOP_DOCK      => self::META_DESKTOP_DOCK,
 			self::RESET_DOMAIN_DESKTOP_FOLDERS   => self::META_DESKTOP_FOLDERS,
+			self::RESET_DOMAIN_DESKTOP_TRASH     => self::META_DESKTOP_TRASH,
 			self::RESET_DOMAIN_MENU_BAR          => self::META_MENU_BAR,
 			self::RESET_DOMAIN_THEME             => self::META_THEME,
 			self::RESET_DOMAIN_WALLPAPER         => self::META_WALLPAPER,

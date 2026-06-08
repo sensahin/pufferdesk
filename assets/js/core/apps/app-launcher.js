@@ -12,6 +12,7 @@
 		const folderMap = new Map(folders.map((folder) => [folder.id, folder]));
 		const folderWindowHistory = new WeakMap();
 		const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
+		const trashFolderId = 'trash';
 		let folderTabSequence = 0;
 		let folderProvider = null;
 		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object'
@@ -35,11 +36,28 @@
 					: null);
 		}
 
+		function isTrashFolderId(folderId) {
+			return folderId === trashFolderId;
+		}
+
+		function getTrashFolder() {
+			const app = appMap.get('trash') || {};
+
+			return {
+				icon: app.icon || 'dashicons-trash',
+				id: trashFolderId,
+				kind: 'system',
+				label: getMenuLabel('trash', 'Trash'),
+				special: 'trash',
+				user: false
+			};
+		}
+
 		function getFolder(folderId) {
 			const provider = getFolderProvider();
 			const folder = provider && typeof provider.getFolder === 'function' ? provider.getFolder(folderId) : null;
 
-			return folder || folderMap.get(folderId) || null;
+			return folder || folderMap.get(folderId) || (isTrashFolderId(folderId) ? getTrashFolder() : null);
 		}
 
 		function getFolders() {
@@ -48,16 +66,51 @@
 				? provider.getFolders()
 				: folders;
 
-			return Array.isArray(availableFolders) ? availableFolders.filter(Boolean) : [];
+			const normalized = Array.isArray(availableFolders) ? availableFolders.filter(Boolean) : [];
+
+			return normalized.some((folder) => folder && folder.id === trashFolderId)
+				? normalized
+				: normalized.concat(getTrashFolder());
 		}
 
 		function getFolderApps(folderId) {
+			if (isTrashFolderId(folderId)) {
+				return [];
+			}
+
 			const provider = getFolderProvider();
 			const folderApps = provider && typeof provider.getFolderApps === 'function'
 				? provider.getFolderApps(folderId)
 				: apps.filter((app) => app.group === folderId);
 
 			return folderApps.filter((app) => app && !isHiddenFromLaunchSurfaces(app));
+		}
+
+		function getTrashItems() {
+			const provider = getFolderProvider();
+
+			return provider && typeof provider.getTrashItems === 'function' ? provider.getTrashItems() : [];
+		}
+
+		function getTrashCount() {
+			const provider = getFolderProvider();
+
+			return provider && typeof provider.getTrashCount === 'function' ? provider.getTrashCount() : getTrashItems().length;
+		}
+
+		function executeCommand(command, payload = {}) {
+			const commands = window.WPAdminOS.menuCommands;
+
+			if (commands && typeof commands.execute === 'function') {
+				commands.execute({
+					command,
+					label: '',
+					payload,
+					target: payload.target || ''
+				}, {
+					kind: 'trash'
+				});
+			}
 		}
 
 		function isUserFolder(folderId) {
@@ -141,6 +194,10 @@
 		}
 
 		function openApp(appId) {
+			if (appId === 'trash') {
+				return openTrash();
+			}
+
 			const options = getWindowOptions(appId);
 			const app = appMap.get(appId);
 			if (!options) {
@@ -161,6 +218,10 @@
 			}
 
 			return win;
+		}
+
+		function openTrash(options = {}) {
+			return openFolder(trashFolderId, options);
 		}
 
 		function openSettingsPanel(panelId) {
@@ -269,8 +330,66 @@
 			return button;
 		}
 
+		function selectFinderItem(button) {
+			const grid = button ? button.closest('.aos-finder-grid') : null;
+
+			if (grid) {
+				grid.querySelectorAll('.aos-finder-trash-item.is-selected').forEach((item) => {
+					item.classList.remove('is-selected');
+					item.setAttribute('aria-selected', 'false');
+					item.setAttribute('aria-pressed', 'false');
+				});
+			}
+
+			if (button) {
+				button.classList.add('is-selected');
+				button.setAttribute('aria-selected', 'true');
+				button.setAttribute('aria-pressed', 'true');
+			}
+		}
+
+		function createTrashItemButton(item) {
+			const button = document.createElement('button');
+			const label = item && item.label ? item.label : getMenuLabel('folder', 'Folder');
+			const icon = item && item.icon ? item.icon : item && item.folder && item.folder.icon ? item.folder.icon : 'dashicons-category';
+
+			button.type = 'button';
+			button.className = 'aos-desktop-icon aos-desktop-folder aos-finder-trash-item';
+			button.dataset.aosContext = 'trash-item';
+			button.dataset.aosContextId = item.id;
+			button.dataset.aosContextLabel = label;
+			button.dataset.aosTrashItemId = item.id;
+			button.setAttribute('aria-label', label);
+			button.setAttribute('aria-pressed', 'false');
+			button.setAttribute('aria-selected', 'false');
+
+			const appIcon = document.createElement('span');
+			appIcon.className = 'aos-app-icon';
+			appIcon.appendChild(dom.createIcon(icon));
+
+			const itemLabel = document.createElement('span');
+			itemLabel.className = 'aos-desktop-app-label';
+			itemLabel.textContent = label;
+
+			button.append(appIcon, itemLabel);
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				selectFinderItem(button);
+			});
+			button.addEventListener('contextmenu', (event) => {
+				event.preventDefault();
+				selectFinderItem(button);
+			});
+
+			return button;
+		}
+
 		function getFolderTitle(folder) {
 			const folderLabel = folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin');
+
+			if (folder && folder.id === trashFolderId) {
+				return folderLabel;
+			}
 
 			return `${folderLabel} ${getMenuLabel('folder_suffix', 'Folder')}`;
 		}
@@ -808,6 +927,26 @@
 			});
 		}
 
+		function createTrashSubbar() {
+			const bar = dom.createElement('div', 'aos-finder-subbar aos-trash-subbar');
+			const title = dom.createElement('strong', 'aos-finder-subbar-title', getMenuLabel('trash', 'Trash'));
+			const emptyButton = document.createElement('button');
+
+			emptyButton.type = 'button';
+			emptyButton.className = 'aos-trash-empty-control';
+			emptyButton.dataset.aosNoDrag = '';
+			emptyButton.disabled = getTrashCount() <= 0;
+			emptyButton.textContent = getMenuLabel('empty', 'Empty');
+			emptyButton.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				executeCommand('trash.empty');
+			});
+			bar.append(title, emptyButton);
+
+			return bar;
+		}
+
 		function activateFolderTab(win, tabId, options = {}) {
 			const state = getFolderWindowTabs(win);
 			const tab = state.tabs.find((item) => item.id === tabId);
@@ -1008,7 +1147,9 @@
 
 		function createFolderMain(folderId, win) {
 			const folder = getFolder(folderId);
-			const folderApps = getFolderApps(folderId);
+			const isTrash = isTrashFolderId(folderId);
+			const folderApps = isTrash ? [] : getFolderApps(folderId);
+			const trashItems = isTrash ? getTrashItems() : [];
 			const removable = isUserFolder(folderId);
 			const toolbarDisplayMode = getFolderToolbarDisplayMode(win);
 			const main = dom.createElement('main', 'aos-settings-main aos-finder-main');
@@ -1018,6 +1159,7 @@
 			const history = dom.createElement('div', 'aos-settings-history aos-finder-history');
 			const title = dom.createElement('h1', 'aos-finder-title', folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin'));
 			const tabs = createFolderTabs(win);
+			const subbar = isTrash ? createTrashSubbar() : null;
 			const pane = dom.createElement('div', 'aos-settings-pane aos-finder-pane');
 
 			header.dataset.aosContext = 'folder-toolbar';
@@ -1032,6 +1174,17 @@
 			historyGroup.append(history, dom.createElement('span', 'aos-finder-toolbar-caption', 'Back/Forward'));
 			leading.append(historyGroup, title);
 			header.append(leading, createFolderToolbarActions());
+
+			if (isTrash) {
+				if (trashItems.length) {
+					const grid = document.createElement('div');
+					grid.className = 'aos-app-grid aos-finder-grid aos-finder-trash-grid';
+					trashItems.forEach((item) => grid.appendChild(createTrashItemButton(item)));
+					pane.appendChild(grid);
+				}
+				main.append(...[header, tabs, subbar, pane].filter(Boolean));
+				return main;
+			}
 
 			if (!folderApps.length) {
 				main.append(...[header, tabs, pane].filter(Boolean));
@@ -1235,6 +1388,7 @@
 
 			const placeholder = document.createElement('div');
 			const win = manager.createWindow({
+				appId: isTrashFolderId(folderId) ? 'trash' : '',
 				title: folderTitle,
 				icon: folder && folder.icon ? folder.icon : 'dashicons-admin-generic',
 				content: placeholder,
@@ -1259,6 +1413,17 @@
 			}
 
 			return win;
+		}
+
+		function refreshTrashWindows() {
+			Array.from(shell.querySelectorAll(`.aos-window[data-aos-folder-window="${dom.escapeAttribute(trashFolderId)}"]:not(.is-closed)`))
+				.forEach((win) => {
+					renderFolderWindow(win, trashFolderId, {
+						replaceHistory: true,
+						save: false,
+						touch: false
+					});
+				});
 		}
 
 		function getFolderInfoWindow(folderId) {
@@ -1462,6 +1627,8 @@
 			});
 		}
 
+		shell.addEventListener('wpAdminOS:trash-change', refreshTrashWindows);
+
 		return {
 			bindShellClicks,
 			closeFolderInfoWindow,
@@ -1472,6 +1639,7 @@
 			openFolder,
 			openFolderTab,
 			openFolderInfo,
+			openTrash,
 			openSettingsPanel,
 			openSiteAbout,
 			openUrl,

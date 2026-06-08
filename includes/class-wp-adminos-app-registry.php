@@ -139,6 +139,15 @@ final class WP_AdminOS_App_Registry {
 				'cap'   => 'manage_options',
 			),
 			array(
+				'id'     => 'trash',
+				'label'  => __( 'Trash', 'wp-adminos' ),
+				'icon'   => $this->theme_icon( 'trash-empty.svg', 'dashicons-trash' ),
+				'group'  => 'system',
+				'cap'    => self::DEFAULT_CAPABILITY,
+				'kind'   => 'native',
+				'native' => 'trash',
+			),
+			array(
 				'id'    => 'site-health',
 				'label' => __( 'Site Health', 'wp-adminos' ),
 				'url'   => admin_url( 'site-health.php' ),

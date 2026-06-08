@@ -80,6 +80,7 @@ final class WP_AdminOS_Settings_Controller {
 		add_action( 'wp_ajax_wp_adminos_save_app_locations', array( $this, 'save_app_locations' ) );
 		add_action( 'wp_ajax_wp_adminos_save_desktop_dock', array( $this, 'save_desktop_dock' ) );
 		add_action( 'wp_ajax_wp_adminos_save_desktop_folders', array( $this, 'save_desktop_folders' ) );
+		add_action( 'wp_ajax_wp_adminos_save_desktop_trash', array( $this, 'save_desktop_trash' ) );
 		add_action( 'wp_ajax_wp_adminos_save_menu_bar', array( $this, 'save_menu_bar' ) );
 		add_action( 'wp_ajax_wp_adminos_save_theme', array( $this, 'save_theme' ) );
 		add_action( 'wp_ajax_wp_adminos_save_wallpaper', array( $this, 'save_wallpaper' ) );
@@ -223,6 +224,41 @@ final class WP_AdminOS_Settings_Controller {
 			array(
 				'desktopFolders' => $folders,
 				'message'        => __( 'Desktop folders saved.', 'wp-adminos' ),
+			)
+		);
+	}
+
+	/**
+	 * Save the current user's desktop Trash.
+	 */
+	public function save_desktop_trash() {
+		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You do not have permission to change WP adminOS Trash.', 'wp-adminos' ),
+				),
+				403
+			);
+		}
+
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The settings nonce is verified above.
+		$raw_items = isset( $_POST['items'] ) && ! is_array( $_POST['items'] )
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The settings nonce is verified above.
+			? sanitize_textarea_field( wp_unslash( $_POST['items'] ) )
+			: '[]';
+		$items = is_string( $raw_items ) ? json_decode( $raw_items, true ) : array();
+		$apps  = $this->app_registry->get_apps();
+		$items = $this->preferences->set_desktop_trash(
+			is_array( $items ) ? $items : array(),
+			$apps
+		);
+
+		wp_send_json_success(
+			array(
+				'desktopTrash' => $items,
+				'message'      => __( 'Trash saved.', 'wp-adminos' ),
 			)
 		);
 	}

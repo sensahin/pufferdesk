@@ -165,6 +165,7 @@
 			openFolder: launcher.openFolder,
 			openFolderTab: launcher.openFolderTab,
 			openFolderInfo: launcher.openFolderInfo,
+			openTrash: launcher.openTrash,
 			openSiteAbout: launcher.openSiteAbout,
 			openUrl: launcher.openUrl
 		};

@@ -179,6 +179,9 @@
 			if (folderManager && typeof folderManager.syncDesktopAppVisibility === 'function') {
 				folderManager.syncDesktopAppVisibility();
 			}
+			if (folderManager && typeof folderManager.syncTrashSurfaceState === 'function') {
+				folderManager.syncTrashSurfaceState();
+			}
 			if (desktopIconManager && typeof desktopIconManager.rebind === 'function') {
 				desktopIconManager.rebind();
 			}

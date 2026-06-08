@@ -343,10 +343,10 @@ final class WP_AdminOS_Assets {
 				'path' => 'assets/js/core/apps/settings-app.js',
 				'deps' => array( 'wp-adminos-dom', 'wp-adminos-storage', 'wp-adminos-api-client', 'wp-adminos-appearance', 'wp-adminos-desktop-dock', 'wp-adminos-menu-bar-state', 'wp-adminos-wallpaper', 'wp-adminos-app-surfaces', 'wp-adminos-native-apps', 'wp-adminos-settings-labels', 'wp-adminos-settings-ui', 'wp-adminos-settings-panel-general', 'wp-adminos-settings-panel-profile', 'wp-adminos-settings-panel-appearance', 'wp-adminos-settings-panel-desktop-dock', 'wp-adminos-settings-panel-menu-bar', 'wp-adminos-settings-panel-wallpaper' ),
 			),
-			'wp-adminos-app-launcher'   => array(
-				'path' => 'assets/js/core/apps/app-launcher.js',
-				'deps' => array( 'wp-adminos-dom', 'wp-adminos-about-window', 'wp-adminos-site-about-window', 'wp-adminos-native-apps', 'wp-adminos-settings-app' ),
-			),
+				'wp-adminos-app-launcher'   => array(
+					'path' => 'assets/js/core/apps/app-launcher.js',
+					'deps' => array( 'wp-adminos-dom', 'wp-adminos-about-window', 'wp-adminos-site-about-window', 'wp-adminos-native-apps', 'wp-adminos-settings-app' ),
+				),
 			'wp-adminos-search'         => array(
 				'path' => 'assets/js/core/shell/search.js',
 				'deps' => array( 'wp-adminos-config' ),
@@ -416,6 +416,7 @@ final class WP_AdminOS_Assets {
 		$current_user = wp_get_current_user();
 		$role_label   = $this->get_user_role_label( $current_user );
 		$desktop_folders = $this->preferences->get_desktop_folders( $apps );
+		$desktop_trash   = $this->preferences->get_desktop_trash( $apps );
 		$workspace_folders = array_merge( $folders, $desktop_folders );
 		$workspace_state   = $this->workspace_state->get_state( $theme['id'], $apps, $widgets, $workspace_folders );
 
@@ -428,6 +429,7 @@ final class WP_AdminOS_Assets {
 			'classicUrl'     => $this->router->get_toggle_url( false ),
 			'desktopDock'    => $this->preferences->get_desktop_dock(),
 			'desktopFolders' => $desktop_folders,
+			'desktopTrash'   => $desktop_trash,
 			'logoutUrl'      => $this->get_logout_url(),
 			'menuBar'        => $this->preferences->get_menu_bar(),
 			'settings'       => $this->get_settings_config( $theme ),
@@ -1385,8 +1387,14 @@ final class WP_AdminOS_Assets {
 				'folder_suffix'          => __( 'Folder', 'wp-adminos' ),
 				'open_in_new_tab'        => __( 'Open in New Tab', 'wp-adminos' ),
 				'new_tab'                => __( 'New Tab', 'wp-adminos' ),
-				'close_tab'              => __( 'Close Tab', 'wp-adminos' ),
-				'folder_tabs'            => __( 'Folder Tabs', 'wp-adminos' ),
+					'close_tab'              => __( 'Close Tab', 'wp-adminos' ),
+					'folder_tabs'            => __( 'Folder Tabs', 'wp-adminos' ),
+					'trash'                  => __( 'Trash', 'wp-adminos' ),
+					'empty'                  => __( 'Empty', 'wp-adminos' ),
+					'move_to_trash'          => __( 'Move to Trash', 'wp-adminos' ),
+				'put_back'               => __( 'Put Back', 'wp-adminos' ),
+				'empty_trash'            => __( 'Empty Trash', 'wp-adminos' ),
+				'delete_immediately'     => __( 'Delete Immediately', 'wp-adminos' ),
 				'launcher'               => $shell_labels['launcher'],
 				'launcher_options'       => $shell_labels['launcher_options'],
 				'keep_in_launcher'       => $shell_labels['keep_in_launcher'],

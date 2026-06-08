@@ -706,7 +706,12 @@
 		register('folder.delete', {
 			isEnabled(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
-				return Boolean(folderManager && typeof folderManager.isUserFolder === 'function' && folderManager.isUserFolder(folderId));
+				return Boolean(
+					folderManager
+					&& typeof folderManager.isUserFolder === 'function'
+					&& typeof folderManager.moveFolderToTrash === 'function'
+					&& folderManager.isUserFolder(folderId)
+				);
 			},
 			async run(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
@@ -714,14 +719,68 @@
 				const confirmed = dialogs && typeof dialogs.confirm === 'function'
 					? await dialogs.confirm({
 						cancelLabel: 'Cancel',
-						confirmLabel: 'Delete',
-						message: 'The apps inside this folder will stay available in their configured locations.',
-						title: `Delete "${folder && folder.label ? folder.label : 'Folder'}"?`
+						confirmLabel: 'Move to Trash',
+						message: 'Only this WP adminOS folder will be moved. Apps and plugins inside it stay installed and available.',
+						title: `Move "${folder && folder.label ? folder.label : 'Folder'}" to Trash?`
 					})
-					: window.confirm(`Delete "${folder && folder.label ? folder.label : 'Folder'}"?`);
+					: window.confirm(`Move "${folder && folder.label ? folder.label : 'Folder'}" to Trash?`);
 
 				if (confirmed) {
-					folderManager.deleteFolder(folderId);
+					folderManager.moveFolderToTrash(folderId);
+				}
+			}
+		});
+
+		register('trash.restore', {
+			isEnabled(payload) {
+				return Boolean(folderManager && typeof folderManager.restoreTrashItem === 'function' && payload.target);
+			},
+			run(payload) {
+				folderManager.restoreTrashItem(payload.target);
+			}
+		});
+
+		register('trash.delete-immediately', {
+			isEnabled(payload) {
+				return Boolean(folderManager && typeof folderManager.deleteTrashItem === 'function' && payload.target);
+			},
+			async run(payload) {
+				const confirmed = dialogs && typeof dialogs.confirm === 'function'
+					? await dialogs.confirm({
+						cancelLabel: 'Cancel',
+						confirmLabel: 'Delete',
+						message: 'This permanently deletes the WP adminOS folder record. Apps and plugins are not deleted.',
+						title: 'Delete Immediately?'
+					})
+					: window.confirm('Delete this WP adminOS folder record immediately?');
+
+				if (confirmed) {
+					folderManager.deleteTrashItem(payload.target);
+				}
+			}
+		});
+
+		register('trash.empty', {
+			isEnabled() {
+				return Boolean(
+					folderManager
+					&& typeof folderManager.emptyTrash === 'function'
+					&& typeof folderManager.getTrashCount === 'function'
+					&& folderManager.getTrashCount() > 0
+				);
+			},
+			async run() {
+				const confirmed = dialogs && typeof dialogs.confirm === 'function'
+					? await dialogs.confirm({
+						cancelLabel: 'Cancel',
+						confirmLabel: 'Empty Trash',
+						message: 'This permanently deletes all trashed WP adminOS folder records. Apps and plugins are not deleted.',
+						title: 'Empty Trash?'
+					})
+					: window.confirm('Empty Trash?');
+
+				if (confirmed) {
+					folderManager.emptyTrash();
 				}
 			}
 		});
