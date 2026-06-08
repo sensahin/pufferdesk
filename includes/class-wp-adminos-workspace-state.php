@@ -1,0 +1,580 @@
+<?php
+/**
+ * Per-user workspace layout state.
+ *
+ * @package WPAdminOS
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Persists theme-scoped workspace layout for a WordPress user.
+ */
+final class WP_AdminOS_Workspace_State {
+	const META_PREFIX = 'wp_adminos_workspace_state';
+	const VERSION     = 2;
+
+	/**
+	 * Get a user's workspace state for a theme.
+	 *
+	 * @param string                         $theme_id Theme ID.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param array<int,array<string,mixed>> $widgets Available widgets.
+	 * @param array<int,array<string,mixed>> $folders Available folders.
+	 * @param int                            $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function get_state( $theme_id, $apps, $widgets, $folders = array(), $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$state   = get_user_meta( $user_id, $this->get_meta_key( $theme_id ), true );
+
+		return $this->sanitize_state( is_array( $state ) ? $state : array(), $apps, $widgets, $folders );
+	}
+
+	/**
+	 * Save a user's workspace state for a theme.
+	 *
+	 * @param string                         $theme_id Theme ID.
+	 * @param array<string,mixed>            $state Workspace state.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param array<int,array<string,mixed>> $widgets Available widgets.
+	 * @param array<int,array<string,mixed>> $folders Available folders.
+	 * @param int                            $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function set_state( $theme_id, $state, $apps, $widgets, $folders = array(), $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$state   = $this->sanitize_state( is_array( $state ) ? $state : array(), $apps, $widgets, $folders );
+
+		if ( empty( $state['updatedAt'] ) ) {
+			$state['updatedAt'] = $this->now_milliseconds();
+		}
+
+		update_user_meta( $user_id, $this->get_meta_key( $theme_id ), $state );
+
+		return $state;
+	}
+
+	/**
+	 * Delete a user's workspace state for a theme.
+	 *
+	 * @param string $theme_id Theme ID.
+	 * @param int    $user_id Optional user ID.
+	 */
+	public function delete_state( $theme_id, $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		delete_user_meta( $user_id, $this->get_meta_key( $theme_id ) );
+	}
+
+	/**
+	 * Delete all WP adminOS workspace state for a user.
+	 *
+	 * @param int $user_id Optional user ID.
+	 * @return int Number of meta keys deleted.
+	 */
+	public function delete_all_states( $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$meta    = get_user_meta( $user_id );
+		$deleted = 0;
+
+		foreach ( array_keys( $meta ) as $meta_key ) {
+			if ( 0 !== strpos( $meta_key, self::META_PREFIX . '_' ) ) {
+				continue;
+			}
+
+			delete_user_meta( $user_id, $meta_key );
+			$deleted++;
+		}
+
+		return $deleted;
+	}
+
+	/**
+	 * Return an empty workspace state.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_default_state() {
+		return array(
+			'version'      => self::VERSION,
+			'updatedAt'    => 0,
+			'windows'      => array(),
+			'widgets'      => array(),
+			'desktopIcons' => array(),
+			'desktopSort'  => array(
+				'mode' => 'none',
+			),
+			'recentItems'  => array(),
+		);
+	}
+
+	/**
+	 * Sanitize a workspace state payload.
+	 *
+	 * @param array<string,mixed>            $state Raw state.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param array<int,array<string,mixed>> $widgets Available widgets.
+	 * @param array<int,array<string,mixed>> $folders Available folders.
+	 * @return array<string,mixed>
+	 */
+	public function sanitize_state( $state, $apps, $widgets, $folders = array() ) {
+		$default = $this->get_default_state();
+
+		return array(
+			'version'      => self::VERSION,
+			'updatedAt'    => isset( $state['updatedAt'] ) ? $this->sanitize_timestamp( $state['updatedAt'] ) : $default['updatedAt'],
+			'windows'      => $this->sanitize_windows( isset( $state['windows'] ) ? $state['windows'] : array(), $apps ),
+			'widgets'      => $this->sanitize_widgets( isset( $state['widgets'] ) ? $state['widgets'] : array(), $widgets ),
+			'desktopIcons' => $this->sanitize_desktop_icons( isset( $state['desktopIcons'] ) ? $state['desktopIcons'] : array(), $apps, $folders ),
+			'desktopSort'  => $this->sanitize_desktop_sort( isset( $state['desktopSort'] ) ? $state['desktopSort'] : array() ),
+			'recentItems'  => $this->sanitize_recent_items( isset( $state['recentItems'] ) ? $state['recentItems'] : array(), $apps, $folders ),
+		);
+	}
+
+	/**
+	 * Build the user meta key for a site/theme scope.
+	 *
+	 * @param string $theme_id Theme ID.
+	 * @return string
+	 */
+	private function get_meta_key( $theme_id ) {
+		$theme_id = sanitize_key( (string) $theme_id );
+		$theme_id = '' !== $theme_id ? $theme_id : 'default';
+
+		return self::META_PREFIX . '_' . absint( get_current_blog_id() ) . '_' . $theme_id;
+	}
+
+	/**
+	 * Sanitize window layout records.
+	 *
+	 * @param mixed                          $windows Raw window records.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function sanitize_windows( $windows, $apps ) {
+		$available = $this->get_available_ids( $apps );
+		$sanitized = array();
+
+		foreach ( is_array( $windows ) ? $windows : array() as $window ) {
+			if ( ! is_array( $window ) ) {
+				continue;
+			}
+
+			$app_id = isset( $window['appId'] ) ? sanitize_key( (string) $window['appId'] ) : '';
+			if ( ! $this->is_allowed_app_id( $app_id, $available ) ) {
+				continue;
+			}
+
+			$sanitized[] = array(
+				'kind'  => 'app',
+				'appId' => $app_id,
+				'state' => $this->sanitize_rect_state(
+					isset( $window['state'] ) && is_array( $window['state'] ) ? $window['state'] : array(),
+					array(
+						'min_width'  => 240,
+						'min_height' => 160,
+						'z_index'    => true,
+						'closed'     => true,
+						'maximized'  => true,
+					)
+				),
+			);
+
+			if ( count( $sanitized ) >= 80 ) {
+				break;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize widget layout records.
+	 *
+	 * @param mixed                          $widgets_state Raw widget records.
+	 * @param array<int,array<string,mixed>> $widgets Available widgets.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function sanitize_widgets( $widgets_state, $widgets ) {
+		$available = $this->get_available_ids( $widgets );
+		$sanitized = array();
+
+		foreach ( is_array( $widgets_state ) ? $widgets_state : array() as $widget ) {
+			if ( ! is_array( $widget ) ) {
+				continue;
+			}
+
+			$id = isset( $widget['id'] ) ? sanitize_key( (string) $widget['id'] ) : '';
+			if ( '' === $id || ! isset( $available[ $id ] ) ) {
+				continue;
+			}
+
+			$sanitized[] = array(
+				'id'    => $id,
+				'state' => $this->sanitize_rect_state(
+					isset( $widget['state'] ) && is_array( $widget['state'] ) ? $widget['state'] : array(),
+					array(
+						'min_width'  => 80,
+						'min_height' => 60,
+					)
+				),
+			);
+
+			if ( count( $sanitized ) >= 50 ) {
+				break;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize desktop icon layout records.
+	 *
+	 * @param mixed                          $icons Raw icon records.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param array<int,array<string,mixed>> $folders Available folders.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function sanitize_desktop_icons( $icons, $apps, $folders ) {
+		$available_apps    = $this->get_available_ids( $apps );
+		$available_folders = $this->get_available_ids( $folders );
+		$sanitized         = array();
+		$seen              = array();
+
+		foreach ( is_array( $icons ) ? $icons : array() as $icon ) {
+			if ( ! is_array( $icon ) ) {
+				continue;
+			}
+
+			$id = isset( $icon['id'] ) ? sanitize_text_field( (string) $icon['id'] ) : '';
+			if ( '' === $id || isset( $seen[ $id ] ) || ! $this->is_allowed_desktop_icon_id( $id, $available_apps, $available_folders ) ) {
+				continue;
+			}
+
+			$kind         = isset( $icon['kind'] ) ? sanitize_key( (string) $icon['kind'] ) : 'item';
+			$sanitized[] = array(
+				'id'    => $id,
+				'kind'  => in_array( $kind, array( 'app', 'folder', 'item' ), true ) ? $kind : 'item',
+				'state' => $this->sanitize_position_state( isset( $icon['state'] ) && is_array( $icon['state'] ) ? $icon['state'] : array() ),
+			);
+			$seen[ $id ] = true;
+
+			if ( count( $sanitized ) >= 300 ) {
+				break;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize the desktop sort mode.
+	 *
+	 * @param mixed $sort Raw sort state.
+	 * @return array<string,string>
+	 */
+	private function sanitize_desktop_sort( $sort ) {
+		$mode    = is_array( $sort ) && isset( $sort['mode'] ) ? sanitize_key( (string) $sort['mode'] ) : '';
+		$allowed = array(
+			'none',
+			'snap-to-grid',
+			'name',
+			'kind',
+			'last-modified-by',
+			'date-last-opened',
+			'date-added',
+			'date-modified',
+			'date-created',
+			'size',
+		);
+
+		return array(
+			'mode' => in_array( $mode, $allowed, true ) ? $mode : 'none',
+		);
+	}
+
+	/**
+	 * Sanitize menu bar recent items.
+	 *
+	 * @param mixed                          $items Raw recent items.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param array<int,array<string,mixed>> $folders Available folders.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function sanitize_recent_items( $items, $apps, $folders ) {
+		$available_apps    = $this->get_available_ids( $apps );
+		$available_folders = $this->get_available_ids( $folders );
+		$sanitized         = array();
+		$seen              = array();
+
+		foreach ( is_array( $items ) ? $items : array() as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+
+			$type = isset( $item['type'] ) ? sanitize_key( (string) $item['type'] ) : 'app';
+			$id   = isset( $item['id'] ) ? sanitize_text_field( (string) $item['id'] ) : '';
+			if ( '' === $id || isset( $seen[ $type . ':' . $id ] ) ) {
+				continue;
+			}
+
+			if ( 'app' === $type && ! $this->is_allowed_app_id( sanitize_key( $id ), $available_apps ) ) {
+				continue;
+			}
+
+			if ( 'folder' === $type && ! $this->is_allowed_folder_id( sanitize_key( $id ), $available_folders ) ) {
+				continue;
+			}
+
+			if ( 'document' === $type && empty( $item['url'] ) ) {
+				continue;
+			}
+
+			if ( ! in_array( $type, array( 'app', 'folder', 'document' ), true ) ) {
+				continue;
+			}
+
+			$label = isset( $item['label'] ) ? sanitize_text_field( (string) $item['label'] ) : '';
+			if ( '' === $label ) {
+				continue;
+			}
+
+			$url         = isset( $item['url'] ) ? esc_url_raw( (string) $item['url'] ) : '';
+			$sanitized[] = array(
+				'command' => $this->sanitize_recent_command( isset( $item['command'] ) ? $item['command'] : '', $type ),
+				'icon'    => $this->sanitize_recent_icon( isset( $item['icon'] ) ? $item['icon'] : '' ),
+				'id'      => $id,
+				'label'   => $label,
+				'target'  => isset( $item['target'] ) ? sanitize_text_field( (string) $item['target'] ) : $id,
+				'title'   => isset( $item['title'] ) ? sanitize_text_field( (string) $item['title'] ) : $label,
+				'type'    => $type,
+				'url'     => $url,
+			);
+			$seen[ $type . ':' . $id ] = true;
+
+			if ( count( $sanitized ) >= 50 ) {
+				break;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize rectangular layout state.
+	 *
+	 * @param array<string,mixed> $state Raw state.
+	 * @param array<string,mixed> $options Sanitizer options.
+	 * @return array<string,mixed>
+	 */
+	private function sanitize_rect_state( $state, $options = array() ) {
+		$sanitized = $this->sanitize_position_state( $state );
+		$width     = isset( $state['width'] ) ? $this->sanitize_number( $state['width'], 0, 5000 ) : null;
+		$height    = isset( $state['height'] ) ? $this->sanitize_number( $state['height'], 0, 5000 ) : null;
+
+		if ( null !== $width ) {
+			$sanitized['width'] = max( isset( $options['min_width'] ) ? (int) $options['min_width'] : 0, $width );
+		}
+
+		if ( null !== $height ) {
+			$sanitized['height'] = max( isset( $options['min_height'] ) ? (int) $options['min_height'] : 0, $height );
+		}
+
+		if ( ! empty( $options['z_index'] ) && isset( $state['zIndex'] ) ) {
+			$z_index = $this->sanitize_number( $state['zIndex'], 0, 100000 );
+			if ( null !== $z_index ) {
+				$sanitized['zIndex'] = $z_index;
+			}
+		}
+
+		$sanitized['hidden'] = ! empty( $state['hidden'] );
+
+		if ( ! empty( $options['closed'] ) ) {
+			$sanitized['closed'] = ! empty( $state['closed'] );
+		}
+
+		if ( ! empty( $options['maximized'] ) ) {
+			$sanitized['maximized'] = ! empty( $state['maximized'] );
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize a positional state.
+	 *
+	 * @param array<string,mixed> $state Raw state.
+	 * @return array<string,int>
+	 */
+	private function sanitize_position_state( $state ) {
+		$sanitized = array();
+		$left      = isset( $state['left'] ) ? $this->sanitize_number( $state['left'], 0, 5000 ) : null;
+		$top       = isset( $state['top'] ) ? $this->sanitize_number( $state['top'], 0, 5000 ) : null;
+
+		if ( null !== $left ) {
+			$sanitized['left'] = $left;
+		}
+
+		if ( null !== $top ) {
+			$sanitized['top'] = $top;
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize a numeric layout value.
+	 *
+	 * @param mixed $value Raw value.
+	 * @param int   $min Minimum.
+	 * @param int   $max Maximum.
+	 * @return int|null
+	 */
+	private function sanitize_number( $value, $min, $max ) {
+		if ( ! is_numeric( $value ) ) {
+			return null;
+		}
+
+		return max( $min, min( $max, (int) round( (float) $value ) ) );
+	}
+
+	/**
+	 * Sanitize a JavaScript millisecond timestamp.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return int
+	 */
+	private function sanitize_timestamp( $value ) {
+		if ( ! is_numeric( $value ) ) {
+			return 0;
+		}
+
+		return max( 0, min( PHP_INT_MAX, (int) round( (float) $value ) ) );
+	}
+
+	/**
+	 * Get available registry IDs.
+	 *
+	 * @param array<int,array<string,mixed>> $items Registry items.
+	 * @return array<string,bool>
+	 */
+	private function get_available_ids( $items ) {
+		$available = array();
+
+		foreach ( (array) $items as $item ) {
+			if ( ! is_array( $item ) || empty( $item['id'] ) ) {
+				continue;
+			}
+
+			$available[ sanitize_key( (string) $item['id'] ) ] = true;
+		}
+
+		return $available;
+	}
+
+	/**
+	 * Whether an app ID can be preserved in workspace state.
+	 *
+	 * @param string             $app_id App ID.
+	 * @param array<string,bool> $available Available app IDs.
+	 * @return bool
+	 */
+	private function is_allowed_app_id( $app_id, $available ) {
+		if ( '' === $app_id ) {
+			return false;
+		}
+
+		return isset( $available[ $app_id ] ) || $this->is_deferred_app_id( $app_id );
+	}
+
+	/**
+	 * Whether a folder ID can be preserved in workspace state.
+	 *
+	 * @param string             $folder_id Folder ID.
+	 * @param array<string,bool> $available Available folder IDs.
+	 * @return bool
+	 */
+	private function is_allowed_folder_id( $folder_id, $available ) {
+		return '' !== $folder_id && ( isset( $available[ $folder_id ] ) || strlen( $folder_id ) <= 120 );
+	}
+
+	/**
+	 * Whether a desktop icon ID can be preserved.
+	 *
+	 * @param string             $icon_id Icon ID.
+	 * @param array<string,bool> $available_apps Available app IDs.
+	 * @param array<string,bool> $available_folders Available folder IDs.
+	 * @return bool
+	 */
+	private function is_allowed_desktop_icon_id( $icon_id, $available_apps, $available_folders ) {
+		if ( 0 === strpos( $icon_id, 'app:' ) ) {
+			return $this->is_allowed_app_id( sanitize_key( substr( $icon_id, 4 ) ), $available_apps );
+		}
+
+		if ( 0 === strpos( $icon_id, 'folder:' ) ) {
+			return $this->is_allowed_folder_id( sanitize_key( substr( $icon_id, 7 ) ), $available_folders );
+		}
+
+		return strlen( $icon_id ) <= 140;
+	}
+
+	/**
+	 * Whether an app ID may be absent from an AJAX-time registry.
+	 *
+	 * @param string $app_id App ID.
+	 * @return bool
+	 */
+	private function is_deferred_app_id( $app_id ) {
+		return strlen( $app_id ) <= 120 && 0 === strpos( $app_id, 'wp-admin-' );
+	}
+
+	/**
+	 * Sanitize a recent item command.
+	 *
+	 * @param mixed  $command Raw command.
+	 * @param string $type Recent item type.
+	 * @return string
+	 */
+	private function sanitize_recent_command( $command, $type ) {
+		$command = sanitize_key( (string) $command );
+		$allowed = array( 'open-app', 'open-folder', 'open-url' );
+
+		if ( in_array( $command, $allowed, true ) ) {
+			return $command;
+		}
+
+		if ( 'folder' === $type ) {
+			return 'open-folder';
+		}
+
+		if ( 'document' === $type ) {
+			return 'open-url';
+		}
+
+		return 'open-app';
+	}
+
+	/**
+	 * Sanitize a recent item icon descriptor without losing arrays.
+	 *
+	 * @param mixed $icon Raw icon.
+	 * @return mixed
+	 */
+	private function sanitize_recent_icon( $icon ) {
+		if ( is_array( $icon ) ) {
+			return WP_AdminOS_Icon_Renderer::normalize( $icon );
+		}
+
+		return is_scalar( $icon ) ? sanitize_text_field( (string) $icon ) : '';
+	}
+
+	/**
+	 * Current time in JavaScript-compatible milliseconds.
+	 *
+	 * @return int
+	 */
+	private function now_milliseconds() {
+		return (int) round( microtime( true ) * 1000 );
+	}
+}

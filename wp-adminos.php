@@ -28,9 +28,11 @@ require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-widget-registry.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-widget-layout.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-theme-registry.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-wallpaper-registry.php';
+require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-workspace-state.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-assets.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-shell-renderer.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-settings-controller.php';
+require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-workspace-controller.php';
 require_once WP_ADMINOS_DIR . 'includes/class-wp-adminos-plugin.php';
 
 /**

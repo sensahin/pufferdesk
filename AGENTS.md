@@ -60,9 +60,11 @@ PHP services in `includes/`:
 - `class-wp-adminos-widget-layout.php`: shared widget layout attributes for templates.
 - `class-wp-adminos-theme-registry.php`: theme family/version/parent inheritance.
 - `class-wp-adminos-wallpaper-registry.php`: built-in/theme/upload wallpaper options and CSS-variable resolution.
+- `class-wp-adminos-workspace-state.php`: per-user/per-site/per-theme workspace layout persistence and sanitization.
 - `class-wp-adminos-assets.php`: CSS/JS enqueueing and runtime config.
 - `class-wp-adminos-shell-renderer.php`: template rendering and theme override resolution.
 - `class-wp-adminos-settings-controller.php`: AJAX settings persistence.
+- `class-wp-adminos-workspace-controller.php`: AJAX workspace layout load/save/reset actions.
 - `class-wp-adminos-icon-renderer.php`: icon descriptor normalization and rendering.
 
 Templates in `templates/`:
@@ -194,11 +196,12 @@ Icons:
 
 Session:
 
-- Use `assets/js/core/session/session-store.js` for persisted shell layout.
+- Use `assets/js/core/session/session-store.js` for persisted shell layout. It should treat WordPress user meta, via `WP_AdminOS_Workspace_State`, as durable state and browser `localStorage` as cache/fallback only.
 - Use `assets/js/core/session/reopen-policy.js` for one-time shell reopen behavior; do not clear stored layout just to skip reopening windows for one transition.
-- Store layout by named section, such as `windows` and `widgets`.
+- Store layout by named section, such as `windows`, `widgets`, `desktopIcons`, `desktopSort`, and `recentItems`.
 - Do not overwrite the whole session blob from one module.
 - New desktop object types should add their own section instead of hijacking `windows` or `widgets`.
+- Keep workspace state scoped by site, user, and theme. Theme-specific layouts are expected because OS families can use different shell geometry.
 
 ## WordPress Coding Standards
 

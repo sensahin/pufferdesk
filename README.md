@@ -54,7 +54,7 @@ The foundation separates shell behavior from OS appearance:
   - `config.js` exposes the WordPress-provided runtime payload.
   - `dom.js` owns shared DOM helpers.
   - `services/` owns browser storage and AJAX clients.
-  - `session/` owns per-user, per-theme workspace session sections.
+  - `session/` owns per-user, per-theme workspace session sections, with WordPress user meta as durable state and browser storage as cache/fallback.
   - `windows/` owns window creation, drag/focus behavior, and window state serialization.
   - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
   - `desktop/` owns desktop icon layout plus user-created folder rendering and membership behavior.
@@ -221,7 +221,7 @@ Wallpapers are managed by `WP_AdminOS_Wallpaper_Registry`. It combines theme-dec
 
 Future phases can add optional alternate theme packs such as Redmond-style, classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the WP adminOS identity rather than depending on another platform owner’s brand assets.
 
-Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows`, `widgets`, and desktop icon layout, so future spaces or theme-specific surfaces can join without replacing the whole session payload. Windows track app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state. User-created desktop folder definitions and membership are persisted in WordPress user meta so they follow the WordPress user across browsers; only their icon positions remain session layout state.
+Workspace layout is persisted in WordPress user meta per site, user, and selected theme through `WP_AdminOS_Workspace_State`. Browser `localStorage` remains a fast cache and migration fallback for existing local sessions, while `sessionStorage` is reserved for one-time page-transition behavior such as skipping window restore once. Core stores layout in named sections, currently `windows`, `widgets`, `desktopIcons`, `desktopSort`, and `recentItems`, so future spaces or theme-specific surfaces can join without replacing the whole payload. Windows track app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state. User-created desktop folder definitions and membership are persisted separately in WordPress user meta, and their icon positions live in the workspace layout state.
 
 Widgets are registered through `WP_AdminOS_Widget_Registry` and can be extended with the `wp_adminos_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, and session section.
 

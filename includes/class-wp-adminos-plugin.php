@@ -47,6 +47,13 @@ final class WP_AdminOS_Plugin {
 	private $settings_controller;
 
 	/**
+	 * Workspace controller.
+	 *
+	 * @var WP_AdminOS_Workspace_Controller
+	 */
+	private $workspace_controller;
+
+	/**
 	 * Boot and return the singleton.
 	 *
 	 * @return WP_AdminOS_Plugin
@@ -69,6 +76,7 @@ final class WP_AdminOS_Plugin {
 		$widget_registry    = new WP_AdminOS_Widget_Registry();
 		$theme_registry     = new WP_AdminOS_Theme_Registry();
 		$wallpaper_registry = new WP_AdminOS_Wallpaper_Registry();
+		$workspace_state    = new WP_AdminOS_Workspace_State();
 
 		$this->router   = new WP_AdminOS_Router( $preferences );
 		$this->renderer = new WP_AdminOS_Shell_Renderer(
@@ -85,13 +93,22 @@ final class WP_AdminOS_Plugin {
 			$app_registry,
 			$widget_registry,
 			$theme_registry,
-			$wallpaper_registry
+			$wallpaper_registry,
+			$workspace_state
 		);
 		$this->settings_controller = new WP_AdminOS_Settings_Controller(
 			$preferences,
 			$app_registry,
 			$theme_registry,
-			$wallpaper_registry
+			$wallpaper_registry,
+			$workspace_state
+		);
+		$this->workspace_controller = new WP_AdminOS_Workspace_Controller(
+			$preferences,
+			$app_registry,
+			$widget_registry,
+			$theme_registry,
+			$workspace_state
 		);
 	}
 
@@ -107,6 +124,7 @@ final class WP_AdminOS_Plugin {
 		add_filter( 'admin_body_class', array( $this->assets, 'add_admin_body_classes' ) );
 		add_action( 'admin_head', array( $this->assets, 'print_iframe_head_style' ) );
 		$this->settings_controller->hooks();
+		$this->workspace_controller->hooks();
 	}
 
 	/**

@@ -451,15 +451,32 @@
 			}
 		}
 
+		function getSessionStore() {
+			if (config.storageKey && window.WPAdminOS.session && window.WPAdminOS.session.createSessionStore) {
+				return window.WPAdminOS.session.createSessionStore(config.storageKey);
+			}
+
+			return null;
+		}
+
+		function flushSessionStore() {
+			const store = getSessionStore();
+			if (!store || typeof store.flush !== 'function') {
+				return Promise.resolve(false);
+			}
+
+			return store.flush();
+		}
+
 		function clearSessionStore() {
 			disableSessionPersistence();
 
-			if (config.storageKey && window.WPAdminOS.session && window.WPAdminOS.session.createSessionStore) {
-				window.WPAdminOS.session.createSessionStore(config.storageKey).clear();
-				return true;
+			const store = getSessionStore();
+			if (store && typeof store.clear === 'function') {
+				return store.clear();
 			}
 
-			return false;
+			return Promise.resolve(false);
 		}
 
 		function clearAllUserSessionStores() {
@@ -487,7 +504,12 @@
 				});
 			}
 
-			return clearSessionStore() || removed;
+			const clearResult = clearSessionStore();
+			if (clearResult && typeof clearResult.then === 'function') {
+				clearResult.catch(() => {});
+			}
+
+			return removed || Boolean(clearResult);
 		}
 
 		function reloadShell() {
@@ -527,6 +549,7 @@
 			}
 
 			saveManagers();
+			await flushSessionStore();
 
 			if (dialogs && typeof dialogs.showBlockingOverlay === 'function') {
 				dialogs.showBlockingOverlay(actionConfig.overlayMessage || '');
@@ -870,8 +893,7 @@
 			},
 			run() {
 				skipWindowRestoreOnce();
-				clearSessionStore();
-				reloadShell();
+				return clearSessionStore().finally(reloadShell);
 			}
 		});
 

@@ -42,23 +42,33 @@ final class WP_AdminOS_Settings_Controller {
 	private $wallpaper_registry;
 
 	/**
+	 * Workspace state service.
+	 *
+	 * @var WP_AdminOS_Workspace_State
+	 */
+	private $workspace_state;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param WP_AdminOS_User_Preferences $preferences User preferences.
 	 * @param WP_AdminOS_App_Registry     $app_registry App registry.
 	 * @param WP_AdminOS_Theme_Registry   $theme_registry Theme registry.
 	 * @param WP_AdminOS_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
+	 * @param WP_AdminOS_Workspace_State  $workspace_state Workspace state service.
 	 */
 	public function __construct(
 		WP_AdminOS_User_Preferences $preferences,
 		WP_AdminOS_App_Registry $app_registry,
 		WP_AdminOS_Theme_Registry $theme_registry,
-		WP_AdminOS_Wallpaper_Registry $wallpaper_registry
+		WP_AdminOS_Wallpaper_Registry $wallpaper_registry,
+		WP_AdminOS_Workspace_State $workspace_state
 	) {
 		$this->preferences        = $preferences;
 		$this->app_registry       = $app_registry;
 		$this->theme_registry     = $theme_registry;
 		$this->wallpaper_registry = $wallpaper_registry;
+		$this->workspace_state    = $workspace_state;
 	}
 
 	/**
@@ -442,7 +452,8 @@ final class WP_AdminOS_Settings_Controller {
 			);
 		}
 
-		$reset_domains = $this->preferences->reset_domains( $domains );
+		$reset_domains          = $this->preferences->reset_domains( $domains );
+		$workspace_states_reset = $this->workspace_state->delete_all_states();
 
 		wp_send_json_success(
 			array(
@@ -453,6 +464,7 @@ final class WP_AdminOS_Settings_Controller {
 				'message'      => __( 'WP adminOS settings were reset.', 'wp-adminos' ),
 				'profile'      => $profile,
 				'resetDomains' => $reset_domains,
+				'workspaceStatesReset' => $workspace_states_reset,
 			)
 		);
 	}

@@ -607,6 +607,7 @@ final class WP_AdminOS_User_Preferences {
 
 		return array(
 			self::RESET_DOMAIN_APPEARANCE,
+			self::RESET_DOMAIN_APP_LOGIN_ITEMS,
 			self::RESET_DOMAIN_APP_LOCATIONS,
 			self::RESET_DOMAIN_DESKTOP_DOCK,
 			self::RESET_DOMAIN_DESKTOP_FOLDERS,

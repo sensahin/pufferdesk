@@ -54,6 +54,13 @@ final class WP_AdminOS_Assets {
 	private $wallpaper_registry;
 
 	/**
+	 * Workspace state service.
+	 *
+	 * @var WP_AdminOS_Workspace_State
+	 */
+	private $workspace_state;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param WP_AdminOS_Router           $router Router.
@@ -62,6 +69,7 @@ final class WP_AdminOS_Assets {
 	 * @param WP_AdminOS_Widget_Registry  $widget_registry Widget registry.
 	 * @param WP_AdminOS_Theme_Registry   $theme_registry Theme registry.
 	 * @param WP_AdminOS_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
+	 * @param WP_AdminOS_Workspace_State  $workspace_state Workspace state service.
 	 */
 	public function __construct(
 		WP_AdminOS_Router $router,
@@ -69,7 +77,8 @@ final class WP_AdminOS_Assets {
 		WP_AdminOS_App_Registry $app_registry,
 		WP_AdminOS_Widget_Registry $widget_registry,
 		WP_AdminOS_Theme_Registry $theme_registry,
-		WP_AdminOS_Wallpaper_Registry $wallpaper_registry
+		WP_AdminOS_Wallpaper_Registry $wallpaper_registry,
+		WP_AdminOS_Workspace_State $workspace_state
 	) {
 		$this->router             = $router;
 		$this->preferences        = $preferences;
@@ -77,6 +86,7 @@ final class WP_AdminOS_Assets {
 		$this->widget_registry    = $widget_registry;
 		$this->theme_registry     = $theme_registry;
 		$this->wallpaper_registry = $wallpaper_registry;
+		$this->workspace_state    = $workspace_state;
 	}
 
 	/**
@@ -239,7 +249,7 @@ final class WP_AdminOS_Assets {
 			),
 			'wp-adminos-session-store'  => array(
 				'path' => 'assets/js/core/session/session-store.js',
-				'deps' => array( 'wp-adminos-storage' ),
+				'deps' => array( 'wp-adminos-storage', 'wp-adminos-api-client' ),
 			),
 			'wp-adminos-reopen-policy'  => array(
 				'path' => 'assets/js/core/session/reopen-policy.js',
@@ -405,6 +415,9 @@ final class WP_AdminOS_Assets {
 	private function get_runtime_config( $apps, $folders, $widgets, $theme, $app_locations ) {
 		$current_user = wp_get_current_user();
 		$role_label   = $this->get_user_role_label( $current_user );
+		$desktop_folders = $this->preferences->get_desktop_folders( $apps );
+		$workspace_folders = array_merge( $folders, $desktop_folders );
+		$workspace_state   = $this->workspace_state->get_state( $theme['id'], $apps, $widgets, $workspace_folders );
 
 		return array(
 			'appearance'     => $this->preferences->get_appearance(),
@@ -414,7 +427,7 @@ final class WP_AdminOS_Assets {
 			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
 			'classicUrl'     => $this->router->get_toggle_url( false ),
 			'desktopDock'    => $this->preferences->get_desktop_dock(),
-			'desktopFolders' => $this->preferences->get_desktop_folders( $apps ),
+			'desktopFolders' => $desktop_folders,
 			'logoutUrl'      => wp_logout_url(),
 			'menuBar'        => $this->preferences->get_menu_bar(),
 			'settings'       => $this->get_settings_config( $theme ),
@@ -425,6 +438,15 @@ final class WP_AdminOS_Assets {
 			'system'         => $this->get_system_config(),
 			'themes'         => $this->theme_registry->get_selectable_themes(),
 			'wallpaper'      => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
+			'workspace'      => array(
+				'loadAction'  => 'wp_adminos_load_workspace_state',
+				'resetAction' => 'wp_adminos_reset_workspace_state',
+				'saveAction'  => 'wp_adminos_save_workspace_state',
+				'siteId'      => get_current_blog_id(),
+				'themeId'     => $theme['id'],
+				'version'     => WP_AdminOS_Workspace_State::VERSION,
+			),
+			'workspaceState' => $workspace_state,
 			'userId'         => get_current_user_id(),
 			'user'           => array(
 				'avatar'     => get_avatar_url( $current_user->ID, array( 'size' => 192 ) ),
