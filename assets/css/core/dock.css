@@ -32,6 +32,8 @@
 	padding: 0;
 	position: relative;
 	transition: transform 140ms ease;
+	user-select: none;
+	-webkit-user-drag: none;
 	width: var(--aos-dock-item-size, 48px);
 }
 
@@ -59,6 +61,8 @@
 .aos-dock-item .dashicons {
 	font-size: var(--aos-dock-icon-size, 24px);
 	height: var(--aos-dock-icon-size, 24px);
+	pointer-events: none;
+	-webkit-user-drag: none;
 	width: var(--aos-dock-icon-size, 24px);
 }
 
@@ -67,6 +71,8 @@
 	height: var(--aos-dock-tile-size, 26px);
 	object-fit: contain;
 	object-position: center;
+	pointer-events: none;
+	-webkit-user-drag: none;
 	width: var(--aos-dock-tile-size, 26px);
 }
 

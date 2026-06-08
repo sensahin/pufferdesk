@@ -471,6 +471,7 @@
 		let activeDetail = null;
 		let activeContextTarget = null;
 		let dockLongPress = null;
+		let activeDockPressMenu = null;
 
 		function getTargetLabel(target) {
 			return target.dataset.aosContextLabel
@@ -554,6 +555,7 @@
 		}
 
 		function closeMenu() {
+			clearDockPressMenuHover();
 			if (activeContextTarget) {
 				activeContextTarget.classList.remove('is-context-menu-active');
 				activeContextTarget = null;
@@ -565,6 +567,7 @@
 			}
 
 			activeDetail = null;
+			activeDockPressMenu = null;
 		}
 
 		function clampPosition(value, min, max) {
@@ -756,6 +759,63 @@
 			}, 600);
 		}
 
+		function clearDockPressMenuHover() {
+			if (!popover) {
+				return;
+			}
+
+			popover.querySelectorAll('.is-press-hover').forEach((item) => {
+				item.classList.remove('is-press-hover');
+			});
+		}
+
+		function getDockPressMenuItemAt(event) {
+			if (!event || !popover || !activeDockPressMenu || typeof document.elementFromPoint !== 'function') {
+				return null;
+			}
+
+			const element = document.elementFromPoint(event.clientX, event.clientY);
+			const item = element && typeof element.closest === 'function'
+				? element.closest('.aos-context-menu .aos-menu-item:not(:disabled)')
+				: null;
+
+			return item && popover.contains(item) ? item : null;
+		}
+
+		function updateDockPressMenuHover(event) {
+			const item = getDockPressMenuItemAt(event);
+
+			clearDockPressMenuHover();
+			if (item) {
+				item.classList.add('is-press-hover');
+			}
+		}
+
+		function closeDockPressMenu(event) {
+			if (!activeDockPressMenu) {
+				return false;
+			}
+
+			if (event && event.pointerId !== activeDockPressMenu.pointerId) {
+				return false;
+			}
+
+			const item = getDockPressMenuItemAt(event);
+			if (event && typeof event.preventDefault === 'function') {
+				event.preventDefault();
+			}
+			if (event && typeof event.stopPropagation === 'function') {
+				event.stopPropagation();
+			}
+
+			if (item && !item.classList.contains('aos-menu-submenu-trigger')) {
+				item.click();
+			} else {
+				closeMenu();
+			}
+			return true;
+		}
+
 		function bindDockLongPress() {
 			shell.addEventListener('pointerdown', (event) => {
 				if (event.button !== 0 || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
@@ -783,6 +843,10 @@
 						target.classList.remove('is-dock-pressing');
 						dockLongPress = null;
 						if (opened) {
+							activeDockPressMenu = {
+								pointerId: event.pointerId,
+								target
+							};
 							markDockLongPressOpened(target);
 							if (typeof target.blur === 'function') {
 								target.blur();
@@ -793,6 +857,11 @@
 			}, true);
 
 			window.addEventListener('pointermove', (event) => {
+				if (activeDockPressMenu && event.pointerId === activeDockPressMenu.pointerId) {
+					updateDockPressMenuHover(event);
+					return;
+				}
+
 				if (!dockLongPress || event.pointerId !== dockLongPress.pointerId) {
 					return;
 				}
@@ -804,15 +873,35 @@
 				}
 			}, { passive: true });
 
-			window.addEventListener('pointerup', clearDockLongPress);
-			window.addEventListener('pointercancel', clearDockLongPress);
+			window.addEventListener('pointerup', (event) => {
+				if (closeDockPressMenu(event)) {
+					return;
+				}
+
+				clearDockLongPress();
+			});
+			window.addEventListener('pointercancel', (event) => {
+				if (closeDockPressMenu(event)) {
+					return;
+				}
+
+				clearDockLongPress();
+			});
 			shell.addEventListener('click', (event) => {
-				const target = getDockLongPressTarget(event.target);
+				const target = getDockLongPressTarget(event.target) || shell.querySelector('[data-aos-dock-long-press-open="1"]');
 				if (!target || target.dataset.aosDockLongPressOpen !== '1') {
 					return;
 				}
 
 				delete target.dataset.aosDockLongPressOpen;
+				event.preventDefault();
+				event.stopPropagation();
+			}, true);
+			shell.addEventListener('dragstart', (event) => {
+				if (!getDockLongPressTarget(event.target)) {
+					return;
+				}
+
 				event.preventDefault();
 				event.stopPropagation();
 			}, true);

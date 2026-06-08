@@ -481,7 +481,8 @@
 }
 
 .aos-menu-item:not(:disabled):hover,
-.aos-menu-item:not(:disabled):focus {
+.aos-menu-item:not(:disabled):focus,
+.aos-menu-item:not(:disabled).is-press-hover {
 	background: var(--aos-menu-item-hover-bg);
 	color: var(--aos-menu-item-hover-ink);
 	outline: none;
@@ -522,7 +523,8 @@
 }
 
 .aos-menu-item:not(:disabled):hover .aos-menu-item-shortcut,
-.aos-menu-item:not(:disabled):focus .aos-menu-item-shortcut {
+.aos-menu-item:not(:disabled):focus .aos-menu-item-shortcut,
+.aos-menu-item:not(:disabled).is-press-hover .aos-menu-item-shortcut {
 	color: currentColor;
 }
 
