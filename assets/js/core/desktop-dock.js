@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
+	window.WPAdminOS = window.WPAdminOS || {};
 
 	const defaults = {
 		dock_size: 48,
@@ -101,7 +101,7 @@
 		shell.style.setProperty('--aos-dock-tile-size', `${tileSize}px`);
 		shell.style.setProperty('--aos-dock-hover-lift', `${lift}px`);
 		shell.style.setProperty('--aos-dock-hover-scale', scale);
-		shell.dispatchEvent(new window.CustomEvent('adminOSMode:desktop-dock-change', {
+		shell.dispatchEvent(new window.CustomEvent('wpAdminOS:desktop-dock-change', {
 			detail: current
 		}));
 
@@ -173,7 +173,7 @@
 		}, { passive: true });
 	}
 
-	window.AdminOSMode.desktopDock = {
+	window.WPAdminOS.desktopDock = {
 		apply,
 		bindTooltipDismissal,
 		defaults,

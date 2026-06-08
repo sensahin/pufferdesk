@@ -1,13 +1,13 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.desktop = window.AdminOSMode.desktop || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.desktop = window.WPAdminOS.desktop || {};
 
-	window.AdminOSMode.desktop.createFolderManager = function createFolderManager(shell, launcher, config = {}) {
-		const dom = window.AdminOSMode.dom;
+	window.WPAdminOS.desktop.createFolderManager = function createFolderManager(shell, launcher, config = {}) {
+		const dom = window.WPAdminOS.dom;
 		const desktop = shell.querySelector('.aos-desktop');
-		const api = window.AdminOSMode.services && window.AdminOSMode.services.api ? window.AdminOSMode.services.api : null;
+		const api = window.WPAdminOS.services && window.WPAdminOS.services.api ? window.WPAdminOS.services.api : null;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const systemFolders = Array.isArray(config.folders) ? config.folders : [];
 		const defaultFolderIcon = { type: 'theme', name: 'folder.svg', fallback: 'dashicons-category' };
@@ -145,7 +145,7 @@
 			const folders = serializeFolders();
 			config.desktopFolders = folders;
 
-			api.post('admin_os_mode_save_desktop_folders', {
+			api.post('wp_adminos_save_desktop_folders', {
 				folders: JSON.stringify(folders)
 			}).then((result) => {
 				if (result && result.success && result.data && Array.isArray(result.data.desktopFolders)) {
@@ -221,14 +221,14 @@
 		}
 
 		function refreshDesktopIcons() {
-			if (window.AdminOSMode.desktopIconManager && typeof window.AdminOSMode.desktopIconManager.rebind === 'function') {
-				window.AdminOSMode.desktopIconManager.rebind();
+			if (window.WPAdminOS.desktopIconManager && typeof window.WPAdminOS.desktopIconManager.rebind === 'function') {
+				window.WPAdminOS.desktopIconManager.rebind();
 			}
 		}
 
 		function saveDesktopIconSession() {
-			if (window.AdminOSMode.desktopIconManager && typeof window.AdminOSMode.desktopIconManager.saveSession === 'function') {
-				window.AdminOSMode.desktopIconManager.saveSession();
+			if (window.WPAdminOS.desktopIconManager && typeof window.WPAdminOS.desktopIconManager.saveSession === 'function') {
+				window.WPAdminOS.desktopIconManager.saveSession();
 			}
 		}
 
@@ -349,9 +349,9 @@
 				label: folder.label || 'Folder',
 				lastOpenedAt: userFolder ? userFolder.lastOpenedAt || '' : '',
 				modifiedAt: userFolder ? userFolder.modifiedAt || userFolder.createdAt || '' : '',
-				source: userFolder ? 'Admin OS user folder' : 'WordPress admin group',
+				source: userFolder ? 'WP adminOS user folder' : 'WordPress admin group',
 				user: Boolean(userFolder),
-				where: userFolder ? 'Admin OS Desktop' : `WordPress Admin Menu > ${folder.label || 'Folder'}`
+				where: userFolder ? 'WP adminOS Desktop' : `WordPress Admin Menu > ${folder.label || 'Folder'}`
 			};
 		}
 

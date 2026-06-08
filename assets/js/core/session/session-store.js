@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.session = window.AdminOSMode.session || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.session = window.WPAdminOS.session || {};
 
-	window.AdminOSMode.session.createSessionStore = function createSessionStore(storageKey) {
-		const storage = window.AdminOSMode.services.storage;
+	window.WPAdminOS.session.createSessionStore = function createSessionStore(storageKey) {
+		const storage = window.WPAdminOS.services.storage;
 
 		function isObject(value) {
 			return value && typeof value === 'object' && !Array.isArray(value);
@@ -64,6 +64,6 @@
 		};
 	};
 
-	window.AdminOSMode.windows = window.AdminOSMode.windows || {};
-	window.AdminOSMode.windows.createSessionStore = window.AdminOSMode.session.createSessionStore;
+	window.WPAdminOS.windows = window.WPAdminOS.windows || {};
+	window.WPAdminOS.windows.createSessionStore = window.WPAdminOS.session.createSessionStore;
 })();

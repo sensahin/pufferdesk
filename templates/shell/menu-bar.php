@@ -2,7 +2,7 @@
 /**
  * Shell menu bar.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,11 +10,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @var string $site_name
  */
-$admin_os_mode_site_name = isset( $site_name ) && '' !== $site_name ? $site_name : get_bloginfo( 'name' );
+$wp_adminos_site_name = isset( $site_name ) && '' !== $site_name ? $site_name : get_bloginfo( 'name' );
 ?>
 <header class="aos-menu-bar">
 	<div class="aos-brand">
-		<button type="button" class="aos-system-mark" data-aos-system-menu aria-label="<?php esc_attr_e( 'Open Admin OS menu', 'admin-os-mode' ); ?>">
+		<button type="button" class="aos-system-mark" data-aos-system-menu aria-label="<?php esc_attr_e( 'Open WP adminOS menu', 'wp-adminos' ); ?>">
 			<svg class="aos-system-mark-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
 				<circle cx="12" cy="12" r="3" />
 				<path d="M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 1 1 4.5 4.5 4.5 4.5 0 1 1-4.5 4.5" />
@@ -29,18 +29,18 @@ $admin_os_mode_site_name = isset( $site_name ) && '' !== $site_name ? $site_name
 			</svg>
 		</button>
 	</div>
-	<nav class="aos-menu-items" aria-label="<?php esc_attr_e( 'Admin OS menus', 'admin-os-mode' ); ?>" data-aos-menu-items>
-		<button type="button"><?php echo esc_html( $admin_os_mode_site_name ); ?></button>
-		<button type="button"><?php esc_html_e( 'File', 'admin-os-mode' ); ?></button>
-		<button type="button"><?php esc_html_e( 'Edit', 'admin-os-mode' ); ?></button>
-		<button type="button"><?php esc_html_e( 'View', 'admin-os-mode' ); ?></button>
-		<button type="button"><?php esc_html_e( 'Go', 'admin-os-mode' ); ?></button>
-		<button type="button"><?php esc_html_e( 'Window', 'admin-os-mode' ); ?></button>
-		<button type="button"><?php esc_html_e( 'Help', 'admin-os-mode' ); ?></button>
+	<nav class="aos-menu-items" aria-label="<?php esc_attr_e( 'WP adminOS menus', 'wp-adminos' ); ?>" data-aos-menu-items>
+		<button type="button"><?php echo esc_html( $wp_adminos_site_name ); ?></button>
+		<button type="button"><?php esc_html_e( 'File', 'wp-adminos' ); ?></button>
+		<button type="button"><?php esc_html_e( 'Edit', 'wp-adminos' ); ?></button>
+		<button type="button"><?php esc_html_e( 'View', 'wp-adminos' ); ?></button>
+		<button type="button"><?php esc_html_e( 'Go', 'wp-adminos' ); ?></button>
+		<button type="button"><?php esc_html_e( 'Window', 'wp-adminos' ); ?></button>
+		<button type="button"><?php esc_html_e( 'Help', 'wp-adminos' ); ?></button>
 	</nav>
 	<label class="aos-search" for="aos-search-input">
 		<span class="dashicons dashicons-search" aria-hidden="true"></span>
-		<input id="aos-search-input" type="search" placeholder="<?php esc_attr_e( 'Search apps', 'admin-os-mode' ); ?>" autocomplete="off" data-aos-search />
+		<input id="aos-search-input" type="search" placeholder="<?php esc_attr_e( 'Search apps', 'wp-adminos' ); ?>" autocomplete="off" data-aos-search />
 	</label>
 	<div class="aos-clock" data-aos-clock><?php echo esc_html( date_i18n( 'D M j H:i' ) ); ?></div>
 </header>

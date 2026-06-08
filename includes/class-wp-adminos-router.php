@@ -2,7 +2,7 @@
 /**
  * Request routing and mode switching.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,23 +10,23 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Owns URLs, request detection, redirects, and mode toggle handling.
  */
-final class Admin_OS_Mode_Router {
-	const PAGE_SLUG    = 'admin-os-mode';
-	const NONCE_TOGGLE = 'admin_os_mode_toggle';
+final class WP_AdminOS_Router {
+	const PAGE_SLUG    = 'wp-adminos';
+	const NONCE_TOGGLE = 'wp_adminos_toggle';
 
 	/**
 	 * User preferences service.
 	 *
-	 * @var Admin_OS_Mode_User_Preferences
+	 * @var WP_AdminOS_User_Preferences
 	 */
 	private $preferences;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param Admin_OS_Mode_User_Preferences $preferences User preferences service.
+	 * @param WP_AdminOS_User_Preferences $preferences User preferences service.
 	 */
-	public function __construct( Admin_OS_Mode_User_Preferences $preferences ) {
+	public function __construct( WP_AdminOS_User_Preferences $preferences ) {
 		$this->preferences = $preferences;
 	}
 
@@ -34,17 +34,17 @@ final class Admin_OS_Mode_Router {
 	 * Persist the user's chosen mode.
 	 */
 	public function handle_mode_toggle() {
-		if ( ! isset( $_GET['admin_os_mode'] ) ) {
+		if ( ! isset( $_GET['wp_adminos'] ) ) {
 			return;
 		}
 
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_die( esc_html__( 'You do not have permission to change Admin OS Mode.', 'admin-os-mode' ) );
+			wp_die( esc_html__( 'You do not have permission to change WP adminOS.', 'wp-adminos' ) );
 		}
 
 		check_admin_referer( self::NONCE_TOGGLE );
 
-		$enabled = '1' === sanitize_text_field( wp_unslash( $_GET['admin_os_mode'] ) );
+		$enabled = '1' === sanitize_text_field( wp_unslash( $_GET['wp_adminos'] ) );
 		$this->preferences->set_enabled( $enabled );
 
 		$redirect = $enabled ? $this->get_shell_url() : admin_url( 'index.php' );
@@ -103,7 +103,7 @@ final class Admin_OS_Mode_Router {
 		$redirect = $enabled ? $this->get_shell_url() : admin_url( 'index.php' );
 		$url      = add_query_arg(
 			array(
-				'admin_os_mode' => $enabled ? '1' : '0',
+				'wp_adminos' => $enabled ? '1' : '0',
 				'redirect_to'   => $redirect,
 			),
 			admin_url( 'index.php' )
@@ -132,7 +132,7 @@ final class Admin_OS_Mode_Router {
 	 */
 	public function is_iframe_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only iframe display flag.
-		return is_admin() && isset( $_GET['admin_os_iframe'] );
+		return is_admin() && isset( $_GET['wp_adminos_iframe'] );
 	}
 
 	/**
@@ -142,6 +142,6 @@ final class Admin_OS_Mode_Router {
 	 */
 	public function is_classic_override_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only one-request redirect bypass.
-		return isset( $_GET['admin_os_classic'] );
+		return isset( $_GET['wp_adminos_classic'] );
 	}
 }

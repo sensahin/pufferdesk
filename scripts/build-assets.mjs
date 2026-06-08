@@ -81,7 +81,7 @@ async function minify({ loader, sources, outfile, label }) {
 		minify: true,
 		legalComments: 'none'
 	});
-	const banner = `/*! Admin OS Mode ${label}. Readable sources are included in the plugin. See assets/dist/SOURCES.md. */\n`;
+	const banner = `/*! WP adminOS ${label}. Readable sources are included in the plugin. See assets/dist/SOURCES.md. */\n`;
 	const target = path.join(root, outfile);
 
 	await fs.mkdir(path.dirname(target), { recursive: true });
@@ -111,7 +111,7 @@ function distThemePath(source) {
 
 async function writeSourcesManifest(themeCssSources) {
 	const lines = [
-		'# Admin OS Mode Built Asset Sources',
+		'# WP adminOS Built Asset Sources',
 		'',
 		'Generated release assets are minified for performance. Readable source files remain in the plugin and are listed below.',
 		'',
@@ -136,7 +136,7 @@ async function main() {
 	await minify({
 		loader: 'css',
 		sources: coreCssSources,
-		outfile: 'assets/dist/css/admin-os-mode-core.min.css',
+		outfile: 'assets/dist/css/wp-adminos-core.min.css',
 		label: 'core CSS'
 	});
 
@@ -152,7 +152,7 @@ async function main() {
 	await minify({
 		loader: 'js',
 		sources: jsSources,
-		outfile: 'assets/dist/js/admin-os-mode.min.js',
+		outfile: 'assets/dist/js/wp-adminos.min.js',
 		label: 'JavaScript'
 	});
 

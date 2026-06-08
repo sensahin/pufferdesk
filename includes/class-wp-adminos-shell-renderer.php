@@ -2,7 +2,7 @@
 /**
  * Shell renderer.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,46 +10,46 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Collects shell data and renders templates.
  */
-final class Admin_OS_Mode_Shell_Renderer {
+final class WP_AdminOS_Shell_Renderer {
 	/**
 	 * Router.
 	 *
-	 * @var Admin_OS_Mode_Router
+	 * @var WP_AdminOS_Router
 	 */
 	private $router;
 
 	/**
 	 * Preferences.
 	 *
-	 * @var Admin_OS_Mode_User_Preferences
+	 * @var WP_AdminOS_User_Preferences
 	 */
 	private $preferences;
 
 	/**
 	 * App registry.
 	 *
-	 * @var Admin_OS_Mode_App_Registry
+	 * @var WP_AdminOS_App_Registry
 	 */
 	private $app_registry;
 
 	/**
 	 * Widget registry.
 	 *
-	 * @var Admin_OS_Mode_Widget_Registry
+	 * @var WP_AdminOS_Widget_Registry
 	 */
 	private $widget_registry;
 
 	/**
 	 * Theme registry.
 	 *
-	 * @var Admin_OS_Mode_Theme_Registry
+	 * @var WP_AdminOS_Theme_Registry
 	 */
 	private $theme_registry;
 
 	/**
 	 * Wallpaper registry.
 	 *
-	 * @var Admin_OS_Mode_Wallpaper_Registry
+	 * @var WP_AdminOS_Wallpaper_Registry
 	 */
 	private $wallpaper_registry;
 
@@ -63,20 +63,20 @@ final class Admin_OS_Mode_Shell_Renderer {
 	/**
 	 * Constructor.
 	 *
-	 * @param Admin_OS_Mode_Router           $router Router.
-	 * @param Admin_OS_Mode_User_Preferences $preferences Preferences.
-	 * @param Admin_OS_Mode_App_Registry     $app_registry App registry.
-	 * @param Admin_OS_Mode_Widget_Registry  $widget_registry Widget registry.
-	 * @param Admin_OS_Mode_Theme_Registry   $theme_registry Theme registry.
-	 * @param Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
+	 * @param WP_AdminOS_Router           $router Router.
+	 * @param WP_AdminOS_User_Preferences $preferences Preferences.
+	 * @param WP_AdminOS_App_Registry     $app_registry App registry.
+	 * @param WP_AdminOS_Widget_Registry  $widget_registry Widget registry.
+	 * @param WP_AdminOS_Theme_Registry   $theme_registry Theme registry.
+	 * @param WP_AdminOS_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
 	 */
 	public function __construct(
-		Admin_OS_Mode_Router $router,
-		Admin_OS_Mode_User_Preferences $preferences,
-		Admin_OS_Mode_App_Registry $app_registry,
-		Admin_OS_Mode_Widget_Registry $widget_registry,
-		Admin_OS_Mode_Theme_Registry $theme_registry,
-		Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry
+		WP_AdminOS_Router $router,
+		WP_AdminOS_User_Preferences $preferences,
+		WP_AdminOS_App_Registry $app_registry,
+		WP_AdminOS_Widget_Registry $widget_registry,
+		WP_AdminOS_Theme_Registry $theme_registry,
+		WP_AdminOS_Wallpaper_Registry $wallpaper_registry
 	) {
 		$this->router             = $router;
 		$this->preferences        = $preferences;
@@ -91,7 +91,7 @@ final class Admin_OS_Mode_Shell_Renderer {
 	 */
 	public function render() {
 		if ( ! current_user_can( 'read' ) ) {
-			wp_die( esc_html__( 'You do not have permission to use Admin OS Mode.', 'admin-os-mode' ) );
+			wp_die( esc_html__( 'You do not have permission to use WP adminOS.', 'wp-adminos' ) );
 		}
 
 		$apps          = $this->app_registry->get_apps();
@@ -197,15 +197,15 @@ final class Admin_OS_Mode_Shell_Renderer {
 
 		if ( is_array( $theme ) ) {
 			if ( ! empty( $theme['id'] ) ) {
-				$candidates[] = ADMIN_OS_MODE_DIR . 'templates/themes/' . sanitize_key( $theme['id'] ) . '/' . $template;
+				$candidates[] = WP_ADMINOS_DIR . 'templates/themes/' . sanitize_key( $theme['id'] ) . '/' . $template;
 			}
 
 			if ( ! empty( $theme['family'] ) ) {
-				$candidates[] = ADMIN_OS_MODE_DIR . 'templates/themes/' . sanitize_key( $theme['family'] ) . '/' . $template;
+				$candidates[] = WP_ADMINOS_DIR . 'templates/themes/' . sanitize_key( $theme['family'] ) . '/' . $template;
 			}
 		}
 
-		$candidates[] = ADMIN_OS_MODE_DIR . 'templates/' . $template;
+		$candidates[] = WP_ADMINOS_DIR . 'templates/' . $template;
 
 		foreach ( $candidates as $candidate ) {
 			if ( file_exists( $candidate ) ) {
@@ -213,7 +213,7 @@ final class Admin_OS_Mode_Shell_Renderer {
 			}
 		}
 
-		return ADMIN_OS_MODE_DIR . 'templates/' . $template;
+		return WP_ADMINOS_DIR . 'templates/' . $template;
 	}
 
 	/**

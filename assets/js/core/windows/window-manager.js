@@ -1,15 +1,15 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.windows = window.AdminOSMode.windows || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.windows = window.WPAdminOS.windows || {};
 
-	window.AdminOSMode.windows.createWindowManager = function createWindowManager(shell, options = {}) {
-		const dom = window.AdminOSMode.dom;
+	window.WPAdminOS.windows.createWindowManager = function createWindowManager(shell, options = {}) {
+		const dom = window.WPAdminOS.dom;
 		const desktop = shell.querySelector('.aos-desktop');
 		const dock = shell.querySelector('.aos-dock');
 		const menuBar = shell.querySelector('.aos-menu-bar');
-		const sessionStore = window.AdminOSMode.session.createSessionStore(options.storageKey || '');
+		const sessionStore = window.WPAdminOS.session.createSessionStore(options.storageKey || '');
 		let zIndex = 30;
 		let windowOffset = 0;
 		let windowId = 0;
@@ -26,7 +26,7 @@
 		const resizeObserver = typeof window.ResizeObserver === 'function'
 			? new window.ResizeObserver(() => scheduleSave())
 			: null;
-		const factory = window.AdminOSMode.windows.createWindowFactory({
+		const factory = window.WPAdminOS.windows.createWindowFactory({
 			onMinimize(win) {
 				minimizeWindow(win);
 			},
@@ -43,11 +43,11 @@
 		function withIframeParam(url) {
 			try {
 				const next = new URL(url, window.location.origin);
-				next.searchParams.set('admin_os_iframe', '1');
+				next.searchParams.set('wp_adminos_iframe', '1');
 				return next.toString();
 			} catch (error) {
 				const joiner = url.indexOf('?') === -1 ? '?' : '&';
-				return `${url}${joiner}admin_os_iframe=1`;
+				return `${url}${joiner}wp_adminos_iframe=1`;
 			}
 		}
 
@@ -267,7 +267,7 @@
 		}
 
 		function dispatchActiveWindowChange() {
-			shell.dispatchEvent(new window.CustomEvent('adminOSMode:active-window-change', {
+			shell.dispatchEvent(new window.CustomEvent('wpAdminOS:active-window-change', {
 				detail: getActiveWindowDetail(activeWindow)
 			}));
 		}
@@ -281,7 +281,7 @@
 
 			fullscreenState = fullscreen;
 			shell.dataset.aosFullscreenWindow = fullscreen ? '1' : '0';
-			shell.dispatchEvent(new window.CustomEvent('adminOSMode:fullscreen-window-change', {
+			shell.dispatchEvent(new window.CustomEvent('wpAdminOS:fullscreen-window-change', {
 				detail: {
 					fullscreen
 				}
@@ -1130,14 +1130,14 @@
 			});
 		}
 
-		shell.addEventListener('adminOSMode:desktop-dock-change', () => {
+		shell.addEventListener('wpAdminOS:desktop-dock-change', () => {
 			syncMinimizedDockItems();
 			if (!shouldWallpaperClickShowDesktop()) {
 				exitShowDesktop(true);
 			}
 		});
 
-		shell.addEventListener('adminOSMode:menu-bar-layout-change', () => {
+		shell.addEventListener('wpAdminOS:menu-bar-layout-change', () => {
 			constrainVisibleWindows();
 		});
 
@@ -1176,5 +1176,5 @@
 		};
 	};
 
-	window.AdminOSMode.createWindowManager = window.AdminOSMode.windows.createWindowManager;
+	window.WPAdminOS.createWindowManager = window.WPAdminOS.windows.createWindowManager;
 })();

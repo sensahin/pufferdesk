@@ -2,7 +2,7 @@
 /**
  * Icon descriptors and rendering.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Normalizes app/folder icons into a future-friendly shape.
  */
-final class Admin_OS_Mode_Icon_Renderer {
+final class WP_AdminOS_Icon_Renderer {
 	/**
 	 * Normalize a Dashicon string or structured icon descriptor.
 	 *
@@ -202,7 +202,7 @@ final class Admin_OS_Mode_Icon_Renderer {
 		}
 
 		$path = self::normalize_media_path( trailingslashit( $theme['media']['icon_pack']['path'] ) . $icon['name'] );
-		if ( '' === $path || ! file_exists( ADMIN_OS_MODE_DIR . 'assets/media/' . $path ) ) {
+		if ( '' === $path || ! file_exists( WP_ADMINOS_DIR . 'assets/media/' . $path ) ) {
 			return '';
 		}
 
@@ -216,7 +216,7 @@ final class Admin_OS_Mode_Icon_Renderer {
 	 * @return string
 	 */
 	private static function get_local_media_url( $path ) {
-		$file = ADMIN_OS_MODE_DIR . 'assets/media/' . $path;
+		$file = WP_ADMINOS_DIR . 'assets/media/' . $path;
 
 		if ( '' === $path || ! file_exists( $file ) ) {
 			return '';
@@ -224,13 +224,13 @@ final class Admin_OS_Mode_Icon_Renderer {
 
 		$version = filemtime( $file );
 		if ( false === $version ) {
-			$version = ADMIN_OS_MODE_VERSION;
+			$version = WP_ADMINOS_VERSION;
 		}
 
 		return add_query_arg(
 			'ver',
 			(string) $version,
-			ADMIN_OS_MODE_URL . 'assets/media/' . $path
+			WP_ADMINOS_URL . 'assets/media/' . $path
 		);
 	}
 

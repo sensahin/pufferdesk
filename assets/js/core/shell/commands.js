@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
 
-	window.AdminOSMode.shell.createCommandRegistry = function createCommandRegistry(shell, context = {}) {
-		const dom = window.AdminOSMode.dom;
+	window.WPAdminOS.shell.createCommandRegistry = function createCommandRegistry(shell, context = {}) {
+		const dom = window.WPAdminOS.dom;
 		const launcher = context.launcher || null;
 		const manager = context.manager || null;
 		const widgetManager = context.widgetManager || null;
@@ -14,11 +14,11 @@
 		const dialogs = context.dialogs || null;
 		const reopenPolicy = context.reopenPolicy || null;
 		const config = context.config && typeof context.config === 'object' ? context.config : {};
-		const api = window.AdminOSMode.services && window.AdminOSMode.services.api ? window.AdminOSMode.services.api : null;
+		const api = window.WPAdminOS.services && window.WPAdminOS.services.api ? window.WPAdminOS.services.api : null;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
-		const appSurfaceManager = window.AdminOSMode.apps && typeof window.AdminOSMode.apps.createAppSurfaceManager === 'function'
-			? window.AdminOSMode.apps.createAppSurfaceManager(shell, config, {
+		const appSurfaceManager = window.WPAdminOS.apps && typeof window.WPAdminOS.apps.createAppSurfaceManager === 'function'
+			? window.WPAdminOS.apps.createAppSurfaceManager(shell, config, {
 				apps,
 				desktopIconManager,
 				folderManager,
@@ -93,7 +93,7 @@
 
 			try {
 				const next = new URL(url, window.location.origin);
-				next.searchParams.delete('admin_os_iframe');
+				next.searchParams.delete('wp_adminos_iframe');
 				return next.toString();
 			} catch (error) {
 				return url;
@@ -174,7 +174,7 @@
 			if (result && typeof result.catch === 'function') {
 				result.catch((error) => {
 					if (window.console && typeof window.console.error === 'function') {
-						window.console.error('Admin OS command failed.', error);
+						window.console.error('WP adminOS command failed.', error);
 					}
 				});
 			}
@@ -186,7 +186,7 @@
 		}
 
 		function refreshActiveMenu(detail = activeDetail) {
-			shell.dispatchEvent(new window.CustomEvent('adminOSMode:active-window-change', {
+			shell.dispatchEvent(new window.CustomEvent('wpAdminOS:active-window-change', {
 				detail
 			}));
 		}
@@ -236,7 +236,7 @@
 				return Promise.reject(new Error('Settings service unavailable.'));
 			}
 
-			return api.post('admin_os_mode_save_app_locations', {
+			return api.post('wp_adminos_save_app_locations', {
 				locations: JSON.stringify(config.appLocations)
 			}).then((result) => {
 				if (!result || !result.success) {
@@ -295,7 +295,7 @@
 				return Promise.reject(new Error('Settings service unavailable.'));
 			}
 
-			return api.post('admin_os_mode_save_app_login_items', {
+			return api.post('wp_adminos_save_app_login_items', {
 				items: JSON.stringify(config.appLoginItems)
 			}).then((result) => {
 				if (!result || !result.success) {
@@ -341,8 +341,8 @@
 				eraseContentSettings: {
 					cancelLabel: 'Cancel',
 					confirmLabel: 'Erase',
-					message: 'This will reset Admin OS settings, wallpaper, dock, windows, and layout for this WordPress account. WordPress site content will not be affected.',
-					overlayMessage: 'Erasing Admin OS settings...',
+					message: 'This will reset WP adminOS settings, wallpaper, dock, windows, and layout for this WordPress account. WordPress site content will not be affected.',
+					overlayMessage: 'Erasing WP adminOS settings...',
 					title: 'Erase All Content and Settings?'
 				},
 				restart: {
@@ -350,11 +350,11 @@
 					confirmLabel: 'Restart',
 					countdownSeconds: 60,
 					icon: 'power',
-					message: 'If you do nothing, Admin OS will restart automatically in {seconds} seconds.',
-					overlayMessage: 'Restarting Admin OS...',
+					message: 'If you do nothing, WP adminOS will restart automatically in {seconds} seconds.',
+					overlayMessage: 'Restarting WP adminOS...',
 					reopenWindowsDefault: false,
 					reopenWindowsLabel: 'Reopen windows after restarting',
-					title: 'Are you sure you want to restart Admin OS?'
+					title: 'Are you sure you want to restart WP adminOS?'
 				},
 				switchClassic: {
 					cancelLabel: 'Cancel',
@@ -364,7 +364,7 @@
 					message: 'If you do nothing, Classic Admin will open automatically in {seconds} seconds.',
 					overlayMessage: 'Switching to Classic Admin...',
 					reopenWindowsDefault: false,
-					reopenWindowsLabel: 'Reopen windows when returning to Admin OS',
+					reopenWindowsLabel: 'Reopen windows when returning to WP adminOS',
 					title: 'Are you sure you want to switch to Classic Admin?'
 				}
 			};
@@ -454,8 +454,8 @@
 		function clearSessionStore() {
 			disableSessionPersistence();
 
-			if (config.storageKey && window.AdminOSMode.session && window.AdminOSMode.session.createSessionStore) {
-				window.AdminOSMode.session.createSessionStore(config.storageKey).clear();
+			if (config.storageKey && window.WPAdminOS.session && window.WPAdminOS.session.createSessionStore) {
+				window.WPAdminOS.session.createSessionStore(config.storageKey).clear();
 				return true;
 			}
 
@@ -470,7 +470,7 @@
 			let removed = false;
 
 			if (storage && userId > 0) {
-				const prefix = `adminOSMode:${userId}:`;
+				const prefix = `wpAdminOS:${userId}:`;
 				const keys = [];
 
 				for (let index = 0; index < storage.length; index += 1) {
@@ -571,14 +571,14 @@
 			}
 
 			try {
-				const result = await api.post('admin_os_mode_reset', {
+				const result = await api.post('wp_adminos_reset', {
 					profile: 'erase_content_settings'
 				});
 
 				if (!result || !result.success) {
 					const message = result && result.data && result.data.message
 						? result.data.message
-						: 'Admin OS settings could not be reset.';
+						: 'WP adminOS settings could not be reset.';
 					throw new Error(message);
 				}
 
@@ -735,7 +735,7 @@
 					toolbar.dataset.aosFolderToolbarDisplay = mode;
 				}
 
-				win.dispatchEvent(new window.CustomEvent('adminOSMode:folder-toolbar-display-change', {
+				win.dispatchEvent(new window.CustomEvent('wpAdminOS:folder-toolbar-display-change', {
 					detail: {
 						mode
 					}
@@ -830,10 +830,10 @@
 
 		register('recent-items.clear', {
 			isEnabled() {
-				return Boolean(window.AdminOSMode.menuBar && typeof window.AdminOSMode.menuBar.clearRecentItems === 'function');
+				return Boolean(window.WPAdminOS.menuBar && typeof window.WPAdminOS.menuBar.clearRecentItems === 'function');
 			},
 			run() {
-				window.AdminOSMode.menuBar.clearRecentItems(config);
+				window.WPAdminOS.menuBar.clearRecentItems(config);
 			}
 		});
 
@@ -866,7 +866,7 @@
 
 		register('session.reset-layout', {
 			isEnabled() {
-				return Boolean(config.storageKey && window.AdminOSMode.session && window.AdminOSMode.session.createSessionStore);
+				return Boolean(config.storageKey && window.WPAdminOS.session && window.WPAdminOS.session.createSessionStore);
 			},
 			run() {
 				skipWindowRestoreOnce();

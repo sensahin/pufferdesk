@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
+	window.WPAdminOS = window.WPAdminOS || {};
 
 	function escapeAttribute(value) {
 		if (window.CSS && typeof window.CSS.escape === 'function') {
@@ -36,7 +36,7 @@
 	}
 
 	function getThemeIconPackUrl() {
-		const config = window.AdminOSMode.config ? window.AdminOSMode.config.get() : (window.adminOSMode || {});
+		const config = window.WPAdminOS.config ? window.WPAdminOS.config.get() : (window.wpAdminOS || {});
 		const iconPack = config.theme && config.theme.media && config.theme.media.icon_pack ? config.theme.media.icon_pack : null;
 		return iconPack && iconPack.url ? String(iconPack.url) : '';
 	}
@@ -123,7 +123,7 @@
 		return createDashicon(descriptor.value);
 	}
 
-	window.AdminOSMode.dom = {
+	window.WPAdminOS.dom = {
 		createDashicon,
 		createElement,
 		createIcon,

@@ -2,7 +2,7 @@
 /**
  * Widget layout attribute helpers.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Converts widget registry layout data into safe template attributes.
  */
-final class Admin_OS_Mode_Widget_Layout {
+final class WP_AdminOS_Widget_Layout {
 	/**
 	 * Render widget layout attributes for a desktop widget element.
 	 *
@@ -39,8 +39,8 @@ final class Admin_OS_Mode_Widget_Layout {
 		$right    = isset( $position['right'] ) ? absint( $position['right'] ) : null;
 		$top      = isset( $position['top'] ) ? absint( $position['top'] ) : null;
 		$bottom   = isset( $position['bottom'] ) ? absint( $position['bottom'] ) : null;
-		$width    = isset( $size['width'] ) ? max( 120, absint( $size['width'] ) ) : Admin_OS_Mode_Widget_Registry::DEFAULT_WIDTH;
-		$height   = isset( $size['height'] ) ? max( 80, absint( $size['height'] ) ) : Admin_OS_Mode_Widget_Registry::DEFAULT_HEIGHT;
+		$width    = isset( $size['width'] ) ? max( 120, absint( $size['width'] ) ) : WP_AdminOS_Widget_Registry::DEFAULT_WIDTH;
+		$height   = isset( $size['height'] ) ? max( 80, absint( $size['height'] ) ) : WP_AdminOS_Widget_Registry::DEFAULT_HEIGHT;
 
 		if ( null === $left && null === $right ) {
 			$left = 24;

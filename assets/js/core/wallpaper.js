@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
+	window.WPAdminOS = window.WPAdminOS || {};
 
 	const cssDefaults = {
 		'--aos-wallpaper-image': 'none',
@@ -9,7 +9,7 @@
 		'--aos-wallpaper-repeat': 'no-repeat',
 		'--aos-wallpaper-size': 'cover'
 	};
-	const menuContrastCachePrefix = 'adminOSMode:wallpaper-menu-contrast:';
+	const menuContrastCachePrefix = 'wpAdminOS:wallpaper-menu-contrast:';
 
 	function sanitizeContrast(value) {
 		return value === 'dark' || value === 'light' || value === 'auto' ? value : '';
@@ -234,7 +234,7 @@
 		return `${preference.type || ''}:${preference.id || ''}`;
 	}
 
-	window.AdminOSMode.wallpaper = {
+	window.WPAdminOS.wallpaper = {
 		apply,
 		getCurrent,
 		getPreference,

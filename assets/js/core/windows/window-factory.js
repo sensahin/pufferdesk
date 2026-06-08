@@ -1,10 +1,10 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.windows = window.AdminOSMode.windows || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.windows = window.WPAdminOS.windows || {};
 
-	window.AdminOSMode.windows.createWindowFactory = function createWindowFactory(callbacks = {}) {
+	window.WPAdminOS.windows.createWindowFactory = function createWindowFactory(callbacks = {}) {
 		function createWindowControl(action, label, modifier, disabled = false) {
 			const button = document.createElement('button');
 			button.type = 'button';
@@ -61,10 +61,10 @@
 			if (options.titlebarLabel) {
 				const label = document.createElement('span');
 				label.className = 'aos-window-titlebar-label';
-				if (options.titlebarIcon && window.AdminOSMode.dom && typeof window.AdminOSMode.dom.createIcon === 'function') {
+				if (options.titlebarIcon && window.WPAdminOS.dom && typeof window.WPAdminOS.dom.createIcon === 'function') {
 					const icon = document.createElement('span');
 					icon.className = 'aos-window-titlebar-label-icon';
-					icon.appendChild(window.AdminOSMode.dom.createIcon(options.titlebarIcon));
+					icon.appendChild(window.WPAdminOS.dom.createIcon(options.titlebarIcon));
 					label.appendChild(icon);
 				}
 

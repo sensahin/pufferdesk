@@ -2,7 +2,7 @@
 /**
  * Main shell template.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -22,21 +22,21 @@ defined( 'ABSPATH' ) || exit;
  * @var array<string,mixed>             $theme
  * @var array<string,mixed>             $wallpaper
  */
-$admin_os_mode_shell_style_parts = array();
+$wp_adminos_shell_style_parts = array();
 if ( ! empty( $wallpaper['css_variables'] ) && is_array( $wallpaper['css_variables'] ) ) {
-	foreach ( $wallpaper['css_variables'] as $admin_os_mode_wallpaper_name => $admin_os_mode_wallpaper_value ) {
-		if ( ! preg_match( '/^--aos-wallpaper-(image|size|position|repeat)$/', (string) $admin_os_mode_wallpaper_name ) ) {
+	foreach ( $wallpaper['css_variables'] as $wp_adminos_wallpaper_name => $wp_adminos_wallpaper_value ) {
+		if ( ! preg_match( '/^--aos-wallpaper-(image|size|position|repeat)$/', (string) $wp_adminos_wallpaper_name ) ) {
 			continue;
 		}
 
-		$admin_os_mode_wallpaper_value = str_replace( ';', '', (string) $admin_os_mode_wallpaper_value );
-		if ( '' !== $admin_os_mode_wallpaper_value ) {
-			$admin_os_mode_shell_style_parts[] = $admin_os_mode_wallpaper_name . ':' . $admin_os_mode_wallpaper_value;
+		$wp_adminos_wallpaper_value = str_replace( ';', '', (string) $wp_adminos_wallpaper_value );
+		if ( '' !== $wp_adminos_wallpaper_value ) {
+			$wp_adminos_shell_style_parts[] = $wp_adminos_wallpaper_name . ':' . $wp_adminos_wallpaper_value;
 		}
 	}
 }
 
-$admin_os_mode_appearance = wp_parse_args(
+$wp_adminos_appearance = wp_parse_args(
 	is_array( $appearance ) ? $appearance : array(),
 	array(
 		'mode'              => 'auto',
@@ -46,7 +46,7 @@ $admin_os_mode_appearance = wp_parse_args(
 	)
 );
 
-$admin_os_mode_desktop_dock = wp_parse_args(
+$wp_adminos_desktop_dock = wp_parse_args(
 	is_array( $desktop_dock ) ? $desktop_dock : array(),
 	array(
 		'dock_size'              => 48,
@@ -62,7 +62,7 @@ $admin_os_mode_desktop_dock = wp_parse_args(
 		'dim_widgets'            => 'automatic',
 	)
 );
-$admin_os_mode_menu_bar     = wp_parse_args(
+$wp_adminos_menu_bar     = wp_parse_args(
 	is_array( $menu_bar ) ? $menu_bar : array(),
 	array(
 		'auto_hide'       => 'fullscreen',
@@ -70,57 +70,57 @@ $admin_os_mode_menu_bar     = wp_parse_args(
 		'recent_count'    => 10,
 	)
 );
-$admin_os_mode_dock_size          = max( 28, min( 72, (int) $admin_os_mode_desktop_dock['dock_size'] ) );
-$admin_os_mode_dock_magnification = max( 0, min( 24, (int) $admin_os_mode_desktop_dock['dock_magnification'] ) );
-$admin_os_mode_dock_icon_size     = max( 18, (int) round( $admin_os_mode_dock_size * 0.56 ) );
-$admin_os_mode_dock_lift          = $admin_os_mode_dock_magnification > 0 ? (int) round( 4 + $admin_os_mode_dock_magnification / 3 ) : 0;
-$admin_os_mode_dock_scale         = $admin_os_mode_dock_magnification > 0 ? number_format( 1 + $admin_os_mode_dock_magnification / 55, 3, '.', '' ) : '1';
-$admin_os_mode_shell_style_parts[] = '--aos-dock-item-size:' . $admin_os_mode_dock_size . 'px';
-$admin_os_mode_shell_style_parts[] = '--aos-dock-icon-size:' . $admin_os_mode_dock_icon_size . 'px';
-$admin_os_mode_shell_style_parts[] = '--aos-dock-tile-size:' . $admin_os_mode_dock_size . 'px';
-$admin_os_mode_shell_style_parts[] = '--aos-dock-hover-lift:' . $admin_os_mode_dock_lift . 'px';
-$admin_os_mode_shell_style_parts[] = '--aos-dock-hover-scale:' . $admin_os_mode_dock_scale;
-$admin_os_mode_shell_style          = implode( ';', $admin_os_mode_shell_style_parts );
-$admin_os_mode_effective_appearance = 'dark' === $admin_os_mode_appearance['mode'] ? 'dark' : 'light';
-$admin_os_mode_menu_bar_auto_hide   = in_array( $admin_os_mode_menu_bar['auto_hide'], array( 'always', 'desktop', 'fullscreen', 'never' ), true ) ? $admin_os_mode_menu_bar['auto_hide'] : 'fullscreen';
-$admin_os_mode_menu_bar_hidden      = in_array( $admin_os_mode_menu_bar_auto_hide, array( 'always', 'desktop' ), true );
-$admin_os_mode_shell_attributes     = array(
+$wp_adminos_dock_size          = max( 28, min( 72, (int) $wp_adminos_desktop_dock['dock_size'] ) );
+$wp_adminos_dock_magnification = max( 0, min( 24, (int) $wp_adminos_desktop_dock['dock_magnification'] ) );
+$wp_adminos_dock_icon_size     = max( 18, (int) round( $wp_adminos_dock_size * 0.56 ) );
+$wp_adminos_dock_lift          = $wp_adminos_dock_magnification > 0 ? (int) round( 4 + $wp_adminos_dock_magnification / 3 ) : 0;
+$wp_adminos_dock_scale         = $wp_adminos_dock_magnification > 0 ? number_format( 1 + $wp_adminos_dock_magnification / 55, 3, '.', '' ) : '1';
+$wp_adminos_shell_style_parts[] = '--aos-dock-item-size:' . $wp_adminos_dock_size . 'px';
+$wp_adminos_shell_style_parts[] = '--aos-dock-icon-size:' . $wp_adminos_dock_icon_size . 'px';
+$wp_adminos_shell_style_parts[] = '--aos-dock-tile-size:' . $wp_adminos_dock_size . 'px';
+$wp_adminos_shell_style_parts[] = '--aos-dock-hover-lift:' . $wp_adminos_dock_lift . 'px';
+$wp_adminos_shell_style_parts[] = '--aos-dock-hover-scale:' . $wp_adminos_dock_scale;
+$wp_adminos_shell_style          = implode( ';', $wp_adminos_shell_style_parts );
+$wp_adminos_effective_appearance = 'dark' === $wp_adminos_appearance['mode'] ? 'dark' : 'light';
+$wp_adminos_menu_bar_auto_hide   = in_array( $wp_adminos_menu_bar['auto_hide'], array( 'always', 'desktop', 'fullscreen', 'never' ), true ) ? $wp_adminos_menu_bar['auto_hide'] : 'fullscreen';
+$wp_adminos_menu_bar_hidden      = in_array( $wp_adminos_menu_bar_auto_hide, array( 'always', 'desktop' ), true );
+$wp_adminos_shell_attributes     = array(
 	'class'                           => 'aos-shell',
-	'data-admin-os-shell'             => '',
+	'data-wp-adminos-shell'             => '',
 	'data-aos-theme'                  => $theme['id'],
 	'data-aos-theme-family'           => $theme['family'],
 	'data-aos-theme-version'          => $theme['version'],
 	'data-aos-wallpaper-type'         => ! empty( $wallpaper['preference']['type'] ) ? $wallpaper['preference']['type'] : '',
 	'data-aos-wallpaper-id'           => ! empty( $wallpaper['preference']['id'] ) ? $wallpaper['preference']['id'] : '',
 	'data-aos-menu-contrast'          => ! empty( $wallpaper['menu_contrast'] ) ? $wallpaper['menu_contrast'] : 'auto',
-	'data-aos-appearance-mode'        => $admin_os_mode_appearance['mode'],
-	'data-aos-effective-appearance'   => $admin_os_mode_effective_appearance,
-	'data-aos-window-material'        => $admin_os_mode_appearance['window_material'],
-	'data-aos-accent-color'           => $admin_os_mode_appearance['accent_color'],
-	'data-aos-icon-widget-style'      => $admin_os_mode_appearance['icon_widget_style'],
-	'data-aos-dock-position'          => $admin_os_mode_desktop_dock['dock_position'],
-	'data-aos-dock-auto-hide'         => ! empty( $admin_os_mode_desktop_dock['auto_hide_dock'] ) ? '1' : '0',
-	'data-aos-dock-animate-apps'      => ! empty( $admin_os_mode_desktop_dock['animate_opening_apps'] ) ? '1' : '0',
-	'data-aos-dock-show-indicators'   => ! empty( $admin_os_mode_desktop_dock['show_open_indicators'] ) ? '1' : '0',
-	'data-aos-minimize-animation'     => $admin_os_mode_desktop_dock['minimize_animation'],
-	'data-aos-minimize-into-app-icon' => ! empty( $admin_os_mode_desktop_dock['minimize_into_app_icon'] ) ? '1' : '0',
-	'data-aos-wallpaper-click'        => $admin_os_mode_desktop_dock['wallpaper_click'],
-	'data-aos-show-widgets-desktop'   => ! empty( $admin_os_mode_desktop_dock['show_widgets_desktop'] ) ? '1' : '0',
-	'data-aos-dim-widgets'            => $admin_os_mode_desktop_dock['dim_widgets'],
+	'data-aos-appearance-mode'        => $wp_adminos_appearance['mode'],
+	'data-aos-effective-appearance'   => $wp_adminos_effective_appearance,
+	'data-aos-window-material'        => $wp_adminos_appearance['window_material'],
+	'data-aos-accent-color'           => $wp_adminos_appearance['accent_color'],
+	'data-aos-icon-widget-style'      => $wp_adminos_appearance['icon_widget_style'],
+	'data-aos-dock-position'          => $wp_adminos_desktop_dock['dock_position'],
+	'data-aos-dock-auto-hide'         => ! empty( $wp_adminos_desktop_dock['auto_hide_dock'] ) ? '1' : '0',
+	'data-aos-dock-animate-apps'      => ! empty( $wp_adminos_desktop_dock['animate_opening_apps'] ) ? '1' : '0',
+	'data-aos-dock-show-indicators'   => ! empty( $wp_adminos_desktop_dock['show_open_indicators'] ) ? '1' : '0',
+	'data-aos-minimize-animation'     => $wp_adminos_desktop_dock['minimize_animation'],
+	'data-aos-minimize-into-app-icon' => ! empty( $wp_adminos_desktop_dock['minimize_into_app_icon'] ) ? '1' : '0',
+	'data-aos-wallpaper-click'        => $wp_adminos_desktop_dock['wallpaper_click'],
+	'data-aos-show-widgets-desktop'   => ! empty( $wp_adminos_desktop_dock['show_widgets_desktop'] ) ? '1' : '0',
+	'data-aos-dim-widgets'            => $wp_adminos_desktop_dock['dim_widgets'],
 	'data-aos-fullscreen-window'      => '0',
-	'data-aos-menu-bar-auto-hide'     => $admin_os_mode_menu_bar_auto_hide,
-	'data-aos-menu-bar-background'    => ! empty( $admin_os_mode_menu_bar['show_background'] ) ? '1' : '0',
-	'data-aos-menu-bar-hidden'        => $admin_os_mode_menu_bar_hidden ? '1' : '0',
-	'data-aos-menu-bar-recent-count'  => (string) max( 0, min( 50, (int) $admin_os_mode_menu_bar['recent_count'] ) ),
+	'data-aos-menu-bar-auto-hide'     => $wp_adminos_menu_bar_auto_hide,
+	'data-aos-menu-bar-background'    => ! empty( $wp_adminos_menu_bar['show_background'] ) ? '1' : '0',
+	'data-aos-menu-bar-hidden'        => $wp_adminos_menu_bar_hidden ? '1' : '0',
+	'data-aos-menu-bar-recent-count'  => (string) max( 0, min( 50, (int) $wp_adminos_menu_bar['recent_count'] ) ),
 	'data-aos-menu-bar-revealed'      => '0',
 );
-if ( $admin_os_mode_shell_style ) {
-	$admin_os_mode_shell_attributes['style'] = $admin_os_mode_shell_style;
+if ( $wp_adminos_shell_style ) {
+	$wp_adminos_shell_attributes['style'] = $wp_adminos_shell_style;
 }
 ?>
-<div <?php foreach ( $admin_os_mode_shell_attributes as $admin_os_mode_attribute => $admin_os_mode_value ) : ?><?php echo esc_attr( $admin_os_mode_attribute ); ?><?php if ( '' !== $admin_os_mode_value ) : ?>="<?php echo esc_attr( $admin_os_mode_value ); ?>"<?php endif; ?> <?php endforeach; ?>>
+<div <?php foreach ( $wp_adminos_shell_attributes as $wp_adminos_attribute => $wp_adminos_value ) : ?><?php echo esc_attr( $wp_adminos_attribute ); ?><?php if ( '' !== $wp_adminos_value ) : ?>="<?php echo esc_attr( $wp_adminos_value ); ?>"<?php endif; ?> <?php endforeach; ?>>
 	<?php
-	if ( 'auto' === $admin_os_mode_appearance['mode'] ) {
+	if ( 'auto' === $wp_adminos_appearance['mode'] ) {
 		// Resolve Auto appearance before the menu bar and dock paint.
 		wp_print_inline_script_tag(
 			'(function(){var shell=document.currentScript&&document.currentScript.parentElement;if(shell&&window.matchMedia){shell.dataset.aosEffectiveAppearance=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}})();'

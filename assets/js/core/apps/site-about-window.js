@@ -1,8 +1,8 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.apps = window.AdminOSMode.apps || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
 
 	function addClassNames(element, classNames) {
 		(Array.isArray(classNames) ? classNames : [classNames]).forEach((className) => {
@@ -43,7 +43,7 @@
 	}
 
 	function createHeader(options = {}) {
-		const dom = window.AdminOSMode.dom;
+		const dom = window.WPAdminOS.dom;
 		const header = dom.createElement('header', 'aos-info-panel-header');
 		const icon = dom.createElement('span', 'aos-info-panel-icon');
 		const headline = dom.createElement('div', 'aos-info-panel-headline');
@@ -66,7 +66,7 @@
 	}
 
 	function appendTitle(root, options = {}) {
-		const dom = window.AdminOSMode.dom;
+		const dom = window.WPAdminOS.dom;
 
 		if (hasValue(options.title)) {
 			const title = dom.createElement('h1', 'aos-info-panel-title', options.title);
@@ -82,7 +82,7 @@
 	}
 
 	function appendSpecs(root, rows = [], options = {}) {
-		const dom = window.AdminOSMode.dom;
+		const dom = window.WPAdminOS.dom;
 		const specs = dom.createElement('dl', 'aos-info-panel-specs');
 		addClassNames(specs, options.specsClassName);
 
@@ -175,7 +175,7 @@
 	}
 
 	function createInfoPanelWindow(options = {}) {
-		const dom = window.AdminOSMode.dom;
+		const dom = window.WPAdminOS.dom;
 		const content = dom.createElement('div', 'aos-info-panel');
 
 		if (options.variant) {
@@ -225,7 +225,7 @@
 	}
 
 	function createSiteVisual(siteInfo = {}) {
-		const dom = window.AdminOSMode.dom;
+		const dom = window.WPAdminOS.dom;
 		const device = dom.createElement('div', 'aos-site-about-device');
 		const screen = dom.createElement('div', 'aos-site-about-screen');
 		const stand = dom.createElement('span', 'aos-site-about-stand');
@@ -247,7 +247,7 @@
 	}
 
 	function openSiteMoreInfo(siteInfo = {}) {
-		const commands = window.AdminOSMode && window.AdminOSMode.menuCommands;
+		const commands = window.WPAdminOS && window.WPAdminOS.menuCommands;
 		const command = siteInfo.moreInfoCommand || '';
 
 		if (command && commands && typeof commands.execute === 'function') {
@@ -265,8 +265,8 @@
 			}
 		}
 
-		if (siteInfo.moreInfoUrl && window.AdminOSMode.appLauncher && typeof window.AdminOSMode.appLauncher.openUrl === 'function') {
-			window.AdminOSMode.appLauncher.openUrl(siteInfo.moreInfoUrl, siteInfo.moreInfoTitle || 'Site Health Info', siteInfo.moreInfoIcon || 'dashicons-heart');
+		if (siteInfo.moreInfoUrl && window.WPAdminOS.appLauncher && typeof window.WPAdminOS.appLauncher.openUrl === 'function') {
+			window.WPAdminOS.appLauncher.openUrl(siteInfo.moreInfoUrl, siteInfo.moreInfoTitle || 'Site Health Info', siteInfo.moreInfoIcon || 'dashicons-heart');
 		}
 	}
 
@@ -306,8 +306,8 @@
 
 		appendDefinition(general.body, 'Kind', info.kind || 'Folder');
 		appendDefinition(general.body, 'Size', `${plural(itemCount, 'item', 'items')} in this folder`);
-		appendDefinition(general.body, 'Where', info.where || 'Admin OS');
-		appendDefinition(general.body, 'Source', info.source || 'Admin OS');
+		appendDefinition(general.body, 'Where', info.where || 'WP adminOS');
+		appendDefinition(general.body, 'Source', info.source || 'WP adminOS');
 		appendDefinition(general.body, 'Created', formatDate(info.createdAt));
 		appendDefinition(general.body, 'Modified', formatDate(info.modifiedAt));
 
@@ -378,7 +378,7 @@
 		});
 	}
 
-	window.AdminOSMode.apps.createInfoPanelWindow = createInfoPanelWindow;
-	window.AdminOSMode.apps.createSiteAboutWindow = createSiteAboutWindow;
-	window.AdminOSMode.apps.createFolderInfoWindow = createFolderInfoWindow;
+	window.WPAdminOS.apps.createInfoPanelWindow = createInfoPanelWindow;
+	window.WPAdminOS.apps.createSiteAboutWindow = createSiteAboutWindow;
+	window.WPAdminOS.apps.createFolderInfoWindow = createFolderInfoWindow;
 })();

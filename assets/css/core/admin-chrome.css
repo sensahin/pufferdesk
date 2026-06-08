@@ -1,31 +1,31 @@
-body.admin-os-mode-shell #wpadminbar,
-body.admin-os-mode-shell #adminmenumain,
-body.admin-os-mode-shell #wpfooter,
-body.admin-os-mode-shell #screen-meta,
-body.admin-os-mode-shell #screen-meta-links,
-body.admin-os-mode-shell .notice,
-body.admin-os-mode-shell .update-nag {
+body.wp-adminos-shell #wpadminbar,
+body.wp-adminos-shell #adminmenumain,
+body.wp-adminos-shell #wpfooter,
+body.wp-adminos-shell #screen-meta,
+body.wp-adminos-shell #screen-meta-links,
+body.wp-adminos-shell .notice,
+body.wp-adminos-shell .update-nag {
 	display: none !important;
 }
 
-body.admin-os-mode-shell {
+body.wp-adminos-shell {
 	overflow: hidden;
 }
 
-body.admin-os-mode-shell #wpcontent {
+body.wp-adminos-shell #wpcontent {
 	margin-left: 0 !important;
 	padding-left: 0 !important;
 }
 
-body.admin-os-mode-shell #wpbody-content {
+body.wp-adminos-shell #wpbody-content {
 	padding-bottom: 0;
 }
 
-body.admin-os-mode-shell #wpbody-content > .wrap {
+body.wp-adminos-shell #wpbody-content > .wrap {
 	display: none;
 }
 
-body.admin-os-mode-shell .aos-shell {
+body.wp-adminos-shell .aos-shell {
 	height: 100vh;
 	inset: 0;
 	position: fixed;
@@ -33,21 +33,21 @@ body.admin-os-mode-shell .aos-shell {
 	z-index: 100000;
 }
 
-body.admin-os-mode-iframe #wpadminbar,
-body.admin-os-mode-iframe #adminmenumain,
-body.admin-os-mode-iframe #wpfooter,
-body.admin-os-mode-iframe #screen-meta,
-body.admin-os-mode-iframe #screen-meta-links,
-body.admin-os-mode-iframe .notice,
-body.admin-os-mode-iframe .update-nag {
+body.wp-adminos-iframe #wpadminbar,
+body.wp-adminos-iframe #adminmenumain,
+body.wp-adminos-iframe #wpfooter,
+body.wp-adminos-iframe #screen-meta,
+body.wp-adminos-iframe #screen-meta-links,
+body.wp-adminos-iframe .notice,
+body.wp-adminos-iframe .update-nag {
 	display: none !important;
 }
 
-body.admin-os-mode-iframe #wpcontent {
+body.wp-adminos-iframe #wpcontent {
 	margin-left: 0 !important;
 	padding: 18px 22px 32px !important;
 }
 
-body.admin-os-mode-iframe #wpbody-content {
+body.wp-adminos-iframe #wpbody-content {
 	padding-bottom: 0;
 }

@@ -2,7 +2,7 @@
 /**
  * Theme registry.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Owns OS theme metadata and lookup.
  */
-final class Admin_OS_Mode_Theme_Registry {
+final class WP_AdminOS_Theme_Registry {
 	/**
 	 * Get all registered themes.
 	 *
@@ -20,21 +20,21 @@ final class Admin_OS_Mode_Theme_Registry {
 		$themes = array(
 			'adminos-base' => array(
 				'id'             => 'adminos-base',
-				'label'          => __( 'Admin OS Base', 'admin-os-mode' ),
+				'label'          => __( 'WP adminOS Base', 'wp-adminos' ),
 				'family'         => 'adminos',
-				'family_label'   => __( 'Admin OS', 'admin-os-mode' ),
+				'family_label'   => __( 'WP adminOS', 'wp-adminos' ),
 				'version'        => 'base',
-				'version_label'  => __( 'Base', 'admin-os-mode' ),
+				'version_label'  => __( 'Base', 'wp-adminos' ),
 				'stylesheet'     => 'adminos/base.css',
 				'abstract'       => true,
 			),
 			'adminos' => array(
 				'id'             => 'adminos',
-				'label'          => __( 'Admin OS', 'admin-os-mode' ),
+				'label'          => __( 'WP adminOS', 'wp-adminos' ),
 				'family'         => 'adminos',
-				'family_label'   => __( 'Admin OS', 'admin-os-mode' ),
+				'family_label'   => __( 'WP adminOS', 'wp-adminos' ),
 				'version'        => 'default',
-				'version_label'  => __( 'Default', 'admin-os-mode' ),
+				'version_label'  => __( 'Default', 'wp-adminos' ),
 				'parent'         => 'adminos-base',
 				'stylesheet'     => 'adminos/default.css',
 				'media'          => array(
@@ -43,72 +43,72 @@ final class Admin_OS_Mode_Theme_Registry {
 						'items'   => array(
 							array(
 								'id'        => 'aurora-flow',
-								'label'     => __( 'Aurora', 'admin-os-mode' ),
+								'label'     => __( 'Aurora', 'wp-adminos' ),
 								'css_value' => 'radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.34), transparent 24%), radial-gradient(circle at 78% 18%, rgba(46, 211, 255, 0.38), transparent 30%), linear-gradient(135deg, #2447c7 0%, #2fb8d2 52%, #8d3cff 100%)',
 							),
 							array(
 								'id'        => 'aqua-horizon',
-								'label'     => __( 'Aqua', 'admin-os-mode' ),
+								'label'     => __( 'Aqua', 'wp-adminos' ),
 								'css_value' => 'radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.46), transparent 22%), linear-gradient(120deg, #1d5fbf 0%, #1eb4c9 55%, #62f1dc 100%)',
 							),
 							array(
 								'id'        => 'alpine-mist',
-								'label'     => __( 'Alpine', 'admin-os-mode' ),
+								'label'     => __( 'Alpine', 'wp-adminos' ),
 								'css_value' => 'radial-gradient(circle at 76% 22%, rgba(255, 255, 255, 0.42), transparent 24%), linear-gradient(130deg, #16406d 0%, #3a8e9b 48%, #9ac77c 100%)',
 							),
 							array(
 								'id'        => 'canyon-light',
-								'label'     => __( 'Canyon', 'admin-os-mode' ),
+								'label'     => __( 'Canyon', 'wp-adminos' ),
 								'css_value' => 'radial-gradient(circle at 72% 18%, rgba(255, 231, 174, 0.45), transparent 28%), linear-gradient(125deg, #ff5c39 0%, #d83c7d 48%, #783fd6 100%)',
 							),
 							array(
 								'id'        => 'coral-ridge',
-								'label'     => __( 'Coral', 'admin-os-mode' ),
+								'label'     => __( 'Coral', 'wp-adminos' ),
 								'css_value' => 'radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.38), transparent 24%), linear-gradient(120deg, #ff4438 0%, #ee2d7a 52%, #b22ed5 100%)',
 							),
 							array(
 								'id'        => 'ember',
-								'label'     => __( 'Ember', 'admin-os-mode' ),
+								'label'     => __( 'Ember', 'wp-adminos' ),
 								'css_value' => 'linear-gradient(135deg, #ffffc4 0.000%, #ff6164 50.000%, #b00012 100.000%)',
 							),
 							array(
 								'id'        => 'breeze',
-								'label'     => __( 'Breeze', 'admin-os-mode' ),
+								'label'     => __( 'Breeze', 'wp-adminos' ),
 								'css_value' => 'linear-gradient(90deg, #07aeea 0.000%, #2bf598 100.000%)',
 							),
 							array(
 								'id'        => 'solar',
-								'label'     => __( 'Solar', 'admin-os-mode' ),
+								'label'     => __( 'Solar', 'wp-adminos' ),
 								'css_value' => 'linear-gradient(90deg, #2a001b 0.000%, #78130c 16.667%, #ce480e 33.333%, #ff8d22 50.000%, #ffd543 66.667%, #ffff69 83.333%, #ffff8d 100.000%)',
 							),
 							array(
 								'id'        => 'azure',
-								'label'     => __( 'Azure', 'admin-os-mode' ),
+								'label'     => __( 'Azure', 'wp-adminos' ),
 								'css_value' => 'linear-gradient(180deg, #003bff 0.000%, #004bff 8.333%, #125cff 16.667%, #2b6cff 25.000%, #447bff 33.333%, #5d8bff 41.667%, #7499ff 50.000%, #8aa7ff 58.333%, #9db3ff 66.667%, #adbfff 75.000%, #b9c9ff 83.333%, #c2d2ff 91.667%, #c6d9ff 100.000%)',
 							),
 							array(
 								'id'        => 'lagoon-glow',
-								'label'     => __( 'Lagoon', 'admin-os-mode' ),
+								'label'     => __( 'Lagoon', 'wp-adminos' ),
 								'css_value' => 'radial-gradient(circle at 80% 20%, rgba(227, 255, 241, 0.36), transparent 26%), linear-gradient(135deg, #0c6a88 0%, #18b5b7 54%, #69ddbb 100%)',
 							),
 							array(
 								'id'        => 'violet-wave',
-								'label'     => __( 'Violet', 'admin-os-mode' ),
+								'label'     => __( 'Violet', 'wp-adminos' ),
 								'css_value' => 'radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.3), transparent 22%), linear-gradient(130deg, #2b4fcf 0%, #7042d8 46%, #df46a6 100%)',
 							),
 							array(
 								'id'        => 'sunset-field',
-								'label'     => __( 'Sunset', 'admin-os-mode' ),
+								'label'     => __( 'Sunset', 'wp-adminos' ),
 								'css_value' => 'radial-gradient(circle at 74% 18%, rgba(255, 239, 170, 0.48), transparent 24%), linear-gradient(120deg, #ff7a18 0%, #ff3f68 48%, #6d4cf5 100%)',
 							),
 							array(
 								'id'        => 'mint-haze',
-								'label'     => __( 'Mint', 'admin-os-mode' ),
+								'label'     => __( 'Mint', 'wp-adminos' ),
 								'css_value' => 'radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.4), transparent 24%), linear-gradient(135deg, #207a68 0%, #6ac99d 52%, #b4d676 100%)',
 							),
 							array(
 								'id'        => 'nightfall',
-								'label'     => __( 'Nightfall', 'admin-os-mode' ),
+								'label'     => __( 'Nightfall', 'wp-adminos' ),
 								'css_value' => 'radial-gradient(circle at 78% 18%, rgba(92, 116, 255, 0.34), transparent 28%), radial-gradient(circle at 22% 76%, rgba(0, 204, 196, 0.22), transparent 32%), linear-gradient(135deg, #121d3d 0%, #242056 50%, #0f5364 100%)',
 							),
 						),
@@ -120,7 +120,7 @@ final class Admin_OS_Mode_Theme_Registry {
 		);
 
 		/**
-		 * Filter Admin OS themes.
+		 * Filter WP adminOS themes.
 		 *
 		 * Theme keys are stable IDs. Values accept:
 		 * id, label, family, family_label, version, version_label, parent,
@@ -129,7 +129,7 @@ final class Admin_OS_Mode_Theme_Registry {
 		 *
 		 * @param array<string,array<string,mixed>> $themes Registered themes.
 		 */
-		$themes = apply_filters( 'admin_os_mode_themes', $themes );
+		$themes = apply_filters( 'wp_adminos_themes', $themes );
 
 		return $this->normalize_themes( $themes );
 	}
@@ -137,10 +137,10 @@ final class Admin_OS_Mode_Theme_Registry {
 	/**
 	 * Get the current user's theme.
 	 *
-	 * @param Admin_OS_Mode_User_Preferences $preferences User preferences.
+	 * @param WP_AdminOS_User_Preferences $preferences User preferences.
 	 * @return array<string,mixed>
 	 */
-	public function get_current_theme( Admin_OS_Mode_User_Preferences $preferences ) {
+	public function get_current_theme( WP_AdminOS_User_Preferences $preferences ) {
 		$themes   = $this->get_themes();
 		$theme_id = $preferences->get_theme_id( $themes );
 		if ( empty( $themes[ $theme_id ] ) || ! empty( $themes[ $theme_id ]['abstract'] ) ) {
@@ -433,7 +433,7 @@ final class Admin_OS_Mode_Theme_Registry {
 				$normalized['default'] = 'default';
 				$normalized['items'][] = array(
 					'id'            => 'default',
-					'label'         => __( 'Default', 'admin-os-mode' ),
+					'label'         => __( 'Default', 'wp-adminos' ),
 					'path'          => $file['path'],
 					'url'           => $file['url'],
 					'fit'           => 'cover',
@@ -534,7 +534,7 @@ final class Admin_OS_Mode_Theme_Registry {
 
 		return array(
 			'path' => $path,
-			'url'  => ADMIN_OS_MODE_URL . 'assets/media/' . $url_path,
+			'url'  => WP_ADMINOS_URL . 'assets/media/' . $url_path,
 		);
 	}
 

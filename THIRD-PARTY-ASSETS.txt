@@ -1,6 +1,6 @@
 # Third-Party Assets
 
-Admin OS Mode avoids bundled Apple-owned, Microsoft-owned, Canonical-owned, and other third-party platform artwork, app logos, wallpapers, and font files.
+WP adminOS avoids bundled Apple-owned, Microsoft-owned, Canonical-owned, and other third-party platform artwork, app logos, wallpapers, and font files.
 
 No third-party media assets are currently bundled.
 

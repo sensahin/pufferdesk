@@ -1,12 +1,12 @@
 # AGENTS.md
 
-Guidance for AI coding agents and contributors working on Admin OS Mode.
+Guidance for AI coding agents and contributors working on WP adminOS.
 
 This project is not a throwaway MVP. Treat it as a long-term WordPress plugin foundation for multiple OS-style admin experiences. Every change should keep the codebase modular, manageable, extensible, and release-safe.
 
 ## Project Purpose
 
-Admin OS Mode wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding an OS shell with themes, windows, apps, widgets, desktop surfaces, one primary Admin OS identity, and optional future theme families such as Redmond-style, Linux desktop, and nostalgic retro systems.
+WP adminOS wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding an OS shell with themes, windows, apps, widgets, desktop surfaces, one primary WP adminOS identity, and optional future theme families such as Redmond-style, Linux desktop, and nostalgic retro systems.
 
 The foundation matters more than short-term visual hacks.
 
@@ -16,7 +16,7 @@ Always:
 
 - Keep changes modular, small, and aligned with the existing structure.
 - Prefer registries, templates, and theme overrides over hard-coded one-off behavior.
-- Treat Admin OS as the bundled product identity. Polish it with familiar desktop patterns, but do not add a redundant platform clone as a second bundled theme.
+- Treat WP adminOS as the bundled product identity. Polish it with familiar desktop patterns, but do not add a redundant platform clone as a second bundled theme.
 - Preserve Classic Admin as a reliable fallback.
 - Preserve per-user preferences and per-user/per-theme layout behavior.
 - Use WordPress-safe PHP: capability checks, nonces for state changes, sanitization on input, escaping on output.
@@ -42,7 +42,7 @@ Never:
 
 Root:
 
-- `admin-os-mode.php`: plugin header, constants, class loading, singleton bootstrap.
+- `wp-adminos.php`: plugin header, constants, class loading, singleton bootstrap.
 - `README.md`: user-facing plugin/readme documentation.
 - `AGENTS.md`: this contributor/agent instruction file.
 - `package.json`: build, check, and package scripts.
@@ -52,18 +52,18 @@ Root:
 
 PHP services in `includes/`:
 
-- `class-admin-os-mode-plugin.php`: main orchestrator and WordPress hook wiring.
-- `class-admin-os-mode-router.php`: mode toggles, shell URL, iframe/classic routing.
-- `class-admin-os-mode-user-preferences.php`: per-user mode/theme preferences.
-- `class-admin-os-mode-app-registry.php`: app/folder registry and app normalization.
-- `class-admin-os-mode-widget-registry.php`: desktop widget registry and widget normalization.
-- `class-admin-os-mode-widget-layout.php`: shared widget layout attributes for templates.
-- `class-admin-os-mode-theme-registry.php`: theme family/version/parent inheritance.
-- `class-admin-os-mode-wallpaper-registry.php`: built-in/theme/upload wallpaper options and CSS-variable resolution.
-- `class-admin-os-mode-assets.php`: CSS/JS enqueueing and runtime config.
-- `class-admin-os-mode-shell-renderer.php`: template rendering and theme override resolution.
-- `class-admin-os-mode-settings-controller.php`: AJAX settings persistence.
-- `class-admin-os-mode-icon-renderer.php`: icon descriptor normalization and rendering.
+- `class-wp-adminos-plugin.php`: main orchestrator and WordPress hook wiring.
+- `class-wp-adminos-router.php`: mode toggles, shell URL, iframe/classic routing.
+- `class-wp-adminos-user-preferences.php`: per-user mode/theme preferences.
+- `class-wp-adminos-app-registry.php`: app/folder registry and app normalization.
+- `class-wp-adminos-widget-registry.php`: desktop widget registry and widget normalization.
+- `class-wp-adminos-widget-layout.php`: shared widget layout attributes for templates.
+- `class-wp-adminos-theme-registry.php`: theme family/version/parent inheritance.
+- `class-wp-adminos-wallpaper-registry.php`: built-in/theme/upload wallpaper options and CSS-variable resolution.
+- `class-wp-adminos-assets.php`: CSS/JS enqueueing and runtime config.
+- `class-wp-adminos-shell-renderer.php`: template rendering and theme override resolution.
+- `class-wp-adminos-settings-controller.php`: AJAX settings persistence.
+- `class-wp-adminos-icon-renderer.php`: icon descriptor normalization and rendering.
 
 Templates in `templates/`:
 
@@ -114,12 +114,12 @@ Media:
 
 Apps:
 
-- Register apps through `Admin_OS_Mode_App_Registry` or the `admin_os_mode_apps` filter.
+- Register apps through `WP_AdminOS_App_Registry` or the `wp_adminos_apps` filter.
 - Apps should define `id`, `label`, `cap`, `group`, `icon`, and either iframe data (`url`) or native data (`kind => native`, `native`).
 - Apps may define reusable `about` metadata with `name`, `version`, `copyright`, `rights`, and `icon`; do not hard-code app-specific about windows.
 - About metadata must stay GPL-compatible for WordPress distribution. Do not use "All rights reserved" defaults in plugin UI.
 - App-specific top menu behavior belongs in the app's `menu` definition, not in hard-coded menu bar conditionals.
-- The fixed Admin OS mark opens the system menu. Do not wire it directly to an app; system-menu items belong in the `menu.system` runtime definition.
+- The fixed WP adminOS mark opens the system menu. Do not wire it directly to an app; system-menu items belong in the `menu.system` runtime definition.
 - Keep app IDs stable. Layout/session behavior depends on stable IDs.
 
 Menus:
@@ -132,19 +132,19 @@ Menus:
 - Context menus are registered and rendered through `assets/js/core/shell/context-menu.js`. Context targets should use stable `data-aos-context` and `data-aos-context-id` attributes rather than one-off event handlers.
 - Supported context target types include `desktop`, `app`, `desktop-app`, `dock-app`, `folder`, `desktop-folder`, `window`, and `widget`.
 - Context menu providers should compose common command-backed items with target-specific items. Do not add right-click behavior inside dock, desktop, widget, or window modules unless it is exposing target state to the shared context menu system.
-- Runtime modules that need custom behavior should register commands through `window.AdminOSMode.menuCommands.register()` after boot, staying inside the `window.AdminOSMode` namespace.
+- Runtime modules that need custom behavior should register commands through `window.WPAdminOS.menuCommands.register()` after boot, staying inside the `window.WPAdminOS` namespace.
 - Dropdown rendering must stay generic and schema-driven. App-specific items belong in app `menu` definitions.
 - Do not add app-specific menu conditionals to `templates/shell/menu-bar.php` or the menu renderer. Add command-backed data to the registry/schema instead.
 - Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-url`, `open-about`, `open-system-about`, `open-external-url`, `navigate-url`, `shell.restart`, `shell.switch-classic`, `user.logout`, `session.reset-layout`, `folder.refresh`, `widget.hide`, `window.focus`, `window.focus-id`, `window.close`, `window.minimize`, `window.reload`, `window.history-back`, `window.history-forward`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
 
 Widgets:
 
-- Register widgets through `Admin_OS_Mode_Widget_Registry` or the `admin_os_mode_widgets` filter.
+- Register widgets through `WP_AdminOS_Widget_Registry` or the `wp_adminos_widgets` filter.
 - Widgets should define `id`, `label`, `cap`, `icon`, `kind`, `native`, `template`, `default_position`, `default_size`, and optional `refresh_interval`.
 - Widget `default_position` may use `left` or `right`, plus `top` or `bottom`; use one horizontal anchor and one vertical anchor.
 - Keep widget IDs stable. Widget layout persistence depends on stable IDs.
 - Add widget templates under `templates/widgets/`.
-- Use `Admin_OS_Mode_Widget_Layout::render_attributes()` for widget positioning and size attributes.
+- Use `WP_AdminOS_Widget_Layout::render_attributes()` for widget positioning and size attributes.
 - Use `templates/widgets/generic.php` as the fallback, not as a dumping ground.
 
 Themes:
@@ -154,7 +154,7 @@ Themes:
 - Put visual language in theme CSS. Put behavior in core JS/PHP.
 - Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `wallpapers`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
 - Use `wallpapers` for a theme-managed wallpaper collection. The canonical shape is `array( 'default' => 'wallpaper-id', 'items' => array( array( 'id' => 'wallpaper-id', 'label' => 'Wallpaper Label', 'path' => 'themes/{family}/{version}/wallpapers/file.jpg' ) ) )`.
-- Use `Admin_OS_Mode_Wallpaper_Registry` for built-in color backgrounds, theme image wallpapers, upload validation, and `--aos-wallpaper-*` CSS-variable resolution. Do not read theme wallpaper URLs directly from templates or app JS.
+- Use `WP_AdminOS_Wallpaper_Registry` for built-in color backgrounds, theme image wallpapers, upload validation, and `--aos-wallpaper-*` CSS-variable resolution. Do not read theme wallpaper URLs directly from templates or app JS.
 - Keep OS media original, licensed for redistribution, or otherwise release-safe.
 - Template override resolution order is:
   1. `templates/themes/{theme_id}/{template}`
@@ -199,19 +199,19 @@ Session:
 PHP:
 
 - Guard all PHP files with `defined( 'ABSPATH' ) || exit;`.
-- Prefix public functions, hooks, filters, and IDs with `admin_os_mode` or `Admin_OS_Mode`.
+- Prefix public functions, hooks, filters, and IDs with `wp_adminos` or `WP_AdminOS`.
 - Use capabilities before rendering privileged actions or performing mutations.
 - Use nonces for AJAX/state-changing requests.
 - Sanitize input with WordPress functions such as `sanitize_key`, `sanitize_text_field`, `absint`, and `esc_url_raw`.
 - Escape output with `esc_html`, `esc_attr`, `esc_url`, or `wp_json_encode` as appropriate.
-- Use translation functions with the `admin-os-mode` text domain for user-facing strings.
+- Use translation functions with the `wp-adminos` text domain for user-facing strings.
 - Prefer WordPress APIs over raw globals or direct database access.
 - Avoid PHP notices/warnings on missing array keys.
 
 JavaScript:
 
 - Keep modules purpose-specific.
-- Use existing namespaces under `window.AdminOSMode`.
+- Use existing namespaces under `window.WPAdminOS`.
 - Do not create unrelated globals.
 - Keep boot wiring in `boot.js`.
 - Keep DOM helpers in `dom.js`.
@@ -261,9 +261,9 @@ npm run package
 
 Generated release assets:
 
-- `assets/dist/css/admin-os-mode-core.min.css`
+- `assets/dist/css/wp-adminos-core.min.css`
 - `assets/dist/css/themes/{family}/{version}.min.css`
-- `assets/dist/js/admin-os-mode.min.js`
+- `assets/dist/js/wp-adminos.min.js`
 - `assets/dist/SOURCES.md`
 
 Do not edit generated dist files by hand. Change source files, then run `npm run build`.
@@ -279,7 +279,7 @@ Local WordPress path:
 Plugin path:
 
 ```bash
-/Users/senolsahin/Sites/new/wp-content/plugins/admin-os-mode
+/Users/senolsahin/Sites/new/wp-content/plugins/wp-adminos
 ```
 
 WP-CLI needs the MAMP MySQL socket:
@@ -293,10 +293,10 @@ WP-CLI may print PHP deprecation warnings from WP-CLI internals on newer PHP ver
 Recommended Plugin Check command:
 
 ```bash
-PLUGIN_DIR=/Users/senolsahin/Sites/new/wp-content/plugins/admin-os-mode
+PLUGIN_DIR=/Users/senolsahin/Sites/new/wp-content/plugins/wp-adminos
 find "$PLUGIN_DIR" -name .DS_Store -delete
 find "$PLUGIN_DIR" -type d -exec chmod u-w {} +
-php -d mysqli.default_socket=/Applications/MAMP/tmp/mysql/mysql.sock /usr/local/bin/wp --path=/Users/senolsahin/Sites/new plugin check admin-os-mode --exclude-directories=.github,release,node_modules --exclude-files=.gitignore,.gitattributes,.DS_Store,AGENTS.md
+php -d mysqli.default_socket=/Applications/MAMP/tmp/mysql/mysql.sock /usr/local/bin/wp --path=/Users/senolsahin/Sites/new plugin check wp-adminos --exclude-directories=.github,release,node_modules --exclude-files=.gitignore,.gitattributes,.DS_Store,AGENTS.md
 STATUS=$?
 find "$PLUGIN_DIR" -type d -exec chmod u+w {} +
 find "$PLUGIN_DIR" -name .DS_Store -delete
@@ -310,7 +310,7 @@ Use this pattern because Finder can recreate `.DS_Store`, and Plugin Check shoul
 The GitHub repository is private:
 
 ```bash
-https://github.com/sensahin/admin-os-mode.git
+https://github.com/sensahin/wp-adminos.git
 ```
 
 Before committing:

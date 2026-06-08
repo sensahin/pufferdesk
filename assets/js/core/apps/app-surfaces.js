@@ -1,20 +1,20 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.apps = window.AdminOSMode.apps || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
 
-	window.AdminOSMode.apps.createAppSurfaceManager = function createAppSurfaceManager(shell, config = {}, options = {}) {
-		const dom = window.AdminOSMode.dom;
+	window.WPAdminOS.apps.createAppSurfaceManager = function createAppSurfaceManager(shell, config = {}, options = {}) {
+		const dom = window.WPAdminOS.dom;
 		const apps = Array.isArray(options.apps) ? options.apps : (Array.isArray(config.apps) ? config.apps : []);
 		const preserveUnknown = options.preserveUnknown === true;
 
 		function getFolderManager() {
-			return options.folderManager || window.AdminOSMode.desktopFolderManager || null;
+			return options.folderManager || window.WPAdminOS.desktopFolderManager || null;
 		}
 
 		function getDesktopIconManager() {
-			return options.desktopIconManager || window.AdminOSMode.desktopIconManager || null;
+			return options.desktopIconManager || window.WPAdminOS.desktopIconManager || null;
 		}
 
 		function normalizeLocations(locations = {}) {

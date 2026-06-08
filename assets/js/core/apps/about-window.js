@@ -1,13 +1,13 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.apps = window.AdminOSMode.apps || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
 
-	window.AdminOSMode.apps.createAboutWindow = function createAboutWindow(app = {}) {
-		const dom = window.AdminOSMode.dom;
+	window.WPAdminOS.apps.createAboutWindow = function createAboutWindow(app = {}) {
+		const dom = window.WPAdminOS.dom;
 		const about = app.about && typeof app.about === 'object' ? app.about : {};
-		const name = about.name || app.label || 'Admin OS';
+		const name = about.name || app.label || 'WP adminOS';
 		const version = about.version || '';
 		const copyright = about.copyright || '';
 		const rights = about.rights || '';

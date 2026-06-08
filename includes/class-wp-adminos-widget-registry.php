@@ -2,7 +2,7 @@
 /**
  * Desktop widget registry.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Builds the widget data consumed by the shell and runtime.
  */
-final class Admin_OS_Mode_Widget_Registry {
+final class WP_AdminOS_Widget_Registry {
 	/**
 	 * Default width for widgets without an explicit size.
 	 *
@@ -34,7 +34,7 @@ final class Admin_OS_Mode_Widget_Registry {
 		$widgets = array(
 			array(
 				'id'               => 'clock',
-				'label'            => __( 'Clock', 'admin-os-mode' ),
+				'label'            => __( 'Clock', 'wp-adminos' ),
 				'icon'             => $this->theme_icon( 'clock.svg', 'dashicons-clock' ),
 				'kind'             => 'native',
 				'native'           => 'clock',
@@ -65,7 +65,7 @@ final class Admin_OS_Mode_Widget_Registry {
 		 *
 		 * @param array<int,array<string,mixed>> $widgets Registered widgets.
 		 */
-		$widgets = apply_filters( 'admin_os_mode_widgets', $widgets );
+		$widgets = apply_filters( 'wp_adminos_widgets', $widgets );
 
 		return $this->normalize_widgets( $widgets );
 	}
@@ -117,7 +117,7 @@ final class Admin_OS_Mode_Widget_Registry {
 			$normalized[] = array(
 				'id'               => $id,
 				'label'            => $label,
-				'icon'             => isset( $widget['icon'] ) ? Admin_OS_Mode_Icon_Renderer::normalize( $widget['icon'] ) : Admin_OS_Mode_Icon_Renderer::normalize( 'dashicons-admin-generic' ),
+				'icon'             => isset( $widget['icon'] ) ? WP_AdminOS_Icon_Renderer::normalize( $widget['icon'] ) : WP_AdminOS_Icon_Renderer::normalize( 'dashicons-admin-generic' ),
 				'kind'             => $kind,
 				'native'           => $native,
 				'template'         => $template,

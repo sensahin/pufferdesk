@@ -2,7 +2,7 @@
 /**
  * Admin app registry.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Builds the app and folder data consumed by the shell.
  */
-final class Admin_OS_Mode_App_Registry {
+final class WP_AdminOS_App_Registry {
 	/**
 	 * Installed plugin headers, keyed by plugin basename.
 	 *
@@ -41,15 +41,15 @@ final class Admin_OS_Mode_App_Registry {
 		$apps = array(
 			array(
 				'id'    => 'dashboard',
-				'label' => __( 'Dashboard', 'admin-os-mode' ),
-				'url'   => admin_url( 'index.php?admin_os_classic=1' ),
+				'label' => __( 'Dashboard', 'wp-adminos' ),
+				'url'   => admin_url( 'index.php?wp_adminos_classic=1' ),
 				'icon'  => $this->theme_icon( 'dashboard.svg', 'dashicons-dashboard' ),
 				'group' => 'content',
 				'cap'   => 'read',
 			),
 			array(
 				'id'    => 'posts',
-				'label' => __( 'Posts', 'admin-os-mode' ),
+				'label' => __( 'Posts', 'wp-adminos' ),
 				'url'   => admin_url( 'edit.php' ),
 				'icon'  => $this->theme_icon( 'posts.svg', 'dashicons-admin-post' ),
 				'group' => 'content',
@@ -57,7 +57,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'    => 'pages',
-				'label' => __( 'Pages', 'admin-os-mode' ),
+				'label' => __( 'Pages', 'wp-adminos' ),
 				'url'   => admin_url( 'edit.php?post_type=page' ),
 				'icon'  => $this->theme_icon( 'pages.svg', 'dashicons-admin-page' ),
 				'group' => 'content',
@@ -65,7 +65,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'    => 'media',
-				'label' => __( 'Media', 'admin-os-mode' ),
+				'label' => __( 'Media', 'wp-adminos' ),
 				'url'   => admin_url( 'upload.php' ),
 				'icon'  => $this->theme_icon( 'media.svg', 'dashicons-admin-media' ),
 				'group' => 'content',
@@ -73,7 +73,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'    => 'comments',
-				'label' => __( 'Comments', 'admin-os-mode' ),
+				'label' => __( 'Comments', 'wp-adminos' ),
 				'url'   => admin_url( 'edit-comments.php' ),
 				'icon'  => $this->theme_icon( 'comments.svg', 'dashicons-admin-comments' ),
 				'group' => 'content',
@@ -81,7 +81,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'    => 'appearance',
-				'label' => __( 'Appearance', 'admin-os-mode' ),
+				'label' => __( 'Appearance', 'wp-adminos' ),
 				'url'   => admin_url( 'themes.php' ),
 				'icon'  => $this->theme_icon( 'appearance.svg', 'dashicons-admin-appearance' ),
 				'group' => 'site',
@@ -89,7 +89,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'    => 'plugins',
-				'label' => __( 'Plugins', 'admin-os-mode' ),
+				'label' => __( 'Plugins', 'wp-adminos' ),
 				'url'   => admin_url( 'plugins.php' ),
 				'icon'  => $this->theme_icon( 'plugins.svg', 'dashicons-admin-plugins' ),
 				'group' => 'system',
@@ -97,7 +97,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'    => 'users',
-				'label' => __( 'Users', 'admin-os-mode' ),
+				'label' => __( 'Users', 'wp-adminos' ),
 				'url'   => admin_url( 'users.php' ),
 				'icon'  => $this->theme_icon( 'users.svg', 'dashicons-admin-users' ),
 				'group' => 'system',
@@ -105,7 +105,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'     => 'os-settings',
-				'label'  => __( 'System Settings', 'admin-os-mode' ),
+				'label'  => __( 'System Settings', 'wp-adminos' ),
 				'icon'   => $this->theme_icon( 'os-settings.svg', 'dashicons-admin-customizer' ),
 				'group'  => 'system',
 				'cap'    => 'read',
@@ -115,7 +115,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'    => 'settings',
-				'label' => __( 'Settings', 'admin-os-mode' ),
+				'label' => __( 'Settings', 'wp-adminos' ),
 				'url'   => admin_url( 'options-general.php' ),
 				'icon'  => $this->theme_icon( 'settings.svg', 'dashicons-admin-settings' ),
 				'group' => 'system',
@@ -123,7 +123,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'    => 'tools',
-				'label' => __( 'Tools', 'admin-os-mode' ),
+				'label' => __( 'Tools', 'wp-adminos' ),
 				'url'   => admin_url( 'tools.php' ),
 				'icon'  => $this->theme_icon( 'tools.svg', 'dashicons-admin-tools' ),
 				'group' => 'system',
@@ -131,7 +131,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'    => 'site-health',
-				'label' => __( 'Site Health', 'admin-os-mode' ),
+				'label' => __( 'Site Health', 'wp-adminos' ),
 				'url'   => admin_url( 'site-health.php' ),
 				'icon'  => $this->theme_icon( 'site-health.svg', 'dashicons-heart' ),
 				'group' => 'system',
@@ -142,7 +142,7 @@ final class Admin_OS_Mode_App_Registry {
 		if ( class_exists( 'WooCommerce' ) || current_user_can( 'manage_woocommerce' ) ) {
 			$apps[] = array(
 				'id'    => 'woocommerce',
-				'label' => __( 'WooCommerce', 'admin-os-mode' ),
+				'label' => __( 'WooCommerce', 'wp-adminos' ),
 				'url'   => admin_url( 'admin.php?page=wc-admin' ),
 				'icon'  => $this->theme_icon( 'woocommerce.svg', 'dashicons-cart' ),
 				'group' => 'site',
@@ -174,7 +174,7 @@ final class Admin_OS_Mode_App_Registry {
 		 *
 		 * @param array<int,array<string,mixed>> $apps Registered apps.
 		 */
-		$apps = apply_filters( 'admin_os_mode_apps', $apps );
+		$apps = apply_filters( 'wp_adminos_apps', $apps );
 
 		return $this->normalize_apps( $apps );
 	}
@@ -324,14 +324,14 @@ final class Admin_OS_Mode_App_Registry {
 	}
 
 	/**
-	 * Whether a WordPress admin menu item should not become an Admin OS app.
+	 * Whether a WordPress admin menu item should not become a WP adminOS app.
 	 *
 	 * @param string             $slug Menu slug.
 	 * @param array<int,mixed>   $item Raw menu item.
 	 * @return bool
 	 */
 	private function is_skipped_admin_menu_item( $slug, $item ) {
-		if ( Admin_OS_Mode_Router::PAGE_SLUG === $slug ) {
+		if ( WP_AdminOS_Router::PAGE_SLUG === $slug ) {
 			return true;
 		}
 
@@ -530,7 +530,7 @@ final class Admin_OS_Mode_App_Registry {
 		if ( '' !== $version ) {
 			$lines[] = sprintf(
 				/* translators: %s: plugin version. */
-				__( 'Version %s', 'admin-os-mode' ),
+				__( 'Version %s', 'wp-adminos' ),
 				$version
 			);
 		}
@@ -538,7 +538,7 @@ final class Admin_OS_Mode_App_Registry {
 		if ( '' !== $author ) {
 			$lines[] = sprintf(
 				/* translators: %s: plugin author name. */
-				__( 'By %s', 'admin-os-mode' ),
+				__( 'By %s', 'wp-adminos' ),
 				$author
 			);
 		}
@@ -992,7 +992,7 @@ final class Admin_OS_Mode_App_Registry {
 			}
 
 			$label = sanitize_text_field( $app['label'] );
-			$icon  = isset( $app['icon'] ) ? Admin_OS_Mode_Icon_Renderer::normalize( $app['icon'] ) : Admin_OS_Mode_Icon_Renderer::normalize( 'dashicons-admin-generic' );
+			$icon  = isset( $app['icon'] ) ? WP_AdminOS_Icon_Renderer::normalize( $app['icon'] ) : WP_AdminOS_Icon_Renderer::normalize( 'dashicons-admin-generic' );
 			$group = isset( $app['group'] ) ? sanitize_key( $app['group'] ) : 'system';
 			$kind  = isset( $app['kind'] ) ? sanitize_key( $app['kind'] ) : 'iframe';
 			if ( ! in_array( $group, array( 'content', 'site', 'system' ), true ) ) {
@@ -1232,34 +1232,34 @@ final class Admin_OS_Mode_App_Registry {
 			'groups' => array(
 				array(
 					'id'    => 'app',
-					'label' => __( 'System Settings', 'admin-os-mode' ),
+					'label' => __( 'System Settings', 'wp-adminos' ),
 					'items' => array(
 						array(
-							'label'   => __( 'About System Settings', 'admin-os-mode' ),
+							'label'   => __( 'About System Settings', 'wp-adminos' ),
 							'command' => 'open-about',
 							'target'  => 'os-settings',
 						),
 						array( 'type' => 'separator' ),
 						array(
-							'label'    => __( 'Hide System Settings', 'admin-os-mode' ),
+							'label'    => __( 'Hide System Settings', 'wp-adminos' ),
 							'command'  => 'window.hide',
 							'icon'     => 'dashicons-hidden',
 							'shortcut' => '⌘H',
 						),
 						array(
-							'label'    => __( 'Hide Others', 'admin-os-mode' ),
+							'label'    => __( 'Hide Others', 'wp-adminos' ),
 							'command'  => 'window.hide-others',
 							'icon'     => 'dashicons-excerpt-view',
 							'shortcut' => '⌥⌘H',
 						),
 						array(
-							'label'   => __( 'Show All', 'admin-os-mode' ),
+							'label'   => __( 'Show All', 'wp-adminos' ),
 							'command' => 'window.show-all',
 							'icon'    => 'dashicons-visibility',
 						),
 						array( 'type' => 'separator' ),
 						array(
-							'label'    => __( 'Quit System Settings', 'admin-os-mode' ),
+							'label'    => __( 'Quit System Settings', 'wp-adminos' ),
 							'command'  => 'window.close',
 							'icon'     => 'dashicons-dismiss',
 							'shortcut' => '⌘Q',
@@ -1268,22 +1268,22 @@ final class Admin_OS_Mode_App_Registry {
 				),
 				array(
 					'id'    => 'edit',
-					'label' => __( 'Edit', 'admin-os-mode' ),
+					'label' => __( 'Edit', 'wp-adminos' ),
 					'items' => array(),
 				),
 				array(
 					'id'    => 'view',
-					'label' => __( 'View', 'admin-os-mode' ),
+					'label' => __( 'View', 'wp-adminos' ),
 					'items' => array(),
 				),
 				array(
 					'id'    => 'window',
-					'label' => __( 'Window', 'admin-os-mode' ),
+					'label' => __( 'Window', 'wp-adminos' ),
 					'items' => array(),
 				),
 				array(
 					'id'    => 'help',
-					'label' => __( 'Help', 'admin-os-mode' ),
+					'label' => __( 'Help', 'wp-adminos' ),
 					'items' => array(),
 				),
 			),
@@ -1395,7 +1395,7 @@ final class Admin_OS_Mode_App_Registry {
 					array(
 						'label'   => sprintf(
 							/* translators: %s: app label. */
-							__( 'About %s', 'admin-os-mode' ),
+							__( 'About %s', 'wp-adminos' ),
 							$app_label
 						),
 						'command' => 'open-about',
@@ -1404,26 +1404,26 @@ final class Admin_OS_Mode_App_Registry {
 					array(
 						'label'    => sprintf(
 							/* translators: %s: app label. */
-							__( 'Hide %s', 'admin-os-mode' ),
+							__( 'Hide %s', 'wp-adminos' ),
 							$app_label
 						),
 						'command'  => 'window.hide',
 						'shortcut' => '⌘H',
 					),
 					array(
-						'label'    => __( 'Hide Others', 'admin-os-mode' ),
+						'label'    => __( 'Hide Others', 'wp-adminos' ),
 						'command'  => 'window.hide-others',
 						'shortcut' => '⌥⌘H',
 					),
 					array(
-						'label'   => __( 'Show All', 'admin-os-mode' ),
+						'label'   => __( 'Show All', 'wp-adminos' ),
 						'command' => 'window.show-all',
 					),
 					array( 'type' => 'separator' ),
 					array(
 						'label'    => sprintf(
 							/* translators: %s: app label. */
-							__( 'Quit %s', 'admin-os-mode' ),
+							__( 'Quit %s', 'wp-adminos' ),
 							$app_label
 						),
 						'command'  => 'window.close',
@@ -1433,34 +1433,34 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'    => 'file',
-				'label' => __( 'File', 'admin-os-mode' ),
+				'label' => __( 'File', 'wp-adminos' ),
 				'items' => array(),
 			),
 			array(
 				'id'    => 'edit',
-				'label' => __( 'Edit', 'admin-os-mode' ),
+				'label' => __( 'Edit', 'wp-adminos' ),
 				'items' => array(),
 			),
 			array(
 				'id'    => 'view',
-				'label' => __( 'View', 'admin-os-mode' ),
+				'label' => __( 'View', 'wp-adminos' ),
 				'items' => array(),
 			),
 			array(
 				'id'    => 'window',
-				'label' => __( 'Window', 'admin-os-mode' ),
+				'label' => __( 'Window', 'wp-adminos' ),
 				'items' => array(
 					array(
-						'label'    => __( 'Minimize', 'admin-os-mode' ),
+						'label'    => __( 'Minimize', 'wp-adminos' ),
 						'command'  => 'window.minimize',
 						'shortcut' => '⌘M',
 					),
 					array(
-						'label'   => __( 'Zoom', 'admin-os-mode' ),
+						'label'   => __( 'Zoom', 'wp-adminos' ),
 						'command' => 'window.toggle-maximize',
 					),
 					array(
-						'label'    => __( 'Close', 'admin-os-mode' ),
+						'label'    => __( 'Close', 'wp-adminos' ),
 						'command'  => 'window.close',
 						'shortcut' => '⌘W',
 					),
@@ -1468,7 +1468,7 @@ final class Admin_OS_Mode_App_Registry {
 			),
 			array(
 				'id'    => 'help',
-				'label' => __( 'Help', 'admin-os-mode' ),
+				'label' => __( 'Help', 'wp-adminos' ),
 				'items' => array(),
 			),
 		);
@@ -1507,7 +1507,7 @@ final class Admin_OS_Mode_App_Registry {
 		$about = is_array( $about ) ? $about : array();
 		$name  = ! empty( $about['name'] ) ? sanitize_text_field( $about['name'] ) : $fallback_name;
 		$year  = gmdate( 'Y' );
-		$icon  = isset( $about['icon'] ) ? Admin_OS_Mode_Icon_Renderer::normalize( $about['icon'] ) : $fallback_icon;
+		$icon  = isset( $about['icon'] ) ? WP_AdminOS_Icon_Renderer::normalize( $about['icon'] ) : $fallback_icon;
 		$lines = array();
 
 		if ( ! empty( $about['lines'] ) && is_array( $about['lines'] ) ) {
@@ -1525,17 +1525,17 @@ final class Admin_OS_Mode_App_Registry {
 				? sanitize_text_field( (string) $about['version'] )
 				: sprintf(
 					/* translators: %s: plugin version. */
-					__( 'Version %s', 'admin-os-mode' ),
-					ADMIN_OS_MODE_VERSION
+					__( 'Version %s', 'wp-adminos' ),
+					WP_ADMINOS_VERSION
 				),
 			'copyright' => array_key_exists( 'copyright', $about )
 				? sanitize_text_field( (string) $about['copyright'] )
 				: sprintf(
 					/* translators: %s: current year. */
-					__( 'Copyright (c) %s Admin OS Mode contributors.', 'admin-os-mode' ),
+					__( 'Copyright (c) %s WP adminOS contributors.', 'wp-adminos' ),
 					$year
 				),
-			'rights'    => array_key_exists( 'rights', $about ) ? sanitize_text_field( (string) $about['rights'] ) : __( 'Licensed under GPLv2 or later.', 'admin-os-mode' ),
+			'rights'    => array_key_exists( 'rights', $about ) ? sanitize_text_field( (string) $about['rights'] ) : __( 'Licensed under GPLv2 or later.', 'wp-adminos' ),
 			'lines'     => $lines,
 			'icon'      => $icon,
 		);
@@ -1551,12 +1551,12 @@ final class Admin_OS_Mode_App_Registry {
 	private function get_default_menu_group_label( $id, $fallback_label ) {
 		$labels = array(
 			'app'    => $fallback_label,
-			'file'   => __( 'File', 'admin-os-mode' ),
-			'edit'   => __( 'Edit', 'admin-os-mode' ),
-			'view'   => __( 'View', 'admin-os-mode' ),
-			'go'     => __( 'Go', 'admin-os-mode' ),
-			'window' => __( 'Window', 'admin-os-mode' ),
-			'help'   => __( 'Help', 'admin-os-mode' ),
+			'file'   => __( 'File', 'wp-adminos' ),
+			'edit'   => __( 'Edit', 'wp-adminos' ),
+			'view'   => __( 'View', 'wp-adminos' ),
+			'go'     => __( 'Go', 'wp-adminos' ),
+			'window' => __( 'Window', 'wp-adminos' ),
+			'help'   => __( 'Help', 'wp-adminos' ),
 		);
 
 		return isset( $labels[ $id ] ) ? $labels[ $id ] : sanitize_text_field( $id );

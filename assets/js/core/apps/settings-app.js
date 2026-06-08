@@ -1,23 +1,23 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.apps = window.AdminOSMode.apps || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
 
-	window.AdminOSMode.apps.createSettingsApp = function createSettingsApp(context = {}) {
-		const dom = window.AdminOSMode.dom;
-		const api = window.AdminOSMode.services.api;
-		const storage = window.AdminOSMode.services.storage;
-		const appearance = window.AdminOSMode.appearance;
-		const desktopDock = window.AdminOSMode.desktopDock;
-		const menuBar = window.AdminOSMode.menuBar;
-		const wallpaper = window.AdminOSMode.wallpaper;
-		const config = context.config || window.AdminOSMode.config.get();
+	window.WPAdminOS.apps.createSettingsApp = function createSettingsApp(context = {}) {
+		const dom = window.WPAdminOS.dom;
+		const api = window.WPAdminOS.services.api;
+		const storage = window.WPAdminOS.services.storage;
+		const appearance = window.WPAdminOS.appearance;
+		const desktopDock = window.WPAdminOS.desktopDock;
+		const menuBar = window.WPAdminOS.menuBar;
+		const wallpaper = window.WPAdminOS.wallpaper;
+		const config = context.config || window.WPAdminOS.config.get();
 		const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const themes = Array.isArray(config.themes) ? config.themes : [];
-		const shell = document.querySelector('[data-admin-os-shell]');
-		const appSurfaceManager = window.AdminOSMode.apps.createAppSurfaceManager(shell, config, {
+		const shell = document.querySelector('[data-wp-adminos-shell]');
+		const appSurfaceManager = window.WPAdminOS.apps.createAppSurfaceManager(shell, config, {
 			apps
 		});
 		let optionGroups = [];
@@ -635,7 +635,7 @@
 			status.textContent = 'Saving...';
 
 			saveTimer = window.setTimeout(() => {
-				api.post('admin_os_mode_save_appearance', currentAppearance)
+				api.post('wp_adminos_save_appearance', currentAppearance)
 					.then((result) => {
 						if (!result || !result.success) {
 							const message = result && result.data && result.data.message
@@ -678,7 +678,7 @@
 			window.clearTimeout(desktopDockSaveTimer);
 
 			desktopDockSaveTimer = window.setTimeout(() => {
-				api.post('admin_os_mode_save_desktop_dock', currentDesktopDock)
+				api.post('wp_adminos_save_desktop_dock', currentDesktopDock)
 					.then((result) => {
 						if (!result || !result.success) {
 							status.textContent = result && result.data && result.data.message
@@ -722,7 +722,7 @@
 			status.textContent = 'Saving...';
 
 			appLocationSaveTimer = window.setTimeout(() => {
-				api.post('admin_os_mode_save_app_locations', {
+				api.post('wp_adminos_save_app_locations', {
 					locations: JSON.stringify(currentAppLocations)
 				})
 					.then((result) => {
@@ -770,7 +770,7 @@
 			menuBarSaveTimer = window.setTimeout(() => {
 				const payload = Object.assign({}, currentMenuBar);
 
-				api.post('admin_os_mode_save_menu_bar', payload)
+				api.post('wp_adminos_save_menu_bar', payload)
 					.then((result) => {
 						if (sequence !== menuBarSaveSequence) {
 							return;
@@ -856,7 +856,7 @@
 		function saveWallpaper(payload, status, fallbackWallpaper = null) {
 			status.textContent = 'Saving...';
 
-			return api.post('admin_os_mode_save_wallpaper', payload)
+			return api.post('wp_adminos_save_wallpaper', payload)
 				.then((result) => {
 					if (!result || !result.success) {
 						const message = result && result.data && result.data.message
@@ -894,7 +894,7 @@
 
 			status.textContent = 'Removing...';
 
-			api.post('admin_os_mode_remove_wallpaper_upload', {
+			api.post('wp_adminos_remove_wallpaper_upload', {
 				attachment_id: attachmentId
 			})
 				.then((result) => {
@@ -1533,7 +1533,7 @@
 		}
 
 		function executeMenuCommand(command, options = {}) {
-			const commands = window.AdminOSMode && window.AdminOSMode.menuCommands;
+			const commands = window.WPAdminOS && window.WPAdminOS.menuCommands;
 
 			if (commands && typeof commands.execute === 'function') {
 				commands.execute({
@@ -2000,7 +2000,7 @@
 		function saveTheme(themeId, status) {
 			status.textContent = 'Saving...';
 
-			api.post('admin_os_mode_save_theme', {
+			api.post('wp_adminos_save_theme', {
 				theme_id: themeId
 			})
 				.then((result) => {

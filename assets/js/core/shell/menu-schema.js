@@ -1,13 +1,13 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
 
 	const standardGroupIds = ['app', 'file', 'edit', 'view', 'go', 'window', 'help'];
 	const recognizedGroupIds = ['site'].concat(standardGroupIds);
 
-	window.AdminOSMode.shell.createMenuSchema = function createMenuSchema(labels = {}) {
+	window.WPAdminOS.shell.createMenuSchema = function createMenuSchema(labels = {}) {
 		function getLabel(key, fallback) {
 			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
 		}

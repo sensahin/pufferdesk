@@ -7,8 +7,8 @@ const execFileAsync = promisify(execFile);
 const root = process.cwd();
 const manifest = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
 const releaseDir = path.join(root, 'release');
-const stagingRoot = path.join(releaseDir, 'admin-os-mode');
-const zipPath = path.join(releaseDir, `admin-os-mode-${manifest.version}.zip`);
+const stagingRoot = path.join(releaseDir, 'wp-adminos');
+const zipPath = path.join(releaseDir, `wp-adminos-${manifest.version}.zip`);
 
 const ignoredTopLevel = new Set([
 	'.git',
@@ -45,6 +45,6 @@ async function copyDirectory(source, target) {
 
 await fs.rm(releaseDir, { recursive: true, force: true });
 await copyDirectory(root, stagingRoot);
-await execFileAsync('zip', ['-qr', zipPath, 'admin-os-mode'], { cwd: releaseDir });
+await execFileAsync('zip', ['-qr', zipPath, 'wp-adminos'], { cwd: releaseDir });
 
 console.log(`Created ${zipPath}`);

@@ -2,7 +2,7 @@
 /**
  * Wallpaper registry and resolver.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Owns built-in wallpaper/color options, upload resolution, and CSS variables.
  */
-final class Admin_OS_Mode_Wallpaper_Registry {
+final class WP_AdminOS_Wallpaper_Registry {
 	/**
 	 * Built-in original color backgrounds.
 	 *
@@ -118,10 +118,10 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 	 * Build client-facing wallpaper config for the current user/theme.
 	 *
 	 * @param array<string,mixed>            $theme Theme data.
-	 * @param Admin_OS_Mode_User_Preferences $preferences User preferences.
+	 * @param WP_AdminOS_User_Preferences $preferences User preferences.
 	 * @return array<string,mixed>
 	 */
-	public function get_client_config( $theme, Admin_OS_Mode_User_Preferences $preferences ) {
+	public function get_client_config( $theme, WP_AdminOS_User_Preferences $preferences ) {
 		$preference = $preferences->get_wallpaper();
 		$resolved   = $this->resolve_preference( $preference, $theme );
 
@@ -167,12 +167,12 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 		}
 
 		/**
-		 * Filter available Admin OS wallpapers.
+		 * Filter available WP adminOS wallpapers.
 		 *
 		 * @param array<string,array<string,mixed>> $items Wallpaper and color items keyed by type:id.
 		 * @param array<string,mixed>               $theme Current theme.
 		 */
-		$items = apply_filters( 'admin_os_mode_wallpapers', $items, $theme );
+		$items = apply_filters( 'wp_adminos_wallpapers', $items, $theme );
 
 		return $this->normalize_wallpaper_items( $items );
 	}
@@ -216,16 +216,16 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 		if ( 'upload' === $type ) {
 			if ( ! current_user_can( 'upload_files' ) ) {
 				return new WP_Error(
-					'admin_os_mode_wallpaper_upload_forbidden',
-					__( 'You do not have permission to choose uploaded wallpapers.', 'admin-os-mode' )
+					'wp_adminos_wallpaper_upload_forbidden',
+					__( 'You do not have permission to choose uploaded wallpapers.', 'wp-adminos' )
 				);
 			}
 
 			$attachment_id = isset( $preference['attachment_id'] ) ? absint( $preference['attachment_id'] ) : 0;
 			if ( ! $this->is_valid_image_attachment( $attachment_id ) ) {
 				return new WP_Error(
-					'admin_os_mode_invalid_wallpaper_upload',
-					__( 'Choose a valid image from the WordPress Media Library.', 'admin-os-mode' )
+					'wp_adminos_invalid_wallpaper_upload',
+					__( 'Choose a valid image from the WordPress Media Library.', 'wp-adminos' )
 				);
 			}
 
@@ -235,8 +235,8 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 		$item = $this->find_item( $type, isset( $preference['id'] ) ? $preference['id'] : '', $theme );
 		if ( ! $item ) {
 			return new WP_Error(
-				'admin_os_mode_invalid_wallpaper',
-				__( 'The selected wallpaper is not available.', 'admin-os-mode' )
+				'wp_adminos_invalid_wallpaper',
+				__( 'The selected wallpaper is not available.', 'wp-adminos' )
 			);
 		}
 
@@ -271,7 +271,7 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 			$item = array(
 				'type'      => 'color',
 				'id'        => 'none',
-				'label'     => __( 'Default', 'admin-os-mode' ),
+				'label'     => __( 'Default', 'wp-adminos' ),
 				'css_value' => 'none',
 				'preview'   => 'none',
 				'fit'       => 'cover',
@@ -355,7 +355,7 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 			'type'          => 'upload',
 			'id'            => 'custom',
 			'attachment_id' => $attachment_id,
-			'label'         => $label ? sanitize_text_field( $label ) : __( 'Custom Wallpaper', 'admin-os-mode' ),
+			'label'         => $label ? sanitize_text_field( $label ) : __( 'Custom Wallpaper', 'wp-adminos' ),
 			'url'           => esc_url_raw( $url ),
 			'css_value'     => $this->get_url_css_value( $url ),
 			'preview'       => $this->get_url_css_value( $url ),
@@ -382,10 +382,10 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 	/**
 	 * Get the user's saved upload wallpaper items.
 	 *
-	 * @param Admin_OS_Mode_User_Preferences $preferences User preferences.
+	 * @param WP_AdminOS_User_Preferences $preferences User preferences.
 	 * @return array<int,array<string,mixed>>
 	 */
-	private function get_uploaded_wallpaper_items( Admin_OS_Mode_User_Preferences $preferences ) {
+	private function get_uploaded_wallpaper_items( WP_AdminOS_User_Preferences $preferences ) {
 		$items = array();
 
 		foreach ( $preferences->get_wallpaper_uploads() as $attachment_id ) {
@@ -455,7 +455,7 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 			$items[] = array(
 				'type'          => 'theme',
 				'id'            => 'default',
-				'label'         => __( 'Default', 'admin-os-mode' ),
+				'label'         => __( 'Default', 'wp-adminos' ),
 				'url'           => esc_url_raw( $theme['media']['wallpaper']['url'] ),
 				'css_value'     => $this->get_url_css_value( $theme['media']['wallpaper']['url'] ),
 				'preview'       => $this->get_url_css_value( $theme['media']['wallpaper']['url'] ),
@@ -530,44 +530,44 @@ final class Admin_OS_Mode_Wallpaper_Registry {
 	private function get_color_label( $id ) {
 		switch ( sanitize_key( $id ) ) {
 			case 'periwinkle':
-				return __( 'Periwinkle', 'admin-os-mode' );
+				return __( 'Periwinkle', 'wp-adminos' );
 			case 'cyan':
-				return __( 'Cyan', 'admin-os-mode' );
+				return __( 'Cyan', 'wp-adminos' );
 			case 'rose':
-				return __( 'Rose', 'admin-os-mode' );
+				return __( 'Rose', 'wp-adminos' );
 			case 'blue':
-				return __( 'Blue', 'admin-os-mode' );
+				return __( 'Blue', 'wp-adminos' );
 			case 'peach':
-				return __( 'Peach', 'admin-os-mode' );
+				return __( 'Peach', 'wp-adminos' );
 			case 'cream':
-				return __( 'Cream', 'admin-os-mode' );
+				return __( 'Cream', 'wp-adminos' );
 			case 'gold':
-				return __( 'Gold', 'admin-os-mode' );
+				return __( 'Gold', 'wp-adminos' );
 			case 'magenta':
-				return __( 'Magenta', 'admin-os-mode' );
+				return __( 'Magenta', 'wp-adminos' );
 			case 'ember':
-				return __( 'Ember', 'admin-os-mode' );
+				return __( 'Ember', 'wp-adminos' );
 			case 'blush':
-				return __( 'Blush', 'admin-os-mode' );
+				return __( 'Blush', 'wp-adminos' );
 			case 'mist':
-				return __( 'Mist', 'admin-os-mode' );
+				return __( 'Mist', 'wp-adminos' );
 			case 'pink':
-				return __( 'Pink', 'admin-os-mode' );
+				return __( 'Pink', 'wp-adminos' );
 			case 'gray':
-				return __( 'Gray', 'admin-os-mode' );
+				return __( 'Gray', 'wp-adminos' );
 			case 'silver':
-				return __( 'Silver', 'admin-os-mode' );
+				return __( 'Silver', 'wp-adminos' );
 			case 'slate':
-				return __( 'Slate', 'admin-os-mode' );
+				return __( 'Slate', 'wp-adminos' );
 			case 'teal':
-				return __( 'Teal', 'admin-os-mode' );
+				return __( 'Teal', 'wp-adminos' );
 			case 'mint':
-				return __( 'Mint', 'admin-os-mode' );
+				return __( 'Mint', 'wp-adminos' );
 			case 'yellow':
-				return __( 'Yellow', 'admin-os-mode' );
+				return __( 'Yellow', 'wp-adminos' );
 			case 'black':
 			default:
-				return __( 'Black', 'admin-os-mode' );
+				return __( 'Black', 'wp-adminos' );
 		}
 	}
 

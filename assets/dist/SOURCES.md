@@ -1,4 +1,4 @@
-# Admin OS Mode Built Asset Sources
+# WP adminOS Built Asset Sources
 
 Generated release assets are minified for performance. Readable source files remain in the plugin and are listed below.
 

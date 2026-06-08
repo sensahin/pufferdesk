@@ -1,10 +1,10 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
 
-	window.AdminOSMode.shell.bindClock = function bindClock(shell) {
+	window.WPAdminOS.shell.bindClock = function bindClock(shell) {
 		const clock = shell.querySelector('[data-aos-clock]');
 
 		if (!clock) {

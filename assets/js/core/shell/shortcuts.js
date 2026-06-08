@@ -1,10 +1,10 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
 
-	window.AdminOSMode.shell.createShortcutController = function createShortcutController(shell, context = {}) {
+	window.WPAdminOS.shell.createShortcutController = function createShortcutController(shell, context = {}) {
 		const commands = context.commands || null;
 		const menuController = context.menuController || null;
 		const modifierSymbols = {
@@ -258,7 +258,7 @@
 			}
 
 			commands.execute(match.item);
-			shell.dispatchEvent(new window.CustomEvent('adminOSMode:shortcut-execute', {
+			shell.dispatchEvent(new window.CustomEvent('wpAdminOS:shortcut-execute', {
 				detail: {
 					command: match.item.command,
 					key: match.shortcut.key,

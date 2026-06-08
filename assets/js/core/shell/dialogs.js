@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
 
-	window.AdminOSMode.shell.createShellDialogs = function createShellDialogs(shell) {
-		const dom = window.AdminOSMode.dom || null;
+	window.WPAdminOS.shell.createShellDialogs = function createShellDialogs(shell) {
+		const dom = window.WPAdminOS.dom || null;
 		let activeDialog = null;
 		let activeOverlay = null;
 

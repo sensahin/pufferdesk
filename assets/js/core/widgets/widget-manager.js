@@ -1,14 +1,14 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.widgets = window.AdminOSMode.widgets || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.widgets = window.WPAdminOS.widgets || {};
 
-	window.AdminOSMode.widgets.createWidgetManager = function createWidgetManager(shell, options = {}) {
-		const dom = window.AdminOSMode.dom;
+	window.WPAdminOS.widgets.createWidgetManager = function createWidgetManager(shell, options = {}) {
+		const dom = window.WPAdminOS.dom;
 		const desktop = shell.querySelector('.aos-desktop');
 		const layer = shell.querySelector('.aos-widget-layer');
-		const sessionStore = window.AdminOSMode.session.createSessionStore(options.storageKey || '');
+		const sessionStore = window.WPAdminOS.session.createSessionStore(options.storageKey || '');
 		let restoreInProgress = false;
 		let sessionSaveDisabled = false;
 		let saveTimer = null;

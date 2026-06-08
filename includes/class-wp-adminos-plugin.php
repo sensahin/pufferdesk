@@ -2,7 +2,7 @@
 /**
  * Main plugin orchestrator.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,46 +10,46 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Wires the plugin services into WordPress hooks.
  */
-final class Admin_OS_Mode_Plugin {
+final class WP_AdminOS_Plugin {
 	/**
 	 * Singleton instance.
 	 *
-	 * @var Admin_OS_Mode_Plugin|null
+	 * @var WP_AdminOS_Plugin|null
 	 */
 	private static $instance = null;
 
 	/**
 	 * Request router.
 	 *
-	 * @var Admin_OS_Mode_Router
+	 * @var WP_AdminOS_Router
 	 */
 	private $router;
 
 	/**
 	 * Shell renderer.
 	 *
-	 * @var Admin_OS_Mode_Shell_Renderer
+	 * @var WP_AdminOS_Shell_Renderer
 	 */
 	private $renderer;
 
 	/**
 	 * Asset loader.
 	 *
-	 * @var Admin_OS_Mode_Assets
+	 * @var WP_AdminOS_Assets
 	 */
 	private $assets;
 
 	/**
 	 * Settings controller.
 	 *
-	 * @var Admin_OS_Mode_Settings_Controller
+	 * @var WP_AdminOS_Settings_Controller
 	 */
 	private $settings_controller;
 
 	/**
 	 * Boot and return the singleton.
 	 *
-	 * @return Admin_OS_Mode_Plugin
+	 * @return WP_AdminOS_Plugin
 	 */
 	public static function init() {
 		if ( null === self::$instance ) {
@@ -64,14 +64,14 @@ final class Admin_OS_Mode_Plugin {
 	 * Build services.
 	 */
 	private function __construct() {
-		$preferences        = new Admin_OS_Mode_User_Preferences();
-		$app_registry       = new Admin_OS_Mode_App_Registry();
-		$widget_registry    = new Admin_OS_Mode_Widget_Registry();
-		$theme_registry     = new Admin_OS_Mode_Theme_Registry();
-		$wallpaper_registry = new Admin_OS_Mode_Wallpaper_Registry();
+		$preferences        = new WP_AdminOS_User_Preferences();
+		$app_registry       = new WP_AdminOS_App_Registry();
+		$widget_registry    = new WP_AdminOS_Widget_Registry();
+		$theme_registry     = new WP_AdminOS_Theme_Registry();
+		$wallpaper_registry = new WP_AdminOS_Wallpaper_Registry();
 
-		$this->router   = new Admin_OS_Mode_Router( $preferences );
-		$this->renderer = new Admin_OS_Mode_Shell_Renderer(
+		$this->router   = new WP_AdminOS_Router( $preferences );
+		$this->renderer = new WP_AdminOS_Shell_Renderer(
 			$this->router,
 			$preferences,
 			$app_registry,
@@ -79,7 +79,7 @@ final class Admin_OS_Mode_Plugin {
 			$theme_registry,
 			$wallpaper_registry
 		);
-		$this->assets   = new Admin_OS_Mode_Assets(
+		$this->assets   = new WP_AdminOS_Assets(
 			$this->router,
 			$preferences,
 			$app_registry,
@@ -87,7 +87,7 @@ final class Admin_OS_Mode_Plugin {
 			$theme_registry,
 			$wallpaper_registry
 		);
-		$this->settings_controller = new Admin_OS_Mode_Settings_Controller(
+		$this->settings_controller = new WP_AdminOS_Settings_Controller(
 			$preferences,
 			$app_registry,
 			$theme_registry,
@@ -114,10 +114,10 @@ final class Admin_OS_Mode_Plugin {
 	 */
 	public function register_admin_page() {
 		add_menu_page(
-			__( 'Admin OS', 'admin-os-mode' ),
-			__( 'Admin OS', 'admin-os-mode' ),
+			__( 'WP adminOS', 'wp-adminos' ),
+			__( 'WP adminOS', 'wp-adminos' ),
 			'read',
-			Admin_OS_Mode_Router::PAGE_SLUG,
+			WP_AdminOS_Router::PAGE_SLUG,
 			array( $this->renderer, 'render' ),
 			'dashicons-desktop',
 			2
@@ -135,14 +135,14 @@ final class Admin_OS_Mode_Plugin {
 		}
 
 		$is_shell = $this->router->is_shell_request();
-		$label    = $is_shell ? __( 'Classic Admin', 'admin-os-mode' ) : __( 'OS Mode', 'admin-os-mode' );
+		$label    = $is_shell ? __( 'Classic Admin', 'wp-adminos' ) : __( 'WP adminOS', 'wp-adminos' );
 		$url      = $is_shell ? $this->router->get_toggle_url( false ) : $this->router->get_toggle_url( true );
-		$class    = $is_shell ? 'admin-os-mode-active' : '';
+		$class    = $is_shell ? 'wp-adminos-active' : '';
 
 		$admin_bar->add_node(
 			array(
 				'parent' => 'top-secondary',
-				'id'     => 'admin-os-mode-toggle',
+				'id'     => 'wp-adminos-toggle',
 				'title'  => '<span class="ab-icon dashicons dashicons-desktop" aria-hidden="true"></span>'
 					. '<span class="ab-label">' . esc_html( $label ) . '</span>',
 				'href'   => $url,

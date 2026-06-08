@@ -1,68 +1,68 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
+	window.WPAdminOS = window.WPAdminOS || {};
 
 	function boot() {
-		const shell = document.querySelector('[data-admin-os-shell]');
+		const shell = document.querySelector('[data-wp-adminos-shell]');
 
 		if (!shell || shell.dataset.aosBooted === '1') {
 			return;
 		}
 
 		if (
-			!window.AdminOSMode.config ||
-			!window.AdminOSMode.session ||
-			!window.AdminOSMode.session.createReopenPolicy ||
-			!window.AdminOSMode.windows ||
-			!window.AdminOSMode.widgets ||
-			!window.AdminOSMode.desktop ||
-			!window.AdminOSMode.desktop.createDesktopIconManager ||
-			!window.AdminOSMode.desktop.createFolderManager ||
-			!window.AdminOSMode.apps ||
-			!window.AdminOSMode.menuBar ||
-			!window.AdminOSMode.shell ||
-			!window.AdminOSMode.shell.createShellDialogs ||
-			!window.AdminOSMode.shell.createCommandRegistry ||
-			!window.AdminOSMode.shell.createMenuSchema ||
-			!window.AdminOSMode.shell.createMenuItemRenderer ||
-			!window.AdminOSMode.shell.createMenuController ||
-			!window.AdminOSMode.shell.createContextMenuController ||
-			!window.AdminOSMode.shell.createShortcutController
+			!window.WPAdminOS.config ||
+			!window.WPAdminOS.session ||
+			!window.WPAdminOS.session.createReopenPolicy ||
+			!window.WPAdminOS.windows ||
+			!window.WPAdminOS.widgets ||
+			!window.WPAdminOS.desktop ||
+			!window.WPAdminOS.desktop.createDesktopIconManager ||
+			!window.WPAdminOS.desktop.createFolderManager ||
+			!window.WPAdminOS.apps ||
+			!window.WPAdminOS.menuBar ||
+			!window.WPAdminOS.shell ||
+			!window.WPAdminOS.shell.createShellDialogs ||
+			!window.WPAdminOS.shell.createCommandRegistry ||
+			!window.WPAdminOS.shell.createMenuSchema ||
+			!window.WPAdminOS.shell.createMenuItemRenderer ||
+			!window.WPAdminOS.shell.createMenuController ||
+			!window.WPAdminOS.shell.createContextMenuController ||
+			!window.WPAdminOS.shell.createShortcutController
 		) {
 			return;
 		}
 
 		shell.dataset.aosBooted = '1';
 
-		const config = window.AdminOSMode.config.get();
-		if (window.AdminOSMode.appearance) {
-			window.AdminOSMode.appearance.apply(shell, config.appearance || {});
-			window.AdminOSMode.appearance.bindSystemMode(shell);
+		const config = window.WPAdminOS.config.get();
+		if (window.WPAdminOS.appearance) {
+			window.WPAdminOS.appearance.apply(shell, config.appearance || {});
+			window.WPAdminOS.appearance.bindSystemMode(shell);
 		}
-		if (window.AdminOSMode.desktopDock) {
-			window.AdminOSMode.desktopDock.apply(shell, config.desktopDock || {});
-			window.AdminOSMode.desktopDock.bindTooltipDismissal(shell);
+		if (window.WPAdminOS.desktopDock) {
+			window.WPAdminOS.desktopDock.apply(shell, config.desktopDock || {});
+			window.WPAdminOS.desktopDock.bindTooltipDismissal(shell);
 		}
-		if (window.AdminOSMode.wallpaper) {
-			window.AdminOSMode.wallpaper.apply(shell, config.wallpaper || {});
+		if (window.WPAdminOS.wallpaper) {
+			window.WPAdminOS.wallpaper.apply(shell, config.wallpaper || {});
 		}
-		if (window.AdminOSMode.menuBar) {
-			window.AdminOSMode.menuBar.apply(shell, config.menuBar || {});
-			window.AdminOSMode.menuBar.bindAutoHide(shell);
+		if (window.WPAdminOS.menuBar) {
+			window.WPAdminOS.menuBar.apply(shell, config.menuBar || {});
+			window.WPAdminOS.menuBar.bindAutoHide(shell);
 		}
 
-		const reopenPolicy = window.AdminOSMode.session.createReopenPolicy(config.storageKey || '');
+		const reopenPolicy = window.WPAdminOS.session.createReopenPolicy(config.storageKey || '');
 		const skipWindowRestore = reopenPolicy.consumeSkipWindowRestoreOnce();
-		const manager = window.AdminOSMode.windows.createWindowManager(shell, {
+		const manager = window.WPAdminOS.windows.createWindowManager(shell, {
 			preserveStoredWindowsUntilChange: skipWindowRestore,
 			storageKey: config.storageKey || ''
 		});
-		const widgetManager = window.AdminOSMode.widgets.createWidgetManager(shell, {
+		const widgetManager = window.WPAdminOS.widgets.createWidgetManager(shell, {
 			storageKey: config.storageKey || ''
 		});
 		let folderManager = null;
-		const desktopIconManager = window.AdminOSMode.desktop.createDesktopIconManager(shell, {
+		const desktopIconManager = window.WPAdminOS.desktop.createDesktopIconManager(shell, {
 			canDropOnFolder(detail) {
 				return Boolean(
 					folderManager
@@ -93,13 +93,13 @@
 			},
 			storageKey: config.storageKey || ''
 		});
-		const launcher = window.AdminOSMode.apps.createAppLauncher(shell, manager, config);
-		folderManager = window.AdminOSMode.desktop.createFolderManager(shell, launcher, config);
+		const launcher = window.WPAdminOS.apps.createAppLauncher(shell, manager, config);
+		folderManager = window.WPAdminOS.desktop.createFolderManager(shell, launcher, config);
 		if (typeof launcher.setFolderProvider === 'function') {
 			launcher.setFolderProvider(folderManager);
 		}
-		const dialogs = window.AdminOSMode.shell.createShellDialogs(shell);
-		const commands = window.AdminOSMode.shell.createCommandRegistry(shell, {
+		const dialogs = window.WPAdminOS.shell.createShellDialogs(shell);
+		const commands = window.WPAdminOS.shell.createCommandRegistry(shell, {
 			config,
 			dialogs,
 			folderManager,
@@ -109,14 +109,14 @@
 			desktopIconManager,
 			widgetManager
 		});
-		const menuController = window.AdminOSMode.shell.createMenuController(shell, config, {
+		const menuController = window.WPAdminOS.shell.createMenuController(shell, config, {
 			commands,
 			desktopIconManager,
 			launcher,
 			manager,
 			restoreWindows: !skipWindowRestore
 		});
-		const contextMenuController = window.AdminOSMode.shell.createContextMenuController(shell, config, {
+		const contextMenuController = window.WPAdminOS.shell.createContextMenuController(shell, config, {
 			commands,
 			desktopIconManager,
 			folderManager,
@@ -124,7 +124,7 @@
 			manager,
 			widgetManager
 		});
-		const shortcutController = window.AdminOSMode.shell.createShortcutController(shell, {
+		const shortcutController = window.WPAdminOS.shell.createShortcutController(shell, {
 			commands,
 			menuController
 		});
@@ -148,10 +148,10 @@
 			}
 		});
 		launcher.bindShellClicks();
-		window.AdminOSMode.shell.bindSearch(shell, launcher, config);
-		window.AdminOSMode.shell.bindClock(shell, config);
+		window.WPAdminOS.shell.bindSearch(shell, launcher, config);
+		window.WPAdminOS.shell.bindClock(shell, config);
 
-		window.AdminOSMode.appLauncher = {
+		window.WPAdminOS.appLauncher = {
 			openAbout: launcher.openAbout,
 			openApp: launcher.openApp,
 			openFolder: launcher.openFolder,
@@ -159,13 +159,13 @@
 			openSiteAbout: launcher.openSiteAbout,
 			openUrl: launcher.openUrl
 		};
-		window.AdminOSMode.contextMenuController = contextMenuController;
-		window.AdminOSMode.desktopFolderManager = folderManager;
-		window.AdminOSMode.desktopIconManager = desktopIconManager;
-		window.AdminOSMode.shellDialogs = dialogs;
-		window.AdminOSMode.shortcutController = shortcutController;
-		window.AdminOSMode.menuController = menuController;
-		window.AdminOSMode.menuCommands = commands;
+		window.WPAdminOS.contextMenuController = contextMenuController;
+		window.WPAdminOS.desktopFolderManager = folderManager;
+		window.WPAdminOS.desktopIconManager = desktopIconManager;
+		window.WPAdminOS.shellDialogs = dialogs;
+		window.WPAdminOS.shortcutController = shortcutController;
+		window.WPAdminOS.menuController = menuController;
+		window.WPAdminOS.menuCommands = commands;
 	}
 
 	if (document.readyState === 'loading') {

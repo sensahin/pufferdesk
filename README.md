@@ -1,4 +1,4 @@
-=== Admin OS Mode ===
+=== WP adminOS ===
 Contributors: senols
 Tags: desktop, admin, ui, productivity, ai
 Requires at least: 6.0
@@ -8,26 +8,26 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Admin OS Mode turns the WordPress dashboard entry point into a desktop-style admin workspace.
+WP adminOS turns the WordPress dashboard entry point into a desktop-style admin workspace.
 
 == Description ==
 
-Admin OS Mode wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe Admin OS experience: a top menu bar, generated and user-created desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
+WP adminOS wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe WP adminOS experience: a top menu bar, generated and user-created desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
 
 == Current foundation features ==
 
-- Top admin-bar switch between OS Mode and Classic Admin.
+- Top admin-bar switch between WP adminOS and Classic Admin.
 - Per-user mode preference.
-- Dashboard entry redirects to OS Mode by default.
-- Emergency one-request classic override: `/wp-admin/index.php?admin_os_classic=1`.
-- Admin OS shell with system menu, site title menu, app menu bar, right-click context menus, generated and user-created desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
+- Dashboard entry redirects to WP adminOS by default.
+- Emergency one-request classic override: `/wp-admin/index.php?wp_adminos_classic=1`.
+- WP adminOS shell with system menu, site title menu, app menu bar, right-click context menus, generated and user-created desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
 - Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave more like OS windows.
 
 == Notes ==
 
-Admin OS Mode intentionally wraps existing WordPress admin screens instead of replacing them. That keeps plugin compatibility high and makes Classic Admin a reliable fallback.
+WP adminOS intentionally wraps existing WordPress admin screens instead of replacing them. That keeps plugin compatibility high and makes Classic Admin a reliable fallback.
 
-The bundled Admin OS family uses original plugin CSS and release-safe media. Visual polish may use familiar desktop conventions, but the product identity, assets, and naming must remain Admin OS. Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
+The bundled WP adminOS family uses original plugin CSS and release-safe media. Visual polish may use familiar desktop conventions, but the product identity, assets, and naming must remain WP adminOS. Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
 
 The foundation separates shell behavior from OS appearance:
 
@@ -92,9 +92,9 @@ Apps and folders use structured icon descriptors internally. Dashicon strings st
 Readable source assets stay in `assets/css/core/`, `assets/css/themes/`, and `assets/js/core/`.
 Release assets are generated into `assets/dist/`:
 
-- `assets/dist/css/admin-os-mode-core.min.css`
+- `assets/dist/css/wp-adminos-core.min.css`
 - `assets/dist/css/themes/{family}/{version}.min.css`
-- `assets/dist/js/admin-os-mode.min.js`
+- `assets/dist/js/wp-adminos.min.js`
 - `assets/dist/SOURCES.md`
 
 WordPress uses source assets when `SCRIPT_DEBUG` is enabled or when dist files are missing. Otherwise it uses the minified release assets for fewer requests.
@@ -130,7 +130,7 @@ Themes support family/version inheritance. A concrete theme can declare a parent
 			'items'   => array(
 				array(
 					'id'        => 'aurora-flow',
-					'label'     => __( 'Aurora', 'admin-os-mode' ),
+					'label'     => __( 'Aurora', 'wp-adminos' ),
 					'css_value' => 'linear-gradient(135deg, #2447c7 0%, #2fb8d2 52%, #8d3cff 100%)',
 				),
 			),
@@ -143,13 +143,13 @@ Themes support family/version inheritance. A concrete theme can declare a parent
 
 Theme media fields are normalized to local `assets/media/` descriptors with `path` and `url` values, then exposed in the runtime theme config. Keep OS media original or licensed for redistribution.
 
-Wallpapers are managed by `Admin_OS_Mode_Wallpaper_Registry`. It combines theme-declared CSS or image wallpaper collections, bundled original color backgrounds, and user-selected Media Library uploads, then resolves the active choice into `--aos-wallpaper-*` CSS variables for the shell. Bundled gradient wallpapers should use `css_value` instead of image files to keep plugin size small. Image wallpapers remain supported through `path` or `file` fields for original/licensed assets that need texture or detail. The older single `wallpaper` field remains a fallback for one-image themes, but new themes should declare `wallpapers` with stable item IDs. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing.
+Wallpapers are managed by `WP_AdminOS_Wallpaper_Registry`. It combines theme-declared CSS or image wallpaper collections, bundled original color backgrounds, and user-selected Media Library uploads, then resolves the active choice into `--aos-wallpaper-*` CSS variables for the shell. Bundled gradient wallpapers should use `css_value` instead of image files to keep plugin size small. Image wallpapers remain supported through `path` or `file` fields for original/licensed assets that need texture or detail. The older single `wallpaper` field remains a fallback for one-image themes, but new themes should declare `wallpapers` with stable item IDs. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing.
 
-Future phases can add optional alternate theme packs such as Redmond-style, classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the Admin OS identity rather than depending on another platform owner’s brand assets.
+Future phases can add optional alternate theme packs such as Redmond-style, classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the WP adminOS identity rather than depending on another platform owner’s brand assets.
 
 Session layout is persisted in browser storage per user and per selected theme. Core stores layout in named sections, currently `windows`, `widgets`, and desktop icon layout, so future spaces or theme-specific surfaces can join without replacing the whole session payload. Windows track app windows, position, size, maximized/minimized state, and restore open app windows when the shell loads. Widgets track widget position, size, and hidden state. User-created desktop folder definitions and membership are persisted in WordPress user meta so they follow the WordPress user across browsers; only their icon positions remain session layout state.
 
-Widgets are registered through `Admin_OS_Mode_Widget_Registry` and can be extended with the `admin_os_mode_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, and session section.
+Widgets are registered through `WP_AdminOS_Widget_Registry` and can be extended with the `wp_adminos_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, and session section.
 
 == Changelog ==
 

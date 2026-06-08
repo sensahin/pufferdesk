@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
 
-	window.AdminOSMode.shell.createMenuItemRenderer = function createMenuItemRenderer(commands) {
-		const dom = window.AdminOSMode.dom;
+	window.WPAdminOS.shell.createMenuItemRenderer = function createMenuItemRenderer(commands) {
+		const dom = window.WPAdminOS.dom;
 
 		function isIconDescriptor(icon) {
 			return icon && typeof icon === 'object';

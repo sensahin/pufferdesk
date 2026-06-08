@@ -2,7 +2,7 @@
 /**
  * Desktop widget layer.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -16,18 +16,18 @@ if ( empty( $widgets ) ) {
 	return;
 }
 ?>
-<section class="aos-widget-layer" aria-label="<?php esc_attr_e( 'Desktop widgets', 'admin-os-mode' ); ?>">
-	<?php foreach ( $widgets as $admin_os_mode_widget ) : ?>
+<section class="aos-widget-layer" aria-label="<?php esc_attr_e( 'Desktop widgets', 'wp-adminos' ); ?>">
+	<?php foreach ( $widgets as $wp_adminos_widget ) : ?>
 		<?php
-		$admin_os_mode_template = isset( $admin_os_mode_widget['template'] ) ? $admin_os_mode_widget['template'] : 'widgets/generic.php';
-		if ( ! $this->template_exists( $admin_os_mode_template, $theme ) ) {
-			$admin_os_mode_template = 'widgets/generic.php';
+		$wp_adminos_template = isset( $wp_adminos_widget['template'] ) ? $wp_adminos_widget['template'] : 'widgets/generic.php';
+		if ( ! $this->template_exists( $wp_adminos_template, $theme ) ) {
+			$wp_adminos_template = 'widgets/generic.php';
 		}
 
 		$this->render_part(
-			$admin_os_mode_template,
+			$wp_adminos_template,
 			array(
-				'widget' => $admin_os_mode_widget,
+				'widget' => $wp_adminos_widget,
 				'theme'  => $theme,
 			)
 		);

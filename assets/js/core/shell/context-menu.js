@@ -1,10 +1,10 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
 
-	window.AdminOSMode.shell.createContextMenuRegistry = function createContextMenuRegistry(config = {}, schema = null, context = {}) {
+	window.WPAdminOS.shell.createContextMenuRegistry = function createContextMenuRegistry(config = {}, schema = null, context = {}) {
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const folderMap = new Map((Array.isArray(config.folders) ? config.folders : []).map((folder) => [folder.id, folder]));
 		const widgetMap = new Map((Array.isArray(config.widgets) ? config.widgets : []).map((widget) => [widget.id, widget]));
@@ -12,7 +12,7 @@
 		const folderManager = context.folderManager || null;
 		const manager = context.manager || null;
 		const providers = new Map();
-		const menuSchema = schema || window.AdminOSMode.shell.createMenuSchema();
+		const menuSchema = schema || window.WPAdminOS.shell.createMenuSchema();
 
 		function commandItem(label, command, options = {}) {
 			return Object.assign({
@@ -56,7 +56,7 @@
 				return manager.getAppWindowState(appId);
 			}
 
-			const win = appId ? document.querySelector(`[data-aos-app-window="${window.AdminOSMode.dom.escapeAttribute(appId)}"]:not(.is-closed)`) : null;
+			const win = appId ? document.querySelector(`[data-aos-app-window="${window.WPAdminOS.dom.escapeAttribute(appId)}"]:not(.is-closed)`) : null;
 
 			return {
 				hidden: Boolean(win && (win.classList.contains('is-hidden') || win.classList.contains('is-minimizing') || win.classList.contains('is-show-desktop-hidden'))),
@@ -451,13 +451,13 @@
 		};
 	};
 
-	window.AdminOSMode.shell.createContextMenuController = function createContextMenuController(shell, config = {}, context = {}) {
+	window.WPAdminOS.shell.createContextMenuController = function createContextMenuController(shell, config = {}, context = {}) {
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
-		const schema = window.AdminOSMode.shell.createMenuSchema(labels);
-		const commands = context.commands || window.AdminOSMode.shell.createCommandRegistry(shell, context);
-		const registry = context.registry || window.AdminOSMode.shell.createContextMenuRegistry(config, schema, context);
-		const itemRenderer = window.AdminOSMode.shell.createMenuItemRenderer(commands);
+		const schema = window.WPAdminOS.shell.createMenuSchema(labels);
+		const commands = context.commands || window.WPAdminOS.shell.createCommandRegistry(shell, context);
+		const registry = context.registry || window.WPAdminOS.shell.createContextMenuRegistry(config, schema, context);
+		const itemRenderer = window.WPAdminOS.shell.createMenuItemRenderer(commands);
 		const folderManager = context.folderManager || null;
 		let popover = null;
 		let activeDetail = null;
@@ -486,7 +486,7 @@
 
 			const windowId = target.dataset.aosRestoreWindowId || target.dataset.aosWindowId || '';
 			return windowId
-				? shell.querySelector(`.aos-window[data-aos-window-id="${window.AdminOSMode.dom.escapeAttribute(windowId)}"]:not(.is-closed)`)
+				? shell.querySelector(`.aos-window[data-aos-window-id="${window.WPAdminOS.dom.escapeAttribute(windowId)}"]:not(.is-closed)`)
 				: null;
 		}
 

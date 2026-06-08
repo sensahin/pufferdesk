@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.apps = window.AdminOSMode.apps || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
 
-	window.AdminOSMode.apps.createAppLauncher = function createAppLauncher(shell, manager, config = {}) {
-		const dom = window.AdminOSMode.dom;
+	window.WPAdminOS.apps.createAppLauncher = function createAppLauncher(shell, manager, config = {}) {
+		const dom = window.WPAdminOS.dom;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const folders = Array.isArray(config.folders) ? config.folders : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
@@ -29,8 +29,8 @@
 
 		function getFolderProvider() {
 			return folderProvider
-				|| (window.AdminOSMode.desktopFolderManager && typeof window.AdminOSMode.desktopFolderManager.getFolder === 'function'
-					? window.AdminOSMode.desktopFolderManager
+				|| (window.WPAdminOS.desktopFolderManager && typeof window.WPAdminOS.desktopFolderManager.getFolder === 'function'
+					? window.WPAdminOS.desktopFolderManager
 					: null);
 		}
 
@@ -100,7 +100,7 @@
 			};
 
 			if (app.kind === 'native' && app.native === 'settings') {
-				options.content = window.AdminOSMode.apps.createSettingsApp({ config });
+				options.content = window.WPAdminOS.apps.createSettingsApp({ config });
 				options.bodyClass = 'aos-window-body aos-settings-body';
 				options.contextMenu = false;
 				options.resizeMode = 'vertical';
@@ -119,11 +119,11 @@
 		}
 
 		function addRecentItem(item) {
-			if (!window.AdminOSMode.menuBar || typeof window.AdminOSMode.menuBar.addRecentItem !== 'function') {
+			if (!window.WPAdminOS.menuBar || typeof window.WPAdminOS.menuBar.addRecentItem !== 'function') {
 				return;
 			}
 
-			window.AdminOSMode.menuBar.addRecentItem(config, item);
+			window.WPAdminOS.menuBar.addRecentItem(config, item);
 		}
 
 		function openApp(appId) {
@@ -162,7 +162,7 @@
 
 		function openAbout(appId) {
 			const app = appMap.get(appId);
-			if (!app || !window.AdminOSMode.apps.createAboutWindow) {
+			if (!app || !window.WPAdminOS.apps.createAboutWindow) {
 				return;
 			}
 
@@ -171,7 +171,7 @@
 				bodyClass: 'aos-window-body aos-about-body',
 				centered: true,
 				contextMenu: false,
-				content: window.AdminOSMode.apps.createAboutWindow(app),
+				content: window.WPAdminOS.apps.createAboutWindow(app),
 				disabledControls: ['minimize', 'maximize'],
 				height: '206px',
 				icon: app.icon,
@@ -188,7 +188,7 @@
 			const siteInfo = config.siteInfo && typeof config.siteInfo === 'object' ? config.siteInfo : {};
 			const title = siteInfo.title || 'About This Site';
 
-			if (!window.AdminOSMode.apps.createSiteAboutWindow) {
+			if (!window.WPAdminOS.apps.createSiteAboutWindow) {
 				return;
 			}
 
@@ -197,7 +197,7 @@
 				bodyClass: 'aos-window-body aos-site-about-body',
 				centered: true,
 				contextMenu: false,
-				content: window.AdminOSMode.apps.createSiteAboutWindow(siteInfo),
+				content: window.WPAdminOS.apps.createSiteAboutWindow(siteInfo),
 				disabledControls: ['minimize', 'maximize'],
 				height: '500px',
 				icon: 'dashicons-admin-site-alt3',
@@ -599,11 +599,11 @@
 			};
 
 			if (win.aosFolderToolbarDisplayHandler) {
-				win.removeEventListener('adminOSMode:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
+				win.removeEventListener('wpAdminOS:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
 			}
 
 			win.aosFolderToolbarDisplayHandler = sync;
-			win.addEventListener('adminOSMode:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
+			win.addEventListener('wpAdminOS:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
 
 			sync();
 
@@ -851,7 +851,7 @@
 			const win = getFolderInfoWindow(folderId);
 			const body = win ? win.querySelector('.aos-window-body') : null;
 			const info = getFolderInfo(folderId);
-			if (!win || !body || !info || !window.AdminOSMode.apps.createFolderInfoWindow) {
+			if (!win || !body || !info || !window.WPAdminOS.apps.createFolderInfoWindow) {
 				return false;
 			}
 
@@ -930,7 +930,7 @@
 		function createFolderInfoContent(info) {
 			const provider = getFolderProvider();
 
-			return window.AdminOSMode.apps.createFolderInfoWindow(info, {
+			return window.WPAdminOS.apps.createFolderInfoWindow(info, {
 				onComment(comment) {
 					if (provider && typeof provider.setFolderComment === 'function') {
 						provider.setFolderComment(info.id, comment);
@@ -950,7 +950,7 @@
 		function openFolderInfo(folderId) {
 			const info = getFolderInfo(folderId);
 			const existing = getFolderInfoWindow(folderId);
-			if (!info || !window.AdminOSMode.apps.createFolderInfoWindow) {
+			if (!info || !window.WPAdminOS.apps.createFolderInfoWindow) {
 				return null;
 			}
 

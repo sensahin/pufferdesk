@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.session = window.AdminOSMode.session || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.session = window.WPAdminOS.session || {};
 
-	window.AdminOSMode.session.createReopenPolicy = function createReopenPolicy(storageKey) {
-		const keyBase = storageKey || 'admin-os-mode';
+	window.WPAdminOS.session.createReopenPolicy = function createReopenPolicy(storageKey) {
+		const keyBase = storageKey || 'wp-adminos';
 		const skipWindowRestoreKey = `${keyBase}:skip-window-restore-once`;
 
 		function getSessionStorage() {

@@ -1,13 +1,13 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.desktop = window.AdminOSMode.desktop || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.desktop = window.WPAdminOS.desktop || {};
 
-	window.AdminOSMode.desktop.createDesktopIconManager = function createDesktopIconManager(shell, options = {}) {
-		const dom = window.AdminOSMode.dom;
+	window.WPAdminOS.desktop.createDesktopIconManager = function createDesktopIconManager(shell, options = {}) {
+		const dom = window.WPAdminOS.dom;
 		const desktop = shell.querySelector('.aos-desktop');
-		const sessionStore = window.AdminOSMode.session.createSessionStore(options.storageKey || '');
+		const sessionStore = window.WPAdminOS.session.createSessionStore(options.storageKey || '');
 		let restoreInProgress = false;
 		let sessionSaveDisabled = false;
 		let saveTimer = null;

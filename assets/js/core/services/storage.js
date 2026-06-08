@@ -1,10 +1,10 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.services = window.AdminOSMode.services || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.services = window.WPAdminOS.services || {};
 
-	window.AdminOSMode.services.storage = {
+	window.WPAdminOS.services.storage = {
 		getJSON(key) {
 			if (!key) {
 				return null;

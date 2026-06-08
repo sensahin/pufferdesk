@@ -1,18 +1,18 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
 
-	window.AdminOSMode.shell.createMenuController = function createMenuController(shell, config = {}, context = {}) {
+	window.WPAdminOS.shell.createMenuController = function createMenuController(shell, config = {}, context = {}) {
 		const systemButton = shell.querySelector('[data-aos-system-menu]');
 		const menu = shell.querySelector('[data-aos-menu-items]');
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
-		const schema = window.AdminOSMode.shell.createMenuSchema(labels);
-		const commands = context.commands || window.AdminOSMode.shell.createCommandRegistry(shell, context);
-		const itemRenderer = window.AdminOSMode.shell.createMenuItemRenderer(commands);
+		const schema = window.WPAdminOS.shell.createMenuSchema(labels);
+		const commands = context.commands || window.WPAdminOS.shell.createCommandRegistry(shell, context);
+		const itemRenderer = window.WPAdminOS.shell.createMenuItemRenderer(commands);
 		const desktopIconManager = context.desktopIconManager || null;
 		const standardGroupIds = ['app', 'file', 'edit', 'view', 'go', 'window', 'help'];
 		let activeDetail = { kind: 'desktop' };
@@ -23,12 +23,12 @@
 			: { groups: [] };
 		const systemDefinition = menuConfig.system
 			? schema.normalizeDefinition(menuConfig.system, {
-				appLabel: labels.system || 'Admin OS'
+				appLabel: labels.system || 'WP adminOS'
 			})
 			: { groups: [] };
 		const systemGroupBase = {
 			id: 'system',
-			label: systemDefinition.groups[0] && systemDefinition.groups[0].label ? systemDefinition.groups[0].label : 'Admin OS'
+			label: systemDefinition.groups[0] && systemDefinition.groups[0].label ? systemDefinition.groups[0].label : 'WP adminOS'
 		};
 		const persistentGroupIds = new Set(persistentDefinition.groups.map((group) => group.id));
 		let activeDefinition = getDesktopDefinition();
@@ -53,13 +53,13 @@
 			if (
 				context.restoreWindows === false ||
 				!config.storageKey ||
-				!window.AdminOSMode.session ||
-				!window.AdminOSMode.session.createSessionStore
+				!window.WPAdminOS.session ||
+				!window.WPAdminOS.session.createSessionStore
 			) {
 				return { kind: 'desktop' };
 			}
 
-			const savedWindows = window.AdminOSMode.session.createSessionStore(config.storageKey).getSection('windows', []);
+			const savedWindows = window.WPAdminOS.session.createSessionStore(config.storageKey).getSection('windows', []);
 			if (!Array.isArray(savedWindows) || !savedWindows.length) {
 				return { kind: 'desktop' };
 			}
@@ -519,8 +519,8 @@
 				}
 
 				const count = getRecentCount();
-				const recentItems = window.AdminOSMode.menuBar
-					? window.AdminOSMode.menuBar.getRecentMenuItems(config, count)
+				const recentItems = window.WPAdminOS.menuBar
+					? window.WPAdminOS.menuBar.getRecentMenuItems(config, count)
 					: [];
 				const submenuItems = recentItems.length
 					? recentItems.concat([
@@ -729,7 +729,7 @@
 
 			bindSystemButton();
 			render(getInitialActiveDetail());
-			shell.addEventListener('adminOSMode:active-window-change', (event) => {
+			shell.addEventListener('wpAdminOS:active-window-change', (event) => {
 				render(event.detail || { kind: 'desktop' });
 			});
 			document.addEventListener('pointerdown', (event) => {
@@ -747,12 +747,12 @@
 					closePopover();
 				}
 			});
-			window.addEventListener('adminOSMode:recent-items-change', () => {
+			window.addEventListener('wpAdminOS:recent-items-change', () => {
 				if (openGroupId === 'system') {
 					openPopover(getSystemGroup(), activeButton || systemButton);
 				}
 			});
-			shell.addEventListener('adminOSMode:menu-bar-change', () => {
+			shell.addEventListener('wpAdminOS:menu-bar-change', () => {
 				config.menuBar = Object.assign({}, config.menuBar || {}, {
 					auto_hide: shell.dataset.aosMenuBarAutoHide || 'fullscreen',
 					recent_count: Number.parseInt(shell.dataset.aosMenuBarRecentCount, 10) || 0,

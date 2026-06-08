@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
+	window.WPAdminOS = window.WPAdminOS || {};
 
-	window.AdminOSMode.config = {
+	window.WPAdminOS.config = {
 		get() {
-			return window.adminOSMode || {};
+			return window.wpAdminOS || {};
 		},
 
 		getApps() {

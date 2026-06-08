@@ -2,7 +2,7 @@
 /**
  * Native System Settings actions.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,50 +10,50 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Handles AJAX actions from the internal System Settings app.
  */
-final class Admin_OS_Mode_Settings_Controller {
-	const NONCE_ACTION = 'admin_os_mode_settings';
+final class WP_AdminOS_Settings_Controller {
+	const NONCE_ACTION = 'wp_adminos_settings';
 
 	/**
 	 * User preferences.
 	 *
-	 * @var Admin_OS_Mode_User_Preferences
+	 * @var WP_AdminOS_User_Preferences
 	 */
 	private $preferences;
 
 	/**
 	 * App registry.
 	 *
-	 * @var Admin_OS_Mode_App_Registry
+	 * @var WP_AdminOS_App_Registry
 	 */
 	private $app_registry;
 
 	/**
 	 * Theme registry.
 	 *
-	 * @var Admin_OS_Mode_Theme_Registry
+	 * @var WP_AdminOS_Theme_Registry
 	 */
 	private $theme_registry;
 
 	/**
 	 * Wallpaper registry.
 	 *
-	 * @var Admin_OS_Mode_Wallpaper_Registry
+	 * @var WP_AdminOS_Wallpaper_Registry
 	 */
 	private $wallpaper_registry;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param Admin_OS_Mode_User_Preferences $preferences User preferences.
-	 * @param Admin_OS_Mode_App_Registry     $app_registry App registry.
-	 * @param Admin_OS_Mode_Theme_Registry   $theme_registry Theme registry.
-	 * @param Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
+	 * @param WP_AdminOS_User_Preferences $preferences User preferences.
+	 * @param WP_AdminOS_App_Registry     $app_registry App registry.
+	 * @param WP_AdminOS_Theme_Registry   $theme_registry Theme registry.
+	 * @param WP_AdminOS_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
 	 */
 	public function __construct(
-		Admin_OS_Mode_User_Preferences $preferences,
-		Admin_OS_Mode_App_Registry $app_registry,
-		Admin_OS_Mode_Theme_Registry $theme_registry,
-		Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry
+		WP_AdminOS_User_Preferences $preferences,
+		WP_AdminOS_App_Registry $app_registry,
+		WP_AdminOS_Theme_Registry $theme_registry,
+		WP_AdminOS_Wallpaper_Registry $wallpaper_registry
 	) {
 		$this->preferences        = $preferences;
 		$this->app_registry       = $app_registry;
@@ -65,16 +65,16 @@ final class Admin_OS_Mode_Settings_Controller {
 	 * Register AJAX hooks.
 	 */
 	public function hooks() {
-		add_action( 'wp_ajax_admin_os_mode_save_appearance', array( $this, 'save_appearance' ) );
-		add_action( 'wp_ajax_admin_os_mode_save_app_login_items', array( $this, 'save_app_login_items' ) );
-		add_action( 'wp_ajax_admin_os_mode_save_app_locations', array( $this, 'save_app_locations' ) );
-		add_action( 'wp_ajax_admin_os_mode_save_desktop_dock', array( $this, 'save_desktop_dock' ) );
-		add_action( 'wp_ajax_admin_os_mode_save_desktop_folders', array( $this, 'save_desktop_folders' ) );
-		add_action( 'wp_ajax_admin_os_mode_save_menu_bar', array( $this, 'save_menu_bar' ) );
-		add_action( 'wp_ajax_admin_os_mode_save_theme', array( $this, 'save_theme' ) );
-		add_action( 'wp_ajax_admin_os_mode_save_wallpaper', array( $this, 'save_wallpaper' ) );
-		add_action( 'wp_ajax_admin_os_mode_remove_wallpaper_upload', array( $this, 'remove_wallpaper_upload' ) );
-		add_action( 'wp_ajax_admin_os_mode_reset', array( $this, 'reset_preferences' ) );
+		add_action( 'wp_ajax_wp_adminos_save_appearance', array( $this, 'save_appearance' ) );
+		add_action( 'wp_ajax_wp_adminos_save_app_login_items', array( $this, 'save_app_login_items' ) );
+		add_action( 'wp_ajax_wp_adminos_save_app_locations', array( $this, 'save_app_locations' ) );
+		add_action( 'wp_ajax_wp_adminos_save_desktop_dock', array( $this, 'save_desktop_dock' ) );
+		add_action( 'wp_ajax_wp_adminos_save_desktop_folders', array( $this, 'save_desktop_folders' ) );
+		add_action( 'wp_ajax_wp_adminos_save_menu_bar', array( $this, 'save_menu_bar' ) );
+		add_action( 'wp_ajax_wp_adminos_save_theme', array( $this, 'save_theme' ) );
+		add_action( 'wp_ajax_wp_adminos_save_wallpaper', array( $this, 'save_wallpaper' ) );
+		add_action( 'wp_ajax_wp_adminos_remove_wallpaper_upload', array( $this, 'remove_wallpaper_upload' ) );
+		add_action( 'wp_ajax_wp_adminos_reset', array( $this, 'reset_preferences' ) );
 	}
 
 	/**
@@ -84,7 +84,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+					'message' => __( 'You do not have permission to change WP adminOS settings.', 'wp-adminos' ),
 				),
 				403
 			);
@@ -111,7 +111,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'desktopDock' => $desktop_dock,
-				'message'     => __( 'Desktop & Dock saved.', 'admin-os-mode' ),
+				'message'     => __( 'Desktop & Dock saved.', 'wp-adminos' ),
 			)
 		);
 	}
@@ -123,7 +123,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+					'message' => __( 'You do not have permission to change WP adminOS settings.', 'wp-adminos' ),
 				),
 				403
 			);
@@ -144,19 +144,19 @@ final class Admin_OS_Mode_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'appLocations' => $app_locations,
-				'message'      => __( 'App locations saved.', 'admin-os-mode' ),
+				'message'      => __( 'App locations saved.', 'wp-adminos' ),
 			)
 		);
 	}
 
 	/**
-	 * Save apps that should open when Admin OS starts.
+	 * Save apps that should open when WP adminOS starts.
 	 */
 	public function save_app_login_items() {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+					'message' => __( 'You do not have permission to change WP adminOS settings.', 'wp-adminos' ),
 				),
 				403
 			);
@@ -177,7 +177,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'appLoginItems' => $items,
-				'message'       => __( 'Login items saved.', 'admin-os-mode' ),
+				'message'       => __( 'Login items saved.', 'wp-adminos' ),
 			)
 		);
 	}
@@ -189,7 +189,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to change Admin OS folders.', 'admin-os-mode' ),
+					'message' => __( 'You do not have permission to change WP adminOS folders.', 'wp-adminos' ),
 				),
 				403
 			);
@@ -212,7 +212,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'desktopFolders' => $folders,
-				'message'        => __( 'Desktop folders saved.', 'admin-os-mode' ),
+				'message'        => __( 'Desktop folders saved.', 'wp-adminos' ),
 			)
 		);
 	}
@@ -224,7 +224,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+					'message' => __( 'You do not have permission to change WP adminOS settings.', 'wp-adminos' ),
 				),
 				403
 			);
@@ -244,7 +244,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'appearance' => $appearance,
-				'message'    => __( 'Appearance saved.', 'admin-os-mode' ),
+				'message'    => __( 'Appearance saved.', 'wp-adminos' ),
 			)
 		);
 	}
@@ -256,7 +256,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+					'message' => __( 'You do not have permission to change WP adminOS settings.', 'wp-adminos' ),
 				),
 				403
 			);
@@ -275,7 +275,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'menuBar' => $menu_bar,
-				'message' => __( 'Menu Bar saved.', 'admin-os-mode' ),
+				'message' => __( 'Menu Bar saved.', 'wp-adminos' ),
 			)
 		);
 	}
@@ -287,7 +287,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+					'message' => __( 'You do not have permission to change WP adminOS settings.', 'wp-adminos' ),
 				),
 				403
 			);
@@ -312,7 +312,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		$theme = $this->theme_registry->get_current_theme( $this->preferences );
 		wp_send_json_success(
 			array(
-				'message' => __( 'Theme saved.', 'admin-os-mode' ),
+				'message' => __( 'Theme saved.', 'wp-adminos' ),
 				'theme'   => array(
 					'id'            => $theme['id'],
 					'label'         => $theme['label'],
@@ -332,7 +332,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+					'message' => __( 'You do not have permission to change WP adminOS settings.', 'wp-adminos' ),
 				),
 				403
 			);
@@ -365,7 +365,7 @@ final class Admin_OS_Mode_Settings_Controller {
 
 		wp_send_json_success(
 			array(
-				'message'   => __( 'Wallpaper saved.', 'admin-os-mode' ),
+				'message'   => __( 'Wallpaper saved.', 'wp-adminos' ),
 				'wallpaper' => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
 			)
 		);
@@ -378,7 +378,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to change Admin OS settings.', 'admin-os-mode' ),
+					'message' => __( 'You do not have permission to change WP adminOS settings.', 'wp-adminos' ),
 				),
 				403
 			);
@@ -390,7 +390,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		if ( ! $attachment_id ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Choose a valid photo to remove.', 'admin-os-mode' ),
+					'message' => __( 'Choose a valid photo to remove.', 'wp-adminos' ),
 				),
 				400
 			);
@@ -409,20 +409,20 @@ final class Admin_OS_Mode_Settings_Controller {
 
 		wp_send_json_success(
 			array(
-				'message'   => __( 'Photo removed.', 'admin-os-mode' ),
+				'message'   => __( 'Photo removed.', 'wp-adminos' ),
 				'wallpaper' => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
 			)
 		);
 	}
 
 	/**
-	 * Reset current-user Admin OS preference domains.
+	 * Reset current-user WP adminOS preference domains.
 	 */
 	public function reset_preferences() {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to reset Admin OS settings.', 'admin-os-mode' ),
+					'message' => __( 'You do not have permission to reset WP adminOS settings.', 'wp-adminos' ),
 				),
 				403
 			);
@@ -436,7 +436,7 @@ final class Admin_OS_Mode_Settings_Controller {
 		if ( empty( $domains ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Choose a valid Admin OS reset option.', 'admin-os-mode' ),
+					'message' => __( 'Choose a valid WP adminOS reset option.', 'wp-adminos' ),
 				),
 				400
 			);
@@ -450,7 +450,7 @@ final class Admin_OS_Mode_Settings_Controller {
 					'clearAllUserSessions' => true,
 					'reload'               => true,
 				),
-				'message'      => __( 'Admin OS settings were reset.', 'admin-os-mode' ),
+				'message'      => __( 'WP adminOS settings were reset.', 'wp-adminos' ),
 				'profile'      => $profile,
 				'resetDomains' => $reset_domains,
 			)

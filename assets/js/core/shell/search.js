@@ -1,10 +1,10 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.shell = window.AdminOSMode.shell || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
 
-	window.AdminOSMode.shell.bindSearch = function bindSearch(shell, launcher) {
+	window.WPAdminOS.shell.bindSearch = function bindSearch(shell, launcher) {
 		const searchInput = shell.querySelector('[data-aos-search]');
 
 		if (!searchInput) {

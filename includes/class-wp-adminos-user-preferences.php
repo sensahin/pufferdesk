@@ -1,8 +1,8 @@
 <?php
 /**
- * Per-user Admin OS preferences.
+ * Per-user WP adminOS preferences.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,17 +10,17 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Persists user-specific shell settings.
  */
-final class Admin_OS_Mode_User_Preferences {
-	const META_APPEARANCE = 'admin_os_mode_appearance';
-	const META_APP_LOGIN_ITEMS = 'admin_os_mode_app_login_items';
-	const META_APP_LOCATIONS = 'admin_os_mode_app_locations';
-	const META_DESKTOP_DOCK = 'admin_os_mode_desktop_dock';
-	const META_DESKTOP_FOLDERS = 'admin_os_mode_desktop_folders';
-	const META_ENABLED    = 'admin_os_mode_enabled';
-	const META_MENU_BAR   = 'admin_os_mode_menu_bar';
-	const META_THEME      = 'admin_os_mode_theme';
-	const META_WALLPAPER  = 'admin_os_mode_wallpaper';
-	const META_WALLPAPER_UPLOADS = 'admin_os_mode_wallpaper_uploads';
+final class WP_AdminOS_User_Preferences {
+	const META_APPEARANCE = 'wp_adminos_appearance';
+	const META_APP_LOGIN_ITEMS = 'wp_adminos_app_login_items';
+	const META_APP_LOCATIONS = 'wp_adminos_app_locations';
+	const META_DESKTOP_DOCK = 'wp_adminos_desktop_dock';
+	const META_DESKTOP_FOLDERS = 'wp_adminos_desktop_folders';
+	const META_ENABLED    = 'wp_adminos_enabled';
+	const META_MENU_BAR   = 'wp_adminos_menu_bar';
+	const META_THEME      = 'wp_adminos_theme';
+	const META_WALLPAPER  = 'wp_adminos_wallpaper';
+	const META_WALLPAPER_UPLOADS = 'wp_adminos_wallpaper_uploads';
 	const WALLPAPER_UPLOAD_LIMIT = 12;
 	const RESET_DOMAIN_APPEARANCE = 'appearance';
 	const RESET_DOMAIN_APP_LOGIN_ITEMS = 'app_login_items';
@@ -129,7 +129,7 @@ final class Admin_OS_Mode_User_Preferences {
 	);
 
 	/**
-	 * Whether the current user should enter OS Mode by default.
+	 * Whether the current user should enter WP adminOS by default.
 	 *
 	 * @param int $user_id Optional user ID.
 	 * @return bool
@@ -139,7 +139,7 @@ final class Admin_OS_Mode_User_Preferences {
 		$value   = get_user_meta( $user_id, self::META_ENABLED, true );
 
 		if ( '' === $value ) {
-			return (bool) apply_filters( 'admin_os_mode_default_enabled', true );
+			return (bool) apply_filters( 'wp_adminos_default_enabled', true );
 		}
 
 		return '1' === $value;
@@ -148,7 +148,7 @@ final class Admin_OS_Mode_User_Preferences {
 	/**
 	 * Save the mode preference.
 	 *
-	 * @param bool $enabled Whether OS Mode is enabled.
+	 * @param bool $enabled Whether WP adminOS is enabled.
 	 * @param int  $user_id Optional user ID.
 	 */
 	public function set_enabled( $enabled, $user_id = 0 ) {
@@ -171,7 +171,7 @@ final class Admin_OS_Mode_User_Preferences {
 			return $theme;
 		}
 
-		$default = sanitize_key( (string) apply_filters( 'admin_os_mode_default_theme', 'adminos' ) );
+		$default = sanitize_key( (string) apply_filters( 'wp_adminos_default_theme', 'adminos' ) );
 		if ( isset( $themes[ $default ] ) ) {
 			return $default;
 		}
@@ -191,8 +191,8 @@ final class Admin_OS_Mode_User_Preferences {
 		$theme_id = sanitize_key( $theme_id );
 		if ( empty( $themes[ $theme_id ] ) || ! empty( $themes[ $theme_id ]['abstract'] ) ) {
 			return new WP_Error(
-				'admin_os_mode_invalid_theme',
-				__( 'The selected Admin OS theme is not available.', 'admin-os-mode' )
+				'wp_adminos_invalid_theme',
+				__( 'The selected WP adminOS theme is not available.', 'wp-adminos' )
 			);
 		}
 
@@ -292,7 +292,7 @@ final class Admin_OS_Mode_User_Preferences {
 	}
 
 	/**
-	 * Get apps that should open when Admin OS starts.
+	 * Get apps that should open when WP adminOS starts.
 	 *
 	 * @param array<int,array<string,mixed>> $apps Available apps.
 	 * @param int                            $user_id Optional user ID.
@@ -306,7 +306,7 @@ final class Admin_OS_Mode_User_Preferences {
 	}
 
 	/**
-	 * Save apps that should open when Admin OS starts.
+	 * Save apps that should open when WP adminOS starts.
 	 *
 	 * @param array<int,mixed>               $items App IDs.
 	 * @param array<int,array<string,mixed>> $apps Available apps.
@@ -592,7 +592,7 @@ final class Admin_OS_Mode_User_Preferences {
 	/**
 	 * Get reset domains for a named reset profile.
 	 *
-	 * Reset profiles are intentionally scoped to Admin OS preferences. They never
+	 * Reset profiles are intentionally scoped to WP adminOS preferences. They never
 	 * delete WordPress content, users, roles, themes, plugins, or media files.
 	 *
 	 * @param string $profile Reset profile ID.
@@ -801,7 +801,7 @@ final class Admin_OS_Mode_User_Preferences {
 			}
 
 			$label = isset( $folder['label'] ) ? sanitize_text_field( (string) $folder['label'] ) : '';
-			$label = '' !== $label ? $label : __( 'untitled folder', 'admin-os-mode' );
+			$label = '' !== $label ? $label : __( 'untitled folder', 'wp-adminos' );
 			$label = $this->get_unique_desktop_folder_label( $label, $folder_labels );
 
 			$folder_ids[ $id ] = true;
@@ -814,7 +814,7 @@ final class Admin_OS_Mode_User_Preferences {
 				),
 				'comment'      => isset( $folder['comment'] ) ? sanitize_textarea_field( (string) $folder['comment'] ) : '',
 				'createdAt'    => $this->sanitize_desktop_folder_timestamp( isset( $folder['createdAt'] ) ? $folder['createdAt'] : '', gmdate( 'c' ) ),
-				'icon'         => Admin_OS_Mode_Icon_Renderer::normalize(
+				'icon'         => WP_AdminOS_Icon_Renderer::normalize(
 					isset( $folder['icon'] )
 						? $folder['icon']
 						: array(
@@ -953,7 +953,7 @@ final class Admin_OS_Mode_User_Preferences {
 	}
 
 	/**
-	 * User meta keys that can be reset by Admin OS reset domains.
+	 * User meta keys that can be reset by WP adminOS reset domains.
 	 *
 	 * @return array<string,string>
 	 */

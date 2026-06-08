@@ -2,7 +2,7 @@
 /**
  * Desktop surface template.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
 	class="aos-desktop"
 	data-aos-context="desktop"
 	data-aos-context-id="desktop"
-	aria-label="<?php esc_attr_e( 'Admin OS desktop', 'admin-os-mode' ); ?>"
+	aria-label="<?php esc_attr_e( 'WP adminOS desktop', 'wp-adminos' ); ?>"
 >
 	<?php
 	$this->render_part(

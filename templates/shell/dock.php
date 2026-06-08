@@ -2,7 +2,7 @@
 /**
  * Shell dock.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -12,21 +12,21 @@ defined( 'ABSPATH' ) || exit;
  * @var array<string,mixed>             $theme
  */
 ?>
-<aside class="aos-dock" aria-label="<?php esc_attr_e( 'Admin OS dock', 'admin-os-mode' ); ?>">
-	<?php foreach ( $apps as $admin_os_mode_app ) : ?>
+<aside class="aos-dock" aria-label="<?php esc_attr_e( 'WP adminOS dock', 'wp-adminos' ); ?>">
+	<?php foreach ( $apps as $wp_adminos_app ) : ?>
 		<button
 			type="button"
 			class="aos-dock-item"
 			data-aos-context="dock-app"
-			data-aos-context-id="<?php echo esc_attr( $admin_os_mode_app['id'] ); ?>"
-			data-aos-context-label="<?php echo esc_attr( $admin_os_mode_app['label'] ); ?>"
-			data-aos-dock-tooltip="<?php echo esc_attr( $admin_os_mode_app['label'] ); ?>"
-			data-aos-open-app="<?php echo esc_attr( $admin_os_mode_app['id'] ); ?>"
-			aria-label="<?php echo esc_attr( $admin_os_mode_app['label'] ); ?>"
+			data-aos-context-id="<?php echo esc_attr( $wp_adminos_app['id'] ); ?>"
+			data-aos-context-label="<?php echo esc_attr( $wp_adminos_app['label'] ); ?>"
+			data-aos-dock-tooltip="<?php echo esc_attr( $wp_adminos_app['label'] ); ?>"
+			data-aos-open-app="<?php echo esc_attr( $wp_adminos_app['id'] ); ?>"
+			aria-label="<?php echo esc_attr( $wp_adminos_app['label'] ); ?>"
 		>
-			<?php Admin_OS_Mode_Icon_Renderer::render( $admin_os_mode_app['icon'], $theme ); ?>
-			<span class="aos-dock-tooltip" aria-hidden="true"><?php echo esc_html( $admin_os_mode_app['label'] ); ?></span>
-			<span class="screen-reader-text"><?php echo esc_html( $admin_os_mode_app['label'] ); ?></span>
+			<?php WP_AdminOS_Icon_Renderer::render( $wp_adminos_app['icon'], $theme ); ?>
+			<span class="aos-dock-tooltip" aria-hidden="true"><?php echo esc_html( $wp_adminos_app['label'] ); ?></span>
+			<span class="screen-reader-text"><?php echo esc_html( $wp_adminos_app['label'] ); ?></span>
 		</button>
 	<?php endforeach; ?>
 </aside>

@@ -1,12 +1,12 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
-	window.AdminOSMode.services = window.AdminOSMode.services || {};
+	window.WPAdminOS = window.WPAdminOS || {};
+	window.WPAdminOS.services = window.WPAdminOS.services || {};
 
-	window.AdminOSMode.services.api = {
+	window.WPAdminOS.services.api = {
 		post(action, data = {}) {
-			const config = window.AdminOSMode.config.get();
+			const config = window.WPAdminOS.config.get();
 
 			if (!config.ajaxUrl || !config.nonce) {
 				return Promise.reject(new Error('Settings service unavailable.'));

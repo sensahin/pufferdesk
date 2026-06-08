@@ -2,7 +2,7 @@
 /**
  * Asset loading and admin chrome classes.
  *
- * @package AdminOSMode
+ * @package WPAdminOS
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -10,66 +10,66 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Enqueues core behavior and selected theme assets.
  */
-final class Admin_OS_Mode_Assets {
+final class WP_AdminOS_Assets {
 	/**
 	 * Router.
 	 *
-	 * @var Admin_OS_Mode_Router
+	 * @var WP_AdminOS_Router
 	 */
 	private $router;
 
 	/**
 	 * Preferences.
 	 *
-	 * @var Admin_OS_Mode_User_Preferences
+	 * @var WP_AdminOS_User_Preferences
 	 */
 	private $preferences;
 
 	/**
 	 * App registry.
 	 *
-	 * @var Admin_OS_Mode_App_Registry
+	 * @var WP_AdminOS_App_Registry
 	 */
 	private $app_registry;
 
 	/**
 	 * Widget registry.
 	 *
-	 * @var Admin_OS_Mode_Widget_Registry
+	 * @var WP_AdminOS_Widget_Registry
 	 */
 	private $widget_registry;
 
 	/**
 	 * Theme registry.
 	 *
-	 * @var Admin_OS_Mode_Theme_Registry
+	 * @var WP_AdminOS_Theme_Registry
 	 */
 	private $theme_registry;
 
 	/**
 	 * Wallpaper registry.
 	 *
-	 * @var Admin_OS_Mode_Wallpaper_Registry
+	 * @var WP_AdminOS_Wallpaper_Registry
 	 */
 	private $wallpaper_registry;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param Admin_OS_Mode_Router           $router Router.
-	 * @param Admin_OS_Mode_User_Preferences $preferences Preferences.
-	 * @param Admin_OS_Mode_App_Registry     $app_registry App registry.
-	 * @param Admin_OS_Mode_Widget_Registry  $widget_registry Widget registry.
-	 * @param Admin_OS_Mode_Theme_Registry   $theme_registry Theme registry.
-	 * @param Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
+	 * @param WP_AdminOS_Router           $router Router.
+	 * @param WP_AdminOS_User_Preferences $preferences Preferences.
+	 * @param WP_AdminOS_App_Registry     $app_registry App registry.
+	 * @param WP_AdminOS_Widget_Registry  $widget_registry Widget registry.
+	 * @param WP_AdminOS_Theme_Registry   $theme_registry Theme registry.
+	 * @param WP_AdminOS_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
 	 */
 	public function __construct(
-		Admin_OS_Mode_Router $router,
-		Admin_OS_Mode_User_Preferences $preferences,
-		Admin_OS_Mode_App_Registry $app_registry,
-		Admin_OS_Mode_Widget_Registry $widget_registry,
-		Admin_OS_Mode_Theme_Registry $theme_registry,
-		Admin_OS_Mode_Wallpaper_Registry $wallpaper_registry
+		WP_AdminOS_Router $router,
+		WP_AdminOS_User_Preferences $preferences,
+		WP_AdminOS_App_Registry $app_registry,
+		WP_AdminOS_Widget_Registry $widget_registry,
+		WP_AdminOS_Theme_Registry $theme_registry,
+		WP_AdminOS_Wallpaper_Registry $wallpaper_registry
 	) {
 		$this->router             = $router;
 		$this->preferences        = $preferences;
@@ -85,7 +85,7 @@ final class Admin_OS_Mode_Assets {
 	 * @param string $hook Current admin hook.
 	 */
 	public function enqueue( $hook ) {
-		$is_shell  = 'toplevel_page_' . Admin_OS_Mode_Router::PAGE_SLUG === $hook;
+		$is_shell  = 'toplevel_page_' . WP_AdminOS_Router::PAGE_SLUG === $hook;
 		$is_iframe = $this->router->is_iframe_request();
 		$use_dist  = $this->should_use_dist_assets();
 
@@ -112,16 +112,16 @@ final class Admin_OS_Mode_Assets {
 		$theme         = $this->theme_registry->get_current_theme( $this->preferences );
 
 		foreach ( $theme['stylesheet_stack'] as $index => $stylesheet ) {
-			$stylesheet_path = ADMIN_OS_MODE_DIR . 'assets/css/themes/' . $stylesheet;
+			$stylesheet_path = WP_ADMINOS_DIR . 'assets/css/themes/' . $stylesheet;
 			if ( ! file_exists( $stylesheet_path ) ) {
 				continue;
 			}
 
 			$theme_asset = $this->get_theme_stylesheet_asset( $stylesheet, $use_dist );
-			$style_handle = 'admin-os-mode-theme-' . $theme['id'] . '-' . (int) $index;
+			$style_handle = 'wp-adminos-theme-' . $theme['id'] . '-' . (int) $index;
 			wp_enqueue_style(
 				$style_handle,
-				ADMIN_OS_MODE_URL . $theme_asset,
+				WP_ADMINOS_URL . $theme_asset,
 				array( $style_dependency ),
 				$this->get_asset_version( $theme_asset )
 			);
@@ -132,7 +132,7 @@ final class Admin_OS_Mode_Assets {
 
 		wp_add_inline_script(
 			$config_handle,
-			'window.adminOSMode = ' . wp_json_encode( $this->get_runtime_config( $apps, $folders, $widgets, $theme, $app_locations ) ) . ';',
+			'window.wpAdminOS = ' . wp_json_encode( $this->get_runtime_config( $apps, $folders, $widgets, $theme, $app_locations ) ) . ';',
 			'before'
 		);
 	}
@@ -147,8 +147,8 @@ final class Admin_OS_Mode_Assets {
 			return false;
 		}
 
-		return file_exists( ADMIN_OS_MODE_DIR . 'assets/dist/css/admin-os-mode-core.min.css' )
-			&& file_exists( ADMIN_OS_MODE_DIR . 'assets/dist/js/admin-os-mode.min.js' );
+		return file_exists( WP_ADMINOS_DIR . 'assets/dist/css/wp-adminos-core.min.css' )
+			&& file_exists( WP_ADMINOS_DIR . 'assets/dist/js/wp-adminos.min.js' );
 	}
 
 	/**
@@ -160,23 +160,23 @@ final class Admin_OS_Mode_Assets {
 	private function enqueue_dist_core_styles( $include_shell ) {
 		if ( ! $include_shell ) {
 			wp_enqueue_style(
-				'admin-os-mode-core-admin-chrome',
-				ADMIN_OS_MODE_URL . 'assets/css/core/admin-chrome.css',
+				'wp-adminos-core-admin-chrome',
+				WP_ADMINOS_URL . 'assets/css/core/admin-chrome.css',
 				array( 'dashicons' ),
 				$this->get_asset_version( 'assets/css/core/admin-chrome.css' )
 			);
 
-			return 'admin-os-mode-core-admin-chrome';
+			return 'wp-adminos-core-admin-chrome';
 		}
 
 		wp_enqueue_style(
-			'admin-os-mode-core',
-			ADMIN_OS_MODE_URL . 'assets/dist/css/admin-os-mode-core.min.css',
+			'wp-adminos-core',
+			WP_ADMINOS_URL . 'assets/dist/css/wp-adminos-core.min.css',
 			array( 'dashicons' ),
-			$this->get_asset_version( 'assets/dist/css/admin-os-mode-core.min.css' )
+			$this->get_asset_version( 'assets/dist/css/wp-adminos-core.min.css' )
 		);
 
-		return 'admin-os-mode-core';
+		return 'wp-adminos-core';
 	}
 
 	/**
@@ -189,7 +189,7 @@ final class Admin_OS_Mode_Assets {
 	private function get_theme_stylesheet_asset( $stylesheet, $use_dist ) {
 		if ( $use_dist ) {
 			$dist_stylesheet = 'assets/dist/css/themes/' . preg_replace( '/\.css$/', '.min.css', $stylesheet );
-			if ( file_exists( ADMIN_OS_MODE_DIR . $dist_stylesheet ) ) {
+			if ( file_exists( WP_ADMINOS_DIR . $dist_stylesheet ) ) {
 				return $dist_stylesheet;
 			}
 		}
@@ -204,14 +204,14 @@ final class Admin_OS_Mode_Assets {
 	 */
 	private function enqueue_dist_script() {
 		wp_enqueue_script(
-			'admin-os-mode-app',
-			ADMIN_OS_MODE_URL . 'assets/dist/js/admin-os-mode.min.js',
+			'wp-adminos-app',
+			WP_ADMINOS_URL . 'assets/dist/js/wp-adminos.min.js',
 			array(),
-			$this->get_asset_version( 'assets/dist/js/admin-os-mode.min.js' ),
+			$this->get_asset_version( 'assets/dist/js/wp-adminos.min.js' ),
 			true
 		);
 
-		return 'admin-os-mode-app';
+		return 'wp-adminos-app';
 	}
 
 	/**
@@ -221,139 +221,139 @@ final class Admin_OS_Mode_Assets {
 	 */
 	private function enqueue_core_scripts() {
 		$scripts = array(
-			'admin-os-mode-config'         => array(
+			'wp-adminos-config'         => array(
 				'path' => 'assets/js/core/config.js',
 				'deps' => array(),
 			),
-			'admin-os-mode-dom'            => array(
+			'wp-adminos-dom'            => array(
 				'path' => 'assets/js/core/dom.js',
-				'deps' => array( 'admin-os-mode-config' ),
+				'deps' => array( 'wp-adminos-config' ),
 			),
-			'admin-os-mode-storage'        => array(
+			'wp-adminos-storage'        => array(
 				'path' => 'assets/js/core/services/storage.js',
-				'deps' => array( 'admin-os-mode-config' ),
+				'deps' => array( 'wp-adminos-config' ),
 			),
-			'admin-os-mode-api-client'     => array(
+			'wp-adminos-api-client'     => array(
 				'path' => 'assets/js/core/services/api-client.js',
-				'deps' => array( 'admin-os-mode-config' ),
+				'deps' => array( 'wp-adminos-config' ),
 			),
-			'admin-os-mode-session-store'  => array(
+			'wp-adminos-session-store'  => array(
 				'path' => 'assets/js/core/session/session-store.js',
-				'deps' => array( 'admin-os-mode-storage' ),
+				'deps' => array( 'wp-adminos-storage' ),
 			),
-			'admin-os-mode-reopen-policy'  => array(
+			'wp-adminos-reopen-policy'  => array(
 				'path' => 'assets/js/core/session/reopen-policy.js',
-				'deps' => array( 'admin-os-mode-session-store' ),
+				'deps' => array( 'wp-adminos-session-store' ),
 			),
-			'admin-os-mode-appearance'     => array(
+			'wp-adminos-appearance'     => array(
 				'path' => 'assets/js/core/appearance.js',
-				'deps' => array( 'admin-os-mode-config' ),
+				'deps' => array( 'wp-adminos-config' ),
 			),
-			'admin-os-mode-desktop-dock'   => array(
+			'wp-adminos-desktop-dock'   => array(
 				'path' => 'assets/js/core/desktop-dock.js',
-				'deps' => array( 'admin-os-mode-config' ),
+				'deps' => array( 'wp-adminos-config' ),
 			),
-			'admin-os-mode-wallpaper'      => array(
+			'wp-adminos-wallpaper'      => array(
 				'path' => 'assets/js/core/wallpaper.js',
-				'deps' => array( 'admin-os-mode-config' ),
+				'deps' => array( 'wp-adminos-config' ),
 			),
-			'admin-os-mode-menu-bar-state' => array(
+			'wp-adminos-menu-bar-state' => array(
 				'path' => 'assets/js/core/menu-bar.js',
-				'deps' => array( 'admin-os-mode-config', 'admin-os-mode-session-store' ),
+				'deps' => array( 'wp-adminos-config', 'wp-adminos-session-store' ),
 			),
-			'admin-os-mode-window-factory' => array(
+			'wp-adminos-window-factory' => array(
 				'path' => 'assets/js/core/windows/window-factory.js',
-				'deps' => array( 'admin-os-mode-dom' ),
+				'deps' => array( 'wp-adminos-dom' ),
 			),
-			'admin-os-mode-window-manager' => array(
+			'wp-adminos-window-manager' => array(
 				'path' => 'assets/js/core/windows/window-manager.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-session-store', 'admin-os-mode-window-factory' ),
+				'deps' => array( 'wp-adminos-dom', 'wp-adminos-session-store', 'wp-adminos-window-factory' ),
 			),
-			'admin-os-mode-widget-manager' => array(
+			'wp-adminos-widget-manager' => array(
 				'path' => 'assets/js/core/widgets/widget-manager.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-session-store' ),
+				'deps' => array( 'wp-adminos-dom', 'wp-adminos-session-store' ),
 			),
-			'admin-os-mode-desktop-icons'  => array(
+			'wp-adminos-desktop-icons'  => array(
 				'path' => 'assets/js/core/desktop/desktop-icons.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-session-store' ),
+				'deps' => array( 'wp-adminos-dom', 'wp-adminos-session-store' ),
 			),
-			'admin-os-mode-folder-manager' => array(
+			'wp-adminos-folder-manager' => array(
 				'path' => 'assets/js/core/desktop/folder-manager.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-api-client' ),
+				'deps' => array( 'wp-adminos-dom', 'wp-adminos-api-client' ),
 			),
-			'admin-os-mode-about-window'   => array(
+			'wp-adminos-about-window'   => array(
 				'path' => 'assets/js/core/apps/about-window.js',
-				'deps' => array( 'admin-os-mode-dom' ),
+				'deps' => array( 'wp-adminos-dom' ),
 			),
-			'admin-os-mode-site-about-window' => array(
+			'wp-adminos-site-about-window' => array(
 				'path' => 'assets/js/core/apps/site-about-window.js',
-				'deps' => array( 'admin-os-mode-dom' ),
+				'deps' => array( 'wp-adminos-dom' ),
 			),
-			'admin-os-mode-app-surfaces'   => array(
+			'wp-adminos-app-surfaces'   => array(
 				'path' => 'assets/js/core/apps/app-surfaces.js',
-				'deps' => array( 'admin-os-mode-dom' ),
+				'deps' => array( 'wp-adminos-dom' ),
 			),
-			'admin-os-mode-settings-app'   => array(
+			'wp-adminos-settings-app'   => array(
 				'path' => 'assets/js/core/apps/settings-app.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-storage', 'admin-os-mode-api-client', 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-menu-bar-state', 'admin-os-mode-wallpaper', 'admin-os-mode-app-surfaces' ),
+				'deps' => array( 'wp-adminos-dom', 'wp-adminos-storage', 'wp-adminos-api-client', 'wp-adminos-appearance', 'wp-adminos-desktop-dock', 'wp-adminos-menu-bar-state', 'wp-adminos-wallpaper', 'wp-adminos-app-surfaces' ),
 			),
-			'admin-os-mode-app-launcher'   => array(
+			'wp-adminos-app-launcher'   => array(
 				'path' => 'assets/js/core/apps/app-launcher.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-about-window', 'admin-os-mode-site-about-window', 'admin-os-mode-settings-app' ),
+				'deps' => array( 'wp-adminos-dom', 'wp-adminos-about-window', 'wp-adminos-site-about-window', 'wp-adminos-settings-app' ),
 			),
-			'admin-os-mode-search'         => array(
+			'wp-adminos-search'         => array(
 				'path' => 'assets/js/core/shell/search.js',
-				'deps' => array( 'admin-os-mode-config' ),
+				'deps' => array( 'wp-adminos-config' ),
 			),
-			'admin-os-mode-shell-dialogs'  => array(
+			'wp-adminos-shell-dialogs'  => array(
 				'path' => 'assets/js/core/shell/dialogs.js',
-				'deps' => array( 'admin-os-mode-dom' ),
+				'deps' => array( 'wp-adminos-dom' ),
 			),
-			'admin-os-mode-menu-commands'  => array(
+			'wp-adminos-menu-commands'  => array(
 				'path' => 'assets/js/core/shell/commands.js',
-				'deps' => array( 'admin-os-mode-dom', 'admin-os-mode-app-surfaces' ),
+				'deps' => array( 'wp-adminos-dom', 'wp-adminos-app-surfaces' ),
 			),
-			'admin-os-mode-menu-schema'    => array(
+			'wp-adminos-menu-schema'    => array(
 				'path' => 'assets/js/core/shell/menu-schema.js',
-				'deps' => array( 'admin-os-mode-config' ),
+				'deps' => array( 'wp-adminos-config' ),
 			),
-			'admin-os-mode-menu-renderer'  => array(
+			'wp-adminos-menu-renderer'  => array(
 				'path' => 'assets/js/core/shell/menu-renderer.js',
-				'deps' => array( 'admin-os-mode-dom' ),
+				'deps' => array( 'wp-adminos-dom' ),
 			),
-			'admin-os-mode-menu'           => array(
+			'wp-adminos-menu'           => array(
 				'path' => 'assets/js/core/shell/menu.js',
-				'deps' => array( 'admin-os-mode-config', 'admin-os-mode-menu-commands', 'admin-os-mode-menu-schema', 'admin-os-mode-menu-renderer' ),
+				'deps' => array( 'wp-adminos-config', 'wp-adminos-menu-commands', 'wp-adminos-menu-schema', 'wp-adminos-menu-renderer' ),
 			),
-			'admin-os-mode-context-menu'   => array(
+			'wp-adminos-context-menu'   => array(
 				'path' => 'assets/js/core/shell/context-menu.js',
-				'deps' => array( 'admin-os-mode-config', 'admin-os-mode-menu-commands', 'admin-os-mode-menu-schema', 'admin-os-mode-menu-renderer' ),
+				'deps' => array( 'wp-adminos-config', 'wp-adminos-menu-commands', 'wp-adminos-menu-schema', 'wp-adminos-menu-renderer' ),
 			),
-			'admin-os-mode-shortcuts'      => array(
+			'wp-adminos-shortcuts'      => array(
 				'path' => 'assets/js/core/shell/shortcuts.js',
-				'deps' => array( 'admin-os-mode-menu-commands', 'admin-os-mode-menu' ),
+				'deps' => array( 'wp-adminos-menu-commands', 'wp-adminos-menu' ),
 			),
-			'admin-os-mode-clock'          => array(
+			'wp-adminos-clock'          => array(
 				'path' => 'assets/js/core/shell/clock.js',
-				'deps' => array( 'admin-os-mode-config' ),
+				'deps' => array( 'wp-adminos-config' ),
 			),
-			'admin-os-mode-boot'           => array(
+			'wp-adminos-boot'           => array(
 				'path' => 'assets/js/core/boot.js',
-				'deps' => array( 'admin-os-mode-appearance', 'admin-os-mode-desktop-dock', 'admin-os-mode-menu-bar-state', 'admin-os-mode-wallpaper', 'admin-os-mode-reopen-policy', 'admin-os-mode-window-manager', 'admin-os-mode-widget-manager', 'admin-os-mode-desktop-icons', 'admin-os-mode-folder-manager', 'admin-os-mode-app-launcher', 'admin-os-mode-search', 'admin-os-mode-shell-dialogs', 'admin-os-mode-menu', 'admin-os-mode-context-menu', 'admin-os-mode-shortcuts', 'admin-os-mode-clock' ),
+				'deps' => array( 'wp-adminos-appearance', 'wp-adminos-desktop-dock', 'wp-adminos-menu-bar-state', 'wp-adminos-wallpaper', 'wp-adminos-reopen-policy', 'wp-adminos-window-manager', 'wp-adminos-widget-manager', 'wp-adminos-desktop-icons', 'wp-adminos-folder-manager', 'wp-adminos-app-launcher', 'wp-adminos-search', 'wp-adminos-shell-dialogs', 'wp-adminos-menu', 'wp-adminos-context-menu', 'wp-adminos-shortcuts', 'wp-adminos-clock' ),
 			),
 		);
 
 		foreach ( $scripts as $handle => $script ) {
 			wp_enqueue_script(
 				$handle,
-				ADMIN_OS_MODE_URL . $script['path'],
+				WP_ADMINOS_URL . $script['path'],
 				$script['deps'],
 				$this->get_asset_version( $script['path'] ),
 				true
 			);
 		}
 
-		return 'admin-os-mode-config';
+		return 'wp-adminos-config';
 	}
 
 	/**
@@ -397,8 +397,8 @@ final class Admin_OS_Mode_Assets {
 				'role'       => $role_label,
 				'subtitle'   => $role_label,
 			),
-			'storageKey' => 'adminOSMode:' . get_current_user_id() . ':' . $theme['id'] . ':session',
-			'nonce'      => wp_create_nonce( Admin_OS_Mode_Settings_Controller::NONCE_ACTION ),
+			'storageKey' => 'wpAdminOS:' . get_current_user_id() . ':' . $theme['id'] . ':session',
+			'nonce'      => wp_create_nonce( WP_AdminOS_Settings_Controller::NONCE_ACTION ),
 			'folders'    => $folders,
 			'menu'       => $this->get_menu_config(),
 			'theme'      => $theme,
@@ -416,14 +416,14 @@ final class Admin_OS_Mode_Assets {
 		$roles = isset( $user->roles ) && is_array( $user->roles ) ? array_values( array_filter( $user->roles ) ) : array();
 
 		if ( empty( $roles ) ) {
-			return __( 'WordPress User', 'admin-os-mode' );
+			return __( 'WordPress User', 'wp-adminos' );
 		}
 
 		$role       = sanitize_key( $roles[0] );
 		$role_names = wp_roles()->role_names;
 
 		if ( '' === $role ) {
-			return __( 'WordPress User', 'admin-os-mode' );
+			return __( 'WordPress User', 'wp-adminos' );
 		}
 
 		if ( isset( $role_names[ $role ] ) ) {
@@ -442,7 +442,7 @@ final class Admin_OS_Mode_Assets {
 		global $wpdb;
 
 		$theme           = wp_get_theme();
-		$theme_name      = $theme->exists() ? $theme->get( 'Name' ) : __( 'Unknown', 'admin-os-mode' );
+		$theme_name      = $theme->exists() ? $theme->get( 'Name' ) : __( 'Unknown', 'wp-adminos' );
 		$theme_version   = $theme->exists() ? $theme->get( 'Version' ) : '';
 		$wp_version      = get_bloginfo( 'version' );
 		$wp_release_name = $this->get_wordpress_release_name( $wp_version );
@@ -455,28 +455,28 @@ final class Admin_OS_Mode_Assets {
 		$wp_label        = $wp_release_name
 			? sprintf(
 				/* translators: 1: WordPress release name, 2: WordPress version number. */
-				__( '%1$s %2$s', 'admin-os-mode' ),
+				__( '%1$s %2$s', 'wp-adminos' ),
 				$wp_release_name,
 				$wp_version
 			)
 			: $wp_version;
 		$rows            = array(
 			array(
-				'label' => __( 'PHP', 'admin-os-mode' ),
+				'label' => __( 'PHP', 'wp-adminos' ),
 				'value' => PHP_VERSION,
 			),
 			array(
-				'label' => __( 'Database', 'admin-os-mode' ),
+				'label' => __( 'Database', 'wp-adminos' ),
 				'value' => $database_label,
 			),
 			array(
-				'label' => __( 'Server', 'admin-os-mode' ),
+				'label' => __( 'Server', 'wp-adminos' ),
 				'value' => $server_software,
 			),
 		);
 
 		return array(
-			'title'         => __( 'About This Site', 'admin-os-mode' ),
+			'title'         => __( 'About This Site', 'wp-adminos' ),
 			'name'          => get_bloginfo( 'name' ),
 			'url'           => $site_url_label,
 			'tagline'       => $tagline,
@@ -487,27 +487,27 @@ final class Admin_OS_Mode_Assets {
 				'title' => $wp_release_name
 					? sprintf(
 						/* translators: %s: WordPress release name. */
-						__( 'WordPress %s', 'admin-os-mode' ),
+						__( 'WordPress %s', 'wp-adminos' ),
 						$wp_release_name
 					)
-					: __( 'WordPress', 'admin-os-mode' ),
+					: __( 'WordPress', 'wp-adminos' ),
 				'value' => sprintf(
 					/* translators: %s: WordPress version number. */
-					__( 'Version %s', 'admin-os-mode' ),
+					__( 'Version %s', 'wp-adminos' ),
 					$wp_version
 				),
 			),
 			'display'       => array(
 				'buttonIcon'  => 'dashicons-admin-appearance',
-				'buttonLabel' => __( 'Theme Settings...', 'admin-os-mode' ),
-				'buttonTitle' => __( 'Themes', 'admin-os-mode' ),
+				'buttonLabel' => __( 'Theme Settings...', 'wp-adminos' ),
+				'buttonTitle' => __( 'Themes', 'wp-adminos' ),
 				'buttonUrl'   => current_user_can( 'switch_themes' ) ? admin_url( 'themes.php' ) : '',
 				'icon'        => 'dashicons-desktop',
 				'title'       => $theme_name,
 				'value'       => $theme_version
 					? sprintf(
 						/* translators: %s: theme version number. */
-						__( 'Version %s', 'admin-os-mode' ),
+						__( 'Version %s', 'wp-adminos' ),
 						$theme_version
 					)
 					: '',
@@ -526,7 +526,7 @@ final class Admin_OS_Mode_Assets {
 						$rows,
 						array(
 							array(
-								'label' => __( 'WordPress', 'admin-os-mode' ),
+								'label' => __( 'WordPress', 'wp-adminos' ),
 								'value' => $wp_label,
 							),
 						)
@@ -536,15 +536,15 @@ final class Admin_OS_Mode_Assets {
 					}
 				)
 			),
-			'moreInfoLabel'   => __( 'More Info...', 'admin-os-mode' ),
+			'moreInfoLabel'   => __( 'More Info...', 'wp-adminos' ),
 			'moreInfoCommand' => 'settings.open-panel',
 			'moreInfoPanel'   => 'general-about',
-			'moreInfoTitle'   => __( 'Site Health Info', 'admin-os-mode' ),
+			'moreInfoTitle'   => __( 'Site Health Info', 'wp-adminos' ),
 			'moreInfoUrl'     => current_user_can( 'view_site_health_checks' ) ? admin_url( 'site-health.php?tab=debug' ) : '',
 			'footer'          => sprintf(
-				/* translators: %s: Admin OS Mode plugin version. */
-				__( 'Admin OS %s · Built for WordPress admin.', 'admin-os-mode' ),
-				ADMIN_OS_MODE_VERSION
+				/* translators: %s: WP adminOS plugin version. */
+				__( 'WP adminOS %s · Built for WordPress admin.', 'wp-adminos' ),
+				WP_ADMINOS_VERSION
 			),
 		);
 	}
@@ -608,7 +608,7 @@ final class Admin_OS_Mode_Assets {
 			: '';
 
 		if ( '' === $server_software ) {
-			return __( 'Unknown', 'admin-os-mode' );
+			return __( 'Unknown', 'wp-adminos' );
 		}
 
 		return preg_replace( '/\s+/', ' ', $server_software );
@@ -622,7 +622,7 @@ final class Admin_OS_Mode_Assets {
 	private function get_settings_config() {
 		return array(
 			'general' => array(
-				'description' => __( 'Manage site information, updates, language, privacy, and WordPress tools.', 'admin-os-mode' ),
+				'description' => __( 'Manage site information, updates, language, privacy, and WordPress tools.', 'wp-adminos' ),
 				'groups'      => $this->get_general_settings_groups(),
 			),
 		);
@@ -643,28 +643,28 @@ final class Admin_OS_Mode_Assets {
 							array(
 								array(
 									'id'          => 'about',
-									'label'       => __( 'About', 'admin-os-mode' ),
-									'description' => __( 'Site and WordPress environment details', 'admin-os-mode' ),
+									'label'       => __( 'About', 'wp-adminos' ),
+									'description' => __( 'Site and WordPress environment details', 'wp-adminos' ),
 									'icon'        => 'dashicons-info-outline',
 									'tone'        => 'gray',
 									'panel'       => 'general-about',
 								),
 								array(
 									'id'     => 'software-update',
-									'label'  => __( 'Software Update', 'admin-os-mode' ),
+									'label'  => __( 'Software Update', 'wp-adminos' ),
 									'icon'   => 'dashicons-update',
 									'tone'   => 'gray',
 									'url'    => admin_url( 'update-core.php' ),
-									'title'  => __( 'WordPress Updates', 'admin-os-mode' ),
+									'title'  => __( 'WordPress Updates', 'wp-adminos' ),
 									'capany' => array( 'update_core', 'update_plugins', 'update_themes' ),
 								),
 								array(
 									'id'    => 'site-health',
-									'label' => __( 'Site Health', 'admin-os-mode' ),
+									'label' => __( 'Site Health', 'wp-adminos' ),
 									'icon'  => 'dashicons-heart',
 									'tone'  => 'gray',
 									'url'   => admin_url( 'site-health.php' ),
-									'title' => __( 'Site Health', 'admin-os-mode' ),
+									'title' => __( 'Site Health', 'wp-adminos' ),
 									'cap'   => 'view_site_health_checks',
 								),
 							)
@@ -676,47 +676,47 @@ final class Admin_OS_Mode_Assets {
 							array(
 								array(
 									'id'    => 'date-time',
-									'label' => __( 'Date & Time', 'admin-os-mode' ),
+									'label' => __( 'Date & Time', 'wp-adminos' ),
 									'icon'  => 'dashicons-calendar-alt',
 									'tone'  => 'blue',
 									'url'   => admin_url( 'options-general.php#timezone_string' ),
-									'title' => __( 'Date & Time', 'admin-os-mode' ),
+									'title' => __( 'Date & Time', 'wp-adminos' ),
 									'cap'   => 'manage_options',
 								),
 								array(
 									'id'    => 'language-region',
-									'label' => __( 'Language & Region', 'admin-os-mode' ),
+									'label' => __( 'Language & Region', 'wp-adminos' ),
 									'icon'  => 'dashicons-translation',
 									'tone'  => 'blue',
 									'url'   => admin_url( 'options-general.php#WPLANG' ),
-									'title' => __( 'Language & Region', 'admin-os-mode' ),
+									'title' => __( 'Language & Region', 'wp-adminos' ),
 									'cap'   => 'manage_options',
 								),
 								array(
 									'id'    => 'permalinks',
-									'label' => __( 'Permalinks', 'admin-os-mode' ),
+									'label' => __( 'Permalinks', 'wp-adminos' ),
 									'icon'  => 'dashicons-admin-links',
 									'tone'  => 'gray',
 									'url'   => admin_url( 'options-permalink.php' ),
-									'title' => __( 'Permalinks', 'admin-os-mode' ),
+									'title' => __( 'Permalinks', 'wp-adminos' ),
 									'cap'   => 'manage_options',
 								),
 								array(
 									'id'    => 'privacy',
-									'label' => __( 'Privacy', 'admin-os-mode' ),
+									'label' => __( 'Privacy', 'wp-adminos' ),
 									'icon'  => 'dashicons-privacy',
 									'tone'  => 'gray',
 									'url'   => admin_url( 'options-privacy.php' ),
-									'title' => __( 'Privacy', 'admin-os-mode' ),
+									'title' => __( 'Privacy', 'wp-adminos' ),
 									'cap'   => 'manage_privacy_options',
 								),
 								array(
 									'id'    => 'import-export',
-									'label' => __( 'Import & Export', 'admin-os-mode' ),
+									'label' => __( 'Import & Export', 'wp-adminos' ),
 									'icon'  => 'dashicons-migrate',
 									'tone'  => 'gray',
 									'url'   => admin_url( 'import.php' ),
-									'title' => __( 'Import & Export', 'admin-os-mode' ),
+									'title' => __( 'Import & Export', 'wp-adminos' ),
 									'cap'   => 'import',
 								),
 							)
@@ -728,8 +728,8 @@ final class Admin_OS_Mode_Assets {
 							array(
 								array(
 									'id'          => 'erase-content-settings',
-									'label'       => __( 'Erase All Content and Settings...', 'admin-os-mode' ),
-									'description' => __( 'Reset Admin OS preferences and layout for this account', 'admin-os-mode' ),
+									'label'       => __( 'Erase All Content and Settings...', 'wp-adminos' ),
+									'description' => __( 'Reset WP adminOS preferences and layout for this account', 'wp-adminos' ),
 									'icon'        => 'dashicons-trash',
 									'tone'        => 'red',
 									'command'     => 'system.erase-content-settings',
@@ -777,7 +777,7 @@ final class Admin_OS_Mode_Assets {
 	}
 
 	/**
-	 * Runtime data for Admin OS shell actions.
+	 * Runtime data for WP adminOS shell actions.
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -788,51 +788,51 @@ final class Admin_OS_Mode_Assets {
 		return array(
 			'actions' => array(
 				'restart'       => array(
-					'title'                => __( 'Are you sure you want to restart Admin OS?', 'admin-os-mode' ),
-					/* translators: {seconds}: seconds remaining before Admin OS restarts automatically. */
-					'message'              => __( 'If you do nothing, Admin OS will restart automatically in {seconds} seconds.', 'admin-os-mode' ),
-					'confirmLabel'         => __( 'Restart', 'admin-os-mode' ),
-					'cancelLabel'          => __( 'Cancel', 'admin-os-mode' ),
-					'reopenWindowsLabel'   => __( 'Reopen windows after restarting', 'admin-os-mode' ),
+					'title'                => __( 'Are you sure you want to restart WP adminOS?', 'wp-adminos' ),
+					/* translators: {seconds}: seconds remaining before WP adminOS restarts automatically. */
+					'message'              => __( 'If you do nothing, WP adminOS will restart automatically in {seconds} seconds.', 'wp-adminos' ),
+					'confirmLabel'         => __( 'Restart', 'wp-adminos' ),
+					'cancelLabel'          => __( 'Cancel', 'wp-adminos' ),
+					'reopenWindowsLabel'   => __( 'Reopen windows after restarting', 'wp-adminos' ),
 					'reopenWindowsDefault' => false,
 					'countdownSeconds'     => 60,
 					'icon'                 => 'power',
-					'overlayMessage'       => __( 'Restarting Admin OS...', 'admin-os-mode' ),
+					'overlayMessage'       => __( 'Restarting WP adminOS...', 'wp-adminos' ),
 				),
 				'switchClassic' => array(
-					'title'                => __( 'Are you sure you want to switch to Classic Admin?', 'admin-os-mode' ),
+					'title'                => __( 'Are you sure you want to switch to Classic Admin?', 'wp-adminos' ),
 					/* translators: {seconds}: seconds remaining before Classic Admin opens automatically. */
-					'message'              => __( 'If you do nothing, Classic Admin will open automatically in {seconds} seconds.', 'admin-os-mode' ),
-					'confirmLabel'         => __( 'Switch', 'admin-os-mode' ),
-					'cancelLabel'          => __( 'Cancel', 'admin-os-mode' ),
-					'reopenWindowsLabel'   => __( 'Reopen windows when returning to Admin OS', 'admin-os-mode' ),
+					'message'              => __( 'If you do nothing, Classic Admin will open automatically in {seconds} seconds.', 'wp-adminos' ),
+					'confirmLabel'         => __( 'Switch', 'wp-adminos' ),
+					'cancelLabel'          => __( 'Cancel', 'wp-adminos' ),
+					'reopenWindowsLabel'   => __( 'Reopen windows when returning to WP adminOS', 'wp-adminos' ),
 					'reopenWindowsDefault' => false,
 					'countdownSeconds'     => 60,
 					'icon'                 => 'dashicons-admin-site-alt3',
-					'overlayMessage'       => __( 'Switching to Classic Admin...', 'admin-os-mode' ),
+					'overlayMessage'       => __( 'Switching to Classic Admin...', 'wp-adminos' ),
 				),
 				'logout'        => array(
 					'title'                => sprintf(
 						/* translators: %s: current user display name. */
-						__( 'Are you sure you want to log out %s?', 'admin-os-mode' ),
+						__( 'Are you sure you want to log out %s?', 'wp-adminos' ),
 						$user_label
 					),
 					/* translators: {seconds}: seconds remaining before the user is logged out automatically. */
-					'message'              => __( 'If you do nothing, you will be logged out automatically in {seconds} seconds.', 'admin-os-mode' ),
-					'confirmLabel'         => __( 'Log Out', 'admin-os-mode' ),
-					'cancelLabel'          => __( 'Cancel', 'admin-os-mode' ),
-					'reopenWindowsLabel'   => __( 'Reopen windows when logging back in', 'admin-os-mode' ),
+					'message'              => __( 'If you do nothing, you will be logged out automatically in {seconds} seconds.', 'wp-adminos' ),
+					'confirmLabel'         => __( 'Log Out', 'wp-adminos' ),
+					'cancelLabel'          => __( 'Cancel', 'wp-adminos' ),
+					'reopenWindowsLabel'   => __( 'Reopen windows when logging back in', 'wp-adminos' ),
 					'reopenWindowsDefault' => false,
 					'countdownSeconds'     => 60,
 					'icon'                 => 'power',
-					'overlayMessage'       => __( 'Logging out...', 'admin-os-mode' ),
+					'overlayMessage'       => __( 'Logging out...', 'wp-adminos' ),
 				),
 				'eraseContentSettings' => array(
-					'title'          => __( 'Erase All Content and Settings?', 'admin-os-mode' ),
-					'message'        => __( 'This will reset Admin OS settings, wallpaper, dock, windows, and layout for this WordPress account. WordPress site content will not be affected.', 'admin-os-mode' ),
-					'confirmLabel'   => __( 'Erase', 'admin-os-mode' ),
-					'cancelLabel'    => __( 'Cancel', 'admin-os-mode' ),
-					'overlayMessage' => __( 'Erasing Admin OS settings...', 'admin-os-mode' ),
+					'title'          => __( 'Erase All Content and Settings?', 'wp-adminos' ),
+					'message'        => __( 'This will reset WP adminOS settings, wallpaper, dock, windows, and layout for this WordPress account. WordPress site content will not be affected.', 'wp-adminos' ),
+					'confirmLabel'   => __( 'Erase', 'wp-adminos' ),
+					'cancelLabel'    => __( 'Cancel', 'wp-adminos' ),
+					'overlayMessage' => __( 'Erasing WP adminOS settings...', 'wp-adminos' ),
 				),
 			),
 		);
@@ -852,24 +852,24 @@ final class Admin_OS_Mode_Assets {
 				'groups' => array(
 					array(
 						'id'    => 'system',
-						'label' => __( 'Admin OS', 'admin-os-mode' ),
+						'label' => __( 'WP adminOS', 'wp-adminos' ),
 						'items' => array(
 							array(
-								'label'   => __( 'About This Site', 'admin-os-mode' ),
+								'label'   => __( 'About This Site', 'wp-adminos' ),
 								'command' => 'open-site-about',
 								'icon'    => 'dashicons-info-outline',
 							),
 							array(
-								'label'   => __( 'System Settings...', 'admin-os-mode' ),
+								'label'   => __( 'System Settings...', 'wp-adminos' ),
 								'command' => 'open-app',
 								'target'  => 'os-settings',
 								'icon'    => 'dashicons-admin-customizer',
 							),
 							array(
-								'label'   => __( 'WordPress Updates...', 'admin-os-mode' ),
+								'label'   => __( 'WordPress Updates...', 'wp-adminos' ),
 								'command' => 'open-url',
 								'url'     => admin_url( 'update-core.php' ),
-								'title'   => __( 'WordPress Updates', 'admin-os-mode' ),
+								'title'   => __( 'WordPress Updates', 'wp-adminos' ),
 								'icon'    => 'dashicons-update',
 							),
 							array(
@@ -877,7 +877,7 @@ final class Admin_OS_Mode_Assets {
 							),
 							array(
 								'id'       => 'recent-items',
-								'label'    => __( 'Recent Items', 'admin-os-mode' ),
+								'label'    => __( 'Recent Items', 'wp-adminos' ),
 								'disabled' => true,
 								'icon'     => 'dashicons-backup',
 								'shortcut' => '>',
@@ -887,7 +887,7 @@ final class Admin_OS_Mode_Assets {
 							),
 							array(
 								'id'       => 'close-active-window',
-								'label'    => __( 'Close Active App', 'admin-os-mode' ),
+								'label'    => __( 'Close Active App', 'wp-adminos' ),
 								'command'  => 'window.close',
 								'icon'     => 'dashicons-dismiss',
 								'shortcut' => '⌘W',
@@ -896,12 +896,12 @@ final class Admin_OS_Mode_Assets {
 								'type' => 'separator',
 							),
 							array(
-								'label'   => __( 'Restart Admin OS...', 'admin-os-mode' ),
+								'label'   => __( 'Restart WP adminOS...', 'wp-adminos' ),
 								'command' => 'shell.restart',
 								'icon'    => 'dashicons-update',
 							),
 							array(
-								'label'   => __( 'Switch to Classic Admin...', 'admin-os-mode' ),
+								'label'   => __( 'Switch to Classic Admin...', 'wp-adminos' ),
 								'command' => 'shell.switch-classic',
 								'url'     => $this->router->get_toggle_url( false ),
 								'icon'    => 'dashicons-admin-site-alt3',
@@ -912,7 +912,7 @@ final class Admin_OS_Mode_Assets {
 							array(
 								'label'   => sprintf(
 									/* translators: %s: current user display name. */
-									__( 'Log Out %s...', 'admin-os-mode' ),
+									__( 'Log Out %s...', 'wp-adminos' ),
 									$user_label
 								),
 								'command' => 'user.logout',
@@ -930,12 +930,12 @@ final class Admin_OS_Mode_Assets {
 						'label' => get_bloginfo( 'name' ),
 						'items' => array(
 							array(
-								'label'   => __( 'Dashboard', 'admin-os-mode' ),
+								'label'   => __( 'Dashboard', 'wp-adminos' ),
 								'command' => 'open-app',
 								'target'  => 'dashboard',
 							),
 							array(
-								'label'   => __( 'Visit Site', 'admin-os-mode' ),
+								'label'   => __( 'Visit Site', 'wp-adminos' ),
 								'command' => 'open-external-url',
 								'url'     => home_url( '/' ),
 							),
@@ -947,46 +947,46 @@ final class Admin_OS_Mode_Assets {
 				'groups' => array(
 					array(
 						'id'    => 'file',
-						'label' => __( 'File', 'admin-os-mode' ),
+						'label' => __( 'File', 'wp-adminos' ),
 						'items' => array(),
 					),
 					array(
 						'id'    => 'edit',
-						'label' => __( 'Edit', 'admin-os-mode' ),
+						'label' => __( 'Edit', 'wp-adminos' ),
 						'items' => array(),
 					),
 					array(
 						'id'    => 'view',
-						'label' => __( 'View', 'admin-os-mode' ),
+						'label' => __( 'View', 'wp-adminos' ),
 						'items' => array(),
 					),
 					array(
 						'id'    => 'go',
-						'label' => __( 'Go', 'admin-os-mode' ),
+						'label' => __( 'Go', 'wp-adminos' ),
 						'items' => array(),
 					),
 					array(
 						'id'    => 'window',
-						'label' => __( 'Window', 'admin-os-mode' ),
+						'label' => __( 'Window', 'wp-adminos' ),
 						'items' => array(),
 					),
 					array(
 						'id'    => 'help',
-						'label' => __( 'Help', 'admin-os-mode' ),
+						'label' => __( 'Help', 'wp-adminos' ),
 						'items' => array(),
 					),
 				),
 			),
 			'labels'     => array(
 				'site'          => get_bloginfo( 'name' ),
-				'file'          => __( 'File', 'admin-os-mode' ),
-				'edit'          => __( 'Edit', 'admin-os-mode' ),
-				'view'          => __( 'View', 'admin-os-mode' ),
-				'go'            => __( 'Go', 'admin-os-mode' ),
-				'window'        => __( 'Window', 'admin-os-mode' ),
-				'help'          => __( 'Help', 'admin-os-mode' ),
-				'admin'         => __( 'Admin', 'admin-os-mode' ),
-				'folder_suffix' => __( 'Folder', 'admin-os-mode' ),
+				'file'          => __( 'File', 'wp-adminos' ),
+				'edit'          => __( 'Edit', 'wp-adminos' ),
+				'view'          => __( 'View', 'wp-adminos' ),
+				'go'            => __( 'Go', 'wp-adminos' ),
+				'window'        => __( 'Window', 'wp-adminos' ),
+				'help'          => __( 'Help', 'wp-adminos' ),
+				'admin'         => __( 'Admin', 'wp-adminos' ),
+				'folder_suffix' => __( 'Folder', 'wp-adminos' ),
 			),
 		);
 	}
@@ -999,22 +999,22 @@ final class Admin_OS_Mode_Assets {
 	 */
 	private function enqueue_core_styles( $include_shell ) {
 		$core_styles = array(
-			'admin-os-mode-core-admin-chrome' => 'assets/css/core/admin-chrome.css',
+			'wp-adminos-core-admin-chrome' => 'assets/css/core/admin-chrome.css',
 		);
 
 		if ( $include_shell ) {
 			$core_styles = array_merge(
 				$core_styles,
 				array(
-					'admin-os-mode-core-shell'      => 'assets/css/core/shell.css',
-					'admin-os-mode-core-dialogs'    => 'assets/css/core/dialogs.css',
-					'admin-os-mode-core-context'    => 'assets/css/core/context-menu.css',
-					'admin-os-mode-core-desktop'    => 'assets/css/core/desktop.css',
-					'admin-os-mode-core-widgets'    => 'assets/css/core/widgets.css',
-					'admin-os-mode-core-windows'    => 'assets/css/core/windows.css',
-					'admin-os-mode-core-apps'       => 'assets/css/core/apps.css',
-					'admin-os-mode-core-dock'       => 'assets/css/core/dock.css',
-					'admin-os-mode-core-responsive' => 'assets/css/core/responsive.css',
+					'wp-adminos-core-shell'      => 'assets/css/core/shell.css',
+					'wp-adminos-core-dialogs'    => 'assets/css/core/dialogs.css',
+					'wp-adminos-core-context'    => 'assets/css/core/context-menu.css',
+					'wp-adminos-core-desktop'    => 'assets/css/core/desktop.css',
+					'wp-adminos-core-widgets'    => 'assets/css/core/widgets.css',
+					'wp-adminos-core-windows'    => 'assets/css/core/windows.css',
+					'wp-adminos-core-apps'       => 'assets/css/core/apps.css',
+					'wp-adminos-core-dock'       => 'assets/css/core/dock.css',
+					'wp-adminos-core-responsive' => 'assets/css/core/responsive.css',
 				)
 			);
 		}
@@ -1023,7 +1023,7 @@ final class Admin_OS_Mode_Assets {
 		foreach ( $core_styles as $handle => $path ) {
 			wp_enqueue_style(
 				$handle,
-				ADMIN_OS_MODE_URL . $path,
+				WP_ADMINOS_URL . $path,
 				array( $dependency ),
 				$this->get_asset_version( $path )
 			);
@@ -1041,11 +1041,11 @@ final class Admin_OS_Mode_Assets {
 	 */
 	public function add_admin_body_classes( $classes ) {
 		if ( $this->router->is_shell_request() ) {
-			$classes .= ' admin-os-mode-shell';
+			$classes .= ' wp-adminos-shell';
 		}
 
 		if ( $this->router->is_iframe_request() ) {
-			$classes .= ' admin-os-mode-iframe';
+			$classes .= ' wp-adminos-iframe';
 		}
 
 		return $classes;
@@ -1069,12 +1069,12 @@ final class Admin_OS_Mode_Assets {
 	 * @return string
 	 */
 	private function get_asset_version( $path ) {
-		$file = ADMIN_OS_MODE_DIR . ltrim( $path, '/' );
+		$file = WP_ADMINOS_DIR . ltrim( $path, '/' );
 
 		if ( file_exists( $file ) ) {
-			return ADMIN_OS_MODE_VERSION . '-' . filemtime( $file );
+			return WP_ADMINOS_VERSION . '-' . filemtime( $file );
 		}
 
-		return ADMIN_OS_MODE_VERSION;
+		return WP_ADMINOS_VERSION;
 	}
 }

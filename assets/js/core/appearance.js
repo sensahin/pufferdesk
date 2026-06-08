@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	window.AdminOSMode = window.AdminOSMode || {};
+	window.WPAdminOS = window.WPAdminOS || {};
 
 	const defaults = {
 		mode: 'auto',
@@ -159,7 +159,7 @@
 		systemModeBound = true;
 	}
 
-	window.AdminOSMode.appearance = {
+	window.WPAdminOS.appearance = {
 		accentColors,
 		apply,
 		bindSystemMode,
