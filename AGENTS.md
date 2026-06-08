@@ -119,6 +119,8 @@ Apps:
 
 - Register apps through `WP_AdminOS_App_Registry` or the `wp_adminos_apps` filter.
 - Apps should define `id`, `label`, `cap`, `group`, `icon`, and either iframe data (`url`) or native data (`kind => native`, `native`).
+- App `cap` values are normalized as WordPress capability keys and default to `read` when missing, empty, or non-scalar. Use `read` only for current-user shell features; privileged WordPress screens or actions must use their exact WordPress capability.
+- Apps derived from WordPress top-level admin menu items should inherit the menu item's capability so dock, desktop, launcher, and native admin visibility stay aligned.
 - Apps may define a normalized `badge` with `text`, optional `count`, `tone`, and `aria_label`; WordPress menu count spans are extracted into this shape for top-level menu apps.
 - Apps may define reusable `about` metadata with `name`, `version`, `copyright`, `rights`, and `icon`; do not hard-code app-specific about windows.
 - About metadata must stay GPL-compatible for WordPress distribution. Do not use "All rights reserved" defaults in plugin UI.
@@ -145,6 +147,7 @@ Widgets:
 
 - Register widgets through `WP_AdminOS_Widget_Registry` or the `wp_adminos_widgets` filter.
 - Widgets should define `id`, `label`, `cap`, `icon`, `kind`, `native`, `template`, `default_position`, `default_size`, and optional `refresh_interval`.
+- Widget `cap` values are normalized as WordPress capability keys and default to `read` when missing, empty, or non-scalar. Widgets exposing privileged WordPress data must use the exact capability required for that data.
 - Widget `default_position` may use `left` or `right`, plus `top` or `bottom`; use one horizontal anchor and one vertical anchor.
 - Keep widget IDs stable. Widget layout persistence depends on stable IDs.
 - Add widget templates under `templates/widgets/`.

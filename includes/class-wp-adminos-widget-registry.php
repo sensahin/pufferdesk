@@ -11,6 +11,8 @@ defined( 'ABSPATH' ) || exit;
  * Builds the widget data consumed by the shell and runtime.
  */
 final class WP_AdminOS_Widget_Registry {
+	const DEFAULT_CAPABILITY = 'read';
+
 	/**
 	 * Default width for widgets without an explicit size.
 	 *
@@ -38,7 +40,7 @@ final class WP_AdminOS_Widget_Registry {
 				'icon'             => $this->theme_icon( 'clock.svg', 'dashicons-clock' ),
 				'kind'             => 'native',
 				'native'           => 'clock',
-				'cap'              => 'read',
+				'cap'              => self::DEFAULT_CAPABILITY,
 				'default_position' => array(
 					'right' => 24,
 					'top'   => 24,
@@ -55,7 +57,8 @@ final class WP_AdminOS_Widget_Registry {
 		 * Filter the desktop widget registry.
 		 *
 		 * Each widget accepts id, label, icon, cap, kind, native, template,
-		 * default_position, default_size, and refresh_interval.
+		 * default_position, default_size, and refresh_interval. Missing, empty,
+		 * or non-scalar cap values default to read during normalization.
 		 * Positions accept left or right, and top or bottom.
 		 *
 		 * Icons may be a Dashicon string or a descriptor:
@@ -88,7 +91,8 @@ final class WP_AdminOS_Widget_Registry {
 				continue;
 			}
 
-			if ( ! empty( $widget['cap'] ) && ! current_user_can( $widget['cap'] ) ) {
+			$cap = $this->normalize_capability( isset( $widget['cap'] ) ? $widget['cap'] : self::DEFAULT_CAPABILITY );
+			if ( ! current_user_can( $cap ) ) {
 				continue;
 			}
 
@@ -118,6 +122,7 @@ final class WP_AdminOS_Widget_Registry {
 				'id'               => $id,
 				'label'            => $label,
 				'icon'             => isset( $widget['icon'] ) ? WP_AdminOS_Icon_Renderer::normalize( $widget['icon'] ) : WP_AdminOS_Icon_Renderer::normalize( 'dashicons-admin-generic' ),
+				'cap'              => $cap,
 				'kind'             => $kind,
 				'native'           => $native,
 				'template'         => $template,
@@ -128,6 +133,22 @@ final class WP_AdminOS_Widget_Registry {
 		}
 
 		return $normalized;
+	}
+
+	/**
+	 * Normalize a widget capability key.
+	 *
+	 * @param mixed $capability Raw capability.
+	 * @return string
+	 */
+	private function normalize_capability( $capability ) {
+		if ( is_array( $capability ) || is_object( $capability ) ) {
+			return self::DEFAULT_CAPABILITY;
+		}
+
+		$capability = sanitize_key( (string) $capability );
+
+		return '' !== $capability ? $capability : self::DEFAULT_CAPABILITY;
 	}
 
 	/**

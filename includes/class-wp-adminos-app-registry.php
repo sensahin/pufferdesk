@@ -11,6 +11,8 @@ defined( 'ABSPATH' ) || exit;
  * Builds the app and folder data consumed by the shell.
  */
 final class WP_AdminOS_App_Registry {
+	const DEFAULT_CAPABILITY = 'read';
+
 	/**
 	 * Installed plugin headers, keyed by plugin basename.
 	 *
@@ -52,7 +54,7 @@ final class WP_AdminOS_App_Registry {
 				'url'   => admin_url( 'index.php?wp_adminos_classic=1' ),
 				'icon'  => $this->theme_icon( 'dashboard.svg', 'dashicons-dashboard' ),
 				'group' => 'content',
-				'cap'   => 'read',
+				'cap'   => self::DEFAULT_CAPABILITY,
 			),
 			array(
 				'id'    => 'posts',
@@ -115,7 +117,7 @@ final class WP_AdminOS_App_Registry {
 				'label'  => __( 'System Settings', 'wp-adminos' ),
 				'icon'   => $this->theme_icon( 'os-settings.svg', 'dashicons-admin-customizer' ),
 				'group'  => 'system',
-				'cap'    => 'read',
+				'cap'    => self::DEFAULT_CAPABILITY,
 				'kind'   => 'native',
 				'native' => 'settings',
 				'menu'   => $this->get_os_settings_menu(),
@@ -159,19 +161,13 @@ final class WP_AdminOS_App_Registry {
 
 		$apps = $this->merge_admin_menu_apps( $apps );
 
-		$apps = array_values(
-			array_filter(
-				$apps,
-				static function ( $app ) {
-					return current_user_can( $app['cap'] );
-				}
-			)
-		);
+		$apps = array_values( array_filter( $apps, array( $this, 'current_user_can_access_app' ) ) );
 
 		/**
 		 * Filter the shell app registry.
 		 *
 		 * Each app accepts id, label, url, icon, group, cap, kind, native, and menu.
+		 * Missing, empty, or non-scalar cap values default to read during normalization.
 		 * Icons may be a Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-admin-post' )
 		 * array( 'type' => 'image', 'src' => 'themes/adminos/default/icons/posts.svg' )
@@ -230,8 +226,8 @@ final class WP_AdminOS_App_Registry {
 				continue;
 			}
 
-			$cap = isset( $item[1] ) ? (string) $item[1] : 'read';
-			if ( '' !== $cap && ! current_user_can( $cap ) ) {
+			$cap = $this->normalize_capability( isset( $item[1] ) ? $item[1] : self::DEFAULT_CAPABILITY );
+			if ( ! current_user_can( $cap ) ) {
 				continue;
 			}
 
@@ -252,7 +248,8 @@ final class WP_AdminOS_App_Registry {
 
 			if ( null !== $index ) {
 				if ( ! isset( $used[ $index ] ) ) {
-					$matched_app = $apps[ $index ];
+					$matched_app        = $apps[ $index ];
+					$matched_app['cap'] = $cap;
 					if ( ! empty( $plugin_about ) && empty( $matched_app['about'] ) ) {
 						$matched_app['about'] = $plugin_about;
 					}
@@ -272,7 +269,7 @@ final class WP_AdminOS_App_Registry {
 				'url'    => $url,
 				'icon'   => $this->get_admin_menu_icon( isset( $item[6] ) ? (string) $item[6] : '', $menu_title ),
 				'group'  => 'site',
-				'cap'    => $cap ? $cap : 'read',
+				'cap'    => $cap,
 				'source' => 'wp-menu',
 			);
 
@@ -293,6 +290,36 @@ final class WP_AdminOS_App_Registry {
 		}
 
 		return $ordered;
+	}
+
+	/**
+	 * Check whether the current user can access an app descriptor.
+	 *
+	 * @param mixed $app App descriptor.
+	 * @return bool
+	 */
+	private function current_user_can_access_app( $app ) {
+		if ( ! is_array( $app ) ) {
+			return false;
+		}
+
+		return current_user_can( $this->normalize_capability( isset( $app['cap'] ) ? $app['cap'] : self::DEFAULT_CAPABILITY ) );
+	}
+
+	/**
+	 * Normalize an app capability key.
+	 *
+	 * @param mixed $capability Raw capability.
+	 * @return string
+	 */
+	private function normalize_capability( $capability ) {
+		if ( is_array( $capability ) || is_object( $capability ) ) {
+			return self::DEFAULT_CAPABILITY;
+		}
+
+		$capability = sanitize_key( (string) $capability );
+
+		return '' !== $capability ? $capability : self::DEFAULT_CAPABILITY;
 	}
 
 	/**
@@ -1240,14 +1267,19 @@ final class WP_AdminOS_App_Registry {
 				continue;
 			}
 
-			if ( ! empty( $app['cap'] ) && ! current_user_can( $app['cap'] ) ) {
+			$cap = $this->normalize_capability( isset( $app['cap'] ) ? $app['cap'] : self::DEFAULT_CAPABILITY );
+			if ( ! current_user_can( $cap ) ) {
 				continue;
 			}
 
+			$id    = sanitize_key( $app['id'] );
 			$label = sanitize_text_field( $app['label'] );
 			$icon  = isset( $app['icon'] ) ? WP_AdminOS_Icon_Renderer::normalize( $app['icon'] ) : WP_AdminOS_Icon_Renderer::normalize( 'dashicons-admin-generic' );
 			$group = isset( $app['group'] ) ? sanitize_key( $app['group'] ) : 'system';
 			$kind  = isset( $app['kind'] ) ? sanitize_key( $app['kind'] ) : 'iframe';
+			if ( '' === $id || '' === $label ) {
+				continue;
+			}
 			if ( ! in_array( $group, array( 'content', 'site', 'system' ), true ) ) {
 				$group = 'system';
 			}
@@ -1279,12 +1311,13 @@ final class WP_AdminOS_App_Registry {
 			}
 
 			$normalized_app = array(
-				'id'     => sanitize_key( $app['id'] ),
+				'id'     => $id,
 				'label'  => $label,
 				'url'    => $url,
 				'icon'   => $icon,
 				'about'  => $this->normalize_about( isset( $app['about'] ) ? $app['about'] : array(), $label, $icon ),
 				'group'  => $group,
+				'cap'    => $cap,
 				'kind'   => $kind,
 				'native' => $native,
 				'menu'   => $this->normalize_menu_definition( isset( $app['menu'] ) ? $app['menu'] : array(), $label ),
