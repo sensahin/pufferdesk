@@ -101,6 +101,7 @@ JavaScript:
 - `assets/js/core/windows/`: windows, window factory, window state serialization.
 - `assets/js/core/widgets/`: widget binding, live updates, widget layout persistence.
 - `assets/js/core/apps/`: app launcher, reusable app surfaces such as about windows, and native apps.
+- `assets/js/core/apps/settings/`: System Settings label normalization, shared UI helpers, and panel factory modules.
 - `assets/js/core/shell/`: search, menu bar clock, command registry, top menus, context menus, global shell controls.
 
 Media:

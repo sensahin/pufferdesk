@@ -297,9 +297,41 @@ final class WP_AdminOS_Assets {
 				'path' => 'assets/js/core/apps/native-apps.js',
 				'deps' => array(),
 			),
+			'wp-adminos-settings-labels' => array(
+				'path' => 'assets/js/core/apps/settings/labels.js',
+				'deps' => array(),
+			),
+			'wp-adminos-settings-ui'     => array(
+				'path' => 'assets/js/core/apps/settings/ui.js',
+				'deps' => array( 'wp-adminos-dom' ),
+			),
+			'wp-adminos-settings-panel-general' => array(
+				'path' => 'assets/js/core/apps/settings/panel-general.js',
+				'deps' => array( 'wp-adminos-settings-labels', 'wp-adminos-settings-ui' ),
+			),
+			'wp-adminos-settings-panel-profile' => array(
+				'path' => 'assets/js/core/apps/settings/panel-profile.js',
+				'deps' => array( 'wp-adminos-settings-labels', 'wp-adminos-settings-ui' ),
+			),
+			'wp-adminos-settings-panel-appearance' => array(
+				'path' => 'assets/js/core/apps/settings/panel-appearance.js',
+				'deps' => array( 'wp-adminos-settings-labels', 'wp-adminos-settings-ui' ),
+			),
+			'wp-adminos-settings-panel-desktop-dock' => array(
+				'path' => 'assets/js/core/apps/settings/panel-desktop-dock.js',
+				'deps' => array( 'wp-adminos-settings-labels', 'wp-adminos-settings-ui' ),
+			),
+			'wp-adminos-settings-panel-menu-bar' => array(
+				'path' => 'assets/js/core/apps/settings/panel-menu-bar.js',
+				'deps' => array( 'wp-adminos-settings-labels', 'wp-adminos-settings-ui' ),
+			),
+			'wp-adminos-settings-panel-wallpaper' => array(
+				'path' => 'assets/js/core/apps/settings/panel-wallpaper.js',
+				'deps' => array( 'wp-adminos-settings-labels', 'wp-adminos-settings-ui' ),
+			),
 			'wp-adminos-settings-app'   => array(
 				'path' => 'assets/js/core/apps/settings-app.js',
-				'deps' => array( 'wp-adminos-dom', 'wp-adminos-storage', 'wp-adminos-api-client', 'wp-adminos-appearance', 'wp-adminos-desktop-dock', 'wp-adminos-menu-bar-state', 'wp-adminos-wallpaper', 'wp-adminos-app-surfaces', 'wp-adminos-native-apps' ),
+				'deps' => array( 'wp-adminos-dom', 'wp-adminos-storage', 'wp-adminos-api-client', 'wp-adminos-appearance', 'wp-adminos-desktop-dock', 'wp-adminos-menu-bar-state', 'wp-adminos-wallpaper', 'wp-adminos-app-surfaces', 'wp-adminos-native-apps', 'wp-adminos-settings-labels', 'wp-adminos-settings-ui', 'wp-adminos-settings-panel-general', 'wp-adminos-settings-panel-profile', 'wp-adminos-settings-panel-appearance', 'wp-adminos-settings-panel-desktop-dock', 'wp-adminos-settings-panel-menu-bar', 'wp-adminos-settings-panel-wallpaper' ),
 			),
 			'wp-adminos-app-launcher'   => array(
 				'path' => 'assets/js/core/apps/app-launcher.js',
@@ -628,6 +660,263 @@ final class WP_AdminOS_Assets {
 			'general' => array(
 				'description' => __( 'Manage site information, updates, language, privacy, and WordPress tools.', 'wp-adminos' ),
 				'groups'      => $this->get_general_settings_groups(),
+			),
+			'labels'  => $this->get_settings_labels_config(),
+		);
+	}
+
+	/**
+	 * Localized labels and option lists used by native System Settings panels.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_settings_labels_config() {
+		return array(
+			'status'       => array(
+				'saving'                 => __( 'Saving...', 'wp-adminos' ),
+				'removing'               => __( 'Removing...', 'wp-adminos' ),
+				'appearanceSaveError'    => __( 'Appearance could not be saved.', 'wp-adminos' ),
+				'appearanceSaved'        => __( 'Appearance saved.', 'wp-adminos' ),
+				'desktopDockSaveError'   => __( 'Desktop & Dock could not be saved.', 'wp-adminos' ),
+				'appLocationsSaveError'  => __( 'App locations could not be saved.', 'wp-adminos' ),
+				'appLocationsSaved'      => __( 'App locations saved.', 'wp-adminos' ),
+				'menuBarSaveError'       => __( 'Menu Bar could not be saved.', 'wp-adminos' ),
+				'wallpaperSaveError'     => __( 'Wallpaper could not be saved.', 'wp-adminos' ),
+				'wallpaperSaved'         => __( 'Wallpaper saved.', 'wp-adminos' ),
+				'photoRemoveError'       => __( 'Photo could not be removed.', 'wp-adminos' ),
+				'photoRemoved'           => __( 'Photo removed.', 'wp-adminos' ),
+				'themeSaveError'         => __( 'Theme could not be saved.', 'wp-adminos' ),
+				'themeSaved'             => __( 'Theme saved.', 'wp-adminos' ),
+				'mediaUnavailable'       => __( 'Media Library is not available for this user.', 'wp-adminos' ),
+				'invalidImage'           => __( 'Choose a valid image.', 'wp-adminos' ),
+			),
+			'history'      => array(
+				'back'    => __( 'Back', 'wp-adminos' ),
+				'forward' => __( 'Forward', 'wp-adminos' ),
+			),
+			'sidebar'      => array(
+				'searchPlaceholder' => __( 'Search', 'wp-adminos' ),
+				'searchLabel'       => __( 'Search settings', 'wp-adminos' ),
+				'navLabel'          => __( 'Settings sections', 'wp-adminos' ),
+				'items'             => array(
+					array(
+						'id'    => 'general',
+						'label' => __( 'General', 'wp-adminos' ),
+						'icon'  => 'dashicons-admin-generic',
+						'tone'  => 'gray',
+					),
+					array(
+						'id'    => 'appearance',
+						'label' => __( 'Appearance', 'wp-adminos' ),
+						'icon'  => 'dashicons-admin-appearance',
+						'tone'  => 'blue',
+					),
+					array(
+						'id'    => 'desktop-dock',
+						'label' => __( 'Desktop & Dock', 'wp-adminos' ),
+						'icon'  => 'dashicons-desktop',
+						'tone'  => 'indigo',
+					),
+					array(
+						'id'    => 'menu-bar',
+						'label' => __( 'Menu Bar', 'wp-adminos' ),
+						'icon'  => 'dashicons-menu-alt3',
+						'tone'  => 'gray',
+					),
+					array(
+						'id'    => 'wallpaper',
+						'label' => __( 'Wallpaper', 'wp-adminos' ),
+						'icon'  => 'dashicons-format-image',
+						'tone'  => 'cyan',
+					),
+					array(
+						'id'       => 'widgets',
+						'label'    => __( 'Widgets', 'wp-adminos' ),
+						'icon'     => 'dashicons-screenoptions',
+						'tone'     => 'green',
+						'disabled' => true,
+					),
+					array(
+						'id'       => 'apps',
+						'label'    => __( 'Apps', 'wp-adminos' ),
+						'icon'     => 'dashicons-grid-view',
+						'tone'     => 'purple',
+						'disabled' => true,
+					),
+					array(
+						'id'       => 'workspace',
+						'label'    => __( 'Workspace', 'wp-adminos' ),
+						'icon'     => 'dashicons-layout',
+						'tone'     => 'orange',
+						'disabled' => true,
+					),
+					array(
+						'id'       => 'system',
+						'label'    => __( 'System', 'wp-adminos' ),
+						'icon'     => 'dashicons-admin-tools',
+						'tone'     => 'red',
+						'disabled' => true,
+					),
+				),
+			),
+			'profile'      => array(
+				'sectionLabel'             => __( 'WordPress Account', 'wp-adminos' ),
+				'defaultName'              => __( 'Admin', 'wp-adminos' ),
+				'defaultRole'              => __( 'WordPress User', 'wp-adminos' ),
+				'editProfileLabel'         => __( 'Edit profile', 'wp-adminos' ),
+				'editLabel'                => __( 'Edit', 'wp-adminos' ),
+				'profileTitle'             => __( 'WordPress Profile', 'wp-adminos' ),
+				'personalInfoLabel'        => __( 'Personal Information', 'wp-adminos' ),
+				'personalInfoDescription'  => __( 'Name, contact, website, and bio', 'wp-adminos' ),
+				'rolePermissionsLabel'     => __( 'Role & Permissions', 'wp-adminos' ),
+				'rolePermissionsDescription' => __( 'Current access level', 'wp-adminos' ),
+				'signOutLabel'             => __( 'Sign Out...', 'wp-adminos' ),
+			),
+			'generalPanel' => array(
+				'title'                     => __( 'General', 'wp-adminos' ),
+				'description'               => __( 'Manage site information, updates, language, privacy, and WordPress tools.', 'wp-adminos' ),
+				'fallbackWindowTitle'       => __( 'WordPress', 'wp-adminos' ),
+				'aboutTitle'                => __( 'About', 'wp-adminos' ),
+				'siteFallbackTitle'         => __( 'WordPress Site', 'wp-adminos' ),
+				'nameLabel'                 => __( 'Name', 'wp-adminos' ),
+				'addressLabel'              => __( 'Address', 'wp-adminos' ),
+				'wordpressHeading'          => __( 'WordPress', 'wp-adminos' ),
+				'displaysHeading'           => __( 'Displays', 'wp-adminos' ),
+				'diagnosticsHeading'        => __( 'Diagnostics', 'wp-adminos' ),
+				'diagnosticsTitle'          => __( 'Site Health', 'wp-adminos' ),
+				'diagnosticsDescription'    => __( 'WordPress diagnostics and environment report', 'wp-adminos' ),
+				'moreInfoLabel'             => __( 'More Info...', 'wp-adminos' ),
+				'moreInfoTitle'             => __( 'Site Health Info', 'wp-adminos' ),
+			),
+			'appearance'   => array(
+				'title'                 => __( 'Appearance', 'wp-adminos' ),
+				'appearanceLabel'       => __( 'Appearance', 'wp-adminos' ),
+				'materialLabel'         => __( 'Liquid Glass', 'wp-adminos' ),
+				'materialDescription'   => __( 'Choose your preferred Liquid Glass look.', 'wp-adminos' ),
+				'themeHeading'          => __( 'Theme', 'wp-adminos' ),
+				'colorLabel'            => __( 'Color', 'wp-adminos' ),
+				'iconWidgetStyleLabel'  => __( 'Icon & widget style', 'wp-adminos' ),
+				'installedThemeHeading' => __( 'Installed Theme', 'wp-adminos' ),
+				'themeLabel'            => __( 'Theme', 'wp-adminos' ),
+				'applyThemeLabel'       => __( 'Apply Theme', 'wp-adminos' ),
+				'themeFallbackLabel'    => __( 'Theme', 'wp-adminos' ),
+				'modeOptions'           => array(
+					array( 'value' => 'auto', 'label' => __( 'Auto', 'wp-adminos' ) ),
+					array( 'value' => 'light', 'label' => __( 'Light', 'wp-adminos' ) ),
+					array( 'value' => 'dark', 'label' => __( 'Dark', 'wp-adminos' ) ),
+				),
+				'materialOptions'       => array(
+					array( 'value' => 'clear', 'label' => __( 'Clear', 'wp-adminos' ) ),
+					array( 'value' => 'tinted', 'label' => __( 'Tinted', 'wp-adminos' ) ),
+				),
+				'iconWidgetStyleOptions' => array(
+					array( 'value' => 'default', 'label' => __( 'Default', 'wp-adminos' ) ),
+					array( 'value' => 'dark', 'label' => __( 'Dark', 'wp-adminos' ) ),
+					array( 'value' => 'clear', 'label' => __( 'Clear', 'wp-adminos' ) ),
+					array( 'value' => 'tinted', 'label' => __( 'Tinted', 'wp-adminos' ) ),
+				),
+				'accentOptions'         => array(
+					array( 'value' => 'multicolor', 'label' => __( 'Multicolor', 'wp-adminos' ) ),
+					array( 'value' => 'blue', 'label' => __( 'Blue', 'wp-adminos' ) ),
+					array( 'value' => 'purple', 'label' => __( 'Purple', 'wp-adminos' ) ),
+					array( 'value' => 'pink', 'label' => __( 'Pink', 'wp-adminos' ) ),
+					array( 'value' => 'red', 'label' => __( 'Red', 'wp-adminos' ) ),
+					array( 'value' => 'orange', 'label' => __( 'Orange', 'wp-adminos' ) ),
+					array( 'value' => 'yellow', 'label' => __( 'Yellow', 'wp-adminos' ) ),
+					array( 'value' => 'green', 'label' => __( 'Green', 'wp-adminos' ) ),
+					array( 'value' => 'graphite', 'label' => __( 'Graphite', 'wp-adminos' ) ),
+				),
+			),
+			'desktopDock'  => array(
+				'headings' => array(
+					'dock'    => __( 'Dock', 'wp-adminos' ),
+					'apps'    => __( 'Apps', 'wp-adminos' ),
+					'desktop' => __( 'Desktop', 'wp-adminos' ),
+					'widgets' => __( 'Widgets', 'wp-adminos' ),
+				),
+				'rows'     => array(
+					'dockSize'                 => __( 'Size', 'wp-adminos' ),
+					'dockMagnification'        => __( 'Magnification', 'wp-adminos' ),
+					'dockPosition'             => __( 'Dock position on screen', 'wp-adminos' ),
+					'minimizeAnimation'         => __( 'Minimized window animation', 'wp-adminos' ),
+					'minimizeIntoAppIcon'       => __( 'Minimize windows into application icon', 'wp-adminos' ),
+					'autoHideDock'              => __( 'Automatically hide and show the Dock', 'wp-adminos' ),
+					'animateOpeningApps'        => __( 'Animate opening applications', 'wp-adminos' ),
+					'showOpenIndicators'        => __( 'Show indicators for open applications', 'wp-adminos' ),
+					'wallpaperClick'            => __( 'Click wallpaper to show desktop', 'wp-adminos' ),
+					'wallpaperClickDescription' => __( 'Click wallpaper to move windows out of the way, revealing your desktop items and widgets.', 'wp-adminos' ),
+					'showWidgetsDesktop'        => __( 'Show widgets on desktop', 'wp-adminos' ),
+					'dimWidgets'                => __( 'Dim widgets on desktop', 'wp-adminos' ),
+				),
+				'ranges'   => array(
+					'small' => __( 'Small', 'wp-adminos' ),
+					'large' => __( 'Large', 'wp-adminos' ),
+					'off'   => __( 'Off', 'wp-adminos' ),
+				),
+				'selectOptions' => array(
+					'dock_position'      => array(
+						array( 'value' => 'left', 'label' => __( 'Left', 'wp-adminos' ) ),
+						array( 'value' => 'bottom', 'label' => __( 'Bottom', 'wp-adminos' ) ),
+						array( 'value' => 'right', 'label' => __( 'Right', 'wp-adminos' ) ),
+					),
+					'minimize_animation' => array(
+						array( 'value' => 'genie', 'label' => __( 'Genie Effect', 'wp-adminos' ) ),
+						array( 'value' => 'scale', 'label' => __( 'Scale Effect', 'wp-adminos' ) ),
+					),
+					'wallpaper_click'    => array(
+						array( 'value' => 'always', 'label' => __( 'Always', 'wp-adminos' ) ),
+						array( 'value' => 'never', 'label' => __( 'Never', 'wp-adminos' ) ),
+					),
+					'dim_widgets'        => array(
+						array( 'value' => 'automatic', 'label' => __( 'Automatically', 'wp-adminos' ) ),
+						array( 'value' => 'always', 'label' => __( 'Always', 'wp-adminos' ) ),
+						array( 'value' => 'never', 'label' => __( 'Never', 'wp-adminos' ) ),
+					),
+				),
+				'appLocationOptions' => array(
+					array( 'value' => 'dock', 'label' => __( 'Dock', 'wp-adminos' ) ),
+					array( 'value' => 'desktop', 'label' => __( 'Desktop', 'wp-adminos' ) ),
+					array( 'value' => 'both', 'label' => __( 'Dock & Desktop', 'wp-adminos' ) ),
+					array( 'value' => 'hidden', 'label' => __( 'Hidden', 'wp-adminos' ) ),
+				),
+			),
+			'menuBar'      => array(
+				'rows'          => array(
+					'autoHide'       => __( 'Automatically hide and show the menu bar', 'wp-adminos' ),
+					'showBackground' => __( 'Show menu bar background', 'wp-adminos' ),
+					'recentCount'    => __( 'Recent documents, applications, and servers', 'wp-adminos' ),
+				),
+				'selectOptions' => array(
+					'auto_hide'    => array(
+						array( 'value' => 'always', 'label' => __( 'Always', 'wp-adminos' ) ),
+						array( 'value' => 'desktop', 'label' => __( 'On Desktop Only', 'wp-adminos' ) ),
+						array( 'value' => 'fullscreen', 'label' => __( 'In Full Screen Only', 'wp-adminos' ) ),
+						array( 'value' => 'never', 'label' => __( 'Never', 'wp-adminos' ) ),
+					),
+					'recent_count' => array(
+						array( 'value' => '0', 'label' => __( 'None', 'wp-adminos' ) ),
+						array( 'value' => '5', 'label' => '5' ),
+						array( 'value' => '10', 'label' => '10' ),
+						array( 'value' => '15', 'label' => '15' ),
+						array( 'value' => '20', 'label' => '20' ),
+						array( 'value' => '30', 'label' => '30' ),
+						array( 'value' => '50', 'label' => '50' ),
+					),
+				),
+			),
+			'wallpaper'    => array(
+				'wallpapersHeading'       => __( 'Wallpapers', 'wp-adminos' ),
+				'colorsHeading'           => __( 'Colors', 'wp-adminos' ),
+				'yourPhotosHeading'       => __( 'Your Photos', 'wp-adminos' ),
+				'addPhotoLabel'           => __( 'Add Photo...', 'wp-adminos' ),
+				'selectedPhotoLabel'      => __( 'Selected Photo', 'wp-adminos' ),
+				'removePhotoLabel'        => __( 'Remove photo', 'wp-adminos' ),
+				'showLessLabel'           => __( 'Show Less', 'wp-adminos' ),
+				/* translators: %d: number of wallpaper items. */
+				'showAllLabel'            => __( 'Show All (%d)', 'wp-adminos' ),
+				'chooseWallpaperTitle'    => __( 'Choose Wallpaper', 'wp-adminos' ),
+				'useAsWallpaperLabel'     => __( 'Use as Wallpaper', 'wp-adminos' ),
+				'customWallpaperLabel'    => __( 'Custom Wallpaper', 'wp-adminos' ),
 			),
 		);
 	}

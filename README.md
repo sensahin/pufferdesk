@@ -59,6 +59,7 @@ The foundation separates shell behavior from OS appearance:
   - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
   - `desktop/` owns desktop icon layout plus user-created folder rendering and membership behavior.
   - `apps/` owns app launching, native app renderer registration, and native app content such as System Settings.
+  - `apps/settings/` owns System Settings label normalization, shared panel UI helpers, and panel factory modules.
   - `shell/` owns global shell controls such as search, clock behavior, menu commands, top menus, and context menus.
 - `assets/css/themes/` owns theme-specific visual language.
 - `assets/media/` reserves release-safe media locations:
@@ -88,6 +89,8 @@ Apps and folders use structured icon descriptors internally. Dashicon strings st
 ```
 
 Apps are registered through `WP_AdminOS_App_Registry` or the `wp_adminos_apps` filter. Iframe apps provide a `url`; native apps provide `kind => native` and a stable `native` renderer ID. JavaScript native app windows are registered with `window.WPAdminOS.apps.registerNativeAppRenderer( nativeId, renderer )`, and the renderer returns reusable window options such as `content`, `bodyClass`, `width`, `height`, and `resizeMode`. The app launcher stays generic and does not special-case individual native apps.
+
+System Settings uses PHP-provided `settings.labels` runtime data for user-facing panel labels, option lists, and status messages. The browser-side `assets/js/core/apps/settings/labels.js` module merges that translated runtime data with local fallbacks before the panel factories render.
 
 == Build and release assets ==
 
