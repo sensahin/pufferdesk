@@ -22,14 +22,14 @@
 
 .aos-context-menu[data-aos-context-menu="dock-app"] .aos-menu-item {
 	border-radius: 8px;
-	font-size: 16px;
+	font-size: var(--aos-text-context-menu);
 	height: 34px;
 	grid-template-columns: minmax(0, 1fr) auto;
 	padding: 0 20px;
 }
 
 .aos-context-menu[data-aos-context-menu="dock-app"] .aos-menu-item-shortcut {
-	font-size: 18px;
+	font-size: var(--aos-text-context-menu-shortcut);
 	min-width: 18px;
 }
 

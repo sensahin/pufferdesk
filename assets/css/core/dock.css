@@ -79,10 +79,10 @@
 	box-shadow: var(--aos-dock-tooltip-shadow);
 	color: var(--aos-dock-tooltip-color);
 	font-family: var(--aos-font-ui);
-	font-size: 14px;
-	font-weight: 400;
+	font-size: var(--aos-text-control);
+	font-weight: var(--aos-weight-regular);
 	left: 50%;
-	letter-spacing: 0;
+	letter-spacing: var(--aos-letter-spacing-default);
 	line-height: 1;
 	min-height: 30px;
 	opacity: 0;

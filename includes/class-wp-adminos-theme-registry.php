@@ -26,6 +26,63 @@ final class WP_AdminOS_Theme_Registry {
 				'version'        => 'base',
 				'version_label'  => __( 'Base', 'wp-adminos' ),
 				'stylesheet'     => 'adminos/base.css',
+				'typography'     => array(
+					'fonts'          => array(
+						'ui'      => '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
+						'display' => '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
+						'mono'    => 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
+					),
+					'scale'          => array(
+						'micro'          => '10px',
+						'small'          => '11px',
+						'fine_print'     => '9px',
+						'footer'         => '10.5px',
+						'meta'           => '11.5px',
+						'caption'        => '12px',
+						'menu'           => '13px',
+						'body'           => '13px',
+						'control'        => '14px',
+						'dialog_title'   => '15px',
+						'context_menu'   => '16px',
+						'context_menu_shortcut' => '18px',
+						'label'          => '17px',
+						'section_title'  => '18px',
+						'settings_caption' => '10px',
+						'settings_body'  => '11px',
+						'settings_label' => '12.5px',
+						'settings_heading' => '13.5px',
+						'settings_title' => '16px',
+						'profile_title'  => '21px',
+						'heading'        => '23px',
+						'about_title'    => '25px',
+						'stat_value'     => '24px',
+						'display_title'  => '34px',
+						'avatar'         => '36px',
+						'widget_clock'   => '34px',
+					),
+					'line_heights'   => array(
+						'tight'   => '1',
+						'caption' => '1.2',
+						'body'    => '1.25',
+						'display' => '1.05',
+					),
+					'weights'        => array(
+						'regular'      => '400',
+						'fine_print'   => '430',
+						'meta'         => '450',
+						'medium'       => '500',
+						'semibold'     => '600',
+						'strong'       => '620',
+						'bold'         => '700',
+						'heading'      => '650',
+						'display'      => '700',
+						'widget_clock' => '620',
+					),
+					'letter_spacing' => array(
+						'default' => '0',
+						'tight'   => '0',
+					),
+				),
 				'shell'          => array(
 					'chrome'      => 'global-menu-dock',
 					'top_bar'     => 'menu-bar',
@@ -163,7 +220,7 @@ final class WP_AdminOS_Theme_Registry {
 		 * Theme keys are stable IDs. Values accept:
 		 * id, label, family, family_label, version, version_label, parent,
 		 * stylesheet, stylesheets, media, wallpaper, wallpapers, icon_pack,
-		 * cursor_pack, shell, window_chrome, and abstract.
+		 * cursor_pack, typography, shell, window_chrome, and abstract.
 		 *
 		 * @param array<string,array<string,mixed>> $themes Registered themes.
 		 */
@@ -213,6 +270,7 @@ final class WP_AdminOS_Theme_Registry {
 				'parent'        => $resolved['parent'],
 				'ancestors'     => $resolved['ancestors'],
 				'media'         => $resolved['media'],
+				'typography'    => $resolved['typography'],
 				'shell'         => $resolved['shell'],
 				'window_chrome' => $resolved['window_chrome'],
 			);
@@ -254,6 +312,7 @@ final class WP_AdminOS_Theme_Registry {
 				'parent'         => isset( $theme['parent'] ) ? sanitize_key( $theme['parent'] ) : '',
 				'stylesheets'    => $this->normalize_stylesheets( $theme ),
 				'media'          => $this->normalize_media( $theme ),
+				'typography'     => $this->normalize_typography_config( isset( $theme['typography'] ) ? $theme['typography'] : array() ),
 				'shell'          => $this->normalize_shell_config( isset( $theme['shell'] ) ? $theme['shell'] : array() ),
 				'window_chrome'  => $this->normalize_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() ),
 				'abstract'       => ! empty( $theme['abstract'] ),
@@ -280,6 +339,7 @@ final class WP_AdminOS_Theme_Registry {
 		if ( isset( $seen[ $theme_id ] ) ) {
 			$theme['stylesheet_stack'] = $theme['stylesheets'];
 			$theme['ancestors']        = array();
+			$theme['typography']       = $this->complete_typography_config( $theme['typography'] );
 			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
 			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
 			return $theme;
@@ -290,6 +350,7 @@ final class WP_AdminOS_Theme_Registry {
 		if ( '' === $parent_id || empty( $themes[ $parent_id ] ) ) {
 			$theme['stylesheet_stack'] = $theme['stylesheets'];
 			$theme['ancestors']        = array();
+			$theme['typography']       = $this->complete_typography_config( $theme['typography'] );
 			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
 			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
 			return $theme;
@@ -300,6 +361,7 @@ final class WP_AdminOS_Theme_Registry {
 		$theme['family']           = $theme['family'] ? $theme['family'] : $parent['family'];
 		$theme['family_label']     = $theme['family_label'] ? $theme['family_label'] : $parent['family_label'];
 		$theme['media']            = $this->merge_media( $parent['media'], $theme['media'] );
+		$theme['typography']       = $this->complete_typography_config( $this->merge_theme_config( $parent['typography'], $theme['typography'] ) );
 		$theme['shell']            = $this->complete_shell_config( $this->merge_theme_config( $parent['shell'], $theme['shell'] ) );
 		$theme['window_chrome']    = $this->complete_window_chrome_config( $this->merge_theme_config( $parent['window_chrome'], $theme['window_chrome'] ) );
 		$theme['stylesheet_stack']  = array_values( array_unique( array_merge( $parent['stylesheet_stack'], $theme['stylesheets'] ) ) );
@@ -414,6 +476,304 @@ final class WP_AdminOS_Theme_Registry {
 		}
 
 		return $merged;
+	}
+
+	/**
+	 * Default typography contract for themes.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_default_typography_config() {
+		return array(
+			'fonts'          => array(
+				'ui'      => '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
+				'display' => '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
+				'mono'    => 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
+			),
+			'scale'          => array(
+				'micro'          => '10px',
+				'small'          => '11px',
+				'fine_print'     => '9px',
+				'footer'         => '10.5px',
+				'meta'           => '11.5px',
+				'caption'        => '12px',
+				'menu'           => '13px',
+				'body'           => '13px',
+				'control'        => '14px',
+				'dialog_title'   => '15px',
+				'context_menu'   => '16px',
+				'context_menu_shortcut' => '18px',
+				'label'          => '17px',
+				'section_title'  => '18px',
+				'settings_caption' => '10px',
+				'settings_body'  => '11px',
+				'settings_label' => '12.5px',
+				'settings_heading' => '13.5px',
+				'settings_title' => '16px',
+				'profile_title'  => '21px',
+				'heading'        => '23px',
+				'about_title'    => '25px',
+				'stat_value'     => '24px',
+				'display_title'  => '34px',
+				'avatar'         => '36px',
+				'widget_clock'   => '34px',
+			),
+			'line_heights'   => array(
+				'tight'   => '1',
+				'caption' => '1.2',
+				'body'    => '1.25',
+				'display' => '1.05',
+			),
+			'weights'        => array(
+				'regular'      => '400',
+				'fine_print'   => '430',
+				'meta'         => '450',
+				'medium'       => '500',
+				'semibold'     => '600',
+				'strong'       => '620',
+				'bold'         => '700',
+				'heading'      => '650',
+				'display'      => '700',
+				'widget_clock' => '620',
+			),
+			'letter_spacing' => array(
+				'default' => '0',
+				'tight'   => '0',
+			),
+		);
+	}
+
+	/**
+	 * Normalize a theme typography contract.
+	 *
+	 * @param mixed $typography Raw typography config.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_typography_config( $typography ) {
+		if ( ! is_array( $typography ) ) {
+			return array();
+		}
+
+		return array_filter(
+			array(
+				'fonts'          => $this->normalize_font_stack_map(
+					isset( $typography['fonts'] ) ? $typography['fonts'] : array(),
+					array( 'ui', 'display', 'mono' )
+				),
+				'scale'          => $this->normalize_css_length_map(
+					isset( $typography['scale'] ) ? $typography['scale'] : array(),
+					array( 'micro', 'small', 'fine_print', 'footer', 'meta', 'caption', 'menu', 'body', 'control', 'dialog_title', 'context_menu', 'context_menu_shortcut', 'label', 'section_title', 'settings_caption', 'settings_body', 'settings_label', 'settings_heading', 'settings_title', 'profile_title', 'heading', 'about_title', 'stat_value', 'display_title', 'avatar', 'widget_clock' )
+				),
+				'line_heights'   => $this->normalize_line_height_map(
+					isset( $typography['line_heights'] ) ? $typography['line_heights'] : array(),
+					array( 'tight', 'caption', 'body', 'display' )
+				),
+				'weights'        => $this->normalize_font_weight_map(
+					isset( $typography['weights'] ) ? $typography['weights'] : array(),
+					array( 'regular', 'fine_print', 'meta', 'medium', 'semibold', 'strong', 'bold', 'heading', 'display', 'widget_clock' )
+				),
+				'letter_spacing' => $this->normalize_letter_spacing_map(
+					isset( $typography['letter_spacing'] ) ? $typography['letter_spacing'] : array(),
+					array( 'default', 'tight' )
+				),
+			)
+		);
+	}
+
+	/**
+	 * Apply defaults to a typography config.
+	 *
+	 * @param mixed $typography Typography config.
+	 * @return array<string,mixed>
+	 */
+	private function complete_typography_config( $typography ) {
+		return $this->merge_theme_config(
+			$this->get_default_typography_config(),
+			is_array( $typography ) ? $typography : array()
+		);
+	}
+
+	/**
+	 * Normalize font family stacks.
+	 *
+	 * @param mixed    $fonts Raw font stack map.
+	 * @param string[] $allowed_keys Allowed keys.
+	 * @return array<string,string>
+	 */
+	private function normalize_font_stack_map( $fonts, $allowed_keys ) {
+		$normalized = array();
+		if ( ! is_array( $fonts ) ) {
+			return $normalized;
+		}
+
+		foreach ( $fonts as $key => $value ) {
+			$key = sanitize_key( (string) $key );
+			if ( '' === $key || ! in_array( $key, $allowed_keys, true ) || ! is_scalar( $value ) ) {
+				continue;
+			}
+
+			$value = trim( (string) $value );
+			if ( $this->is_safe_font_stack( $value ) ) {
+				$normalized[ $key ] = $value;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize CSS length values.
+	 *
+	 * @param mixed    $values Raw value map.
+	 * @param string[] $allowed_keys Allowed keys.
+	 * @param bool     $allow_zero_unitless Whether unitless zero is allowed.
+	 * @return array<string,string>
+	 */
+	private function normalize_css_length_map( $values, $allowed_keys, $allow_zero_unitless = false ) {
+		$normalized = array();
+		if ( ! is_array( $values ) ) {
+			return $normalized;
+		}
+
+		foreach ( $values as $key => $value ) {
+			$key = sanitize_key( (string) $key );
+			if ( '' === $key || ! in_array( $key, $allowed_keys, true ) || ! is_scalar( $value ) ) {
+				continue;
+			}
+
+			$value = $this->sanitize_css_length_value( $value, $allow_zero_unitless );
+			if ( '' !== $value ) {
+				$normalized[ $key ] = $value;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize line-height values.
+	 *
+	 * @param mixed    $values Raw value map.
+	 * @param string[] $allowed_keys Allowed keys.
+	 * @return array<string,string>
+	 */
+	private function normalize_line_height_map( $values, $allowed_keys ) {
+		$normalized = array();
+		if ( ! is_array( $values ) ) {
+			return $normalized;
+		}
+
+		foreach ( $values as $key => $value ) {
+			$key = sanitize_key( (string) $key );
+			if ( '' === $key || ! in_array( $key, $allowed_keys, true ) || ! is_scalar( $value ) ) {
+				continue;
+			}
+
+			$value = trim( (string) $value );
+			if ( preg_match( '/^(?:[0-9]+(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?(?:px|rem|em|%)|normal)$/', $value ) ) {
+				$normalized[ $key ] = $value;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize letter spacing values.
+	 *
+	 * @param mixed    $values Raw value map.
+	 * @param string[] $allowed_keys Allowed keys.
+	 * @return array<string,string>
+	 */
+	private function normalize_letter_spacing_map( $values, $allowed_keys ) {
+		$normalized = array();
+		if ( ! is_array( $values ) ) {
+			return $normalized;
+		}
+
+		foreach ( $values as $key => $value ) {
+			$key = sanitize_key( (string) $key );
+			if ( '' === $key || ! in_array( $key, $allowed_keys, true ) || ! is_scalar( $value ) ) {
+				continue;
+			}
+
+			$value = trim( (string) $value );
+			if ( in_array( $value, array( '0', '0px', '0em', '0rem' ), true ) ) {
+				$normalized[ $key ] = '0';
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize font weight values.
+	 *
+	 * @param mixed    $values Raw value map.
+	 * @param string[] $allowed_keys Allowed keys.
+	 * @return array<string,string>
+	 */
+	private function normalize_font_weight_map( $values, $allowed_keys ) {
+		$normalized = array();
+		if ( ! is_array( $values ) ) {
+			return $normalized;
+		}
+
+		foreach ( $values as $key => $value ) {
+			$key = sanitize_key( (string) $key );
+			if ( '' === $key || ! in_array( $key, $allowed_keys, true ) || ! is_scalar( $value ) ) {
+				continue;
+			}
+
+			$value = trim( (string) $value );
+			if ( preg_match( '/^(?:[1-9][0-9]{0,2}|1000|normal|bold|bolder|lighter)$/', $value ) ) {
+				$normalized[ $key ] = $value;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Validate a CSS font-family stack without accepting external CSS.
+	 *
+	 * @param string $value Raw font stack.
+	 * @return bool
+	 */
+	private function is_safe_font_stack( $value ) {
+		if ( '' === $value || strlen( $value ) > 260 ) {
+			return false;
+		}
+
+		if ( preg_match( '/[;{}<>\\\\]|url\s*\(|@import|expression\s*\(/i', $value ) ) {
+			return false;
+		}
+
+		return (bool) preg_match( '/^[a-z0-9\s,._"\'-]+$/i', $value );
+	}
+
+	/**
+	 * Sanitize a CSS length value.
+	 *
+	 * @param mixed $value Raw value.
+	 * @param bool  $allow_zero_unitless Whether unitless zero is allowed.
+	 * @return string
+	 */
+	private function sanitize_css_length_value( $value, $allow_zero_unitless = false ) {
+		$value = trim( (string) $value );
+		if ( '' === $value ) {
+			return '';
+		}
+
+		if ( $allow_zero_unitless && '0' === $value ) {
+			return '0';
+		}
+
+		if ( ! preg_match( '/^[0-9]+(?:\.[0-9]+)?(?:px|rem|em|%)$/', $value ) ) {
+			return '';
+		}
+
+		return $value;
 	}
 
 	/**

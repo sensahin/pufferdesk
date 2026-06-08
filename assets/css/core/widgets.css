@@ -47,7 +47,7 @@
 
 .aos-widget-handle strong {
 	font-size: var(--aos-text-caption);
-	letter-spacing: 0;
+	letter-spacing: var(--aos-letter-spacing-default);
 	line-height: var(--aos-line-height-caption);
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -82,7 +82,7 @@
 	font-family: var(--aos-font-display);
 	font-size: var(--aos-text-widget-clock);
 	font-weight: var(--aos-weight-widget-clock);
-	letter-spacing: 0;
+	letter-spacing: var(--aos-letter-spacing-default);
 	line-height: var(--aos-line-height-tight);
 	white-space: nowrap;
 }

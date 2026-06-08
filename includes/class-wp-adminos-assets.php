@@ -439,6 +439,7 @@ final class WP_AdminOS_Assets {
 			'folders'      => $folders,
 			'menu'         => $this->get_menu_config( $theme ),
 			'theme'        => $theme,
+			'typography'   => isset( $theme['typography'] ) ? $theme['typography'] : array(),
 			'widgets'      => $widgets,
 			'windowChrome' => isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array(),
 		);

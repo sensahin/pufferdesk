@@ -36,6 +36,81 @@ if ( ! empty( $wallpaper['css_variables'] ) && is_array( $wallpaper['css_variabl
 	}
 }
 
+$wp_adminos_typography = isset( $theme['typography'] ) && is_array( $theme['typography'] ) ? $theme['typography'] : array();
+$wp_adminos_typography_variable_map = array(
+	'fonts'          => array(
+		'ui'      => '--aos-font-ui',
+		'display' => '--aos-font-display',
+		'mono'    => '--aos-font-mono',
+	),
+	'scale'          => array(
+		'micro'            => '--aos-text-micro',
+		'small'            => '--aos-text-small',
+		'fine_print'       => '--aos-text-fine-print',
+		'footer'           => '--aos-text-footer',
+		'meta'             => '--aos-text-meta',
+		'caption'          => '--aos-text-caption',
+		'menu'             => '--aos-text-menu',
+		'body'             => '--aos-text-body',
+		'control'          => '--aos-text-control',
+		'dialog_title'     => '--aos-text-dialog-title',
+		'context_menu'     => '--aos-text-context-menu',
+		'context_menu_shortcut' => '--aos-text-context-menu-shortcut',
+		'label'            => '--aos-text-label',
+		'section_title'    => '--aos-text-section-title',
+		'settings_caption' => '--aos-theme-settings-text-caption',
+		'settings_body'    => '--aos-theme-settings-text-body',
+		'settings_label'   => '--aos-theme-settings-text-label',
+		'settings_heading' => '--aos-theme-settings-text-heading',
+		'settings_title'   => '--aos-theme-settings-text-title',
+		'profile_title'    => '--aos-text-profile-title',
+		'heading'          => '--aos-text-heading',
+		'about_title'      => '--aos-text-about-title',
+		'stat_value'       => '--aos-text-stat-value',
+		'display_title'    => '--aos-text-display-title',
+		'avatar'           => '--aos-text-avatar',
+		'widget_clock'     => '--aos-text-widget-clock',
+	),
+	'line_heights'   => array(
+		'tight'   => '--aos-line-height-tight',
+		'caption' => '--aos-line-height-caption',
+		'body'    => '--aos-line-height-body',
+		'display' => '--aos-line-height-display',
+	),
+	'weights'        => array(
+		'regular'      => '--aos-weight-regular',
+		'fine_print'   => '--aos-weight-fine-print',
+		'meta'         => '--aos-weight-meta',
+		'medium'       => '--aos-weight-medium',
+		'semibold'     => '--aos-weight-semibold',
+		'strong'       => '--aos-weight-strong',
+		'bold'         => '--aos-weight-bold',
+		'heading'      => '--aos-weight-heading',
+		'display'      => '--aos-weight-display',
+		'widget_clock' => '--aos-weight-widget-clock',
+	),
+	'letter_spacing' => array(
+		'default' => '--aos-letter-spacing-default',
+		'tight'   => '--aos-letter-spacing-tight',
+	),
+);
+foreach ( $wp_adminos_typography_variable_map as $wp_adminos_typography_section => $wp_adminos_typography_variables ) {
+	if ( empty( $wp_adminos_typography[ $wp_adminos_typography_section ] ) || ! is_array( $wp_adminos_typography[ $wp_adminos_typography_section ] ) ) {
+		continue;
+	}
+
+	foreach ( $wp_adminos_typography_variables as $wp_adminos_typography_key => $wp_adminos_typography_variable ) {
+		if ( ! array_key_exists( $wp_adminos_typography_key, $wp_adminos_typography[ $wp_adminos_typography_section ] ) ) {
+			continue;
+		}
+
+		$wp_adminos_typography_value = str_replace( ';', '', (string) $wp_adminos_typography[ $wp_adminos_typography_section ][ $wp_adminos_typography_key ] );
+		if ( '' !== $wp_adminos_typography_value ) {
+			$wp_adminos_shell_style_parts[] = $wp_adminos_typography_variable . ':' . $wp_adminos_typography_value;
+		}
+	}
+}
+
 $wp_adminos_appearance = wp_parse_args(
 	is_array( $appearance ) ? $appearance : array(),
 	array(

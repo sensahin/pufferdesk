@@ -160,6 +160,34 @@ Window chrome is also theme metadata. Core still owns window behavior, but theme
 ),
 ```
 
+Typography is theme metadata and resolves to shell CSS variables before first paint. Use system font stacks or bundled original/licensed font assets only; do not ship third-party platform font files:
+
+```php
+'typography' => array(
+	'fonts' => array(
+		'ui'      => '-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif',
+		'display' => '-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif',
+		'mono'    => 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+	),
+	'scale' => array(
+		'caption'        => '12px',
+		'menu'           => '13px',
+		'body'           => '13px',
+		'label'          => '17px',
+		'heading'        => '23px',
+		'display_title'  => '34px',
+		'settings_body'  => '11px',
+		'settings_label' => '12.5px',
+	),
+	'weights' => array(
+		'regular'  => '400',
+		'medium'   => '500',
+		'semibold' => '600',
+		'strong'   => '620',
+	),
+),
+```
+
 Themes support family/version inheritance. A concrete theme can declare a parent theme and receives its stylesheet stack before its own styles are loaded:
 
 ```php
