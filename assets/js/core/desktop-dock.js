@@ -336,6 +336,7 @@
 		const dock = shell ? shell.querySelector('.aos-dock') : null;
 		const sessionStore = createSessionStore(config, options);
 		const moveTolerance = 8;
+		const layoutAnimationDuration = 170;
 		let drag = null;
 
 		if (!dock || dock.dataset.aosDockReorderBound === '1') {
@@ -354,7 +355,7 @@
 		function getInsertBeforeItem(event) {
 			const vertical = isVerticalDock();
 			const coordinate = vertical ? event.clientY : event.clientX;
-			const items = getDockAppItems(dock).filter((item) => item !== drag.item);
+			const items = getDockAppItems(dock);
 
 			return items.find((item) => {
 				const rect = item.getBoundingClientRect();
@@ -364,12 +365,141 @@
 			}) || getMinimizedWindowContainer(dock) || null;
 		}
 
+		function getLayoutAnimationItems() {
+			return Array.from(dock.children).filter((child) => (
+				child.classList
+				&& (
+					child.classList.contains('aos-dock-item')
+					|| child.classList.contains('aos-dock-reorder-placeholder')
+				)
+			));
+		}
+
+		function animateDockLayout(update) {
+			const firstRects = new Map();
+
+			getLayoutAnimationItems().forEach((item) => {
+				firstRects.set(item, item.getBoundingClientRect());
+			});
+			update();
+
+			getLayoutAnimationItems().forEach((item) => {
+				const firstRect = firstRects.get(item);
+				if (!firstRect) {
+					return;
+				}
+
+				const lastRect = item.getBoundingClientRect();
+				const deltaX = firstRect.left - lastRect.left;
+				const deltaY = firstRect.top - lastRect.top;
+
+				if (!deltaX && !deltaY) {
+					return;
+				}
+
+				window.clearTimeout(item.aosDockLayoutAnimationTimer);
+				item.style.transition = 'none';
+				item.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+				window.requestAnimationFrame(() => {
+					item.style.transition = `transform ${layoutAnimationDuration}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+					item.style.transform = '';
+					item.aosDockLayoutAnimationTimer = window.setTimeout(() => {
+						item.style.transition = '';
+						item.style.transform = '';
+						delete item.aosDockLayoutAnimationTimer;
+					}, layoutAnimationDuration + 40);
+				});
+			});
+		}
+
+		function createPlaceholder(item) {
+			const rect = item.getBoundingClientRect();
+			const placeholder = document.createElement('span');
+
+			placeholder.className = 'aos-dock-reorder-placeholder';
+			placeholder.setAttribute('aria-hidden', 'true');
+			placeholder.style.width = `${rect.width}px`;
+			placeholder.style.height = `${rect.height}px`;
+			placeholder.style.flexBasis = `${isVerticalDock() ? rect.height : rect.width}px`;
+
+			return placeholder;
+		}
+
+		function positionFloatingItem(event, animate = false) {
+			if (!drag || !drag.item) {
+				return;
+			}
+
+			drag.item.style.transition = animate
+				? 'left 120ms cubic-bezier(0.22, 1, 0.36, 1), top 120ms cubic-bezier(0.22, 1, 0.36, 1), transform 120ms ease'
+				: 'none';
+			drag.item.style.left = `${Math.round(event.clientX - drag.offsetX)}px`;
+			drag.item.style.top = `${Math.round(event.clientY - drag.offsetY)}px`;
+		}
+
+		function movePlaceholder(before) {
+			if (!drag || !drag.placeholder) {
+				return;
+			}
+
+			const currentNext = drag.placeholder.nextElementSibling;
+			if (before === drag.placeholder || before === currentNext) {
+				return;
+			}
+
+			animateDockLayout(() => {
+				dock.insertBefore(drag.placeholder, before || getMinimizedWindowContainer(dock) || null);
+			});
+		}
+
+		function clearFloatingItemStyles(item) {
+			if (!item) {
+				return;
+			}
+
+			item.classList.remove('is-dock-reorder-pending', 'is-dock-reordering', 'aos-dock-drag-proxy', 'is-tooltip-dismissed');
+			item.style.height = '';
+			item.style.left = '';
+			item.style.position = '';
+			item.style.top = '';
+			item.style.transform = '';
+			item.style.transition = '';
+			item.style.width = '';
+			item.style.zIndex = '';
+			item.removeAttribute('data-aos-dock-reorder-proxy');
+
+			if (item.aosDockOriginalAriaHidden === null) {
+				item.removeAttribute('aria-hidden');
+			} else if (typeof item.aosDockOriginalAriaHidden === 'string') {
+				item.setAttribute('aria-hidden', item.aosDockOriginalAriaHidden);
+			}
+			delete item.aosDockOriginalAriaHidden;
+		}
+
 		function startDrag(event) {
+			const itemRect = drag.item.getBoundingClientRect();
+			const placeholder = createPlaceholder(drag.item);
+
 			drag.dragging = true;
+			drag.offsetX = event.clientX - itemRect.left;
+			drag.offsetY = event.clientY - itemRect.top;
+			drag.placeholder = placeholder;
+			drag.item.aosDockOriginalAriaHidden = drag.item.getAttribute('aria-hidden');
+			drag.item.setAttribute('aria-hidden', 'true');
 			drag.item.classList.remove('is-dock-reorder-pending');
-			drag.item.classList.add('is-dock-reordering', 'is-tooltip-dismissed');
+			drag.item.classList.add('is-dock-reordering', 'aos-dock-drag-proxy', 'is-tooltip-dismissed');
+			drag.item.dataset.aosDockReorderProxy = '1';
+			drag.item.style.width = `${itemRect.width}px`;
+			drag.item.style.height = `${itemRect.height}px`;
+			drag.item.style.left = `${Math.round(itemRect.left)}px`;
+			drag.item.style.top = `${Math.round(itemRect.top)}px`;
+			drag.item.style.zIndex = 'var(--aos-layer-context-menu)';
+			dock.insertBefore(placeholder, drag.item);
+			shell.appendChild(drag.item);
 			dock.classList.add('is-reordering');
 			shell.dataset.aosDockReordering = '1';
+			positionFloatingItem(event);
 
 			if (typeof drag.item.setPointerCapture === 'function') {
 				try {
@@ -398,18 +528,70 @@
 
 			const didDrag = drag.dragging;
 			const item = drag.item;
-			const changed = didDrag && !arraysEqual(drag.originalOrder, getDockOrderFromDom(dock));
+			const placeholder = drag.placeholder || null;
+			const commit = didDrag && shouldSave && placeholder;
+
+			if (event && typeof item.releasePointerCapture === 'function') {
+				try {
+					item.releasePointerCapture(event.pointerId);
+				} catch (error) {
+					// Pointer capture may already be released by the browser.
+				}
+			}
 
 			if (didDrag && !shouldSave && drag.originalOrder.length) {
 				config.workspaceState = Object.assign({}, getWorkspaceState(config), {
 					dockApps: drag.originalOrder
 				});
+				if (placeholder) {
+					dock.insertBefore(item, placeholder);
+				} else {
+					dock.insertBefore(item, getMinimizedWindowContainer(dock) || null);
+				}
+				clearFloatingItemStyles(item);
+				if (placeholder) {
+					placeholder.remove();
+				}
 				applyOrderToDock(shell, config);
+				dock.classList.remove('is-reordering');
+				delete shell.dataset.aosDockReordering;
+				drag = null;
+				return;
 			}
 
-			item.classList.remove('is-dock-reorder-pending', 'is-dock-reordering', 'is-tooltip-dismissed');
-			dock.classList.remove('is-reordering');
-			delete shell.dataset.aosDockReordering;
+			function finish() {
+				const changed = commit && !arraysEqual(drag.originalOrder, getDockOrderFromDom(dock));
+
+				if (shouldSave && changed) {
+					saveDockOrder(config, sessionStore, getDockOrderFromDom(dock));
+				}
+
+				clearFloatingItemStyles(item);
+				if (placeholder) {
+					placeholder.remove();
+				}
+				dock.classList.remove('is-reordering');
+				delete shell.dataset.aosDockReordering;
+				drag = null;
+			}
+
+			if (commit && event) {
+				const placeholderRect = placeholder.getBoundingClientRect();
+
+				item.style.transition = 'left 120ms cubic-bezier(0.22, 1, 0.36, 1), top 120ms cubic-bezier(0.22, 1, 0.36, 1), transform 120ms ease';
+				item.style.left = `${Math.round(placeholderRect.left)}px`;
+				item.style.top = `${Math.round(placeholderRect.top)}px`;
+				item.style.transform = 'scale(1)';
+				window.setTimeout(() => {
+					dock.insertBefore(item, placeholder);
+					finish();
+				}, 120);
+			} else if (placeholder) {
+				dock.insertBefore(item, placeholder);
+				finish();
+			} else {
+				finish();
+			}
 
 			if (didDrag) {
 				item.dataset.aosDockReorderSuppressClick = '1';
@@ -420,16 +602,10 @@
 				}, 450);
 			}
 
-			if (shouldSave && changed) {
-				saveDockOrder(config, sessionStore, getDockOrderFromDom(dock));
-			}
-
 			if (event && didDrag) {
 				event.preventDefault();
 				event.stopPropagation();
 			}
-
-			drag = null;
 		}
 
 		dock.addEventListener('pointerdown', (event) => {
@@ -458,7 +634,11 @@
 		});
 
 		window.addEventListener('pointermove', (event) => {
-			if (!drag || event.pointerId !== drag.pointerId || !dock.contains(drag.item)) {
+			if (
+				!drag
+				|| event.pointerId !== drag.pointerId
+				|| (drag.dragging ? !shell.contains(drag.item) : !dock.contains(drag.item))
+			) {
 				return;
 			}
 
@@ -478,7 +658,8 @@
 				startDrag(event);
 			}
 
-			dock.insertBefore(drag.item, getInsertBeforeItem(event));
+			positionFloatingItem(event);
+			movePlaceholder(getInsertBeforeItem(event));
 			event.preventDefault();
 		});
 
@@ -499,8 +680,17 @@
 		});
 
 		shell.addEventListener('click', (event) => {
-			const item = getDockAppItem(event.target, dock);
-			if (!item || item.dataset.aosDockReorderSuppressClick !== '1') {
+			const item = event.target && typeof event.target.closest === 'function'
+				? event.target.closest('.aos-dock-item[data-aos-open-app]')
+				: null;
+
+			if (
+				!item
+				|| (
+					item.dataset.aosDockReorderSuppressClick !== '1'
+					&& item.dataset.aosDockReorderProxy !== '1'
+				)
+			) {
 				return;
 			}
 

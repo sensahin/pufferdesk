@@ -320,8 +320,15 @@
 	visibility: hidden;
 }
 
-.aos-dock.is-reordering .aos-dock-item {
-	transition: opacity 120ms ease, transform 120ms ease;
+.aos-dock.is-reordering .aos-dock-item:not(.aos-dock-drag-proxy) {
+	transition: opacity 140ms ease, transform 170ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.aos-dock.is-reordering .aos-dock-item:not(.aos-dock-drag-proxy):hover,
+.aos-dock.is-reordering .aos-dock-item:not(.aos-dock-drag-proxy):focus,
+.aos-dock.is-reordering .aos-dock-item:not(.aos-dock-drag-proxy):focus-within,
+.aos-dock.is-reordering .aos-dock-item:not(.aos-dock-drag-proxy).is-running {
+	transform: none;
 }
 
 .aos-dock-item.is-dock-reorder-pending,
@@ -329,21 +336,33 @@
 	cursor: grabbing;
 }
 
-.aos-dock-item.is-dock-reordering {
-	background: var(--aos-control-bg-hover);
-	box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.16), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-	opacity: 0.72;
-	outline: none;
-	transform: translateY(1px) scale(0.94);
-	z-index: 3;
+.aos-dock-reorder-placeholder {
+	border-radius: 7px;
+	display: block;
+	flex: 0 0 var(--aos-dock-item-size, 48px);
+	height: var(--aos-dock-item-size, 48px);
+	opacity: 0;
+	pointer-events: none;
+	width: var(--aos-dock-item-size, 48px);
 }
 
-.aos-shell[data-aos-dock-position="left"] .aos-dock-item.is-dock-reordering {
-	transform: translateX(1px) scale(0.94);
+.aos-dock-item.aos-dock-drag-proxy {
+	box-shadow: 0 14px 28px rgba(0, 0, 0, 0.26), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+	margin: 0;
+	pointer-events: none;
+	position: fixed;
+	transform: scale(1.08);
+	transform-origin: center;
+	will-change: left, top, transform;
 }
 
-.aos-shell[data-aos-dock-position="right"] .aos-dock-item.is-dock-reordering {
-	transform: translateX(-1px) scale(0.94);
+.aos-dock-item.aos-dock-drag-proxy:hover,
+.aos-dock-item.aos-dock-drag-proxy:focus,
+.aos-dock-item.aos-dock-drag-proxy:focus-within,
+.aos-dock-item.aos-dock-drag-proxy.is-running,
+.aos-shell[data-aos-dock-position="left"] .aos-dock-item.aos-dock-drag-proxy,
+.aos-shell[data-aos-dock-position="right"] .aos-dock-item.aos-dock-drag-proxy {
+	transform: scale(1.08);
 }
 
 .aos-dock-item.is-dock-reordering > .aos-dock-tooltip,
