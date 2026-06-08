@@ -45,6 +45,13 @@
 			themeLabel: 'Theme',
 			title: 'Appearance'
 		},
+		apps: {
+			description: 'Choose where apps appear and which apps open when WP adminOS starts.',
+			emptyLabel: 'No apps are available for this account.',
+			fixedPlacementLabel: 'Fixed',
+			openAtLoginLabel: 'Open at login',
+			title: 'Apps'
+		},
 		desktopDock: {
 			appLocationOptions: [
 				{ value: 'dock', label: 'Dock' },
@@ -162,10 +169,10 @@
 				{ id: 'desktop-dock', label: 'Desktop & Dock', icon: 'dashicons-desktop', tone: 'indigo' },
 				{ id: 'menu-bar', label: 'Menu Bar', icon: 'dashicons-menu-alt3', tone: 'gray' },
 				{ id: 'wallpaper', label: 'Wallpaper', icon: 'dashicons-format-image', tone: 'cyan' },
-				{ id: 'widgets', label: 'Widgets', icon: 'dashicons-screenoptions', tone: 'green', disabled: true },
-				{ id: 'apps', label: 'Apps', icon: 'dashicons-grid-view', tone: 'purple', disabled: true },
-				{ id: 'workspace', label: 'Workspace', icon: 'dashicons-layout', tone: 'orange', disabled: true },
-				{ id: 'system', label: 'System', icon: 'dashicons-admin-tools', tone: 'red', disabled: true }
+				{ id: 'widgets', label: 'Widgets', icon: 'dashicons-screenoptions', tone: 'green' },
+				{ id: 'apps', label: 'Apps', icon: 'dashicons-grid-view', tone: 'purple' },
+				{ id: 'workspace', label: 'Workspace', icon: 'dashicons-layout', tone: 'orange' },
+				{ id: 'system', label: 'System', icon: 'dashicons-admin-tools', tone: 'red' }
 			],
 			navLabel: 'Settings sections',
 			searchLabel: 'Search settings',
@@ -178,6 +185,8 @@
 			appearanceSaved: 'Appearance saved.',
 			desktopDockSaveError: 'Desktop & Dock could not be saved.',
 			invalidImage: 'Choose a valid image.',
+			loginItemsSaveError: 'Login items could not be saved.',
+			loginItemsSaved: 'Login items saved.',
 			mediaUnavailable: 'Media Library is not available for this user.',
 			menuBarSaveError: 'Menu Bar could not be saved.',
 			photoRemoveError: 'Photo could not be removed.',
@@ -201,6 +210,39 @@
 			useAsWallpaperLabel: 'Use as Wallpaper',
 			wallpapersHeading: 'Wallpapers',
 			yourPhotosHeading: 'Your Photos'
+		},
+		widgets: {
+			description: 'Choose which desktop widgets are visible.',
+			emptyLabel: 'No widgets are registered for this account.',
+			showOnDesktopLabel: 'Show on desktop',
+			title: 'Widgets'
+		},
+		workspace: {
+			cancelLabel: 'Cancel',
+			resetAllButton: 'Reset Layouts for All Themes',
+			resetAllConfirmLabel: 'Reset All',
+			resetAllDescription: 'Clear saved workspace layouts across every theme for this WordPress account.',
+			resetAllLabel: 'All theme layouts',
+			resetAllMessage: 'This resets saved workspace layouts for every WP adminOS theme for this WordPress account.',
+			resetAllTitle: 'Reset Layouts for All Themes?',
+			resetCurrentButton: 'Reset Current Theme Layout',
+			resetCurrentConfirmLabel: 'Reset',
+			resetCurrentDescription: 'Reset windows, widgets, desktop icons, and launcher order for the active theme.',
+			resetCurrentLabel: 'Current theme layout',
+			resetCurrentMessage: 'This resets the saved windows, widgets, desktop icons, and launcher order for the current theme.',
+			resetCurrentTitle: 'Reset Current Theme Layout?',
+			resetError: 'Workspace layout could not be reset.',
+			resettingLabel: 'Resetting...',
+			title: 'Workspace'
+		},
+		system: {
+			classicDescription: 'Leave the shell and open the standard WordPress admin.',
+			classicLabel: 'Switch to Classic Admin...',
+			eraseDescription: 'Reset WP adminOS preferences, wallpaper, apps, windows, widgets, and layout for this account.',
+			eraseLabel: 'Erase All Content and Settings...',
+			restartDescription: 'Reload WP adminOS and start a fresh shell session.',
+			restartLabel: 'Restart WP adminOS...',
+			title: 'System'
 		}
 	};
 

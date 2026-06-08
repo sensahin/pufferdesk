@@ -2348,12 +2348,42 @@ button.aos-settings-profile-hero-avatar:focus .aos-settings-profile-hero-edit {
 	padding: 7px 16px;
 }
 
+.aos-settings-app-row {
+	grid-template-columns: 24px minmax(0, 1fr) auto;
+	gap: 12px;
+	min-height: 46px;
+	padding: 7px 16px;
+}
+
 .aos-settings-app-location-row .aos-settings-inline-select {
 	min-width: 96px;
 }
 
-.aos-settings-app-location-row .aos-settings-value-select {
+.aos-settings-app-location-row .aos-settings-value-select,
+.aos-settings-app-row .aos-settings-value-select {
 	min-width: 96px;
+}
+
+.aos-settings-app-controls {
+	align-items: center;
+	display: flex;
+	gap: 12px;
+	justify-content: end;
+	min-width: 0;
+}
+
+.aos-settings-app-login-control {
+	align-items: center;
+	display: flex;
+	gap: 7px;
+	white-space: nowrap;
+}
+
+.aos-settings-app-login-label {
+	color: var(--aos-muted);
+	font-size: var(--aos-settings-text-body);
+	font-weight: var(--aos-weight-meta);
+	line-height: var(--aos-line-height-body);
 }
 
 .aos-settings-desktop-dock-row .aos-settings-label {
@@ -2583,6 +2613,14 @@ button.aos-settings-action-row:active {
 }
 
 .aos-settings-danger {
+	color: #b32d2e;
+}
+
+.aos-settings-danger-button {
+	color: #b32d2e;
+}
+
+.aos-settings-action-danger .aos-settings-row-text strong {
 	color: #b32d2e;
 }
 

@@ -97,18 +97,18 @@
 
 		function getSortByItems() {
 			return [
-				sortByItem('None', 'none'),
+				sortByItem(getLabel('sort_none', 'None'), 'none'),
 				separator(),
-				sortByItem('Snap to Grid', 'snap-to-grid'),
+				sortByItem(getLabel('sort_snap_to_grid', 'Snap to Grid'), 'snap-to-grid'),
 				separator(),
-				sortByItem('Name', 'name'),
-				sortByItem('Kind', 'kind'),
-				sortByItem('Last Modified By', 'last-modified-by'),
-				sortByItem('Date Last Opened', 'date-last-opened'),
-				sortByItem('Date Added', 'date-added'),
-				sortByItem('Date Modified', 'date-modified'),
-				sortByItem('Date Created', 'date-created'),
-				sortByItem('Size', 'size')
+				sortByItem(getLabel('sort_name', 'Name'), 'name'),
+				sortByItem(getLabel('sort_kind', 'Kind'), 'kind'),
+				sortByItem(getLabel('sort_last_modified_by', 'Last Modified By'), 'last-modified-by'),
+				sortByItem(getLabel('sort_date_last_opened', 'Date Last Opened'), 'date-last-opened'),
+				sortByItem(getLabel('sort_date_added', 'Date Added'), 'date-added'),
+				sortByItem(getLabel('sort_date_modified', 'Date Modified'), 'date-modified'),
+				sortByItem(getLabel('sort_date_created', 'Date Created'), 'date-created'),
+				sortByItem(getLabel('sort_size', 'Size'), 'size')
 			];
 		}
 
@@ -145,16 +145,16 @@
 						folderId: folder.id
 					},
 					target: app.id
-				}));
+			}));
 			const items = [
-				commandItem('Open', 'open-app', {
+				commandItem(getLabel('open', 'Open'), 'open-app', {
 					icon: app.icon || 'dashicons-admin-generic',
 					target: app.id
 				})
 			];
 
 			if (app.url) {
-				items.push(commandItem('Open in Browser Tab', 'window.open-browser-tab', {
+				items.push(commandItem(getLabel('open_in_browser_tab', 'Open in Browser Tab'), 'window.open-browser-tab', {
 					icon: 'dashicons-external',
 					title: app.label || '',
 					url: app.url
@@ -162,7 +162,7 @@
 			}
 
 			if (folderId && isUserFolder(folderId)) {
-				items.push(commandItem('Remove from Folder', 'folder.remove-app', {
+				items.push(commandItem(getLabel('remove_from_folder', 'Remove from Folder'), 'folder.remove-app', {
 					icon: 'dashicons-no-alt',
 					payload: {
 						folderId
@@ -176,12 +176,12 @@
 					icon: 'dashicons-category',
 					id: folderId ? 'move-to-folder' : 'add-to-folder',
 					items: addToFolderItems,
-					label: folderId ? 'Move to Folder' : 'Add to Folder'
+					label: folderId ? getLabel('move_to_folder', 'Move to Folder') : getLabel('add_to_folder', 'Add to Folder')
 				});
 			}
 
 			items.push(
-				commandItem('About', 'open-about', {
+				commandItem(getLabel('about', 'About'), 'open-about', {
 					icon: 'dashicons-info-outline',
 					target: app.id
 				})
@@ -218,7 +218,7 @@
 
 			if (app.id === 'trash') {
 				return [
-					commandItem('Open', 'open-app', {
+					commandItem(getLabel('open', 'Open'), 'open-app', {
 						target: app.id
 					}),
 					separator(),
@@ -231,21 +231,21 @@
 
 			if (state.open) {
 				items.push(
-					commandItem(state.hidden ? 'Show' : 'Hide', state.hidden ? 'window.focus' : 'window.hide', {
+					commandItem(state.hidden ? getLabel('show', 'Show') : getLabel('hide', 'Hide'), state.hidden ? 'window.focus' : 'window.hide', {
 						target: app.id
 					}),
-					commandItem('Quit', 'window.close', {
+					commandItem(getLabel('quit', 'Quit'), 'window.close', {
 						target: app.id
 					})
 				);
 			} else {
-				items.push(commandItem('Open', 'open-app', {
+				items.push(commandItem(getLabel('open', 'Open'), 'open-app', {
 					target: app.id
 				}));
 			}
 
 			if (app.url) {
-				items.push(commandItem('Open in Browser Tab', 'window.open-browser-tab', {
+				items.push(commandItem(getLabel('open_in_browser_tab', 'Open in Browser Tab'), 'window.open-browser-tab', {
 					title: app.label || '',
 					url: app.url
 				}));
@@ -260,7 +260,7 @@
 
 			items.push(
 				separator(),
-				commandItem('About', 'open-about', {
+				commandItem(getLabel('about', 'About'), 'open-about', {
 					target: app.id
 				})
 			);
@@ -275,7 +275,7 @@
 
 			if (isTrashFolder(folder)) {
 				return [
-					commandItem('Open', 'open-folder', {
+					commandItem(getLabel('open', 'Open'), 'open-folder', {
 						icon: folder.icon || 'dashicons-trash',
 						target: folder.id
 					}),
@@ -291,7 +291,7 @@
 			}
 
 			const items = [
-				commandItem('Open', 'open-folder', {
+				commandItem(getLabel('open', 'Open'), 'open-folder', {
 					icon: folder.icon || 'dashicons-category',
 					target: folder.id
 				}),
@@ -299,7 +299,7 @@
 					icon: 'dashicons-plus-alt2',
 					target: folder.id
 				}),
-				commandItem('Get Info', 'folder.get-info', {
+				commandItem(getLabel('get_info', 'Get Info'), 'folder.get-info', {
 					icon: 'dashicons-info-outline',
 					target: folder.id
 				})
@@ -308,7 +308,7 @@
 			if (folder.user === true || isUserFolder(folder.id)) {
 				items.push(
 					separator(),
-					commandItem('Rename', 'folder.rename', {
+					commandItem(getLabel('rename', 'Rename'), 'folder.rename', {
 						icon: 'dashicons-edit',
 						target: folder.id
 					}),
@@ -352,7 +352,7 @@
 
 		function normalizeMenu(definition, detail = {}) {
 			const normalized = menuSchema.normalizeDefinition(definition, {
-				appLabel: detail.label || 'Context Menu'
+				appLabel: detail.label || getLabel('context_menu', 'Context Menu')
 			});
 			const groups = normalized.groups
 				.map((group) => Object.assign({}, group, {
@@ -385,26 +385,26 @@
 				{
 					id: 'primary',
 					items: [
-						commandItem('New Folder', 'folder.create', {
+						commandItem(getLabel('new_folder', 'New Folder'), 'folder.create', {
 							icon: 'dashicons-category'
 						}),
 						{
 							icon: 'dashicons-sort',
 							id: 'sort-by',
 							items: getSortByItems(),
-							label: 'Sort By'
+							label: getLabel('sort_by', 'Sort By')
 						},
 						separator(),
-						commandItem('Change Wallpaper...', 'settings.open-panel', {
+						commandItem(getLabel('change_wallpaper', 'Change Wallpaper...'), 'settings.open-panel', {
 							icon: 'dashicons-format-image',
 							panel: 'wallpaper'
 						}),
-						commandItem('System Settings', 'open-app', {
+						commandItem(getLabel('system_settings', 'System Settings...'), 'open-app', {
 							icon: 'dashicons-admin-customizer',
 							target: 'os-settings'
 						}),
 						separator(),
-						commandItem('Reset Layout', 'session.reset-layout', {
+						commandItem(getLabel('reset_layout', 'Reset Layout'), 'session.reset-layout', {
 							icon: 'dashicons-update'
 						})
 					]
@@ -458,9 +458,9 @@
 				{
 					id: 'display',
 					items: [
-						folderToolbarDisplayItem('Icon and Text', 'icon-text', detail),
-						folderToolbarDisplayItem('Icon Only', 'icon-only', detail),
-						folderToolbarDisplayItem('Text Only', 'text-only', detail)
+						folderToolbarDisplayItem(getLabel('icons_and_text', 'Icons and Text'), 'icon-text', detail),
+						folderToolbarDisplayItem(getLabel('icons_only', 'Icons Only'), 'icon-only', detail),
+						folderToolbarDisplayItem(getLabel('text_only', 'Text Only'), 'text-only', detail)
 					]
 				}
 			]
@@ -470,13 +470,13 @@
 			const app = detail.appId ? appMap.get(detail.appId) : null;
 			const browserUrl = getWindowBrowserUrl(detail, app);
 			const items = [
-				commandItem('Bring to Front', 'window.focus', {
+				commandItem(getLabel('bring_to_front', 'Bring to Front'), 'window.focus', {
 					icon: 'dashicons-editor-expand'
 				})
 			];
 
 			if (browserUrl) {
-				items.push(commandItem('Open in Browser Tab', 'window.open-browser-tab', {
+				items.push(commandItem(getLabel('open_in_browser_tab', 'Open in Browser Tab'), 'window.open-browser-tab', {
 					icon: 'dashicons-external',
 					title: detail.label || (app && app.label ? app.label : ''),
 					url: browserUrl
@@ -493,7 +493,7 @@
 			);
 
 			if (app) {
-				items.push(separator(), commandItem('About', 'open-about', {
+				items.push(separator(), commandItem(getLabel('about', 'About'), 'open-about', {
 					icon: 'dashicons-info-outline',
 					target: app.id
 				}));
@@ -514,9 +514,9 @@
 			return {
 				groups: [
 					{
-						id: 'primary',
-						items: [
-							commandItem('Hide Widget', 'widget.hide', {
+					id: 'primary',
+					items: [
+							commandItem(getLabel('hide_widget', 'Hide Widget'), 'widget.hide', {
 								icon: widget && widget.icon ? widget.icon : 'dashicons-hidden',
 								target: detail.id
 							})

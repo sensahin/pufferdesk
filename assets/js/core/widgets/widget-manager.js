@@ -266,14 +266,35 @@
 			return layer.querySelector(`[data-aos-widget="${dom.escapeAttribute(widgetId)}"]`);
 		}
 
-		function hideWidget(widgetOrId) {
+		function setWidgetHidden(widgetOrId, hidden) {
 			const widget = typeof widgetOrId === 'string' ? getWidget(widgetOrId) : widgetOrId;
 			if (!widget) {
-				return;
+				return false;
 			}
 
-			widget.hidden = true;
+			widget.hidden = Boolean(hidden);
 			scheduleSave();
+			shell.dispatchEvent(new window.CustomEvent('wpAdminOS:widgets-change', {
+				detail: {
+					widgets: serializeWidgets()
+				}
+			}));
+
+			return true;
+		}
+
+		function hideWidget(widgetOrId) {
+			return setWidgetHidden(widgetOrId, true);
+		}
+
+		function showWidget(widgetOrId) {
+			return setWidgetHidden(widgetOrId, false);
+		}
+
+		function isWidgetHidden(widgetId) {
+			const widget = getWidget(widgetId);
+
+			return widget ? widget.hidden : false;
 		}
 
 		function handleWorkspaceStateChanged(event) {
@@ -296,8 +317,10 @@
 			},
 			getWidget,
 			hideWidget,
+			isWidgetHidden,
 			restoreSession,
-			saveSession
+			saveSession,
+			showWidget
 		};
 	};
 })();

@@ -12,7 +12,7 @@ WP adminOS turns the WordPress dashboard entry point into a desktop-style admin 
 
 == Description ==
 
-WP adminOS wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe WP adminOS experience: a top menu bar, generated and user-created desktop folders, a dock, app search, draggable windows, desktop widgets, and iframe-based admin apps.
+WP adminOS wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe WP adminOS experience: a top menu bar, generated and user-created desktop folders, a dock-style launcher, app search, draggable windows, desktop widgets, and iframe-based admin apps.
 
 == Current foundation features ==
 
@@ -20,7 +20,7 @@ WP adminOS wraps existing WordPress admin screens in a desktop-style shell. The 
 - Per-user mode preference.
 - Dashboard entry redirects to WP adminOS by default.
 - Emergency one-request classic override: `/wp-admin/index.php?wp_adminos_classic=1`.
-- WP adminOS shell with system menu, site title menu, app menu bar, right-click context menus, generated and user-created desktop folders, desktop widgets, dock, search, draggable windows, and iframe-based admin apps.
+- WP adminOS shell with system menu, site title menu, app menu bar, right-click context menus, generated and user-created desktop folders, desktop widgets, theme-driven launcher surfaces, search, draggable windows, and iframe-based admin apps.
 - Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave more like OS windows.
 
 == Notes ==
@@ -90,7 +90,7 @@ Apps and folders use structured icon descriptors internally. Dashicon strings st
 
 Apps are registered through `WP_AdminOS_App_Registry` or the `wp_adminos_apps` filter. Iframe apps provide a `url`; native apps provide `kind => native` and a stable `native` renderer ID. Each app should declare the WordPress capability required for its target screen or action through `cap`; missing, empty, or non-scalar capabilities normalize to `read`, which is intended only for current-user shell features. Top-level WordPress admin menu apps inherit the capability WordPress used to show that menu item, so the dock, desktop, and launcher stay aligned with the native admin menu. Apps can opt out of workspace window restoration with `window_persistence => none`; the default `workspace` behavior restores stable app windows across shell loads. JavaScript native app windows are registered with `window.WPAdminOS.apps.registerNativeAppRenderer( nativeId, renderer )`, and the renderer returns reusable window options such as `content`, `bodyClass`, `width`, `height`, and `resizeMode`. Apps may define a `badge` with `text`, optional `count`, `tone`, and `aria_label`; top-level WordPress admin menu count spans are normalized into this same badge shape for dock and desktop app icons. The app launcher stays generic and does not special-case individual native apps.
 
-System Settings uses PHP-provided `settings.labels` runtime data for user-facing panel labels, option lists, and status messages. The browser-side `assets/js/core/apps/settings/labels.js` module merges that translated runtime data with local fallbacks before the panel factories render.
+System Settings uses PHP-provided `settings.labels` runtime data for user-facing panel labels, option lists, and status messages. The browser-side `assets/js/core/apps/settings/labels.js` module merges that translated runtime data with local fallbacks before the panel factories render. Theme-derived `settings.capabilities` and `shellCapabilities` control whether shell-specific panels and rows are visible, so a theme without a menu bar or Dock does not expose irrelevant controls. Apps, Widgets, Workspace, and System panels are live restore/reset surfaces: app placement and login items use the existing app preference endpoints, widgets use the `widgets` workspace section, Workspace resets current-theme or all-theme layout state, and System routes restart, Classic Admin, and full WP adminOS preference reset through shared shell commands.
 
 == Build and release assets ==
 
@@ -119,7 +119,7 @@ Template resolution supports theme-specific overrides. The renderer checks paths
 
 For example, a Windows family can override `templates/themes/windows/windows/titlebar.php` without replacing the whole shell.
 
-Theme shell chrome is data-driven. A theme can declare its shell model and runtime labels without changing core behavior:
+Theme shell chrome is data-driven. A theme can declare its shell model and runtime labels without changing core behavior. Core currently consumes these fields to render or omit the menu bar, render no launcher, or render the app launcher as the default Dock or as a taskbar-style surface:
 
 ```php
 'shell' => array(
@@ -139,7 +139,7 @@ Theme shell chrome is data-driven. A theme can declare its shell model and runti
 ),
 ```
 
-Window chrome is also theme metadata. Core still owns window behavior, but themes can choose control placement, control order, visual style hooks, title alignment, and control labels:
+Window chrome is also theme metadata. Core still owns window behavior, but themes can choose control placement, control order, visual style hooks, title alignment, and control labels. Supported control styles are `traffic`, `caption`, `toolbar`, and `hidden`:
 
 ```php
 'window_chrome' => array(
@@ -210,20 +210,21 @@ Themes support family/version inheritance. A concrete theme can declare a parent
 			),
 		),
 		'icon_pack'   => 'themes/adminos/default/icons',
-		'cursor_pack' => 'themes/adminos/default/cursors',
 	),
 );
 ```
 
 Theme media fields are normalized to local `assets/media/` descriptors with `path` and `url` values, then exposed in the runtime theme config. Keep OS media original or licensed for redistribution.
 
+The registry also includes an internal contract-test theme, `canary-taskbar`, that is hidden from the Settings theme picker unless `WP_ADMINOS_ENABLE_INTERNAL_THEMES` is truthy. It deliberately uses a taskbar launcher, start-style system menu, no top menu bar, caption window controls, and centered title text so contributors can test theme contracts before adding public theme families.
+
 Wallpapers are managed by `WP_AdminOS_Wallpaper_Registry`. It combines theme-declared CSS or image wallpaper collections, bundled original color backgrounds, and user-selected Media Library uploads, then resolves the active choice into `--aos-wallpaper-*` CSS variables for the shell. Bundled gradient wallpapers should use `css_value` instead of image files to keep plugin size small. Image wallpapers remain supported through `path` or `file` fields for original/licensed assets that need texture or detail. The older single `wallpaper` field remains a fallback for one-image themes, but new themes should declare `wallpapers` with stable item IDs. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing.
 
 Future phases can add optional alternate theme packs such as Redmond-style, classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the WP adminOS identity rather than depending on another platform owner’s brand assets.
 
-Workspace layout is persisted in WordPress user meta per site, user, and selected theme through `WP_AdminOS_Workspace_State`. Fresh shell loads treat WordPress user meta as the authoritative workspace state and refresh the browser `localStorage` cache from that server payload. Workspace saves send the last known server `updatedAt` revision; stale browser saves receive a conflict response with the newer server state instead of overwriting it. Same-browser tabs share accepted workspace updates through `BroadcastChannel`, while cross-browser sessions such as Chrome to Safari pick up changes on reload unless a future remote polling/push sync is added. `sessionStorage` is reserved for one-time page-transition behavior such as skipping window restore once. Core stores layout in named sections, currently `windows`, `widgets`, `desktopIcons`, `desktopSort`, and `recentItems`, so future spaces or theme-specific surfaces can join without replacing the whole payload. Windows track app and folder windows, position, size, maximized/minimized state, and restore stable open windows when the shell loads. Widgets track widget position, size, and hidden state. User-created desktop folder definitions and membership are persisted separately in WordPress user meta, and their icon positions live in the workspace layout state.
+Workspace layout is persisted in WordPress user meta per site, user, and selected theme through `WP_AdminOS_Workspace_State`. Fresh shell loads treat WordPress user meta as the authoritative workspace state and refresh the browser `localStorage` cache from that server payload. Workspace saves send the last known server `updatedAt` revision; stale browser saves receive a conflict response with the newer server state instead of overwriting it. Same-browser tabs share accepted workspace updates through `BroadcastChannel`, while cross-browser sessions such as Chrome to Safari pick up changes on reload unless a future remote polling/push sync is added. `sessionStorage` is reserved for one-time page-transition behavior such as skipping window restore once. Core stores layout in named sections, currently `windows`, `widgets`, `desktopIcons`, `desktopSort`, and `recentItems`, so future spaces or theme-specific surfaces can join without replacing the whole payload. Windows track app and folder windows, position, size, maximized/minimized state, and restore stable open windows when the shell loads. Widgets track widget position, size, and hidden state. User-created desktop folder definitions and membership are persisted separately in WordPress user meta, and their icon positions live in the workspace layout state. System Settings exposes current-theme layout reset and all-theme layout reset through the same workspace state controller; full "Erase All Content and Settings" additionally clears WP adminOS preference domains such as app locations, login items, desktop folders, wallpaper, and selected theme.
 
-Widgets are registered through `WP_AdminOS_Widget_Registry` and can be extended with the `wp_adminos_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Missing, empty, or non-scalar widget capabilities normalize to `read`; widgets that expose privileged WordPress data should use the exact WordPress capability needed for that data. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, and session section.
+Widgets are registered through `WP_AdminOS_Widget_Registry` and can be extended with the `wp_adminos_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Missing, empty, or non-scalar widget capabilities normalize to `read`; widgets that expose privileged WordPress data should use the exact WordPress capability needed for that data. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. System Settings includes a Widgets panel that can show or hide registered widgets through the existing `widgets` workspace section. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, settings panel, and session section.
 
 == Changelog ==
 

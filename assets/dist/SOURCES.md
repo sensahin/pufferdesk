@@ -17,6 +17,7 @@ Generated release assets are minified for performance. Readable source files rem
 ## Theme CSS
 - assets/css/themes/adminos/base.css -> assets/dist/css/themes/adminos/base.min.css
 - assets/css/themes/adminos/default.css -> assets/dist/css/themes/adminos/default.min.css
+- assets/css/themes/canary/taskbar.css -> assets/dist/css/themes/canary/taskbar.min.css
 
 ## JavaScript
 - assets/js/core/config.js
@@ -45,6 +46,10 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/apps/settings/panel-desktop-dock.js
 - assets/js/core/apps/settings/panel-menu-bar.js
 - assets/js/core/apps/settings/panel-wallpaper.js
+- assets/js/core/apps/settings/panel-widgets.js
+- assets/js/core/apps/settings/panel-apps.js
+- assets/js/core/apps/settings/panel-workspace.js
+- assets/js/core/apps/settings/panel-system.js
 - assets/js/core/apps/settings-app.js
 - assets/js/core/apps/app-launcher.js
 - assets/js/core/shell/search.js

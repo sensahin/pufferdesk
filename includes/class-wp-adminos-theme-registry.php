@@ -209,8 +209,53 @@ final class WP_AdminOS_Theme_Registry {
 						),
 					),
 					'icon_pack'   => 'themes/adminos/default/icons',
-					'cursor_pack' => 'themes/adminos/default/cursors',
 				),
+			),
+			'canary-taskbar' => array(
+				'id'             => 'canary-taskbar',
+				'label'          => __( 'WP adminOS Canary Taskbar', 'wp-adminos' ),
+				'family'         => 'canary',
+				'family_label'   => __( 'Canary', 'wp-adminos' ),
+				'version'        => 'taskbar',
+				'version_label'  => __( 'Taskbar Contract', 'wp-adminos' ),
+				'parent'         => 'adminos-base',
+				'stylesheet'     => 'canary/taskbar.css',
+				'media'          => array(
+					'icon_pack' => 'themes/adminos/default/icons',
+				),
+				'shell'          => array(
+					'chrome'      => 'taskbar',
+					'top_bar'     => 'none',
+					'launcher'    => 'taskbar',
+					'system_menu' => 'start',
+					'app_menu'    => 'none',
+					'status_area' => 'taskbar',
+					'labels'      => array(
+						'launcher'             => __( 'Taskbar', 'wp-adminos' ),
+						'desktop_launcher'     => __( 'Desktop & Taskbar', 'wp-adminos' ),
+						'launcher_and_desktop' => __( 'Taskbar & Desktop', 'wp-adminos' ),
+						'launcher_position'    => __( 'Taskbar position on screen', 'wp-adminos' ),
+						'auto_hide_launcher'   => __( 'Automatically hide and show the taskbar', 'wp-adminos' ),
+						'launcher_options'     => __( 'Taskbar Options', 'wp-adminos' ),
+						'keep_in_launcher'     => __( 'Keep in Taskbar', 'wp-adminos' ),
+						'remove_from_launcher' => __( 'Remove from Taskbar', 'wp-adminos' ),
+						'menu_bar'             => __( 'Top Bar', 'wp-adminos' ),
+						'menu_bar_auto_hide'   => __( 'Automatically hide and show the top bar', 'wp-adminos' ),
+						'menu_bar_background'  => __( 'Show top bar background', 'wp-adminos' ),
+					),
+				),
+				'window_chrome'  => array(
+					'controls' => array(
+						'placement' => 'right',
+						'order'     => array( 'minimize', 'maximize', 'close' ),
+						'style'     => 'caption',
+					),
+					'title'    => array(
+						'alignment' => 'center',
+						'show_icon' => false,
+					),
+				),
+				'internal'       => true,
 			),
 		);
 
@@ -238,7 +283,11 @@ final class WP_AdminOS_Theme_Registry {
 	public function get_current_theme( WP_AdminOS_User_Preferences $preferences ) {
 		$themes   = $this->get_themes();
 		$theme_id = $preferences->get_theme_id( $themes );
-		if ( empty( $themes[ $theme_id ] ) || ! empty( $themes[ $theme_id ]['abstract'] ) ) {
+		if (
+			empty( $themes[ $theme_id ] )
+			|| ! empty( $themes[ $theme_id ]['abstract'] )
+			|| ( ! empty( $themes[ $theme_id ]['internal'] ) && ! $this->internal_themes_enabled() )
+		) {
 			$theme_id = $this->get_default_selectable_theme_id( $themes );
 		}
 
@@ -255,7 +304,7 @@ final class WP_AdminOS_Theme_Registry {
 		$options = array();
 
 		foreach ( $themes as $id => $theme ) {
-			if ( ! empty( $theme['abstract'] ) ) {
+			if ( ! empty( $theme['abstract'] ) || ( ! empty( $theme['internal'] ) && ! $this->internal_themes_enabled() ) ) {
 				continue;
 			}
 
@@ -273,6 +322,7 @@ final class WP_AdminOS_Theme_Registry {
 				'typography'    => $resolved['typography'],
 				'shell'         => $resolved['shell'],
 				'window_chrome' => $resolved['window_chrome'],
+				'internal'      => ! empty( $resolved['internal'] ),
 			);
 		}
 
@@ -316,6 +366,7 @@ final class WP_AdminOS_Theme_Registry {
 				'shell'          => $this->normalize_shell_config( isset( $theme['shell'] ) ? $theme['shell'] : array() ),
 				'window_chrome'  => $this->normalize_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() ),
 				'abstract'       => ! empty( $theme['abstract'] ),
+				'internal'       => ! empty( $theme['internal'] ),
 			);
 		}
 
@@ -378,12 +429,21 @@ final class WP_AdminOS_Theme_Registry {
 	 */
 	private function get_default_selectable_theme_id( $themes ) {
 		foreach ( $themes as $id => $theme ) {
-			if ( empty( $theme['abstract'] ) ) {
+			if ( empty( $theme['abstract'] ) && ( empty( $theme['internal'] ) || $this->internal_themes_enabled() ) ) {
 				return $id;
 			}
 		}
 
 		return key( $themes );
+	}
+
+	/**
+	 * Whether private contract-test themes should be user-selectable.
+	 *
+	 * @return bool
+	 */
+	private function internal_themes_enabled() {
+		return defined( 'WP_ADMINOS_ENABLE_INTERNAL_THEMES' ) && WP_ADMINOS_ENABLE_INTERNAL_THEMES;
 	}
 
 	/**

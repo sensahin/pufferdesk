@@ -20,6 +20,8 @@
 			t,
 			themes
 		} = ctx;
+		const capabilities = ctx.capabilities && typeof ctx.capabilities === 'object' ? ctx.capabilities : {};
+		const appearanceCapabilities = capabilities.appearance && typeof capabilities.appearance === 'object' ? capabilities.appearance : {};
 		const panel = ctx.dom.createElement('div', 'aos-settings-pane-panel');
 		const appearanceSection = createSection('', 'aos-settings-section-appearance');
 		const themeSection = createSection('', 'aos-settings-section-theme');
@@ -30,18 +32,24 @@
 			t('appearance.appearanceLabel', 'Appearance'),
 			createOptionGroup('mode', settingsLabels.getOptions('appearance.modeOptions'), status, 'aos-settings-preview-option', 'aos-settings-appearance-preview')
 		));
-		appearanceSection.appendChild(createSettingsRow(
-			t('appearance.materialLabel', 'Liquid Glass'),
-			createOptionGroup('window_material', settingsLabels.getOptions('appearance.materialOptions'), status, 'aos-settings-preview-option', 'aos-settings-material-preview'),
-			t('appearance.materialDescription', 'Choose your preferred Liquid Glass look.'),
-			'aos-settings-row-fluid-label'
-		));
+		if (appearanceCapabilities.windowMaterial !== false) {
+			appearanceSection.appendChild(createSettingsRow(
+				t('appearance.materialLabel', 'Liquid Glass'),
+				createOptionGroup('window_material', settingsLabels.getOptions('appearance.materialOptions'), status, 'aos-settings-preview-option', 'aos-settings-material-preview'),
+				t('appearance.materialDescription', 'Choose your preferred Liquid Glass look.'),
+				'aos-settings-row-fluid-label'
+			));
+		}
 
-		themeSection.appendChild(createSettingsRow(t('appearance.colorLabel', 'Color'), createAccentGroup(status)));
-		themeSection.appendChild(createSettingsRow(
-			t('appearance.iconWidgetStyleLabel', 'Icon & widget style'),
-			createOptionGroup('icon_widget_style', settingsLabels.getOptions('appearance.iconWidgetStyleOptions'), status, 'aos-settings-icon-option', 'aos-settings-icon-preview')
-		));
+		if (appearanceCapabilities.accentColor !== false) {
+			themeSection.appendChild(createSettingsRow(t('appearance.colorLabel', 'Color'), createAccentGroup(status)));
+		}
+		if (appearanceCapabilities.iconWidgetStyle !== false) {
+			themeSection.appendChild(createSettingsRow(
+				t('appearance.iconWidgetStyleLabel', 'Icon & widget style'),
+				createOptionGroup('icon_widget_style', settingsLabels.getOptions('appearance.iconWidgetStyleOptions'), status, 'aos-settings-icon-option', 'aos-settings-icon-preview')
+			));
+		}
 
 		if (themes.length > 1) {
 			const themeSelect = document.createElement('select');
@@ -62,8 +70,10 @@
 		}
 
 		panel.appendChild(appearanceSection);
-		panel.appendChild(createSectionHeading(t('appearance.themeHeading', 'Theme')));
-		panel.appendChild(themeSection);
+		if (themeSection.children.length) {
+			panel.appendChild(createSectionHeading(t('appearance.themeHeading', 'Theme')));
+			panel.appendChild(themeSection);
+		}
 		if (installedThemeSection) {
 			panel.appendChild(createSectionHeading(t('appearance.installedThemeHeading', 'Installed Theme')));
 			panel.appendChild(installedThemeSection);

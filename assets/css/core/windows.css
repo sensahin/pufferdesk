@@ -263,6 +263,11 @@
 	display: none;
 }
 
+.aos-window[data-aos-window-controls-style="hidden"] .aos-window-titlebar,
+.aos-window-titlebar[data-aos-window-controls-style="hidden"] {
+	grid-template-columns: minmax(0, 1fr);
+}
+
 .aos-window-titlebar-label {
 	align-items: center;
 	color: var(--aos-muted);
@@ -317,6 +322,11 @@
 	padding: 0;
 	position: relative;
 	width: 11px;
+}
+
+.aos-window-control-label {
+	display: none;
+	pointer-events: none;
 }
 
 .aos-window-control-close {
@@ -400,6 +410,104 @@
 
 .aos-window-control-maximize::after {
 	transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+:is(.aos-window[data-aos-window-controls-style="caption"], .aos-window-titlebar[data-aos-window-controls-style="caption"]) .aos-window-controls {
+	gap: 5px;
+}
+
+:is(.aos-window[data-aos-window-controls-style="caption"], .aos-window-titlebar[data-aos-window-controls-style="caption"]) .aos-window-control {
+	align-items: center;
+	background: var(--aos-control-bg);
+	border: 1px solid var(--aos-line);
+	border-radius: 4px;
+	color: var(--aos-ink);
+	display: inline-flex;
+	font-size: var(--aos-text-small);
+	font-weight: var(--aos-weight-medium);
+	height: 24px;
+	justify-content: center;
+	line-height: 1;
+	min-width: 54px;
+	padding: 0 8px;
+	width: auto;
+}
+
+:is(.aos-window[data-aos-window-controls-style="caption"], .aos-window-titlebar[data-aos-window-controls-style="caption"]) .aos-window-control:hover,
+:is(.aos-window[data-aos-window-controls-style="caption"], .aos-window-titlebar[data-aos-window-controls-style="caption"]) .aos-window-control:focus-visible {
+	background: var(--aos-control-bg-hover);
+}
+
+:is(.aos-window[data-aos-window-controls-style="caption"], .aos-window-titlebar[data-aos-window-controls-style="caption"]) .aos-window-control-close:hover,
+:is(.aos-window[data-aos-window-controls-style="caption"], .aos-window-titlebar[data-aos-window-controls-style="caption"]) .aos-window-control-close:focus-visible {
+	background: var(--aos-danger-bg, #d63638);
+	border-color: var(--aos-danger-bg, #d63638);
+	color: var(--aos-danger-ink, #fff);
+}
+
+:is(.aos-window[data-aos-window-controls-style="caption"], .aos-window-titlebar[data-aos-window-controls-style="caption"]) .aos-window-control::before,
+:is(.aos-window[data-aos-window-controls-style="caption"], .aos-window-titlebar[data-aos-window-controls-style="caption"]) .aos-window-control::after {
+	display: none;
+}
+
+:is(.aos-window[data-aos-window-controls-style="caption"], .aos-window-titlebar[data-aos-window-controls-style="caption"]) .aos-window-control-label {
+	display: inline;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-controls {
+	gap: 4px;
+}
+
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control {
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 5px;
+	height: 26px;
+	width: 30px;
+}
+
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control:hover,
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control:focus-visible {
+	background: var(--aos-control-bg-hover);
+	border-color: var(--aos-line);
+}
+
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control:disabled {
+	background: transparent;
+	opacity: 0.42;
+}
+
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control::before,
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control::after {
+	background: currentColor;
+	opacity: 0.72;
+}
+
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-controls:hover .aos-window-control::before,
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-controls:hover .aos-window-control::after,
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control:focus-visible::before,
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control:focus-visible::after {
+	opacity: 0.9;
+}
+
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control-close::before,
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control-close::after {
+	height: 2px;
+	width: 11px;
+}
+
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control-minimize::before {
+	height: 2px;
+	width: 12px;
+}
+
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control-maximize::before,
+:is(.aos-window[data-aos-window-controls-style="toolbar"], .aos-window-titlebar[data-aos-window-controls-style="toolbar"]) .aos-window-control-maximize::after {
+	height: 10px;
+	width: 2px;
 }
 
 .aos-window-body {

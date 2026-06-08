@@ -17,6 +17,7 @@
 		const api = window.WPAdminOS.services && window.WPAdminOS.services.api ? window.WPAdminOS.services.api : null;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
+		const labels = config.menu && config.menu.labels && typeof config.menu.labels === 'object' ? config.menu.labels : {};
 		const appSurfaceManager = window.WPAdminOS.apps && typeof window.WPAdminOS.apps.createAppSurfaceManager === 'function'
 			? window.WPAdminOS.apps.createAppSurfaceManager(shell, config, {
 				apps,
@@ -28,6 +29,19 @@
 		const commands = new Map();
 		const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
 		let activeDetail = { kind: 'desktop' };
+
+		function getLabel(key, fallback) {
+			const value = labels[key];
+
+			return typeof value === 'string' && value ? value : fallback;
+		}
+
+		function formatLabel(key, fallback, values = []) {
+			let index = 0;
+			const template = getLabel(key, fallback);
+
+			return String(template).replace(/%d|%s/g, () => String(values[index++] ?? ''));
+		}
 
 		function getTargetWindow(detail = activeDetail) {
 			if (detail && detail.windowElement && detail.windowElement.classList && detail.windowElement.classList.contains('aos-window')) {
@@ -267,7 +281,7 @@
 			}
 
 			if (isFixedDockApp(appId)) {
-				return Promise.reject(new Error('App has a fixed Dock placement.'));
+				return Promise.reject(new Error(formatLabel('fixed_launcher_placement_format', 'App has a fixed %s placement.', [getLabel('launcher', 'Dock')])));
 			}
 
 			if (keepInDock) {
@@ -677,7 +691,7 @@
 				return Boolean(folderManager && typeof folderManager.createFolder === 'function');
 			},
 			run(payload, detail) {
-				const folder = folderManager.createFolder('untitled folder', [], {
+				const folder = folderManager.createFolder(getLabel('untitled_folder', 'untitled folder'), [], {
 					point: detail && detail.contextPoint ? detail.contextPoint : null
 				});
 				if (folder && typeof folderManager.startInlineRename === 'function') {
@@ -733,14 +747,16 @@
 			async run(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
 				const folder = folderManager.getFolder(folderId);
+				const folderLabel = folder && folder.label ? folder.label : getLabel('folder', 'Folder');
+				const title = formatLabel('move_folder_to_trash_title_format', 'Move "%s" to Trash?', [folderLabel]);
 				const confirmed = dialogs && typeof dialogs.confirm === 'function'
 					? await dialogs.confirm({
-						cancelLabel: 'Cancel',
-						confirmLabel: 'Move to Trash',
-						message: 'Only this WP adminOS folder will be moved. Apps and plugins inside it stay installed and available.',
-						title: `Move "${folder && folder.label ? folder.label : 'Folder'}" to Trash?`
+						cancelLabel: getLabel('cancel', 'Cancel'),
+						confirmLabel: getLabel('move_to_trash', 'Move to Trash'),
+						message: getLabel('move_folder_to_trash_message', 'Only this WP adminOS folder will be moved. Apps and plugins inside it stay installed and available.'),
+						title
 					})
-					: window.confirm(`Move "${folder && folder.label ? folder.label : 'Folder'}" to Trash?`);
+					: window.confirm(title);
 
 				if (confirmed) {
 					folderManager.moveFolderToTrash(folderId);
@@ -764,12 +780,12 @@
 			async run(payload) {
 				const confirmed = dialogs && typeof dialogs.confirm === 'function'
 					? await dialogs.confirm({
-						cancelLabel: 'Cancel',
-						confirmLabel: 'Delete',
-						message: 'This permanently deletes the WP adminOS folder record. Apps and plugins are not deleted.',
-						title: 'Delete Immediately?'
+						cancelLabel: getLabel('cancel', 'Cancel'),
+						confirmLabel: getLabel('delete', 'Delete'),
+						message: getLabel('delete_immediately_message', 'This permanently deletes the WP adminOS folder record. Apps and plugins are not deleted.'),
+						title: getLabel('delete_immediately_title', 'Delete Immediately?')
 					})
-					: window.confirm('Delete this WP adminOS folder record immediately?');
+					: window.confirm(getLabel('delete_immediately_fallback_message', 'Delete this WP adminOS folder record immediately?'));
 
 				if (confirmed) {
 					folderManager.deleteTrashItem(payload.target);

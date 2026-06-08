@@ -14,8 +14,18 @@ defined( 'ABSPATH' ) || exit;
  * @var array<int,array<string,mixed>>  $widgets
  * @var array<int,array<string,string>> $folders
  * @var array<string,mixed>             $theme
+ * @var array<string,mixed>             $shell
  * @var array<string,mixed>             $workspace_state
  */
+$wp_adminos_shell    = wp_parse_args(
+	isset( $shell ) && is_array( $shell ) ? $shell : array(),
+	array(
+		'launcher'    => 'dock',
+		'system_menu' => 'mark',
+		'status_area' => 'menu-bar',
+	)
+);
+$wp_adminos_launcher = isset( $wp_adminos_shell['launcher'] ) ? (string) $wp_adminos_shell['launcher'] : 'dock';
 ?>
 <main
 	class="aos-desktop"
@@ -51,12 +61,15 @@ defined( 'ABSPATH' ) || exit;
 		)
 	);
 
-	$this->render_part(
-		'shell/dock.php',
-		array(
-			'apps'  => isset( $dock_apps ) && is_array( $dock_apps ) ? $dock_apps : $apps,
-			'theme' => $theme,
-		)
-	);
+	if ( 'none' !== $wp_adminos_launcher ) {
+		$this->render_part(
+			'shell/dock.php',
+			array(
+				'apps'  => isset( $dock_apps ) && is_array( $dock_apps ) ? $dock_apps : $apps,
+				'theme' => $theme,
+				'shell' => $wp_adminos_shell,
+			)
+		);
+	}
 	?>
 </main>

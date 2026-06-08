@@ -10,7 +10,24 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @var array<int,array<string,mixed>>  $apps
  * @var array<string,mixed>             $theme
+ * @var array<string,mixed>             $shell
  */
+$wp_adminos_shell = wp_parse_args(
+	isset( $shell ) && is_array( $shell ) ? $shell : array(),
+	array(
+		'launcher'    => 'dock',
+		'system_menu' => 'mark',
+		'status_area' => 'menu-bar',
+		'labels'      => array(),
+	)
+);
+$wp_adminos_shell_labels = isset( $wp_adminos_shell['labels'] ) && is_array( $wp_adminos_shell['labels'] ) ? $wp_adminos_shell['labels'] : array();
+$wp_adminos_launcher     = in_array( $wp_adminos_shell['launcher'], array( 'dock', 'taskbar' ), true ) ? $wp_adminos_shell['launcher'] : 'dock';
+$wp_adminos_launcher_label = isset( $wp_adminos_shell_labels['launcher'] ) && '' !== $wp_adminos_shell_labels['launcher']
+	? (string) $wp_adminos_shell_labels['launcher']
+	: ( 'taskbar' === $wp_adminos_launcher ? __( 'Taskbar', 'wp-adminos' ) : __( 'Dock', 'wp-adminos' ) );
+$wp_adminos_show_start   = 'taskbar' === $wp_adminos_launcher && 'start' === $wp_adminos_shell['system_menu'];
+$wp_adminos_show_status  = 'taskbar' === $wp_adminos_launcher && 'taskbar' === $wp_adminos_shell['status_area'];
 $wp_adminos_regular_apps = array();
 $wp_adminos_fixed_apps   = array();
 
@@ -68,7 +85,31 @@ $wp_adminos_render_dock_app = static function ( $wp_adminos_app, $theme, $wp_adm
 	<?php
 };
 ?>
-<aside class="aos-dock" aria-label="<?php esc_attr_e( 'WP adminOS dock', 'wp-adminos' ); ?>">
+<aside
+	class="aos-dock aos-shell-launcher aos-shell-launcher-<?php echo esc_attr( $wp_adminos_launcher ); ?>"
+	data-aos-shell-surface="launcher"
+	data-aos-launcher-kind="<?php echo esc_attr( $wp_adminos_launcher ); ?>"
+	aria-label="<?php echo esc_attr( $wp_adminos_launcher_label ); ?>"
+>
+	<?php if ( $wp_adminos_show_start ) : ?>
+		<button type="button" class="aos-system-mark aos-taskbar-start" data-aos-system-menu aria-label="<?php esc_attr_e( 'Open WP adminOS menu', 'wp-adminos' ); ?>">
+			<span class="aos-taskbar-start-icon" aria-hidden="true">
+				<svg class="aos-system-mark-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+					<circle cx="12" cy="12" r="3" />
+					<path d="M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 1 1 4.5 4.5 4.5 4.5 0 1 1-4.5 4.5" />
+					<path d="M12 7.5V9" />
+					<path d="M7.5 12H9" />
+					<path d="M16.5 12H15" />
+					<path d="M12 16.5V15" />
+					<path d="m8 8 1.88 1.88" />
+					<path d="M14.12 9.88 16 8" />
+					<path d="m8 16 1.88-1.88" />
+					<path d="M14.12 14.12 16 16" />
+				</svg>
+			</span>
+			<span class="aos-taskbar-start-label"><?php esc_html_e( 'Start', 'wp-adminos' ); ?></span>
+		</button>
+	<?php endif; ?>
 	<?php foreach ( $wp_adminos_regular_apps as $wp_adminos_app ) : ?>
 		<?php $wp_adminos_render_dock_app( $wp_adminos_app, $theme ); ?>
 	<?php endforeach; ?>
@@ -77,5 +118,11 @@ $wp_adminos_render_dock_app = static function ( $wp_adminos_app, $theme, $wp_adm
 		<?php foreach ( $wp_adminos_fixed_apps as $wp_adminos_app ) : ?>
 			<?php $wp_adminos_render_dock_app( $wp_adminos_app, $theme, true ); ?>
 		<?php endforeach; ?>
+	<?php endif; ?>
+	<span class="aos-dock-end-anchor" data-aos-launcher-end-anchor aria-hidden="true"></span>
+	<?php if ( $wp_adminos_show_status ) : ?>
+		<div class="aos-taskbar-status" aria-label="<?php esc_attr_e( 'Status', 'wp-adminos' ); ?>">
+			<span class="aos-taskbar-clock" data-aos-clock><?php echo esc_html( date_i18n( 'D M j H:i' ) ); ?></span>
+		</div>
 	<?php endif; ?>
 </aside>

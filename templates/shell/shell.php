@@ -157,6 +157,11 @@ $wp_adminos_theme_shell  = wp_parse_args(
 		'status_area' => 'menu-bar',
 	)
 );
+$wp_adminos_has_menu_bar  = 'menu-bar' === $wp_adminos_theme_shell['top_bar']
+	|| 'global' === $wp_adminos_theme_shell['app_menu']
+	|| 'menu-bar' === $wp_adminos_theme_shell['status_area']
+	|| 'mark' === $wp_adminos_theme_shell['system_menu'];
+$wp_adminos_has_launcher  = 'none' !== $wp_adminos_theme_shell['launcher'];
 $wp_adminos_window_chrome = wp_parse_args(
 	isset( $theme['window_chrome'] ) && is_array( $theme['window_chrome'] ) ? $theme['window_chrome'] : array(),
 	array(
@@ -203,6 +208,8 @@ $wp_adminos_shell_attributes     = array(
 	'data-aos-shell-system-menu'      => $wp_adminos_theme_shell['system_menu'],
 	'data-aos-shell-app-menu'         => $wp_adminos_theme_shell['app_menu'],
 	'data-aos-shell-status-area'      => $wp_adminos_theme_shell['status_area'],
+	'data-aos-shell-has-menu-bar'     => $wp_adminos_has_menu_bar ? '1' : '0',
+	'data-aos-shell-has-launcher'     => $wp_adminos_has_launcher ? '1' : '0',
 	'data-aos-window-controls-placement' => $wp_adminos_window_controls['placement'],
 	'data-aos-window-controls-style'  => $wp_adminos_window_controls['style'],
 	'data-aos-window-title-alignment' => $wp_adminos_window_title['alignment'],
@@ -237,19 +244,22 @@ if ( $wp_adminos_shell_style ) {
 <div <?php foreach ( $wp_adminos_shell_attributes as $wp_adminos_attribute => $wp_adminos_value ) : ?><?php echo esc_attr( $wp_adminos_attribute ); ?><?php if ( '' !== $wp_adminos_value ) : ?>="<?php echo esc_attr( $wp_adminos_value ); ?>"<?php endif; ?> <?php endforeach; ?>>
 	<?php
 	if ( 'auto' === $wp_adminos_appearance['mode'] ) {
-		// Resolve Auto appearance before the menu bar and dock paint.
+		// Resolve Auto appearance before shell surfaces paint.
 		wp_print_inline_script_tag(
 			'(function(){var shell=document.currentScript&&document.currentScript.parentElement;if(shell&&window.matchMedia){shell.dataset.aosEffectiveAppearance=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}})();'
 		);
 	}
 	?>
 	<?php
-	$this->render_part(
-		'shell/menu-bar.php',
-		array(
-			'site_name' => $site_name,
-		)
-	);
+	if ( $wp_adminos_has_menu_bar ) {
+		$this->render_part(
+			'shell/menu-bar.php',
+			array(
+				'site_name' => $site_name,
+				'shell'     => $wp_adminos_theme_shell,
+			)
+		);
+	}
 
 	$this->render_part(
 		'shell/desktop.php',
@@ -260,6 +270,7 @@ if ( $wp_adminos_shell_style ) {
 			'widgets'         => $widgets,
 			'folders'         => $folders,
 			'theme'           => $theme,
+			'shell'           => $wp_adminos_theme_shell,
 			'workspace_state' => isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array(),
 		)
 	);

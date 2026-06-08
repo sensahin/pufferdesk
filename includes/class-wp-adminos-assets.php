@@ -339,9 +339,25 @@ final class WP_AdminOS_Assets {
 				'path' => 'assets/js/core/apps/settings/panel-wallpaper.js',
 				'deps' => array( 'wp-adminos-settings-labels', 'wp-adminos-settings-ui' ),
 			),
+			'wp-adminos-settings-panel-widgets' => array(
+				'path' => 'assets/js/core/apps/settings/panel-widgets.js',
+				'deps' => array( 'wp-adminos-settings-labels', 'wp-adminos-settings-ui' ),
+			),
+			'wp-adminos-settings-panel-apps' => array(
+				'path' => 'assets/js/core/apps/settings/panel-apps.js',
+				'deps' => array( 'wp-adminos-settings-labels', 'wp-adminos-settings-ui' ),
+			),
+			'wp-adminos-settings-panel-workspace' => array(
+				'path' => 'assets/js/core/apps/settings/panel-workspace.js',
+				'deps' => array( 'wp-adminos-settings-labels', 'wp-adminos-settings-ui', 'wp-adminos-session-store', 'wp-adminos-reopen-policy', 'wp-adminos-api-client' ),
+			),
+			'wp-adminos-settings-panel-system' => array(
+				'path' => 'assets/js/core/apps/settings/panel-system.js',
+				'deps' => array( 'wp-adminos-settings-labels', 'wp-adminos-settings-ui' ),
+			),
 			'wp-adminos-settings-app'   => array(
 				'path' => 'assets/js/core/apps/settings-app.js',
-				'deps' => array( 'wp-adminos-dom', 'wp-adminos-storage', 'wp-adminos-api-client', 'wp-adminos-appearance', 'wp-adminos-desktop-dock', 'wp-adminos-menu-bar-state', 'wp-adminos-wallpaper', 'wp-adminos-app-surfaces', 'wp-adminos-native-apps', 'wp-adminos-settings-labels', 'wp-adminos-settings-ui', 'wp-adminos-settings-panel-general', 'wp-adminos-settings-panel-profile', 'wp-adminos-settings-panel-appearance', 'wp-adminos-settings-panel-desktop-dock', 'wp-adminos-settings-panel-menu-bar', 'wp-adminos-settings-panel-wallpaper' ),
+				'deps' => array( 'wp-adminos-dom', 'wp-adminos-storage', 'wp-adminos-api-client', 'wp-adminos-appearance', 'wp-adminos-desktop-dock', 'wp-adminos-menu-bar-state', 'wp-adminos-wallpaper', 'wp-adminos-app-surfaces', 'wp-adminos-native-apps', 'wp-adminos-settings-labels', 'wp-adminos-settings-ui', 'wp-adminos-settings-panel-general', 'wp-adminos-settings-panel-profile', 'wp-adminos-settings-panel-appearance', 'wp-adminos-settings-panel-desktop-dock', 'wp-adminos-settings-panel-menu-bar', 'wp-adminos-settings-panel-wallpaper', 'wp-adminos-settings-panel-widgets', 'wp-adminos-settings-panel-apps', 'wp-adminos-settings-panel-workspace', 'wp-adminos-settings-panel-system' ),
 			),
 				'wp-adminos-app-launcher'   => array(
 					'path' => 'assets/js/core/apps/app-launcher.js',
@@ -433,11 +449,12 @@ final class WP_AdminOS_Assets {
 			'logoutUrl'      => $this->get_logout_url(),
 			'menuBar'        => $this->preferences->get_menu_bar(),
 			'settings'       => $this->get_settings_config( $theme ),
+			'shellCapabilities' => $this->get_shell_capabilities_config( $theme ),
 			'shellChrome'    => isset( $theme['shell'] ) ? $theme['shell'] : array(),
 			'shellUrl'       => $this->router->get_shell_url(),
 			'siteInfo'       => $this->get_site_info_config(),
 			'siteName'       => get_bloginfo( 'name' ),
-			'system'         => $this->get_system_config(),
+			'system'         => $this->get_system_config( $theme ),
 			'themes'         => $this->theme_registry->get_selectable_themes(),
 			'wallpaper'      => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
 			'workspace'      => array(
@@ -737,6 +754,56 @@ final class WP_AdminOS_Assets {
 	}
 
 	/**
+	 * Shell surface capabilities derived from normalized theme metadata.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @return array<string,mixed>
+	 */
+	private function get_shell_capabilities_config( $theme = array() ) {
+		$shell       = isset( $theme['shell'] ) && is_array( $theme['shell'] ) ? $theme['shell'] : array();
+		$launcher    = isset( $shell['launcher'] ) ? (string) $shell['launcher'] : 'dock';
+		$top_bar     = isset( $shell['top_bar'] ) ? (string) $shell['top_bar'] : 'menu-bar';
+		$system_menu = isset( $shell['system_menu'] ) ? (string) $shell['system_menu'] : 'mark';
+		$app_menu    = isset( $shell['app_menu'] ) ? (string) $shell['app_menu'] : 'global';
+		$status_area = isset( $shell['status_area'] ) ? (string) $shell['status_area'] : 'menu-bar';
+		$has_launcher = 'none' !== $launcher;
+		$has_menu_bar = 'menu-bar' === $top_bar || 'global' === $app_menu || 'menu-bar' === $status_area || 'mark' === $system_menu;
+
+		return array(
+			'hasLauncher'       => $has_launcher,
+			'hasDock'           => 'dock' === $launcher,
+			'hasTaskbar'        => 'taskbar' === $launcher || 'taskbar' === $top_bar || 'taskbar' === $status_area || 'start' === $system_menu,
+			'hasMenuBar'        => $has_menu_bar,
+			'hasGlobalAppMenu'  => 'global' === $app_menu,
+			'hasSystemMenu'     => 'none' !== $system_menu,
+			'hasStatusArea'     => 'none' !== $status_area,
+			'launcher'          => array(
+				'enabled'       => $has_launcher,
+				'kind'          => $launcher,
+				'position'      => 'dock' === $launcher,
+				'magnification' => 'dock' === $launcher,
+				'autoHide'      => $has_launcher,
+				'indicators'    => $has_launcher,
+			),
+			'menuBar'           => array(
+				'enabled'    => $has_menu_bar,
+				'autoHide'   => $has_menu_bar,
+				'background' => $has_menu_bar,
+				'recent'     => 'global' === $app_menu,
+			),
+			'appLocations'      => array(
+				'launcher' => $has_launcher,
+				'desktop'  => true,
+			),
+			'appearance'        => array(
+				'windowMaterial'  => isset( $theme['family'] ) && 'adminos' === $theme['family'],
+				'accentColor'     => true,
+				'iconWidgetStyle' => true,
+			),
+		);
+	}
+
+	/**
 	 * Settings data used by native System Settings panels.
 	 *
 	 * @param array<string,mixed> $theme Current theme.
@@ -744,6 +811,7 @@ final class WP_AdminOS_Assets {
 	 */
 	private function get_settings_config( $theme = array() ) {
 		return array(
+			'capabilities' => $this->get_shell_capabilities_config( $theme ),
 			'general' => array(
 				'description' => __( 'Manage site information, updates, language, privacy, and WordPress tools.', 'wp-adminos' ),
 				'groups'      => $this->get_general_settings_groups(),
@@ -760,10 +828,23 @@ final class WP_AdminOS_Assets {
 	 */
 	private function get_settings_labels_config( $theme = array() ) {
 		$shell_labels           = $this->get_theme_shell_labels( $theme );
+		$capabilities           = $this->get_shell_capabilities_config( $theme );
 		$launcher_label         = $shell_labels['launcher'];
 		$desktop_launcher_label = $shell_labels['desktop_launcher'];
 		$launcher_and_desktop   = $shell_labels['launcher_and_desktop'];
 		$menu_bar_label         = $shell_labels['menu_bar'];
+		$app_location_options   = array(
+			array( 'value' => 'desktop', 'label' => __( 'Desktop', 'wp-adminos' ) ),
+			array( 'value' => 'hidden', 'label' => __( 'Hidden', 'wp-adminos' ) ),
+		);
+		if ( ! empty( $capabilities['appLocations']['launcher'] ) ) {
+			$app_location_options = array(
+				array( 'value' => 'dock', 'label' => $launcher_label ),
+				array( 'value' => 'desktop', 'label' => __( 'Desktop', 'wp-adminos' ) ),
+				array( 'value' => 'both', 'label' => $launcher_and_desktop ),
+				array( 'value' => 'hidden', 'label' => __( 'Hidden', 'wp-adminos' ) ),
+			);
+		}
 
 		return array(
 			'status'       => array(
@@ -778,6 +859,8 @@ final class WP_AdminOS_Assets {
 				),
 				'appLocationsSaveError'  => __( 'App locations could not be saved.', 'wp-adminos' ),
 				'appLocationsSaved'      => __( 'App locations saved.', 'wp-adminos' ),
+				'loginItemsSaveError'    => __( 'Login items could not be saved.', 'wp-adminos' ),
+				'loginItemsSaved'        => __( 'Login items saved.', 'wp-adminos' ),
 				'menuBarSaveError'       => sprintf(
 					/* translators: %s: theme-specific menu bar label. */
 					__( '%s could not be saved.', 'wp-adminos' ),
@@ -824,6 +907,7 @@ final class WP_AdminOS_Assets {
 						'label' => $menu_bar_label,
 						'icon'  => 'dashicons-menu-alt3',
 						'tone'  => 'gray',
+						'visible' => ! empty( $capabilities['menuBar']['enabled'] ),
 					),
 					array(
 						'id'    => 'wallpaper',
@@ -832,32 +916,28 @@ final class WP_AdminOS_Assets {
 						'tone'  => 'cyan',
 					),
 					array(
-						'id'       => 'widgets',
-						'label'    => __( 'Widgets', 'wp-adminos' ),
-						'icon'     => 'dashicons-screenoptions',
-						'tone'     => 'green',
-						'disabled' => true,
+						'id'    => 'widgets',
+						'label' => __( 'Widgets', 'wp-adminos' ),
+						'icon'  => 'dashicons-screenoptions',
+						'tone'  => 'green',
 					),
 					array(
-						'id'       => 'apps',
-						'label'    => __( 'Apps', 'wp-adminos' ),
-						'icon'     => 'dashicons-grid-view',
-						'tone'     => 'purple',
-						'disabled' => true,
+						'id'    => 'apps',
+						'label' => __( 'Apps', 'wp-adminos' ),
+						'icon'  => 'dashicons-grid-view',
+						'tone'  => 'purple',
 					),
 					array(
-						'id'       => 'workspace',
-						'label'    => __( 'Workspace', 'wp-adminos' ),
-						'icon'     => 'dashicons-layout',
-						'tone'     => 'orange',
-						'disabled' => true,
+						'id'    => 'workspace',
+						'label' => __( 'Workspace', 'wp-adminos' ),
+						'icon'  => 'dashicons-layout',
+						'tone'  => 'orange',
 					),
 					array(
-						'id'       => 'system',
-						'label'    => __( 'System', 'wp-adminos' ),
-						'icon'     => 'dashicons-admin-tools',
-						'tone'     => 'red',
-						'disabled' => true,
+						'id'    => 'system',
+						'label' => __( 'System', 'wp-adminos' ),
+						'icon'  => 'dashicons-admin-tools',
+						'tone'  => 'red',
 					),
 				),
 			),
@@ -975,12 +1055,7 @@ final class WP_AdminOS_Assets {
 						array( 'value' => 'never', 'label' => __( 'Never', 'wp-adminos' ) ),
 					),
 				),
-				'appLocationOptions' => array(
-					array( 'value' => 'dock', 'label' => $launcher_label ),
-					array( 'value' => 'desktop', 'label' => __( 'Desktop', 'wp-adminos' ) ),
-					array( 'value' => 'both', 'label' => $launcher_and_desktop ),
-					array( 'value' => 'hidden', 'label' => __( 'Hidden', 'wp-adminos' ) ),
-				),
+				'appLocationOptions' => $app_location_options,
 			),
 			'menuBar'      => array(
 				'rows'          => array(
@@ -1019,6 +1094,46 @@ final class WP_AdminOS_Assets {
 				'chooseWallpaperTitle'    => __( 'Choose Wallpaper', 'wp-adminos' ),
 				'useAsWallpaperLabel'     => __( 'Use as Wallpaper', 'wp-adminos' ),
 				'customWallpaperLabel'    => __( 'Custom Wallpaper', 'wp-adminos' ),
+			),
+			'widgets'      => array(
+				'title'             => __( 'Widgets', 'wp-adminos' ),
+				'description'       => __( 'Choose which desktop widgets are visible.', 'wp-adminos' ),
+				'emptyLabel'        => __( 'No widgets are registered for this account.', 'wp-adminos' ),
+				'showOnDesktopLabel' => __( 'Show on desktop', 'wp-adminos' ),
+			),
+			'apps'         => array(
+				'title'               => __( 'Apps', 'wp-adminos' ),
+				'description'         => __( 'Choose where apps appear and which apps open when WP adminOS starts.', 'wp-adminos' ),
+				'emptyLabel'          => __( 'No apps are available for this account.', 'wp-adminos' ),
+				'fixedPlacementLabel' => __( 'Fixed', 'wp-adminos' ),
+				'openAtLoginLabel'    => __( 'Open at login', 'wp-adminos' ),
+			),
+			'workspace'    => array(
+				'title'                   => __( 'Workspace', 'wp-adminos' ),
+				'cancelLabel'             => __( 'Cancel', 'wp-adminos' ),
+				'resettingLabel'          => __( 'Resetting...', 'wp-adminos' ),
+				'resetError'              => __( 'Workspace layout could not be reset.', 'wp-adminos' ),
+				'resetCurrentButton'      => __( 'Reset Current Theme Layout', 'wp-adminos' ),
+				'resetCurrentConfirmLabel' => __( 'Reset', 'wp-adminos' ),
+				'resetCurrentDescription' => __( 'Reset windows, widgets, desktop icons, and launcher order for the active theme.', 'wp-adminos' ),
+				'resetCurrentLabel'       => __( 'Current theme layout', 'wp-adminos' ),
+				'resetCurrentMessage'     => __( 'This resets the saved windows, widgets, desktop icons, and launcher order for the current theme.', 'wp-adminos' ),
+				'resetCurrentTitle'       => __( 'Reset Current Theme Layout?', 'wp-adminos' ),
+				'resetAllButton'          => __( 'Reset Layouts for All Themes', 'wp-adminos' ),
+				'resetAllConfirmLabel'    => __( 'Reset All', 'wp-adminos' ),
+				'resetAllDescription'     => __( 'Clear saved workspace layouts across every theme for this WordPress account.', 'wp-adminos' ),
+				'resetAllLabel'           => __( 'All theme layouts', 'wp-adminos' ),
+				'resetAllMessage'         => __( 'This resets saved workspace layouts for every WP adminOS theme for this WordPress account.', 'wp-adminos' ),
+				'resetAllTitle'           => __( 'Reset Layouts for All Themes?', 'wp-adminos' ),
+			),
+			'system'       => array(
+				'title'              => __( 'System', 'wp-adminos' ),
+				'restartLabel'       => __( 'Restart WP adminOS...', 'wp-adminos' ),
+				'restartDescription' => __( 'Reload WP adminOS and start a fresh shell session.', 'wp-adminos' ),
+				'classicLabel'       => __( 'Switch to Classic Admin...', 'wp-adminos' ),
+				'classicDescription' => __( 'Leave the shell and open the standard WordPress admin.', 'wp-adminos' ),
+				'eraseLabel'         => __( 'Erase All Content and Settings...', 'wp-adminos' ),
+				'eraseDescription'   => __( 'Reset WP adminOS preferences, wallpaper, apps, windows, widgets, and layout for this account.', 'wp-adminos' ),
 			),
 		);
 	}
@@ -1176,9 +1291,10 @@ final class WP_AdminOS_Assets {
 	 *
 	 * @return array<string,mixed>
 	 */
-	private function get_system_config() {
+	private function get_system_config( $theme = array() ) {
 		$current_user = wp_get_current_user();
 		$user_label   = $current_user->display_name ? $current_user->display_name : $current_user->user_login;
+		$shell_labels = $this->get_theme_shell_labels( $theme );
 
 		return array(
 			'actions' => array(
@@ -1224,7 +1340,11 @@ final class WP_AdminOS_Assets {
 				),
 				'eraseContentSettings' => array(
 					'title'          => __( 'Erase All Content and Settings?', 'wp-adminos' ),
-					'message'        => __( 'This will reset WP adminOS settings, wallpaper, dock, windows, and layout for this WordPress account. WordPress site content will not be affected.', 'wp-adminos' ),
+					'message'        => sprintf(
+						/* translators: %s: theme-specific launcher label, such as Dock or Taskbar. */
+						__( 'This will reset WP adminOS settings, wallpaper, %s, windows, and layout for this WordPress account. WordPress site content will not be affected.', 'wp-adminos' ),
+						$shell_labels['launcher']
+					),
 					'confirmLabel'   => __( 'Erase', 'wp-adminos' ),
 					'cancelLabel'    => __( 'Cancel', 'wp-adminos' ),
 					'overlayMessage' => __( 'Erasing WP adminOS settings...', 'wp-adminos' ),
@@ -1383,33 +1503,118 @@ final class WP_AdminOS_Assets {
 				),
 			),
 			'labels'     => array(
-				'site'                   => get_bloginfo( 'name' ),
-				'file'                   => __( 'File', 'wp-adminos' ),
-				'edit'                   => __( 'Edit', 'wp-adminos' ),
-				'view'                   => __( 'View', 'wp-adminos' ),
-				'go'                     => __( 'Go', 'wp-adminos' ),
-				'window'                 => __( 'Window', 'wp-adminos' ),
-				'help'                   => __( 'Help', 'wp-adminos' ),
-				'admin'                  => __( 'Admin', 'wp-adminos' ),
-				'folder_suffix'          => __( 'Folder', 'wp-adminos' ),
-				'open_in_new_tab'        => __( 'Open in New Tab', 'wp-adminos' ),
-				'new_tab'                => __( 'New Tab', 'wp-adminos' ),
-					'close_tab'              => __( 'Close Tab', 'wp-adminos' ),
-					'folder_tabs'            => __( 'Folder Tabs', 'wp-adminos' ),
-					'trash'                  => __( 'Trash', 'wp-adminos' ),
-					'empty'                  => __( 'Empty', 'wp-adminos' ),
-					'move_to_trash'          => __( 'Move to Trash', 'wp-adminos' ),
-				'put_back'               => __( 'Put Back', 'wp-adminos' ),
-				'empty_trash'            => __( 'Empty Trash', 'wp-adminos' ),
-				'delete_immediately'     => __( 'Delete Immediately', 'wp-adminos' ),
-				'launcher'               => $shell_labels['launcher'],
-				'launcher_options'       => $shell_labels['launcher_options'],
-				'keep_in_launcher'       => $shell_labels['keep_in_launcher'],
-				'remove_from_launcher'   => $shell_labels['remove_from_launcher'],
-				'open_at_login'          => $shell_labels['open_at_login'],
-				'window_close'           => $window_control_labels['close'],
-				'window_minimize'        => $window_control_labels['minimize'],
-				'window_maximize'        => $window_control_labels['maximize'],
+				'site'                    => get_bloginfo( 'name' ),
+				'file'                    => __( 'File', 'wp-adminos' ),
+				'edit'                    => __( 'Edit', 'wp-adminos' ),
+				'view'                    => __( 'View', 'wp-adminos' ),
+				'go'                      => __( 'Go', 'wp-adminos' ),
+				'window'                  => __( 'Window', 'wp-adminos' ),
+				'help'                    => __( 'Help', 'wp-adminos' ),
+				'admin'                   => __( 'Admin', 'wp-adminos' ),
+				'app'                     => __( 'App', 'wp-adminos' ),
+				'apps'                    => __( 'Apps', 'wp-adminos' ),
+				'desktop'                 => __( 'Desktop', 'wp-adminos' ),
+				'desktop_folders'         => __( 'Desktop folders', 'wp-adminos' ),
+				'folder'                  => __( 'Folder', 'wp-adminos' ),
+				'folder_suffix'           => __( 'Folder', 'wp-adminos' ),
+				'untitled_folder'         => __( 'untitled folder', 'wp-adminos' ),
+				'new_folder'              => __( 'New Folder', 'wp-adminos' ),
+				'get_info'                => __( 'Get Info', 'wp-adminos' ),
+				'cancel'                  => __( 'Cancel', 'wp-adminos' ),
+				'open'                    => __( 'Open', 'wp-adminos' ),
+				'show'                    => __( 'Show', 'wp-adminos' ),
+				'quit'                    => __( 'Quit', 'wp-adminos' ),
+				'about'                   => __( 'About', 'wp-adminos' ),
+				'open_in_browser_tab'     => __( 'Open in Browser Tab', 'wp-adminos' ),
+				'open_in_new_tab'         => __( 'Open in New Tab', 'wp-adminos' ),
+				'new_tab'                 => __( 'New Tab', 'wp-adminos' ),
+				'close_tab'               => __( 'Close Tab', 'wp-adminos' ),
+				'folder_tabs'             => __( 'Folder Tabs', 'wp-adminos' ),
+				'add_to_folder'           => __( 'Add to Folder', 'wp-adminos' ),
+				'move_to_folder'          => __( 'Move to Folder', 'wp-adminos' ),
+				'remove_from_folder'      => __( 'Remove from Folder', 'wp-adminos' ),
+				'toolbar'                 => __( 'Toolbar', 'wp-adminos' ),
+				'icons_and_text'          => __( 'Icons and Text', 'wp-adminos' ),
+				'icons_only'              => __( 'Icons Only', 'wp-adminos' ),
+				'text_only'               => __( 'Text Only', 'wp-adminos' ),
+				'show_toolbar'            => __( 'Show Toolbar', 'wp-adminos' ),
+				'hide_toolbar'            => __( 'Hide Toolbar', 'wp-adminos' ),
+				'close_window'            => __( 'Close Window', 'wp-adminos' ),
+				'system_settings'         => __( 'System Settings...', 'wp-adminos' ),
+				'undo'                    => __( 'Undo', 'wp-adminos' ),
+				'redo'                    => __( 'Redo', 'wp-adminos' ),
+				'cut'                     => __( 'Cut', 'wp-adminos' ),
+				'copy'                    => __( 'Copy', 'wp-adminos' ),
+				'paste'                   => __( 'Paste', 'wp-adminos' ),
+				'select_all'              => __( 'Select All', 'wp-adminos' ),
+				'sort_by'                 => __( 'Sort By', 'wp-adminos' ),
+				'sort_name'               => __( 'Name', 'wp-adminos' ),
+				'sort_kind'               => __( 'Kind', 'wp-adminos' ),
+				'sort_snap_to_grid'       => __( 'Snap to Grid', 'wp-adminos' ),
+				'sort_last_modified_by'   => __( 'Last Modified By', 'wp-adminos' ),
+				'sort_date_last_opened'   => __( 'Date Last Opened', 'wp-adminos' ),
+				'sort_date_added'         => __( 'Date Added', 'wp-adminos' ),
+				'sort_date_modified'      => __( 'Date Modified', 'wp-adminos' ),
+				'sort_date_created'       => __( 'Date Created', 'wp-adminos' ),
+				'sort_size'               => __( 'Size', 'wp-adminos' ),
+				'sort_none'               => __( 'None', 'wp-adminos' ),
+				'use_groups'              => __( 'Use Groups', 'wp-adminos' ),
+				'show_view_options'       => __( 'Show View Options', 'wp-adminos' ),
+				'reset_layout'            => __( 'Reset Layout', 'wp-adminos' ),
+				'refresh'                 => __( 'Refresh', 'wp-adminos' ),
+				'change_wallpaper'        => __( 'Change Wallpaper...', 'wp-adminos' ),
+				'back'                    => __( 'Back', 'wp-adminos' ),
+				'forward'                 => __( 'Forward', 'wp-adminos' ),
+					'reload'                  => __( 'Reload', 'wp-adminos' ),
+					'reload_page'             => __( 'Reload Page', 'wp-adminos' ),
+					'zoom'                    => __( 'Zoom', 'wp-adminos' ),
+					'clear_menu'              => __( 'Clear Menu', 'wp-adminos' ),
+					/* translators: %s: active window or app title. */
+					'close_item_format'       => __( 'Close %s', 'wp-adminos' ),
+					'bring_to_front'          => __( 'Bring to Front', 'wp-adminos' ),
+				'show_all_windows'        => __( 'Show All', 'wp-adminos' ),
+				'hide'                    => __( 'Hide', 'wp-adminos' ),
+				'hide_others'             => __( 'Hide Others', 'wp-adminos' ),
+				'hide_widget'             => __( 'Hide Widget', 'wp-adminos' ),
+				'rename'                  => __( 'Rename', 'wp-adminos' ),
+					'context_menu'            => __( 'Context Menu', 'wp-adminos' ),
+					'trash'                   => __( 'Trash', 'wp-adminos' ),
+					/* translators: %d: number of items in the trash. */
+					'trash_item_count'        => __( 'Trash, %d item', 'wp-adminos' ),
+					/* translators: %d: number of items in the trash. */
+					'trash_item_count_plural' => __( 'Trash, %d items', 'wp-adminos' ),
+				'wp_adminos_desktop'      => __( 'WP adminOS Desktop', 'wp-adminos' ),
+				'wp_adminos_trash_source' => __( 'WP adminOS Trash', 'wp-adminos' ),
+					'wp_adminos_user_folder_source' => __( 'WP adminOS user folder', 'wp-adminos' ),
+					'wordpress_admin_group_source' => __( 'WordPress admin group', 'wp-adminos' ),
+					/* translators: %s: WordPress admin menu group label. */
+					'wordpress_admin_menu_format' => __( 'WordPress Admin Menu > %s', 'wp-adminos' ),
+					'empty'                   => __( 'Empty', 'wp-adminos' ),
+					'move_to_trash'           => __( 'Move to Trash', 'wp-adminos' ),
+					'move_folder_to_trash_message' => __( 'Only this WP adminOS folder will be moved. Apps and plugins inside it stay installed and available.', 'wp-adminos' ),
+					/* translators: %s: folder label. */
+					'move_folder_to_trash_title_format' => __( 'Move "%s" to Trash?', 'wp-adminos' ),
+				'put_back'                => __( 'Put Back', 'wp-adminos' ),
+				'empty_trash'             => __( 'Empty Trash', 'wp-adminos' ),
+				'delete'                  => __( 'Delete', 'wp-adminos' ),
+				'delete_immediately'      => __( 'Delete Immediately', 'wp-adminos' ),
+				'delete_immediately_title' => __( 'Delete Immediately?', 'wp-adminos' ),
+				'delete_immediately_message' => __( 'This permanently deletes the WP adminOS folder record. Apps and plugins are not deleted.', 'wp-adminos' ),
+				'delete_immediately_fallback_message' => __( 'Delete this WP adminOS folder record immediately?', 'wp-adminos' ),
+				'about_this_site'         => __( 'About This Site', 'wp-adminos' ),
+				'about_wp_adminos'        => __( 'About WP adminOS', 'wp-adminos' ),
+					'wordpress_documentation' => __( 'WordPress Documentation', 'wp-adminos' ),
+					'support_forums'          => __( 'Support Forums', 'wp-adminos' ),
+					'launcher'                => $shell_labels['launcher'],
+					'launcher_options'        => $shell_labels['launcher_options'],
+					/* translators: %s: theme-specific launcher label, such as Dock or Taskbar. */
+					'fixed_launcher_placement_format' => __( 'App has a fixed %s placement.', 'wp-adminos' ),
+				'keep_in_launcher'        => $shell_labels['keep_in_launcher'],
+				'remove_from_launcher'    => $shell_labels['remove_from_launcher'],
+				'open_at_login'           => $shell_labels['open_at_login'],
+				'window_close'            => $window_control_labels['close'],
+				'window_minimize'         => $window_control_labels['minimize'],
+				'window_maximize'         => $window_control_labels['maximize'],
 			),
 		);
 	}

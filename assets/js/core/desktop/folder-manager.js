@@ -47,6 +47,21 @@
 			return typeof menuLabels[key] === 'string' && menuLabels[key] ? menuLabels[key] : fallback;
 		}
 
+		function formatMenuLabel(key, fallback, values = []) {
+			let index = 0;
+			const template = getMenuLabel(key, fallback);
+
+			return String(template).replace(/%d|%s/g, () => String(values[index++] ?? ''));
+		}
+
+		function getUntitledFolderLabel() {
+			return getMenuLabel('untitled_folder', 'untitled folder');
+		}
+
+		function getFolderLabel() {
+			return getMenuLabel('folder', 'Folder');
+		}
+
 		function getTrashFolder() {
 			const app = appMap.get(trashFolderId) || {};
 
@@ -71,7 +86,7 @@
 		}
 
 		function uniqueLabel(label, exceptId = '') {
-			const base = String(label || '').trim() || 'untitled folder';
+			const base = String(label || '').trim() || getUntitledFolderLabel();
 			const taken = getTakenLabels(exceptId);
 			let next = base;
 			let suffix = 2;
@@ -119,7 +134,7 @@
 				icon: folder.icon || getDefaultFolderIcon(),
 				id,
 				kind: 'user',
-				label: String(folder.label || '').trim() || 'untitled folder',
+				label: String(folder.label || '').trim() || getUntitledFolderLabel(),
 				lastOpenedAt: normalizeTimestamp(folder.lastOpenedAt),
 				modifiedAt: normalizeTimestamp(folder.modifiedAt, normalizeTimestamp(folder.createdAt, now)),
 				user: true
@@ -132,7 +147,7 @@
 			const labels = new Set();
 
 			userFolders.forEach((folder) => {
-				const base = folder.label || 'untitled folder';
+				const base = folder.label || getUntitledFolderLabel();
 				let next = base;
 				let suffix = 2;
 
@@ -200,7 +215,7 @@
 				folder: serializeFolder(folder),
 				icon: item.icon || folder.icon || getDefaultFolderIcon(),
 				id: normalizeId(item.id) || `folder-${folder.id}`,
-				label: String(item.label || folder.label || 'Folder').trim() || 'Folder',
+				label: String(item.label || folder.label || getFolderLabel()).trim() || getFolderLabel(),
 				restore: normalizeTrashRestore(item.restore),
 				trashedAt: normalizeTimestamp(item.trashedAt, new Date().toISOString()),
 				type: 'folder'
@@ -225,7 +240,7 @@
 				folder: serializeFolder(item.folder),
 				icon: item.icon || item.folder.icon || getDefaultFolderIcon(),
 				id: item.id,
-				label: item.label || item.folder.label || 'Folder',
+				label: item.label || item.folder.label || getFolderLabel(),
 				restore: normalizeTrashRestore(item.restore),
 				trashedAt: item.trashedAt || '',
 				type: 'folder'
@@ -302,7 +317,7 @@
 			}
 
 			layer = dom.createElement('section', 'aos-desktop-folders aos-desktop-icon-layer');
-			layer.setAttribute('aria-label', 'Desktop folders');
+			layer.setAttribute('aria-label', getMenuLabel('desktop_folders', 'Desktop folders'));
 			desktop.insertBefore(layer, desktop.firstChild);
 
 			return layer;
@@ -385,7 +400,9 @@
 			}
 
 			const count = getTrashCount();
-			const label = count > 0 ? `Trash, ${count} item${count === 1 ? '' : 's'}` : 'Trash';
+			const label = count > 0
+				? formatMenuLabel(count === 1 ? 'trash_item_count' : 'trash_item_count_plural', count === 1 ? 'Trash, %d item' : 'Trash, %d items', [count])
+				: getMenuLabel('trash', 'Trash');
 
 			shell.querySelectorAll('[data-aos-open-app="trash"]').forEach((button) => {
 				const badge = button.querySelector('.aos-trash-badge');
@@ -548,17 +565,17 @@
 					itemCount: trashItems.length,
 					items: trashItems.map((item) => ({
 						id: item.id,
-						label: item.label || 'Folder',
+						label: item.label || getFolderLabel(),
 						source: 'trash',
 						url: ''
 					})),
-					kind: 'Trash',
-					label: folder.label || 'Trash',
+					kind: getMenuLabel('trash', 'Trash'),
+					label: folder.label || getMenuLabel('trash', 'Trash'),
 					lastOpenedAt: '',
 					modifiedAt: '',
-					source: 'WP adminOS Trash',
+					source: getMenuLabel('wp_adminos_trash_source', 'WP adminOS Trash'),
 					user: false,
-					where: 'WP adminOS Desktop'
+					where: getMenuLabel('wp_adminos_desktop', 'WP adminOS Desktop')
 				};
 			}
 
@@ -580,13 +597,15 @@
 					source: app.source || 'registry',
 					url: app.url || ''
 				})),
-				kind: 'Folder',
-				label: folder.label || 'Folder',
+				kind: getFolderLabel(),
+				label: folder.label || getFolderLabel(),
 				lastOpenedAt: userFolder ? userFolder.lastOpenedAt || '' : '',
 				modifiedAt: userFolder ? userFolder.modifiedAt || userFolder.createdAt || '' : '',
-				source: userFolder ? 'WP adminOS user folder' : 'WordPress admin group',
+				source: userFolder ? getMenuLabel('wp_adminos_user_folder_source', 'WP adminOS user folder') : getMenuLabel('wordpress_admin_group_source', 'WordPress admin group'),
 				user: Boolean(userFolder),
-				where: userFolder ? 'WP adminOS Desktop' : `WordPress Admin Menu > ${folder.label || 'Folder'}`
+				where: userFolder
+					? getMenuLabel('wp_adminos_desktop', 'WP adminOS Desktop')
+					: formatMenuLabel('wordpress_admin_menu_format', 'WordPress Admin Menu > %s', [folder.label || getFolderLabel()])
 			};
 		}
 
@@ -625,7 +644,7 @@
 			});
 		}
 
-		function createFolder(label = 'untitled folder', appIds = [], createOptions = {}) {
+		function createFolder(label = '', appIds = [], createOptions = {}) {
 			const now = new Date().toISOString();
 			const id = `user-folder-${Date.now().toString(36)}-${idCounter += 1}`;
 			const folder = {
@@ -698,7 +717,7 @@
 				folder: serializeFolder(folder),
 				icon: folder.icon || getDefaultFolderIcon(),
 				id: `folder-${folder.id}`,
-				label: folder.label || 'Folder',
+				label: folder.label || getFolderLabel(),
 				restore: {
 					desktopPosition: getFolderDesktopPosition(folder.id),
 					previousParent: 'desktop'
@@ -736,7 +755,7 @@
 				restored.id = `user-folder-${Date.now().toString(36)}-${idCounter += 1}`;
 			}
 
-			restored.label = uniqueLabel(restored.label || item.label || 'Folder', restored.id);
+			restored.label = uniqueLabel(restored.label || item.label || getFolderLabel(), restored.id);
 			markFolderModified(restored);
 			trashItems.splice(index, 1);
 			userFolders.push(restored);
@@ -886,7 +905,7 @@
 				return false;
 			}
 
-			const originalLabel = folder.label || 'untitled folder';
+			const originalLabel = folder.label || getUntitledFolderLabel();
 			let finished = false;
 			const renameMetrics = (() => {
 				const iconRect = icon.getBoundingClientRect();

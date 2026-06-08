@@ -213,7 +213,7 @@
 	}
 
 	function getDockEndAnchor(dock) {
-		return dock ? dock.querySelector('.aos-dock-separator, .aos-dock-minimized-windows, .aos-dock-item[data-aos-dock-fixed]') : null;
+		return dock ? dock.querySelector('.aos-dock-separator, .aos-dock-minimized-windows, .aos-dock-item[data-aos-dock-fixed], [data-aos-launcher-end-anchor]') : null;
 	}
 
 	function getDockOrderFromDom(dock) {

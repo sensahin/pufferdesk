@@ -282,6 +282,34 @@
 	z-index: var(--aos-layer-menu);
 }
 
+.aos-menu-bar-no-search {
+	grid-template-columns: auto minmax(220px, 1fr) minmax(48px, auto);
+}
+
+.aos-menu-bar-no-status {
+	grid-template-columns: auto auto minmax(220px, 1fr);
+}
+
+.aos-menu-bar-no-search.aos-menu-bar-no-status {
+	grid-template-columns: auto minmax(220px, 1fr);
+}
+
+.aos-menu-bar-no-app-menu {
+	grid-template-columns: auto minmax(220px, 1fr) minmax(48px, auto);
+}
+
+.aos-menu-bar-no-app-menu.aos-menu-bar-no-search {
+	grid-template-columns: auto minmax(48px, 1fr);
+}
+
+.aos-menu-bar-no-app-menu.aos-menu-bar-no-status {
+	grid-template-columns: auto minmax(220px, 1fr);
+}
+
+.aos-menu-bar-no-app-menu.aos-menu-bar-no-search.aos-menu-bar-no-status {
+	grid-template-columns: auto minmax(0, 1fr);
+}
+
 .aos-shell[data-aos-menu-bar-hidden="1"] {
 	--aos-menu-bar-height: 0px;
 	--aos-menu-bar-half-height: 0px;

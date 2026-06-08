@@ -128,6 +128,7 @@ Apps:
 - Apps may define reusable `about` metadata with `name`, `version`, `copyright`, `rights`, and `icon`; do not hard-code app-specific about windows.
 - About metadata must stay GPL-compatible for WordPress distribution. Do not use "All rights reserved" defaults in plugin UI.
 - App-specific top menu behavior belongs in the app's `menu` definition, not in hard-coded menu bar conditionals.
+- Keep the System Settings Apps panel aligned with app location and login-item preferences. It must use the existing app preference endpoints and respect fixed launcher metadata.
 - The fixed WP adminOS mark opens the system menu. Do not wire it directly to an app; system-menu items belong in the `menu.system` runtime definition.
 - Keep app IDs stable. Layout/session behavior depends on stable IDs.
 
@@ -157,6 +158,7 @@ Widgets:
 - Add widget templates under `templates/widgets/`.
 - Use `WP_AdminOS_Widget_Layout::render_attributes()` for widget positioning and size attributes.
 - Use `templates/widgets/generic.php` as the fallback, not as a dumping ground.
+- Keep the System Settings Widgets panel aligned with registered widgets so hidden widgets have a restore path through the existing `widgets` workspace section.
 
 Themes:
 
@@ -166,6 +168,8 @@ Themes:
 - Use theme `shell` metadata for OS-family shell surfaces. Supported fields include `chrome`, `top_bar`, `launcher`, `system_menu`, `app_menu`, `status_area`, and `labels`; these normalize into shell runtime config and shell `data-aos-*` attributes.
 - Use theme `window_chrome` metadata for reusable window chrome. Supported fields include `controls.placement`, `controls.order`, `controls.style`, `controls.labels`, `title.alignment`, and `title.show_icon`; do not hard-code family-specific window controls in JS.
 - Use theme shell labels for family-specific vocabulary such as Dock versus Taskbar. Do not hard-code launcher labels in settings panels, menus, or context menus when a runtime label exists.
+- Shell metadata is executable, not decorative. `top_bar`, `launcher`, `system_menu`, `app_menu`, and `status_area` must match rendered shell surfaces and settings capability visibility.
+- The internal `canary-taskbar` theme exists to test alternate shell contracts and is hidden unless `WP_ADMINOS_ENABLE_INTERNAL_THEMES` is enabled. Do not treat it as a bundled public theme or product identity.
 - Use theme `typography` metadata for font stacks, type scale, line heights, weights, and neutral letter spacing. Typography normalizes into shell CSS variables; do not hard-code family-specific fonts or type sizes into component CSS when a token exists.
 - Do not bundle Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform font files. Use system font stacks or original/licensed font assets only.
 - Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `wallpapers`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
@@ -209,6 +213,7 @@ Session:
 - Store layout by named section, such as `windows`, `widgets`, `desktopIcons`, `desktopSort`, and `recentItems`.
 - The `windows` section may persist stable `app` and `folder` window records. Keep transient windows such as About, info panels, dialogs, and one-off document helpers out of workspace restoration.
 - Workspace saves must include the last accepted server `updatedAt` revision and must not silently overwrite newer server state. Conflict responses should adopt or merge the newer server state.
+- Keep the System Settings Workspace panel wired to `WP_AdminOS_Workspace_State` actions. Current-theme layout reset should not erase unrelated preference domains; full System erase may clear preference domains and all theme workspace states.
 - Same-browser workspace sync may use `BroadcastChannel`; do not imply cross-browser live sync unless a remote polling or push mechanism exists.
 - Do not overwrite the whole session blob from one module.
 - New desktop object types should add their own section instead of hijacking `windows` or `widgets`.

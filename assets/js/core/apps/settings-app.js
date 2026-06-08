@@ -14,6 +14,9 @@
 		const wallpaper = window.WPAdminOS.wallpaper;
 		const config = context.config || window.WPAdminOS.config.get();
 		const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
+		const capabilities = settingsConfig.capabilities && typeof settingsConfig.capabilities === 'object'
+			? settingsConfig.capabilities
+			: (config.shellCapabilities && typeof config.shellCapabilities === 'object' ? config.shellCapabilities : {});
 		const settingsLabels = window.WPAdminOS.apps.settings.createLabels(settingsConfig);
 		const settingsUI = window.WPAdminOS.apps.settings.createUI({ dom });
 		const apps = Array.isArray(config.apps) ? config.apps : [];
@@ -33,12 +36,14 @@
 			? desktopDock.normalize(config.desktopDock || {})
 			: Object.assign({}, config.desktopDock || {});
 		let currentAppLocations = normalizeAppLocations(config.appLocations || {});
+		let currentAppLoginItems = normalizeAppLoginItems(config.appLoginItems || []);
 		let currentMenuBar = menuBar
 			? menuBar.normalize(config.menuBar || {})
 			: Object.assign({}, config.menuBar || {});
 		let saveTimer = null;
 		let desktopDockSaveTimer = null;
 		let appLocationSaveTimer = null;
+		let appLoginItemSaveTimer = null;
 		let menuBarSaveTimer = null;
 		let menuBarSaveSequence = 0;
 		let accentLabel = null;
@@ -62,6 +67,7 @@
 		let mediaFrame = null;
 		const desktopDockControls = [];
 		const appLocationControls = [];
+		const appLoginItemControls = [];
 		const menuBarControls = [];
 		const sidebarButtons = [];
 		const wallpaperPhotoVisibleCount = 4;
@@ -71,19 +77,24 @@
 		const desktopDockSelectOptions = t('desktopDock.selectOptions', {});
 		const appLocationOptions = settingsLabels.getOptions('desktopDock.appLocationOptions');
 		const menuBarSelectOptions = t('menuBar.selectOptions', {});
-		const sidebarItems = settingsLabels.getOptions('sidebar.items');
+		const sidebarItems = settingsLabels.getOptions('sidebar.items').filter((item) => item && item.visible !== false);
 		const profileItem = { id: 'profile', label: t('profile.sectionLabel', 'WordPress Account') };
 		const createSettingsRow = settingsUI.createSettingsRow;
 		const createSection = settingsUI.createSection;
 		const createSectionHeading = settingsUI.createSectionHeading;
 		const createButton = settingsUI.createButton;
+		const initialSidebarItem = sidebarItems.find((item) => item && !item.disabled) || sidebarItems[0] || { id: 'general' };
+		if (!sidebarItems.some((item) => item.id === activeSection && !item.disabled)) {
+			activeSection = initialSidebarItem.id;
+			activePanel = initialSidebarItem.id;
+		}
 
 		function getSidebarItem(id) {
 			if (id === profileItem.id) {
 				return profileItem;
 			}
 
-			return sidebarItems.find((item) => item.id === id) || sidebarItems[0];
+			return sidebarItems.find((item) => item.id === id) || sidebarItems[0] || { id, label: id };
 		}
 
 		function updateSidebarSelection(sectionId) {
@@ -616,6 +627,34 @@
 			return appSurfaceManager.normalizeLocations(locations);
 		}
 
+		function normalizeAppLoginItems(items = []) {
+			const validAppIds = new Set(apps.map((app) => app && app.id).filter(Boolean));
+			const normalized = [];
+			const seen = new Set();
+
+			(Array.isArray(items) ? items : []).forEach((item) => {
+				const appId = String(item || '');
+				if (!appId || seen.has(appId) || !validAppIds.has(appId)) {
+					return;
+				}
+
+				seen.add(appId);
+				normalized.push(appId);
+			});
+
+			return normalized;
+		}
+
+		function getAppLocation(appId) {
+			const fallback = appLocationOptions.length ? appLocationOptions[0].value : 'dock';
+
+			return currentAppLocations[appId] || fallback;
+		}
+
+		function appOpensAtLogin(appId) {
+			return currentAppLoginItems.includes(appId);
+		}
+
 		function renderAppLocationSurfaces() {
 			appSurfaceManager.render(currentAppLocations);
 		}
@@ -657,6 +696,46 @@
 				[appId]: location
 			}));
 			saveAppLocations(status);
+		}
+
+		function applyAppLoginItems(nextItems) {
+			currentAppLoginItems = normalizeAppLoginItems(nextItems);
+			config.appLoginItems = currentAppLoginItems.slice();
+			syncAppLoginItemControls();
+		}
+
+		function saveAppLoginItems(status) {
+			window.clearTimeout(appLoginItemSaveTimer);
+			status.textContent = t('status.saving', 'Saving...');
+
+			appLoginItemSaveTimer = window.setTimeout(() => {
+				api.post('wp_adminos_save_app_login_items', {
+					items: JSON.stringify(currentAppLoginItems)
+				})
+					.then((result) => {
+						if (!result || !result.success) {
+							status.textContent = result && result.data && result.data.message
+								? result.data.message
+								: t('status.loginItemsSaveError', 'Login items could not be saved.');
+							return;
+						}
+
+						applyAppLoginItems(result.data.appLoginItems || currentAppLoginItems);
+						status.textContent = result.data.message || t('status.loginItemsSaved', 'Login items saved.');
+					})
+					.catch((error) => {
+						status.textContent = error && error.message ? error.message : t('status.loginItemsSaveError', 'Login items could not be saved.');
+					});
+			}, 180);
+		}
+
+		function updateAppLoginItem(appId, enabled, status) {
+			const nextItems = enabled
+				? currentAppLoginItems.concat(appId)
+				: currentAppLoginItems.filter((item) => item !== appId);
+
+			applyAppLoginItems(nextItems);
+			saveAppLoginItems(status);
 		}
 
 		function applyMenuBar(nextMenuBar) {
@@ -735,7 +814,13 @@
 
 		function syncAppLocationControls() {
 			appLocationControls.forEach((entry) => {
-				entry.select.value = currentAppLocations[entry.appId] || 'dock';
+				entry.select.value = getAppLocation(entry.appId);
+			});
+		}
+
+		function syncAppLoginItemControls() {
+			appLoginItemControls.forEach((entry) => {
+				entry.button.setAttribute('aria-pressed', appOpensAtLogin(entry.appId) ? 'true' : 'false');
 			});
 		}
 
@@ -1015,7 +1100,7 @@
 				const option = document.createElement('option');
 				option.value = item.value;
 				option.textContent = item.label;
-				option.selected = (currentAppLocations[app.id] || 'dock') === item.value;
+				option.selected = getAppLocation(app.id) === item.value;
 				select.appendChild(option);
 			});
 			select.addEventListener('change', () => {
@@ -1030,6 +1115,23 @@
 			});
 
 			return wrap;
+		}
+
+		function createAppLoginItemToggle(app, status) {
+			const button = document.createElement('button');
+
+			button.type = 'button';
+			button.className = 'aos-settings-toggle';
+			button.setAttribute('aria-label', t('apps.openAtLoginLabel', 'Open at login'));
+			button.setAttribute('aria-pressed', appOpensAtLogin(app.id) ? 'true' : 'false');
+			button.addEventListener('click', () => updateAppLoginItem(app.id, !appOpensAtLogin(app.id), status));
+			button.appendChild(dom.createElement('span', 'aos-settings-toggle-knob'));
+			appLoginItemControls.push({
+				appId: app.id,
+				button
+			});
+
+			return button;
 		}
 
 		function createAppLocationRow(app, status) {
@@ -1260,20 +1362,27 @@
 			return group;
 		}
 
-		function createDesktopDockSliderSection(status) {
+		function createDesktopDockSliderSection(status, options = {}) {
 			const section = createSection('', 'aos-settings-desktop-dock-slider-section');
 			const row = dom.createElement('div', 'aos-settings-desktop-dock-slider-row');
 
-			row.appendChild(createDesktopDockRange('dock_size', t('desktopDock.rows.dockSize', 'Size'), {
-				labels: [t('desktopDock.ranges.small', 'Small'), t('desktopDock.ranges.large', 'Large')],
-				max: 72,
-				min: 28
-			}, status));
-			row.appendChild(createDesktopDockRange('dock_magnification', t('desktopDock.rows.dockMagnification', 'Magnification'), {
-				labels: [t('desktopDock.ranges.off', 'Off'), t('desktopDock.ranges.small', 'Small'), t('desktopDock.ranges.large', 'Large')],
-				max: 24,
-				min: 0
-			}, status));
+			if (options.size !== false) {
+				row.appendChild(createDesktopDockRange('dock_size', t('desktopDock.rows.dockSize', 'Size'), {
+					labels: [t('desktopDock.ranges.small', 'Small'), t('desktopDock.ranges.large', 'Large')],
+					max: 72,
+					min: 28
+				}, status));
+			}
+			if (options.magnification !== false) {
+				row.appendChild(createDesktopDockRange('dock_magnification', t('desktopDock.rows.dockMagnification', 'Magnification'), {
+					labels: [t('desktopDock.ranges.off', 'Off'), t('desktopDock.ranges.small', 'Small'), t('desktopDock.ranges.large', 'Large')],
+					max: 24,
+					min: 0
+				}, status));
+			}
+			if (!row.children.length) {
+				return section;
+			}
 			section.appendChild(row);
 
 			return section;
@@ -1551,9 +1660,13 @@
 			status.setAttribute('role', 'status');
 			status.setAttribute('aria-live', 'polite');
 			const panelContext = {
+				capabilities,
 				config,
 				createAccentGroup,
+				createAppLocationIcon,
+				createAppLocationSelect,
 				createAppLocationSection,
+				createAppLoginItemToggle,
 				createButton,
 				createCollapsibleWallpaperSection,
 				createDesktopDockSelectRow,
@@ -1575,6 +1688,8 @@
 				dom,
 				executeMenuCommand,
 				getGeneralSettingsConfig,
+				getAppLocation,
+				getAppLoginItems: () => currentAppLoginItems.slice(),
 				getThemeOptionLabel,
 				getUserProfile,
 				getWallpaperGroup,
@@ -1592,6 +1707,10 @@
 			pane.appendChild(settingsPanels.createDesktopDockPanel(panelContext));
 			pane.appendChild(settingsPanels.createMenuBarPanel(panelContext));
 			pane.appendChild(settingsPanels.createWallpaperPanel(panelContext));
+			pane.appendChild(settingsPanels.createWidgetsPanel(panelContext));
+			pane.appendChild(settingsPanels.createAppsPanel(panelContext));
+			pane.appendChild(settingsPanels.createWorkspacePanel(panelContext));
+			pane.appendChild(settingsPanels.createSystemPanel(panelContext));
 			pane.appendChild(status);
 
 		main.appendChild(createPaneHeader(t('generalPanel.title', 'General')));
@@ -1600,6 +1719,7 @@
 		content.appendChild(main);
 		syncAppearanceControls();
 		syncDesktopDockControls();
+		syncAppLoginItemControls();
 		syncMenuBarControls();
 		syncWallpaperControls();
 		setActiveSection(activeSection);

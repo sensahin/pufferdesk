@@ -172,6 +172,7 @@
 		window.WPAdminOS.contextMenuController = contextMenuController;
 		window.WPAdminOS.desktopFolderManager = folderManager;
 		window.WPAdminOS.desktopIconManager = desktopIconManager;
+		window.WPAdminOS.widgetManager = widgetManager;
 		window.WPAdminOS.shellDialogs = dialogs;
 		window.WPAdminOS.shortcutController = shortcutController;
 		window.WPAdminOS.menuController = menuController;

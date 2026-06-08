@@ -74,6 +74,8 @@
 		function createWindowControl(control, label, disabled = false) {
 			const definition = controlDefinitions[control] || controlDefinitions.close;
 			const button = document.createElement('button');
+			const labelElement = document.createElement('span');
+
 			button.type = 'button';
 			button.className = `aos-window-control aos-window-control-${definition.modifier}`;
 			button.dataset[definition.action] = '';
@@ -82,6 +84,9 @@
 			if (disabled) {
 				button.setAttribute('aria-disabled', 'true');
 			}
+			labelElement.className = 'aos-window-control-label';
+			labelElement.textContent = label;
+			button.appendChild(labelElement);
 
 			return button;
 		}

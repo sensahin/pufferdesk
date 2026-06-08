@@ -182,14 +182,14 @@
 			const items = [];
 
 			if (!isWindowDetail(detail) || isFolderWindowDetail(detail)) {
-				items.push(commandItem('New Folder', 'folder.create', {
+				items.push(commandItem(getLabel('new_folder', 'New Folder'), 'folder.create', {
 					icon: 'dashicons-category',
 					shortcut: '⇧⌘N'
 				}));
 			}
 
 			if (folderId) {
-				items.push(commandItem('Get Info', 'folder.get-info', {
+				items.push(commandItem(getLabel('get_info', 'Get Info'), 'folder.get-info', {
 					icon: 'dashicons-info-outline',
 					shortcut: '⌘I',
 					target: folderId
@@ -202,20 +202,20 @@
 				}
 
 				if (hasBrowserTabTarget(detail)) {
-					items.push(commandItem('Open in Browser Tab', 'window.open-browser-tab', {
+					items.push(commandItem(getLabel('open_in_browser_tab', 'Open in Browser Tab'), 'window.open-browser-tab', {
 						icon: 'dashicons-external'
 					}));
 					items.push(separator());
 				}
 
-				items.push(commandItem('Close Window', 'window.close', {
+				items.push(commandItem(getLabel('close_window', 'Close Window'), 'window.close', {
 					icon: 'dashicons-dismiss',
 					shortcut: '⌘W'
 				}));
 			}
 
 			if (!items.length) {
-				items.push(commandItem('System Settings...', 'open-app', {
+				items.push(commandItem(getLabel('system_settings', 'System Settings...'), 'open-app', {
 					icon: 'dashicons-admin-customizer',
 					target: 'os-settings'
 				}));
@@ -226,31 +226,31 @@
 
 		function getEditItems() {
 			return [
-				{ disabled: true, label: 'Undo', shortcut: '⌘Z' },
-				{ disabled: true, label: 'Redo', shortcut: '⇧⌘Z' },
+				{ disabled: true, label: getLabel('undo', 'Undo'), shortcut: '⌘Z' },
+				{ disabled: true, label: getLabel('redo', 'Redo'), shortcut: '⇧⌘Z' },
 				separator(),
-				{ disabled: true, label: 'Cut', shortcut: '⌘X' },
-				{ disabled: true, label: 'Copy', shortcut: '⌘C' },
-				{ disabled: true, label: 'Paste', shortcut: '⌘V' },
+				{ disabled: true, label: getLabel('cut', 'Cut'), shortcut: '⌘X' },
+				{ disabled: true, label: getLabel('copy', 'Copy'), shortcut: '⌘C' },
+				{ disabled: true, label: getLabel('paste', 'Paste'), shortcut: '⌘V' },
 				separator(),
-				{ disabled: true, label: 'Select All', shortcut: '⌘A' }
+				{ disabled: true, label: getLabel('select_all', 'Select All'), shortcut: '⌘A' }
 			];
 		}
 
 		function getSortByItems() {
 			return [
-				sortByItem('None', 'none'),
+				sortByItem(getLabel('sort_none', 'None'), 'none'),
 				separator(),
-				sortByItem('Snap to Grid', 'snap-to-grid'),
+				sortByItem(getLabel('sort_snap_to_grid', 'Snap to Grid'), 'snap-to-grid'),
 				separator(),
-				sortByItem('Name', 'name'),
-				sortByItem('Kind', 'kind'),
-				sortByItem('Last Modified By', 'last-modified-by'),
-				sortByItem('Date Last Opened', 'date-last-opened'),
-				sortByItem('Date Added', 'date-added'),
-				sortByItem('Date Modified', 'date-modified'),
-				sortByItem('Date Created', 'date-created'),
-				sortByItem('Size', 'size')
+				sortByItem(getLabel('sort_name', 'Name'), 'name'),
+				sortByItem(getLabel('sort_kind', 'Kind'), 'kind'),
+				sortByItem(getLabel('sort_last_modified_by', 'Last Modified By'), 'last-modified-by'),
+				sortByItem(getLabel('sort_date_last_opened', 'Date Last Opened'), 'date-last-opened'),
+				sortByItem(getLabel('sort_date_added', 'Date Added'), 'date-added'),
+				sortByItem(getLabel('sort_date_modified', 'Date Modified'), 'date-modified'),
+				sortByItem(getLabel('sort_date_created', 'Date Created'), 'date-created'),
+				sortByItem(getLabel('sort_size', 'Size'), 'size')
 			];
 		}
 
@@ -261,10 +261,10 @@
 						icon: 'dashicons-sort',
 						id: 'sort-by',
 						items: getSortByItems(),
-						label: 'Sort By'
+						label: getLabel('sort_by', 'Sort By')
 					},
 					separator(),
-					commandItem('Reset Layout', 'session.reset-layout', {
+					commandItem(getLabel('reset_layout', 'Reset Layout'), 'session.reset-layout', {
 						icon: 'dashicons-update'
 					})
 				];
@@ -272,28 +272,28 @@
 
 			if (isFolderWindowDetail(detail)) {
 				return [
-					commandItem('Refresh', 'folder.refresh', {
+					commandItem(getLabel('refresh', 'Refresh'), 'folder.refresh', {
 						icon: 'dashicons-update',
 						target: getActiveFolderId(detail)
 					}),
 					separator(),
-					folderToolbarDisplayItem('Icon and Text', 'icon-text', detail),
-					folderToolbarDisplayItem('Icon Only', 'icon-only', detail),
-					folderToolbarDisplayItem('Text Only', 'text-only', detail),
+					folderToolbarDisplayItem(getLabel('icons_and_text', 'Icons and Text'), 'icon-text', detail),
+					folderToolbarDisplayItem(getLabel('icons_only', 'Icons Only'), 'icon-only', detail),
+					folderToolbarDisplayItem(getLabel('text_only', 'Text Only'), 'text-only', detail),
 					separator(),
-					commandItem('Zoom', 'window.toggle-maximize', {
+					commandItem(getLabel('zoom', 'Zoom'), 'window.toggle-maximize', {
 						icon: 'dashicons-fullscreen-alt'
 					})
 				];
 			}
 
 			return [
-				commandItem('Reload Page', 'window.reload', {
+				commandItem(getLabel('reload_page', 'Reload Page'), 'window.reload', {
 					icon: 'dashicons-update',
 					shortcut: '⌘R'
 				}),
 				separator(),
-				commandItem('Zoom', 'window.toggle-maximize', {
+				commandItem(getLabel('zoom', 'Zoom'), 'window.toggle-maximize', {
 					icon: 'dashicons-fullscreen-alt'
 				})
 			];
@@ -315,11 +315,11 @@
 			const items = [];
 			if (isWindowDetail(detail) && !isFolderDetail(detail)) {
 				items.push(
-					commandItem('Back', 'window.history-back', {
+					commandItem(getLabel('back', 'Back'), 'window.history-back', {
 						icon: 'dashicons-arrow-left-alt2',
 						shortcut: '⌘['
 					}),
-					commandItem('Forward', 'window.history-forward', {
+					commandItem(getLabel('forward', 'Forward'), 'window.history-forward', {
 						icon: 'dashicons-arrow-right-alt2',
 						shortcut: '⌘]'
 					}),
@@ -352,20 +352,20 @@
 			const baseItems = existingItems.length ? existingItems : (
 				isWindowDetail(detail)
 					? [
-						commandItem('Minimize', 'window.minimize', {
+						commandItem(getLabel('window_minimize', 'Minimize'), 'window.minimize', {
 							icon: 'dashicons-minus',
 							shortcut: '⌘M'
 						}),
-						commandItem('Zoom', 'window.toggle-maximize', {
+						commandItem(getLabel('zoom', 'Zoom'), 'window.toggle-maximize', {
 							icon: 'dashicons-fullscreen-alt'
 						}),
-						commandItem('Close', 'window.close', {
+						commandItem(getLabel('window_close', 'Close'), 'window.close', {
 							icon: 'dashicons-dismiss',
 							shortcut: '⌘W'
 						})
 					]
 					: [
-						commandItem('Show All', 'window.show-all', {
+						commandItem(getLabel('show_all_windows', 'Show All'), 'window.show-all', {
 							icon: 'dashicons-visibility'
 						})
 					]
@@ -381,14 +381,14 @@
 
 		function getHelpItems() {
 			return [
-				commandItem('About This Site', 'open-site-about', {
+				commandItem(getLabel('about_this_site', 'About This Site'), 'open-site-about', {
 					icon: 'dashicons-info-outline'
 				}),
-				commandItem('WordPress Documentation', 'open-external-url', {
+				commandItem(getLabel('wordpress_documentation', 'WordPress Documentation'), 'open-external-url', {
 					icon: 'dashicons-editor-help',
 					url: 'https://wordpress.org/documentation/'
 				}),
-				commandItem('Support Forums', 'open-external-url', {
+				commandItem(getLabel('support_forums', 'Support Forums'), 'open-external-url', {
 					icon: 'dashicons-sos',
 					url: 'https://wordpress.org/support/forums/'
 				})
@@ -528,7 +528,7 @@
 						{
 							command: 'recent-items.clear',
 							id: 'clear-recent-items',
-							label: 'Clear Menu'
+							label: getLabel('clear_menu', 'Clear Menu')
 						}
 					])
 					: [];
@@ -558,7 +558,7 @@
 			}
 
 			return Object.assign({}, item, {
-				label: `Close ${title}`
+				label: getLabel('close_item_format', 'Close %s').replace('%s', title)
 			});
 		}
 
@@ -723,20 +723,22 @@
 		}
 
 		function bind() {
-			if (!menu) {
+			if (!menu && !systemButton) {
 				return;
 			}
 
 			bindSystemButton();
-			render(getInitialActiveDetail());
-			shell.addEventListener('wpAdminOS:active-window-change', (event) => {
-				render(event.detail || { kind: 'desktop' });
-			});
+			if (menu) {
+				render(getInitialActiveDetail());
+				shell.addEventListener('wpAdminOS:active-window-change', (event) => {
+					render(event.detail || { kind: 'desktop' });
+				});
+			}
 			document.addEventListener('pointerdown', (event) => {
 				if (
 					popover
 					&& !popover.contains(event.target)
-					&& !menu.contains(event.target)
+					&& (!menu || !menu.contains(event.target))
 					&& (!systemButton || !systemButton.contains(event.target))
 				) {
 					closePopover();

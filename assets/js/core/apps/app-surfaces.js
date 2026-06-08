@@ -17,8 +17,18 @@
 			return options.desktopIconManager || window.WPAdminOS.desktopIconManager || null;
 		}
 
+		function hasLauncherSurface() {
+			if (config.shellCapabilities && typeof config.shellCapabilities === 'object' && Object.prototype.hasOwnProperty.call(config.shellCapabilities, 'hasLauncher')) {
+				return config.shellCapabilities.hasLauncher !== false;
+			}
+
+			return !(config.shellChrome && typeof config.shellChrome === 'object' && config.shellChrome.launcher === 'none');
+		}
+
 		function normalizeLocations(locations = {}) {
-			const allowedLocations = ['dock', 'desktop', 'both', 'hidden'];
+			const hasLauncher = hasLauncherSurface();
+			const allowedLocations = hasLauncher ? ['dock', 'desktop', 'both', 'hidden'] : ['desktop', 'hidden'];
+			const defaultLocation = hasLauncher ? 'dock' : 'desktop';
 			const normalized = {};
 
 			apps.forEach((app) => {
@@ -27,12 +37,17 @@
 				}
 
 				if (isFixedDockApp(app)) {
-					normalized[app.id] = 'dock';
+					normalized[app.id] = hasLauncher ? 'dock' : 'hidden';
 					return;
 				}
 
-				const location = typeof locations[app.id] === 'string' ? locations[app.id] : 'dock';
-				normalized[app.id] = allowedLocations.includes(location) ? location : 'dock';
+				const location = typeof locations[app.id] === 'string' ? locations[app.id] : defaultLocation;
+				if (!hasLauncher && (location === 'dock' || location === 'both')) {
+					normalized[app.id] = 'desktop';
+					return;
+				}
+
+				normalized[app.id] = allowedLocations.includes(location) ? location : defaultLocation;
 			});
 
 			if (preserveUnknown) {
@@ -44,6 +59,8 @@
 					const location = typeof locations[appId] === 'string' ? locations[appId] : '';
 					if (allowedLocations.includes(location)) {
 						normalized[appId] = location;
+					} else if (!hasLauncher && (location === 'dock' || location === 'both')) {
+						normalized[appId] = 'desktop';
 					}
 				});
 			}
@@ -118,6 +135,12 @@
 			separator.setAttribute('aria-hidden', 'true');
 
 			return separator;
+		}
+
+		function getDockEndAnchor(dock) {
+			return dock
+				? dock.querySelector('[data-aos-launcher-end-anchor]') || dock.querySelector('.aos-dock-minimized-windows')
+				: null;
 		}
 
 		function createDockAppButton(app, options = {}) {
@@ -221,6 +244,7 @@
 
 			if (dock) {
 				const minimizedWindows = dock.querySelector('.aos-dock-minimized-windows');
+				const dockEndAnchor = getDockEndAnchor(dock);
 				const dockApps = apps.filter((app) => appIsShownIn(app, 'dock', normalizedLocations));
 				const fixedDockApps = dockApps.filter(isFixedDockApp);
 				const regularDockApps = dockApps.filter((app) => !isFixedDockApp(app));
@@ -234,14 +258,14 @@
 					}
 				});
 				orderedDockApps.forEach((app) => {
-					dock.insertBefore(createDockAppButton(app), minimizedWindows || null);
+					dock.insertBefore(createDockAppButton(app), minimizedWindows || dockEndAnchor || null);
 				});
 				if (fixedDockApps.length) {
-					dock.insertBefore(createDockSeparator(), minimizedWindows || null);
+					dock.insertBefore(createDockSeparator(), minimizedWindows || dockEndAnchor || null);
 					fixedDockApps.forEach((app) => {
-						dock.appendChild(createDockAppButton(app, {
+						dock.insertBefore(createDockAppButton(app, {
 							fixed: true
-						}));
+						}), dockEndAnchor || null);
 					});
 				}
 				syncRunningDockItems();
