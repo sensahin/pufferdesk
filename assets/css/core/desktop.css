@@ -176,8 +176,8 @@
 
 .aos-desktop-icon .aos-app-badge {
 	position: absolute;
-	right: -7px;
-	top: -7px;
+	right: var(--aos-desktop-badge-right, -4px);
+	top: var(--aos-desktop-badge-top, -4px);
 	z-index: 4;
 }
 

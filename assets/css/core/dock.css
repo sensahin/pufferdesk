@@ -71,8 +71,8 @@
 }
 
 .aos-dock-item > .aos-app-badge {
-	right: -6px;
-	top: -6px;
+	right: var(--aos-dock-badge-right, 1px);
+	top: var(--aos-dock-badge-top, 1px);
 }
 
 .aos-dock-tooltip {
