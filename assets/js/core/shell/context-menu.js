@@ -221,6 +221,7 @@
 					commandItem('Open', 'open-app', {
 						target: app.id
 					}),
+					separator(),
 					commandItem(getLabel('empty_trash', 'Empty Trash'), 'trash.empty')
 				];
 			}
@@ -251,7 +252,10 @@
 			}
 
 			if (!isFixedDockApp(app)) {
-				items.push(getDockOptionsItem(app, state));
+				items.push(
+					separator(),
+					getDockOptionsItem(app, state)
+				);
 			}
 
 			items.push(

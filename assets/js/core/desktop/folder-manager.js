@@ -388,31 +388,15 @@
 			const label = count > 0 ? `Trash, ${count} item${count === 1 ? '' : 's'}` : 'Trash';
 
 			shell.querySelectorAll('[data-aos-open-app="trash"]').forEach((button) => {
-				let badge = button.querySelector('.aos-trash-badge');
-				const badgeHost = button.classList.contains('aos-desktop-app')
-					? button.querySelector('.aos-app-icon') || button
-					: button;
-				const beforeNode = badgeHost === button
-					? button.querySelector('.aos-dock-tooltip, .screen-reader-text')
-					: null;
+				const badge = button.querySelector('.aos-trash-badge');
 
 				button.classList.toggle('is-trash-full', count > 0);
 				button.dataset.aosTrashState = count > 0 ? 'full' : 'empty';
 				button.setAttribute('aria-label', label);
 
-				if (count <= 0) {
-					if (badge) {
-						badge.remove();
-					}
-					return;
+				if (badge) {
+					badge.remove();
 				}
-
-				if (!badge) {
-					badge = dom.createElement('span', 'aos-app-badge aos-app-badge-neutral aos-trash-badge');
-					badge.setAttribute('aria-hidden', 'true');
-					badgeHost.insertBefore(badge, beforeNode);
-				}
-				badge.textContent = String(count);
 			});
 		}
 
