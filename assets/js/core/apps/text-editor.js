@@ -35,6 +35,7 @@
 		const deleteButton = createButton('pdk-document-editor-button', getLabel('delete', 'Delete'), getLabel('delete', 'Delete'));
 		const newButton = createButton('pdk-document-editor-new', getLabel('newDocument', 'New Document'), getLabel('newDocument', 'New Document'));
 		const documents = [];
+		const initialDocumentId = Number.parseInt(context.initialDocumentId, 10) || 0;
 		let currentDocument = null;
 		let isSaving = false;
 
@@ -191,10 +192,10 @@
 
 			setStatus(getLabel('loading', 'Loading...'));
 
-			return documentStore.list(getTextKind()).then((items) => {
+			return documentStore.list(getTextKind(), initialDocumentId ? { includeAllFolders: true } : {}).then((items) => {
 				documents.splice(0, documents.length, ...items);
 				renderList();
-				setCurrentDocument(documents[0] || getUntitledDocument());
+				setCurrentDocument((initialDocumentId ? documents.find((item) => Number.parseInt(item.id, 10) === initialDocumentId) : null) || documents[0] || getUntitledDocument());
 				setStatus('');
 				return documents;
 			}).catch((error) => {
@@ -247,13 +248,17 @@
 	};
 
 	if (typeof window.PufferDesk.apps.registerNativeAppRenderer === 'function') {
-		window.PufferDesk.apps.registerNativeAppRenderer('text-editor', ({ config }) => {
+		window.PufferDesk.apps.registerNativeAppRenderer('text-editor', (context = {}) => {
+			const config = context.config || {};
 			const labels = getLabels(config);
 			const title = typeof labels.textEditor === 'string' && labels.textEditor ? labels.textEditor : 'Text Editor';
 
 			return {
 				bodyClass: 'pdk-window-body pdk-document-editor-body',
-				content: window.PufferDesk.apps.createTextEditorApp({ config }),
+				content: window.PufferDesk.apps.createTextEditorApp({
+					config,
+					initialDocumentId: context.initialDocumentId
+				}),
 				height: '560px',
 				resizeMode: 'both',
 				title,

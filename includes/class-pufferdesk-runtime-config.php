@@ -33,16 +33,25 @@ final class PufferDesk_Runtime_Config {
 	private $settings_registry;
 
 	/**
+	 * Virtual filesystem service.
+	 *
+	 * @var PufferDesk_Virtual_Filesystem
+	 */
+	private $virtual_filesystem;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param PufferDesk_Router            $router Request router.
 	 * @param PufferDesk_Theme_Registry    $theme_registry Theme registry.
 	 * @param PufferDesk_Settings_Registry $settings_registry Settings registry.
+	 * @param PufferDesk_Virtual_Filesystem|null $virtual_filesystem Virtual filesystem service.
 	 */
-	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry ) {
-		$this->router            = $router;
-		$this->theme_registry    = $theme_registry;
-		$this->settings_registry = $settings_registry;
+	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry, $virtual_filesystem = null ) {
+		$this->router             = $router;
+		$this->theme_registry     = $theme_registry;
+		$this->settings_registry  = $settings_registry;
+		$this->virtual_filesystem = $virtual_filesystem instanceof PufferDesk_Virtual_Filesystem ? $virtual_filesystem : new PufferDesk_Virtual_Filesystem();
 	}
 
 	/**
@@ -80,6 +89,7 @@ final class PufferDesk_Runtime_Config {
 			'siteName'       => get_bloginfo( 'name' ),
 			'system'         => $this->get_system_config( $theme ),
 			'themes'         => $this->theme_registry->get_selectable_themes(),
+			'virtualFilesystem' => $this->virtual_filesystem->get_runtime_config( $theme ),
 			'wallpaper'      => isset( $context['wallpaper'] ) && is_array( $context['wallpaper'] ) ? $context['wallpaper'] : array(),
 			'workspace'      => array(
 				'loadAction'  => 'pufferdesk_load_workspace_state',

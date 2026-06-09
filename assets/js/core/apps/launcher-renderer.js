@@ -8,6 +8,7 @@
 		const dom = options.dom || window.PufferDesk.dom;
 		const getMenuLabel = typeof options.getMenuLabel === 'function' ? options.getMenuLabel : (key, fallback) => fallback;
 		const openApp = typeof options.openApp === 'function' ? options.openApp : () => null;
+		const openDocument = typeof options.openDocument === 'function' ? options.openDocument : () => null;
 		const openFolder = typeof options.openFolder === 'function' ? options.openFolder : () => null;
 		const renderFolderWindow = typeof options.renderFolderWindow === 'function' ? options.renderFolderWindow : () => false;
 
@@ -99,6 +100,47 @@
 			return button;
 		}
 
+		function createDocumentButton(item, folderId = '') {
+			const button = document.createElement('button');
+			const label = item && item.label ? item.label : getMenuLabel('document', 'Document');
+
+			button.type = 'button';
+			button.className = 'pdk-app-launcher pdk-document-launcher';
+			button.dataset.pdkContext = 'document';
+			button.dataset.pdkContextId = item.id || '';
+			button.dataset.pdkContextLabel = label;
+			if (folderId) {
+				button.dataset.pdkFolderId = folderId;
+			}
+			button.setAttribute('aria-label', label);
+			button.setAttribute('aria-pressed', 'false');
+			button.setAttribute('aria-selected', 'false');
+
+			const appIcon = document.createElement('span');
+			appIcon.className = 'pdk-app-icon';
+			appIcon.appendChild(dom.createIcon(item.icon || 'dashicons-media-document'));
+
+			const itemLabel = document.createElement('span');
+			itemLabel.textContent = label;
+
+			button.append(appIcon, itemLabel);
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				selectItem(button);
+			});
+			button.addEventListener('dblclick', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				openDocument(item.document || item);
+			});
+			button.addEventListener('contextmenu', () => {
+				selectItem(button);
+			});
+
+			return button;
+		}
+
 		function createTrashItemButton(item) {
 			const button = document.createElement('button');
 			const label = item && item.label ? item.label : getMenuLabel('folder', 'Folder');
@@ -137,6 +179,7 @@
 
 		return {
 			createAppButton,
+			createDocumentButton,
 			createFolderButton,
 			createTrashItemButton,
 			selectItem

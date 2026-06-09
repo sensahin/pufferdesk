@@ -17,6 +17,22 @@ final class PufferDesk_Document_Service {
 	const FORMAT_DEFAULT = 'html';
 
 	/**
+	 * Virtual filesystem service.
+	 *
+	 * @var PufferDesk_Virtual_Filesystem
+	 */
+	private $virtual_filesystem;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param PufferDesk_Virtual_Filesystem|null $virtual_filesystem Virtual filesystem service.
+	 */
+	public function __construct( $virtual_filesystem = null ) {
+		$this->virtual_filesystem = $virtual_filesystem instanceof PufferDesk_Virtual_Filesystem ? $virtual_filesystem : new PufferDesk_Virtual_Filesystem();
+	}
+
+	/**
 	 * Whether the current user can use native document features.
 	 *
 	 * @return bool
@@ -41,6 +57,7 @@ final class PufferDesk_Document_Service {
 		$content = $this->sanitize_content( isset( $args['content'] ) ? $args['content'] : '' );
 		$title   = $this->sanitize_title( isset( $args['title'] ) ? $args['title'] : '' );
 		$title   = $title ? $title : $this->derive_title( $content, self::KIND_STICKY === $kind ? __( 'Sticky Note', 'pufferdesk-admin-desktop' ) : __( 'Untitled Document', 'pufferdesk-admin-desktop' ) );
+		$parent_path = $this->normalize_parent_path( isset( $args['parentPath'] ) ? $args['parentPath'] : '', $kind );
 
 		$post_id = wp_insert_post(
 			array(
@@ -59,6 +76,7 @@ final class PufferDesk_Document_Service {
 
 		update_post_meta( $post_id, PufferDesk_Document_Post_Type::META_KIND, $kind );
 		update_post_meta( $post_id, PufferDesk_Document_Post_Type::META_FORMAT, self::FORMAT_DEFAULT );
+		update_post_meta( $post_id, PufferDesk_Document_Post_Type::META_PARENT_PATH, $parent_path );
 
 		$color = $this->sanitize_color( isset( $args['color'] ) ? $args['color'] : '' );
 		if ( '' !== $color ) {
@@ -125,6 +143,10 @@ final class PufferDesk_Document_Service {
 			}
 		}
 
+		if ( array_key_exists( 'parentPath', $args ) ) {
+			update_post_meta( $post->ID, PufferDesk_Document_Post_Type::META_PARENT_PATH, $this->normalize_parent_path( $args['parentPath'], $kind ) );
+		}
+
 		return $this->get_document( $post->ID );
 	}
 
@@ -151,14 +173,16 @@ final class PufferDesk_Document_Service {
 	 * List current-user documents.
 	 *
 	 * @param string $kind Optional document kind.
+	 * @param string $parent_path Optional parent virtual path.
 	 * @return array<int,array<string,mixed>>|WP_Error
 	 */
-	public function list_documents( $kind = '' ) {
+	public function list_documents( $kind = '', $parent_path = '' ) {
 		if ( ! $this->current_user_can_use_documents() ) {
 			return $this->permission_error();
 		}
 
-		$kind = '' !== $kind ? $this->normalize_kind( $kind ) : '';
+		$kind        = '' !== $kind ? $this->normalize_kind( $kind ) : '';
+		$parent_path = '' !== $parent_path ? $this->virtual_filesystem->normalize_path( $parent_path, '' ) : '';
 
 		$posts = get_posts(
 			array(
@@ -177,7 +201,12 @@ final class PufferDesk_Document_Service {
 				continue;
 			}
 
-			$documents[] = $this->normalize_document( $post );
+			$document = $this->normalize_document( $post );
+			if ( '' !== $parent_path && $document['parentPath'] !== $parent_path ) {
+				continue;
+			}
+
+			$documents[] = $document;
 			if ( count( $documents ) >= 100 ) {
 				break;
 			}
@@ -212,6 +241,9 @@ final class PufferDesk_Document_Service {
 	 * @return array<string,mixed>
 	 */
 	private function normalize_document( $post ) {
+		$kind        = $this->get_document_kind( $post );
+		$parent_path = $this->get_document_parent_path( $post, $kind );
+
 		return array(
 			'id'       => (int) $post->ID,
 			'authorId' => (int) $post->post_author,
@@ -219,8 +251,10 @@ final class PufferDesk_Document_Service {
 			'content'  => (string) get_post_field( 'post_content', $post->ID, 'raw' ),
 			'created'  => get_post_time( 'c', false, $post ),
 			'format'   => self::FORMAT_DEFAULT,
-			'kind'     => $this->get_document_kind( $post ),
+			'kind'     => $kind,
 			'modified' => get_post_modified_time( 'c', false, $post ),
+			'parentPath' => $parent_path,
+			'path'     => $this->virtual_filesystem->join_path( $parent_path, 'document-' . (int) $post->ID ),
 			'title'    => get_the_title( $post ),
 		);
 	}
@@ -262,6 +296,37 @@ final class PufferDesk_Document_Service {
 	 */
 	private function get_document_kind( $post ) {
 		return $this->normalize_kind( get_post_meta( $post->ID, PufferDesk_Document_Post_Type::META_KIND, true ) );
+	}
+
+	/**
+	 * Get and lazily migrate the parent virtual path.
+	 *
+	 * @param WP_Post $post Document post.
+	 * @param string  $kind Document kind.
+	 * @return string
+	 */
+	private function get_document_parent_path( $post, $kind ) {
+		$stored = get_post_meta( $post->ID, PufferDesk_Document_Post_Type::META_PARENT_PATH, true );
+		$path   = $this->normalize_parent_path( $stored, $kind );
+
+		if ( $path !== $stored ) {
+			update_post_meta( $post->ID, PufferDesk_Document_Post_Type::META_PARENT_PATH, $path );
+		}
+
+		return $path;
+	}
+
+	/**
+	 * Normalize a document parent virtual path.
+	 *
+	 * @param mixed  $path Raw path.
+	 * @param string $kind Document kind.
+	 * @return string
+	 */
+	private function normalize_parent_path( $path, $kind ) {
+		$fallback = $this->virtual_filesystem->get_default_path_for_document_kind( $kind );
+
+		return $this->virtual_filesystem->normalize_path( $path, $fallback );
 	}
 
 	/**

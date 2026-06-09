@@ -22,14 +22,14 @@
 			return Boolean(app && app.kind === 'native');
 		}
 
-		function open(appId) {
+		function open(appId, nativeContext = {}) {
 			const app = getApp(appId);
 
 			if (!app || app.kind !== 'native') {
 				return null;
 			}
 
-			const windowOptions = resolveWindowOptions(app.id, app);
+			const windowOptions = resolveWindowOptions(app.id, nativeContext, app);
 			if (!windowOptions || !manager || typeof manager.createWindow !== 'function') {
 				return null;
 			}

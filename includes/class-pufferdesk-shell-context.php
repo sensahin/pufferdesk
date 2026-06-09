@@ -54,6 +54,13 @@ final class PufferDesk_Shell_Context {
 	private $workspace_state;
 
 	/**
+	 * Virtual filesystem service.
+	 *
+	 * @var PufferDesk_Virtual_Filesystem
+	 */
+	private $virtual_filesystem;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param PufferDesk_User_Preferences   $preferences Preferences.
@@ -62,6 +69,7 @@ final class PufferDesk_Shell_Context {
 	 * @param PufferDesk_Theme_Registry     $theme_registry Theme registry.
 	 * @param PufferDesk_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
 	 * @param PufferDesk_Workspace_State    $workspace_state Workspace state service.
+	 * @param PufferDesk_Virtual_Filesystem $virtual_filesystem Virtual filesystem service.
 	 */
 	public function __construct(
 		PufferDesk_User_Preferences $preferences,
@@ -69,7 +77,8 @@ final class PufferDesk_Shell_Context {
 		PufferDesk_Widget_Registry $widget_registry,
 		PufferDesk_Theme_Registry $theme_registry,
 		PufferDesk_Wallpaper_Registry $wallpaper_registry,
-		PufferDesk_Workspace_State $workspace_state
+		PufferDesk_Workspace_State $workspace_state,
+		PufferDesk_Virtual_Filesystem $virtual_filesystem
 	) {
 		$this->preferences        = $preferences;
 		$this->app_registry       = $app_registry;
@@ -77,6 +86,7 @@ final class PufferDesk_Shell_Context {
 		$this->theme_registry     = $theme_registry;
 		$this->wallpaper_registry = $wallpaper_registry;
 		$this->workspace_state    = $workspace_state;
+		$this->virtual_filesystem = $virtual_filesystem;
 	}
 
 	/**
@@ -89,7 +99,10 @@ final class PufferDesk_Shell_Context {
 		$apps              = $this->theme_registry->apply_app_labels( $this->app_registry->get_apps(), $theme );
 		$app_locations     = $this->preferences->get_effective_app_locations( $apps, $theme );
 		$widgets           = $this->widget_registry->get_widgets();
-		$folders           = $this->app_registry->get_folders( $apps );
+		$folders           = array_merge(
+			$this->virtual_filesystem->get_system_folders( $theme ),
+			$this->app_registry->get_folders( $apps )
+		);
 		$desktop_folders   = $this->preferences->get_desktop_folders( $apps );
 		$desktop_trash     = $this->preferences->get_desktop_trash( $apps );
 		$workspace_folders = array_merge( $folders, $desktop_folders );

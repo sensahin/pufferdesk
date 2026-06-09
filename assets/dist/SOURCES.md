@@ -30,6 +30,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/events/event-bus.js
 - assets/js/core/services/storage.js
 - assets/js/core/services/api-client.js
+- assets/js/core/services/virtual-filesystem.js
 - assets/js/core/services/documents.js
 - assets/js/core/services/geometry.js
 - assets/js/core/services/debounced-task.js

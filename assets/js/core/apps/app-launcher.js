@@ -24,6 +24,12 @@
 		const themeSurfaces = config.theme && config.theme.surfaces && typeof config.theme.surfaces === 'object'
 			? config.theme.surfaces
 			: {};
+		const documentStore = window.PufferDesk.documents && typeof window.PufferDesk.documents.createDocumentStore === 'function'
+			? window.PufferDesk.documents.createDocumentStore(config)
+			: null;
+		const virtualFilesystem = window.PufferDesk.virtualFilesystem && typeof window.PufferDesk.virtualFilesystem.create === 'function'
+			? window.PufferDesk.virtualFilesystem.create(config)
+			: null;
 		const recentItems = window.PufferDesk.apps.createRecentItemsController
 			? window.PufferDesk.apps.createRecentItemsController(config)
 			: { add() { return false; } };
@@ -31,10 +37,16 @@
 			? window.PufferDesk.apps.createFolderDataProvider({
 				appMap,
 				apps,
+				documentStore,
 				folders,
 				getFolderProvider,
 				getMenuLabel,
 				isHiddenFromLaunchSurfaces,
+				onFolderDocumentsChanged(folderId) {
+					refreshFolderWindow(folderId);
+					refreshFolderInfoWindow(folderId);
+				},
+				virtualFilesystem,
 				trashFolderId
 			})
 			: null;
@@ -65,6 +77,7 @@
 				dom,
 				getMenuLabel,
 				openApp,
+				openDocument,
 				openFolder,
 				renderFolderWindow
 			})
@@ -74,6 +87,7 @@
 				getExplorerSortMode,
 				getFolderApps,
 				getFolderChildFolders,
+				getFolderDocuments,
 				getMenuLabel,
 				getTrashItems,
 				isFileExplorerLayout,
@@ -147,6 +161,10 @@
 			return folderData ? folderData.getFolderChildFolders(folderId) : [];
 		}
 
+		function getFolderDocuments(folderId) {
+			return folderData && typeof folderData.getFolderDocuments === 'function' ? folderData.getFolderDocuments(folderId) : [];
+		}
+
 		function getTrashItems() {
 			return folderData ? folderData.getTrashItems() : [];
 		}
@@ -178,16 +196,16 @@
 			return folderData ? folderData.getFolderInfo(folderId) : null;
 		}
 
-		function getAppWindowOptions(app) {
+		function getAppWindowOptions(app, nativeContext = {}) {
 			return appWindowOptions && typeof appWindowOptions.getAppWindowOptions === 'function'
-				? appWindowOptions.getAppWindowOptions(app)
+				? appWindowOptions.getAppWindowOptions(app, nativeContext)
 				: null;
 		}
 
-		function getWindowOptions(appId) {
+		function getWindowOptions(appId, nativeContext = {}) {
 			return appWindowOptions && typeof appWindowOptions.getWindowOptions === 'function'
-				? appWindowOptions.getWindowOptions(appId)
-				: getAppWindowOptions(appMap.get(appId));
+				? appWindowOptions.getWindowOptions(appId, nativeContext)
+				: getAppWindowOptions(appMap.get(appId), nativeContext);
 		}
 
 		function addRecentItem(item) {
@@ -210,16 +228,16 @@
 			});
 		}
 
-		function openApp(appId) {
+		function openApp(appId, openOptions = {}) {
 			if (appId === 'trash') {
 				return openTrash();
 			}
 
 			if (nativeAppOpener && typeof nativeAppOpener.canOpen === 'function' && nativeAppOpener.canOpen(appId)) {
-				return typeof nativeAppOpener.open === 'function' ? nativeAppOpener.open(appId) : null;
+				return typeof nativeAppOpener.open === 'function' ? nativeAppOpener.open(appId, openOptions.nativeContext || {}) : null;
 			}
 
-			const options = getWindowOptions(appId);
+			const options = getWindowOptions(appId, openOptions.nativeContext || {});
 			const app = appMap.get(appId);
 			if (!options) {
 				return null;
@@ -231,6 +249,38 @@
 			}
 
 			return win;
+		}
+
+		function openDocument(documentData) {
+			const documentId = Number.parseInt(documentData && documentData.id, 10);
+			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note';
+			const textKind = documentStore && documentStore.kinds ? documentStore.kinds.text : 'text_document';
+
+			if (!documentId) {
+				return null;
+			}
+
+			if (documentData.kind === stickyKind) {
+				const stickyManager = window.PufferDesk.stickyNoteManager || null;
+				if (stickyManager && typeof stickyManager.renderNote === 'function') {
+					stickyManager.renderNote(documentData);
+				}
+				if (stickyManager && typeof stickyManager.showNote === 'function') {
+					stickyManager.showNote(documentId);
+				}
+
+				return null;
+			}
+
+			if (documentData.kind === textKind) {
+				return openApp('text-editor', {
+					nativeContext: {
+						initialDocumentId: documentId
+					}
+				});
+			}
+
+			return null;
 		}
 
 		function openTrash(options = {}) {
@@ -321,7 +371,7 @@
 		function getFolderTitle(folder) {
 			const folderLabel = folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin');
 
-			if (isFileExplorerLayout() || (folder && folder.id === trashFolderId)) {
+			if (isFileExplorerLayout() || (folder && (folder.id === trashFolderId || folder.virtual))) {
 				return folderLabel;
 			}
 
@@ -890,7 +940,10 @@
 			const bar = dom.createElement('div', 'pdk-explorer-addressbar');
 			const navigation = dom.createElement('div', 'pdk-explorer-navigation');
 			const address = dom.createElement('div', 'pdk-explorer-address-field');
-			const crumbs = [
+			const breadcrumbs = virtualFilesystem && typeof virtualFilesystem.getBreadcrumbs === 'function'
+				? virtualFilesystem.getBreadcrumbs(folderId)
+				: [];
+			const crumbs = breadcrumbs.length ? breadcrumbs : [
 				getMenuLabel('admin', 'Admin'),
 				folderTitle
 			];

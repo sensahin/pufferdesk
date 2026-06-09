@@ -50,7 +50,7 @@ final class PufferDesk_Document_Controller {
 	public function list_documents() {
 		$this->verify_request();
 
-		$documents = $this->documents->list_documents( $this->get_post_string( 'kind' ) );
+		$documents = $this->documents->list_documents( $this->get_post_string( 'kind' ), $this->get_parent_path() );
 		if ( is_wp_error( $documents ) ) {
 			$this->send_error( $documents );
 		}
@@ -91,6 +91,7 @@ final class PufferDesk_Document_Controller {
 				'color'   => $this->get_post_string( 'color' ),
 				'content' => $this->get_post_string( 'content' ),
 				'kind'    => $this->get_post_string( 'kind' ),
+				'parentPath' => $this->get_parent_path(),
 				'title'   => $this->get_post_string( 'title' ),
 			)
 		);
@@ -113,7 +114,7 @@ final class PufferDesk_Document_Controller {
 		$this->verify_request();
 
 		$payload = array();
-		foreach ( array( 'color', 'content', 'kind', 'title' ) as $key ) {
+		foreach ( array( 'color', 'content', 'kind', 'parentPath', 'title' ) as $key ) {
 			if ( $this->has_post_string( $key ) ) {
 				$payload[ $key ] = $this->get_post_string( $key );
 			}
@@ -199,6 +200,19 @@ final class PufferDesk_Document_Controller {
 	private function get_post_id() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- AJAX handlers verify the settings nonce before calling this helper.
 		return isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+	}
+
+	/**
+	 * Read the canonical parent path from POST.
+	 *
+	 * @return string
+	 */
+	private function get_parent_path() {
+		if ( $this->has_post_string( 'parentPath' ) ) {
+			return $this->get_post_string( 'parentPath' );
+		}
+
+		return $this->get_post_string( 'path' );
 	}
 
 	/**

@@ -25,9 +25,10 @@
 		return renderers.has(normalizeNativeId(nativeId));
 	};
 
-	window.PufferDesk.apps.getNativeAppWindowOptions = function getNativeAppWindowOptions(nativeId, context = {}) {
+	window.PufferDesk.apps.getNativeAppWindowOptions = function getNativeAppWindowOptions(nativeId, context = {}, extraContext = {}) {
 		const renderer = renderers.get(normalizeNativeId(nativeId));
-		const options = renderer ? renderer(context) : null;
+		const mergedContext = Object.assign({}, context && typeof context === 'object' ? context : {}, extraContext && typeof extraContext === 'object' ? extraContext : {});
+		const options = renderer ? renderer(mergedContext) : null;
 
 		return options && typeof options === 'object' ? options : null;
 	};

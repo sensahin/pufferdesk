@@ -11,7 +11,7 @@
 		const appMap = options.appMap instanceof Map ? options.appMap : new Map();
 		const nativeApps = options.nativeApps || window.PufferDesk.apps || {};
 
-		function getNativeAppWindowOptions(app, baseOptions) {
+		function getNativeAppWindowOptions(app, baseOptions, nativeContext = {}) {
 			const getOptions = nativeApps && typeof nativeApps.getNativeAppWindowOptions === 'function'
 				? nativeApps.getNativeAppWindowOptions
 				: null;
@@ -22,13 +22,13 @@
 					config,
 					manager,
 					shell
-				})
+				}, nativeContext && typeof nativeContext === 'object' ? nativeContext : {})
 				: null;
 
 			return nativeOptions ? Object.assign({}, baseOptions, nativeOptions) : null;
 		}
 
-		function getAppWindowOptions(app) {
+		function getAppWindowOptions(app, nativeContext = {}) {
 			if (!app || typeof app !== 'object') {
 				return null;
 			}
@@ -46,17 +46,17 @@
 			}
 
 			if (app.kind === 'native') {
-				return getNativeAppWindowOptions(app, windowOptions);
+				return getNativeAppWindowOptions(app, windowOptions, nativeContext);
 			}
 
 			windowOptions.url = app.url;
 			return windowOptions;
 		}
 
-		function getWindowOptions(appId) {
+		function getWindowOptions(appId, nativeContext = {}) {
 			const app = appMap.get(appId);
 
-			return app ? getAppWindowOptions(app) : null;
+			return app ? getAppWindowOptions(app, nativeContext) : null;
 		}
 
 		return {

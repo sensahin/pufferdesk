@@ -15,6 +15,7 @@ final class PufferDesk_Document_Post_Type {
 	const META_KIND   = '_pufferdesk_document_kind';
 	const META_COLOR  = '_pufferdesk_document_color';
 	const META_FORMAT = '_pufferdesk_document_format';
+	const META_PARENT_PATH = '_pufferdesk_document_parent_path';
 
 	/**
 	 * Register WordPress hooks.

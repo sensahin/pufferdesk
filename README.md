@@ -31,7 +31,7 @@ The bundled PufferDesk family uses original plugin CSS and release-safe media. V
 
 The foundation separates shell behavior from OS appearance:
 
-- `includes/` owns routing, preferences, shared path normalization, app/widget/theme registries, app badge rendering, theme token CSS-variable rendering, shared shell context, runtime config, asset manifests/enqueueing, controllers, widget layout attributes, and rendering.
+- `includes/` owns routing, preferences, shared path normalization, virtual filesystem paths, app/widget/theme registries, app badge rendering, theme token CSS-variable rendering, shared shell context, runtime config, asset manifests/enqueueing, controllers, widget layout attributes, and rendering.
 - `templates/` owns shell markup through semantic folders:
   - `templates/shell/` for global shell surfaces such as menu bar, desktop, and dock.
   - `templates/windows/` for reusable window chrome.
@@ -59,7 +59,7 @@ The foundation separates shell behavior from OS appearance:
   - `config.js` exposes the WordPress-provided runtime payload.
   - `dom.js` owns shared DOM helpers.
   - `events/` owns the internal event bus used for decoupled shell/module notifications.
-  - `services/` owns browser storage, AJAX clients, native document requests, geometry helpers, and debounced task scheduling.
+  - `services/` owns browser storage, AJAX clients, virtual filesystem helpers, native document requests, geometry helpers, and debounced task scheduling.
   - `preferences/` owns shell preference appliers such as appearance, wallpaper, launcher, and menu bar state.
   - `session/` owns per-user, per-theme workspace session sections, with WordPress user meta as durable state and browser storage as cache/fallback.
   - `windows/` owns window creation, drag/focus behavior, and window state serialization.
@@ -99,7 +99,7 @@ Apps are registered through `PufferDesk_App_Registry` or the `pufferdesk_apps` f
 
 The browser runtime exposes `window.PufferDesk.desktopApi` and `window.PufferDesk.desktop.api` as a facade over the current window manager, app launcher, command registry, and native app renderer registry. Extensions should prefer this facade for opening apps, creating/focusing/minimizing/closing/moving windows, registering command-backed behavior, and registering native renderers instead of reaching into lower-level managers. `window.PufferDesk.events` provides a small internal event bus with `on`, `once`, `off`, and `emit`; shell boot emits `desktop:ready` with the facade and runtime context. The window manager emits `window:created`, `window:focused`, `window:closed`, and `window:stateChanged`; handlers receive a `CustomEvent` and should read state from `event.detail`.
 
-Native document features use one private WordPress post type (`pufferdesk_note`) and the shared `PufferDesk_Document_Service` for create, list, update, and trash behavior. Sticky Notes and Text Editor only differ by document `kind` (`sticky_note` or `text_document`); content is stored in `post_content`, while user-visible note/window layout is stored separately in the workspace state. Do not store document content in `workspaceState`, browser storage, widgets, or app-specific user meta. Browser code should use `assets/js/core/services/documents.js` instead of posting directly to document AJAX actions.
+Native document features use one private WordPress post type (`pufferdesk_note`) and the shared `PufferDesk_Document_Service` for create, list, update, and trash behavior. Sticky Notes and Text Editor only differ by document `kind` (`sticky_note` or `text_document`); content is stored in `post_content`, while user-visible note/window layout is stored separately in the workspace state. Document organization uses `PufferDesk_Virtual_Filesystem` canonical paths such as `pdk://site/{site}/home/{user}/stickies` and `pdk://site/{site}/home/{user}/documents`; the stored `_pufferdesk_document_parent_path` meta is the source of truth for where a document appears in virtual folders. Do not store document content or document folder placement in `workspaceState`, browser storage, widgets, or app-specific user meta. Browser code should use `assets/js/core/services/documents.js` and `assets/js/core/services/virtual-filesystem.js` instead of posting directly to document AJAX actions or hard-coding folder paths.
 
 == Extension examples ==
 

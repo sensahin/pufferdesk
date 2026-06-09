@@ -990,7 +990,7 @@ final class PufferDesk_User_Preferences {
 		$sanitized      = array();
 		$folder_ids     = array();
 		$folder_labels  = array();
-		$reserved_ids   = array( 'content', 'site', 'system', 'trash' );
+		$reserved_ids   = array( 'content', 'desktop', 'documents', 'home', 'notes', 'site', 'stickies', 'system', 'trash' );
 		$available_apps = array();
 
 		foreach ( (array) $apps as $app ) {
