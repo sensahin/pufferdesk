@@ -1351,14 +1351,16 @@
 			}
 		});
 
-		register('window.minimize', {
+		const minimizeWindowCommand = {
 			isEnabled(payload, detail) {
 				return Boolean(manager && typeof manager.minimizeWindow === 'function' && getTargetWindow(detail));
 			},
 			run(payload, detail) {
 				manager.minimizeWindow(getTargetWindow(detail));
 			}
-		});
+		};
+
+		register('window.minimize', minimizeWindowCommand);
 
 		register('window.open-browser-tab', {
 			isEnabled(payload, detail) {
@@ -1426,14 +1428,7 @@
 			}
 		});
 
-		register('window.hide', {
-			isEnabled(payload, detail) {
-				return Boolean(manager && typeof manager.minimizeWindow === 'function' && getTargetWindow(detail));
-			},
-			run(payload, detail) {
-				manager.minimizeWindow(getTargetWindow(detail));
-			}
-		});
+		register('window.hide', minimizeWindowCommand);
 
 		register('window.hide-others', {
 			isEnabled(payload, detail) {

@@ -19,7 +19,8 @@
 	z-index: var(--pdk-layer-dock);
 }
 
-.pdk-dock-item {
+.pdk-dock-item,
+.pdk-dock-window-item {
 	align-items: center;
 	background: var(--pdk-tile-bg);
 	border: 1px solid var(--pdk-tile-border);
@@ -32,10 +33,17 @@
 	padding: 0;
 	position: relative;
 	transition: transform 140ms ease;
+	width: var(--pdk-dock-item-size, 48px);
+}
+
+.pdk-dock-item {
 	touch-action: none;
 	user-select: none;
 	-webkit-user-drag: none;
-	width: var(--pdk-dock-item-size, 48px);
+}
+
+.pdk-dock-window-item {
+	appearance: none;
 }
 
 .pdk-dock-item:hover,
@@ -59,22 +67,30 @@
 	width: 5px;
 }
 
-.pdk-dock-item .dashicons {
+.pdk-dock-item .dashicons,
+.pdk-dock-window-item .dashicons {
 	font-size: var(--pdk-dock-icon-size, 24px);
 	height: var(--pdk-dock-icon-size, 24px);
-	pointer-events: none;
-	-webkit-user-drag: none;
 	width: var(--pdk-dock-icon-size, 24px);
 }
 
-.pdk-dock-item .pdk-icon-image {
+.pdk-dock-item .dashicons {
+	pointer-events: none;
+	-webkit-user-drag: none;
+}
+
+.pdk-dock-item .pdk-icon-image,
+.pdk-dock-window-item .pdk-icon-image {
 	flex: 0 0 auto;
 	height: var(--pdk-dock-tile-size, 26px);
 	object-fit: contain;
 	object-position: center;
+	width: var(--pdk-dock-tile-size, 26px);
+}
+
+.pdk-dock-item .pdk-icon-image {
 	pointer-events: none;
 	-webkit-user-drag: none;
-	width: var(--pdk-dock-tile-size, 26px);
 }
 
 .pdk-dock-item > .pdk-app-badge {
@@ -151,42 +167,11 @@
 	pointer-events: none;
 }
 
-.pdk-dock-window-item {
-	align-items: center;
-	appearance: none;
-	background: var(--pdk-tile-bg);
-	border: 1px solid var(--pdk-tile-border);
-	border-radius: 7px;
-	color: var(--pdk-accent);
-	cursor: default;
-	display: flex;
-	height: var(--pdk-dock-item-size, 44px);
-	justify-content: center;
-	padding: 0;
-	position: relative;
-	transition: transform 140ms ease;
-	width: var(--pdk-dock-item-size, 48px);
-}
-
 .pdk-dock-window-item:hover,
 .pdk-dock-window-item:focus,
 .pdk-dock-window-item:focus-within {
 	outline: none;
 	transform: translateY(calc(-1 * var(--pdk-dock-hover-lift, 3px))) scale(var(--pdk-dock-hover-scale, 1));
-}
-
-.pdk-dock-window-item .dashicons {
-	font-size: var(--pdk-dock-icon-size, 24px);
-	height: var(--pdk-dock-icon-size, 24px);
-	width: var(--pdk-dock-icon-size, 24px);
-}
-
-.pdk-dock-window-item .pdk-icon-image {
-	flex: 0 0 auto;
-	height: var(--pdk-dock-tile-size, 26px);
-	object-fit: contain;
-	object-position: center;
-	width: var(--pdk-dock-tile-size, 26px);
 }
 
 .pdk-dock-window-item .pdk-dock-tooltip {

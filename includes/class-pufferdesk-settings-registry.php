@@ -211,52 +211,26 @@ final class PufferDesk_Settings_Registry {
 	 * @return array<string,array<string,string>>
 	 */
 	public function get_ajax_actions() {
-		return array(
-			'pufferdesk_save_appearance'        => array(
-				'domain'  => 'appearance',
-				'handler' => 'save_appearance',
-			),
-			'pufferdesk_save_app_login_items'   => array(
-				'domain'  => 'app_login_items',
-				'handler' => 'save_app_login_items',
-			),
-			'pufferdesk_save_app_locations'     => array(
-				'domain'  => 'app_locations',
-				'handler' => 'save_app_locations',
-			),
-			'pufferdesk_save_desktop_dock'      => array(
-				'domain'  => 'desktop_dock',
-				'handler' => 'save_desktop_dock',
-			),
-			'pufferdesk_save_desktop_folders'   => array(
-				'domain'  => 'desktop_folders',
-				'handler' => 'save_desktop_folders',
-			),
-			'pufferdesk_save_desktop_trash'     => array(
-				'domain'  => 'desktop_trash',
-				'handler' => 'save_desktop_trash',
-			),
-			'pufferdesk_save_menu_bar'          => array(
-				'domain'  => 'menu_bar',
-				'handler' => 'save_menu_bar',
-			),
-			'pufferdesk_save_theme'             => array(
-				'domain'  => 'theme',
-				'handler' => 'save_theme',
-			),
-			'pufferdesk_save_wallpaper'         => array(
-				'domain'  => 'wallpaper',
-				'handler' => 'save_wallpaper',
-			),
-			'pufferdesk_remove_wallpaper_upload' => array(
-				'domain'  => 'wallpaper_uploads',
-				'handler' => 'remove_wallpaper_upload',
-			),
-			'pufferdesk_reset'                  => array(
-				'domain'  => 'reset',
-				'handler' => 'reset_preferences',
-			),
-		);
+		$actions = array();
+
+		foreach ( $this->get_domains() as $domain_id => $domain ) {
+			if ( empty( $domain['ajax_action'] ) || empty( $domain['handler'] ) ) {
+				continue;
+			}
+
+			$action  = sanitize_key( $domain['ajax_action'] );
+			$handler = sanitize_key( $domain['handler'] );
+			if ( '' === $action || '' === $handler ) {
+				continue;
+			}
+
+			$actions[ $action ] = array(
+				'domain'  => ! empty( $domain['id'] ) ? sanitize_key( $domain['id'] ) : sanitize_key( $domain_id ),
+				'handler' => $handler,
+			);
+		}
+
+		return $actions;
 	}
 
 	/**

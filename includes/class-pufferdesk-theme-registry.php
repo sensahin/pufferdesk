@@ -25,121 +25,11 @@ final class PufferDesk_Theme_Registry {
 				'family_label'   => __( 'PufferDesk', 'pufferdesk-admin-desktop' ),
 				'version'        => 'base',
 				'version_label'  => __( 'Base', 'pufferdesk-admin-desktop' ),
-				'typography'     => array(
-					'fonts'          => array(
-						'ui'      => '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
-						'display' => '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
-						'mono'    => 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
-					),
-					'scale'          => array(
-						'micro'          => '10px',
-						'small'          => '11px',
-						'fine_print'     => '9px',
-						'footer'         => '10.5px',
-						'meta'           => '11.5px',
-						'caption'        => '12px',
-						'menu'           => '13px',
-						'body'           => '13px',
-						'control'        => '14px',
-						'dialog_title'   => '15px',
-						'context_menu'   => '16px',
-						'context_menu_shortcut' => '18px',
-						'label'          => '17px',
-						'section_title'  => '18px',
-						'settings_caption' => '10px',
-						'settings_body'  => '11px',
-						'settings_label' => '12.5px',
-						'settings_heading' => '13.5px',
-						'settings_title' => '16px',
-						'profile_title'  => '21px',
-						'heading'        => '23px',
-						'about_title'    => '25px',
-						'stat_value'     => '24px',
-						'display_title'  => '34px',
-						'avatar'         => '36px',
-						'widget_clock'   => '34px',
-					),
-					'line_heights'   => array(
-						'tight'   => '1',
-						'caption' => '1.2',
-						'body'    => '1.25',
-						'display' => '1.05',
-					),
-					'weights'        => array(
-						'regular'      => '400',
-						'fine_print'   => '430',
-						'meta'         => '450',
-						'medium'       => '500',
-						'semibold'     => '600',
-						'strong'       => '620',
-						'bold'         => '700',
-						'heading'      => '650',
-						'display'      => '700',
-						'widget_clock' => '620',
-					),
-					'letter_spacing' => array(
-						'default' => '0',
-						'tight'   => '0',
-					),
-				),
+				'typography'     => $this->get_default_typography_config(),
 				'tokens'         => array(),
-				'shell'          => array(
-					'chrome'           => 'global-menu-dock',
-					'top_bar'          => 'menu-bar',
-					'launcher'         => 'dock',
-					'system_menu'      => 'mark',
-					'app_menu'         => 'global',
-					'status_area'      => 'menu-bar',
-					'launcher_search'  => false,
-					'system_menu_icon' => 'pufferdesk-mark',
-					'labels'           => array(
-						'launcher'             => __( 'Dock', 'pufferdesk-admin-desktop' ),
-						'desktop_launcher'     => __( 'Desktop & Dock', 'pufferdesk-admin-desktop' ),
-						'launcher_and_desktop' => __( 'Dock & Desktop', 'pufferdesk-admin-desktop' ),
-						'launcher_position'    => __( 'Dock position on screen', 'pufferdesk-admin-desktop' ),
-						'auto_hide_launcher'   => __( 'Automatically hide and show the Dock', 'pufferdesk-admin-desktop' ),
-						'launcher_options'     => __( 'Options', 'pufferdesk-admin-desktop' ),
-						'start'                => __( 'Start', 'pufferdesk-admin-desktop' ),
-						'open_start'           => __( 'Open Start', 'pufferdesk-admin-desktop' ),
-						'search'               => __( 'Search', 'pufferdesk-admin-desktop' ),
-						'search_apps'          => __( 'Search apps', 'pufferdesk-admin-desktop' ),
-						'keep_in_launcher'     => __( 'Keep in Dock', 'pufferdesk-admin-desktop' ),
-						'remove_from_launcher' => __( 'Remove from Dock', 'pufferdesk-admin-desktop' ),
-						'open_at_login'        => __( 'Open at Login', 'pufferdesk-admin-desktop' ),
-						'minimize_animation_genie' => __( 'Genie Effect', 'pufferdesk-admin-desktop' ),
-						'minimize_animation_scale' => __( 'Scale Effect', 'pufferdesk-admin-desktop' ),
-						'menu_bar'             => __( 'Menu Bar', 'pufferdesk-admin-desktop' ),
-						'menu_bar_auto_hide'   => __( 'Automatically hide and show the menu bar', 'pufferdesk-admin-desktop' ),
-						'menu_bar_background'  => __( 'Show menu bar background', 'pufferdesk-admin-desktop' ),
-					),
-				),
-				'dialogs'        => array(
-					'style'         => 'floating',
-					'confirmations' => array(
-						'move_folder_to_trash' => array(
-							'enabled'        => false,
-							'variant'        => 'move-to-trash',
-							'icon'           => 'dashicons-category',
-							'default_action' => 'confirm',
-						),
-					),
-				),
-				'window_chrome'  => array(
-					'controls' => array(
-						'placement' => 'left',
-						'order'     => array( 'close', 'minimize', 'maximize' ),
-						'style'     => 'traffic',
-						'labels'    => array(
-							'close'    => __( 'Close', 'pufferdesk-admin-desktop' ),
-							'minimize' => __( 'Minimize', 'pufferdesk-admin-desktop' ),
-							'maximize' => __( 'Maximize', 'pufferdesk-admin-desktop' ),
-						),
-					),
-					'title'    => array(
-						'alignment' => 'left',
-						'show_icon' => true,
-					),
-				),
+				'shell'          => $this->get_default_shell_config(),
+				'dialogs'        => $this->get_default_dialog_config(),
+				'window_chrome'  => $this->get_default_window_chrome_config(),
 				'abstract'       => true,
 			),
 			'pufferdesk' => array(
@@ -1015,35 +905,13 @@ final class PufferDesk_Theme_Registry {
 
 		$theme = $themes[ $theme_id ];
 		if ( isset( $seen[ $theme_id ] ) ) {
-			$theme['stylesheet_stack'] = $theme['stylesheets'];
-			$theme['ancestors']        = array();
-			$theme['typography']       = $this->complete_typography_config( $theme['typography'] );
-			$theme['tokens']           = $this->complete_token_config( $theme['tokens'] );
-			$theme['mode_tokens']      = $this->complete_mode_token_config( $theme['mode_tokens'] );
-			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
-			$theme['menu']             = $this->complete_menu_config( $theme['menu'] );
-			$theme['dialogs']          = $this->complete_dialog_config( $theme['dialogs'] );
-			$theme['surfaces']         = $this->complete_surface_config( $theme['surfaces'] );
-			$theme['settings']         = $this->complete_settings_config( $theme['settings'] );
-			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
-			return $theme;
+			return $this->complete_standalone_theme( $theme );
 		}
 
 		$seen[ $theme_id ] = true;
 		$parent_id         = isset( $theme['parent'] ) ? $theme['parent'] : '';
 		if ( '' === $parent_id || empty( $themes[ $parent_id ] ) ) {
-			$theme['stylesheet_stack'] = $theme['stylesheets'];
-			$theme['ancestors']        = array();
-			$theme['typography']       = $this->complete_typography_config( $theme['typography'] );
-			$theme['tokens']           = $this->complete_token_config( $theme['tokens'] );
-			$theme['mode_tokens']      = $this->complete_mode_token_config( $theme['mode_tokens'] );
-			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
-			$theme['menu']             = $this->complete_menu_config( $theme['menu'] );
-			$theme['dialogs']          = $this->complete_dialog_config( $theme['dialogs'] );
-			$theme['surfaces']         = $this->complete_surface_config( $theme['surfaces'] );
-			$theme['settings']         = $this->complete_settings_config( $theme['settings'] );
-			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
-			return $theme;
+			return $this->complete_standalone_theme( $theme );
 		}
 
 		$parent = $this->resolve_theme( $parent_id, $themes, $seen );
@@ -1063,6 +931,28 @@ final class PufferDesk_Theme_Registry {
 		$theme['window_chrome']    = $this->complete_window_chrome_config( $this->merge_theme_config( $parent['window_chrome'], $theme['window_chrome'] ) );
 		$theme['stylesheet_stack']  = array_values( array_unique( array_merge( $parent['stylesheet_stack'], $theme['stylesheets'] ) ) );
 		$theme['ancestors']         = array_merge( $parent['ancestors'], array( $parent['id'] ) );
+
+		return $theme;
+	}
+
+	/**
+	 * Complete a theme that has no usable parent theme.
+	 *
+	 * @param array<string,mixed> $theme Theme data.
+	 * @return array<string,mixed>
+	 */
+	private function complete_standalone_theme( $theme ) {
+		$theme['stylesheet_stack'] = isset( $theme['stylesheets'] ) && is_array( $theme['stylesheets'] ) ? $theme['stylesheets'] : array();
+		$theme['ancestors']        = array();
+		$theme['typography']       = $this->complete_typography_config( isset( $theme['typography'] ) ? $theme['typography'] : array() );
+		$theme['tokens']           = $this->complete_token_config( isset( $theme['tokens'] ) ? $theme['tokens'] : array() );
+		$theme['mode_tokens']      = $this->complete_mode_token_config( isset( $theme['mode_tokens'] ) ? $theme['mode_tokens'] : array() );
+		$theme['shell']            = $this->complete_shell_config( isset( $theme['shell'] ) ? $theme['shell'] : array() );
+		$theme['menu']             = $this->complete_menu_config( isset( $theme['menu'] ) ? $theme['menu'] : array() );
+		$theme['dialogs']          = $this->complete_dialog_config( isset( $theme['dialogs'] ) ? $theme['dialogs'] : array() );
+		$theme['surfaces']         = $this->complete_surface_config( isset( $theme['surfaces'] ) ? $theme['surfaces'] : array() );
+		$theme['settings']         = $this->complete_settings_config( isset( $theme['settings'] ) ? $theme['settings'] : array() );
+		$theme['window_chrome']    = $this->complete_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() );
 
 		return $theme;
 	}

@@ -55,6 +55,17 @@ $pufferdesk_control_actions = array(
 	'minimize' => 'data-pdk-minimize',
 	'maximize' => 'data-pdk-maximize',
 );
+$pufferdesk_render_controls = static function ( $pufferdesk_control_order, $pufferdesk_control_actions, $pufferdesk_control_labels ) {
+	?>
+	<div class="pdk-window-controls">
+		<?php foreach ( $pufferdesk_control_order as $pufferdesk_control ) : ?>
+			<button type="button" class="pdk-window-control pdk-window-control-<?php echo esc_attr( $pufferdesk_control ); ?>" <?php echo esc_attr( $pufferdesk_control_actions[ $pufferdesk_control ] ); ?> aria-label="<?php echo esc_attr( $pufferdesk_control_labels[ $pufferdesk_control ] ); ?>">
+				<span class="pdk-window-control-label"><?php echo esc_html( $pufferdesk_control_labels[ $pufferdesk_control ] ); ?></span>
+			</button>
+		<?php endforeach; ?>
+	</div>
+	<?php
+};
 $pufferdesk_placement = in_array( $pufferdesk_controls['placement'], array( 'left', 'right' ), true ) ? $pufferdesk_controls['placement'] : 'left';
 $pufferdesk_style     = in_array( $pufferdesk_controls['style'], array( 'traffic', 'caption', 'toolbar', 'hidden' ), true ) ? $pufferdesk_controls['style'] : 'traffic';
 $pufferdesk_alignment = in_array( $pufferdesk_title_config['alignment'], array( 'left', 'center', 'right' ), true ) ? $pufferdesk_title_config['alignment'] : 'left';
@@ -68,13 +79,7 @@ $pufferdesk_title     = isset( $title ) ? (string) $title : '';
 	data-pdk-window-title-alignment="<?php echo esc_attr( $pufferdesk_alignment ); ?>"
 >
 	<?php if ( 'right' !== $pufferdesk_placement ) : ?>
-		<div class="pdk-window-controls">
-			<?php foreach ( $pufferdesk_control_order as $pufferdesk_control ) : ?>
-				<button type="button" class="pdk-window-control pdk-window-control-<?php echo esc_attr( $pufferdesk_control ); ?>" <?php echo esc_attr( $pufferdesk_control_actions[ $pufferdesk_control ] ); ?> aria-label="<?php echo esc_attr( $pufferdesk_control_labels[ $pufferdesk_control ] ); ?>">
-					<span class="pdk-window-control-label"><?php echo esc_html( $pufferdesk_control_labels[ $pufferdesk_control ] ); ?></span>
-				</button>
-			<?php endforeach; ?>
-		</div>
+		<?php $pufferdesk_render_controls( $pufferdesk_control_order, $pufferdesk_control_actions, $pufferdesk_control_labels ); ?>
 	<?php endif; ?>
 	<?php if ( '' !== $pufferdesk_title ) : ?>
 		<span class="pdk-window-titlebar-label">
@@ -87,12 +92,6 @@ $pufferdesk_title     = isset( $title ) ? (string) $title : '';
 		</span>
 	<?php endif; ?>
 	<?php if ( 'right' === $pufferdesk_placement ) : ?>
-		<div class="pdk-window-controls">
-			<?php foreach ( $pufferdesk_control_order as $pufferdesk_control ) : ?>
-				<button type="button" class="pdk-window-control pdk-window-control-<?php echo esc_attr( $pufferdesk_control ); ?>" <?php echo esc_attr( $pufferdesk_control_actions[ $pufferdesk_control ] ); ?> aria-label="<?php echo esc_attr( $pufferdesk_control_labels[ $pufferdesk_control ] ); ?>">
-					<span class="pdk-window-control-label"><?php echo esc_html( $pufferdesk_control_labels[ $pufferdesk_control ] ); ?></span>
-				</button>
-			<?php endforeach; ?>
-		</div>
+		<?php $pufferdesk_render_controls( $pufferdesk_control_order, $pufferdesk_control_actions, $pufferdesk_control_labels ); ?>
 	<?php endif; ?>
 </div>
