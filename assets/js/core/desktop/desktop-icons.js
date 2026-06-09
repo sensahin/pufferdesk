@@ -29,12 +29,12 @@
 			'size'
 		];
 		const sortDatasetKeys = {
-			'date-added': 'aosDateAdded',
-			'date-created': 'aosDateCreated',
-			'date-last-opened': 'aosDateLastOpened',
-			'date-modified': 'aosDateModified',
-			'last-modified-by': 'aosLastModifiedBy',
-			size: 'aosSize'
+			'date-added': 'pdkDateAdded',
+			'date-created': 'pdkDateCreated',
+			'date-last-opened': 'pdkDateLastOpened',
+			'date-modified': 'pdkDateModified',
+			'last-modified-by': 'pdkLastModifiedBy',
+			size: 'pdkSize'
 		};
 
 		function readNumber(value) {
@@ -63,12 +63,12 @@
 				return '';
 			}
 
-			if (icon.dataset.aosDesktopIconId) {
-				return icon.dataset.aosDesktopIconId;
+			if (icon.dataset.pdkDesktopIconId) {
+				return icon.dataset.pdkDesktopIconId;
 			}
 
-			const kind = icon.dataset.aosDesktopIconKind || 'item';
-			const id = icon.dataset.aosOpenApp || icon.dataset.aosOpenFolder || icon.dataset.aosContextId || '';
+			const kind = icon.dataset.pdkDesktopIconKind || 'item';
+			const id = icon.dataset.pdkOpenApp || icon.dataset.pdkOpenFolder || icon.dataset.pdkContextId || '';
 
 			return id ? `${kind}:${id}` : '';
 		}
@@ -83,8 +83,8 @@
 			}
 
 			return {
-				id: icon.dataset.aosOpenApp || icon.dataset.aosOpenFolder || icon.dataset.aosContextId || '',
-				kind: icon.dataset.aosDesktopIconKind || 'item',
+				id: icon.dataset.pdkOpenApp || icon.dataset.pdkOpenFolder || icon.dataset.pdkContextId || '',
+				kind: icon.dataset.pdkDesktopIconKind || 'item',
 				key: getIconKey(icon)
 			};
 		}
@@ -115,7 +115,7 @@
 		}
 
 		function getIconLabel(icon) {
-			const label = icon.dataset.aosContextLabel
+			const label = icon.dataset.pdkContextLabel
 				|| (icon.querySelector('.pdk-desktop-app-label') ? icon.querySelector('.pdk-desktop-app-label').textContent : '')
 				|| '';
 
@@ -123,7 +123,7 @@
 		}
 
 		function getKindLabel(icon) {
-			const kind = icon.dataset.aosDesktopIconKind || 'item';
+			const kind = icon.dataset.pdkDesktopIconKind || 'item';
 			if (kind === 'folder') {
 				return 'folder';
 			}
@@ -207,7 +207,7 @@
 				return false;
 			}
 
-			if (targetIcon.hidden || targetIcon.dataset.aosDesktopIconKind !== 'folder') {
+			if (targetIcon.hidden || targetIcon.dataset.pdkDesktopIconKind !== 'folder') {
 				return false;
 			}
 
@@ -626,7 +626,7 @@
 
 				stored.set(id, {
 					id,
-					kind: icon.dataset.aosDesktopIconKind || 'item',
+					kind: icon.dataset.pdkDesktopIconKind || 'item',
 					state: readIconState(icon)
 				});
 			});
@@ -652,9 +652,9 @@
 		}
 
 		function suppressNextClick(icon) {
-			icon.dataset.aosSuppressClick = '1';
+			icon.dataset.pdkSuppressClick = '1';
 			window.setTimeout(() => {
-				delete icon.dataset.aosSuppressClick;
+				delete icon.dataset.pdkSuppressClick;
 			}, 0);
 		}
 
@@ -806,11 +806,11 @@
 		}
 
 		function makeDraggable(icon) {
-			if (!desktop || icon.dataset.aosDesktopIconBound === '1') {
+			if (!desktop || icon.dataset.pdkDesktopIconBound === '1') {
 				return;
 			}
 
-			icon.dataset.aosDesktopIconBound = '1';
+			icon.dataset.pdkDesktopIconBound = '1';
 			icon.draggable = false;
 			icon.setAttribute('aria-pressed', icon.classList.contains('is-selected') ? 'true' : 'false');
 			icon.querySelectorAll('img').forEach((image) => {
@@ -818,10 +818,10 @@
 			});
 
 			icon.addEventListener('click', (event) => {
-				if (icon.dataset.aosSuppressClick === '1') {
+				if (icon.dataset.pdkSuppressClick === '1') {
 					event.preventDefault();
 					event.stopPropagation();
-					delete icon.dataset.aosSuppressClick;
+					delete icon.dataset.pdkSuppressClick;
 					return;
 				}
 
@@ -933,11 +933,11 @@
 		}
 
 		function bindDesktopSelection() {
-			if (!desktop || desktop.dataset.aosDesktopSelectionBound === '1') {
+			if (!desktop || desktop.dataset.pdkDesktopSelectionBound === '1') {
 				return;
 			}
 
-			desktop.dataset.aosDesktopSelectionBound = '1';
+			desktop.dataset.pdkDesktopSelectionBound = '1';
 			if (!desktop.hasAttribute('tabindex')) {
 				desktop.setAttribute('tabindex', '-1');
 			}

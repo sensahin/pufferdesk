@@ -75,9 +75,9 @@
 				row.type = 'button';
 			}
 			if (hasUrl) {
-				row.dataset.aosOpenUrl = options.url;
-				row.dataset.aosTitle = options.windowTitle || options.title || options.label || actions.fallbackWindowTitle || 'WordPress';
-				row.dataset.aosIcon = options.icon || 'dashicons-admin-generic';
+				row.dataset.pdkOpenUrl = options.url;
+				row.dataset.pdkTitle = options.windowTitle || options.title || options.label || actions.fallbackWindowTitle || 'WordPress';
+				row.dataset.pdkIcon = options.icon || 'dashicons-admin-generic';
 			}
 			if (hasCommand && typeof actions.executeCommand === 'function') {
 				row.addEventListener('click', () => actions.executeCommand(options.command, options));

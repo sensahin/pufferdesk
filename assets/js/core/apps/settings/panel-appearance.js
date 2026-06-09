@@ -27,7 +27,7 @@
 		const themeSection = createSection('', 'pdk-settings-section-theme');
 		let installedThemeSection = null;
 
-		panel.dataset.aosSettingsPanel = 'appearance';
+		panel.dataset.pdkSettingsPanel = 'appearance';
 		appearanceSection.appendChild(createSettingsRow(
 			t('appearance.appearanceLabel', 'Appearance'),
 			createOptionGroup('mode', settingsLabels.getOptions('appearance.modeOptions'), status, 'pdk-settings-preview-option', 'pdk-settings-appearance-preview')

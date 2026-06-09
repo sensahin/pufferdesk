@@ -341,8 +341,8 @@
 			}
 
 			return windows.map((win) => {
-				const title = win.dataset.aosWindowTitle || win.getAttribute('aria-label') || 'Window';
-				const id = win.dataset.aosWindowId || '';
+				const title = win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || 'Window';
+				const id = win.dataset.pdkWindowId || '';
 				return commandItem(title, 'window.focus-id', {
 					icon: win.classList.contains('is-active') ? 'dashicons-yes' : '',
 					target: id
@@ -505,7 +505,7 @@
 
 		function getRecentCount() {
 			const configCount = config.menuBar && Number.parseInt(config.menuBar.recent_count, 10);
-			const datasetCount = Number.parseInt(shell.dataset.aosMenuBarRecentCount, 10);
+			const datasetCount = Number.parseInt(shell.dataset.pdkMenuBarRecentCount, 10);
 
 			if (Number.isFinite(configCount)) {
 				return Math.max(0, Math.min(50, configCount));
@@ -547,9 +547,9 @@
 
 		function isStartPanelGroup(group = {}) {
 			return group.id === 'system'
-				&& shell.dataset.aosShellLauncher === 'taskbar'
-				&& shell.dataset.aosShellSystemMenu === 'start'
-				&& shell.dataset.aosThemeFamily === 'redmond';
+				&& shell.dataset.pdkShellLauncher === 'taskbar'
+				&& shell.dataset.pdkShellSystemMenu === 'start'
+				&& shell.dataset.pdkThemeFamily === 'redmond';
 		}
 
 		function isVisibleStartApp(app) {
@@ -631,7 +631,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-start-pinned-item';
-			button.dataset.aosStartPinnedApp = app.id;
+			button.dataset.pdkStartPinnedApp = app.id;
 			button.setAttribute('aria-label', app.label);
 			icon.className = 'pdk-start-pinned-icon';
 			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
@@ -658,7 +658,7 @@
 			button.type = 'button';
 			button.className = className;
 			button.disabled = disabled;
-			button.dataset.aosMenuItem = item.id || item.command || item.label;
+			button.dataset.pdkMenuItem = item.id || item.command || item.label;
 			if (disabled) {
 				button.setAttribute('aria-disabled', 'true');
 			}
@@ -803,7 +803,7 @@
 
 			const shellRect = shell.getBoundingClientRect();
 			const buttonRect = button.getBoundingClientRect();
-			const opensAbove = shell.dataset.aosShellLauncher === 'taskbar' || buttonRect.top > shellRect.top + shellRect.height / 2;
+			const opensAbove = shell.dataset.pdkShellLauncher === 'taskbar' || buttonRect.top > shellRect.top + shellRect.height / 2;
 			const belowTop = Math.round(buttonRect.bottom - shellRect.top + 2);
 			const aboveTop = Math.round(buttonRect.top - shellRect.top - popover.offsetHeight - 8);
 			const top = opensAbove ? Math.max(8, aboveTop) : belowTop;
@@ -814,7 +814,7 @@
 				: Math.round(buttonRect.left - shellRect.left);
 			const left = Math.min(Math.max(minLeft, preferredLeft), maxLeft);
 
-			popover.dataset.aosMenuPlacement = opensAbove ? 'above' : 'below';
+			popover.dataset.pdkMenuPlacement = opensAbove ? 'above' : 'below';
 			popover.style.left = `${left}px`;
 			popover.style.top = `${top}px`;
 		}
@@ -837,7 +837,7 @@
 
 			popover = document.createElement('div');
 			popover.className = 'pdk-menu-popover';
-			popover.dataset.aosMenuPopover = group.id;
+			popover.dataset.pdkMenuPopover = group.id;
 			if (isStartPanelGroup(group)) {
 				popover.classList.add('pdk-start-panel');
 				popover.setAttribute('role', 'dialog');
@@ -877,7 +877,7 @@
 				return;
 			}
 
-			button.dataset.aosMenuGroup = initialGroup.id;
+			button.dataset.pdkMenuGroup = initialGroup.id;
 
 			if (hasMenuItems(initialGroup)) {
 				button.setAttribute('aria-haspopup', isStartPanelGroup(initialGroup) ? 'dialog' : 'menu');
@@ -912,15 +912,15 @@
 			}
 
 			const group = initialGroup;
-			button.dataset.aosMenuGroup = group.id;
+			button.dataset.pdkMenuGroup = group.id;
 
 			if (!group.command) {
 				return;
 			}
 
-			button.dataset.aosCommand = group.command;
+			button.dataset.pdkCommand = group.command;
 			if (group.target) {
-				button.dataset.aosCommandTarget = group.target;
+				button.dataset.pdkCommandTarget = group.target;
 			}
 			button.disabled = !commands.canExecute(group, activeDetail);
 			button.addEventListener('click', () => {
@@ -949,11 +949,11 @@
 		}
 
 		function bindSystemButton() {
-			if (!systemButton || systemButton.dataset.aosSystemMenuBound === '1' || !hasMenuItems(getSystemGroup())) {
+			if (!systemButton || systemButton.dataset.pdkSystemMenuBound === '1' || !hasMenuItems(getSystemGroup())) {
 				return;
 			}
 
-			systemButton.dataset.aosSystemMenuBound = '1';
+			systemButton.dataset.pdkSystemMenuBound = '1';
 			bindGroupButton(systemButton, getSystemGroup);
 		}
 
@@ -991,9 +991,9 @@
 			});
 			shell.addEventListener('pufferDesk:menu-bar-change', () => {
 				config.menuBar = Object.assign({}, config.menuBar || {}, {
-					auto_hide: shell.dataset.aosMenuBarAutoHide || 'fullscreen',
-					recent_count: Number.parseInt(shell.dataset.aosMenuBarRecentCount, 10) || 0,
-					show_background: shell.dataset.aosMenuBarBackground === '1'
+					auto_hide: shell.dataset.pdkMenuBarAutoHide || 'fullscreen',
+					recent_count: Number.parseInt(shell.dataset.pdkMenuBarRecentCount, 10) || 0,
+					show_background: shell.dataset.pdkMenuBarBackground === '1'
 				});
 				if (openGroupId === 'system') {
 					openPopover(getSystemGroup(), activeButton || systemButton);

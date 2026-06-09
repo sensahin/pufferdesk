@@ -37,7 +37,7 @@
 			}
 		);
 
-		panel.dataset.aosSettingsPanel = 'wallpaper';
+		panel.dataset.pdkSettingsPanel = 'wallpaper';
 		builtInSection.appendChild(createPhotoWallpaperGroup(status));
 		panel.append(builtInSection, colorSection);
 

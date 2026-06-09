@@ -17,7 +17,7 @@
 		const section = createSection('', 'pdk-settings-list pdk-settings-system-list');
 		const config = ctx.config || {};
 
-		panel.dataset.aosSettingsPanel = 'system';
+		panel.dataset.pdkSettingsPanel = 'system';
 
 		section.appendChild(createSettingsActionRow({
 			command: 'shell.restart',

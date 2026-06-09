@@ -23,15 +23,15 @@
 		};
 		const controlDefinitions = {
 			close: {
-				action: 'aosClose',
+				action: 'pdkClose',
 				modifier: 'close'
 			},
 			minimize: {
-				action: 'aosMinimize',
+				action: 'pdkMinimize',
 				modifier: 'minimize'
 			},
 			maximize: {
-				action: 'aosMaximize',
+				action: 'pdkMaximize',
 				modifier: 'maximize'
 			}
 		};
@@ -133,10 +133,10 @@
 			const disabledControls = Array.isArray(options.disabledControls) ? options.disabledControls : [];
 			const titlebar = document.createElement('div');
 			titlebar.className = 'pdk-window-titlebar';
-			titlebar.dataset.aosDragHandle = '';
-			titlebar.dataset.aosWindowControlsPlacement = chrome.controls.placement;
-			titlebar.dataset.aosWindowControlsStyle = chrome.controls.style;
-			titlebar.dataset.aosWindowTitleAlignment = chrome.title.alignment;
+			titlebar.dataset.pdkDragHandle = '';
+			titlebar.dataset.pdkWindowControlsPlacement = chrome.controls.placement;
+			titlebar.dataset.pdkWindowControlsStyle = chrome.controls.style;
+			titlebar.dataset.pdkWindowTitleAlignment = chrome.title.alignment;
 
 			const controls = document.createElement('div');
 			controls.className = 'pdk-window-controls';
@@ -166,31 +166,31 @@
 			const chrome = normalizeWindowChrome(options.windowChrome || getRuntimeWindowChrome());
 			const win = document.createElement('section');
 			win.className = 'pdk-window pdk-app-window';
-			win.dataset.aosAppWindow = options.appId || '';
-			win.dataset.aosContext = 'window';
-			win.dataset.aosContextId = options.appId || options.windowKind || 'window';
-			win.dataset.aosContextLabel = options.title || '';
-			win.dataset.aosResizeMode = options.resizeMode || 'both';
+			win.dataset.pdkAppWindow = options.appId || '';
+			win.dataset.pdkContext = 'window';
+			win.dataset.pdkContextId = options.appId || options.windowKind || 'window';
+			win.dataset.pdkContextLabel = options.title || '';
+			win.dataset.pdkResizeMode = options.resizeMode || 'both';
 			if (options.surfaceLayout) {
-				win.dataset.aosSurfaceLayout = options.surfaceLayout;
+				win.dataset.pdkSurfaceLayout = options.surfaceLayout;
 			}
-			win.dataset.aosWindowKind = options.windowKind || (options.appId ? 'app' : 'window');
-			win.dataset.aosWindowTitle = options.title || '';
-			win.dataset.aosWindowControlsPlacement = chrome.controls.placement;
-			win.dataset.aosWindowControlsStyle = chrome.controls.style;
-			win.dataset.aosWindowTitleAlignment = chrome.title.alignment;
-			win.dataset.aosWindowTitleIcon = chrome.title.show_icon ? '1' : '0';
+			win.dataset.pdkWindowKind = options.windowKind || (options.appId ? 'app' : 'window');
+			win.dataset.pdkWindowTitle = options.title || '';
+			win.dataset.pdkWindowControlsPlacement = chrome.controls.placement;
+			win.dataset.pdkWindowControlsStyle = chrome.controls.style;
+			win.dataset.pdkWindowTitleAlignment = chrome.title.alignment;
+			win.dataset.pdkWindowTitleIcon = chrome.title.show_icon ? '1' : '0';
 			if (options.url) {
-				win.dataset.aosWindowUrl = options.url;
+				win.dataset.pdkWindowUrl = options.url;
 			}
 			if (options.contextMenu === false) {
-				win.dataset.aosContextMenuDisabled = '1';
+				win.dataset.pdkContextMenuDisabled = '1';
 			}
 			if (options.persist === false) {
-				win.dataset.aosPersist = '0';
+				win.dataset.pdkPersist = '0';
 			}
 			if (options.menu && typeof options.menu === 'object') {
-				win.aosMenu = options.menu;
+				win.pdkMenu = options.menu;
 			}
 			win.setAttribute('aria-label', `${options.title} window`);
 			win.style.width = options.width || '860px';

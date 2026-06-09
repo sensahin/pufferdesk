@@ -136,7 +136,7 @@
 
 		function getFolderToolbarDisplayMode(detail = {}) {
 			const mode = detail.windowElement && detail.windowElement.dataset
-				? detail.windowElement.dataset.aosFolderToolbarDisplay
+				? detail.windowElement.dataset.pdkFolderToolbarDisplay
 				: '';
 
 			return ['icon-text', 'icon-only', 'text-only'].includes(mode) ? mode : 'icon-text';
@@ -450,8 +450,8 @@
 
 		function getWindowBrowserUrl(detail = {}, app = null) {
 			const win = detail.windowElement || null;
-			if (win && win.dataset && win.dataset.aosWindowUrl) {
-				return win.dataset.aosWindowUrl;
+			if (win && win.dataset && win.dataset.pdkWindowUrl) {
+				return win.dataset.pdkWindowUrl;
 			}
 
 			return app && typeof app.url === 'string' ? app.url : '';
@@ -660,7 +660,7 @@
 		}
 
 		function getTargetLabel(target) {
-			return target.dataset.aosContextLabel
+			return target.dataset.pdkContextLabel
 				|| target.getAttribute('aria-label')
 				|| target.getAttribute('title')
 				|| '';
@@ -680,15 +680,15 @@
 				return closest;
 			}
 
-			const windowId = target.dataset.aosRestoreWindowId || target.dataset.aosWindowId || '';
+			const windowId = target.dataset.pdkRestoreWindowId || target.dataset.pdkWindowId || '';
 			return windowId
 				? shell.querySelector(`.pdk-window[data-pdk-window-id="${window.PufferDesk.dom.escapeAttribute(windowId)}"]:not(.is-closed)`)
 				: null;
 		}
 
 		function getTargetDetail(target) {
-			const type = target.dataset.aosContext || 'desktop';
-			const id = target.dataset.aosContextId || target.dataset.aosOpenApp || target.dataset.aosOpenFolder || target.dataset.aosWidget || '';
+			const type = target.dataset.pdkContext || 'desktop';
+			const id = target.dataset.pdkContextId || target.dataset.pdkOpenApp || target.dataset.pdkOpenFolder || target.dataset.pdkWidget || '';
 			const windowElement = getContextWindowElement(target);
 			const app = id && Array.isArray(config.apps) ? config.apps.find((item) => item.id === id) : null;
 			const folder = id && folderManager && typeof folderManager.getFolder === 'function'
@@ -698,19 +698,19 @@
 			const widget = id && Array.isArray(config.widgets) ? config.widgets.find((item) => item.id === id) : null;
 			const detail = {
 				app,
-				appId: target.dataset.aosAppWindow || (windowElement && windowElement.dataset ? windowElement.dataset.aosAppWindow : '') || (app ? app.id : ''),
+				appId: target.dataset.pdkAppWindow || (windowElement && windowElement.dataset ? windowElement.dataset.pdkAppWindow : '') || (app ? app.id : ''),
 				folder,
-				folderId: target.dataset.aosFolderId || '',
+				folderId: target.dataset.pdkFolderId || '',
 				id,
 				kind: type,
 				label: getTargetLabel(target),
 				targetElement: target,
 				type,
 				trashItem,
-				trashItemId: target.dataset.aosTrashItemId || '',
+				trashItemId: target.dataset.pdkTrashItemId || '',
 				widget,
-				widgetElement: target.dataset.aosWidget ? target : null,
-				widgetId: target.dataset.aosWidget || '',
+				widgetElement: target.dataset.pdkWidget ? target : null,
+				widgetId: target.dataset.pdkWidget || '',
 				windowElement
 			};
 
@@ -719,7 +719,7 @@
 			}
 
 			if (!detail.label && windowElement && windowElement.dataset) {
-				detail.label = windowElement.dataset.aosWindowTitle || windowElement.getAttribute('aria-label') || '';
+				detail.label = windowElement.dataset.pdkWindowTitle || windowElement.getAttribute('aria-label') || '';
 			}
 
 			return detail;
@@ -771,7 +771,7 @@
 
 			const shellRect = shell.getBoundingClientRect();
 			const targetRect = target.getBoundingClientRect();
-			const dockPosition = shell.dataset.aosDockPosition || 'bottom';
+			const dockPosition = shell.dataset.pdkDockPosition || 'bottom';
 			const minLeft = 8;
 			const minTop = 8;
 			const maxLeft = Math.max(minLeft, shell.clientWidth - popover.offsetWidth - 8);
@@ -793,7 +793,7 @@
 
 			left = clampPosition(Math.round(left), minLeft, maxLeft);
 			top = clampPosition(Math.round(top), minTop, maxTop);
-			delete popover.dataset.aosDockContextPlacement;
+			delete popover.dataset.pdkDockContextPlacement;
 			popover.style.left = `${left}px`;
 			popover.style.top = `${top}px`;
 
@@ -854,7 +854,7 @@
 			activeDetail = nextDetail;
 			popover = document.createElement('div');
 			popover.className = 'pdk-menu-popover pdk-context-menu';
-			popover.dataset.aosContextMenu = activeDetail.type;
+			popover.dataset.pdkContextMenu = activeDetail.type;
 			popover.setAttribute('role', 'menu');
 			popover.setAttribute('aria-label', activeDetail.label || 'Context menu');
 			popover.replaceChildren(...menuDefinition.groups.flatMap((group, groupIndex) => {
@@ -943,10 +943,10 @@
 		}
 
 		function markDockLongPressOpened(target) {
-			target.dataset.aosDockLongPressOpen = '1';
+			target.dataset.pdkDockLongPressOpen = '1';
 			window.setTimeout(() => {
-				if (target.dataset.aosDockLongPressOpen === '1') {
-					delete target.dataset.aosDockLongPressOpen;
+				if (target.dataset.pdkDockLongPressOpen === '1') {
+					delete target.dataset.pdkDockLongPressOpen;
 				}
 			}, 600);
 		}
@@ -1081,11 +1081,11 @@
 			});
 			shell.addEventListener('click', (event) => {
 				const target = getDockLongPressTarget(event.target) || shell.querySelector('[data-pdk-dock-long-press-open="1"]');
-				if (!target || target.dataset.aosDockLongPressOpen !== '1') {
+				if (!target || target.dataset.pdkDockLongPressOpen !== '1') {
 					return;
 				}
 
-				delete target.dataset.aosDockLongPressOpen;
+				delete target.dataset.pdkDockLongPressOpen;
 				event.preventDefault();
 				event.stopPropagation();
 			}, true);

@@ -22,7 +22,7 @@
 		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-workspace-panel');
 		const section = createSection('', 'pdk-settings-list pdk-settings-workspace-list');
 
-		panel.dataset.aosSettingsPanel = 'workspace';
+		panel.dataset.pdkSettingsPanel = 'workspace';
 
 		function reloadShell() {
 			window.location.href = config.shellUrl || window.location.href;

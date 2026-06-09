@@ -91,7 +91,7 @@
 		function getFolderToolbarWindow(detail = activeDetail) {
 			const win = getTargetWindow(detail);
 
-			if (!win || !win.dataset || win.dataset.aosWindowKind !== 'folder') {
+			if (!win || !win.dataset || win.dataset.pdkWindowKind !== 'folder') {
 				return null;
 			}
 
@@ -99,7 +99,7 @@
 		}
 
 		function getTargetWidget(detail = activeDetail) {
-			if (detail && detail.widgetElement && detail.widgetElement.dataset && detail.widgetElement.dataset.aosWidget) {
+			if (detail && detail.widgetElement && detail.widgetElement.dataset && detail.widgetElement.dataset.pdkWidget) {
 				return detail.widgetElement;
 			}
 
@@ -146,7 +146,7 @@
 				}
 
 				if (!url && win.dataset) {
-					url = win.dataset.aosWindowUrl || '';
+					url = win.dataset.pdkWindowUrl || '';
 				}
 			}
 
@@ -237,8 +237,8 @@
 					return payload.parentId;
 				}
 
-				if (detail && detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.aosWindowKind === 'folder') {
-					return detail.folderId || detail.windowElement.dataset.aosFolderWindow || detail.id || '';
+				if (detail && detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.pdkWindowKind === 'folder') {
+					return detail.folderId || detail.windowElement.dataset.pdkFolderWindow || detail.id || '';
 				}
 
 				if (detail && (detail.type === 'folder-toolbar' || detail.kind === 'folder-toolbar')) {
@@ -903,10 +903,10 @@
 					return;
 				}
 
-				win.dataset.aosFolderToolbarDisplay = mode;
+				win.dataset.pdkFolderToolbarDisplay = mode;
 
 				if (toolbar) {
-					toolbar.dataset.aosFolderToolbarDisplay = mode;
+					toolbar.dataset.pdkFolderToolbarDisplay = mode;
 				}
 
 				win.dispatchEvent(new window.CustomEvent('pufferDesk:folder-toolbar-display-change', {
@@ -1142,7 +1142,7 @@
 			},
 			run(payload, detail) {
 				const win = getTargetWindow(detail);
-				manager.closeWindow(win, win ? win.dataset.aosAppWindow : '');
+				manager.closeWindow(win, win ? win.dataset.pdkAppWindow : '');
 			}
 		});
 

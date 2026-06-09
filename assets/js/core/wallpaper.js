@@ -51,7 +51,7 @@
 
 	function setMenuContrast(shell, contrast) {
 		const next = sanitizeContrast(contrast) || 'auto';
-		shell.dataset.aosMenuContrast = next;
+		shell.dataset.pdkMenuContrast = next;
 	}
 
 	function getCacheKey(wallpaper = {}) {
@@ -216,8 +216,8 @@
 		const preference = getPreference(wallpaper);
 		const current = getCurrent(wallpaper);
 		const menuContrast = getMenuContrast(wallpaper);
-		shell.dataset.aosWallpaperType = preference.type || current.type || '';
-		shell.dataset.aosWallpaperId = preference.id || current.id || '';
+		shell.dataset.pdkWallpaperType = preference.type || current.type || '';
+		shell.dataset.pdkWallpaperId = preference.id || current.id || '';
 		setMenuContrast(shell, menuContrast);
 		if (menuContrast === 'auto') {
 			resolveAutoMenuContrast(shell, wallpaper);

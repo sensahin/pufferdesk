@@ -147,17 +147,17 @@
 			}
 
 			(settingsRoot || document).querySelectorAll('[data-pdk-settings-panel]').forEach((settingsPanel) => {
-				settingsPanel.hidden = settingsPanel.dataset.aosSettingsPanel !== panelId;
+				settingsPanel.hidden = settingsPanel.dataset.pdkSettingsPanel !== panelId;
 			});
 
 			activePanel = panelId;
-			activeSection = panel.dataset.aosSettingsSidebar || panelId;
+			activeSection = panel.dataset.pdkSettingsSidebar || panelId;
 			if (settingsRoot) {
-				settingsRoot.dataset.aosSettingsActivePanel = activePanel;
+				settingsRoot.dataset.pdkSettingsActivePanel = activePanel;
 			}
 			updateSidebarSelection(activeSection);
 			if (paneTitle) {
-				paneTitle.textContent = panel.dataset.aosSettingsTitle || getSidebarItem(activeSection).label;
+				paneTitle.textContent = panel.dataset.pdkSettingsTitle || getSidebarItem(activeSection).label;
 			}
 			updateHistoryControls();
 		}
@@ -361,9 +361,9 @@
 			avatar.className = 'pdk-settings-profile-hero-avatar';
 			if (profileUrl) {
 				avatar.type = 'button';
-				avatar.dataset.aosOpenUrl = profileUrl;
-				avatar.dataset.aosTitle = t('profile.profileTitle', 'WordPress Profile');
-				avatar.dataset.aosIcon = 'dashicons-admin-users';
+				avatar.dataset.pdkOpenUrl = profileUrl;
+				avatar.dataset.pdkTitle = t('profile.profileTitle', 'WordPress Profile');
+				avatar.dataset.pdkIcon = 'dashicons-admin-users';
 				avatar.setAttribute('aria-label', t('profile.editProfileLabel', 'Edit profile'));
 			}
 
@@ -410,14 +410,14 @@
 			syncUploadedPhotoOptions();
 
 			wallpaperButtons.forEach((button) => {
-				const selected = button.dataset.aosWallpaperKey === selectedKey;
+				const selected = button.dataset.pdkWallpaperKey === selectedKey;
 				button.classList.toggle('is-selected', selected);
 				button.setAttribute('aria-pressed', selected ? 'true' : 'false');
-				if (button.aosRemoveButton) {
-					button.aosRemoveButton.hidden = selected;
+				if (button.pdkRemoveButton) {
+					button.pdkRemoveButton.hidden = selected;
 				}
-				if (button.aosPhotoItem) {
-					button.aosPhotoItem.classList.toggle('is-selected', selected);
+				if (button.pdkPhotoItem) {
+					button.pdkPhotoItem.classList.toggle('is-selected', selected);
 				}
 			});
 
@@ -448,13 +448,13 @@
 			}));
 
 			wallpaperUploadedPhotoButtons = wallpaperUploadedPhotoButtons.filter((button) => {
-				if (expectedKeys.includes(button.dataset.aosWallpaperKey || '')) {
+				if (expectedKeys.includes(button.dataset.pdkWallpaperKey || '')) {
 					return true;
 				}
 
 				wallpaperButtons = wallpaperButtons.filter((item) => item !== button);
-				if (button.aosPhotoItem) {
-					button.aosPhotoItem.remove();
+				if (button.pdkPhotoItem) {
+					button.pdkPhotoItem.remove();
 				} else {
 					button.remove();
 				}
@@ -467,7 +467,7 @@
 				const label = button.querySelector('.pdk-settings-wallpaper-selected-photo-label');
 				const title = item.label || t('wallpaper.selectedPhotoLabel', 'Selected Photo');
 
-				button.aosWallpaperItem = item;
+				button.pdkWallpaperItem = item;
 				button.setAttribute('aria-label', title);
 				if (preview) {
 					preview.style.backgroundImage = getWallpaperPreviewValue(item);
@@ -476,7 +476,7 @@
 				if (label) {
 					label.textContent = title;
 				}
-				wallpaperPhotoGrid.appendChild(button.aosPhotoItem || button);
+				wallpaperPhotoGrid.appendChild(button.pdkPhotoItem || button);
 			});
 
 			syncPhotoWallpaperDisclosure();
@@ -510,7 +510,7 @@
 				type: 'upload',
 				attachment_id: item.attachment_id || 0
 			});
-			const existing = wallpaperUploadedPhotoButtons.find((button) => button.dataset.aosWallpaperKey === key);
+			const existing = wallpaperUploadedPhotoButtons.find((button) => button.dataset.pdkWallpaperKey === key);
 			if (existing) {
 				return existing;
 			}
@@ -523,13 +523,13 @@
 
 			uploadedButton.type = 'button';
 			uploadedButton.className = 'pdk-settings-wallpaper-photo-button pdk-settings-wallpaper-selected-photo-button';
-			uploadedButton.dataset.aosWallpaperKey = key;
+			uploadedButton.dataset.pdkWallpaperKey = key;
 			uploadedButton.setAttribute('aria-pressed', 'false');
 			uploadedPreview.setAttribute('aria-hidden', 'true');
 			uploadedButton.append(uploadedPreview, uploadedLabel);
 			uploadedButton.addEventListener('click', () => {
-				if (uploadedButton.aosWallpaperItem) {
-					selectWallpaperItem(uploadedButton.aosWallpaperItem, wallpaperPhotoStatus);
+				if (uploadedButton.pdkWallpaperItem) {
+					selectWallpaperItem(uploadedButton.pdkWallpaperItem, wallpaperPhotoStatus);
 				}
 			});
 
@@ -540,15 +540,15 @@
 			removeButton.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
-				if (uploadedButton.aosWallpaperItem) {
-					removeUploadedWallpaper(uploadedButton.aosWallpaperItem, wallpaperPhotoStatus);
+				if (uploadedButton.pdkWallpaperItem) {
+					removeUploadedWallpaper(uploadedButton.pdkWallpaperItem, wallpaperPhotoStatus);
 				}
 			});
 
 			photoItem.append(uploadedButton, removeButton);
-			uploadedButton.aosWallpaperItem = item;
-			uploadedButton.aosPhotoItem = photoItem;
-			uploadedButton.aosRemoveButton = removeButton;
+			uploadedButton.pdkWallpaperItem = item;
+			uploadedButton.pdkPhotoItem = photoItem;
+			uploadedButton.pdkRemoveButton = removeButton;
 			wallpaperUploadedPhotoButtons.push(uploadedButton);
 			wallpaperButtons.push(uploadedButton);
 			wallpaperPhotoGrid.appendChild(photoItem);
@@ -960,7 +960,7 @@
 
 			const preview = dom.createElement('span', previewClassName);
 			preview.setAttribute('aria-hidden', 'true');
-			preview.dataset.aosPreviewValue = option.value;
+			preview.dataset.pdkPreviewValue = option.value;
 			button.appendChild(preview);
 			button.appendChild(dom.createElement('span', 'pdk-settings-option-label', option.label));
 
@@ -1199,7 +1199,7 @@
 
 			button.type = 'button';
 			button.className = `pdk-settings-wallpaper-option ${extraClassName}`.trim();
-			button.dataset.aosWallpaperKey = key;
+			button.dataset.pdkWallpaperKey = key;
 			button.setAttribute('aria-label', item.label || item.id);
 			button.setAttribute('aria-pressed', 'false');
 			applyWallpaperPreview(preview, item);
@@ -1529,7 +1529,7 @@
 
 			profile.type = 'button';
 			profile.className = 'pdk-settings-profile';
-			profile.dataset.aosSettingsSection = profileItem.id;
+			profile.dataset.pdkSettingsSection = profileItem.id;
 			profile.setAttribute('aria-label', `${profileItem.label}: ${name}`);
 			profile.addEventListener('click', () => setActiveSection(profileItem.id));
 			const text = dom.createElement('span', 'pdk-settings-profile-text');
@@ -1555,7 +1555,7 @@
 			const nav = dom.createElement('nav', 'pdk-settings-sidebar-nav');
 			const navItems = [];
 
-			dragZone.dataset.aosDragHandle = '';
+			dragZone.dataset.pdkDragHandle = '';
 			dragZone.setAttribute('aria-hidden', 'true');
 			if (!isWindowsSettingsLayout) {
 				sidebar.appendChild(dragZone);
@@ -1581,7 +1581,7 @@
 				const button = document.createElement('button');
 				button.type = 'button';
 				button.className = 'pdk-settings-sidebar-item';
-				button.dataset.aosSettingsSection = item.id;
+				button.dataset.pdkSettingsSection = item.id;
 				button.disabled = Boolean(item.disabled);
 				button.appendChild(createSidebarIcon(item));
 				button.appendChild(dom.createElement('span', 'pdk-settings-sidebar-label', item.label));
@@ -1619,8 +1619,8 @@
 			const header = dom.createElement('header', 'pdk-settings-pane-header');
 			const history = dom.createElement('div', 'pdk-settings-history');
 			const titleElement = dom.createElement('h1', '', title);
-			header.dataset.aosDragHandle = '';
-			history.dataset.aosNoDrag = '';
+			header.dataset.pdkDragHandle = '';
+			history.dataset.pdkNoDrag = '';
 
 			if (!isWindowsSettingsLayout) {
 				['back', 'forward'].forEach((direction) => {
@@ -1690,7 +1690,7 @@
 
 			const content = dom.createElement('div', 'pdk-settings');
 			settingsRoot = content;
-			content.dataset.aosSettingsLayout = settingsLayout;
+			content.dataset.pdkSettingsLayout = settingsLayout;
 			if (isWindowsSettingsLayout) {
 				content.classList.add('pdk-settings-windows');
 			}
@@ -1764,7 +1764,7 @@
 		syncMenuBarControls();
 		syncWallpaperControls();
 		setActiveSection(activeSection);
-		content.aosOpenPanel = (panelId) => {
+		content.pdkOpenPanel = (panelId) => {
 			if (!panelId || !content.querySelector(`[data-pdk-settings-panel="${dom.escapeAttribute(panelId)}"]`)) {
 				return false;
 			}

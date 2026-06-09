@@ -35,12 +35,12 @@
 		}
 
 		function getWidgetDefaults(widget) {
-			const width = readNumber(widget.dataset.aosWidgetWidth) ?? widget.offsetWidth;
-			const height = readNumber(widget.dataset.aosWidgetHeight) ?? widget.offsetHeight;
-			const left = readNumber(widget.dataset.aosWidgetLeft);
-			const right = readNumber(widget.dataset.aosWidgetRight);
-			const top = readNumber(widget.dataset.aosWidgetTop);
-			const bottom = readNumber(widget.dataset.aosWidgetBottom);
+			const width = readNumber(widget.dataset.pdkWidgetWidth) ?? widget.offsetWidth;
+			const height = readNumber(widget.dataset.pdkWidgetHeight) ?? widget.offsetHeight;
+			const left = readNumber(widget.dataset.pdkWidgetLeft);
+			const right = readNumber(widget.dataset.pdkWidgetRight);
+			const top = readNumber(widget.dataset.pdkWidgetTop);
+			const bottom = readNumber(widget.dataset.pdkWidgetBottom);
 			let defaultLeft = left;
 			let defaultTop = top;
 
@@ -142,7 +142,7 @@
 
 			return Array.from(layer.querySelectorAll('[data-pdk-widget]'))
 				.map((widget) => {
-					const id = widget.dataset.aosWidget;
+					const id = widget.dataset.pdkWidget;
 					if (!id) {
 						return null;
 					}
@@ -176,11 +176,11 @@
 			const timeNode = widget.querySelector('[data-pdk-widget-clock]');
 			const dateNode = widget.querySelector('[data-pdk-widget-clock-date]');
 
-			if (!timeNode || widget.dataset.aosWidgetClockBound === '1') {
+			if (!timeNode || widget.dataset.pdkWidgetClockBound === '1') {
 				return;
 			}
 
-			widget.dataset.aosWidgetClockBound = '1';
+			widget.dataset.pdkWidgetClockBound = '1';
 
 			const timeFormatter = new Intl.DateTimeFormat(undefined, {
 				hour: 'numeric',
@@ -191,7 +191,7 @@
 				month: 'short',
 				day: 'numeric'
 			});
-			const refreshInterval = Math.max(readNumber(widget.dataset.aosWidgetRefresh) ?? 30000, 1000);
+			const refreshInterval = Math.max(readNumber(widget.dataset.pdkWidgetRefresh) ?? 30000, 1000);
 
 			const update = () => {
 				const now = new Date();
@@ -209,17 +209,17 @@
 		}
 
 		function bindWidget(widget) {
-			if (widget.dataset.aosWidgetBound === '1') {
+			if (widget.dataset.pdkWidgetBound === '1') {
 				return;
 			}
 
-			widget.dataset.aosWidgetBound = '1';
-			if (widget.dataset.aosLayoutRestored !== '1') {
+			widget.dataset.pdkWidgetBound = '1';
+			if (widget.dataset.pdkLayoutRestored !== '1') {
 				applyWidgetState(widget, null);
 			}
 			makeDraggable(widget);
 
-			if (widget.dataset.aosWidgetNative === 'clock') {
+			if (widget.dataset.pdkWidgetNative === 'clock') {
 				bindClockWidget(widget);
 			}
 		}

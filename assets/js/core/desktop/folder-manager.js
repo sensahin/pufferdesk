@@ -358,19 +358,19 @@
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = 'pdk-desktop-icon pdk-desktop-folder';
-			button.dataset.aosContext = 'desktop-folder';
-			button.dataset.aosContextId = folder.id;
-			button.dataset.aosContextLabel = folder.label;
-			button.dataset.aosDesktopIcon = '';
-			button.dataset.aosDesktopIconId = `folder:${folder.id}`;
-			button.dataset.aosDesktopIconKind = 'folder';
-			button.dataset.aosDateAdded = folder.createdAt || '';
-			button.dataset.aosDateCreated = folder.createdAt || '';
-			button.dataset.aosDateLastOpened = folder.lastOpenedAt || '';
-			button.dataset.aosDateModified = folder.modifiedAt || folder.createdAt || '';
-			button.dataset.aosSize = String(Array.isArray(folder.appIds) ? folder.appIds.length : 0);
-			button.dataset.aosOpenFolder = folder.id;
-			button.dataset.aosUserFolder = '1';
+			button.dataset.pdkContext = 'desktop-folder';
+			button.dataset.pdkContextId = folder.id;
+			button.dataset.pdkContextLabel = folder.label;
+			button.dataset.pdkDesktopIcon = '';
+			button.dataset.pdkDesktopIconId = `folder:${folder.id}`;
+			button.dataset.pdkDesktopIconKind = 'folder';
+			button.dataset.pdkDateAdded = folder.createdAt || '';
+			button.dataset.pdkDateCreated = folder.createdAt || '';
+			button.dataset.pdkDateLastOpened = folder.lastOpenedAt || '';
+			button.dataset.pdkDateModified = folder.modifiedAt || folder.createdAt || '';
+			button.dataset.pdkSize = String(Array.isArray(folder.appIds) ? folder.appIds.length : 0);
+			button.dataset.pdkOpenFolder = folder.id;
+			button.dataset.pdkUserFolder = '1';
 			button.setAttribute('aria-label', folder.label);
 
 			const icon = dom.createElement('span', 'pdk-app-icon');
@@ -441,7 +441,7 @@
 				const badge = button.querySelector('.pdk-trash-badge');
 
 				button.classList.toggle('is-trash-full', count > 0);
-				button.dataset.aosTrashState = count > 0 ? 'full' : 'empty';
+				button.dataset.pdkTrashState = count > 0 ? 'full' : 'empty';
 				button.setAttribute('aria-label', label);
 
 				if (badge) {
@@ -665,14 +665,14 @@
 			}
 
 			desktop.querySelectorAll('[data-pdk-desktop-icon-kind="app"][data-pdk-open-app]').forEach((icon) => {
-				const appId = icon.dataset.aosOpenApp || '';
+				const appId = icon.dataset.pdkOpenApp || '';
 				const folder = appId ? getUserFolderForApp(appId) : null;
 
 				icon.hidden = Boolean(folder);
 				if (folder) {
-					icon.dataset.aosInFolder = folder.id;
+					icon.dataset.pdkInFolder = folder.id;
 				} else {
-					delete icon.dataset.aosInFolder;
+					delete icon.dataset.pdkInFolder;
 				}
 			});
 		}
@@ -981,7 +981,7 @@
 			const folder = getUserFolder(folderId);
 			const icon = getFolderIcon(folderId);
 			const label = icon ? icon.querySelector('.pdk-desktop-app-label') : null;
-			if (!folder || !icon || !label || label.dataset.aosInlineRename === '1') {
+			if (!folder || !icon || !label || label.dataset.pdkInlineRename === '1') {
 				return false;
 			}
 
@@ -1017,7 +1017,7 @@
 				label.removeEventListener('pointerdown', stopEditingEvent);
 				label.removeAttribute('contenteditable');
 				label.removeAttribute('spellcheck');
-				delete label.dataset.aosInlineRename;
+				delete label.dataset.pdkInlineRename;
 				icon.classList.remove('is-renaming');
 				icon.style.removeProperty('--pdk-desktop-rename-left');
 				icon.style.removeProperty('--pdk-desktop-rename-top');
@@ -1060,8 +1060,8 @@
 			}
 
 			icon.classList.add('is-renaming');
-			icon.dataset.aosSuppressClick = '1';
-			label.dataset.aosInlineRename = '1';
+			icon.dataset.pdkSuppressClick = '1';
+			label.dataset.pdkInlineRename = '1';
 			label.setAttribute('contenteditable', 'plaintext-only');
 			label.setAttribute('spellcheck', 'false');
 			label.addEventListener('blur', onBlur);

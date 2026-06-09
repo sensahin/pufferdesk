@@ -17,7 +17,7 @@
 		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-menu-bar-panel');
 		const section = createSection('', 'pdk-settings-list pdk-settings-menu-bar-list');
 
-		panel.dataset.aosSettingsPanel = 'menu-bar';
+		panel.dataset.pdkSettingsPanel = 'menu-bar';
 		section.appendChild(createMenuBarRow(
 			t('menuBar.rows.autoHide', 'Automatically hide and show the menu bar'),
 			createMenuBarSelect('auto_hide', status)

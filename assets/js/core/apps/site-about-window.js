@@ -183,7 +183,7 @@
 		}
 
 		if (options.layout) {
-			content.dataset.aosInfoPanelLayout = options.layout;
+			content.dataset.pdkInfoPanelLayout = options.layout;
 		}
 
 		addClassNames(content, options.className);

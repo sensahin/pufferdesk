@@ -6,7 +6,7 @@
 	function boot() {
 		const shell = document.querySelector('[data-pufferdesk-shell]');
 
-		if (!shell || shell.dataset.aosBooted === '1') {
+		if (!shell || shell.dataset.pdkBooted === '1') {
 			return;
 		}
 
@@ -33,7 +33,7 @@
 			return;
 		}
 
-		shell.dataset.aosBooted = '1';
+		shell.dataset.pdkBooted = '1';
 
 		const config = window.PufferDesk.config.get();
 		if (window.PufferDesk.appearance) {

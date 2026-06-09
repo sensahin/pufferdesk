@@ -78,7 +78,7 @@
 			const stripItems = Array.isArray(item.items) ? item.items : [];
 
 			strip.className = 'pdk-menu-action-strip';
-			strip.dataset.aosMenuItem = item.id || 'action-strip';
+			strip.dataset.pdkMenuItem = item.id || 'action-strip';
 			strip.setAttribute('role', 'group');
 			if (item.label) {
 				strip.setAttribute('aria-label', item.label);
@@ -91,7 +91,7 @@
 
 				button.type = 'button';
 				button.className = 'pdk-menu-action-strip-button';
-				button.dataset.aosMenuItem = stripItem.id || stripItem.command || stripItem.label;
+				button.dataset.pdkMenuItem = stripItem.id || stripItem.command || stripItem.label;
 				button.setAttribute('role', 'menuitem');
 				button.disabled = disabled;
 				button.setAttribute('aria-label', stripItem.label);
@@ -132,10 +132,10 @@
 			let closeTimer = null;
 
 			wrapper.className = 'pdk-menu-submenu';
-			wrapper.dataset.aosMenuSubmenu = item.id || item.label;
+			wrapper.dataset.pdkMenuSubmenu = item.id || item.label;
 			button.type = 'button';
 			button.className = 'pdk-menu-item pdk-menu-submenu-trigger';
-			button.dataset.aosMenuItem = item.id || item.label;
+			button.dataset.pdkMenuItem = item.id || item.label;
 			button.setAttribute('role', 'menuitem');
 			button.setAttribute('aria-haspopup', 'menu');
 			button.setAttribute('aria-expanded', 'false');
@@ -217,7 +217,7 @@
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = 'pdk-menu-item';
-			button.dataset.aosMenuItem = item.id || item.command || item.label;
+			button.dataset.pdkMenuItem = item.id || item.command || item.label;
 			button.setAttribute('role', 'menuitem');
 			button.disabled = disabled;
 

@@ -16,7 +16,7 @@
 		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-widgets-panel');
 		const section = createSection('', 'pdk-settings-list pdk-settings-widgets-list');
 
-		panel.dataset.aosSettingsPanel = 'widgets';
+		panel.dataset.pdkSettingsPanel = 'widgets';
 
 		function getStoredWidgetState(widgetId) {
 			const state = ctx.config.workspaceState && typeof ctx.config.workspaceState === 'object'

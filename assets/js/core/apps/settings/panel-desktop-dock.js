@@ -32,7 +32,7 @@
 			})
 			: null;
 
-		panel.dataset.aosSettingsPanel = 'desktop-dock';
+		panel.dataset.pdkSettingsPanel = 'desktop-dock';
 		if (showLauncher && launcher.position !== false) {
 			dockSection.appendChild(createDesktopDockSelectRow(t('desktopDock.rows.dockPosition', 'Dock position on screen'), 'dock_position', status));
 		}

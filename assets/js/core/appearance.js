@@ -128,11 +128,11 @@
 		}
 
 		currentAppearance = normalize(appearance);
-		shell.dataset.aosAppearanceMode = currentAppearance.mode;
-		shell.dataset.aosEffectiveAppearance = getEffectiveMode(currentAppearance);
-		shell.dataset.aosWindowMaterial = currentAppearance.window_material;
-		shell.dataset.aosAccentColor = currentAppearance.accent_color;
-		shell.dataset.aosIconWidgetStyle = currentAppearance.icon_widget_style;
+		shell.dataset.pdkAppearanceMode = currentAppearance.mode;
+		shell.dataset.pdkEffectiveAppearance = getEffectiveMode(currentAppearance);
+		shell.dataset.pdkWindowMaterial = currentAppearance.window_material;
+		shell.dataset.pdkAccentColor = currentAppearance.accent_color;
+		shell.dataset.pdkIconWidgetStyle = currentAppearance.icon_widget_style;
 		applyAccent(shell, currentAppearance.accent_color);
 
 		return currentAppearance;

@@ -86,15 +86,15 @@
 			? (1 + current.dock_magnification / 55).toFixed(3)
 			: '1';
 
-		shell.dataset.aosDockPosition = current.dock_position;
-		shell.dataset.aosDockAutoHide = current.auto_hide_dock ? '1' : '0';
-		shell.dataset.aosDockAnimateApps = current.animate_opening_apps ? '1' : '0';
-		shell.dataset.aosDockShowIndicators = current.show_open_indicators ? '1' : '0';
-		shell.dataset.aosMinimizeAnimation = current.minimize_animation;
-		shell.dataset.aosMinimizeIntoAppIcon = current.minimize_into_app_icon ? '1' : '0';
-		shell.dataset.aosWallpaperClick = current.wallpaper_click;
-		shell.dataset.aosShowWidgetsDesktop = current.show_widgets_desktop ? '1' : '0';
-		shell.dataset.aosDimWidgets = current.dim_widgets;
+		shell.dataset.pdkDockPosition = current.dock_position;
+		shell.dataset.pdkDockAutoHide = current.auto_hide_dock ? '1' : '0';
+		shell.dataset.pdkDockAnimateApps = current.animate_opening_apps ? '1' : '0';
+		shell.dataset.pdkDockShowIndicators = current.show_open_indicators ? '1' : '0';
+		shell.dataset.pdkMinimizeAnimation = current.minimize_animation;
+		shell.dataset.pdkMinimizeIntoAppIcon = current.minimize_into_app_icon ? '1' : '0';
+		shell.dataset.pdkWallpaperClick = current.wallpaper_click;
+		shell.dataset.pdkShowWidgetsDesktop = current.show_widgets_desktop ? '1' : '0';
+		shell.dataset.pdkDimWidgets = current.dim_widgets;
 
 		shell.style.setProperty('--pdk-dock-item-size', `${current.dock_size}px`);
 		shell.style.setProperty('--pdk-dock-icon-size', `${iconSize}px`);
@@ -125,7 +125,7 @@
 	}
 
 	function isFixedDockItem(item) {
-		return Boolean(item && item.dataset && item.dataset.aosDockFixed);
+		return Boolean(item && item.dataset && item.dataset.pdkDockFixed);
 	}
 
 	function normalizeDockOrder(order = [], apps = []) {
@@ -207,7 +207,7 @@
 			child.classList
 			&& child.classList.contains('pdk-dock-item')
 			&& child.dataset
-			&& child.dataset.aosOpenApp
+			&& child.dataset.pdkOpenApp
 			&& !isFixedDockItem(child)
 		));
 	}
@@ -218,7 +218,7 @@
 
 	function getDockOrderFromDom(dock) {
 		return getDockAppItems(dock)
-			.map((item) => item.dataset.aosOpenApp || '')
+			.map((item) => item.dataset.pdkOpenApp || '')
 			.filter(Boolean);
 	}
 
@@ -234,7 +234,7 @@
 		}
 
 		const dockItems = getDockAppItems(dock);
-		const byId = new Map(dockItems.map((item) => [item.dataset.aosOpenApp || '', item]));
+		const byId = new Map(dockItems.map((item) => [item.dataset.pdkOpenApp || '', item]));
 		const orderedItems = [];
 		const dockEndAnchor = getDockEndAnchor(dock);
 
@@ -248,7 +248,7 @@
 		});
 
 		dockItems.forEach((item) => {
-			const appId = item.dataset.aosOpenApp || '';
+			const appId = item.dataset.pdkOpenApp || '';
 			if (byId.has(appId)) {
 				orderedItems.push(item);
 			}
@@ -305,11 +305,11 @@
 	function bindTooltipDismissal(shell) {
 		const dock = shell ? shell.querySelector('.pdk-dock') : null;
 
-		if (!dock || dock.dataset.aosTooltipDismissalBound === '1') {
+		if (!dock || dock.dataset.pdkTooltipDismissalBound === '1') {
 			return;
 		}
 
-		dock.dataset.aosTooltipDismissalBound = '1';
+		dock.dataset.pdkTooltipDismissalBound = '1';
 		dock.addEventListener('pointerdown', (event) => {
 			dismissTooltip(getDockItem(event.target));
 		});
@@ -351,15 +351,15 @@
 		const layoutAnimationDuration = 170;
 		let drag = null;
 
-		if (!dock || dock.dataset.aosDockReorderBound === '1') {
+		if (!dock || dock.dataset.pdkDockReorderBound === '1') {
 			return;
 		}
 
-		dock.dataset.aosDockReorderBound = '1';
+		dock.dataset.pdkDockReorderBound = '1';
 		applyOrderToDock(shell, config);
 
 		function isVerticalDock() {
-			const position = shell && shell.dataset ? shell.dataset.aosDockPosition : 'bottom';
+			const position = shell && shell.dataset ? shell.dataset.pdkDockPosition : 'bottom';
 
 			return position === 'left' || position === 'right';
 		}
@@ -409,17 +409,17 @@
 					return;
 				}
 
-				window.clearTimeout(item.aosDockLayoutAnimationTimer);
+				window.clearTimeout(item.pdkDockLayoutAnimationTimer);
 				item.style.transition = 'none';
 				item.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
 
 				window.requestAnimationFrame(() => {
 					item.style.transition = `transform ${layoutAnimationDuration}ms cubic-bezier(0.22, 1, 0.36, 1)`;
 					item.style.transform = '';
-					item.aosDockLayoutAnimationTimer = window.setTimeout(() => {
+					item.pdkDockLayoutAnimationTimer = window.setTimeout(() => {
 						item.style.transition = '';
 						item.style.transform = '';
-						delete item.aosDockLayoutAnimationTimer;
+						delete item.pdkDockLayoutAnimationTimer;
 					}, layoutAnimationDuration + 40);
 				});
 			});
@@ -481,12 +481,12 @@
 			item.style.zIndex = '';
 			item.removeAttribute('data-pdk-dock-reorder-proxy');
 
-			if (item.aosDockOriginalAriaHidden === null) {
+			if (item.pdkDockOriginalAriaHidden === null) {
 				item.removeAttribute('aria-hidden');
-			} else if (typeof item.aosDockOriginalAriaHidden === 'string') {
-				item.setAttribute('aria-hidden', item.aosDockOriginalAriaHidden);
+			} else if (typeof item.pdkDockOriginalAriaHidden === 'string') {
+				item.setAttribute('aria-hidden', item.pdkDockOriginalAriaHidden);
 			}
-			delete item.aosDockOriginalAriaHidden;
+			delete item.pdkDockOriginalAriaHidden;
 		}
 
 		function startDrag(event) {
@@ -497,11 +497,11 @@
 			drag.offsetX = event.clientX - itemRect.left;
 			drag.offsetY = event.clientY - itemRect.top;
 			drag.placeholder = placeholder;
-			drag.item.aosDockOriginalAriaHidden = drag.item.getAttribute('aria-hidden');
+			drag.item.pdkDockOriginalAriaHidden = drag.item.getAttribute('aria-hidden');
 			drag.item.setAttribute('aria-hidden', 'true');
 			drag.item.classList.remove('is-dock-reorder-pending');
 			drag.item.classList.add('is-dock-reordering', 'pdk-dock-drag-proxy', 'is-tooltip-dismissed');
-			drag.item.dataset.aosDockReorderProxy = '1';
+			drag.item.dataset.pdkDockReorderProxy = '1';
 			drag.item.style.width = `${itemRect.width}px`;
 			drag.item.style.height = `${itemRect.height}px`;
 			drag.item.style.left = `${Math.round(itemRect.left)}px`;
@@ -510,7 +510,7 @@
 			dock.insertBefore(placeholder, drag.item);
 			shell.appendChild(drag.item);
 			dock.classList.add('is-reordering');
-			shell.dataset.aosDockReordering = '1';
+			shell.dataset.pdkDockReordering = '1';
 			positionFloatingItem(event);
 
 			if (typeof drag.item.setPointerCapture === 'function') {
@@ -528,7 +528,7 @@
 				&& item.classList
 				&& (
 					item.classList.contains('is-context-menu-active')
-					|| item.dataset.aosDockLongPressOpen === '1'
+					|| item.dataset.pdkDockLongPressOpen === '1'
 				)
 			);
 		}
@@ -566,7 +566,7 @@
 				}
 				applyOrderToDock(shell, config);
 				dock.classList.remove('is-reordering');
-				delete shell.dataset.aosDockReordering;
+				delete shell.dataset.pdkDockReordering;
 				drag = null;
 				return;
 			}
@@ -583,7 +583,7 @@
 					placeholder.remove();
 				}
 				dock.classList.remove('is-reordering');
-				delete shell.dataset.aosDockReordering;
+				delete shell.dataset.pdkDockReordering;
 				drag = null;
 			}
 
@@ -606,10 +606,10 @@
 			}
 
 			if (didDrag) {
-				item.dataset.aosDockReorderSuppressClick = '1';
+				item.dataset.pdkDockReorderSuppressClick = '1';
 				window.setTimeout(() => {
-					if (item.dataset.aosDockReorderSuppressClick === '1') {
-						delete item.dataset.aosDockReorderSuppressClick;
+					if (item.dataset.pdkDockReorderSuppressClick === '1') {
+						delete item.dataset.pdkDockReorderSuppressClick;
 					}
 				}, 450);
 			}
@@ -699,14 +699,14 @@
 			if (
 				!item
 				|| (
-					item.dataset.aosDockReorderSuppressClick !== '1'
-					&& item.dataset.aosDockReorderProxy !== '1'
+					item.dataset.pdkDockReorderSuppressClick !== '1'
+					&& item.dataset.pdkDockReorderProxy !== '1'
 				)
 			) {
 				return;
 			}
 
-			delete item.dataset.aosDockReorderSuppressClick;
+			delete item.dataset.pdkDockReorderSuppressClick;
 			event.preventDefault();
 			event.stopPropagation();
 		}, true);

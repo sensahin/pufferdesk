@@ -153,13 +153,13 @@
 
 			button.type = 'button';
 			button.className = fixed ? 'pdk-dock-item pdk-dock-fixed-item' : 'pdk-dock-item';
-			button.dataset.aosContext = 'dock-app';
-			button.dataset.aosContextId = app.id;
-			button.dataset.aosContextLabel = label;
-			button.dataset.aosDockTooltip = label;
-			button.dataset.aosOpenApp = app.id;
+			button.dataset.pdkContext = 'dock-app';
+			button.dataset.pdkContextId = app.id;
+			button.dataset.pdkContextLabel = label;
+			button.dataset.pdkDockTooltip = label;
+			button.dataset.pdkOpenApp = app.id;
 			if (fixed) {
-				button.dataset.aosDockFixed = app.dock && app.dock.placement ? app.dock.placement : 'end';
+				button.dataset.pdkDockFixed = app.dock && app.dock.placement ? app.dock.placement : 'end';
 			}
 			button.draggable = false;
 			button.setAttribute('aria-label', getAppButtonLabel(app));
@@ -182,13 +182,13 @@
 
 			button.type = 'button';
 			button.className = 'pdk-desktop-icon pdk-desktop-app';
-			button.dataset.aosContext = 'desktop-app';
-			button.dataset.aosContextId = app.id;
-			button.dataset.aosContextLabel = label;
-			button.dataset.aosDesktopIcon = '';
-			button.dataset.aosDesktopIconId = `app:${app.id}`;
-			button.dataset.aosDesktopIconKind = 'app';
-			button.dataset.aosOpenApp = app.id;
+			button.dataset.pdkContext = 'desktop-app';
+			button.dataset.pdkContextId = app.id;
+			button.dataset.pdkContextLabel = label;
+			button.dataset.pdkDesktopIcon = '';
+			button.dataset.pdkDesktopIconId = `app:${app.id}`;
+			button.dataset.pdkDesktopIconKind = 'app';
+			button.dataset.pdkOpenApp = app.id;
 			button.setAttribute('aria-label', getAppButtonLabel(app));
 			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
 			if (badge) {
@@ -208,7 +208,7 @@
 				button.classList.remove('is-running');
 			});
 			shell.querySelectorAll('.pdk-window[data-pdk-app-window]:not(.is-closed)').forEach((win) => {
-				const appId = win.dataset.aosAppWindow;
+				const appId = win.dataset.pdkAppWindow;
 				const button = appId
 					? shell.querySelector(`.pdk-dock-item[data-pdk-open-app="${dom.escapeAttribute(appId)}"]`)
 					: null;

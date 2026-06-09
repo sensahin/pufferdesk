@@ -43,7 +43,7 @@
 	}
 
 	function isFullscreen(shell) {
-		return shell.dataset.aosFullscreenWindow === '1';
+		return shell.dataset.pdkFullscreenWindow === '1';
 	}
 
 	function shouldAutoHide(shell, preferences) {
@@ -63,12 +63,12 @@
 	}
 
 	function setRevealed(shell, revealed) {
-		shell.dataset.aosMenuBarRevealed = revealed ? '1' : '0';
+		shell.dataset.pdkMenuBarRevealed = revealed ? '1' : '0';
 	}
 
 	function syncHiddenState(shell, preferences) {
 		const hidden = shouldAutoHide(shell, preferences);
-		shell.dataset.aosMenuBarHidden = hidden ? '1' : '0';
+		shell.dataset.pdkMenuBarHidden = hidden ? '1' : '0';
 		if (!hidden) {
 			setRevealed(shell, false);
 		}
@@ -86,9 +86,9 @@
 		}
 
 		const current = normalize(preferences);
-		shell.dataset.aosMenuBarAutoHide = current.auto_hide;
-		shell.dataset.aosMenuBarBackground = current.show_background ? '1' : '0';
-		shell.dataset.aosMenuBarRecentCount = String(current.recent_count);
+		shell.dataset.pdkMenuBarAutoHide = current.auto_hide;
+		shell.dataset.pdkMenuBarBackground = current.show_background ? '1' : '0';
+		shell.dataset.pdkMenuBarRecentCount = String(current.recent_count);
 		syncHiddenState(shell, current);
 		shell.dispatchEvent(new window.CustomEvent('pufferDesk:menu-bar-change', {
 			detail: current
@@ -100,26 +100,26 @@
 	function bindAutoHide(shell) {
 		const menuBar = shell ? shell.querySelector('.pdk-menu-bar') : null;
 
-		if (!shell || !menuBar || shell.dataset.aosMenuBarBound === '1') {
+		if (!shell || !menuBar || shell.dataset.pdkMenuBarBound === '1') {
 			return;
 		}
 
-		shell.dataset.aosMenuBarBound = '1';
+		shell.dataset.pdkMenuBarBound = '1';
 
 		const reveal = () => {
-			if (shell.dataset.aosMenuBarHidden === '1') {
+			if (shell.dataset.pdkMenuBarHidden === '1') {
 				window.clearTimeout(hideTimer);
 				setRevealed(shell, true);
 			}
 		};
 		const conceal = () => {
-			if (shell.dataset.aosMenuBarHidden === '1') {
+			if (shell.dataset.pdkMenuBarHidden === '1') {
 				hideTimer = window.setTimeout(() => setRevealed(shell, false), 220);
 			}
 		};
 
 		document.addEventListener('pointermove', (event) => {
-			if (shell.dataset.aosMenuBarHidden !== '1') {
+			if (shell.dataset.pdkMenuBarHidden !== '1') {
 				return;
 			}
 
@@ -133,9 +133,9 @@
 		menuBar.addEventListener('pointerleave', conceal);
 		shell.addEventListener('pufferDesk:fullscreen-window-change', () => {
 			apply(shell, {
-				auto_hide: shell.dataset.aosMenuBarAutoHide,
-				show_background: shell.dataset.aosMenuBarBackground === '1',
-				recent_count: shell.dataset.aosMenuBarRecentCount
+				auto_hide: shell.dataset.pdkMenuBarAutoHide,
+				show_background: shell.dataset.pdkMenuBarBackground === '1',
+				recent_count: shell.dataset.pdkMenuBarRecentCount
 			});
 		});
 	}

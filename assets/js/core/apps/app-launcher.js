@@ -262,8 +262,8 @@
 			const win = openApp('os-settings');
 			const settingsRoot = win ? win.querySelector('.pdk-settings') : null;
 
-			if (settingsRoot && typeof settingsRoot.aosOpenPanel === 'function') {
-				return settingsRoot.aosOpenPanel(panelId);
+			if (settingsRoot && typeof settingsRoot.pdkOpenPanel === 'function') {
+				return settingsRoot.pdkOpenPanel(panelId);
 			}
 
 			return false;
@@ -343,11 +343,11 @@
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = 'pdk-app-launcher';
-			button.dataset.aosContext = removable ? 'folder-app' : 'app';
-			button.dataset.aosContextId = app.id;
-			button.dataset.aosContextLabel = app.label;
+			button.dataset.pdkContext = removable ? 'folder-app' : 'app';
+			button.dataset.pdkContextId = app.id;
+			button.dataset.pdkContextLabel = app.label;
 			if (folderId) {
-				button.dataset.aosFolderId = folderId;
+				button.dataset.pdkFolderId = folderId;
 			}
 
 			const appIcon = document.createElement('span');
@@ -370,12 +370,12 @@
 
 			button.type = 'button';
 			button.className = 'pdk-app-launcher pdk-folder-launcher';
-			button.dataset.aosContext = 'folder';
-			button.dataset.aosContextId = folder.id;
-			button.dataset.aosContextLabel = label;
-			button.dataset.aosOpenFolder = folder.id;
+			button.dataset.pdkContext = 'folder';
+			button.dataset.pdkContextId = folder.id;
+			button.dataset.pdkContextLabel = label;
+			button.dataset.pdkOpenFolder = folder.id;
 			if (parentFolderId) {
-				button.dataset.aosFolderId = parentFolderId;
+				button.dataset.pdkFolderId = parentFolderId;
 			}
 			button.setAttribute('aria-label', label);
 
@@ -425,10 +425,10 @@
 
 			button.type = 'button';
 			button.className = 'pdk-desktop-icon pdk-desktop-folder pdk-finder-trash-item';
-			button.dataset.aosContext = 'trash-item';
-			button.dataset.aosContextId = item.id;
-			button.dataset.aosContextLabel = label;
-			button.dataset.aosTrashItemId = item.id;
+			button.dataset.pdkContext = 'trash-item';
+			button.dataset.pdkContextId = item.id;
+			button.dataset.pdkContextLabel = label;
+			button.dataset.pdkTrashItemId = item.id;
 			button.setAttribute('aria-label', label);
 			button.setAttribute('aria-pressed', 'false');
 			button.setAttribute('aria-selected', 'false');
@@ -622,7 +622,7 @@
 		}
 
 		function getFolderToolbarDisplayMode(win) {
-			const mode = win && win.dataset ? win.dataset.aosFolderToolbarDisplay : '';
+			const mode = win && win.dataset ? win.dataset.pdkFolderToolbarDisplay : '';
 
 			return folderToolbarDisplayModes.has(mode) ? mode : 'icon-text';
 		}
@@ -632,11 +632,11 @@
 			const toolbar = win ? win.querySelector('.pdk-finder-toolbar') : null;
 
 			if (win && win.dataset) {
-				win.dataset.aosFolderToolbarDisplay = normalized;
+				win.dataset.pdkFolderToolbarDisplay = normalized;
 			}
 
 			if (toolbar) {
-				toolbar.dataset.aosFolderToolbarDisplay = normalized;
+				toolbar.dataset.pdkFolderToolbarDisplay = normalized;
 			}
 
 			return normalized;
@@ -647,7 +647,7 @@
 		}
 
 		function getExplorerViewMode(win) {
-			return normalizeExplorerViewMode(win && win.dataset ? win.dataset.aosExplorerViewMode : '');
+			return normalizeExplorerViewMode(win && win.dataset ? win.dataset.pdkExplorerViewMode : '');
 		}
 
 		function setExplorerViewMode(win, mode) {
@@ -656,16 +656,16 @@
 			const statusbar = win ? win.querySelector('.pdk-explorer-statusbar') : null;
 
 			if (win && win.dataset) {
-				win.dataset.aosExplorerViewMode = normalized;
+				win.dataset.pdkExplorerViewMode = normalized;
 			}
 
 			if (pane) {
-				pane.dataset.aosExplorerViewMode = normalized;
+				pane.dataset.pdkExplorerViewMode = normalized;
 			}
 
 			if (statusbar) {
 				statusbar.querySelectorAll('[data-pdk-explorer-view-mode]').forEach((button) => {
-					const active = button.dataset.aosExplorerViewMode === normalized;
+					const active = button.dataset.pdkExplorerViewMode === normalized;
 					button.classList.toggle('is-active', active);
 					button.setAttribute('aria-pressed', active ? 'true' : 'false');
 				});
@@ -679,7 +679,7 @@
 		}
 
 		function getExplorerSortMode(win) {
-			return normalizeExplorerSortMode(win && win.dataset ? win.dataset.aosExplorerSortMode : '');
+			return normalizeExplorerSortMode(win && win.dataset ? win.dataset.pdkExplorerSortMode : '');
 		}
 
 			function sortExplorerFolderItems(items, win) {
@@ -738,13 +738,13 @@
 
 		function setExplorerSortMode(win, mode) {
 			const normalized = normalizeExplorerSortMode(mode);
-			const folderId = win && win.dataset ? win.dataset.aosFolderWindow : '';
+			const folderId = win && win.dataset ? win.dataset.pdkFolderWindow : '';
 
 			if (!win || !folderId) {
 				return normalized;
 			}
 
-			win.dataset.aosExplorerSortMode = normalized;
+			win.dataset.pdkExplorerSortMode = normalized;
 			renderFolderWindow(win, folderId, {
 				replaceHistory: true,
 				touch: false
@@ -802,7 +802,7 @@
 
 			button.type = 'button';
 			button.className = `pdk-explorer-nav-button pdk-explorer-nav-button-${direction}`;
-			button.dataset.aosNoDrag = '';
+			button.dataset.pdkNoDrag = '';
 			button.disabled = !canNavigate;
 			button.setAttribute('aria-label', labels[direction] || direction);
 			button.appendChild(dom.createElement('span', 'pdk-explorer-nav-icon'));
@@ -814,7 +814,7 @@
 				} else if (direction === 'forward') {
 					navigateFolderHistory(win, 1);
 				} else if (direction === 'refresh') {
-					refreshFolderWindow(win && win.dataset ? win.dataset.aosFolderWindow : '');
+					refreshFolderWindow(win && win.dataset ? win.dataset.pdkFolderWindow : '');
 				}
 			});
 
@@ -1082,8 +1082,8 @@
 			explorerCommandMenuButton = button;
 			explorerCommandMenu = document.createElement('div');
 			explorerCommandMenu.className = 'pdk-menu-popover pdk-context-menu pdk-explorer-command-menu';
-			explorerCommandMenu.dataset.aosContextMenu = 'folder-toolbar';
-			explorerCommandMenu.dataset.aosExplorerCommandMenu = action.id;
+			explorerCommandMenu.dataset.pdkContextMenu = 'folder-toolbar';
+			explorerCommandMenu.dataset.pdkExplorerCommandMenu = action.id;
 			explorerCommandMenu.setAttribute('role', 'menu');
 			explorerCommandMenu.setAttribute('aria-label', action.label);
 			explorerCommandMenu.replaceChildren(...items.map((item) => renderer.createItem(item, detail, closeExplorerCommandMenu)));
@@ -1102,7 +1102,7 @@
 
 			button.type = 'button';
 			button.className = `pdk-explorer-command-button pdk-explorer-command-button-${action.id}`;
-			button.dataset.aosNoDrag = '';
+			button.dataset.pdkNoDrag = '';
 			button.disabled = !canRun;
 			button.setAttribute('aria-label', action.label);
 			if (hasExplorerCommandMenu(action)) {
@@ -1170,10 +1170,10 @@
 		function createExplorerCommandBar(folderId, win) {
 			const bar = dom.createElement('div', 'pdk-explorer-commandbar');
 
-			bar.dataset.aosContext = 'folder-toolbar';
-			bar.dataset.aosContextId = folderId;
-			bar.dataset.aosContextLabel = 'Folder Command Bar';
-			bar.dataset.aosNoDrag = '';
+			bar.dataset.pdkContext = 'folder-toolbar';
+			bar.dataset.pdkContextId = folderId;
+			bar.dataset.pdkContextLabel = 'Folder Command Bar';
+			bar.dataset.pdkNoDrag = '';
 			getExplorerCommandGroups(folderId).forEach((group, index, groups) => {
 				const groupElement = dom.createElement('div', index === groups.length - 1 ? 'pdk-explorer-command-group pdk-explorer-command-group-details' : 'pdk-explorer-command-group');
 				group.forEach((action) => {
@@ -1198,7 +1198,7 @@
 			const search = dom.createElement('label', 'pdk-explorer-search');
 			const searchInput = document.createElement('input');
 
-			bar.dataset.aosNoDrag = '';
+			bar.dataset.pdkNoDrag = '';
 			navigation.append(
 				createExplorerNavigationButton('back', win),
 				createExplorerNavigationButton('forward', win),
@@ -1244,15 +1244,15 @@
 				};
 				const getTargetWindow = () => bar.closest ? bar.closest('.pdk-window') : null;
 
-				bar.dataset.aosNoDrag = '';
+				bar.dataset.pdkNoDrag = '';
 				listButton.type = 'button';
 				listButton.className = 'pdk-explorer-status-view-button pdk-explorer-status-view-button-list';
-				listButton.dataset.aosExplorerViewMode = 'list';
+				listButton.dataset.pdkExplorerViewMode = 'list';
 				listButton.setAttribute('aria-label', getMenuLabel('list_view', 'List view'));
 				listButton.appendChild(dom.createElement('span', 'pdk-explorer-status-view-icon'));
 				detailButton.type = 'button';
 				detailButton.className = 'pdk-explorer-status-view-button pdk-explorer-status-view-button-details';
-				detailButton.dataset.aosExplorerViewMode = 'details';
+				detailButton.dataset.pdkExplorerViewMode = 'details';
 				detailButton.setAttribute('aria-label', getMenuLabel('details_view', 'Details view'));
 				detailButton.appendChild(dom.createElement('span', 'pdk-explorer-status-view-icon'));
 				listButton.addEventListener('click', (event) => {
@@ -1295,8 +1295,8 @@
 			button.type = 'button';
 			button.className = `pdk-finder-toolbar-button pdk-finder-toolbar-button-${action.id}`;
 			button.tabIndex = -1;
-			button.dataset.aosNoDrag = '';
-			button.dataset.aosToolbarAction = action.id;
+			button.dataset.pdkNoDrag = '';
+			button.dataset.pdkToolbarAction = action.id;
 			button.setAttribute('aria-disabled', 'true');
 			button.setAttribute('aria-label', action.label);
 			button.appendChild(createFolderToolbarIcon(action));
@@ -1329,7 +1329,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-finder-toolbar-button pdk-finder-toolbar-overflow-button';
-			button.dataset.aosNoDrag = '';
+			button.dataset.pdkNoDrag = '';
 			button.setAttribute('aria-label', 'More Toolbar Items');
 			icon.append(
 				dom.createElement('span', 'pdk-finder-toolbar-overflow-chevron'),
@@ -1374,7 +1374,7 @@
 			const toolbarActions = getFolderToolbarActions();
 			const searchAction = toolbarActions.find((action) => action.id === 'search');
 
-			actions.dataset.aosNoDrag = '';
+			actions.dataset.pdkNoDrag = '';
 			overflow.hidden = true;
 			overflowMenu.hidden = true;
 			overflowMenu.setAttribute('role', 'menu');
@@ -1500,27 +1500,27 @@
 				return;
 			}
 
-			if (win.aosFolderToolbarResizeObserver && typeof win.aosFolderToolbarResizeObserver.disconnect === 'function') {
-				win.aosFolderToolbarResizeObserver.disconnect();
+			if (win.pdkFolderToolbarResizeObserver && typeof win.pdkFolderToolbarResizeObserver.disconnect === 'function') {
+				win.pdkFolderToolbarResizeObserver.disconnect();
 			}
 
 			const sync = () => {
 				window.requestAnimationFrame(() => syncFolderToolbarOverflow(win));
 			};
 
-			if (win.aosFolderToolbarDisplayHandler) {
-				win.removeEventListener('pufferDesk:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
+			if (win.pdkFolderToolbarDisplayHandler) {
+				win.removeEventListener('pufferDesk:folder-toolbar-display-change', win.pdkFolderToolbarDisplayHandler);
 			}
 
-			win.aosFolderToolbarDisplayHandler = sync;
-			win.addEventListener('pufferDesk:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
+			win.pdkFolderToolbarDisplayHandler = sync;
+			win.addEventListener('pufferDesk:folder-toolbar-display-change', win.pdkFolderToolbarDisplayHandler);
 
 			sync();
 
 			if (typeof window.ResizeObserver === 'function') {
-				win.aosFolderToolbarResizeObserver = new window.ResizeObserver(sync);
-				win.aosFolderToolbarResizeObserver.observe(toolbar);
-				win.aosFolderToolbarResizeObserver.observe(win);
+				win.pdkFolderToolbarResizeObserver = new window.ResizeObserver(sync);
+				win.pdkFolderToolbarResizeObserver.observe(toolbar);
+				win.pdkFolderToolbarResizeObserver.observe(win);
 			}
 		}
 
@@ -1529,7 +1529,7 @@
 		}
 
 		function serializeFolderTabs(win) {
-			const state = getFolderWindowTabs(win, win && win.dataset ? win.dataset.aosFolderWindow : '');
+			const state = getFolderWindowTabs(win, win && win.dataset ? win.dataset.pdkFolderWindow : '');
 
 			return {
 				activeTabId: state.activeTabId || '',
@@ -1553,7 +1553,7 @@
 				? manager.getActiveWindow()
 				: null;
 
-			if (activeWindow && activeWindow.dataset && activeWindow.dataset.aosWindowKind === 'folder' && !activeWindow.classList.contains('is-closed')) {
+			if (activeWindow && activeWindow.dataset && activeWindow.dataset.pdkWindowKind === 'folder' && !activeWindow.classList.contains('is-closed')) {
 				return activeWindow;
 			}
 
@@ -1600,7 +1600,7 @@
 
 			emptyButton.type = 'button';
 			emptyButton.className = 'pdk-trash-empty-control';
-			emptyButton.dataset.aosNoDrag = '';
+			emptyButton.dataset.pdkNoDrag = '';
 			emptyButton.disabled = getTrashCount() <= 0;
 			emptyButton.textContent = getMenuLabel('empty', 'Empty');
 			emptyButton.addEventListener('click', (event) => {
@@ -1696,7 +1696,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-finder-tab-close';
-			button.dataset.aosNoDrag = '';
+			button.dataset.pdkNoDrag = '';
 			button.setAttribute('aria-label', `${getMenuLabel('close_tab', 'Close Tab')}: ${label}`);
 			button.appendChild(dom.createElement('span', 'pdk-finder-tab-close-icon'));
 			button.addEventListener('click', (event) => {
@@ -1716,7 +1716,7 @@
 			item.setAttribute('role', 'presentation');
 			button.type = 'button';
 			button.className = 'pdk-finder-tab-button';
-			button.dataset.aosNoDrag = '';
+			button.dataset.pdkNoDrag = '';
 			button.setAttribute('aria-selected', tab.id === activeTabId ? 'true' : 'false');
 			button.setAttribute('role', 'tab');
 			button.textContent = label;
@@ -1732,7 +1732,7 @@
 		}
 
 		function createFolderTabs(win) {
-			const state = getFolderWindowTabs(win, win && win.dataset ? win.dataset.aosFolderWindow : '');
+			const state = getFolderWindowTabs(win, win && win.dataset ? win.dataset.pdkFolderWindow : '');
 			const tabBar = dom.createElement('div', 'pdk-finder-tabs');
 			const list = dom.createElement('div', 'pdk-finder-tab-list');
 			const addButton = document.createElement('button');
@@ -1742,7 +1742,7 @@
 				return null;
 			}
 
-			tabBar.dataset.aosNoDrag = '';
+			tabBar.dataset.pdkNoDrag = '';
 			tabBar.setAttribute('aria-label', getMenuLabel('folder_tabs', 'Folder Tabs'));
 			list.setAttribute('role', 'tablist');
 			state.tabs.forEach((tab) => {
@@ -1751,7 +1751,7 @@
 
 			addButton.type = 'button';
 			addButton.className = 'pdk-finder-tab-add';
-			addButton.dataset.aosNoDrag = '';
+			addButton.dataset.pdkNoDrag = '';
 			addButton.setAttribute('aria-label', getMenuLabel('new_tab', 'New Tab'));
 			addButton.appendChild(dom.createElement('span', 'pdk-finder-tab-add-icon'));
 			addButton.addEventListener('click', (event) => {
@@ -1770,7 +1770,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-explorer-titlebar-tab-close';
-			button.dataset.aosNoDrag = '';
+			button.dataset.pdkNoDrag = '';
 			button.setAttribute('aria-label', `${getMenuLabel('close_tab', 'Close Tab')}: ${label}`);
 			button.appendChild(dom.createElement('span', 'pdk-explorer-titlebar-tab-close-icon'));
 			button.addEventListener('click', (event) => {
@@ -1793,7 +1793,7 @@
 			item.setAttribute('role', 'presentation');
 			button.type = 'button';
 			button.className = 'pdk-explorer-titlebar-tab-button';
-			button.dataset.aosNoDrag = '';
+			button.dataset.pdkNoDrag = '';
 			button.setAttribute('aria-selected', tab.id === activeTabId ? 'true' : 'false');
 			button.setAttribute('role', 'tab');
 			icon.appendChild(dom.createIcon(folder && folder.icon ? folder.icon : 'dashicons-category'));
@@ -1865,11 +1865,11 @@
 				addButton = document.createElement('button');
 				addButton.type = 'button';
 				addButton.className = 'pdk-explorer-titlebar-new-tab';
-				addButton.dataset.aosNoDrag = '';
+				addButton.dataset.pdkNoDrag = '';
 				addButton.setAttribute('aria-label', getMenuLabel('new_tab', 'New Tab'));
 				addButton.appendChild(dom.createElement('span', 'pdk-explorer-titlebar-new-tab-icon'));
 				addButton.addEventListener('click', (event) => {
-					const activeTab = getActiveFolderTab(win, win && win.dataset ? win.dataset.aosFolderWindow : folderId);
+					const activeTab = getActiveFolderTab(win, win && win.dataset ? win.dataset.pdkFolderWindow : folderId);
 					event.preventDefault();
 					event.stopPropagation();
 					addFolderTab(win, activeTab && activeTab.folderId ? activeTab.folderId : folderId);
@@ -1884,7 +1884,7 @@
 			const nodes = [];
 
 			label.classList.add('pdk-explorer-titlebar-tab-active');
-			label.dataset.aosNoDrag = '';
+			label.dataset.pdkNoDrag = '';
 			label.setAttribute('aria-selected', 'true');
 			label.setAttribute('role', 'tab');
 			if (activeCloseButton) {
@@ -1923,13 +1923,13 @@
 			button.type = 'button';
 			button.className = `pdk-settings-sidebar-item pdk-finder-sidebar-item pdk-explorer-sidebar-item${options.active ? ' is-active' : ''}${options.pinned ? ' has-pin' : ''}`;
 			if (options.context) {
-				button.dataset.aosContext = options.context;
+				button.dataset.pdkContext = options.context;
 			}
 			if (options.id) {
-				button.dataset.aosContextId = options.id;
+				button.dataset.pdkContextId = options.id;
 			}
 			if (options.label) {
-				button.dataset.aosContextLabel = options.label;
+				button.dataset.pdkContextLabel = options.label;
 			}
 			if (options.active) {
 				button.setAttribute('aria-current', 'page');
@@ -1971,7 +1971,7 @@
 			const nav = dom.createElement('nav', 'pdk-settings-sidebar-nav pdk-finder-sidebar-nav');
 
 			sidebar.setAttribute('aria-label', isExplorer ? 'Navigation pane' : 'Folders');
-			dragZone.dataset.aosDragHandle = '';
+			dragZone.dataset.pdkDragHandle = '';
 			dragZone.setAttribute('aria-hidden', 'true');
 			if (!isExplorer) {
 				sidebar.appendChild(dragZone);
@@ -2039,9 +2039,9 @@
 				const button = document.createElement('button');
 				button.type = 'button';
 				button.className = 'pdk-settings-sidebar-item pdk-finder-sidebar-item';
-				button.dataset.aosContext = 'folder';
-				button.dataset.aosContextId = folder.id;
-				button.dataset.aosContextLabel = folder.label || 'Folder';
+				button.dataset.pdkContext = 'folder';
+				button.dataset.pdkContextId = folder.id;
+				button.dataset.pdkContextLabel = folder.label || 'Folder';
 				button.appendChild(createFolderSidebarIcon(folder));
 				button.appendChild(dom.createElement('span', 'pdk-settings-sidebar-label', folder.label || 'Folder'));
 				if (folder.id === folderId) {
@@ -2080,13 +2080,13 @@
 			const subbar = isTrash ? createTrashSubbar() : null;
 			const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane');
 
-			header.dataset.aosContext = 'folder-toolbar';
-			header.dataset.aosContextId = folderId;
-			header.dataset.aosContextLabel = 'Folder Toolbar';
-			header.dataset.aosDragHandle = '';
-			header.dataset.aosFolderId = folderId;
-			header.dataset.aosFolderToolbarDisplay = toolbarDisplayMode;
-			history.dataset.aosNoDrag = '';
+			header.dataset.pdkContext = 'folder-toolbar';
+			header.dataset.pdkContextId = folderId;
+			header.dataset.pdkContextLabel = 'Folder Toolbar';
+			header.dataset.pdkDragHandle = '';
+			header.dataset.pdkFolderId = folderId;
+			header.dataset.pdkFolderToolbarDisplay = toolbarDisplayMode;
+			history.dataset.pdkNoDrag = '';
 			history.appendChild(createFolderHistoryButton('back', win));
 			history.appendChild(createFolderHistoryButton('forward', win));
 			historyGroup.append(history, dom.createElement('span', 'pdk-finder-toolbar-caption', 'Back/Forward'));
@@ -2128,7 +2128,7 @@
 				const subbar = isTrash ? createTrashSubbar() : null;
 				const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane pdk-explorer-pane');
 
-				pane.dataset.aosExplorerViewMode = getExplorerViewMode(win);
+				pane.dataset.pdkExplorerViewMode = getExplorerViewMode(win);
 
 				if (isTrash && trashItems.length) {
 				const grid = document.createElement('div');
@@ -2142,7 +2142,7 @@
 					pane.appendChild(grid);
 				}
 
-			main.dataset.aosFolderId = folder && folder.id ? folder.id : folderId;
+			main.dataset.pdkFolderId = folder && folder.id ? folder.id : folderId;
 			main.append(...[
 				subbar,
 					pane,
@@ -2157,7 +2157,7 @@
 			const body = dom.createElement('div', 'pdk-folder-content-explorer-body');
 
 			content.className = 'pdk-folder-content pdk-folder-content-explorer';
-			content.dataset.aosFolderLayout = 'file-explorer';
+			content.dataset.pdkFolderLayout = 'file-explorer';
 			body.append(
 				createFolderSidebar(folderId, win, 'file-explorer'),
 				createExplorerFolderMain(folderId, win)
@@ -2180,7 +2180,7 @@
 
 			const content = document.createElement('div');
 			content.className = `pdk-folder-content${layout === 'file-explorer' ? ' pdk-folder-content-explorer' : ''}`;
-			content.dataset.aosFolderLayout = layout;
+			content.dataset.pdkFolderLayout = layout;
 			content.append(
 				createFolderSidebar(folderId, win, layout),
 				createFolderMain(folderId, win)
@@ -2198,10 +2198,10 @@
 				return false;
 			}
 
-			win.dataset.aosFolderWindow = folderId;
-			win.dataset.aosContextId = folderId;
-			win.dataset.aosContextLabel = folderTitle;
-			win.dataset.aosWindowTitle = folderTitle;
+			win.dataset.pdkFolderWindow = folderId;
+			win.dataset.pdkContextId = folderId;
+			win.dataset.pdkContextLabel = folderTitle;
+			win.dataset.pdkWindowTitle = folderTitle;
 			win.setAttribute('aria-label', `${folderTitle} window`);
 			if (titlebarLabel) {
 				titlebarLabel.textContent = folderTitle;
@@ -2247,11 +2247,11 @@
 
 			updateFolderWindowMeta(win, folderId);
 			syncExplorerTitlebarTabControls(win, folderId);
-			win.aosSerializeFolderTabs = () => serializeFolderTabs(win);
-				win.dataset.aosFolderLayout = getFolderLayout();
-				win.dataset.aosExplorerViewMode = getExplorerViewMode(win);
-				win.dataset.aosExplorerSortMode = getExplorerSortMode(win);
-				body.dataset.aosFolderLayout = getFolderLayout();
+			win.pdkSerializeFolderTabs = () => serializeFolderTabs(win);
+				win.dataset.pdkFolderLayout = getFolderLayout();
+				win.dataset.pdkExplorerViewMode = getExplorerViewMode(win);
+				win.dataset.pdkExplorerSortMode = getExplorerSortMode(win);
+				body.dataset.pdkFolderLayout = getFolderLayout();
 				body.classList.toggle('pdk-explorer-body', isFileExplorerLayout());
 				body.classList.toggle('pdk-finder-body', !isFileExplorerLayout());
 				setFolderToolbarDisplayMode(win, getFolderToolbarDisplayMode(win));
@@ -2312,7 +2312,7 @@
 
 		function openFolderTab(folderId, options = {}) {
 			const folder = getFolder(folderId);
-			const targetWindow = options.windowElement && options.windowElement.dataset && options.windowElement.dataset.aosWindowKind === 'folder'
+			const targetWindow = options.windowElement && options.windowElement.dataset && options.windowElement.dataset.pdkWindowKind === 'folder'
 				? options.windowElement
 				: getActiveFolderWindow();
 
@@ -2437,8 +2437,8 @@
 			}
 
 			const title = `${info.label} Info`;
-			win.dataset.aosContextLabel = title;
-			win.dataset.aosWindowTitle = title;
+			win.dataset.pdkContextLabel = title;
+			win.dataset.pdkWindowTitle = title;
 			win.setAttribute('aria-label', `${title} window`);
 			const titlebarLabel = win.querySelector('.pdk-window-titlebar-label-text');
 			if (titlebarLabel) {
@@ -2463,7 +2463,7 @@
 
 		function getFolderInfoSafeTop() {
 			const menuBar = shell.querySelector('.pdk-menu-bar');
-			const menuBarHeight = menuBar && shell.dataset.aosMenuBarHidden !== '1'
+			const menuBarHeight = menuBar && shell.dataset.pdkMenuBarHidden !== '1'
 				? Math.ceil(menuBar.getBoundingClientRect().height)
 				: 0;
 
@@ -2494,8 +2494,8 @@
 				return;
 			}
 
-			if (win.dataset.aosFolderInfoAutoSizeBound !== '1') {
-				win.dataset.aosFolderInfoAutoSizeBound = '1';
+			if (win.dataset.pdkFolderInfoAutoSizeBound !== '1') {
+				win.dataset.pdkFolderInfoAutoSizeBound = '1';
 				win.addEventListener('toggle', (event) => {
 					if (!event.target || !event.target.classList || !event.target.classList.contains('pdk-info-panel-section')) {
 						return;
@@ -2559,8 +2559,8 @@
 			});
 
 			if (win) {
-				win.dataset.aosFolderInfoWindow = info.id;
-				win.dataset.aosContextId = info.id;
+				win.dataset.pdkFolderInfoWindow = info.id;
+				win.dataset.pdkContextId = info.id;
 				bindFolderInfoAutoSize(win);
 			}
 
@@ -2583,7 +2583,7 @@
 					if (appButton.matches('.pdk-desktop-app')) {
 						return;
 					}
-					openApp(appButton.dataset.aosOpenApp);
+					openApp(appButton.dataset.pdkOpenApp);
 					return;
 				}
 
@@ -2592,13 +2592,13 @@
 					if (folderButton.matches('.pdk-desktop-folder')) {
 						return;
 					}
-					openFolder(folderButton.dataset.aosOpenFolder);
+					openFolder(folderButton.dataset.pdkOpenFolder);
 					return;
 				}
 
 				const urlButton = event.target.closest('[data-pdk-open-url]');
 				if (urlButton) {
-					openUrl(urlButton.dataset.aosOpenUrl, urlButton.dataset.aosTitle, urlButton.dataset.aosIcon);
+					openUrl(urlButton.dataset.pdkOpenUrl, urlButton.dataset.pdkTitle, urlButton.dataset.pdkIcon);
 					return;
 				}
 			});
@@ -2607,7 +2607,7 @@
 				const appButton = event.target.closest('[data-pdk-open-app]');
 				if (appButton && appButton.matches('.pdk-desktop-app')) {
 					event.preventDefault();
-					openApp(appButton.dataset.aosOpenApp);
+					openApp(appButton.dataset.pdkOpenApp);
 					return;
 				}
 
@@ -2617,7 +2617,7 @@
 				}
 
 				event.preventDefault();
-				openFolder(folderButton.dataset.aosOpenFolder);
+				openFolder(folderButton.dataset.pdkOpenFolder);
 			});
 		}
 

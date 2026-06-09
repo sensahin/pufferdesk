@@ -20,7 +20,7 @@
 		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-apps-panel');
 		const section = createSection('', 'pdk-settings-list pdk-settings-apps-list');
 
-		panel.dataset.aosSettingsPanel = 'apps';
+		panel.dataset.pdkSettingsPanel = 'apps';
 
 		function isFixedLauncherApp(app) {
 			return Boolean(app && app.dock && typeof app.dock === 'object' && app.dock.fixed === true);

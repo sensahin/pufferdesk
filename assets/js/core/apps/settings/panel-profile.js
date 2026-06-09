@@ -15,7 +15,7 @@
 		const hero = dom.createElement('div', 'pdk-settings-profile-hero');
 		const accountSection = ctx.createSection('', 'pdk-settings-profile-list');
 
-		panel.dataset.aosSettingsPanel = 'profile';
+		panel.dataset.pdkSettingsPanel = 'profile';
 		hero.appendChild(ctx.createEditableProfileAvatar(user, name, profileUrl));
 		hero.appendChild(dom.createElement('h2', '', name));
 		if (user.email) {

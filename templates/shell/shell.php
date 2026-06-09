@@ -246,7 +246,7 @@ if ( $pufferdesk_shell_style ) {
 	if ( 'auto' === $pufferdesk_appearance['mode'] ) {
 		// Resolve Auto appearance before shell surfaces paint.
 		wp_print_inline_script_tag(
-			'(function(){var shell=document.currentScript&&document.currentScript.parentElement;if(shell&&window.matchMedia){shell.dataset.aosEffectiveAppearance=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}})();'
+			'(function(){var shell=document.currentScript&&document.currentScript.parentElement;if(shell&&window.matchMedia){shell.dataset.pdkEffectiveAppearance=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}})();'
 		);
 	}
 	?>

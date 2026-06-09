@@ -14,7 +14,7 @@
 		let windowOffset = 0;
 		let windowId = 0;
 		let activeWindow = null;
-		let fullscreenState = shell.dataset.aosFullscreenWindow === '1';
+		let fullscreenState = shell.dataset.pdkFullscreenWindow === '1';
 		let restoreInProgress = false;
 		let preserveStoredWindowsUntilChange = Boolean(options.preserveStoredWindowsUntilChange);
 		let sessionSaveDisabled = false;
@@ -65,7 +65,7 @@
 				return 0;
 			}
 
-			if (shell.dataset.aosMenuBarHidden === '1') {
+			if (shell.dataset.pdkMenuBarHidden === '1') {
 				return 0;
 			}
 
@@ -83,11 +83,11 @@
 		function getWindowSafeBottom() {
 			const edge = getWindowSafeEdge();
 
-			if (!dock || shell.dataset.aosDockAutoHide === '1') {
+			if (!dock || shell.dataset.pdkDockAutoHide === '1') {
 				return edge;
 			}
 
-			if (shell.dataset.aosShellLauncher === 'taskbar') {
+			if (shell.dataset.pdkShellLauncher === 'taskbar') {
 				return Math.max(edge, Math.ceil(dock.getBoundingClientRect().height));
 			}
 
@@ -185,7 +185,7 @@
 
 			const target = getWindowAnimationTarget(win);
 			setWindowAnimationTarget(win, target);
-			win.dataset.aosMinimizeAnimation = getMinimizeAnimation();
+			win.dataset.pdkMinimizeAnimation = getMinimizeAnimation();
 			win.classList.add('is-minimizing');
 
 			if (activeWindow === win) {
@@ -274,18 +274,18 @@
 				};
 			}
 
-			const folderId = win.dataset.aosFolderWindow || win.dataset.aosFolderInfoWindow || '';
-			const id = folderId || win.dataset.aosAppWindow || getWindowId(win);
+			const folderId = win.dataset.pdkFolderWindow || win.dataset.pdkFolderInfoWindow || '';
+			const id = folderId || win.dataset.pdkAppWindow || getWindowId(win);
 
 			return {
-				appId: win.dataset.aosAppWindow || '',
+				appId: win.dataset.pdkAppWindow || '',
 				folderId,
 				id,
-				kind: win.dataset.aosWindowKind || (win.dataset.aosAppWindow ? 'app' : 'window'),
-				menu: win.aosMenu || null,
-				title: win.dataset.aosWindowTitle || win.getAttribute('aria-label') || '',
-				toolbarDisplay: win.dataset.aosFolderToolbarDisplay || '',
-				url: win.dataset.aosWindowUrl || '',
+				kind: win.dataset.pdkWindowKind || (win.dataset.pdkAppWindow ? 'app' : 'window'),
+				menu: win.pdkMenu || null,
+				title: win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || '',
+				toolbarDisplay: win.dataset.pdkFolderToolbarDisplay || '',
+				url: win.dataset.pdkWindowUrl || '',
 				windowElement: win,
 				windowId: getWindowId(win)
 			};
@@ -305,7 +305,7 @@
 			}
 
 			fullscreenState = fullscreen;
-			shell.dataset.aosFullscreenWindow = fullscreen ? '1' : '0';
+			shell.dataset.pdkFullscreenWindow = fullscreen ? '1' : '0';
 			shell.dispatchEvent(new window.CustomEvent('pufferDesk:fullscreen-window-change', {
 				detail: {
 					fullscreen
@@ -351,28 +351,28 @@
 		}
 
 		function getWindowId(win) {
-			if (!win.dataset.aosWindowId) {
+			if (!win.dataset.pdkWindowId) {
 				windowId += 1;
-				win.dataset.aosWindowId = `window-${windowId}`;
+				win.dataset.pdkWindowId = `window-${windowId}`;
 			}
 
-			return win.dataset.aosWindowId;
+			return win.dataset.pdkWindowId;
 		}
 
 		function shouldAnimateOpeningApps() {
-			return shell.dataset.aosDockAnimateApps !== '0';
+			return shell.dataset.pdkDockAnimateApps !== '0';
 		}
 
 		function getMinimizeAnimation() {
-			return shell.dataset.aosMinimizeAnimation === 'scale' ? 'scale' : 'genie';
+			return shell.dataset.pdkMinimizeAnimation === 'scale' ? 'scale' : 'genie';
 		}
 
 		function shouldMinimizeIntoAppIcon() {
-			return shell.dataset.aosMinimizeIntoAppIcon === '1';
+			return shell.dataset.pdkMinimizeIntoAppIcon === '1';
 		}
 
 		function getWallpaperClickMode() {
-			return shell.dataset.aosWallpaperClick || 'always';
+			return shell.dataset.pdkWallpaperClick || 'always';
 		}
 
 		function shouldWallpaperClickShowDesktop() {
@@ -386,7 +386,7 @@
 		}
 
 		function getDockAppButton(win) {
-			const appId = win && win.dataset.aosAppWindow;
+			const appId = win && win.dataset.pdkAppWindow;
 
 			if (!appId) {
 				return null;
@@ -413,7 +413,7 @@
 		}
 
 		function getMinimizedDockItem(win) {
-			const id = win && win.dataset.aosWindowId;
+			const id = win && win.dataset.pdkWindowId;
 
 			return id ? shell.querySelector(`[data-pdk-restore-window-id="${dom.escapeAttribute(id)}"]`) : null;
 		}
@@ -491,7 +491,7 @@
 		function playWindowAnimation(win, className, target, duration = 280) {
 			cancelWindowAnimation(win);
 			setWindowAnimationTarget(win, target);
-			win.dataset.aosMinimizeAnimation = getMinimizeAnimation();
+			win.dataset.pdkMinimizeAnimation = getMinimizeAnimation();
 			win.classList.remove('is-opening', 'is-restoring');
 			win.classList.add(className);
 
@@ -548,19 +548,19 @@
 			}
 
 			const button = document.createElement('button');
-			const title = win.dataset.aosWindowTitle || win.getAttribute('aria-label') || 'Window';
+			const title = win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || 'Window';
 			const dockAppButton = getDockAppButton(win);
 			const icon = dockAppButton ? dockAppButton.querySelector('.pdk-icon-image, .dashicons') : null;
 
 			button.type = 'button';
 			button.className = 'pdk-dock-window-item';
-			button.dataset.aosContext = 'window';
-			button.dataset.aosContextId = id;
-			button.dataset.aosContextLabel = title;
-			button.dataset.aosRestoreWindowId = id;
-			button.dataset.aosDockTooltip = title;
-			if (win.dataset.aosAppWindow) {
-				button.dataset.aosAppWindow = win.dataset.aosAppWindow;
+			button.dataset.pdkContext = 'window';
+			button.dataset.pdkContextId = id;
+			button.dataset.pdkContextLabel = title;
+			button.dataset.pdkRestoreWindowId = id;
+			button.dataset.pdkDockTooltip = title;
+			if (win.dataset.pdkAppWindow) {
+				button.dataset.pdkAppWindow = win.dataset.pdkAppWindow;
 			}
 			button.setAttribute('aria-label', `Restore ${title}`);
 			if (icon) {
@@ -615,7 +615,7 @@
 
 			showDesktopActive = true;
 			showDesktopWindows = new Set(visibleWindows);
-			shell.dataset.aosShowingDesktop = '1';
+			shell.dataset.pdkShowingDesktop = '1';
 			visibleWindows.forEach((win) => {
 				win.classList.add('is-show-desktop-hidden');
 			});
@@ -632,7 +632,7 @@
 			});
 			showDesktopWindows = new Set();
 			showDesktopActive = false;
-			shell.dataset.aosShowingDesktop = '0';
+			shell.dataset.pdkShowingDesktop = '0';
 
 			if (focusTop) {
 				setActiveWindow(getTopVisibleWindow());
@@ -664,18 +664,18 @@
 			}
 
 			handles.forEach((handle) => {
-				if (handle.dataset.aosDragBound === '1') {
+				if (handle.dataset.pdkDragBound === '1') {
 					return;
 				}
 
-				handle.dataset.aosDragBound = '1';
+				handle.dataset.pdkDragBound = '1';
 
 				handle.addEventListener('dblclick', (event) => {
 					if (isDragExcludedTarget(event.target)) {
 						return;
 					}
 
-					const action = shell.dataset.aosTitlebarDoubleClick || 'zoom';
+					const action = shell.dataset.pdkTitlebarDoubleClick || 'zoom';
 					if (action === 'minimize') {
 						minimizeWindow(win);
 					} else if (action === 'zoom') {
@@ -736,7 +736,7 @@
 		}
 
 		function getResizeDirections(win) {
-			const mode = win.dataset.aosResizeMode || 'both';
+			const mode = win.dataset.pdkResizeMode || 'both';
 
 			if (mode === 'none') {
 				return [];
@@ -752,16 +752,16 @@
 		}
 
 		function ensureResizeHandles(win) {
-			if (win.dataset.aosResizeHandlesBound === '1') {
+			if (win.dataset.pdkResizeHandlesBound === '1') {
 				return;
 			}
 
-			win.dataset.aosResizeHandlesBound = '1';
+			win.dataset.pdkResizeHandlesBound = '1';
 
 			getResizeDirections(win).forEach((direction) => {
 				const handle = document.createElement('span');
 				handle.className = `pdk-window-resize-handle pdk-window-resize-handle-${direction}`;
-				handle.dataset.aosResizeHandle = direction;
+				handle.dataset.pdkResizeHandle = direction;
 				handle.setAttribute('aria-hidden', 'true');
 
 				handle.addEventListener('pointerdown', (event) => {
@@ -952,14 +952,14 @@
 			const windows = [];
 
 			desktop.querySelectorAll('.pdk-window').forEach((win) => {
-				if (win.dataset.aosPersist === '0') {
+				if (win.dataset.pdkPersist === '0') {
 					return;
 				}
 
-				if (win.dataset.aosWindowKind === 'folder') {
-					const folderId = win.dataset.aosFolderWindow;
-					const tabState = typeof win.aosSerializeFolderTabs === 'function'
-						? win.aosSerializeFolderTabs()
+				if (win.dataset.pdkWindowKind === 'folder') {
+					const folderId = win.dataset.pdkFolderWindow;
+					const tabState = typeof win.pdkSerializeFolderTabs === 'function'
+						? win.pdkSerializeFolderTabs()
 						: null;
 					if (folderId) {
 						const folderWindow = {
@@ -978,7 +978,7 @@
 					return;
 				}
 
-				const appId = win.dataset.aosAppWindow;
+				const appId = win.dataset.pdkAppWindow;
 				if (appId) {
 					windows.push({
 						kind: 'app',
@@ -1053,11 +1053,11 @@
 		}
 
 		function bindWindowFrame(win) {
-			if (win.dataset.aosWindowBound === '1') {
+			if (win.dataset.pdkWindowBound === '1') {
 				return;
 			}
 
-			win.dataset.aosWindowBound = '1';
+			win.dataset.pdkWindowBound = '1';
 			getWindowId(win);
 			makeDraggable(win);
 			ensureResizeHandles(win);
@@ -1116,30 +1116,30 @@
 			});
 
 			shell.querySelectorAll('[data-pdk-close]').forEach((button) => {
-				if (button.dataset.aosActionBound === '1') {
+				if (button.dataset.pdkActionBound === '1') {
 					return;
 				}
-				button.dataset.aosActionBound = '1';
+				button.dataset.pdkActionBound = '1';
 				button.addEventListener('click', () => {
 					closeWindow(button.closest('.pdk-window'), null);
 				});
 			});
 
 			shell.querySelectorAll('[data-pdk-minimize]').forEach((button) => {
-				if (button.dataset.aosActionBound === '1') {
+				if (button.dataset.pdkActionBound === '1') {
 					return;
 				}
-				button.dataset.aosActionBound = '1';
+				button.dataset.pdkActionBound = '1';
 				button.addEventListener('click', () => {
 					minimizeWindow(button.closest('.pdk-window'));
 				});
 			});
 
 			shell.querySelectorAll('[data-pdk-maximize]').forEach((button) => {
-				if (button.dataset.aosActionBound === '1') {
+				if (button.dataset.pdkActionBound === '1') {
 					return;
 				}
-				button.dataset.aosActionBound = '1';
+				button.dataset.pdkActionBound = '1';
 				button.addEventListener('click', () => {
 					toggleMaximizeWindow(button.closest('.pdk-window'));
 				});

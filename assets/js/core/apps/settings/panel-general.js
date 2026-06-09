@@ -10,7 +10,7 @@
 		const groups = Array.isArray(general.groups) ? general.groups : [];
 		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-general-panel');
 
-		panel.dataset.aosSettingsPanel = 'general';
+		panel.dataset.pdkSettingsPanel = 'general';
 		panel.appendChild(ctx.createSettingsHero({
 			description: general.description || ctx.t('generalPanel.description', 'Manage site information, updates, language, privacy, and WordPress tools.'),
 			icon: 'dashicons-admin-generic',
@@ -42,9 +42,9 @@
 		const wordpressSection = createSettingsAboutFeatureCard(ctx, siteInfo.wordpress);
 		const displaySection = createSettingsAboutFeatureCard(ctx, siteInfo.display);
 
-		panel.dataset.aosSettingsPanel = 'general-about';
-		panel.dataset.aosSettingsSidebar = 'general';
-		panel.dataset.aosSettingsTitle = ctx.t('generalPanel.aboutTitle', 'About');
+		panel.dataset.pdkSettingsPanel = 'general-about';
+		panel.dataset.pdkSettingsSidebar = 'general';
+		panel.dataset.pdkSettingsTitle = ctx.t('generalPanel.aboutTitle', 'About');
 		hero.appendChild(createSettingsAboutDevice(ctx, siteInfo));
 		hero.appendChild(dom.createElement('h2', '', siteInfo.name || ctx.t('generalPanel.siteFallbackTitle', 'WordPress Site')));
 		if (siteInfo.url) {
