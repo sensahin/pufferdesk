@@ -228,25 +228,29 @@
 			return detail && detail.id ? detail.id : '';
 		}
 
-			function getFolderIdFromPayload(payload = {}, detail = {}) {
-				return payload.folderId || payload.target || (detail && detail.folderId) || getFolderTargetFromDetail(detail);
+		function getFolderIdFromPayload(payload = {}, detail = {}) {
+			return payload.folderId || payload.target || (detail && detail.folderId) || getFolderTargetFromDetail(detail);
+		}
+
+		function getFolderTabIdFromPayload(payload = {}, detail = {}) {
+			return payload.tabId || payload.target || (detail && detail.id) || '';
+		}
+
+		function getFolderCreateParentId(payload = {}, detail = {}) {
+			if (payload.parentId) {
+				return payload.parentId;
 			}
 
-			function getFolderCreateParentId(payload = {}, detail = {}) {
-				if (payload.parentId) {
-					return payload.parentId;
-				}
-
-				if (detail && detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.pdkWindowKind === 'folder') {
-					return detail.folderId || detail.windowElement.dataset.pdkFolderWindow || detail.id || '';
-				}
-
-				if (detail && (detail.type === 'folder-toolbar' || detail.kind === 'folder-toolbar')) {
-					return detail.folderId || detail.id || '';
-				}
-
-				return '';
+			if (detail && detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.pdkWindowKind === 'folder') {
+				return detail.folderId || detail.windowElement.dataset.pdkFolderWindow || detail.id || '';
 			}
+
+			if (detail && (detail.type === 'folder-toolbar' || detail.kind === 'folder-toolbar')) {
+				return detail.folderId || detail.id || '';
+			}
+
+			return '';
+		}
 
 		function getAppIdFromPayload(payload = {}, detail = {}) {
 			return payload.target || payload.appId || getAppTargetFromDetail(detail) || (detail && detail.id) || '';
@@ -760,6 +764,42 @@
 			},
 			run(payload, detail) {
 				launcher.refreshFolderWindow(getFolderIdFromPayload(payload, detail));
+			}
+		});
+
+		register('folder-tab.close', {
+			isEnabled(payload, detail) {
+				return Boolean(launcher && typeof launcher.closeFolderTab === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
+			},
+			run(payload, detail) {
+				launcher.closeFolderTab(getTargetWindow(detail), getFolderTabIdFromPayload(payload, detail));
+			}
+		});
+
+		register('folder-tab.close-others', {
+			isEnabled(payload, detail) {
+				return Boolean(launcher && typeof launcher.closeOtherFolderTabs === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
+			},
+			run(payload, detail) {
+				launcher.closeOtherFolderTabs(getTargetWindow(detail), getFolderTabIdFromPayload(payload, detail));
+			}
+		});
+
+		register('folder-tab.close-right', {
+			isEnabled(payload, detail) {
+				return Boolean(launcher && typeof launcher.closeFolderTabsToRight === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
+			},
+			run(payload, detail) {
+				launcher.closeFolderTabsToRight(getTargetWindow(detail), getFolderTabIdFromPayload(payload, detail));
+			}
+		});
+
+		register('folder-tab.duplicate', {
+			isEnabled(payload, detail) {
+				return Boolean(launcher && typeof launcher.duplicateFolderTab === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
+			},
+			run(payload, detail) {
+				launcher.duplicateFolderTab(getTargetWindow(detail), getFolderTabIdFromPayload(payload, detail));
 			}
 		});
 

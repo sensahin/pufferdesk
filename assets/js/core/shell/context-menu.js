@@ -18,6 +18,7 @@
 		const themeSurfaces = config.theme && config.theme.surfaces && typeof config.theme.surfaces === 'object'
 			? config.theme.surfaces
 			: {};
+		const themeFamily = config.theme && typeof config.theme.family === 'string' ? config.theme.family : '';
 
 		function commandItem(label, command, options = {}) {
 			return Object.assign({
@@ -73,12 +74,31 @@
 			return folderManager && typeof folderManager.getTrashItem === 'function' ? folderManager.getTrashItem(trashId) : null;
 		}
 
+		function getFolderTabDetails(detail = {}) {
+			const win = detail.windowElement || null;
+			const tabs = win
+				? Array.from(win.querySelectorAll('[data-pdk-context="folder-tab"][data-pdk-context-id]'))
+				: [];
+			const tabId = detail.id || '';
+			const index = tabs.findIndex((tab) => tab.dataset.pdkContextId === tabId);
+
+			return {
+				index,
+				tabCount: tabs.length,
+				tabId
+			};
+		}
+
 		function isTrashFolder(folder) {
 			return Boolean(folder && folder.id === 'trash');
 		}
 
 		function isFileExplorerSurface() {
 			return themeSurfaces.folder === 'file-explorer';
+		}
+
+		function isRedmondFamily() {
+			return themeFamily === 'redmond';
 		}
 
 		function getDesktopSortMode() {
@@ -551,6 +571,38 @@
 			]
 		}));
 		registerProvider('desktop-folder', (detail) => providers.get('folder')(detail));
+		registerProvider('folder-tab', (detail) => {
+			const tabDetails = getFolderTabDetails(detail);
+			const payload = {
+				folderId: detail.folderId || '',
+				tabId: tabDetails.tabId,
+				target: tabDetails.tabId
+			};
+
+			return {
+				groups: [
+					{
+						id: 'primary',
+						items: [
+							commandItem(getLabel('close_tab', 'Close Tab'), 'folder-tab.close', Object.assign({
+								icon: 'dashicons-no-alt',
+								shortcut: 'Ctrl+W'
+							}, payload)),
+							commandItem(getLabel('close_other_tabs', 'Close Other Tabs'), 'folder-tab.close-others', Object.assign({
+								disabled: tabDetails.tabCount <= 1
+							}, payload)),
+							commandItem(getLabel('close_tabs_to_right', 'Close Tabs to the Right'), 'folder-tab.close-right', Object.assign({
+								disabled: tabDetails.index < 0 || tabDetails.index >= tabDetails.tabCount - 1
+							}, payload)),
+							separator(),
+							commandItem(getLabel('duplicate_tab', 'Duplicate Tab'), 'folder-tab.duplicate', Object.assign({
+								icon: 'dashicons-admin-page'
+							}, payload))
+						]
+					}
+				]
+			};
+		});
 		registerProvider('trash-item', (detail) => ({
 			groups: [
 				{
@@ -576,6 +628,41 @@
 		registerProvider('window', (detail) => {
 			const app = detail.appId ? appMap.get(detail.appId) : null;
 			const browserUrl = getWindowBrowserUrl(detail, app);
+			const win = detail.windowElement || null;
+			const isHidden = Boolean(win && win.classList && (win.classList.contains('is-hidden') || win.classList.contains('is-minimizing') || win.classList.contains('is-show-desktop-hidden')));
+			const isMaximized = Boolean(win && win.classList && win.classList.contains('is-maximized'));
+			if (isRedmondFamily()) {
+				return {
+					groups: [
+						{
+							id: 'primary',
+							items: [
+								commandItem(getLabel('window_restore', 'Restore'), 'window.focus', {
+									disabled: !isHidden,
+									icon: 'dashicons-image-rotate'
+								}),
+								disabledItem(getLabel('window_move', 'Move'), {
+									icon: 'dashicons-move'
+								}),
+								disabledItem(getLabel('window_size', 'Size'), {
+									icon: 'dashicons-editor-expand'
+								}),
+								commandItem(getLabel('window_minimize', 'Minimize'), 'window.minimize', {
+									icon: 'dashicons-minus'
+								}),
+								commandItem(isMaximized ? getLabel('window_restore', 'Restore') : getLabel('window_maximize', 'Maximize'), 'window.toggle-maximize', {
+									icon: 'dashicons-editor-expand'
+								}),
+								separator(),
+								commandItem(getLabel('window_close', 'Close'), 'window.close', {
+									icon: 'dashicons-no-alt',
+									shortcut: 'Alt+F4'
+								})
+							]
+						}
+					]
+				};
+			}
 			const items = [
 				commandItem(getLabel('bring_to_front', 'Bring to Front'), 'window.focus', {
 					icon: 'dashicons-editor-expand'

@@ -378,6 +378,8 @@
 				button.dataset.pdkFolderId = parentFolderId;
 			}
 			button.setAttribute('aria-label', label);
+			button.setAttribute('aria-pressed', 'false');
+			button.setAttribute('aria-selected', 'false');
 
 			const appIcon = document.createElement('span');
 			appIcon.className = 'pdk-app-icon';
@@ -390,11 +392,19 @@
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
+				selectFinderItem(button);
+			});
+			button.addEventListener('dblclick', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
 				if (win) {
 					renderFolderWindow(win, folder.id);
 				} else {
 					openFolder(folder.id);
 				}
+			});
+			button.addEventListener('contextmenu', () => {
+				selectFinderItem(button);
 			});
 
 			return button;
@@ -404,7 +414,7 @@
 			const grid = button ? button.closest('.pdk-finder-grid') : null;
 
 			if (grid) {
-				grid.querySelectorAll('.pdk-finder-trash-item.is-selected').forEach((item) => {
+				grid.querySelectorAll('.pdk-app-launcher.is-selected, .pdk-finder-trash-item.is-selected').forEach((item) => {
 					item.classList.remove('is-selected');
 					item.setAttribute('aria-selected', 'false');
 					item.setAttribute('aria-pressed', 'false');
@@ -1669,6 +1679,82 @@
 			return rendered;
 		}
 
+		function duplicateFolderTab(win, tabId) {
+			const state = getFolderWindowTabs(win);
+			const index = state.tabs.findIndex((tab) => tab.id === tabId);
+			const tab = state.tabs[index] || null;
+
+			if (!win || !tab) {
+				return null;
+			}
+
+			const duplicate = createFolderTab(tab.folderId, {
+				entries: tab.entries.slice(),
+				index: tab.index
+			});
+			state.tabs.splice(index + 1, 0, duplicate);
+			state.activeTabId = duplicate.id;
+
+			if (renderFolderWindow(win, duplicate.folderId, {
+				updateHistory: false,
+				touch: false
+			})) {
+				saveFolderWindowSession();
+			}
+
+			return duplicate;
+		}
+
+		function closeOtherFolderTabs(win, tabId) {
+			const state = getFolderWindowTabs(win);
+			const tab = state.tabs.find((item) => item.id === tabId);
+
+			if (!win || !tab || state.tabs.length <= 1) {
+				return false;
+			}
+
+			state.tabs = [tab];
+			state.activeTabId = tab.id;
+
+			if (renderFolderWindow(win, tab.folderId, {
+				updateHistory: false,
+				touch: false
+			})) {
+				saveFolderWindowSession();
+				return true;
+			}
+
+			return false;
+		}
+
+		function closeFolderTabsToRight(win, tabId) {
+			const state = getFolderWindowTabs(win);
+			const index = state.tabs.findIndex((tab) => tab.id === tabId);
+
+			if (!win || index < 0 || index >= state.tabs.length - 1) {
+				return false;
+			}
+
+			const keepTabs = state.tabs.slice(0, index + 1);
+			const activeStillOpen = keepTabs.some((tab) => tab.id === state.activeTabId);
+			const activeTab = activeStillOpen
+				? state.tabs.find((tab) => tab.id === state.activeTabId)
+				: state.tabs[index];
+
+			state.tabs = keepTabs;
+			state.activeTabId = activeTab ? activeTab.id : state.tabs[0] ? state.tabs[0].id : '';
+
+			if (activeTab && renderFolderWindow(win, activeTab.folderId, {
+				updateHistory: false,
+				touch: false
+			})) {
+				saveFolderWindowSession();
+				return true;
+			}
+
+			return false;
+		}
+
 		function addFolderTab(win, folderId, options = {}) {
 			if (!win || !getFolder(folderId)) {
 				return null;
@@ -1791,6 +1877,10 @@
 			const text = dom.createElement('span', 'pdk-explorer-titlebar-tab-text', label);
 
 			item.setAttribute('role', 'presentation');
+			item.dataset.pdkContext = 'folder-tab';
+			item.dataset.pdkContextId = tab.id;
+			item.dataset.pdkContextLabel = label;
+			item.dataset.pdkFolderId = tab.folderId || '';
 			button.type = 'button';
 			button.className = 'pdk-explorer-titlebar-tab-button';
 			button.dataset.pdkNoDrag = '';
@@ -1823,6 +1913,10 @@
 			if (!isFileExplorerLayout()) {
 				if (label) {
 					label.classList.remove('pdk-explorer-titlebar-tab-active');
+					delete label.dataset.pdkContext;
+					delete label.dataset.pdkContextId;
+					delete label.dataset.pdkContextLabel;
+					delete label.dataset.pdkFolderId;
 					label.removeAttribute('role');
 					label.removeAttribute('aria-selected');
 					const closeButton = label.querySelector('.pdk-explorer-titlebar-tab-close');
@@ -1884,6 +1978,10 @@
 			const nodes = [];
 
 			label.classList.add('pdk-explorer-titlebar-tab-active');
+			label.dataset.pdkContext = 'folder-tab';
+			label.dataset.pdkContextId = activeTabId || '';
+			label.dataset.pdkContextLabel = activeLabel;
+			label.dataset.pdkFolderId = activeTab && activeTab.folderId ? activeTab.folderId : folderId;
 			label.dataset.pdkNoDrag = '';
 			label.setAttribute('aria-selected', 'true');
 			label.setAttribute('role', 'tab');
@@ -2626,7 +2724,11 @@
 		return {
 			bindShellClicks,
 			closeFolderInfoWindow,
+			closeFolderTab,
+			closeFolderTabsToRight,
 			closeFolderWindow,
+			closeOtherFolderTabs,
+			duplicateFolderTab,
 			getWindowOptions,
 			openAbout,
 			openApp,

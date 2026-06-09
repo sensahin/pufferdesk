@@ -19,7 +19,7 @@
 	--pdk-accent-active: #0f6cbd;
 	--pdk-accent-active-strong: linear-gradient(180deg, #3b82f6, #0f6cbd);
 	--pdk-highlight: rgb(37 99 235 / 0.14);
-	--pdk-danger-bg: #c42b1c;
+	--pdk-danger-bg: rgb(187 37 31);
 	--pdk-danger-ink: #fff;
 	--pdk-material-clear-bg: rgb(246 249 253 / 0.82);
 	--pdk-material-clear-border: rgb(120 135 158 / 0.34);
@@ -64,7 +64,7 @@
 	--pdk-menu-popover-ink: #1f1f1f;
 	--pdk-menu-popover-muted: #69707a;
 	--pdk-menu-popover-separator: #e2e6ee;
-	--pdk-menu-item-hover-bg: rgb(37 99 235 / 0.11);
+	--pdk-menu-item-hover-bg: rgb(218 218 218);
 	--pdk-menu-item-hover-ink: #10243d;
 	--pdk-menu-item-disabled: #8a919d;
 	--pdk-menu-selection-bg: rgb(255 255 255 / 0.58);
@@ -115,31 +115,36 @@
 	--pdk-scrollbar-thumb: rgb(75 85 99 / 0.34);
 	--pdk-scrollbar-thumb-hover: rgb(75 85 99 / 0.5);
 	--pdk-scrollbar-track: rgb(75 85 99 / 0.08);
-	--pdk-redmond-subtle-hover-bg: rgb(15 23 42 / 0.055);
-	--pdk-redmond-control-hover-bg: rgb(37 99 235 / 0.1);
-	--pdk-redmond-control-active-bg: rgb(37 99 235 / 0.16);
+	--pdk-redmond-subtle-hover-bg: rgb(218 218 218);
+	--pdk-redmond-control-hover-bg: rgb(218 218 218);
+	--pdk-redmond-control-active-bg: rgb(208 208 208);
 	--pdk-redmond-input-bg: rgb(255 255 255 / 0.78);
 	--pdk-redmond-input-border: rgb(157 168 187 / 0.54);
 	--pdk-redmond-input-focus-border: rgb(37 99 235 / 0.55);
 	--pdk-redmond-placeholder: #6b7280;
 	--pdk-redmond-explorer-mica-overlay: linear-gradient(#f3f3f3, #f3f3f3);
-	--pdk-redmond-explorer-surface-bg: #fff;
-	--pdk-redmond-explorer-titlebar-bg: #e9e9e9;
-	--pdk-redmond-explorer-addressbar-bg: #f8f8f8;
-	--pdk-redmond-explorer-command-bg: #fff;
-	--pdk-redmond-explorer-sidebar-bg: #fff;
-	--pdk-redmond-explorer-sidebar-border: #ececec;
-	--pdk-redmond-explorer-sidebar-selected-bg: #dedede;
-	--pdk-redmond-explorer-sidebar-selected-border: #b9b9b9;
-	--pdk-redmond-explorer-row-hover-bg: #f2f4f7;
-	--pdk-redmond-explorer-field-bg: #fff;
-	--pdk-redmond-explorer-field-border: #f2f2f2;
-	--pdk-redmond-explorer-selection-bg: #cfe8ff;
-	--pdk-redmond-explorer-selection-border: #5d8fc6;
-	--pdk-redmond-explorer-tab-bg: #fafafa;
-	--pdk-redmond-explorer-tab-border: #dedede;
+	--pdk-redmond-explorer-surface-bg: rgb(255 255 255);
+	--pdk-redmond-explorer-titlebar-bg: rgb(228 228 228);
+	--pdk-redmond-explorer-toolbar-bg: rgb(247 247 247);
+	--pdk-redmond-explorer-addressbar-bg: rgb(253 253 253);
+	--pdk-redmond-explorer-command-bg: rgb(255 255 255);
+	--pdk-redmond-explorer-sidebar-bg: rgb(255 255 255);
+	--pdk-redmond-explorer-sidebar-border: rgb(242 242 242);
+	--pdk-redmond-explorer-sidebar-selected-bg: rgb(212 236 254);
+	--pdk-redmond-explorer-sidebar-selected-border: rgb(212 236 254);
+	--pdk-redmond-explorer-row-hover-bg: rgb(212 236 254);
+	--pdk-redmond-explorer-field-bg: rgb(253 253 253);
+	--pdk-redmond-explorer-field-border: transparent;
+	--pdk-redmond-explorer-search-bg: rgb(248 248 248);
+	--pdk-redmond-explorer-hover-bg: rgb(218 218 218);
+	--pdk-redmond-explorer-selection-bg: rgb(212 236 254);
+	--pdk-redmond-explorer-selection-border: rgb(168 213 248);
+	--pdk-redmond-explorer-tab-bg: var(--pdk-redmond-explorer-toolbar-bg);
+	--pdk-redmond-explorer-tab-inactive-bg: rgb(218 218 218);
+	--pdk-redmond-explorer-tab-border: transparent;
+	--pdk-redmond-explorer-statusbar-bg: rgb(255 255 255);
 	--pdk-redmond-explorer-tab-shadow: none;
-	--pdk-redmond-context-menu-bg: #f8f8f8;
+	--pdk-redmond-context-menu-bg: rgb(248 248 248);
 	--pdk-redmond-context-menu-border: #e5e5e5;
 	--pdk-redmond-context-menu-shadow: 0 18px 42px rgb(15 23 42 / 0.18);
 	--pdk-redmond-widget-bg: rgb(255 255 255 / 0.84);
@@ -350,13 +355,30 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-control-close:hover,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-control-close:focus-visible {
-	background: #c42b1c;
+	background: rgb(187 37 31);
 	color: #fff;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-control::before,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-control::after {
 	opacity: 0.86;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-control-close::before,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-control-close::after {
+	height: 1px;
+	width: 10px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-control-minimize::before {
+	height: 1px;
+	width: 10px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-control-maximize::before {
+	border-width: 1.25px;
+	height: 10px;
+	width: 10px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-menu-popover {
@@ -654,11 +676,11 @@
 	border-bottom: 0;
 	display: grid;
 	gap: 8px;
-	grid-template-columns: minmax(210px, 320px) 42px minmax(0, 1fr) auto;
-	height: 58px;
+	grid-template-columns: minmax(190px, 250px) 40px minmax(0, 1fr) auto;
+	height: 40px;
 	left: auto;
-	min-height: 58px;
-	padding: 0 0 0 10px;
+	min-height: 40px;
+	padding: 0 0 0 6px;
 	position: relative;
 	top: auto;
 	width: 100%;
@@ -672,7 +694,7 @@
 	grid-column: 1 / 4;
 	min-width: 0;
 	overflow: hidden;
-	padding-top: 10px;
+	padding-top: 4px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-window-titlebar-label {
@@ -689,10 +711,10 @@
 	gap: 10px;
 	grid-column: 1;
 	grid-template-columns: 22px minmax(0, 1fr) 24px;
-	height: 48px;
+	height: 34px;
 	justify-self: start;
 	margin-bottom: -1px;
-	min-width: 210px;
+	min-width: 190px;
 	padding: 0 8px 0 14px;
 	width: 100%;
 }
@@ -707,6 +729,7 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab {
 	align-self: end;
+	background: var(--pdk-redmond-explorer-tab-inactive-bg);
 	border: 1px solid transparent;
 	border-bottom-color: transparent;
 	border-radius: 9px 9px 0 0;
@@ -715,7 +738,7 @@
 	display: grid;
 	flex: 0 1 280px;
 	grid-template-columns: minmax(0, 1fr) 24px;
-	height: 48px;
+	height: 34px;
 	margin-bottom: -1px;
 	max-width: 280px;
 	min-width: 150px;
@@ -724,8 +747,8 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab:hover,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab:focus-within {
-	background: rgb(255 255 255 / 0.24);
-	border-color: rgb(255 255 255 / 0.24);
+	background: var(--pdk-redmond-explorer-tab-inactive-bg);
+	border-color: transparent;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab-button {
@@ -737,7 +760,7 @@
 	cursor: default;
 	display: grid;
 	font: inherit;
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: var(--pdk-weight-regular);
 	gap: 10px;
 	grid-template-columns: 22px minmax(0, 1fr);
@@ -777,16 +800,16 @@
 	align-self: center;
 	flex: 0 0 40px;
 	grid-column: auto;
-	height: 40px;
+	height: 32px;
 	justify-self: start;
-	width: 40px;
+	width: 32px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab-close:hover,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab-close:focus-visible,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-new-tab:hover,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-new-tab:focus-visible {
-	background: rgb(0 0 0 / 0.06);
+	background: var(--pdk-redmond-explorer-hover-bg);
 	outline: none;
 }
 
@@ -812,8 +835,8 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab-close-icon::before,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab-close-icon::after {
-	height: 1.5px;
-	width: 12px;
+	height: 1px;
+	width: 11px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab-close-icon::before {
@@ -825,40 +848,40 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-new-tab-icon::before {
-	height: 1.7px;
+	height: 1px;
 	transform: translate(-50%, -50%);
-	width: 14px;
+	width: 10px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-new-tab-icon::after {
-	height: 14px;
+	height: 10px;
 	transform: translate(-50%, -50%);
-	width: 1.7px;
+	width: 1px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-window-titlebar-label-icon {
-	height: 20px;
-	width: 20px;
+	height: 18px;
+	width: 18px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab-icon {
-	height: 20px;
-	width: 20px;
+	height: 18px;
+	width: 18px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-window-titlebar-label-icon .pdk-icon-image,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-window-titlebar-label-icon .dashicons,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab-icon .pdk-icon-image,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab-icon .dashicons {
-	font-size: 20px;
-	height: 20px;
-	line-height: 20px;
-	width: 20px;
+	font-size: 18px;
+	height: 18px;
+	line-height: 18px;
+	width: 18px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-window-titlebar-label-text,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab-text {
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: var(--pdk-weight-regular);
 	min-width: 0;
 	overflow: hidden;
@@ -1109,20 +1132,20 @@
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-addressbar {
 	-webkit-backdrop-filter: none;
 	backdrop-filter: none;
-	background: var(--pdk-redmond-explorer-addressbar-bg);
+	background: var(--pdk-redmond-explorer-toolbar-bg);
 	background-image: none;
 	border-bottom-color: rgb(204 209 216 / 0.72);
-	gap: 16px;
-	min-height: 68px;
-	padding: 10px 20px;
+	gap: 8px;
+	min-height: 48px;
+	padding: 5px 8px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-commandbar {
 	background: var(--pdk-redmond-explorer-command-bg);
 	border-bottom-color: rgb(207 212 219 / 0.9);
-	gap: 14px;
-	min-height: 58px;
-	padding: 8px 18px;
+	gap: 8px;
+	min-height: 44px;
+	padding: 5px 12px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-command-group {
@@ -1134,7 +1157,7 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-command-group + .pdk-explorer-command-group::before {
-	background: rgb(215 219 225 / 0.9);
+	background: rgb(232 232 232);
 	bottom: 6px;
 	left: 2px;
 	top: 6px;
@@ -1155,9 +1178,9 @@
 	color: #202020;
 	font-size: 14px;
 	font-weight: var(--pdk-weight-regular);
-	height: 38px;
-	min-width: 38px;
-	padding: 0 9px;
+	height: 32px;
+	min-width: 32px;
+	padding: 0 8px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-explorer-command-button:disabled,
@@ -1183,7 +1206,7 @@
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-command-button.is-menu-open,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button:not(:disabled):hover,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button:not(:disabled):focus-visible {
-	background: rgb(0 0 0 / 0.055);
+	background: var(--pdk-redmond-explorer-hover-bg);
 	outline: none;
 }
 
@@ -1398,19 +1421,27 @@
 	background: var(--pdk-redmond-explorer-field-bg);
 	border-color: var(--pdk-redmond-explorer-field-border);
 	border-radius: 6px;
-	box-shadow: 0 1px 0 rgb(255 255 255 / 0.54) inset;
-	font-size: 15px;
+	box-shadow: none;
+	font-size: 14px;
 	font-weight: var(--pdk-weight-regular);
-	min-height: 42px;
+	height: 32px;
+	min-height: 32px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-search {
+	background: var(--pdk-redmond-explorer-search-bg);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-search input {
 	font-weight: var(--pdk-weight-regular);
+	height: auto;
+	line-height: 1.2;
+	min-height: 0;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-address-field {
-	gap: 12px;
-	padding: 0 16px;
+	gap: 10px;
+	padding: 0 12px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-address-crumb.is-current {
@@ -1424,38 +1455,147 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-search {
-	flex-basis: min(360px, 34%);
-	gap: 12px;
-	padding: 0 14px;
+	flex-basis: min(260px, 30%);
+	flex-direction: row-reverse;
+	gap: 10px;
+	padding: 0 12px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-search .dashicons {
 	color: #202020;
-	font-size: 20px;
-	height: 20px;
-	width: 20px;
+	font-size: 0;
+	height: 18px;
+	position: relative;
+	width: 18px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-search .dashicons::before,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-search .dashicons::after {
+	box-sizing: border-box;
+	content: "";
+	position: absolute;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-search .dashicons::before {
+	border: 1.25px solid currentColor;
+	border-radius: 999px;
+	height: 10px;
+	left: 3px;
+	top: 3px;
+	width: 10px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-search .dashicons::after {
+	background: currentColor;
+	border-radius: 999px;
+	height: 1.25px;
+	left: 11px;
+	top: 12px;
+	transform: rotate(45deg);
+	transform-origin: left center;
+	width: 5px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-back .pdk-explorer-nav-icon,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-forward .pdk-explorer-nav-icon,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-up .pdk-explorer-nav-icon {
+	border: 0;
+	height: 16px;
+	position: relative;
+	transform: none;
+	width: 16px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-back .pdk-explorer-nav-icon::before,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-forward .pdk-explorer-nav-icon::before,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-up .pdk-explorer-nav-icon::before,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-back .pdk-explorer-nav-icon::after,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-forward .pdk-explorer-nav-icon::after,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-up .pdk-explorer-nav-icon::after {
+	box-sizing: border-box;
+	content: "";
+	position: absolute;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-back .pdk-explorer-nav-icon::before,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-forward .pdk-explorer-nav-icon::before {
+	background: currentColor;
+	border-radius: 999px;
+	height: 1.15px;
+	top: 7.4px;
+	width: 12px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-back .pdk-explorer-nav-icon::before {
+	left: 3px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-forward .pdk-explorer-nav-icon::before {
+	left: 1px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-back .pdk-explorer-nav-icon::after,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-forward .pdk-explorer-nav-icon::after,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-up .pdk-explorer-nav-icon::after {
+	border-color: currentColor;
+	height: 7px;
+	width: 7px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-back .pdk-explorer-nav-icon::after {
+	border-left: 1.15px solid;
+	border-top: 1.15px solid;
+	left: 2px;
+	top: 4.5px;
+	transform: rotate(-45deg);
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-forward .pdk-explorer-nav-icon::after {
+	border-right: 1.15px solid;
+	border-top: 1.15px solid;
+	right: 2px;
+	top: 4.5px;
+	transform: rotate(45deg);
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-up .pdk-explorer-nav-icon::before {
+	background: currentColor;
+	border-radius: 999px;
+	height: 11px;
+	left: 7.4px;
+	top: 3px;
+	width: 1.15px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-up .pdk-explorer-nav-icon::after {
+	border-left: 1.15px solid;
+	border-top: 1.15px solid;
+	left: 4.5px;
+	top: 2px;
+	transform: rotate(45deg);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-refresh .pdk-explorer-nav-icon {
-	border: 2px solid currentColor;
+	border: 1.35px solid currentColor;
 	border-left-color: transparent;
+	border-bottom-color: currentColor;
 	border-radius: 999px;
-	height: 15px;
+	height: 14px;
 	position: relative;
-	transform: none;
-	width: 15px;
+	transform: rotate(-22deg);
+	width: 14px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-nav-button-refresh .pdk-explorer-nav-icon::after {
-	border-right: 2px solid currentColor;
-	border-top: 2px solid currentColor;
+	border-right: 1.35px solid currentColor;
+	border-top: 1.35px solid currentColor;
 	content: "";
-	height: 5px;
+	height: 4.5px;
 	position: absolute;
-	right: -1px;
-	top: -3px;
-	transform: rotate(24deg);
-	width: 5px;
+	right: -1.5px;
+	top: -1.5px;
+	transform: rotate(22deg);
+	width: 4.5px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-pane {
@@ -1486,8 +1626,8 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-app-launcher:hover,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-app-launcher:focus {
-	background: rgb(0 95 184 / 0.08);
-	border-color: rgb(0 95 184 / 0.18);
+	background: var(--pdk-redmond-explorer-row-hover-bg);
+	border-color: var(--pdk-redmond-explorer-selection-border);
 	transform: none;
 }
 
@@ -1548,8 +1688,8 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-statusbar {
 	align-items: center;
-	background: var(--pdk-redmond-explorer-surface-bg);
-	border-top: 1px solid rgb(232 235 240 / 0.9);
+	background: var(--pdk-redmond-explorer-statusbar-bg);
+	border-top: 1px solid var(--pdk-redmond-explorer-sidebar-border);
 	color: #16436f;
 	display: flex;
 	flex: 0 0 auto;
@@ -1591,7 +1731,7 @@
 .pdk-shell[data-pdk-theme="redmond"] .pdk-explorer-status-view-button:hover,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-explorer-status-view-button:focus-visible,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-explorer-status-view-button.is-active {
-	background: rgb(0 95 184 / 0.1);
+	background: var(--pdk-redmond-explorer-hover-bg);
 	color: #202020;
 	outline: none;
 }
@@ -1828,6 +1968,126 @@
 	margin: 7px 8px;
 }
 
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"],
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-submenu-popover {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: var(--pdk-redmond-context-menu-bg);
+	border-color: var(--pdk-redmond-context-menu-border);
+	border-radius: 8px;
+	box-shadow: 0 8px 22px rgb(15 23 42 / 0.18);
+	color: #1f1f1f;
+	padding: 6px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] {
+	min-width: 258px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item {
+	border-radius: 4px;
+	font-size: 14px;
+	grid-template-columns: 20px minmax(0, 1fr) auto;
+	height: 34px;
+	padding: 0 10px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item.has-icon {
+	grid-template-columns: 20px minmax(0, 1fr) auto;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item-icon,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item-icon .dashicons {
+	font-size: 16px;
+	height: 16px;
+	line-height: 16px;
+	width: 16px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item:not(:disabled):hover,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item:not(:disabled):focus {
+	background: rgb(235 235 235);
+	color: #1f1f1f;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item:disabled {
+	color: #9a9a9a;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-separator {
+	margin: 5px 8px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item-shortcut {
+	color: #666;
+	font-size: 12px;
+	min-width: 48px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="window"],
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: #fff;
+	border-color: #d6d6d6;
+	border-radius: 2px;
+	box-shadow: 0 4px 12px rgb(0 0 0 / 0.18);
+	color: #000;
+	min-width: 184px;
+	padding: 3px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-item,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-item {
+	border-radius: 0;
+	font-size: 12px;
+	font-weight: var(--pdk-weight-regular);
+	grid-template-columns: 20px minmax(0, 1fr) auto;
+	height: 22px;
+	padding: 0 8px 0 10px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-item.has-icon,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-item.has-icon {
+	grid-template-columns: 20px minmax(0, 1fr) auto;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-item-icon,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-item-icon .dashicons,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-item-icon,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-item-icon .dashicons {
+	font-size: 12px;
+	height: 12px;
+	line-height: 12px;
+	width: 12px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-item:not(:disabled):hover,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-item:not(:disabled):focus,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-item:not(:disabled):hover,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-item:not(:disabled):focus {
+	background: #e5f3ff;
+	color: #000;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-item:disabled,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-item:disabled {
+	color: #8a8a8a;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-separator,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-separator {
+	background: #d7d7d7;
+	margin: 3px 2px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-item-shortcut,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-item-shortcut {
+	color: inherit;
+	font-size: 12px;
+	min-width: 52px;
+}
+
 .pdk-shell[data-pdk-theme="redmond"] .pdk-explorer-command-menu .pdk-menu-item-icon .dashicons-yes {
 	font-size: 0;
 	height: 16px;
@@ -1984,16 +2244,16 @@
 	--pdk-material-control-border: #3c3c3c;
 	--pdk-material-bar-bg: rgb(32 32 32 / 0.88);
 	--pdk-material-bar-border: #303030;
-	--pdk-material-popover-bg: rgb(45 45 45 / 0.96);
-	--pdk-material-popover-border: #3d3d3d;
+	--pdk-material-popover-bg: rgb(39 39 39);
+	--pdk-material-popover-border: #303030;
 	--pdk-material-dialog-bg: #202020;
 	--pdk-material-dialog-border: #3d3d3d;
 	--pdk-menu-ink: #f2f2f2;
 	--pdk-menu-muted: #c7c7c7;
 	--pdk-menu-popover-ink: #f2f2f2;
 	--pdk-menu-popover-muted: #c7c7c7;
-	--pdk-menu-popover-separator: #3b3b3b;
-	--pdk-menu-item-hover-bg: rgb(255 255 255 / 0.075);
+	--pdk-menu-popover-separator: #303030;
+	--pdk-menu-item-hover-bg: rgb(40 40 40);
 	--pdk-menu-item-hover-ink: #f2f2f2;
 	--pdk-menu-item-disabled: #8a8a8a;
 	--pdk-desktop-bg:
@@ -2009,32 +2269,37 @@
 	--pdk-dock-tooltip-bg: rgb(45 45 45 / 0.96);
 	--pdk-dock-tooltip-color: #f2f2f2;
 	--pdk-running-indicator: #57a7ff;
-	--pdk-redmond-subtle-hover-bg: rgb(255 255 255 / 0.08);
-	--pdk-redmond-control-hover-bg: rgb(255 255 255 / 0.075);
-	--pdk-redmond-control-active-bg: rgb(255 255 255 / 0.11);
-	--pdk-redmond-input-bg: #353535;
-	--pdk-redmond-input-border: #353535;
+	--pdk-redmond-subtle-hover-bg: rgb(40 40 40);
+	--pdk-redmond-control-hover-bg: rgb(40 40 40);
+	--pdk-redmond-control-active-bg: rgb(49 49 49);
+	--pdk-redmond-input-bg: rgb(49 49 49);
+	--pdk-redmond-input-border: transparent;
 	--pdk-redmond-input-focus-border: rgb(87 167 255 / 0.62);
 	--pdk-redmond-placeholder: #b8b8b8;
-	--pdk-redmond-explorer-mica-overlay: linear-gradient(#202020, #202020);
-	--pdk-redmond-explorer-surface-bg: #191919;
-	--pdk-redmond-explorer-titlebar-bg: #202020;
-	--pdk-redmond-explorer-addressbar-bg: #252525;
-	--pdk-redmond-explorer-command-bg: #151515;
-	--pdk-redmond-explorer-sidebar-bg: #191919;
-	--pdk-redmond-explorer-sidebar-border: #2a2a2a;
-	--pdk-redmond-explorer-sidebar-selected-bg: #303030;
-	--pdk-redmond-explorer-sidebar-selected-border: #303030;
-	--pdk-redmond-explorer-row-hover-bg: #242424;
-	--pdk-redmond-explorer-field-bg: #353535;
-	--pdk-redmond-explorer-field-border: #353535;
-	--pdk-redmond-explorer-selection-bg: #333;
-	--pdk-redmond-explorer-selection-border: #6b6b6b;
-	--pdk-redmond-explorer-tab-bg: #2b2b2b;
-	--pdk-redmond-explorer-tab-border: #2b2b2b;
+	--pdk-redmond-explorer-mica-overlay: linear-gradient(rgb(24 24 24), rgb(24 24 24));
+	--pdk-redmond-explorer-surface-bg: rgb(24 24 24);
+	--pdk-redmond-explorer-titlebar-bg: rgb(29 29 29);
+	--pdk-redmond-explorer-toolbar-bg: rgb(39 39 39);
+	--pdk-redmond-explorer-addressbar-bg: rgb(49 49 49);
+	--pdk-redmond-explorer-command-bg: rgb(24 24 24);
+	--pdk-redmond-explorer-sidebar-bg: rgb(24 24 24);
+	--pdk-redmond-explorer-sidebar-border: rgb(38 38 38);
+	--pdk-redmond-explorer-sidebar-selected-bg: rgb(68 68 68);
+	--pdk-redmond-explorer-sidebar-selected-border: rgb(68 68 68);
+	--pdk-redmond-explorer-row-hover-bg: rgb(68 68 68);
+	--pdk-redmond-explorer-field-bg: rgb(49 49 49);
+	--pdk-redmond-explorer-field-border: transparent;
+	--pdk-redmond-explorer-search-bg: rgb(49 49 49);
+	--pdk-redmond-explorer-hover-bg: rgb(40 40 40);
+	--pdk-redmond-explorer-selection-bg: rgb(68 68 68);
+	--pdk-redmond-explorer-selection-border: rgb(68 68 68);
+	--pdk-redmond-explorer-tab-bg: var(--pdk-redmond-explorer-toolbar-bg);
+	--pdk-redmond-explorer-tab-inactive-bg: rgb(40 40 40);
+	--pdk-redmond-explorer-tab-border: transparent;
+	--pdk-redmond-explorer-statusbar-bg: rgb(26 26 26);
 	--pdk-redmond-explorer-tab-shadow: none;
-	--pdk-redmond-context-menu-bg: #2d2d2d;
-	--pdk-redmond-context-menu-border: #3d3d3d;
+	--pdk-redmond-context-menu-bg: rgb(39 39 39);
+	--pdk-redmond-context-menu-border: rgb(48 48 48);
 	--pdk-redmond-context-menu-shadow: 0 18px 44px rgb(0 0 0 / 0.55);
 	--pdk-redmond-widget-bg: rgb(31 39 51 / 0.88);
 	--pdk-redmond-widget-border: rgb(172 186 207 / 0.28);
@@ -2105,7 +2370,7 @@
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-control-close:hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-control-close:focus-visible {
-	background: #c42b1c;
+	background: rgb(187 37 31);
 	color: #fff;
 }
 
@@ -2168,8 +2433,9 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-addressbar {
-	background: var(--pdk-redmond-explorer-addressbar-bg);
+	background: var(--pdk-redmond-explorer-toolbar-bg);
 	background-image: none;
+	border-bottom-color: rgb(48 48 48);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-window-titlebar-label {
@@ -2186,8 +2452,8 @@
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab:hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab:focus-within {
-	background: rgb(255 255 255 / 0.08);
-	border-color: rgb(255 255 255 / 0.08);
+	background: var(--pdk-redmond-explorer-tab-inactive-bg);
+	border-color: transparent;
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-window-control,
@@ -2205,11 +2471,16 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-tab-close:focus-visible,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-new-tab:hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-titlebar-new-tab:focus-visible {
-	background: rgb(255 255 255 / 0.1);
+	background: var(--pdk-redmond-explorer-hover-bg);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-commandbar {
 	background: var(--pdk-redmond-explorer-command-bg);
+	border-bottom-color: rgb(38 38 38);
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-command-group + .pdk-explorer-command-group::before {
+	background: rgb(48 48 48);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-main,
@@ -2241,12 +2512,12 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-app-launcher:hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-app-launcher:focus {
 	background: var(--pdk-redmond-explorer-row-hover-bg);
-	border-color: #3a3a3a;
+	border-color: var(--pdk-redmond-explorer-selection-border);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-explorer-statusbar {
-	background: var(--pdk-redmond-explorer-surface-bg);
-	border-top-color: #202020;
+	background: var(--pdk-redmond-explorer-statusbar-bg);
+	border-top-color: rgb(38 38 38);
 	color: #c7c7c7;
 }
 
@@ -2257,13 +2528,13 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-explorer-status-view-button:hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-explorer-status-view-button:focus-visible,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-explorer-status-view-button.is-active {
-	background: #303030;
+	background: var(--pdk-redmond-explorer-hover-bg);
 	color: #f2f2f2;
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder"] .pdk-menu-action-strip,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="desktop-folder"] .pdk-menu-action-strip {
-	border-bottom-color: #3b3b3b;
+	border-bottom-color: rgb(48 48 48);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder"],
@@ -2291,7 +2562,7 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-app"] .pdk-menu-item:not(:disabled):focus,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="trash-item"] .pdk-menu-item:not(:disabled):hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="trash-item"] .pdk-menu-item:not(:disabled):focus {
-	background: #3a3a3a;
+	background: var(--pdk-redmond-explorer-hover-bg);
 	color: #f2f2f2;
 }
 
@@ -2300,7 +2571,7 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="desktop-folder"] .pdk-menu-separator,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-app"] .pdk-menu-separator,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="trash-item"] .pdk-menu-separator {
-	background: #3b3b3b;
+	background: rgb(48 48 48);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder"] .pdk-menu-item-shortcut,
@@ -2313,13 +2584,63 @@
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder"] .pdk-menu-action-strip-button + .pdk-menu-action-strip-button,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="desktop-folder"] .pdk-menu-action-strip-button + .pdk-menu-action-strip-button {
-	border-left-color: #3b3b3b;
+	border-left-color: rgb(48 48 48);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder"] .pdk-menu-action-strip-button:not(:disabled):hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder"] .pdk-menu-action-strip-button:not(:disabled):focus,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="desktop-folder"] .pdk-menu-action-strip-button:not(:disabled):hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="desktop-folder"] .pdk-menu-action-strip-button:not(:disabled):focus {
-	background: rgb(255 255 255 / 0.08);
+	background: var(--pdk-redmond-explorer-hover-bg);
 	color: #f2f2f2;
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-tab"],
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-submenu-popover {
+	background: var(--pdk-redmond-context-menu-bg);
+	border-color: var(--pdk-redmond-context-menu-border);
+	color: #f2f2f2;
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item:not(:disabled):hover,
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item:not(:disabled):focus {
+	background: var(--pdk-redmond-explorer-hover-bg);
+	color: #f2f2f2;
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item:disabled {
+	color: #8a8a8a;
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-item-shortcut {
+	color: #c7c7c7;
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-tab"] .pdk-menu-separator {
+	background: rgb(48 48 48);
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="window"],
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) {
+	background: rgb(39 39 39);
+	border-color: rgb(48 48 48);
+	color: #f2f2f2;
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-item:not(:disabled):hover,
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-item:not(:disabled):focus,
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-item:not(:disabled):hover,
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-item:not(:disabled):focus {
+	background: rgb(40 40 40);
+	color: #f2f2f2;
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-item:disabled,
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-item:disabled {
+	color: #8a8a8a;
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="window"] .pdk-menu-separator,
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-context-menu[data-pdk-context-menu="folder-toolbar"]:not(.pdk-explorer-command-menu) .pdk-menu-separator {
+	background: rgb(48 48 48);
 }
