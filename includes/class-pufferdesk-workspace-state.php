@@ -569,12 +569,21 @@ final class PufferDesk_Workspace_State {
 				continue;
 			}
 
-			$kind         = isset( $icon['kind'] ) ? sanitize_key( (string) $icon['kind'] ) : 'item';
-			$sanitized[] = array(
+			$kind   = isset( $icon['kind'] ) ? sanitize_key( (string) $icon['kind'] ) : 'item';
+			$record = array(
 				'id'    => $id,
 				'kind'  => in_array( $kind, array( 'app', 'folder', 'item' ), true ) ? $kind : 'item',
 				'state' => $this->sanitize_position_state( isset( $icon['state'] ) && is_array( $icon['state'] ) ? $icon['state'] : array() ),
 			);
+
+			if ( 0 === strpos( $id, 'app:' ) && isset( $icon['label'] ) ) {
+				$label = sanitize_text_field( (string) $icon['label'] );
+				if ( '' !== $label ) {
+					$record['label'] = $label;
+				}
+			}
+
+			$sanitized[] = $record;
 			$seen[ $id ] = true;
 
 			if ( count( $sanitized ) >= 300 ) {

@@ -1667,6 +1667,14 @@
 		function saveTheme(themeId, status) {
 			status.textContent = t('status.saving', 'Saving...');
 
+			function showThemeSwitchOverlay() {
+				const dialogs = window.PufferDesk && window.PufferDesk.shellDialogs ? window.PufferDesk.shellDialogs : null;
+
+				if (dialogs && typeof dialogs.showBlockingOverlay === 'function') {
+					dialogs.showBlockingOverlay(t('status.themeSwitching', 'Switching theme...'));
+				}
+			}
+
 			api.post('pufferdesk_save_theme', {
 				theme_id: themeId
 			})
@@ -1679,14 +1687,15 @@
 						return;
 					}
 
-						status.textContent = t('status.themeSaved', 'Theme saved.');
-						window.setTimeout(() => {
-							window.location.href = config.shellUrl || window.location.href;
-						}, 250);
-					})
-					.catch((error) => {
-						status.textContent = error && error.message ? error.message : t('status.themeSaveError', 'Theme could not be saved.');
-					});
+					status.textContent = t('status.themeSaved', 'Theme saved.');
+					showThemeSwitchOverlay();
+					window.setTimeout(() => {
+						window.location.href = config.shellUrl || window.location.href;
+					}, 320);
+				})
+				.catch((error) => {
+					status.textContent = error && error.message ? error.message : t('status.themeSaveError', 'Theme could not be saved.');
+				});
 			}
 
 			const content = dom.createElement('div', 'pdk-settings');

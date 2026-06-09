@@ -1,0 +1,50 @@
+(function () {
+	'use strict';
+
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
+
+	window.PufferDesk.apps.createNativeAppOpener = function createNativeAppOpener(options = {}) {
+		const appMap = options.appMap instanceof Map ? options.appMap : new Map();
+		const manager = options.manager || null;
+		const onOpen = typeof options.onOpen === 'function' ? options.onOpen : () => {};
+		const resolveWindowOptions = typeof options.resolveWindowOptions === 'function'
+			? options.resolveWindowOptions
+			: () => null;
+
+		function getApp(appId) {
+			return appMap.get(appId) || null;
+		}
+
+		function canOpen(appId) {
+			const app = getApp(appId);
+
+			return Boolean(app && app.kind === 'native');
+		}
+
+		function open(appId) {
+			const app = getApp(appId);
+
+			if (!app || app.kind !== 'native') {
+				return null;
+			}
+
+			const windowOptions = resolveWindowOptions(app.id, app);
+			if (!windowOptions || !manager || typeof manager.createWindow !== 'function') {
+				return null;
+			}
+
+			const win = manager.createWindow(windowOptions);
+			if (win) {
+				onOpen(app, win);
+			}
+
+			return win || null;
+		}
+
+		return {
+			canOpen,
+			open
+		};
+	};
+})();

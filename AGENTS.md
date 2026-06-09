@@ -37,7 +37,7 @@ Never:
 - Do not introduce external dependencies casually.
 - Do not ship minified assets without keeping readable source files and source references.
 - Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled platform font files. OS theme assets must be original, licensed for redistribution, or otherwise release-safe.
-- Do not commit `node_modules/`, `release/`, `.DS_Store`, local credentials, or machine-specific state.
+- Do not commit `node_modules/`, `release/`, `.DS_Store`, undocumented local credentials, production credentials, or machine-specific state. The documented local WordPress login in the validation section is for this private development machine only; `AGENTS.md` is excluded from release packaging.
 
 ## Directory Map
 
@@ -59,6 +59,10 @@ PHP services in `includes/`:
 - `class-pufferdesk-router.php`: mode toggles, shell URL, iframe/classic routing.
 - `class-pufferdesk-user-preferences.php`: per-user mode/theme preferences.
 - `class-pufferdesk-app-registry.php`: app/folder registry and app normalization.
+- `class-pufferdesk-app-badge-normalizer.php`: app badge descriptor and WordPress menu count normalization.
+- `class-pufferdesk-app-menu-normalizer.php`: schema-driven app menu normalization and default app menus.
+- `class-pufferdesk-app-normalizer.php`: app descriptor capability, dock, about, badge, and menu normalization.
+- `class-pufferdesk-admin-menu-app-provider.php`: WordPress top-level admin menu to app provider.
 - `class-pufferdesk-widget-registry.php`: desktop widget registry and widget normalization.
 - `class-pufferdesk-widget-layout.php`: shared widget layout attributes for templates.
 - `class-pufferdesk-theme-registry.php`: theme family/version/parent inheritance.
@@ -66,6 +70,7 @@ PHP services in `includes/`:
 - `class-pufferdesk-workspace-state.php`: per-user/per-site/per-theme workspace layout persistence and sanitization.
 - `class-pufferdesk-shell-context.php`: shared resolved shell state for templates and runtime config.
 - `class-pufferdesk-runtime-config.php`: browser runtime payload, menu labels, settings labels, and system actions.
+- `class-pufferdesk-settings-registry.php`: settings domain metadata, AJAX actions, defaults, reset domains, and panel ownership.
 - `class-pufferdesk-asset-manifest.php`: source/dist asset manifest reader for enqueue order.
 - `class-pufferdesk-assets.php`: CSS/JS registration, enqueueing, and admin chrome classes.
 - `class-pufferdesk-shell-renderer.php`: template rendering and theme override resolution.
@@ -98,20 +103,29 @@ CSS:
 - `assets/css/core/explorer.css`: Explorer-style folder/settings shared surfaces.
 - `assets/css/core/dock.css`: dock.
 - `assets/css/core/responsive.css`: responsive rules.
-- `assets/css/themes/{family}/base.css`: theme-family visual base.
+- `assets/css/themes/{family}/base.css`: optional theme-family visual base when a family truly has shared CSS.
 - `assets/css/themes/{family}/{version}.css`: theme-version visual skin.
 
 JavaScript:
 
 - `assets/js/core/boot.js`: shell boot order.
+- `assets/js/core/api/`: Desktop API and other stable browser facades.
 - `assets/js/core/config.js`: runtime payload accessor.
 - `assets/js/core/dom.js`: shared DOM helpers.
+- `assets/js/core/events/`: internal event bus.
 - `assets/js/core/services/`: browser storage and AJAX clients.
 - `assets/js/core/session/`: shared workspace session sections.
 - `assets/js/core/preferences/`: appearance, wallpaper, launcher, and menu bar preference appliers.
 - `assets/js/core/windows/`: windows, window factory, window state serialization.
 - `assets/js/core/widgets/`: widget binding, live updates, widget layout persistence.
 - `assets/js/core/apps/`: app launcher, reusable app surfaces such as about windows, and native apps.
+- `assets/js/core/apps/app-window-options.js`: app and native renderer window option resolver used by the launcher.
+- `assets/js/core/apps/native-app-opener.js`: native app opening helper used by the launcher.
+- `assets/js/core/apps/launcher-renderer.js`: shared launcher/folder/trash item button renderer.
+- `assets/js/core/apps/folder-renderer.js`: folder and Trash grid rendering helper.
+- `assets/js/core/apps/folder-data.js`: folder/trash data provider used by the app launcher.
+- `assets/js/core/apps/folder-window-state.js`: folder window tab/history state helper.
+- `assets/js/core/apps/recent-items.js`: recent item persistence helper.
 - `assets/js/core/apps/settings/`: System Settings label normalization, shared UI helpers, and panel factory modules.
 - `assets/js/core/shell/`: search, menu bar clock, command registry, top menus, context menus, global shell controls.
 
@@ -136,6 +150,8 @@ Apps:
 - Apps may define reusable `about` metadata with `name`, `version`, `copyright`, `rights`, and `icon`; do not hard-code app-specific about windows.
 - About metadata must stay GPL-compatible for WordPress distribution. Do not use "All rights reserved" defaults in plugin UI.
 - App-specific top menu behavior belongs in the app's `menu` definition, not in hard-coded menu bar conditionals.
+- Runtime code should prefer `window.PufferDesk.desktopApi` or `window.PufferDesk.desktop.api` for app/window operations instead of reaching directly into the app launcher or window manager. The facade wraps app opening, URL opening, settings panel opening, window create/focus/minimize/maximize/close/move/show-all, command execution/registration, native renderer registration, and event subscription.
+- The window manager emits `window:created`, `window:focused`, `window:closed`, and `window:stateChanged` through `window.PufferDesk.events`. Use this event contract for decoupled module reactions to window lifecycle and state changes instead of patching or directly coupling modules to the window manager.
 - Keep the System Settings Apps panel aligned with app location and login-item preferences. It must use the existing app preference endpoints and respect fixed launcher metadata.
 - The fixed PufferDesk mark opens the system menu. Do not wire it directly to an app; system-menu items belong in the `menu.system` runtime definition.
 - Keep app IDs stable. Layout/session behavior depends on stable IDs.
@@ -152,6 +168,7 @@ Menus:
 - Context menu providers should compose common command-backed items with target-specific items. Do not add right-click behavior inside dock, desktop, widget, or window modules unless it is exposing target state to the shared context menu system.
 - Before adding menu item icons, shortcuts, badges, separators, destructive styling, or other optional adornments, inspect the existing menu surface and match its established visual schema. Do not make one item visually different from peer items unless that whole menu type already uses the same affordance or the renderer contract explicitly requires it.
 - Runtime modules that need custom behavior should register commands through `window.PufferDesk.menuCommands.register()` after boot, staying inside the `window.PufferDesk` namespace.
+- Runtime modules that need decoupled notifications should use `window.PufferDesk.events.on()`, `once()`, `off()`, and `emit()` with stable namespaced event names. Do not create one-off globals or cross-module direct calls when an event or command can express the dependency.
 - Dropdown rendering must stay generic and schema-driven. App-specific items belong in app `menu` definitions.
 - Do not add app-specific menu conditionals to `templates/shell/menu-bar.php` or the menu renderer. Add command-backed data to the registry/schema instead.
 - Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-folder-tab`, `open-url`, `open-about`, `open-system-about`, `open-external-url`, `navigate-url`, `shell.restart`, `shell.switch-classic`, `user.logout`, `session.reset-layout`, `folder.refresh`, `trash.restore`, `trash.delete-immediately`, `trash.empty`, `widget.hide`, `window.focus`, `window.focus-id`, `window.close`, `window.minimize`, `window.reload`, `window.history-back`, `window.history-forward`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
@@ -176,11 +193,13 @@ Themes:
 - Use theme `shell` metadata for OS-family shell surfaces. Supported fields include `chrome`, `top_bar`, `launcher`, `system_menu`, `app_menu`, `status_area`, `launcher_search`, `system_menu_icon`, `launcher_separator`, `fixed_app_locations`, and `labels`; these normalize into shell runtime config and shell `data-pdk-*` attributes.
 - Use theme `window_chrome` metadata for reusable window chrome. Supported fields include `controls.placement`, `controls.order`, `controls.style`, `controls.labels`, `title.alignment`, and `title.show_icon`; do not hard-code family-specific window controls in JS.
 - Use theme `surfaces` metadata for native app layout families. Supported fields include `settings` (`pufferdesk-settings`, `windows-settings`) and `folder` (`finder`, `file-explorer`). Do not make other OS families inherit PufferDesk/Finder-specific Settings, folder toolbar, sidebar, or titlebar layouts by styling alone.
+- Use theme `dialogs` metadata for confirmation dialog style and confirmation policy. Supported fields include `style` (`floating`, `system-window`) and `confirmations.{action_id}` with `enabled`, `variant`, `icon`, and `default_action`. For example, `move_folder_to_trash` may be disabled for PufferDesk-style move-to-Trash behavior and enabled for Redmond-style delete confirmations. Keep dialog behavior in the shared shell dialog service and command policy; keep visual skin in theme CSS using `data-pdk-dialog-style` and `data-pdk-dialog-variant`.
 - Use theme shell labels for family-specific vocabulary such as Dock versus Taskbar. Do not hard-code launcher labels in settings panels, menus, or context menus when a runtime label exists.
 - Use theme `app_labels` and `menu.labels` for family-specific app/menu vocabulary such as Trash versus Recycle Bin. Keep app IDs and command IDs stable.
 - Use theme shell labels for family-specific minimize animation option labels when a theme should not expose another OS family's vocabulary. Keep stored option values stable.
 - Shell metadata is executable, not decorative. `top_bar`, `launcher`, `system_menu`, `app_menu`, and `status_area` must match rendered shell surfaces and settings capability visibility.
 - Use theme `typography` metadata for font stacks, type scale, line heights, weights, and neutral letter spacing. Typography normalizes into shell CSS variables; do not hard-code family-specific fonts or type sizes into component CSS when a token exists.
+- Use theme `tokens` metadata for shared colors, material/glass effects, spacing, radii, borders, and shadows. Explicit tokens normalize into shell CSS variables before first paint; do not fill missing tokens from generic defaults because emitted inline variables override concrete theme CSS such as dark-mode colors and family-specific window radii. Use `mode_tokens.light` and `mode_tokens.dark` for appearance-dependent surface values such as context menus, Settings panels/sidebar chrome, reusable window chrome, and Explorer/Finder rows or toolbars; mode tokens emit as scoped CSS rules so material and accessibility overrides can still win through specificity. Core CSS can keep fallback values, but new reusable visual constants should flow through the token contract when future theme families may need to change them. Current shared radius tokens include `window`, `window_maximized`, and `menu_popover`.
 - Do not bundle Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform font files. Use system font stacks or original/licensed font assets only.
 - Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `wallpapers`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
 - Bundled themes should use `media.wallpapers.default` to choose their starting wallpaper from the shared wallpaper catalog. Do not give bundled themes separate wallpaper option lists unless the product intentionally needs a private theme pack.
@@ -231,6 +250,12 @@ Session:
 - Do not overwrite the whole session blob from one module.
 - New desktop object types should add their own section instead of hijacking `windows` or `widgets`.
 - Keep workspace state scoped by site, user, and theme. Theme-specific layouts are expected because OS families can use different shell geometry.
+
+Settings:
+
+- Settings domains are described by `PufferDesk_Settings_Registry`. Keep domain IDs, AJAX action names, user meta keys, and reset domain IDs stable.
+- Existing preference handlers may keep their current payload shape, but new settings domains should declare capability, default, reset behavior, sanitizer owner, and panel ownership in the registry before adding UI.
+- Use the `pufferdesk_settings_domains` filter only to add or describe compatible domains; do not use it to mutate existing core contracts in a way that breaks saved preferences.
 
 ## WordPress Coding Standards
 
@@ -309,6 +334,22 @@ Do not edit generated dist files by hand. Change source files, then run `npm run
 
 ## WordPress Local Validation
 
+This local environment is available on the project owner's machine for browser and WP-CLI validation. Treat these credentials as local-only development credentials, not production credentials.
+
+Local admin URLs:
+
+```text
+https://newwp:7890/wp-admin/
+https://newwp:7890/wp-admin/admin.php?page=pufferdesk-admin-desktop
+```
+
+Local admin login:
+
+```text
+Username: admin
+Password: deneme
+```
+
 Local WordPress path:
 
 ```bash
@@ -321,13 +362,34 @@ Plugin path:
 /Users/senolsahin/Sites/new/wp-content/plugins/pufferdesk-admin-desktop
 ```
 
+Local database constants from `wp-config.php`:
+
+```text
+DB_NAME: wp_newwp_db
+DB_USER: wp_newwp_user
+DB_PASSWORD: wp_newwp_pw
+DB_HOST: localhost
+table_prefix: wp_
+```
+
 WP-CLI needs the MAMP MySQL socket:
 
 ```bash
 php -d mysqli.default_socket=/Applications/MAMP/tmp/mysql/mysql.sock /usr/local/bin/wp --path=/Users/senolsahin/Sites/new <command>
 ```
 
-WP-CLI may print PHP deprecation warnings from WP-CLI internals on newer PHP versions. If the command exits successfully and the warning is from the WP-CLI phar/vendor code, do not treat it as a plugin failure.
+Use WordPress APIs and WP-CLI before touching the database directly. Direct DB queries are for inspection or last-resort repair only.
+
+Debug flags and logs:
+
+```text
+WP_DEBUG: true
+SCRIPT_DEBUG: true
+WP_DEBUG_DISPLAY: false
+WP_DEBUG_LOG: /Users/senolsahin/Sites/new/wp-content/uploads/debug-log-manager/newwp_20260510141169755393_debug.log
+```
+
+WP-CLI may print PHP deprecation warnings from WP-CLI internals on newer PHP versions. If the command exits successfully and the warning is from the WP-CLI phar/vendor code, do not treat it as a plugin failure. If WP-CLI fails before loading WordPress because of WP-CLI phar deprecations, retry the same command with `-d error_reporting='E_ALL & ~E_DEPRECATED'`.
 
 Recommended Plugin Check command:
 
@@ -343,6 +405,28 @@ exit $STATUS
 ```
 
 Use this pattern because Finder can recreate `.DS_Store`, and Plugin Check should not scan ignored development/release directories.
+
+### Browser Smoke Testing
+
+Browser testing is not required for every small text-only or isolated PHP metadata change. Use judgment:
+
+- For small non-visual, non-runtime edits: run `npm run check`; add targeted WP-CLI checks when PHP behavior changed.
+- For CSS, JavaScript, template, theme, Settings, menu, window manager, workspace state, asset loading, or runtime config changes: test the local PufferDesk page in a browser.
+- For broad architectural or release-impacting changes: run `npm run check`, Plugin Check, `npm run package`, and perform the browser smoke matrix below.
+
+Minimum browser smoke matrix for meaningful UI/runtime changes:
+
+- Log in at `https://newwp:7890/wp-admin/` if needed, then open `https://newwp:7890/wp-admin/admin.php?page=pufferdesk-admin-desktop`.
+- Confirm the shell loads without visible PHP errors or blocking console errors.
+- Test the current theme and, when theme tokens/chrome changed, both PufferDesk and Redmond in light and dark modes. Restore the user's original theme and appearance afterward.
+- Open the system/site menu, top menus, and a desktop/context menu; check readability, hover/disabled states, separators, and z-index.
+- Open System Settings; verify the sidebar, General panel, Appearance panel, theme selector, and any panel touched by the change.
+- Open at least one folder window; check sidebar, toolbar, content surface, titlebar controls, focus state, and dark/light styling.
+- For Dock/taskbar changes, check launcher items, fixed items, badges, running indicators, tooltips, context menus, and minimized windows.
+- For window manager changes, check create/open, focus, close, minimize, maximize/restore, drag, resize, and workspace restoration when relevant.
+- For state/persistence changes, reload the page and verify saved layout/preferences do not overwrite newer server state or unrelated preference domains.
+- Confirm the Classic Admin fallback still works with `/wp-admin/index.php?pufferdesk_classic=1`.
+- Do not click destructive Settings actions such as full erase/reset, permanent delete, or content deletion unless the task explicitly requires it.
 
 ## Release and GitHub
 

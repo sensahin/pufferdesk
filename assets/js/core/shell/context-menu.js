@@ -74,6 +74,10 @@
 			return folderManager && typeof folderManager.getTrashItem === 'function' ? folderManager.getTrashItem(trashId) : null;
 		}
 
+		function getTrashCount() {
+			return folderManager && typeof folderManager.getTrashCount === 'function' ? folderManager.getTrashCount() : 0;
+		}
+
 		function getFolderTabDetails(detail = {}) {
 			const win = detail.windowElement || null;
 			const tabs = win
@@ -292,6 +296,10 @@
 				return [];
 			}
 
+			if (detail.type === 'desktop-app' && isRedmondFamily() && app.id === 'trash') {
+				return getRedmondRecycleBinItems(app);
+			}
+
 			const folderId = detail.folderId || '';
 			const addToFolderItems = getUserFolders()
 				.filter((folder) => folder.id !== folderId)
@@ -344,6 +352,52 @@
 			);
 
 			return items;
+		}
+
+		function getRedmondRecycleBinItems(app) {
+			const hasTrashItems = getTrashCount() > 0;
+
+			return [
+				actionStrip([
+					commandItem(getLabel('rename', 'Rename'), 'desktop-icon.rename', {
+						icon: 'dashicons-edit',
+						id: 'rename',
+						target: app.id
+					})
+				], {
+					id: 'recycle-bin-actions'
+				}),
+				commandItem(getLabel('open', 'Open'), 'open-app', {
+					icon: app.icon || 'dashicons-trash',
+					id: 'recycle-bin-open',
+					shortcut: getLabel('enter_key', 'Enter'),
+					target: app.id
+				}),
+				commandItem(getLabel('empty_trash', 'Empty Recycle Bin'), 'trash.empty', {
+					disabled: !hasTrashItems,
+					icon: 'dashicons-trash',
+					id: 'recycle-bin-empty'
+				}),
+				disabledItem(getLabel('pin_to_quick_access', 'Pin to Quick Access'), {
+					icon: 'dashicons-admin-links',
+					id: 'recycle-bin-pin-quick-access'
+				}),
+				disabledItem(getLabel('pin_to_start', 'Pin to Start'), {
+					icon: 'dashicons-admin-links',
+					id: 'recycle-bin-pin-start'
+				}),
+				commandItem(getLabel('properties', 'Properties'), 'folder.get-info', {
+					icon: 'dashicons-admin-tools',
+					id: 'recycle-bin-properties',
+					shortcut: 'Alt+Enter',
+					target: 'trash'
+				}),
+				separator(),
+				disabledItem(getLabel('show_more_options', 'Show more options'), {
+					icon: 'dashicons-external',
+					id: 'recycle-bin-show-more-options'
+				})
+			];
 		}
 
 		function getDockOptionsItem(app, state) {

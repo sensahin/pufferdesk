@@ -49,59 +49,56 @@ final class PufferDesk_Settings_Controller {
 	private $workspace_state;
 
 	/**
+	 * Settings registry.
+	 *
+	 * @var PufferDesk_Settings_Registry
+	 */
+	private $settings_registry;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param PufferDesk_User_Preferences $preferences User preferences.
-	 * @param PufferDesk_App_Registry     $app_registry App registry.
-	 * @param PufferDesk_Theme_Registry   $theme_registry Theme registry.
+	 * @param PufferDesk_User_Preferences   $preferences User preferences.
+	 * @param PufferDesk_App_Registry       $app_registry App registry.
+	 * @param PufferDesk_Theme_Registry     $theme_registry Theme registry.
 	 * @param PufferDesk_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
-	 * @param PufferDesk_Workspace_State  $workspace_state Workspace state service.
+	 * @param PufferDesk_Workspace_State    $workspace_state Workspace state service.
+	 * @param PufferDesk_Settings_Registry  $settings_registry Settings registry.
 	 */
 	public function __construct(
 		PufferDesk_User_Preferences $preferences,
 		PufferDesk_App_Registry $app_registry,
 		PufferDesk_Theme_Registry $theme_registry,
 		PufferDesk_Wallpaper_Registry $wallpaper_registry,
-		PufferDesk_Workspace_State $workspace_state
+		PufferDesk_Workspace_State $workspace_state,
+		PufferDesk_Settings_Registry $settings_registry
 	) {
 		$this->preferences        = $preferences;
 		$this->app_registry       = $app_registry;
 		$this->theme_registry     = $theme_registry;
 		$this->wallpaper_registry = $wallpaper_registry;
 		$this->workspace_state    = $workspace_state;
+		$this->settings_registry  = $settings_registry;
 	}
 
 	/**
 	 * Register AJAX hooks.
 	 */
 	public function hooks() {
-		add_action( 'wp_ajax_pufferdesk_save_appearance', array( $this, 'save_appearance' ) );
-		add_action( 'wp_ajax_pufferdesk_save_app_login_items', array( $this, 'save_app_login_items' ) );
-		add_action( 'wp_ajax_pufferdesk_save_app_locations', array( $this, 'save_app_locations' ) );
-		add_action( 'wp_ajax_pufferdesk_save_desktop_dock', array( $this, 'save_desktop_dock' ) );
-		add_action( 'wp_ajax_pufferdesk_save_desktop_folders', array( $this, 'save_desktop_folders' ) );
-		add_action( 'wp_ajax_pufferdesk_save_desktop_trash', array( $this, 'save_desktop_trash' ) );
-		add_action( 'wp_ajax_pufferdesk_save_menu_bar', array( $this, 'save_menu_bar' ) );
-		add_action( 'wp_ajax_pufferdesk_save_theme', array( $this, 'save_theme' ) );
-		add_action( 'wp_ajax_pufferdesk_save_wallpaper', array( $this, 'save_wallpaper' ) );
-		add_action( 'wp_ajax_pufferdesk_remove_wallpaper_upload', array( $this, 'remove_wallpaper_upload' ) );
-		add_action( 'wp_ajax_pufferdesk_reset', array( $this, 'reset_preferences' ) );
+		foreach ( $this->settings_registry->get_ajax_actions() as $action => $metadata ) {
+			if ( empty( $metadata['handler'] ) || ! method_exists( $this, $metadata['handler'] ) ) {
+				continue;
+			}
+
+			add_action( 'wp_ajax_' . $action, array( $this, $metadata['handler'] ) );
+		}
 	}
 
 	/**
 	 * Save the current user's Desktop & Dock settings.
 	 */
 	public function save_desktop_dock() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ),
-				),
-				403
-			);
-		}
-
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+		$this->require_domain_access( 'desktop_dock', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
 
 		$desktop_dock = $this->preferences->set_desktop_dock(
 			array(
@@ -131,18 +128,11 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's app placement settings.
 	 */
 	public function save_app_locations() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ),
-				),
-				403
-			);
-		}
+		$this->require_domain_access( 'app_locations', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
 
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
-
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
 		$raw_locations = isset( $_POST['locations'] )
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
 			? sanitize_text_field( wp_unslash( $_POST['locations'] ) )
 			: array();
 		$locations     = is_string( $raw_locations ) ? json_decode( $raw_locations, true ) : $raw_locations;
@@ -164,18 +154,11 @@ final class PufferDesk_Settings_Controller {
 	 * Save apps that should open when PufferDesk starts.
 	 */
 	public function save_app_login_items() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ),
-				),
-				403
-			);
-		}
+		$this->require_domain_access( 'app_login_items', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
 
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
-
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
 		$raw_items = isset( $_POST['items'] )
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
 			? sanitize_text_field( wp_unslash( $_POST['items'] ) )
 			: array();
 		$items     = is_string( $raw_items ) ? json_decode( $raw_items, true ) : $raw_items;
@@ -197,16 +180,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's desktop folders.
 	 */
 	public function save_desktop_folders() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to change PufferDesk folders.', 'pufferdesk-admin-desktop' ),
-				),
-				403
-			);
-		}
-
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+		$this->require_domain_access( 'desktop_folders', __( 'You do not have permission to change PufferDesk folders.', 'pufferdesk-admin-desktop' ) );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The settings nonce is verified above.
 		$raw_folders = isset( $_POST['folders'] ) && ! is_array( $_POST['folders'] )
@@ -232,16 +206,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's desktop Trash.
 	 */
 	public function save_desktop_trash() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to change PufferDesk Trash.', 'pufferdesk-admin-desktop' ),
-				),
-				403
-			);
-		}
-
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+		$this->require_domain_access( 'desktop_trash', __( 'You do not have permission to change PufferDesk Trash.', 'pufferdesk-admin-desktop' ) );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The settings nonce is verified above.
 		$raw_items = isset( $_POST['items'] ) && ! is_array( $_POST['items'] )
@@ -267,16 +232,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's appearance settings.
 	 */
 	public function save_appearance() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ),
-				),
-				403
-			);
-		}
-
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+		$this->require_domain_access( 'appearance', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
 
 		$appearance = $this->preferences->set_appearance(
 			array(
@@ -299,16 +255,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's Menu Bar settings.
 	 */
 	public function save_menu_bar() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ),
-				),
-				403
-			);
-		}
-
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+		$this->require_domain_access( 'menu_bar', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
 
 		$menu_bar = $this->preferences->set_menu_bar(
 			array(
@@ -330,18 +277,11 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's selected theme.
 	 */
 	public function save_theme() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ),
-				),
-				403
-			);
-		}
+		$this->require_domain_access( 'theme', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
 
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
-
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
 		$theme_id = isset( $_POST['theme_id'] )
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
 			? sanitize_key( wp_unslash( $_POST['theme_id'] ) )
 			: '';
 
@@ -375,16 +315,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's wallpaper preference.
 	 */
 	public function save_wallpaper() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ),
-				),
-				403
-			);
-		}
-
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+		$this->require_domain_access( 'wallpaper', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
 
 		$wallpaper = $this->preferences->sanitize_wallpaper(
 			array(
@@ -421,16 +352,7 @@ final class PufferDesk_Settings_Controller {
 	 * Remove a saved uploaded wallpaper from the current user's photo list.
 	 */
 	public function remove_wallpaper_upload() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ),
-				),
-				403
-			);
-		}
-
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+		$this->require_domain_access( 'wallpaper_uploads', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
 
 		$attachment_id = absint( $this->read_post_value( 'attachment_id' ) );
 		if ( ! $attachment_id ) {
@@ -465,16 +387,7 @@ final class PufferDesk_Settings_Controller {
 	 * Reset current-user PufferDesk preference domains.
 	 */
 	public function reset_preferences() {
-		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => __( 'You do not have permission to reset PufferDesk settings.', 'pufferdesk-admin-desktop' ),
-				),
-				403
-			);
-		}
-
-		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+		$this->require_domain_access( 'reset', __( 'You do not have permission to reset PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
 
 		$profile = sanitize_key( $this->read_post_value( 'profile' ) );
 		$domains = $this->preferences->get_reset_domains_for_profile( $profile );
@@ -503,6 +416,28 @@ final class PufferDesk_Settings_Controller {
 				'workspaceStatesReset' => $workspace_states_reset,
 			)
 		);
+	}
+
+	/**
+	 * Verify settings nonce and current-user capability for a settings domain.
+	 *
+	 * @param string $domain_id Settings domain ID.
+	 * @param string $message Permission error message.
+	 */
+	private function require_domain_access( $domain_id, $message ) {
+		$domain     = $this->settings_registry->get_domain( $domain_id );
+		$capability = isset( $domain['capability'] ) ? sanitize_key( $domain['capability'] ) : PufferDesk_Settings_Registry::CAPABILITY;
+
+		if ( ! is_user_logged_in() || ! current_user_can( $capability ) ) {
+			wp_send_json_error(
+				array(
+					'message' => $message,
+				),
+				403
+			);
+		}
+
+		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
 	}
 
 	/**

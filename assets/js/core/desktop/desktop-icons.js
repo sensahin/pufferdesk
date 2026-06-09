@@ -122,6 +122,56 @@
 			return String(label).trim().toLowerCase();
 		}
 
+		function getIconLabelElement(icon) {
+			return icon ? icon.querySelector('.pdk-desktop-app-label') : null;
+		}
+
+		function getIconDefaultLabel(icon) {
+			return String(icon && icon.dataset ? icon.dataset.pdkDesktopIconDefaultLabel || icon.dataset.pdkContextLabel || '' : '').trim();
+		}
+
+		function getIconCurrentLabel(icon) {
+			const label = getIconLabelElement(icon);
+
+			return String(label ? label.textContent : '').trim();
+		}
+
+		function setIconLabelOverride(icon, label) {
+			const labelElement = getIconLabelElement(icon);
+			const nextLabel = String(label || '').trim();
+			const defaultLabel = getIconDefaultLabel(icon);
+
+			if (!icon || !labelElement || !nextLabel) {
+				return false;
+			}
+
+			labelElement.textContent = nextLabel;
+			icon.dataset.pdkContextLabel = nextLabel;
+			icon.setAttribute('aria-label', nextLabel);
+
+			if (defaultLabel && nextLabel === defaultLabel) {
+				delete icon.dataset.pdkDesktopIconLabelOverride;
+			} else {
+				icon.dataset.pdkDesktopIconLabelOverride = '1';
+			}
+
+			return true;
+		}
+
+		function canRenameIcon(icon) {
+			if (!icon || icon.hidden || icon.classList.contains('is-renaming')) {
+				return false;
+			}
+
+			if (typeof options.canRenameIcon !== 'function') {
+				return false;
+			}
+
+			return Boolean(options.canRenameIcon(Object.assign(getIconDetail(icon), {
+				iconElement: icon
+			})));
+		}
+
 		function getKindLabel(icon) {
 			const kind = icon.dataset.pdkDesktopIconKind || 'item';
 			if (kind === 'folder') {
@@ -384,12 +434,20 @@
 			}
 
 			if (typeof options.onRenameIcon !== 'function') {
-				return false;
+				return startInlineRenameIcon({
+					iconElement: selectedIcon
+				});
 			}
 
-			return Boolean(options.onRenameIcon(Object.assign(getIconDetail(selectedIcon), {
+			if (options.onRenameIcon(Object.assign(getIconDetail(selectedIcon), {
 				iconElement: selectedIcon
-			})));
+			}))) {
+				return true;
+			}
+
+			return startInlineRenameIcon({
+				iconElement: selectedIcon
+			});
 		}
 
 		function setDropTarget(target) {
@@ -624,11 +682,19 @@
 					return;
 				}
 
-				stored.set(id, {
+				const item = {
 					id,
 					kind: icon.dataset.pdkDesktopIconKind || 'item',
 					state: readIconState(icon)
-				});
+				};
+				const currentLabel = getIconCurrentLabel(icon);
+				const defaultLabel = getIconDefaultLabel(icon);
+
+				if (icon.dataset.pdkDesktopIconLabelOverride === '1' && currentLabel && currentLabel !== defaultLabel) {
+					item.label = currentLabel;
+				}
+
+				stored.set(id, item);
 			});
 
 			return Array.from(stored.values());
@@ -656,6 +722,127 @@
 			window.setTimeout(() => {
 				delete icon.dataset.pdkSuppressClick;
 			}, 0);
+		}
+
+		function findIconForRename(detail = {}) {
+			if (detail.iconElement && desktop && desktop.contains(detail.iconElement)) {
+				return detail.iconElement;
+			}
+
+			const key = detail.key || (detail.kind && detail.id ? `${detail.kind}:${detail.id}` : '');
+			if (key) {
+				return getIcons().find((icon) => getIconKey(icon) === key) || null;
+			}
+
+			if (detail.id) {
+				return getIcons().find((icon) => getIconDetail(icon).id === detail.id) || null;
+			}
+
+			return getPrimarySelectedIcon();
+		}
+
+		function startInlineRenameIcon(detail = {}) {
+			const icon = findIconForRename(detail);
+			const label = getIconLabelElement(icon);
+			if (!icon || !label || label.dataset.pdkInlineRename === '1' || !canRenameIcon(icon)) {
+				return false;
+			}
+
+			const originalLabel = getIconCurrentLabel(icon) || getIconDefaultLabel(icon);
+			let finished = false;
+			const renameMetrics = (() => {
+				const iconRect = icon.getBoundingClientRect();
+				const labelRect = label.getBoundingClientRect();
+
+				if (!iconRect.width || !labelRect.width || !labelRect.height) {
+					return null;
+				}
+
+				return {
+					height: labelRect.height,
+					left: labelRect.left - iconRect.left + (labelRect.width / 2),
+					top: labelRect.top - iconRect.top,
+					width: labelRect.width
+				};
+			})();
+
+			if (renameMetrics) {
+				icon.style.setProperty('--pdk-desktop-rename-left', `${renameMetrics.left.toFixed(2)}px`);
+				icon.style.setProperty('--pdk-desktop-rename-top', `${renameMetrics.top.toFixed(2)}px`);
+				icon.style.setProperty('--pdk-desktop-rename-width', `${Math.ceil(renameMetrics.width)}px`);
+				icon.style.setProperty('--pdk-desktop-rename-height', `${Math.ceil(renameMetrics.height)}px`);
+			}
+
+			function cleanup() {
+				label.removeEventListener('blur', onBlur);
+				label.removeEventListener('keydown', onKeyDown);
+				label.removeEventListener('click', stopEditingEvent);
+				label.removeEventListener('pointerdown', stopEditingEvent);
+				label.removeAttribute('contenteditable');
+				label.removeAttribute('spellcheck');
+				delete label.dataset.pdkInlineRename;
+				icon.classList.remove('is-renaming');
+				icon.style.removeProperty('--pdk-desktop-rename-left');
+				icon.style.removeProperty('--pdk-desktop-rename-top');
+				icon.style.removeProperty('--pdk-desktop-rename-width');
+				icon.style.removeProperty('--pdk-desktop-rename-height');
+			}
+
+			function finish(commit) {
+				if (finished) {
+					return;
+				}
+
+				finished = true;
+				const nextLabel = String(label.textContent || '').trim();
+				cleanup();
+
+				if (commit) {
+					setIconLabelOverride(icon, nextLabel || originalLabel);
+					saveSession();
+				} else {
+					setIconLabelOverride(icon, originalLabel);
+				}
+			}
+
+			function stopEditingEvent(event) {
+				event.stopPropagation();
+			}
+
+			function onBlur() {
+				finish(true);
+			}
+
+			function onKeyDown(event) {
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					finish(true);
+				} else if (event.key === 'Escape') {
+					event.preventDefault();
+					finish(false);
+				}
+			}
+
+			icon.classList.add('is-renaming');
+			icon.dataset.pdkSuppressClick = '1';
+			label.dataset.pdkInlineRename = '1';
+			label.setAttribute('contenteditable', 'plaintext-only');
+			label.setAttribute('spellcheck', 'false');
+			label.addEventListener('blur', onBlur);
+			label.addEventListener('keydown', onKeyDown);
+			label.addEventListener('click', stopEditingEvent);
+			label.addEventListener('pointerdown', stopEditingEvent);
+			label.focus({ preventScroll: true });
+
+			const selection = window.getSelection();
+			const range = document.createRange();
+			range.selectNodeContents(label);
+			if (selection) {
+				selection.removeAllRanges();
+				selection.addRange(range);
+			}
+
+			return true;
 		}
 
 		function getDragItems(sourceIcon) {
@@ -980,6 +1167,9 @@
 				const id = getIconKey(icon);
 				const item = id ? stored.get(id) : null;
 
+				if (item && typeof item.label === 'string' && item.label.trim()) {
+					setIconLabelOverride(icon, item.label);
+				}
 				applyIconState(icon, item ? item.state : null, index);
 			});
 
@@ -1033,6 +1223,7 @@
 			restoreSession,
 			saveSession,
 			setSortMode,
+			startInlineRename: startInlineRenameIcon,
 			sortModes: sortModes.slice()
 		};
 	};

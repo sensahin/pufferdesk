@@ -21,17 +21,36 @@ $pufferdesk_workspace_state      = isset( $workspace_state ) && is_array( $works
 $pufferdesk_apps_layer_restored  = PufferDesk_Desktop_Layout::layer_has_saved_icon_positions( $apps, $pufferdesk_workspace_state, 'app' );
 $pufferdesk_apps_layer_class     = 'pdk-desktop-apps pdk-desktop-icon-layer';
 $pufferdesk_apps_layer_class    .= $pufferdesk_apps_layer_restored ? ' is-managed' : '';
+$pufferdesk_desktop_icon_labels  = array();
+
+if ( ! empty( $pufferdesk_workspace_state['desktopIcons'] ) && is_array( $pufferdesk_workspace_state['desktopIcons'] ) ) {
+	foreach ( $pufferdesk_workspace_state['desktopIcons'] as $pufferdesk_desktop_icon ) {
+		if ( ! is_array( $pufferdesk_desktop_icon ) || empty( $pufferdesk_desktop_icon['id'] ) || empty( $pufferdesk_desktop_icon['label'] ) ) {
+			continue;
+		}
+
+		$pufferdesk_desktop_icon_id = (string) $pufferdesk_desktop_icon['id'];
+		if ( 0 !== strpos( $pufferdesk_desktop_icon_id, 'app:' ) ) {
+			continue;
+		}
+
+		$pufferdesk_desktop_icon_labels[ substr( $pufferdesk_desktop_icon_id, 4 ) ] = (string) $pufferdesk_desktop_icon['label'];
+	}
+}
 ?>
 <section class="<?php echo esc_attr( $pufferdesk_apps_layer_class ); ?>" aria-label="<?php esc_attr_e( 'Desktop apps', 'pufferdesk-admin-desktop' ); ?>">
 	<?php foreach ( $apps as $pufferdesk_app ) : ?>
 		<?php
-		$pufferdesk_app_label   = isset( $pufferdesk_app['label'] ) ? (string) $pufferdesk_app['label'] : '';
-		$pufferdesk_app_badge   = isset( $pufferdesk_app['badge'] ) && is_array( $pufferdesk_app['badge'] ) ? $pufferdesk_app['badge'] : array();
-		$pufferdesk_badge_text  = isset( $pufferdesk_app_badge['text'] ) ? (string) $pufferdesk_app_badge['text'] : '';
-		$pufferdesk_badge_tone  = isset( $pufferdesk_app_badge['tone'] ) ? sanitize_html_class( (string) $pufferdesk_app_badge['tone'] ) : 'attention';
-		$pufferdesk_badge_tone  = '' !== $pufferdesk_badge_tone ? $pufferdesk_badge_tone : 'attention';
-		$pufferdesk_badge_label = isset( $pufferdesk_app_badge['aria_label'] ) ? (string) $pufferdesk_app_badge['aria_label'] : '';
-		$pufferdesk_aria_label  = '' !== $pufferdesk_badge_label
+		$pufferdesk_app_id                 = isset( $pufferdesk_app['id'] ) ? (string) $pufferdesk_app['id'] : '';
+		$pufferdesk_app_default_label      = isset( $pufferdesk_app['label'] ) ? (string) $pufferdesk_app['label'] : '';
+		$pufferdesk_app_has_label_override = isset( $pufferdesk_desktop_icon_labels[ $pufferdesk_app_id ] );
+		$pufferdesk_app_label              = $pufferdesk_app_has_label_override ? $pufferdesk_desktop_icon_labels[ $pufferdesk_app_id ] : $pufferdesk_app_default_label;
+		$pufferdesk_app_badge              = isset( $pufferdesk_app['badge'] ) && is_array( $pufferdesk_app['badge'] ) ? $pufferdesk_app['badge'] : array();
+		$pufferdesk_badge_text             = isset( $pufferdesk_app_badge['text'] ) ? (string) $pufferdesk_app_badge['text'] : '';
+		$pufferdesk_badge_tone             = isset( $pufferdesk_app_badge['tone'] ) ? sanitize_html_class( (string) $pufferdesk_app_badge['tone'] ) : 'attention';
+		$pufferdesk_badge_tone             = '' !== $pufferdesk_badge_tone ? $pufferdesk_badge_tone : 'attention';
+		$pufferdesk_badge_label            = isset( $pufferdesk_app_badge['aria_label'] ) ? (string) $pufferdesk_app_badge['aria_label'] : '';
+		$pufferdesk_aria_label             = '' !== $pufferdesk_badge_label
 			? sprintf(
 				/* translators: 1: app label, 2: app badge accessibility label. */
 				__( '%1$s, %2$s', 'pufferdesk-admin-desktop' ),
@@ -44,14 +63,18 @@ $pufferdesk_apps_layer_class    .= $pufferdesk_apps_layer_restored ? ' is-manage
 			type="button"
 			class="pdk-desktop-icon pdk-desktop-app"
 			data-pdk-context="desktop-app"
-			data-pdk-context-id="<?php echo esc_attr( $pufferdesk_app['id'] ); ?>"
+			data-pdk-context-id="<?php echo esc_attr( $pufferdesk_app_id ); ?>"
 			data-pdk-context-label="<?php echo esc_attr( $pufferdesk_app_label ); ?>"
 			data-pdk-desktop-icon
-			data-pdk-desktop-icon-id="<?php echo esc_attr( 'app:' . $pufferdesk_app['id'] ); ?>"
+			data-pdk-desktop-icon-default-label="<?php echo esc_attr( $pufferdesk_app_default_label ); ?>"
+			data-pdk-desktop-icon-id="<?php echo esc_attr( 'app:' . $pufferdesk_app_id ); ?>"
 			data-pdk-desktop-icon-kind="app"
-			data-pdk-open-app="<?php echo esc_attr( $pufferdesk_app['id'] ); ?>"
+			data-pdk-open-app="<?php echo esc_attr( $pufferdesk_app_id ); ?>"
+			<?php if ( $pufferdesk_app_has_label_override ) : ?>
+				data-pdk-desktop-icon-label-override="1"
+			<?php endif; ?>
 			<?php if ( $pufferdesk_apps_layer_restored ) : ?>
-				<?php PufferDesk_Desktop_Layout::render_icon_attributes( 'app:' . $pufferdesk_app['id'], $pufferdesk_workspace_state ); ?>
+				<?php PufferDesk_Desktop_Layout::render_icon_attributes( 'app:' . $pufferdesk_app_id, $pufferdesk_workspace_state ); ?>
 			<?php endif; ?>
 			aria-label="<?php echo esc_attr( $pufferdesk_aria_label ); ?>"
 		>

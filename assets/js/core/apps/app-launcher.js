@@ -9,23 +9,76 @@
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const folders = Array.isArray(config.folders) ? config.folders : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
-		const folderMap = new Map(folders.map((folder) => [folder.id, folder]));
-			const folderWindowHistory = new WeakMap();
-			const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
-			const explorerSortModes = new Set(['none', 'name', 'kind']);
-			const explorerViewModes = new Set(['extra-large-icons', 'large-icons', 'medium-icons', 'small-icons', 'list', 'details', 'tiles', 'content']);
-			const trashFolderId = 'trash';
-			let folderTabSequence = 0;
-			let folderProvider = null;
-			let explorerCommandMenu = null;
-			let explorerCommandMenuButton = null;
-			let explorerCommandMenuCleanup = null;
+		const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
+		const explorerSortModes = new Set(['none', 'name', 'kind']);
+		const explorerViewModes = new Set(['extra-large-icons', 'large-icons', 'medium-icons', 'small-icons', 'list', 'details', 'tiles', 'content']);
+		const trashFolderId = 'trash';
+		let folderProvider = null;
+		let explorerCommandMenu = null;
+		let explorerCommandMenuButton = null;
+		let explorerCommandMenuCleanup = null;
 		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object'
 			? config.menu.labels
 			: {};
 		const themeSurfaces = config.theme && config.theme.surfaces && typeof config.theme.surfaces === 'object'
 			? config.theme.surfaces
 			: {};
+		const recentItems = window.PufferDesk.apps.createRecentItemsController
+			? window.PufferDesk.apps.createRecentItemsController(config)
+			: { add() { return false; } };
+		const folderData = window.PufferDesk.apps.createFolderDataProvider
+			? window.PufferDesk.apps.createFolderDataProvider({
+				appMap,
+				apps,
+				folders,
+				getFolderProvider,
+				getMenuLabel,
+				isHiddenFromLaunchSurfaces,
+				trashFolderId
+			})
+			: null;
+		const folderWindows = window.PufferDesk.apps.createFolderWindowState
+			? window.PufferDesk.apps.createFolderWindowState({
+				getFolder: (folderId) => getFolder(folderId)
+			})
+			: null;
+		const appWindowOptions = window.PufferDesk.apps.createAppWindowOptionsResolver
+			? window.PufferDesk.apps.createAppWindowOptionsResolver({
+				appMap,
+				config,
+				manager,
+				nativeApps: window.PufferDesk.apps,
+				shell
+			})
+			: null;
+		const nativeAppOpener = window.PufferDesk.apps.createNativeAppOpener
+			? window.PufferDesk.apps.createNativeAppOpener({
+				appMap,
+				manager,
+				onOpen: recordAppOpen,
+				resolveWindowOptions: getWindowOptions
+			})
+			: null;
+		const launcherRenderer = window.PufferDesk.apps.createLauncherRenderer
+			? window.PufferDesk.apps.createLauncherRenderer({
+				dom,
+				getMenuLabel,
+				openApp,
+				openFolder,
+				renderFolderWindow
+			})
+			: null;
+		const folderRenderer = window.PufferDesk.apps.createFolderRenderer
+			? window.PufferDesk.apps.createFolderRenderer({
+				getExplorerSortMode,
+				getFolderApps,
+				getFolderChildFolders,
+				getMenuLabel,
+				getTrashItems,
+				isFileExplorerLayout,
+				launcherRenderer
+			})
+			: null;
 
 		function getThemeSurface(surface, fallback) {
 			const value = typeof themeSurfaces[surface] === 'string' ? themeSurfaces[surface] : '';
@@ -59,14 +112,16 @@
 		}
 
 		function isTrashFolderId(folderId) {
-			return folderId === trashFolderId;
+			return folderData ? folderData.isTrashFolderId(folderId) : folderId === trashFolderId;
 		}
 
 		function getTrashFolder() {
-			const app = appMap.get('trash') || {};
+			if (folderData) {
+				return folderData.getTrashFolder();
+			}
 
 			return {
-				icon: app.icon || 'dashicons-trash',
+				icon: 'dashicons-trash',
 				id: trashFolderId,
 				kind: 'system',
 				label: getMenuLabel('trash', 'Trash'),
@@ -76,60 +131,27 @@
 		}
 
 		function getFolder(folderId) {
-			const provider = getFolderProvider();
-			const folder = provider && typeof provider.getFolder === 'function' ? provider.getFolder(folderId) : null;
-
-			return folder || folderMap.get(folderId) || (isTrashFolderId(folderId) ? getTrashFolder() : null);
+			return folderData ? folderData.getFolder(folderId) : (isTrashFolderId(folderId) ? getTrashFolder() : null);
 		}
 
 		function getFolders() {
-			const provider = getFolderProvider();
-			const availableFolders = provider && typeof provider.getFolders === 'function'
-				? provider.getFolders()
-				: folders;
-
-			const normalized = Array.isArray(availableFolders) ? availableFolders.filter(Boolean) : [];
-
-			return normalized.some((folder) => folder && folder.id === trashFolderId)
-				? normalized
-				: normalized.concat(getTrashFolder());
+			return folderData ? folderData.getFolders() : [getTrashFolder()];
 		}
 
-			function getFolderApps(folderId) {
-				if (isTrashFolderId(folderId)) {
-					return [];
-				}
+		function getFolderApps(folderId) {
+			return folderData ? folderData.getFolderApps(folderId) : [];
+		}
 
-			const provider = getFolderProvider();
-			const folderApps = provider && typeof provider.getFolderApps === 'function'
-				? provider.getFolderApps(folderId)
-				: apps.filter((app) => app.group === folderId);
-
-				return folderApps.filter((app) => app && !isHiddenFromLaunchSurfaces(app));
-			}
-
-			function getFolderChildFolders(folderId) {
-				if (isTrashFolderId(folderId)) {
-					return [];
-				}
-
-				const provider = getFolderProvider();
-
-				return provider && typeof provider.getFolderChildFolders === 'function'
-					? provider.getFolderChildFolders(folderId).filter(Boolean)
-					: [];
-			}
+		function getFolderChildFolders(folderId) {
+			return folderData ? folderData.getFolderChildFolders(folderId) : [];
+		}
 
 		function getTrashItems() {
-			const provider = getFolderProvider();
-
-			return provider && typeof provider.getTrashItems === 'function' ? provider.getTrashItems() : [];
+			return folderData ? folderData.getTrashItems() : [];
 		}
 
 		function getTrashCount() {
-			const provider = getFolderProvider();
-
-			return provider && typeof provider.getTrashCount === 'function' ? provider.getTrashCount() : getTrashItems().length;
+			return folderData ? folderData.getTrashCount() : getTrashItems().length;
 		}
 
 		function executeCommand(command, payload = {}) {
@@ -148,88 +170,52 @@
 		}
 
 		function isUserFolder(folderId) {
-			const provider = getFolderProvider();
-
-			return Boolean(provider && typeof provider.isUserFolder === 'function' && provider.isUserFolder(folderId));
+			return folderData ? folderData.isUserFolder(folderId) : false;
 		}
 
 		function getFolderInfo(folderId) {
-			const provider = getFolderProvider();
-			const info = provider && typeof provider.getFolderInfo === 'function' ? provider.getFolderInfo(folderId) : null;
-			const folder = info ? null : getFolder(folderId);
-			const folderApps = info ? [] : getFolderApps(folderId);
-
-			return info || (folder ? {
-				canComment: false,
-				canRename: false,
-				comment: '',
-				createdAt: '',
-				icon: folder.icon || 'dashicons-category',
-				id: folder.id,
-				itemCount: folderApps.length,
-				items: folderApps.map((app) => ({ id: app.id, label: app.label, url: app.url || '' })),
-				kind: 'Folder',
-				label: folder.label || 'Folder',
-				lastOpenedAt: '',
-				modifiedAt: '',
-				source: 'WordPress admin group',
-				user: false,
-				where: `WordPress Admin Menu > ${folder.label || 'Folder'}`
-			} : null);
-		}
-
-		function getNativeAppWindowOptions(app, baseOptions) {
-			const getOptions = window.PufferDesk.apps.getNativeAppWindowOptions;
-			const nativeOptions = typeof getOptions === 'function'
-				? getOptions(app.native, {
-					app,
-					baseOptions,
-					config,
-					manager,
-					shell
-				})
-				: null;
-
-			return nativeOptions ? Object.assign({}, baseOptions, nativeOptions) : null;
+			return folderData ? folderData.getFolderInfo(folderId) : null;
 		}
 
 		function getAppWindowOptions(app) {
-			const options = {
-				appId: app.id,
-				title: app.label,
-				windowKind: 'app',
-				icon: app.icon,
-				menu: app.menu || null
-			};
-
-			if (app.window_persistence === 'none') {
-				options.persist = false;
-			}
-
-			if (app.kind === 'native') {
-				return getNativeAppWindowOptions(app, options);
-			}
-
-			options.url = app.url;
-			return options;
+			return appWindowOptions && typeof appWindowOptions.getAppWindowOptions === 'function'
+				? appWindowOptions.getAppWindowOptions(app)
+				: null;
 		}
 
 		function getWindowOptions(appId) {
-			const app = appMap.get(appId);
-			return app ? getAppWindowOptions(app) : null;
+			return appWindowOptions && typeof appWindowOptions.getWindowOptions === 'function'
+				? appWindowOptions.getWindowOptions(appId)
+				: getAppWindowOptions(appMap.get(appId));
 		}
 
 		function addRecentItem(item) {
-			if (!window.PufferDesk.menuBar || typeof window.PufferDesk.menuBar.addRecentItem !== 'function') {
+			recentItems.add(item);
+		}
+
+		function recordAppOpen(app) {
+			if (!app) {
 				return;
 			}
 
-			window.PufferDesk.menuBar.addRecentItem(config, item);
+			addRecentItem({
+				command: 'open-app',
+				icon: app.icon,
+				id: app.id,
+				label: app.label,
+				target: app.id,
+				title: app.label,
+				type: 'app'
+			});
 		}
 
 		function openApp(appId) {
 			if (appId === 'trash') {
 				return openTrash();
+			}
+
+			if (nativeAppOpener && typeof nativeAppOpener.canOpen === 'function' && nativeAppOpener.canOpen(appId)) {
+				return typeof nativeAppOpener.open === 'function' ? nativeAppOpener.open(appId) : null;
 			}
 
 			const options = getWindowOptions(appId);
@@ -240,15 +226,7 @@
 
 			const win = manager.createWindow(options);
 			if (app && win) {
-				addRecentItem({
-					command: 'open-app',
-					icon: app.icon,
-					id: app.id,
-					label: app.label,
-					target: app.id,
-					title: app.label,
-					type: 'app'
-				});
+				recordAppOpen(app);
 			}
 
 			return win;
@@ -339,131 +317,6 @@
 			}
 		}
 
-		function createFolderAppButton(app, folderId = '', removable = false) {
-			const button = document.createElement('button');
-			button.type = 'button';
-			button.className = 'pdk-app-launcher';
-			button.dataset.pdkContext = removable ? 'folder-app' : 'app';
-			button.dataset.pdkContextId = app.id;
-			button.dataset.pdkContextLabel = app.label;
-			if (folderId) {
-				button.dataset.pdkFolderId = folderId;
-			}
-
-			const appIcon = document.createElement('span');
-			appIcon.className = 'pdk-app-icon';
-			appIcon.appendChild(dom.createIcon(app.icon));
-
-			const label = document.createElement('span');
-			label.textContent = app.label;
-
-			button.appendChild(appIcon);
-			button.appendChild(label);
-			button.addEventListener('click', () => openApp(app.id));
-
-			return button;
-		}
-
-		function createFolderChildButton(folder, parentFolderId = '', win = null) {
-			const button = document.createElement('button');
-			const label = folder && folder.label ? folder.label : getMenuLabel('folder', 'Folder');
-
-			button.type = 'button';
-			button.className = 'pdk-app-launcher pdk-folder-launcher';
-			button.dataset.pdkContext = 'folder';
-			button.dataset.pdkContextId = folder.id;
-			button.dataset.pdkContextLabel = label;
-			button.dataset.pdkOpenFolder = folder.id;
-			if (parentFolderId) {
-				button.dataset.pdkFolderId = parentFolderId;
-			}
-			button.setAttribute('aria-label', label);
-			button.setAttribute('aria-pressed', 'false');
-			button.setAttribute('aria-selected', 'false');
-
-			const appIcon = document.createElement('span');
-			appIcon.className = 'pdk-app-icon';
-			appIcon.appendChild(dom.createIcon(folder.icon || 'dashicons-category'));
-
-			const itemLabel = document.createElement('span');
-			itemLabel.textContent = label;
-
-			button.append(appIcon, itemLabel);
-			button.addEventListener('click', (event) => {
-				event.preventDefault();
-				event.stopPropagation();
-				selectFinderItem(button);
-			});
-			button.addEventListener('dblclick', (event) => {
-				event.preventDefault();
-				event.stopPropagation();
-				if (win) {
-					renderFolderWindow(win, folder.id);
-				} else {
-					openFolder(folder.id);
-				}
-			});
-			button.addEventListener('contextmenu', () => {
-				selectFinderItem(button);
-			});
-
-			return button;
-		}
-
-		function selectFinderItem(button) {
-			const grid = button ? button.closest('.pdk-finder-grid') : null;
-
-			if (grid) {
-				grid.querySelectorAll('.pdk-app-launcher.is-selected, .pdk-finder-trash-item.is-selected').forEach((item) => {
-					item.classList.remove('is-selected');
-					item.setAttribute('aria-selected', 'false');
-					item.setAttribute('aria-pressed', 'false');
-				});
-			}
-
-			if (button) {
-				button.classList.add('is-selected');
-				button.setAttribute('aria-selected', 'true');
-				button.setAttribute('aria-pressed', 'true');
-			}
-		}
-
-		function createTrashItemButton(item) {
-			const button = document.createElement('button');
-			const label = item && item.label ? item.label : getMenuLabel('folder', 'Folder');
-			const icon = item && item.icon ? item.icon : item && item.folder && item.folder.icon ? item.folder.icon : 'dashicons-category';
-
-			button.type = 'button';
-			button.className = 'pdk-desktop-icon pdk-desktop-folder pdk-finder-trash-item';
-			button.dataset.pdkContext = 'trash-item';
-			button.dataset.pdkContextId = item.id;
-			button.dataset.pdkContextLabel = label;
-			button.dataset.pdkTrashItemId = item.id;
-			button.setAttribute('aria-label', label);
-			button.setAttribute('aria-pressed', 'false');
-			button.setAttribute('aria-selected', 'false');
-
-			const appIcon = document.createElement('span');
-			appIcon.className = 'pdk-app-icon';
-			appIcon.appendChild(dom.createIcon(icon));
-
-			const itemLabel = document.createElement('span');
-			itemLabel.className = 'pdk-desktop-app-label';
-			itemLabel.textContent = label;
-
-			button.append(appIcon, itemLabel);
-			button.addEventListener('click', (event) => {
-				event.preventDefault();
-				selectFinderItem(button);
-			});
-			button.addEventListener('contextmenu', (event) => {
-				event.preventDefault();
-				selectFinderItem(button);
-			});
-
-			return button;
-		}
-
 		function getFolderTitle(folder) {
 			const folderLabel = folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin');
 
@@ -481,154 +334,31 @@
 		}
 
 		function createFolderTab(folderId, options = {}) {
-			const tabId = options.id || `folder-tab-${Date.now()}-${++folderTabSequence}`;
-			const entries = Array.isArray(options.entries) && options.entries.length
-				? options.entries.filter((entry) => getFolder(entry))
-				: [folderId];
-			const index = Number.isInteger(options.index)
-				? Math.max(0, Math.min(options.index, entries.length - 1))
-				: Math.max(0, entries.length - 1);
-			const activeFolderId = entries[index] || folderId;
-
-			return {
-				entries: entries.length ? entries : [folderId],
-				folderId: activeFolderId,
-				id: tabId,
-				index
-			};
+			return folderWindows.createTab(folderId, options);
 		}
 
 		function getFolderWindowTabs(win, fallbackFolderId = '') {
-			let state = win ? folderWindowHistory.get(win) : null;
-
-			if (!state) {
-				state = {
-					activeTabId: '',
-					tabs: []
-				};
-				if (win) {
-					folderWindowHistory.set(win, state);
-				}
-			}
-
-			if (!state.tabs.length && fallbackFolderId) {
-				const tab = createFolderTab(fallbackFolderId);
-				state.tabs.push(tab);
-				state.activeTabId = tab.id;
-			}
-
-			if (!state.activeTabId && state.tabs[0]) {
-				state.activeTabId = state.tabs[0].id;
-			}
-
-			return state;
+			return folderWindows.getState(win, fallbackFolderId);
 		}
 
 		function getActiveFolderTab(win, fallbackFolderId = '') {
-			const state = getFolderWindowTabs(win, fallbackFolderId);
-			let tab = state.tabs.find((item) => item.id === state.activeTabId) || state.tabs[0] || null;
-
-			if (!tab && fallbackFolderId) {
-				tab = createFolderTab(fallbackFolderId);
-				state.tabs.push(tab);
-				state.activeTabId = tab.id;
-			}
-
-			return tab;
+			return folderWindows.getActiveTab(win, fallbackFolderId);
 		}
 
 		function setFolderWindowTabs(win, rawTabs = [], activeTabId = '', fallbackFolderId = '') {
-			const state = getFolderWindowTabs(win);
-			const tabs = [];
-			const seen = new Set();
-
-			(Array.isArray(rawTabs) ? rawTabs : []).forEach((tab) => {
-				if (!tab || typeof tab !== 'object') {
-					return;
-				}
-
-				const folderId = typeof tab.folderId === 'string' && getFolder(tab.folderId) ? tab.folderId : '';
-				const entries = Array.isArray(tab.entries) ? tab.entries.filter((entry) => getFolder(entry)) : [];
-				const effectiveFolderId = folderId || entries[Number.isInteger(tab.index) ? tab.index : entries.length - 1] || fallbackFolderId;
-				if (!effectiveFolderId || !getFolder(effectiveFolderId)) {
-					return;
-				}
-
-				const normalized = createFolderTab(effectiveFolderId, {
-					entries: entries.length ? entries : [effectiveFolderId],
-					id: typeof tab.id === 'string' && tab.id && !seen.has(tab.id) ? tab.id : '',
-					index: Number.isInteger(tab.index) ? tab.index : entries.length - 1
-				});
-
-				seen.add(normalized.id);
-				tabs.push(normalized);
-			});
-
-			if (!tabs.length && fallbackFolderId && getFolder(fallbackFolderId)) {
-				tabs.push(createFolderTab(fallbackFolderId));
-			}
-
-			state.tabs = tabs;
-			state.activeTabId = tabs.some((tab) => tab.id === activeTabId)
-				? activeTabId
-				: tabs[0] ? tabs[0].id : '';
-
-			return state;
+			return folderWindows.setTabs(win, rawTabs, activeTabId, fallbackFolderId);
 		}
 
 		function getFolderWindowState(win) {
-			const tab = getActiveFolderTab(win);
-
-			if (!tab) {
-				return {
-					entries: [],
-					index: -1
-				};
-			}
-
-			return tab;
+			return folderWindows.getWindowState(win);
 		}
 
 		function updateFolderWindowHistory(win, folderId, options = {}) {
-			const tab = getActiveFolderTab(win, folderId);
-
-			if (!tab) {
-				return null;
-			}
-
-			if (options.reset || tab.index < 0) {
-				tab.entries = [folderId];
-				tab.folderId = folderId;
-				tab.index = 0;
-				return tab;
-			}
-
-			if (options.replace) {
-				tab.entries[tab.index] = folderId;
-				tab.folderId = folderId;
-				return tab;
-			}
-
-			if (tab.entries[tab.index] === folderId) {
-				tab.folderId = folderId;
-				return tab;
-			}
-
-			tab.entries = tab.entries.slice(0, tab.index + 1);
-			tab.entries.push(folderId);
-			tab.folderId = folderId;
-			tab.index = tab.entries.length - 1;
-
-			return tab;
+			return folderWindows.updateHistory(win, folderId, options);
 		}
 
 		function getFolderWindowHistoryState(win) {
-			const state = win ? getFolderWindowState(win) : null;
-
-			return {
-				canBack: Boolean(state && state.index > 0),
-				canForward: Boolean(state && state.index >= 0 && state.index < state.entries.length - 1)
-			};
+			return folderWindows.getHistoryState(win);
 		}
 
 		function getFolderToolbarDisplayMode(win) {
@@ -692,59 +422,17 @@
 			return normalizeExplorerSortMode(win && win.dataset ? win.dataset.pdkExplorerSortMode : '');
 		}
 
-			function sortExplorerFolderItems(items, win) {
-				const sortMode = getExplorerSortMode(win);
-				const collator = new Intl.Collator(undefined, {
-					numeric: true,
-					sensitivity: 'base'
-				});
-				const normalized = Array.isArray(items) ? items.slice() : [];
+		function getFolderDisplayItems(folderId, win = null) {
+			return folderRenderer && typeof folderRenderer.getDisplayItems === 'function'
+				? folderRenderer.getDisplayItems(folderId, win)
+				: [];
+		}
 
-				if (sortMode === 'name') {
-					return normalized.sort((a, b) => collator.compare(a && a.label ? a.label : '', b && b.label ? b.label : ''));
-				}
-
-				if (sortMode === 'kind') {
-					return normalized.sort((a, b) => {
-						const firstKind = a && a.type === 'folder' ? getMenuLabel('folder', 'Folder') : getMenuLabel('application', 'Application');
-						const secondKind = b && b.type === 'folder' ? getMenuLabel('folder', 'Folder') : getMenuLabel('application', 'Application');
-						const kindCompare = collator.compare(firstKind, secondKind);
-
-						return kindCompare || collator.compare(a && a.label ? a.label : '', b && b.label ? b.label : '');
-					});
-				}
-
-				return normalized;
-			}
-
-			function getFolderDisplayItems(folderId, win = null) {
-				const folderItems = getFolderChildFolders(folderId).map((folder) => ({
-					folder,
-					icon: folder.icon || 'dashicons-category',
-					id: folder.id,
-					label: folder.label || getMenuLabel('folder', 'Folder'),
-					type: 'folder'
-				}));
-				const appItems = getFolderApps(folderId).map((app) => ({
-					app,
-					icon: app.icon || 'dashicons-admin-generic',
-					id: app.id,
-					label: app.label || app.id,
-					type: 'app'
-				}));
-
-				return isFileExplorerLayout()
-					? sortExplorerFolderItems(folderItems.concat(appItems), win)
-					: folderItems.concat(appItems);
-			}
-
-			function createFolderDisplayButton(item, folderId = '', removable = false, win = null) {
-				if (item && item.type === 'folder') {
-					return createFolderChildButton(item.folder, folderId, win);
-				}
-
-				return createFolderAppButton(item.app, folderId, removable);
-			}
+		function createFolderItemGrid(folderId, win = null, options = {}) {
+			return folderRenderer && typeof folderRenderer.createItemGrid === 'function'
+				? folderRenderer.createItemGrid(folderId, win, options)
+				: document.createElement('div');
+		}
 
 		function setExplorerSortMode(win, mode) {
 			const normalized = normalizeExplorerSortMode(mode);
@@ -1238,48 +926,48 @@
 			return bar;
 		}
 
-				function createExplorerStatusBar(folderId, win = null) {
-					const bar = dom.createElement('div', 'pdk-explorer-statusbar');
-					const isTrash = isTrashFolderId(folderId);
-					const count = isTrash ? getTrashItems().length : getFolderDisplayItems(folderId, win).length;
-				const summary = dom.createElement('span', 'pdk-explorer-status-summary', `${count} ${count === 1 ? getMenuLabel('item_singular', 'item') : getMenuLabel('item_plural', 'items')}`);
-				const viewGroup = dom.createElement('div', 'pdk-explorer-status-view-group');
-				const listButton = document.createElement('button');
-				const detailButton = document.createElement('button');
-				const setViewButtons = (mode) => {
-					listButton.classList.toggle('is-active', mode === 'list');
-					detailButton.classList.toggle('is-active', mode === 'details');
-					listButton.setAttribute('aria-pressed', mode === 'list' ? 'true' : 'false');
-					detailButton.setAttribute('aria-pressed', mode === 'details' ? 'true' : 'false');
-				};
-				const getTargetWindow = () => bar.closest ? bar.closest('.pdk-window') : null;
+		function createExplorerStatusBar(folderId, win = null) {
+			const bar = dom.createElement('div', 'pdk-explorer-statusbar');
+			const isTrash = isTrashFolderId(folderId);
+			const count = isTrash ? getTrashItems().length : getFolderDisplayItems(folderId, win).length;
+			const summary = dom.createElement('span', 'pdk-explorer-status-summary', `${count} ${count === 1 ? getMenuLabel('item_singular', 'item') : getMenuLabel('item_plural', 'items')}`);
+			const viewGroup = dom.createElement('div', 'pdk-explorer-status-view-group');
+			const listButton = document.createElement('button');
+			const detailButton = document.createElement('button');
+			const setViewButtons = (mode) => {
+				listButton.classList.toggle('is-active', mode === 'list');
+				detailButton.classList.toggle('is-active', mode === 'details');
+				listButton.setAttribute('aria-pressed', mode === 'list' ? 'true' : 'false');
+				detailButton.setAttribute('aria-pressed', mode === 'details' ? 'true' : 'false');
+			};
+			const getTargetWindow = () => bar.closest ? bar.closest('.pdk-window') : null;
 
-				bar.dataset.pdkNoDrag = '';
-				listButton.type = 'button';
-				listButton.className = 'pdk-explorer-status-view-button pdk-explorer-status-view-button-list';
-				listButton.dataset.pdkExplorerViewMode = 'list';
-				listButton.setAttribute('aria-label', getMenuLabel('list_view', 'List view'));
-				listButton.appendChild(dom.createElement('span', 'pdk-explorer-status-view-icon'));
-				detailButton.type = 'button';
-				detailButton.className = 'pdk-explorer-status-view-button pdk-explorer-status-view-button-details';
-				detailButton.dataset.pdkExplorerViewMode = 'details';
-				detailButton.setAttribute('aria-label', getMenuLabel('details_view', 'Details view'));
-				detailButton.appendChild(dom.createElement('span', 'pdk-explorer-status-view-icon'));
-				listButton.addEventListener('click', (event) => {
-					event.preventDefault();
-					event.stopPropagation();
-					setExplorerViewMode(getTargetWindow(), 'list');
-				});
-				detailButton.addEventListener('click', (event) => {
-					event.preventDefault();
-					event.stopPropagation();
-					setExplorerViewMode(getTargetWindow(), 'details');
-				});
-				setViewButtons(getExplorerViewMode(win));
-				viewGroup.append(listButton, detailButton);
-				bar.append(summary, viewGroup);
+			bar.dataset.pdkNoDrag = '';
+			listButton.type = 'button';
+			listButton.className = 'pdk-explorer-status-view-button pdk-explorer-status-view-button-list';
+			listButton.dataset.pdkExplorerViewMode = 'list';
+			listButton.setAttribute('aria-label', getMenuLabel('list_view', 'List view'));
+			listButton.appendChild(dom.createElement('span', 'pdk-explorer-status-view-icon'));
+			detailButton.type = 'button';
+			detailButton.className = 'pdk-explorer-status-view-button pdk-explorer-status-view-button-details';
+			detailButton.dataset.pdkExplorerViewMode = 'details';
+			detailButton.setAttribute('aria-label', getMenuLabel('details_view', 'Details view'));
+			detailButton.appendChild(dom.createElement('span', 'pdk-explorer-status-view-icon'));
+			listButton.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				setExplorerViewMode(getTargetWindow(), 'list');
+			});
+			detailButton.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				setExplorerViewMode(getTargetWindow(), 'details');
+			});
+			setViewButtons(getExplorerViewMode(win));
+			viewGroup.append(listButton, detailButton);
+			bar.append(summary, viewGroup);
 
-				return bar;
+			return bar;
 		}
 
 		function createFolderToolbarIcon(action) {
@@ -1539,17 +1227,7 @@
 		}
 
 		function serializeFolderTabs(win) {
-			const state = getFolderWindowTabs(win, win && win.dataset ? win.dataset.pdkFolderWindow : '');
-
-			return {
-				activeTabId: state.activeTabId || '',
-				tabs: state.tabs.map((tab) => ({
-					entries: tab.entries.slice(),
-					folderId: tab.folderId,
-					id: tab.id,
-					index: tab.index
-				}))
-			};
+			return folderWindows.serialize(win, win && win.dataset ? win.dataset.pdkFolderWindow : '');
 		}
 
 		function saveFolderWindowSession() {
@@ -1576,11 +1254,7 @@
 			}
 
 			return Array.from(shell.querySelectorAll('.pdk-window[data-pdk-window-kind="folder"]:not(.is-closed)'))
-				.find((win) => {
-					const state = folderWindowHistory.get(win);
-
-					return Boolean(state && Array.isArray(state.tabs) && state.tabs.some((tab) => tab.folderId === folderId));
-				}) || null;
+				.find((win) => folderWindows.windowHasFolderTab(win, folderId)) || null;
 		}
 
 		function focusFolderWindow(win, options = {}) {
@@ -2162,11 +1836,11 @@
 		}
 
 		function createFolderMain(folderId, win) {
-				const folder = getFolder(folderId);
-				const isTrash = isTrashFolderId(folderId);
-				const folderItems = isTrash ? [] : getFolderDisplayItems(folderId, win);
-				const trashItems = isTrash ? getTrashItems() : [];
-				const removable = isUserFolder(folderId);
+			const folder = getFolder(folderId);
+			const isTrash = isTrashFolderId(folderId);
+			const folderItems = isTrash ? [] : getFolderDisplayItems(folderId, win);
+			const trashItems = isTrash ? getTrashItems() : [];
+			const removable = isUserFolder(folderId);
 			const toolbarDisplayMode = getFolderToolbarDisplayMode(win);
 			const main = dom.createElement('main', 'pdk-settings-main pdk-finder-main');
 			const header = dom.createElement('header', 'pdk-settings-pane-header pdk-finder-toolbar');
@@ -2193,59 +1867,55 @@
 
 			if (isTrash) {
 				if (trashItems.length) {
-					const grid = document.createElement('div');
-					grid.className = 'pdk-app-grid pdk-finder-grid pdk-finder-trash-grid';
-					trashItems.forEach((item) => grid.appendChild(createTrashItemButton(item)));
-					pane.appendChild(grid);
+					pane.appendChild(createFolderItemGrid(folderId, win, {
+						trash: true
+					}));
 				}
 				main.append(...[header, tabs, subbar, pane].filter(Boolean));
 				return main;
 			}
 
-				if (!folderItems.length) {
-					main.append(...[header, tabs, pane].filter(Boolean));
-					return main;
-				}
-
-				const grid = document.createElement('div');
-				grid.className = 'pdk-app-grid pdk-finder-grid';
-				folderItems.forEach((item) => grid.appendChild(createFolderDisplayButton(item, folderId, removable, win)));
-				pane.appendChild(grid);
+			if (!folderItems.length) {
 				main.append(...[header, tabs, pane].filter(Boolean));
+				return main;
+			}
+
+			pane.appendChild(createFolderItemGrid(folderId, win, {
+				removable
+			}));
+			main.append(...[header, tabs, pane].filter(Boolean));
 
 			return main;
 		}
 
-				function createExplorerFolderMain(folderId, win) {
-					const folder = getFolder(folderId);
-					const isTrash = isTrashFolderId(folderId);
-					const folderItems = isTrash ? [] : getFolderDisplayItems(folderId, win);
-					const trashItems = isTrash ? getTrashItems() : [];
-					const removable = isUserFolder(folderId);
-				const main = dom.createElement('main', 'pdk-settings-main pdk-finder-main pdk-explorer-main');
-				const subbar = isTrash ? createTrashSubbar() : null;
-				const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane pdk-explorer-pane');
+		function createExplorerFolderMain(folderId, win) {
+			const folder = getFolder(folderId);
+			const isTrash = isTrashFolderId(folderId);
+			const folderItems = isTrash ? [] : getFolderDisplayItems(folderId, win);
+			const trashItems = isTrash ? getTrashItems() : [];
+			const removable = isUserFolder(folderId);
+			const main = dom.createElement('main', 'pdk-settings-main pdk-finder-main pdk-explorer-main');
+			const subbar = isTrash ? createTrashSubbar() : null;
+			const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane pdk-explorer-pane');
 
-				pane.dataset.pdkExplorerViewMode = getExplorerViewMode(win);
+			pane.dataset.pdkExplorerViewMode = getExplorerViewMode(win);
 
-				if (isTrash && trashItems.length) {
-				const grid = document.createElement('div');
-				grid.className = 'pdk-app-grid pdk-finder-grid pdk-finder-trash-grid';
-				trashItems.forEach((item) => grid.appendChild(createTrashItemButton(item)));
-				pane.appendChild(grid);
-				} else if (!isTrash && folderItems.length) {
-					const grid = document.createElement('div');
-					grid.className = 'pdk-app-grid pdk-finder-grid';
-					folderItems.forEach((item) => grid.appendChild(createFolderDisplayButton(item, folderId, removable, win)));
-					pane.appendChild(grid);
-				}
+			if (isTrash && trashItems.length) {
+				pane.appendChild(createFolderItemGrid(folderId, win, {
+					trash: true
+				}));
+			} else if (!isTrash && folderItems.length) {
+				pane.appendChild(createFolderItemGrid(folderId, win, {
+					removable
+				}));
+			}
 
 			main.dataset.pdkFolderId = folder && folder.id ? folder.id : folderId;
 			main.append(...[
 				subbar,
-					pane,
-					createExplorerStatusBar(folderId, win)
-				].filter(Boolean));
+				pane,
+				createExplorerStatusBar(folderId, win)
+			].filter(Boolean));
 
 			return main;
 		}
@@ -2346,20 +2016,20 @@
 			updateFolderWindowMeta(win, folderId);
 			syncExplorerTitlebarTabControls(win, folderId);
 			win.pdkSerializeFolderTabs = () => serializeFolderTabs(win);
-				win.dataset.pdkFolderLayout = getFolderLayout();
-				win.dataset.pdkExplorerViewMode = getExplorerViewMode(win);
-				win.dataset.pdkExplorerSortMode = getExplorerSortMode(win);
-				body.dataset.pdkFolderLayout = getFolderLayout();
-				body.classList.toggle('pdk-explorer-body', isFileExplorerLayout());
-				body.classList.toggle('pdk-finder-body', !isFileExplorerLayout());
-				setFolderToolbarDisplayMode(win, getFolderToolbarDisplayMode(win));
-				body.replaceChildren(createFolderContent(folderId, win));
-				if (isFileExplorerLayout()) {
-					setExplorerViewMode(win, getExplorerViewMode(win));
-				}
-				if (manager && typeof manager.makeDraggable === 'function') {
-					manager.makeDraggable(win);
-				}
+			win.dataset.pdkFolderLayout = getFolderLayout();
+			win.dataset.pdkExplorerViewMode = getExplorerViewMode(win);
+			win.dataset.pdkExplorerSortMode = getExplorerSortMode(win);
+			body.dataset.pdkFolderLayout = getFolderLayout();
+			body.classList.toggle('pdk-explorer-body', isFileExplorerLayout());
+			body.classList.toggle('pdk-finder-body', !isFileExplorerLayout());
+			setFolderToolbarDisplayMode(win, getFolderToolbarDisplayMode(win));
+			body.replaceChildren(createFolderContent(folderId, win));
+			if (isFileExplorerLayout()) {
+				setExplorerViewMode(win, getExplorerViewMode(win));
+			}
+			if (manager && typeof manager.makeDraggable === 'function') {
+				manager.makeDraggable(win);
+			}
 			bindFolderToolbarOverflow(win);
 
 			if (options.touch !== false) {
@@ -2459,10 +2129,7 @@
 
 			const tabWindow = getFolderWindowWithTab(folderId);
 			if (tabWindow && !forceNewWindow) {
-				const tabState = folderWindowHistory.get(tabWindow);
-				const tab = tabState && Array.isArray(tabState.tabs)
-					? tabState.tabs.find((item) => item.folderId === folderId)
-					: null;
+				const tab = folderWindows.findTab(tabWindow, folderId);
 
 				if (tab) {
 					activateFolderTab(tabWindow, tab.id, {

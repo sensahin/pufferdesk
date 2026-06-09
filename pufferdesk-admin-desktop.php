@@ -23,6 +23,10 @@ define( 'PUFFERDESK_URL', plugin_dir_url( __FILE__ ) );
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-user-preferences.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-router.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-icon-renderer.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-app-badge-normalizer.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-app-menu-normalizer.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-app-normalizer.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-admin-menu-app-provider.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-app-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-widget-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-widget-layout.php';
@@ -32,6 +36,7 @@ require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-wallpaper-registry.php'
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-workspace-state.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-asset-manifest.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-shell-context.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-settings-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-runtime-config.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-assets.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-shell-renderer.php';

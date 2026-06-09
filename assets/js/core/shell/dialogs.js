@@ -9,6 +9,46 @@
 		let activeDialog = null;
 		let activeOverlay = null;
 
+		function getRuntimeConfig() {
+			return window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
+				? window.PufferDesk.config.get()
+				: (window.pufferDesk || {});
+		}
+
+		function getDialogConfig() {
+			const config = getRuntimeConfig();
+
+			return config.dialogs && typeof config.dialogs === 'object' ? config.dialogs : {};
+		}
+
+		function normalizeClassToken(value, fallback = 'default') {
+			const token = String(value || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 48);
+
+			return token || fallback;
+		}
+
+		function getDialogStyle(options = {}) {
+			const dialogs = getDialogConfig();
+			const style = options.style || dialogs.style || 'floating';
+
+			return ['floating', 'system-window'].includes(style) ? style : 'floating';
+		}
+
+		function getDefaultAction(options = {}) {
+			return options.defaultAction === 'cancel' || options.default_action === 'cancel' ? 'cancel' : 'confirm';
+		}
+
+		function applyDialogMetadata(layer, dialog, options = {}, fallbackVariant = 'default') {
+			const style = getDialogStyle(options);
+			const variant = normalizeClassToken(options.variant, fallbackVariant);
+
+			layer.dataset.pdkDialogStyle = style;
+			layer.dataset.pdkDialogVariant = variant;
+			dialog.dataset.pdkDialogStyle = style;
+			dialog.dataset.pdkDialogVariant = variant;
+			dialog.dataset.pdkDefaultAction = getDefaultAction(options);
+		}
+
 		function createButton(label, className) {
 			const button = document.createElement('button');
 			button.type = 'button';
@@ -33,6 +73,98 @@
 			}
 
 			return icon;
+		}
+
+		function createDialogIcon(iconValue) {
+			const icon = document.createElement('span');
+			icon.className = 'pdk-shell-dialog-icon';
+			icon.setAttribute('aria-hidden', 'true');
+
+			if (dom && typeof dom.createIcon === 'function') {
+				icon.appendChild(dom.createIcon(iconValue || 'dashicons-info-outline'));
+			}
+
+			return icon;
+		}
+
+		function normalizeDetails(options = {}) {
+			if (Array.isArray(options.details)) {
+				return options.details;
+			}
+
+			if (options.detail && typeof options.detail === 'object') {
+				return [options.detail];
+			}
+
+			if (options.item && typeof options.item === 'object') {
+				return [options.item];
+			}
+
+			return [];
+		}
+
+		function createDialogDetails(options = {}) {
+			const details = normalizeDetails(options);
+			if (!details.length) {
+				return null;
+			}
+
+			const list = document.createElement('div');
+			list.className = 'pdk-shell-dialog-details';
+
+			details.forEach((detail) => {
+				if (!detail || typeof detail !== 'object') {
+					return;
+				}
+
+				const row = document.createElement('div');
+				row.className = 'pdk-shell-dialog-detail';
+
+				if (detail.icon) {
+					row.appendChild(createDialogIcon(detail.icon));
+				}
+
+				const text = document.createElement('div');
+				text.className = 'pdk-shell-dialog-detail-text';
+
+				const label = document.createElement('strong');
+				label.className = 'pdk-shell-dialog-detail-label';
+				label.textContent = detail.label || '';
+				text.appendChild(label);
+
+				(Array.isArray(detail.meta) ? detail.meta : []).forEach((line) => {
+					if (!line) {
+						return;
+					}
+
+					const meta = document.createElement('span');
+					meta.className = 'pdk-shell-dialog-detail-meta';
+					meta.textContent = line;
+					text.appendChild(meta);
+				});
+
+				row.appendChild(text);
+				list.appendChild(row);
+			});
+
+			return list.childElementCount ? list : null;
+		}
+
+		function createDialogTitlebar(title, closeLabel, onClose) {
+			const titlebar = document.createElement('div');
+			titlebar.className = 'pdk-shell-dialog-titlebar';
+
+			const label = document.createElement('span');
+			label.className = 'pdk-shell-dialog-titlebar-label';
+			label.textContent = title || '';
+
+			const closeButton = createButton(closeLabel || 'Close', 'pdk-shell-dialog-titlebar-close');
+			closeButton.setAttribute('aria-label', closeLabel || 'Close');
+			closeButton.addEventListener('click', onClose);
+
+			titlebar.append(label, closeButton);
+
+			return titlebar;
 		}
 
 		function renderCountdownMessage(element, template, seconds, digitCount) {
@@ -153,6 +285,8 @@
 				const message = options.message || '';
 				const confirmLabel = options.confirmLabel || 'OK';
 				const cancelLabel = options.cancelLabel || 'Cancel';
+				const closeLabel = options.closeLabel || 'Close';
+				const windowTitle = options.windowTitle || '';
 				const titleId = `pdk-shell-dialog-title-${Date.now()}`;
 				const messageId = `pdk-shell-dialog-message-${Date.now()}`;
 
@@ -161,6 +295,7 @@
 
 				const dialog = document.createElement('div');
 				dialog.className = 'pdk-shell-dialog';
+				applyDialogMetadata(layer, dialog, options, 'confirm');
 				dialog.setAttribute('role', 'dialog');
 				dialog.setAttribute('aria-modal', 'true');
 				dialog.setAttribute('aria-labelledby', titleId);
@@ -175,12 +310,32 @@
 				messageElement.className = 'pdk-shell-dialog-message';
 				messageElement.id = messageId;
 				messageElement.textContent = message;
+				messageElement.hidden = !message;
+
+				const body = document.createElement('div');
+				body.className = 'pdk-shell-dialog-body';
+
+				if (options.icon) {
+					body.appendChild(createDialogIcon(options.icon));
+				}
+
+				const copy = document.createElement('div');
+				copy.className = 'pdk-shell-dialog-copy';
+				copy.append(titleElement, messageElement);
+
+				const details = createDialogDetails(options);
+				if (details) {
+					copy.appendChild(details);
+				}
+
+				body.appendChild(copy);
 
 				const actions = document.createElement('div');
 				actions.className = 'pdk-shell-dialog-actions';
 
 				const cancelButton = createButton(cancelLabel, 'pdk-shell-dialog-button');
 				const confirmButton = createButton(confirmLabel, 'pdk-shell-dialog-button pdk-shell-dialog-button-primary');
+				const initialFocusButton = getDefaultAction(options) === 'cancel' ? cancelButton : confirmButton;
 
 				function finish(confirmed) {
 					layer.removeEventListener('keydown', onKeyDown);
@@ -200,7 +355,10 @@
 				layer.addEventListener('keydown', onKeyDown);
 
 				actions.append(cancelButton, confirmButton);
-				dialog.append(titleElement, messageElement, actions);
+				if (windowTitle || getDialogStyle(options) === 'system-window') {
+					dialog.appendChild(createDialogTitlebar(windowTitle || title, closeLabel, () => finish(false)));
+				}
+				dialog.append(body, actions);
 				bindDialogDrag(layer, dialog);
 				layer.appendChild(dialog);
 				shell.appendChild(layer);
@@ -208,7 +366,7 @@
 
 				window.requestAnimationFrame(() => {
 					layer.classList.add('is-visible');
-					confirmButton.focus({ preventScroll: true });
+					initialFocusButton.focus({ preventScroll: true });
 				});
 			});
 		}
@@ -237,6 +395,7 @@
 
 				const dialog = document.createElement('div');
 				dialog.className = 'pdk-shell-dialog pdk-shell-action-dialog';
+				applyDialogMetadata(layer, dialog, options, hasTimer ? 'timed-action' : 'action');
 				dialog.setAttribute('role', 'dialog');
 				dialog.setAttribute('aria-modal', 'true');
 				dialog.setAttribute('aria-labelledby', titleId);
@@ -362,6 +521,7 @@
 
 				const dialog = document.createElement('div');
 				dialog.className = 'pdk-shell-dialog pdk-shell-prompt-dialog';
+				applyDialogMetadata(layer, dialog, options, 'prompt');
 				dialog.setAttribute('role', 'dialog');
 				dialog.setAttribute('aria-modal', 'true');
 				dialog.setAttribute('aria-labelledby', titleId);

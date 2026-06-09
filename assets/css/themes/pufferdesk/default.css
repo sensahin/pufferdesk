@@ -15,10 +15,6 @@
 	--pdk-liquid-glass-clear-border: rgba(255, 255, 255, 0.52);
 	--pdk-liquid-glass-clear-filter: blur(42px) saturate(205%) brightness(1.07);
 	--pdk-liquid-glass-clear-shadow: 0 30px 80px rgba(34, 48, 54, 0.18), 0 1px 0 var(--pdk-liquid-glass-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-	--pdk-liquid-glass-window-bg: rgba(255, 255, 255, 0.96);
-	--pdk-liquid-glass-window-border: rgba(64, 64, 64, 0.16);
-	--pdk-liquid-glass-window-filter: blur(40px) saturate(185%) brightness(1.05);
-	--pdk-liquid-glass-window-shadow: 0 34px 92px rgba(34, 48, 54, 0.16), 0 1px 0 var(--pdk-liquid-glass-edge-highlight) inset, 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
 	--pdk-liquid-glass-tinted-bg: linear-gradient(145deg, rgb(var(--pdk-accent-rgb) / 0.08), rgba(255, 255, 255, 0.82) 58%, rgb(var(--pdk-accent-rgb) / 0.06));
 	--pdk-liquid-glass-tinted-border: rgb(var(--pdk-accent-rgb) / 0.16);
 	--pdk-liquid-glass-solid-bg: rgba(255, 255, 255, 0.96);
@@ -80,75 +76,13 @@
 	--pdk-material-dialog-border: var(--pdk-liquid-glass-dialog-border);
 	--pdk-material-dialog-filter: var(--pdk-liquid-glass-dialog-filter);
 	--pdk-material-dialog-shadow: var(--pdk-liquid-glass-dialog-shadow);
-	--pdk-settings-window-bg: transparent;
-	--pdk-settings-body-bg: transparent;
-	--pdk-settings-sidebar-bg:
-		linear-gradient(90deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.975) 44%, rgba(255, 255, 255, 0.992) 90%),
-		linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(246, 246, 246, 0.028) 28%, rgba(232, 232, 232, 0.018));
-	--pdk-settings-sidebar-border: var(--pdk-divider);
-	--pdk-settings-sidebar-reflection-filter: blur(38px) saturate(44%) brightness(1.08) contrast(0.62);
-	--pdk-settings-sidebar-reflection-mask:
-		linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.014) 7%, transparent 15%, transparent 100%),
-		linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.08) 7%, transparent 16%, transparent 86%, rgba(0, 0, 0, 0.06) 94%, rgba(0, 0, 0, 0.18) 100%),
-		radial-gradient(circle at 0% 0%, rgba(0, 0, 0, 0.2), transparent 28%),
-		radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 0.12), transparent 24%),
-		radial-gradient(circle at 0% 100%, rgba(0, 0, 0, 0.14), transparent 26%),
-		radial-gradient(circle at 100% 100%, rgba(0, 0, 0, 0.1), transparent 22%);
-	--pdk-settings-sidebar-reflection-opacity: 0.018;
-	--pdk-settings-sidebar-gloss:
-		linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.046) 10%, rgba(255, 255, 255, 0.01) 45%, rgba(60, 60, 67, 0.012) 78%, rgba(60, 60, 67, 0.026) 100%),
-		linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.048) 8%, transparent 25%, transparent 86%, rgba(255, 255, 255, 0.12));
-	--pdk-settings-sidebar-shadow:
-		inset 0 0 0 1px rgba(255, 255, 255, 0.3),
-		inset 1px 1px 0 rgba(255, 255, 255, 0.34),
-		inset -1px 0 0 rgba(60, 60, 67, 0.035),
-		inset 0 -1px 0 rgba(255, 255, 255, 0.24);
-	--pdk-settings-sidebar-filter: blur(8px) saturate(70%) brightness(1.02) contrast(0.94);
-	--pdk-settings-search-bg: rgba(72, 72, 72, 0.075);
-	--pdk-settings-search-filter: blur(6px) saturate(72%) brightness(1.02);
-	--pdk-settings-main-bg: rgb(255, 255, 255);
-	--pdk-settings-card-bg: rgb(247, 247, 247);
 	--pdk-divider: rgb(218, 218, 218);
 	--pdk-divider-soft: rgb(231, 231, 231);
-	--pdk-settings-card-border: var(--pdk-divider-soft);
-	--pdk-finder-sidebar-active-bg: rgba(60, 60, 67, 0.1);
-	--pdk-finder-sidebar-active-ink: var(--pdk-ink);
-	--pdk-finder-divider: var(--pdk-divider);
-	--pdk-finder-tabbar-bg: rgb(245, 245, 245);
-	--pdk-finder-tabbar-border: var(--pdk-finder-divider);
-	--pdk-finder-tab-bg: rgba(60, 60, 67, 0.035);
-	--pdk-finder-tab-hover-bg: rgba(60, 60, 67, 0.07);
-	--pdk-finder-tab-active-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(232, 232, 232, 0.72));
-	--pdk-finder-tab-active-border: rgba(64, 64, 64, 0.16);
-	--pdk-finder-tab-close-bg: rgba(60, 60, 67, 0.14);
-	--pdk-finder-tab-close-hover-bg: rgba(60, 60, 67, 0.22);
-	--pdk-finder-tab-add-bg: rgba(60, 60, 67, 0.052);
-	--pdk-finder-tab-add-hover-bg: rgba(60, 60, 67, 0.095);
-	--pdk-finder-tab-add-border: rgba(64, 64, 64, 0.13);
-	--pdk-line: var(--pdk-divider);
-	--pdk-panel: var(--pdk-material-regular-bg);
-	--pdk-shadow: var(--pdk-material-regular-shadow);
 	--pdk-menu-bg: var(--pdk-material-bar-bg);
 	--pdk-menu-border: var(--pdk-material-bar-border);
 	--pdk-menu-shadow: var(--pdk-material-bar-shadow);
 	--pdk-menu-active-bg: var(--pdk-accent-active-strong);
-	--pdk-menu-popover-bg: var(--pdk-material-popover-bg);
-	--pdk-menu-popover-border: var(--pdk-material-popover-border);
-	--pdk-menu-popover-filter: var(--pdk-material-popover-filter);
-	--pdk-menu-popover-radius: 18px;
-	--pdk-menu-popover-shadow: var(--pdk-material-popover-shadow);
-	--pdk-menu-popover-sheen: var(--pdk-material-sheen);
-	--pdk-menu-popover-sheen-opacity: 0.56;
-	--pdk-menu-popover-ink: #1c252d;
-	--pdk-menu-popover-muted: rgba(28, 37, 45, 0.38);
-	--pdk-menu-popover-separator: rgba(28, 37, 45, 0.16);
 	--pdk-menu-selection-active-bg: var(--pdk-accent-active-strong);
-	--pdk-menu-selection-bg: var(--pdk-accent-medium);
-	--pdk-menu-selection-border: var(--pdk-accent-soft);
-	--pdk-menu-selection-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-	--pdk-menu-item-hover-bg: var(--pdk-accent);
-	--pdk-menu-item-hover-ink: var(--pdk-accent-ink);
-	--pdk-menu-item-disabled: rgba(28, 37, 45, 0.3);
 	--pdk-menu-bar-height: 28px;
 	--pdk-menu-bar-half-height: 14px;
 	--pdk-control-bg: var(--pdk-material-control-bg);
@@ -203,10 +137,6 @@
 	--pdk-folder-icon-filter: grayscale(1) sepia(1) saturate(4.8) hue-rotate(var(--pdk-accent-hue-shift)) brightness(0.92) contrast(0.98);
 	--pdk-folder-icon-opacity: 0.94;
 	--pdk-running-indicator: rgba(12, 18, 24, 0.88);
-	--pdk-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 247, 247, 0.84));
-	--pdk-window-bar-border: var(--pdk-divider);
-	--pdk-window-radius: 24px;
-	--pdk-window-maximized-radius: 12px;
 	--pdk-about-window-radius: 15px;
 	--pdk-site-about-window-radius: 24px;
 	--pdk-window-safe-edge: 2px;
@@ -910,21 +840,20 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-control,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-button {
-	border-radius: 10px;
+	border-radius: var(--pdk-settings-control-radius, 10px);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-body {
-	background: var(--pdk-settings-body-bg);
+	background: var(--pdk-settings-body-bg, var(--pdk-panel));
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] {
 	--pdk-settings-main-edge: 8px;
 	--pdk-settings-sidebar-gap: 4px;
 	--pdk-settings-sidebar-inset: 10px;
-	--pdk-settings-sidebar-panel-radius: 22px;
 	-webkit-backdrop-filter: none;
 	backdrop-filter: none;
-	background: var(--pdk-settings-window-bg);
+	background: var(--pdk-settings-window-bg, var(--pdk-panel));
 	border-radius: var(--pdk-window-radius, 24px);
 	min-height: 600px;
 	min-width: 725px;
@@ -935,10 +864,9 @@
 	--pdk-settings-main-edge: 8px;
 	--pdk-settings-sidebar-gap: 4px;
 	--pdk-settings-sidebar-inset: 10px;
-	--pdk-settings-sidebar-panel-radius: 22px;
 	-webkit-backdrop-filter: none;
 	backdrop-filter: none;
-	background: var(--pdk-settings-window-bg);
+	background: var(--pdk-settings-window-bg, var(--pdk-panel));
 	border-radius: var(--pdk-window-radius, 24px);
 	min-height: 460px;
 	min-width: 640px;
@@ -1008,22 +936,23 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-sidebar {
-	-webkit-backdrop-filter: var(--pdk-settings-sidebar-filter);
-	backdrop-filter: var(--pdk-settings-sidebar-filter);
-	background: var(--pdk-settings-sidebar-bg);
-	border: 1px solid var(--pdk-settings-sidebar-border);
-	border-radius: var(--pdk-settings-sidebar-panel-radius);
+	-webkit-backdrop-filter: var(--pdk-settings-sidebar-filter, blur(8px) saturate(70%) brightness(1.02) contrast(0.94));
+	backdrop-filter: var(--pdk-settings-sidebar-filter, blur(8px) saturate(70%) brightness(1.02) contrast(0.94));
+	background: var(--pdk-settings-sidebar-bg, rgba(246, 248, 251, 0.94));
+	border: 1px solid var(--pdk-settings-sidebar-border, var(--pdk-divider));
+	border-radius: var(--pdk-settings-sidebar-panel-radius, 22px);
 	box-shadow:
-		var(--pdk-settings-sidebar-shadow),
-		0 0 0 9999px var(--pdk-settings-main-bg);
+		var(--pdk-settings-sidebar-shadow, none),
+		0 0 0 9999px var(--pdk-settings-main-bg, var(--pdk-panel));
 	isolation: isolate;
 	margin: var(--pdk-settings-sidebar-inset) var(--pdk-settings-sidebar-gap) var(--pdk-settings-sidebar-inset) var(--pdk-settings-sidebar-inset);
+	overflow-x: hidden;
 	position: relative;
 	z-index: 0;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-sidebar::before {
-	-webkit-mask-image: var(--pdk-settings-sidebar-reflection-mask);
+	-webkit-mask-image: var(--pdk-settings-sidebar-reflection-mask, none);
 	background: var(--pdk-wallpaper-image);
 	background-attachment: fixed;
 	background-position: var(--pdk-wallpaper-position);
@@ -1031,17 +960,17 @@
 	background-size: var(--pdk-wallpaper-size);
 	border-radius: inherit;
 	content: "";
-	filter: var(--pdk-settings-sidebar-reflection-filter);
+	filter: var(--pdk-settings-sidebar-reflection-filter, none);
 	inset: 0;
-	mask-image: var(--pdk-settings-sidebar-reflection-mask);
-	opacity: var(--pdk-settings-sidebar-reflection-opacity);
+	mask-image: var(--pdk-settings-sidebar-reflection-mask, none);
+	opacity: var(--pdk-settings-sidebar-reflection-opacity, 0);
 	pointer-events: none;
 	position: absolute;
 	z-index: 0;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-sidebar::after {
-	background: var(--pdk-settings-sidebar-gloss);
+	background: var(--pdk-settings-sidebar-gloss, none);
 	border-radius: inherit;
 	content: "";
 	inset: 0;
@@ -1061,13 +990,13 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-main {
-	background: var(--pdk-settings-main-bg);
+	background: var(--pdk-settings-main-bg, var(--pdk-panel));
 	position: relative;
 	z-index: 1;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-finder-main {
-	background: var(--pdk-settings-main-bg);
+	background: var(--pdk-settings-main-bg, var(--pdk-panel));
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-pane-header {
@@ -1136,11 +1065,11 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-sidebar .pdk-settings-search-field {
-	-webkit-backdrop-filter: var(--pdk-settings-search-filter);
-	backdrop-filter: var(--pdk-settings-search-filter);
-	background: var(--pdk-settings-search-bg);
-	border-color: rgba(255, 255, 255, 0.035);
-	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+	-webkit-backdrop-filter: var(--pdk-settings-search-filter, none);
+	backdrop-filter: var(--pdk-settings-search-filter, none);
+	background: var(--pdk-settings-search-bg, rgba(72, 72, 72, 0.075));
+	border-color: var(--pdk-settings-search-border, rgba(255, 255, 255, 0.035));
+	box-shadow: var(--pdk-settings-search-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.05));
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] {
@@ -1173,10 +1102,6 @@
 	--pdk-liquid-glass-clear-border: rgba(220, 220, 220, 0.16);
 	--pdk-liquid-glass-clear-filter: blur(44px) saturate(190%) brightness(1.02);
 	--pdk-liquid-glass-clear-shadow: 0 30px 86px rgba(0, 0, 0, 0.42), 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-	--pdk-liquid-glass-window-bg: rgba(30, 30, 30, 0.96);
-	--pdk-liquid-glass-window-border: rgba(150, 150, 150, 0.24);
-	--pdk-liquid-glass-window-filter: blur(42px) saturate(180%) brightness(1.01);
-	--pdk-liquid-glass-window-shadow: 0 36px 96px rgba(0, 0, 0, 0.46), 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
 	--pdk-liquid-glass-tinted-bg: linear-gradient(145deg, rgb(var(--pdk-accent-rgb) / 0.1), rgba(30, 30, 30, 0.8) 56%, rgb(var(--pdk-accent-rgb) / 0.07));
 	--pdk-liquid-glass-tinted-border: rgb(var(--pdk-accent-rgb) / 0.2);
 	--pdk-liquid-glass-solid-bg: rgba(30, 30, 30, 0.96);
@@ -1198,54 +1123,8 @@
 	--pdk-liquid-glass-dialog-border: rgba(188, 210, 203, 0.52);
 	--pdk-liquid-glass-dialog-filter: blur(46px) saturate(180%) brightness(1.02);
 	--pdk-liquid-glass-dialog-shadow: 0 30px 82px rgba(0, 0, 0, 0.52), 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 0 0 1px rgba(255, 255, 255, 0.07) inset;
-	--pdk-settings-window-bg: transparent;
-	--pdk-settings-body-bg: transparent;
-	--pdk-settings-sidebar-bg:
-		linear-gradient(90deg, rgba(31, 31, 31, 0.93), rgba(29, 29, 29, 0.975) 42%, rgba(24, 24, 24, 0.992) 90%),
-		linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.003) 28%, rgba(0, 0, 0, 0.034));
-	--pdk-settings-sidebar-border: var(--pdk-divider);
-	--pdk-settings-sidebar-reflection-filter: blur(38px) saturate(46%) brightness(0.56) contrast(0.58);
-	--pdk-settings-sidebar-reflection-mask:
-		linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.018) 7%, transparent 15%, transparent 100%),
-		linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.12) 7%, transparent 16%, transparent 86%, rgba(0, 0, 0, 0.08) 94%, rgba(0, 0, 0, 0.28) 100%),
-		radial-gradient(circle at 0% 0%, rgba(0, 0, 0, 0.34), transparent 28%),
-		radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 0.2), transparent 24%),
-		radial-gradient(circle at 0% 100%, rgba(0, 0, 0, 0.22), transparent 26%),
-		radial-gradient(circle at 100% 100%, rgba(0, 0, 0, 0.16), transparent 22%);
-	--pdk-settings-sidebar-reflection-opacity: 0.026;
-	--pdk-settings-sidebar-gloss:
-		linear-gradient(90deg, rgba(255, 255, 255, 0.066), rgba(255, 255, 255, 0.018) 9%, rgba(255, 255, 255, 0.002) 43%, rgba(0, 0, 0, 0.03) 78%, rgba(0, 0, 0, 0.06) 100%),
-		linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02) 7%, transparent 24%, transparent 86%, rgba(255, 255, 255, 0.052));
-	--pdk-settings-sidebar-shadow:
-		inset 0 0 0 1px rgba(228, 235, 233, 0.07),
-		inset 1px 1px 0 rgba(255, 255, 255, 0.18),
-		inset -1px 0 0 rgba(228, 235, 233, 0.055),
-		inset 0 -1px 0 rgba(228, 235, 233, 0.16);
-	--pdk-settings-sidebar-filter: blur(8px) saturate(72%) brightness(0.58) contrast(0.92);
-	--pdk-settings-search-bg: rgba(49, 49, 49, 0.72);
-	--pdk-settings-search-filter: blur(6px) saturate(72%) brightness(0.78);
-	--pdk-settings-main-bg: rgb(30, 30, 30);
-	--pdk-settings-card-bg: rgb(37, 37, 37);
 	--pdk-divider: rgb(58, 58, 58);
 	--pdk-divider-soft: rgb(49, 49, 49);
-	--pdk-settings-card-border: var(--pdk-divider-soft);
-	--pdk-finder-sidebar-active-bg: rgba(255, 255, 255, 0.09);
-	--pdk-finder-sidebar-active-ink: var(--pdk-ink);
-	--pdk-finder-divider: var(--pdk-divider);
-	--pdk-finder-tabbar-bg: rgb(37, 37, 37);
-	--pdk-finder-tabbar-border: var(--pdk-finder-divider);
-	--pdk-finder-tab-bg: rgba(255, 255, 255, 0.035);
-	--pdk-finder-tab-hover-bg: rgba(255, 255, 255, 0.075);
-	--pdk-finder-tab-active-bg: linear-gradient(180deg, rgba(96, 96, 96, 0.72), rgba(72, 72, 72, 0.62));
-	--pdk-finder-tab-active-border: rgba(230, 230, 230, 0.14);
-	--pdk-finder-tab-close-bg: rgba(255, 255, 255, 0.13);
-	--pdk-finder-tab-close-hover-bg: rgba(255, 255, 255, 0.22);
-	--pdk-finder-tab-add-bg: rgba(255, 255, 255, 0.062);
-	--pdk-finder-tab-add-hover-bg: rgba(255, 255, 255, 0.11);
-	--pdk-finder-tab-add-border: rgba(230, 230, 230, 0.12);
-	--pdk-line: var(--pdk-divider);
-	--pdk-panel: var(--pdk-material-regular-bg);
-	--pdk-shadow: var(--pdk-material-regular-shadow);
 	--pdk-control-bg: var(--pdk-material-control-bg);
 	--pdk-control-bg-hover: var(--pdk-material-control-hover-bg);
 	--pdk-tile-bg: var(--pdk-material-solid-bg);
@@ -1260,8 +1139,6 @@
 	--pdk-icon-widget-tile-border: rgba(255, 255, 255, 0.16);
 	--pdk-icon-widget-widget-icon: var(--pdk-accent);
 	--pdk-running-indicator: rgba(244, 247, 251, 0.92);
-	--pdk-window-bar-bg: linear-gradient(180deg, rgba(37, 46, 49, 0.92), rgba(33, 42, 44, 0.8));
-	--pdk-window-bar-border: var(--pdk-divider);
 	--pdk-card-bg: var(--pdk-material-card-bg);
 	--pdk-card-border: var(--pdk-divider-soft);
 	--pdk-card-shadow: var(--pdk-material-card-shadow);
@@ -1284,17 +1161,6 @@
 	--pdk-dock-pressed-icon-opacity: 0.76;
 	--pdk-dock-pressed-shadow: inset 0 2px 9px rgba(0, 0, 0, 0.46), inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 1px 0 rgba(255, 255, 255, 0.06);
 	--pdk-menu-active-bg: var(--pdk-accent-active-strong);
-	--pdk-menu-popover-bg: var(--pdk-material-popover-bg);
-	--pdk-menu-popover-border: var(--pdk-material-popover-border);
-	--pdk-menu-popover-filter: var(--pdk-material-popover-filter);
-	--pdk-menu-popover-radius: 18px;
-	--pdk-menu-popover-shadow: var(--pdk-material-popover-shadow);
-	--pdk-menu-popover-sheen: var(--pdk-material-sheen);
-	--pdk-menu-popover-sheen-opacity: 0.42;
-	--pdk-menu-popover-ink: #f3f6fb;
-	--pdk-menu-popover-muted: rgba(243, 246, 251, 0.46);
-	--pdk-menu-popover-separator: rgba(243, 246, 251, 0.18);
-	--pdk-menu-item-disabled: rgba(243, 246, 251, 0.3);
 	--pdk-dialog-bg: var(--pdk-material-dialog-bg);
 	--pdk-dialog-border: var(--pdk-material-dialog-border);
 	--pdk-dialog-shadow: var(--pdk-material-dialog-shadow);
@@ -1341,14 +1207,6 @@
 	--pdk-window-bar-bg: linear-gradient(180deg, rgb(var(--pdk-accent-rgb) / 0.06), rgba(247, 247, 247, 0.84));
 	--pdk-window-bar-border: var(--pdk-divider);
 	--pdk-finder-divider: var(--pdk-divider);
-	--pdk-settings-window-bg: transparent;
-	--pdk-settings-sidebar-bg:
-		linear-gradient(90deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.975) 44%, rgba(255, 255, 255, 0.992) 90%),
-		linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(246, 246, 246, 0.028) 28%, rgba(232, 232, 232, 0.018));
-	--pdk-settings-sidebar-reflection-opacity: 0.018;
-	--pdk-settings-main-bg: rgb(255, 255, 255);
-	--pdk-settings-card-bg: rgb(247, 247, 247);
-	--pdk-settings-card-border: var(--pdk-divider-soft);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-window-material="tinted"][data-pdk-effective-appearance="dark"] {
@@ -1365,14 +1223,6 @@
 	--pdk-window-bar-bg: linear-gradient(180deg, rgb(var(--pdk-accent-rgb) / 0.14), rgba(33, 42, 44, 0.8));
 	--pdk-window-bar-border: var(--pdk-divider);
 	--pdk-finder-divider: var(--pdk-divider);
-	--pdk-settings-window-bg: transparent;
-	--pdk-settings-sidebar-bg:
-		linear-gradient(90deg, rgba(31, 31, 31, 0.93), rgba(29, 29, 29, 0.975) 42%, rgba(24, 24, 24, 0.992) 90%),
-		linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.003) 28%, rgba(0, 0, 0, 0.034));
-	--pdk-settings-sidebar-reflection-opacity: 0.026;
-	--pdk-settings-main-bg: rgb(30, 30, 30);
-	--pdk-settings-card-bg: rgb(37, 37, 37);
-	--pdk-settings-card-border: var(--pdk-divider-soft);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] .pdk-app-launcher {
@@ -1411,15 +1261,15 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] .pdk-settings-body {
-	background: var(--pdk-settings-body-bg);
+	background: var(--pdk-settings-body-bg, var(--pdk-panel));
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-app-window="os-settings"] {
-	background: var(--pdk-settings-window-bg);
+	background: var(--pdk-settings-window-bg, var(--pdk-panel));
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"] {
-	background: var(--pdk-settings-window-bg);
+	background: var(--pdk-settings-window-bg, var(--pdk-panel));
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] .pdk-settings-sidebar {

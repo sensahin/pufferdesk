@@ -763,11 +763,6 @@ button.pdk-settings-profile-hero-avatar:focus .pdk-settings-profile-hero-edit {
 	min-width: 190px;
 }
 
-.pdk-settings-theme-apply {
-	flex: 0 0 auto;
-	white-space: nowrap;
-}
-
 .pdk-settings-button {
 	cursor: default;
 	justify-self: start;

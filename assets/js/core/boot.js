@@ -28,7 +28,10 @@
 			!window.PufferDesk.shell.createMenuItemRenderer ||
 			!window.PufferDesk.shell.createMenuController ||
 			!window.PufferDesk.shell.createContextMenuController ||
-			!window.PufferDesk.shell.createShortcutController
+			!window.PufferDesk.shell.createShortcutController ||
+			!window.PufferDesk.api ||
+			!window.PufferDesk.api.createDesktopApi ||
+			!window.PufferDesk.events
 		) {
 			return;
 		}
@@ -68,6 +71,16 @@
 		});
 		let folderManager = null;
 		const desktopIconManager = window.PufferDesk.desktop.createDesktopIconManager(shell, {
+			canRenameIcon(detail) {
+				return Boolean(
+					config
+					&& config.theme
+					&& config.theme.family === 'redmond'
+					&& detail
+					&& detail.kind === 'app'
+					&& detail.id === 'trash'
+				);
+			},
 			canDropOnFolder(detail) {
 				return Boolean(
 					folderManager
@@ -133,6 +146,15 @@
 			commands,
 			menuController
 		});
+		const desktopApi = window.PufferDesk.api.createDesktopApi({
+			appLauncher: launcher,
+			commandRegistry: commands,
+			config,
+			events: window.PufferDesk.events,
+			nativeApps: window.PufferDesk.apps,
+			shell,
+			windowManager: manager
+		});
 
 		menuController.bind();
 		contextMenuController.bind();
@@ -177,6 +199,13 @@
 		window.PufferDesk.shortcutController = shortcutController;
 		window.PufferDesk.menuController = menuController;
 		window.PufferDesk.menuCommands = commands;
+		window.PufferDesk.desktop.api = desktopApi;
+		window.PufferDesk.desktopApi = desktopApi;
+		window.PufferDesk.events.emit('desktop:ready', {
+			api: desktopApi,
+			config,
+			shell
+		});
 	}
 
 	if (document.readyState === 'loading') {

@@ -19,7 +19,6 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/css/core/responsive.css
 
 ## Theme CSS
-- assets/css/themes/pufferdesk/base.css -> assets/dist/css/themes/pufferdesk/base.min.css
 - assets/css/themes/pufferdesk/default.css -> assets/dist/css/themes/pufferdesk/default.min.css
 - assets/css/themes/redmond/modern.css -> assets/dist/css/themes/redmond/modern.min.css
 - assets/css/themes/workstation/default.css -> assets/dist/css/themes/workstation/default.min.css
@@ -27,6 +26,7 @@ Generated release assets are minified for performance. Readable source files rem
 ## JavaScript
 - assets/js/core/config.js
 - assets/js/core/dom.js
+- assets/js/core/events/event-bus.js
 - assets/js/core/services/storage.js
 - assets/js/core/services/api-client.js
 - assets/js/core/session/session-store.js
@@ -44,6 +44,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/apps/site-about-window.js
 - assets/js/core/apps/app-surfaces.js
 - assets/js/core/apps/native-apps.js
+- assets/js/core/api/desktop-api.js
 - assets/js/core/apps/settings/labels.js
 - assets/js/core/apps/settings/ui.js
 - assets/js/core/apps/settings/panel-general.js
@@ -57,6 +58,13 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/apps/settings/panel-workspace.js
 - assets/js/core/apps/settings/panel-system.js
 - assets/js/core/apps/settings-app.js
+- assets/js/core/apps/recent-items.js
+- assets/js/core/apps/folder-data.js
+- assets/js/core/apps/folder-window-state.js
+- assets/js/core/apps/app-window-options.js
+- assets/js/core/apps/native-app-opener.js
+- assets/js/core/apps/launcher-renderer.js
+- assets/js/core/apps/folder-renderer.js
 - assets/js/core/apps/app-launcher.js
 - assets/js/core/shell/search.js
 - assets/js/core/shell/dialogs.js

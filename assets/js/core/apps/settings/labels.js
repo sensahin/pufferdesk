@@ -19,7 +19,6 @@
 				{ value: 'graphite', label: 'Graphite' }
 			],
 			appearanceLabel: 'Appearance',
-			applyThemeLabel: 'Apply Theme',
 			colorLabel: 'Color',
 			iconWidgetStyleLabel: 'Icon & widget style',
 			iconWidgetStyleOptions: [
@@ -194,6 +193,7 @@
 			saving: 'Saving...',
 			themeSaveError: 'Theme could not be saved.',
 			themeSaved: 'Theme saved.',
+			themeSwitching: 'Switching theme...',
 			wallpaperSaveError: 'Wallpaper could not be saved.',
 			wallpaperSaved: 'Wallpaper saved.'
 		},

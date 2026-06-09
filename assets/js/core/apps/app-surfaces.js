@@ -141,6 +141,14 @@
 			return app.label || app.id;
 		}
 
+		function getDesktopIconLabelOverride(appId) {
+			const workspaceState = config.workspaceState && typeof config.workspaceState === 'object' ? config.workspaceState : {};
+			const icons = Array.isArray(workspaceState.desktopIcons) ? workspaceState.desktopIcons : [];
+			const icon = icons.find((item) => item && item.id === `app:${appId}` && typeof item.label === 'string' && item.label.trim());
+
+			return icon ? icon.label.trim() : '';
+		}
+
 		function getAppButtonLabel(app) {
 			const label = getAppLabel(app);
 			const badge = normalizeAppBadge(app);
@@ -206,8 +214,11 @@
 		function createDesktopAppButton(app) {
 			const button = document.createElement('button');
 			const icon = dom.createElement('span', 'pdk-app-icon');
-			const label = getAppLabel(app);
-			const badge = createAppBadge(app);
+			const defaultLabel = getAppLabel(app);
+			const labelOverride = getDesktopIconLabelOverride(app.id);
+			const label = labelOverride || defaultLabel;
+			const badgeInfo = normalizeAppBadge(app);
+			const badge = badgeInfo ? dom.createElement('span', `pdk-app-badge pdk-app-badge-${badgeInfo.tone}`, badgeInfo.text) : null;
 			const labelElement = dom.createElement('span', 'pdk-desktop-app-label', label);
 
 			button.type = 'button';
@@ -216,12 +227,17 @@
 			button.dataset.pdkContextId = app.id;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkDesktopIcon = '';
+			button.dataset.pdkDesktopIconDefaultLabel = defaultLabel;
 			button.dataset.pdkDesktopIconId = `app:${app.id}`;
 			button.dataset.pdkDesktopIconKind = 'app';
 			button.dataset.pdkOpenApp = app.id;
-			button.setAttribute('aria-label', getAppButtonLabel(app));
+			if (labelOverride) {
+				button.dataset.pdkDesktopIconLabelOverride = '1';
+			}
+			button.setAttribute('aria-label', badgeInfo && badgeInfo.ariaLabel ? `${label}, ${badgeInfo.ariaLabel}` : label);
 			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
 			if (badge) {
+				badge.setAttribute('aria-hidden', 'true');
 				icon.appendChild(badge);
 			}
 			button.append(icon, labelElement);

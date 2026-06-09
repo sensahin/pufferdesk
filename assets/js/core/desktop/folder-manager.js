@@ -743,28 +743,29 @@
 			return folder;
 		}
 
-			function closeFolderSurfaces(folderId) {
+		function reparentChildFolders(parentId, nextParentId = 'desktop') {
+			const normalizedParentId = normalizeParentId(parentId);
+			const normalizedNextParentId = normalizeParentId(nextParentId);
+			const changed = [];
+
+			userFolders.forEach((folder) => {
+				if (getFolderParentId(folder) !== normalizedParentId) {
+					return;
+				}
+
+				folder.parentId = normalizedNextParentId;
+				markFolderModified(folder);
+				changed.push(folder.id);
+			});
+
+			return changed;
+		}
+
+		function closeFolderSurfaces(folderId) {
 			if (launcher && typeof launcher.closeFolderWindow === 'function') {
 				launcher.closeFolderWindow(folderId);
 			}
 
-			function reparentChildFolders(parentId, nextParentId = 'desktop') {
-				const normalizedParentId = normalizeParentId(parentId);
-				const normalizedNextParentId = normalizeParentId(nextParentId);
-				const changed = [];
-
-				userFolders.forEach((folder) => {
-					if (getFolderParentId(folder) !== normalizedParentId) {
-						return;
-					}
-
-					folder.parentId = normalizedNextParentId;
-					markFolderModified(folder);
-					changed.push(folder.id);
-				});
-
-				return changed;
-			}
 			if (launcher && typeof launcher.closeFolderInfoWindow === 'function') {
 				launcher.closeFolderInfoWindow(folderId);
 			}

@@ -25,7 +25,6 @@ final class PufferDesk_Theme_Registry {
 				'family_label'   => __( 'PufferDesk', 'pufferdesk-admin-desktop' ),
 				'version'        => 'base',
 				'version_label'  => __( 'Base', 'pufferdesk-admin-desktop' ),
-				'stylesheet'     => 'pufferdesk/base.css',
 				'typography'     => array(
 					'fonts'          => array(
 						'ui'      => '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
@@ -83,6 +82,7 @@ final class PufferDesk_Theme_Registry {
 						'tight'   => '0',
 					),
 				),
+				'tokens'         => array(),
 				'shell'          => array(
 					'chrome'           => 'global-menu-dock',
 					'top_bar'          => 'menu-bar',
@@ -111,6 +111,17 @@ final class PufferDesk_Theme_Registry {
 						'menu_bar'             => __( 'Menu Bar', 'pufferdesk-admin-desktop' ),
 						'menu_bar_auto_hide'   => __( 'Automatically hide and show the menu bar', 'pufferdesk-admin-desktop' ),
 						'menu_bar_background'  => __( 'Show menu bar background', 'pufferdesk-admin-desktop' ),
+					),
+				),
+				'dialogs'        => array(
+					'style'         => 'floating',
+					'confirmations' => array(
+						'move_folder_to_trash' => array(
+							'enabled'        => false,
+							'variant'        => 'move-to-trash',
+							'icon'           => 'dashicons-category',
+							'default_action' => 'confirm',
+						),
 					),
 				),
 				'window_chrome'  => array(
@@ -146,6 +157,14 @@ final class PufferDesk_Theme_Registry {
 					),
 					'icon_pack'   => 'themes/pufferdesk/default/icons',
 				),
+				'tokens'         => array(
+					'radius' => array(
+						'window'           => '24px',
+						'window_maximized' => '12px',
+						'menu_popover'     => '18px',
+					),
+				),
+				'mode_tokens'    => $this->get_pufferdesk_default_mode_tokens(),
 			),
 			'workstation' => array(
 				'id'             => 'workstation',
@@ -257,6 +276,14 @@ final class PufferDesk_Theme_Registry {
 					),
 					'icon_pack'  => 'themes/redmond/modern/icons',
 				),
+				'tokens'         => array(
+					'radius' => array(
+						'window'           => '8px',
+						'window_maximized' => '0',
+						'menu_popover'     => '12px',
+					),
+				),
+				'mode_tokens'    => $this->get_redmond_modern_mode_tokens(),
 				'app_labels'     => array(
 					'trash' => __( 'Recycle Bin', 'pufferdesk-admin-desktop' ),
 				),
@@ -270,6 +297,21 @@ final class PufferDesk_Theme_Registry {
 						'empty_trash'             => __( 'Empty Recycle Bin', 'pufferdesk-admin-desktop' ),
 						'empty_trash_title'       => __( 'Empty Recycle Bin?', 'pufferdesk-admin-desktop' ),
 						'pufferdesk_trash_source' => __( 'PufferDesk Recycle Bin', 'pufferdesk-admin-desktop' ),
+						'move_folder_to_trash_window_title' => __( 'Delete Folder', 'pufferdesk-admin-desktop' ),
+						'move_folder_to_trash_confirmation' => __( 'Are you sure you want to move this folder to the Recycle Bin?', 'pufferdesk-admin-desktop' ),
+						'move_folder_to_trash_confirm_label' => __( 'Yes', 'pufferdesk-admin-desktop' ),
+						'move_folder_to_trash_cancel_label' => __( 'No', 'pufferdesk-admin-desktop' ),
+					),
+				),
+				'dialogs'        => array(
+					'style'         => 'system-window',
+					'confirmations' => array(
+						'move_folder_to_trash' => array(
+							'enabled'        => true,
+							'variant'        => 'delete-folder',
+							'icon'           => 'dashicons-category',
+							'default_action' => 'cancel',
+						),
 					),
 				),
 				'typography'     => array(
@@ -463,7 +505,7 @@ final class PufferDesk_Theme_Registry {
 		 * Theme keys are stable IDs. Values accept:
 		 * id, label, family, family_label, version, version_label, parent,
 		 * stylesheet, stylesheets, media, wallpaper, wallpapers, icon_pack,
-		 * cursor_pack, app_labels, typography, shell, menu, surfaces,
+		 * cursor_pack, app_labels, typography, tokens, mode_tokens, shell, menu, surfaces,
 		 * window_chrome, and abstract.
 		 *
 		 * @param array<string,array<string,mixed>> $themes Registered themes.
@@ -471,6 +513,351 @@ final class PufferDesk_Theme_Registry {
 		$themes = apply_filters( 'pufferdesk_themes', $themes );
 
 		return $this->normalize_themes( $themes );
+	}
+
+	/**
+	 * Get default PufferDesk light/dark surface tokens.
+	 *
+	 * @return array<string,array<string,array<string,string>>>
+	 */
+	private function get_pufferdesk_default_mode_tokens() {
+		$light_sidebar_mask = 'linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.014) 7%, transparent 15%, transparent 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0%, rgba(0, 0, 0, 0.08) 7%, transparent 16%, transparent 86%, rgba(0, 0, 0, 0.06) 94%, rgba(0, 0, 0, 0.18) 100%), radial-gradient(circle at 0% 0%, rgba(0, 0, 0, 0.2), transparent 28%), radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 0.12), transparent 24%), radial-gradient(circle at 0% 100%, rgba(0, 0, 0, 0.14), transparent 26%), radial-gradient(circle at 100% 100%, rgba(0, 0, 0, 0.1), transparent 22%)';
+		$dark_sidebar_mask  = 'linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.018) 7%, transparent 15%, transparent 100%), linear-gradient(180deg, rgba(0, 0, 0, 0.42) 0%, rgba(0, 0, 0, 0.12) 7%, transparent 16%, transparent 86%, rgba(0, 0, 0, 0.08) 94%, rgba(0, 0, 0, 0.28) 100%), radial-gradient(circle at 0% 0%, rgba(0, 0, 0, 0.34), transparent 28%), radial-gradient(circle at 100% 0%, rgba(0, 0, 0, 0.2), transparent 24%), radial-gradient(circle at 0% 100%, rgba(0, 0, 0, 0.22), transparent 26%), radial-gradient(circle at 100% 100%, rgba(0, 0, 0, 0.16), transparent 22%)';
+
+		return array(
+			'light' => array(
+				'context_menu'     => array(
+					'bg'               => 'linear-gradient(145deg, rgba(250, 250, 250, 0.9), rgba(247, 247, 247, 0.78) 60%, rgba(242, 242, 242, 0.68))',
+					'border'           => 'rgba(64, 64, 64, 0.14)',
+					'filter'           => 'blur(44px) saturate(205%) brightness(1.06)',
+					'shadow'           => '0 22px 58px rgba(6, 22, 34, 0.32), 0 1px 0 rgba(255, 255, 255, 0.62) inset, 0 0 0 1px rgba(255, 255, 255, 0.12) inset',
+					'radius'           => '18px',
+					'ink'              => '#1c252d',
+					'muted'            => 'rgba(28, 37, 45, 0.38)',
+					'separator'        => 'rgba(28, 37, 45, 0.16)',
+					'hover_bg'         => 'var(--pdk-accent)',
+					'hover_ink'        => 'var(--pdk-accent-ink)',
+					'disabled'         => 'rgba(28, 37, 45, 0.3)',
+					'selection_bg'     => 'var(--pdk-accent-medium)',
+					'selection_border' => 'var(--pdk-accent-soft)',
+					'selection_shadow' => '0 1px 2px rgba(0, 0, 0, 0.18)',
+					'sheen'            => 'linear-gradient(155deg, rgba(255, 255, 255, 0.48) 0%, rgba(255, 255, 255, 0.16) 24%, rgba(255, 255, 255, 0) 54%)',
+					'sheen_opacity'    => '0.56',
+				),
+				'settings_surface' => array(
+					'window_bg'                  => 'transparent',
+					'body_bg'                    => 'transparent',
+					'main_bg'                    => 'rgb(255, 255, 255)',
+					'card_bg'                    => 'rgb(247, 247, 247)',
+					'card_border'                => 'var(--pdk-divider-soft)',
+					'sidebar_bg'                 => 'linear-gradient(90deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.975) 44%, rgba(255, 255, 255, 0.992) 90%), linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(246, 246, 246, 0.028) 28%, rgba(232, 232, 232, 0.018))',
+					'sidebar_border'             => 'var(--pdk-divider)',
+					'sidebar_filter'             => 'blur(8px) saturate(70%) brightness(1.02) contrast(0.94)',
+					'sidebar_shadow'             => 'inset 0 0 0 1px rgba(255, 255, 255, 0.3), inset 1px 1px 0 rgba(255, 255, 255, 0.34), inset -1px 0 0 rgba(60, 60, 67, 0.035), inset 0 -1px 0 rgba(255, 255, 255, 0.24)',
+					'sidebar_radius'             => '22px',
+					'sidebar_reflection_filter'  => 'blur(38px) saturate(44%) brightness(1.08) contrast(0.62)',
+					'sidebar_reflection_mask'    => $light_sidebar_mask,
+					'sidebar_reflection_opacity' => '0.018',
+					'sidebar_gloss'              => 'linear-gradient(90deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.046) 10%, rgba(255, 255, 255, 0.01) 45%, rgba(60, 60, 67, 0.012) 78%, rgba(60, 60, 67, 0.026) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.048) 8%, transparent 25%, transparent 86%, rgba(255, 255, 255, 0.12))',
+					'search_bg'                  => 'rgba(72, 72, 72, 0.075)',
+					'search_border'              => 'rgba(255, 255, 255, 0.035)',
+					'search_shadow'              => 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+					'search_filter'              => 'blur(6px) saturate(72%) brightness(1.02)',
+					'control_radius'             => '10px',
+				),
+				'window_chrome'    => array(
+					'surface_bg'           => 'var(--pdk-material-regular-bg)',
+					'surface_border'       => 'var(--pdk-divider)',
+					'surface_shadow'       => 'var(--pdk-material-regular-shadow)',
+					'bar_bg'               => 'linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 247, 247, 0.84))',
+					'bar_border'           => 'var(--pdk-divider)',
+					'regular_bg'           => 'var(--pdk-liquid-glass-window-bg)',
+					'regular_border'       => 'var(--pdk-liquid-glass-window-border)',
+					'regular_filter'       => 'var(--pdk-liquid-glass-window-filter)',
+					'regular_shadow'       => 'var(--pdk-liquid-glass-window-shadow)',
+					'liquid_window_bg'     => 'rgba(255, 255, 255, 0.96)',
+					'liquid_window_border' => 'rgba(64, 64, 64, 0.16)',
+					'liquid_window_filter' => 'blur(40px) saturate(185%) brightness(1.05)',
+					'liquid_window_shadow' => '0 34px 92px rgba(34, 48, 54, 0.16), 0 1px 0 rgba(255, 255, 255, 0.62) inset, 0 0 0 1px rgba(255, 255, 255, 0.08) inset',
+				),
+				'explorer'         => array(
+					'finder_divider'            => 'var(--pdk-divider)',
+					'finder_sidebar_active_bg'  => 'rgba(60, 60, 67, 0.1)',
+					'finder_sidebar_active_ink' => 'var(--pdk-ink)',
+					'finder_tabbar_bg'          => 'rgb(245, 245, 245)',
+					'finder_tabbar_border'      => 'var(--pdk-finder-divider)',
+					'finder_tab_bg'             => 'rgba(60, 60, 67, 0.035)',
+					'finder_tab_hover_bg'       => 'rgba(60, 60, 67, 0.07)',
+					'finder_tab_active_bg'      => 'linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(232, 232, 232, 0.72))',
+					'finder_tab_active_border'  => 'rgba(64, 64, 64, 0.16)',
+					'finder_tab_close_bg'       => 'rgba(60, 60, 67, 0.14)',
+					'finder_tab_close_hover_bg' => 'rgba(60, 60, 67, 0.22)',
+					'finder_tab_add_bg'         => 'rgba(60, 60, 67, 0.052)',
+					'finder_tab_add_hover_bg'   => 'rgba(60, 60, 67, 0.095)',
+					'finder_tab_add_border'     => 'rgba(64, 64, 64, 0.13)',
+				),
+			),
+			'dark'  => array(
+				'context_menu'     => array(
+					'bg'               => 'linear-gradient(145deg, rgba(44, 52, 55, 0.86), rgba(37, 46, 49, 0.78) 58%, rgba(28, 37, 40, 0.66))',
+					'border'           => 'rgba(126, 143, 143, 0.34)',
+					'filter'           => 'blur(46px) saturate(190%) brightness(1.02)',
+					'shadow'           => '0 24px 66px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 0 0 1px rgba(255, 255, 255, 0.05) inset',
+					'radius'           => '18px',
+					'ink'              => '#f3f6fb',
+					'muted'            => 'rgba(243, 246, 251, 0.46)',
+					'separator'        => 'rgba(243, 246, 251, 0.18)',
+					'hover_bg'         => 'var(--pdk-accent)',
+					'hover_ink'        => 'var(--pdk-accent-ink)',
+					'disabled'         => 'rgba(243, 246, 251, 0.3)',
+					'selection_bg'     => 'var(--pdk-accent-medium)',
+					'selection_border' => 'var(--pdk-accent-soft)',
+					'selection_shadow' => '0 1px 2px rgba(0, 0, 0, 0.18)',
+					'sheen'            => 'linear-gradient(155deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.06) 24%, rgba(255, 255, 255, 0) 56%)',
+					'sheen_opacity'    => '0.42',
+				),
+				'settings_surface' => array(
+					'window_bg'                  => 'transparent',
+					'body_bg'                    => 'transparent',
+					'main_bg'                    => 'rgb(30, 30, 30)',
+					'card_bg'                    => 'rgb(37, 37, 37)',
+					'card_border'                => 'var(--pdk-divider-soft)',
+					'sidebar_bg'                 => 'linear-gradient(90deg, rgba(31, 31, 31, 0.93), rgba(29, 29, 29, 0.975) 42%, rgba(24, 24, 24, 0.992) 90%), linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.003) 28%, rgba(0, 0, 0, 0.034))',
+					'sidebar_border'             => 'var(--pdk-divider)',
+					'sidebar_filter'             => 'blur(8px) saturate(72%) brightness(0.58) contrast(0.92)',
+					'sidebar_shadow'             => 'inset 0 0 0 1px rgba(228, 235, 233, 0.07), inset 1px 1px 0 rgba(255, 255, 255, 0.18), inset -1px 0 0 rgba(228, 235, 233, 0.055), inset 0 -1px 0 rgba(228, 235, 233, 0.16)',
+					'sidebar_radius'             => '22px',
+					'sidebar_reflection_filter'  => 'blur(38px) saturate(46%) brightness(0.56) contrast(0.58)',
+					'sidebar_reflection_mask'    => $dark_sidebar_mask,
+					'sidebar_reflection_opacity' => '0.026',
+					'sidebar_gloss'              => 'linear-gradient(90deg, rgba(255, 255, 255, 0.066), rgba(255, 255, 255, 0.018) 9%, rgba(255, 255, 255, 0.002) 43%, rgba(0, 0, 0, 0.03) 78%, rgba(0, 0, 0, 0.06) 100%), linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.02) 7%, transparent 24%, transparent 86%, rgba(255, 255, 255, 0.052))',
+					'search_bg'                  => 'rgba(49, 49, 49, 0.72)',
+					'search_border'              => 'rgba(255, 255, 255, 0.035)',
+					'search_shadow'              => 'inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+					'search_filter'              => 'blur(6px) saturate(72%) brightness(0.78)',
+					'control_radius'             => '10px',
+				),
+				'window_chrome'    => array(
+					'surface_bg'           => 'var(--pdk-material-regular-bg)',
+					'surface_border'       => 'var(--pdk-divider)',
+					'surface_shadow'       => 'var(--pdk-material-regular-shadow)',
+					'bar_bg'               => 'linear-gradient(180deg, rgba(37, 46, 49, 0.92), rgba(33, 42, 44, 0.8))',
+					'bar_border'           => 'var(--pdk-divider)',
+					'regular_bg'           => 'var(--pdk-liquid-glass-window-bg)',
+					'regular_border'       => 'var(--pdk-liquid-glass-window-border)',
+					'regular_filter'       => 'var(--pdk-liquid-glass-window-filter)',
+					'regular_shadow'       => 'var(--pdk-liquid-glass-window-shadow)',
+					'liquid_window_bg'     => 'rgba(30, 30, 30, 0.96)',
+					'liquid_window_border' => 'rgba(150, 150, 150, 0.24)',
+					'liquid_window_filter' => 'blur(42px) saturate(180%) brightness(1.01)',
+					'liquid_window_shadow' => '0 36px 96px rgba(0, 0, 0, 0.46), 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 0 0 1px rgba(255, 255, 255, 0.04) inset',
+				),
+				'explorer'         => array(
+					'finder_divider'            => 'var(--pdk-divider)',
+					'finder_sidebar_active_bg'  => 'rgba(255, 255, 255, 0.09)',
+					'finder_sidebar_active_ink' => 'var(--pdk-ink)',
+					'finder_tabbar_bg'          => 'rgb(37, 37, 37)',
+					'finder_tabbar_border'      => 'var(--pdk-finder-divider)',
+					'finder_tab_bg'             => 'rgba(255, 255, 255, 0.035)',
+					'finder_tab_hover_bg'       => 'rgba(255, 255, 255, 0.075)',
+					'finder_tab_active_bg'      => 'linear-gradient(180deg, rgba(96, 96, 96, 0.72), rgba(72, 72, 72, 0.62))',
+					'finder_tab_active_border'  => 'rgba(230, 230, 230, 0.14)',
+					'finder_tab_close_bg'       => 'rgba(255, 255, 255, 0.13)',
+					'finder_tab_close_hover_bg' => 'rgba(255, 255, 255, 0.22)',
+					'finder_tab_add_bg'         => 'rgba(255, 255, 255, 0.062)',
+					'finder_tab_add_hover_bg'   => 'rgba(255, 255, 255, 0.11)',
+					'finder_tab_add_border'     => 'rgba(230, 230, 230, 0.12)',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Get Redmond Modern light/dark surface tokens.
+	 *
+	 * @return array<string,array<string,array<string,string>>>
+	 */
+	private function get_redmond_modern_mode_tokens() {
+		return array(
+			'light' => array(
+				'context_menu'     => array(
+					'bg'               => 'rgb(248 248 248)',
+					'border'           => '#e5e5e5',
+					'filter'           => 'none',
+					'shadow'           => '0 18px 42px rgb(15 23 42 / 0.18)',
+					'radius'           => '8px',
+					'ink'              => '#1f1f1f',
+					'muted'            => '#69707a',
+					'separator'        => '#e5e5e5',
+					'hover_bg'         => 'rgb(235 235 235)',
+					'hover_ink'        => '#1f1f1f',
+					'disabled'         => '#8a8a8a',
+					'padding'          => '6px',
+					'item_radius'      => '4px',
+					'item_height'      => '34px',
+					'item_gap'         => '6px',
+					'item_padding_x'   => '8px',
+					'icon_size'        => '18px',
+					'separator_margin' => '5px 4px',
+				),
+				'settings_surface' => array(
+					'window_bg'              => 'rgb(243 243 243)',
+					'body_bg'                => 'rgb(243 243 243)',
+					'main_bg'                => 'rgb(243 243 243)',
+					'card_bg'                => 'rgb(255 255 255)',
+					'card_border'            => 'rgb(229 229 229)',
+					'sidebar_bg'             => 'rgb(243 243 243)',
+					'sidebar_border'         => 'transparent',
+					'search_bg'              => 'rgb(255 255 255)',
+					'search_border'          => 'rgb(218 218 218)',
+					'control_radius'         => '6px',
+					'section_bg'             => 'rgb(255 255 255 / 0.66)',
+					'section_hover_bg'       => 'rgb(249 249 249)',
+					'section_active_bg'      => 'rgb(238 238 238)',
+					'sidebar_active_bg'      => 'rgb(232 232 232)',
+					'sidebar_active_ink'     => '#0f5fb3',
+					'sidebar_hover_bg'       => 'rgb(238 238 238)',
+					'titlebar_bg'            => 'rgb(243 243 243)',
+					'titlebar_back_disabled' => 'rgb(120 120 120)',
+				),
+				'window_chrome'    => array(
+					'surface_bg'                  => '#f7f8fb',
+					'surface_border'              => '#d2d7df',
+					'surface_shadow'              => '0 24px 70px rgb(34 43 58 / 0.22)',
+					'bar_bg'                      => 'rgb(249 251 254 / 0.86)',
+					'bar_border'                  => '#d6dce6',
+					'regular_bg'                  => 'rgb(249 251 254 / 0.94)',
+					'regular_border'              => 'rgb(142 154 176 / 0.38)',
+					'regular_filter'              => 'blur(20px) saturate(135%)',
+					'regular_shadow'              => '0 28px 70px rgb(31 41 55 / 0.2)',
+					'folder_window_border'        => 'rgb(41 50 64 / 0.28)',
+					'folder_window_shadow'        => '0 18px 46px rgb(15 23 42 / 0.22)',
+					'file_explorer_window_radius' => '9px',
+				),
+				'explorer'         => array(
+					'surface_bg'                   => 'rgb(255 255 255)',
+					'titlebar_bg'                  => 'rgb(228 228 228)',
+					'toolbar_bg'                   => 'rgb(247 247 247)',
+					'addressbar_bg'                => 'rgb(253 253 253)',
+					'command_bg'                   => 'rgb(255 255 255)',
+					'sidebar_bg'                   => 'rgb(255 255 255)',
+					'sidebar_border'               => 'rgb(242 242 242)',
+					'sidebar_heading'              => '#6b7280',
+					'sidebar_selected_bg'          => 'rgb(212 236 254)',
+					'sidebar_selected_border'      => 'rgb(212 236 254)',
+					'row_hover_bg'                 => 'rgb(212 236 254)',
+					'field_bg'                     => 'rgb(253 253 253)',
+					'field_border'                 => 'transparent',
+					'search_bg'                    => 'rgb(253 253 253)',
+					'hover_bg'                     => 'rgb(218 218 218)',
+					'selection_bg'                 => 'rgb(212 236 254)',
+					'selection_border'             => 'rgb(168 213 248)',
+					'tab_bg'                       => 'var(--pdk-redmond-explorer-toolbar-bg)',
+					'tab_inactive_bg'              => 'rgb(218 218 218)',
+					'tab_border'                   => 'transparent',
+					'tab_shadow'                   => 'none',
+					'statusbar_bg'                 => 'rgb(255 255 255)',
+					'finder_divider'               => '#e0e5ee',
+					'finder_sidebar_active_bg'     => 'rgb(37 99 235 / 0.12)',
+					'finder_sidebar_active_ink'    => '#0f5fb3',
+					'finder_tabbar_bg'             => '#f2f5f9',
+					'finder_tabbar_border'         => '#d8dde7',
+					'finder_tab_bg'                => 'rgb(255 255 255 / 0.62)',
+					'finder_tab_hover_bg'          => 'rgb(255 255 255 / 0.58)',
+					'finder_tab_active_bg'         => 'var(--pdk-redmond-explorer-tab-bg)',
+					'finder_tab_active_border'     => 'var(--pdk-redmond-explorer-tab-border)',
+				),
+			),
+			'dark'  => array(
+				'context_menu'     => array(
+					'bg'               => 'rgb(39 39 39)',
+					'border'           => 'rgb(48 48 48)',
+					'filter'           => 'none',
+					'shadow'           => '0 18px 44px rgb(0 0 0 / 0.55)',
+					'radius'           => '8px',
+					'ink'              => '#f2f2f2',
+					'muted'            => '#c7c7c7',
+					'separator'        => 'rgb(48 48 48)',
+					'hover_bg'         => 'rgb(55 55 55)',
+					'hover_ink'        => '#f2f2f2',
+					'disabled'         => '#8a8a8a',
+					'padding'          => '6px',
+					'item_radius'      => '4px',
+					'item_height'      => '34px',
+					'item_gap'         => '6px',
+					'item_padding_x'   => '8px',
+					'icon_size'        => '18px',
+					'separator_margin' => '5px 4px',
+				),
+				'settings_surface' => array(
+					'window_bg'              => 'rgb(31 31 31)',
+					'body_bg'                => 'rgb(31 31 31)',
+					'main_bg'                => 'rgb(31 31 31)',
+					'card_bg'                => 'rgb(43 43 43)',
+					'card_border'            => 'rgb(48 48 48)',
+					'sidebar_bg'             => 'rgb(31 31 31)',
+					'sidebar_border'         => 'transparent',
+					'search_bg'              => 'rgb(45 45 45)',
+					'search_border'          => 'transparent',
+					'control_radius'         => '6px',
+					'section_bg'             => 'rgb(38 38 38)',
+					'section_hover_bg'       => 'rgb(50 50 50)',
+					'section_active_bg'      => 'rgb(56 56 56)',
+					'sidebar_active_bg'      => 'rgb(45 45 45)',
+					'sidebar_active_ink'     => '#f2f2f2',
+					'sidebar_hover_bg'       => 'rgb(40 40 40)',
+					'titlebar_bg'            => 'rgb(31 31 31)',
+					'titlebar_back_disabled' => 'rgb(118 118 118)',
+				),
+				'window_chrome'    => array(
+					'surface_bg'                  => '#1b1b1b',
+					'surface_border'              => '#303030',
+					'surface_shadow'              => '0 24px 70px rgb(0 0 0 / 0.42)',
+					'bar_bg'                      => 'rgb(32 32 32 / 0.9)',
+					'bar_border'                  => '#2c2c2c',
+					'regular_bg'                  => 'rgb(32 32 32 / 0.94)',
+					'regular_border'              => 'rgb(255 255 255 / 0.14)',
+					'regular_filter'              => 'blur(20px) saturate(135%)',
+					'regular_shadow'              => '0 28px 70px rgb(0 0 0 / 0.36)',
+					'folder_window_border'        => 'rgb(48 48 48)',
+					'folder_window_shadow'        => '0 18px 46px rgb(0 0 0 / 0.34)',
+					'file_explorer_window_radius' => '9px',
+				),
+				'explorer'         => array(
+					'surface_bg'                   => 'rgb(24 24 24)',
+					'titlebar_bg'                  => 'rgb(29 29 29)',
+					'toolbar_bg'                   => 'rgb(39 39 39)',
+					'addressbar_bg'                => 'rgb(49 49 49)',
+					'command_bg'                   => 'rgb(24 24 24)',
+					'sidebar_bg'                   => 'rgb(24 24 24)',
+					'sidebar_border'               => 'rgb(38 38 38)',
+					'sidebar_heading'              => '#c7c7c7',
+					'sidebar_selected_bg'          => 'rgb(68 68 68)',
+					'sidebar_selected_border'      => 'rgb(68 68 68)',
+					'row_hover_bg'                 => 'rgb(68 68 68)',
+					'field_bg'                     => 'rgb(49 49 49)',
+					'field_border'                 => 'transparent',
+					'search_bg'                    => 'rgb(49 49 49)',
+					'hover_bg'                     => 'rgb(40 40 40)',
+					'selection_bg'                 => 'rgb(68 68 68)',
+					'selection_border'             => 'rgb(68 68 68)',
+					'tab_bg'                       => 'var(--pdk-redmond-explorer-toolbar-bg)',
+					'tab_inactive_bg'              => 'rgb(40 40 40)',
+					'tab_border'                   => 'transparent',
+					'tab_shadow'                   => 'none',
+					'statusbar_bg'                 => 'rgb(26 26 26)',
+					'finder_divider'               => '#303030',
+					'finder_sidebar_active_bg'     => '#303030',
+					'finder_sidebar_active_ink'    => '#f2f2f2',
+					'finder_tabbar_bg'             => '#202020',
+					'finder_tabbar_border'         => '#303030',
+					'finder_tab_bg'                => '#2b2b2b',
+					'finder_tab_hover_bg'          => '#333',
+					'finder_tab_active_bg'         => 'var(--pdk-redmond-explorer-tab-bg)',
+					'finder_tab_active_border'     => 'var(--pdk-redmond-explorer-tab-border)',
+				),
+			),
+		);
 	}
 
 	/**
@@ -519,11 +906,12 @@ final class PufferDesk_Theme_Registry {
 				'media'         => $resolved['media'],
 				'typography'    => $resolved['typography'],
 				'shell'         => $resolved['shell'],
-					'surfaces'      => $resolved['surfaces'],
-					'settings'      => $resolved['settings'],
-					'window_chrome' => $resolved['window_chrome'],
-				);
-			}
+				'dialogs'       => $resolved['dialogs'],
+				'surfaces'      => $resolved['surfaces'],
+				'settings'      => $resolved['settings'],
+				'window_chrome' => $resolved['window_chrome'],
+			);
+		}
 
 		return $options;
 	}
@@ -597,14 +985,17 @@ final class PufferDesk_Theme_Registry {
 				'media'          => $this->normalize_media( $theme ),
 				'app_labels'     => $this->normalize_string_map( isset( $theme['app_labels'] ) ? $theme['app_labels'] : array() ),
 				'typography'     => $this->normalize_typography_config( isset( $theme['typography'] ) ? $theme['typography'] : array() ),
+				'tokens'         => $this->normalize_token_config( isset( $theme['tokens'] ) ? $theme['tokens'] : array() ),
+				'mode_tokens'    => $this->normalize_mode_token_config( isset( $theme['mode_tokens'] ) ? $theme['mode_tokens'] : array() ),
 				'shell'          => $this->normalize_shell_config( isset( $theme['shell'] ) ? $theme['shell'] : array() ),
 				'menu'           => $this->normalize_menu_config( isset( $theme['menu'] ) ? $theme['menu'] : array() ),
+				'dialogs'        => $this->normalize_dialog_config( isset( $theme['dialogs'] ) ? $theme['dialogs'] : array() ),
 				'surfaces'       => $this->normalize_surface_config( isset( $theme['surfaces'] ) ? $theme['surfaces'] : array() ),
-					'settings'       => $this->normalize_settings_config( isset( $theme['settings'] ) ? $theme['settings'] : array() ),
-					'window_chrome'  => $this->normalize_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() ),
-					'abstract'       => ! empty( $theme['abstract'] ),
-				);
-			}
+				'settings'       => $this->normalize_settings_config( isset( $theme['settings'] ) ? $theme['settings'] : array() ),
+				'window_chrome'  => $this->normalize_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() ),
+				'abstract'       => ! empty( $theme['abstract'] ),
+			);
+		}
 
 		return $normalized;
 	}
@@ -627,8 +1018,11 @@ final class PufferDesk_Theme_Registry {
 			$theme['stylesheet_stack'] = $theme['stylesheets'];
 			$theme['ancestors']        = array();
 			$theme['typography']       = $this->complete_typography_config( $theme['typography'] );
+			$theme['tokens']           = $this->complete_token_config( $theme['tokens'] );
+			$theme['mode_tokens']      = $this->complete_mode_token_config( $theme['mode_tokens'] );
 			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
 			$theme['menu']             = $this->complete_menu_config( $theme['menu'] );
+			$theme['dialogs']          = $this->complete_dialog_config( $theme['dialogs'] );
 			$theme['surfaces']         = $this->complete_surface_config( $theme['surfaces'] );
 			$theme['settings']         = $this->complete_settings_config( $theme['settings'] );
 			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
@@ -641,8 +1035,11 @@ final class PufferDesk_Theme_Registry {
 			$theme['stylesheet_stack'] = $theme['stylesheets'];
 			$theme['ancestors']        = array();
 			$theme['typography']       = $this->complete_typography_config( $theme['typography'] );
+			$theme['tokens']           = $this->complete_token_config( $theme['tokens'] );
+			$theme['mode_tokens']      = $this->complete_mode_token_config( $theme['mode_tokens'] );
 			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
 			$theme['menu']             = $this->complete_menu_config( $theme['menu'] );
+			$theme['dialogs']          = $this->complete_dialog_config( $theme['dialogs'] );
 			$theme['surfaces']         = $this->complete_surface_config( $theme['surfaces'] );
 			$theme['settings']         = $this->complete_settings_config( $theme['settings'] );
 			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
@@ -656,8 +1053,11 @@ final class PufferDesk_Theme_Registry {
 		$theme['media']            = $this->merge_media( $parent['media'], $theme['media'] );
 		$theme['app_labels']       = $this->merge_theme_config( $parent['app_labels'], $theme['app_labels'] );
 		$theme['typography']       = $this->complete_typography_config( $this->merge_theme_config( $parent['typography'], $theme['typography'] ) );
+		$theme['tokens']           = $this->complete_token_config( $this->merge_theme_config( $parent['tokens'], $theme['tokens'] ) );
+		$theme['mode_tokens']      = $this->complete_mode_token_config( $this->merge_theme_config( $parent['mode_tokens'], $theme['mode_tokens'] ) );
 		$theme['shell']            = $this->complete_shell_config( $this->merge_theme_config( $parent['shell'], $theme['shell'] ) );
 		$theme['menu']             = $this->complete_menu_config( $this->merge_theme_config( $parent['menu'], $theme['menu'] ) );
+		$theme['dialogs']          = $this->complete_dialog_config( $this->merge_theme_config( $parent['dialogs'], $theme['dialogs'] ) );
 		$theme['surfaces']         = $this->complete_surface_config( $this->merge_theme_config( $parent['surfaces'], $theme['surfaces'] ) );
 		$theme['settings']         = $this->complete_settings_config( $this->merge_theme_config( $parent['settings'], $theme['settings'] ) );
 		$theme['window_chrome']    = $this->complete_window_chrome_config( $this->merge_theme_config( $parent['window_chrome'], $theme['window_chrome'] ) );
@@ -888,6 +1288,154 @@ final class PufferDesk_Theme_Registry {
 			$this->get_default_typography_config(),
 			is_array( $typography ) ? $typography : array()
 		);
+	}
+
+	/**
+	 * Normalize a theme design token contract.
+	 *
+	 * @param mixed $tokens Raw token config.
+	 * @return array<string,array<string,string>>
+	 */
+	private function normalize_token_config( $tokens ) {
+		if ( ! is_array( $tokens ) ) {
+			return array();
+		}
+
+		$allowed = $this->get_token_keys();
+		$normalized = array();
+
+		foreach ( $allowed as $section => $keys ) {
+			if ( empty( $tokens[ $section ] ) || ! is_array( $tokens[ $section ] ) ) {
+				continue;
+			}
+
+			$section_tokens = $this->normalize_css_token_map( $tokens[ $section ], $keys );
+			if ( ! empty( $section_tokens ) ) {
+				$normalized[ $section ] = $section_tokens;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Complete a token config.
+	 *
+	 * Tokens are intentionally additive. Missing token values must not be filled
+	 * from generic defaults because emitted shell inline styles override concrete
+	 * theme CSS variables such as dark-mode colors and window radius.
+	 *
+	 * @param mixed $tokens Token config.
+	 * @return array<string,array<string,string>>
+	 */
+	private function complete_token_config( $tokens ) {
+		return is_array( $tokens ) ? $tokens : array();
+	}
+
+	/**
+	 * Normalize light/dark theme design token contracts.
+	 *
+	 * @param mixed $tokens Raw mode token config.
+	 * @return array<string,array<string,array<string,string>>>
+	 */
+	private function normalize_mode_token_config( $tokens ) {
+		$normalized = array();
+
+		if ( ! is_array( $tokens ) ) {
+			return $normalized;
+		}
+
+		foreach ( array( 'light', 'dark' ) as $mode ) {
+			if ( empty( $tokens[ $mode ] ) || ! is_array( $tokens[ $mode ] ) ) {
+				continue;
+			}
+
+			$mode_tokens = $this->normalize_token_config( $tokens[ $mode ] );
+			if ( ! empty( $mode_tokens ) ) {
+				$normalized[ $mode ] = $mode_tokens;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Complete a mode token config.
+	 *
+	 * Mode tokens are also additive so dark/light CSS can keep local overrides
+	 * until a surface has been intentionally migrated.
+	 *
+	 * @param mixed $tokens Mode token config.
+	 * @return array<string,array<string,array<string,string>>>
+	 */
+	private function complete_mode_token_config( $tokens ) {
+		return is_array( $tokens ) ? $tokens : array();
+	}
+
+	/**
+	 * Allowed token keys by section.
+	 *
+	 * @return array<string,string[]>
+	 */
+	private function get_token_keys() {
+		return array(
+			'color'    => array( 'ink', 'muted', 'desktop_bg', 'accent', 'accent_ink', 'highlight' ),
+			'material' => array( 'clear_bg', 'clear_border', 'clear_filter', 'clear_shadow', 'regular_bg', 'regular_border', 'regular_filter', 'regular_shadow', 'tinted_bg', 'tinted_border', 'solid_bg', 'solid_border', 'card_shadow', 'control_bg', 'control_hover_bg', 'control_active_bg', 'control_border', 'control_filter', 'bar_bg', 'bar_border', 'bar_filter', 'bar_shadow', 'popover_bg', 'popover_border', 'popover_filter', 'popover_shadow', 'dialog_bg', 'dialog_border', 'dialog_filter', 'dialog_shadow' ),
+			'spacing'  => array( 'window_safe_edge', 'dock_screen_edge', 'dock_hover_lift', 'dock_icon_size', 'dock_item_size', 'dock_tile_size', 'scrollbar_size', 'app_badge_size', 'app_badge_padding_x', 'app_badge_max_width' ),
+			'radius'   => array( 'window', 'window_maximized', 'menu_popover' ),
+			'border'   => array( 'line', 'window_bar', 'tile', 'dock' ),
+			'shadow'   => array( 'default', 'card', 'dialog', 'menu_popover' ),
+			'context_menu' => array( 'bg', 'border', 'filter', 'shadow', 'radius', 'ink', 'muted', 'separator', 'hover_bg', 'hover_ink', 'disabled', 'selection_bg', 'selection_border', 'selection_shadow', 'sheen', 'sheen_opacity', 'padding', 'item_radius', 'item_height', 'item_gap', 'item_padding_x', 'icon_size', 'separator_margin' ),
+			'settings_surface' => array( 'window_bg', 'body_bg', 'main_bg', 'card_bg', 'card_border', 'sidebar_bg', 'sidebar_border', 'sidebar_filter', 'sidebar_shadow', 'sidebar_radius', 'sidebar_reflection_filter', 'sidebar_reflection_mask', 'sidebar_reflection_opacity', 'sidebar_gloss', 'search_bg', 'search_border', 'search_shadow', 'search_filter', 'control_radius', 'section_bg', 'section_hover_bg', 'section_active_bg', 'sidebar_active_bg', 'sidebar_active_ink', 'sidebar_hover_bg', 'titlebar_bg', 'titlebar_back_disabled' ),
+			'window_chrome' => array( 'surface_bg', 'surface_border', 'surface_shadow', 'bar_bg', 'bar_border', 'regular_bg', 'regular_border', 'regular_filter', 'regular_shadow', 'liquid_window_bg', 'liquid_window_border', 'liquid_window_filter', 'liquid_window_shadow', 'folder_window_border', 'folder_window_shadow', 'file_explorer_window_radius' ),
+			'explorer' => array( 'surface_bg', 'titlebar_bg', 'toolbar_bg', 'addressbar_bg', 'command_bg', 'sidebar_bg', 'sidebar_border', 'sidebar_heading', 'sidebar_selected_bg', 'sidebar_selected_border', 'row_hover_bg', 'field_bg', 'field_border', 'search_bg', 'hover_bg', 'selection_bg', 'selection_border', 'tab_bg', 'tab_inactive_bg', 'tab_border', 'tab_shadow', 'statusbar_bg', 'finder_divider', 'finder_sidebar_active_bg', 'finder_sidebar_active_ink', 'finder_tabbar_bg', 'finder_tabbar_border', 'finder_tab_bg', 'finder_tab_hover_bg', 'finder_tab_active_bg', 'finder_tab_active_border', 'finder_tab_close_bg', 'finder_tab_close_hover_bg', 'finder_tab_add_bg', 'finder_tab_add_hover_bg', 'finder_tab_add_border' ),
+		);
+	}
+
+	/**
+	 * Normalize a CSS token map.
+	 *
+	 * @param mixed    $values Raw token map.
+	 * @param string[] $allowed_keys Allowed keys.
+	 * @return array<string,string>
+	 */
+	private function normalize_css_token_map( $values, $allowed_keys ) {
+		$normalized = array();
+		if ( ! is_array( $values ) ) {
+			return $normalized;
+		}
+
+		foreach ( $values as $key => $value ) {
+			$key = sanitize_key( (string) $key );
+			if ( '' === $key || ! in_array( $key, $allowed_keys, true ) || ! is_scalar( $value ) ) {
+				continue;
+			}
+
+			$value = $this->sanitize_css_token_value( $value );
+			if ( '' !== $value ) {
+				$normalized[ $key ] = $value;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Sanitize a single CSS token value.
+	 *
+	 * @param mixed $value Raw token value.
+	 * @return string
+	 */
+	private function sanitize_css_token_value( $value ) {
+		$value = trim( wp_strip_all_tags( (string) $value ) );
+		$value = preg_replace( '/\s+/', ' ', $value );
+		$value = is_string( $value ) ? $value : '';
+
+		if ( '' === $value || preg_match( '/[;{}<>]/', $value ) || preg_match( '/(?:url|expression)\s*\(/i', $value ) ) {
+			return '';
+		}
+
+		return $value;
 	}
 
 	/**
@@ -1252,6 +1800,86 @@ final class PufferDesk_Theme_Registry {
 	}
 
 	/**
+	 * Normalize theme dialog metadata.
+	 *
+	 * @param mixed $dialogs Raw dialog metadata.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_dialog_config( $dialogs ) {
+		if ( ! is_array( $dialogs ) ) {
+			return array();
+		}
+
+		$normalized = array();
+
+		if ( array_key_exists( 'style', $dialogs ) ) {
+			$style = sanitize_key( (string) $dialogs['style'] );
+			if ( in_array( $style, array( 'floating', 'system-window' ), true ) ) {
+				$normalized['style'] = $style;
+			}
+		}
+
+		if ( isset( $dialogs['confirmations'] ) && is_array( $dialogs['confirmations'] ) ) {
+			$confirmations = array();
+
+			foreach ( $dialogs['confirmations'] as $id => $confirmation ) {
+				$id = sanitize_key( (string) $id );
+				if ( '' === $id || ! is_array( $confirmation ) ) {
+					continue;
+				}
+
+				$confirmation = $this->normalize_dialog_confirmation_config( $confirmation );
+				if ( ! empty( $confirmation ) ) {
+					$confirmations[ $id ] = $confirmation;
+				}
+			}
+
+			if ( ! empty( $confirmations ) ) {
+				$normalized['confirmations'] = $confirmations;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize a theme confirmation policy.
+	 *
+	 * @param array<string,mixed> $confirmation Raw confirmation policy.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_dialog_confirmation_config( $confirmation ) {
+		$normalized = array();
+
+		if ( array_key_exists( 'enabled', $confirmation ) ) {
+			$normalized['enabled'] = $this->normalize_boolean( $confirmation['enabled'] );
+		}
+
+		if ( array_key_exists( 'variant', $confirmation ) ) {
+			$variant = sanitize_html_class( (string) $confirmation['variant'] );
+			if ( '' !== $variant ) {
+				$normalized['variant'] = $variant;
+			}
+		}
+
+		if ( array_key_exists( 'icon', $confirmation ) && is_scalar( $confirmation['icon'] ) ) {
+			$icon = sanitize_text_field( (string) $confirmation['icon'] );
+			if ( '' !== $icon ) {
+				$normalized['icon'] = $icon;
+			}
+		}
+
+		if ( array_key_exists( 'default_action', $confirmation ) ) {
+			$default_action = sanitize_key( (string) $confirmation['default_action'] );
+			if ( in_array( $default_action, array( 'confirm', 'cancel' ), true ) ) {
+				$normalized['default_action'] = $default_action;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
 	 * Normalize native settings app theme metadata.
 	 *
 	 * @param mixed $settings Raw settings metadata.
@@ -1427,6 +2055,38 @@ final class PufferDesk_Theme_Registry {
 	 */
 	private function complete_menu_config( $menu ) {
 		return is_array( $menu ) ? $menu : array();
+	}
+
+	/**
+	 * Default dialog contract for themes.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_default_dialog_config() {
+		return array(
+			'style'         => 'floating',
+			'confirmations' => array(
+				'move_folder_to_trash' => array(
+					'enabled'        => false,
+					'variant'        => 'move-to-trash',
+					'icon'           => 'dashicons-category',
+					'default_action' => 'confirm',
+				),
+			),
+		);
+	}
+
+	/**
+	 * Apply defaults to dialog metadata.
+	 *
+	 * @param mixed $dialogs Dialog metadata.
+	 * @return array<string,mixed>
+	 */
+	private function complete_dialog_config( $dialogs ) {
+		return $this->merge_theme_config(
+			$this->get_default_dialog_config(),
+			is_array( $dialogs ) ? $dialogs : array()
+		);
 	}
 
 	/**

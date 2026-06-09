@@ -472,6 +472,64 @@
 			return Object.assign({}, getActionDefaults(actionKey), actions[actionKey] && typeof actions[actionKey] === 'object' ? actions[actionKey] : {});
 		}
 
+		function getDialogConfig() {
+			return config.dialogs && typeof config.dialogs === 'object' ? config.dialogs : {};
+		}
+
+		function getConfirmationPolicy(policyKey) {
+			const dialogsConfig = getDialogConfig();
+			const confirmations = dialogsConfig.confirmations && typeof dialogsConfig.confirmations === 'object'
+				? dialogsConfig.confirmations
+				: {};
+			const policy = confirmations[policyKey];
+
+			return policy && typeof policy === 'object' ? policy : {};
+		}
+
+		function isConfirmationEnabled(policyKey, fallback = true) {
+			const policy = getConfirmationPolicy(policyKey);
+
+			return typeof policy.enabled === 'boolean' ? policy.enabled : fallback;
+		}
+
+		function getConfirmationDefaultAction(policy) {
+			return policy && (policy.default_action === 'cancel' || policy.defaultAction === 'cancel') ? 'cancel' : 'confirm';
+		}
+
+		function formatDateTime(value) {
+			const date = new Date(value || '');
+
+			return Number.isFinite(date.getTime()) ? date.toLocaleString() : '';
+		}
+
+		function getMoveFolderToTrashDialogOptions(folder, folderLabel) {
+			const policy = getConfirmationPolicy('move_folder_to_trash');
+			const variant = policy.variant || 'move-to-trash';
+			const createdAt = formatDateTime(folder && folder.createdAt ? folder.createdAt : '');
+			const detailMeta = createdAt ? [`${getLabel('sort_date_created', 'Date Created')}: ${createdAt}`] : [];
+			const confirmationTitle = getLabel('move_folder_to_trash_confirmation', 'Are you sure you want to move this folder to Trash?');
+			const fallbackTitle = formatLabel('move_folder_to_trash_title_format', 'Move "%s" to Trash?', [folderLabel]);
+			const isSystemDeleteDialog = variant === 'delete-folder';
+
+			return {
+				cancelLabel: getLabel('move_folder_to_trash_cancel_label', getLabel('cancel', 'Cancel')),
+				confirmLabel: getLabel('move_folder_to_trash_confirm_label', getLabel('move_to_trash', 'Move to Trash')),
+				defaultAction: getConfirmationDefaultAction(policy),
+				icon: policy.icon || (folder && folder.icon) || 'dashicons-category',
+				item: {
+					icon: (folder && folder.icon) || policy.icon || 'dashicons-category',
+					label: folderLabel,
+					meta: detailMeta
+				},
+				message: isSystemDeleteDialog
+					? ''
+					: getLabel('move_folder_to_trash_message', 'Only this PufferDesk folder will be moved. Apps and plugins inside it stay installed and available.'),
+				title: isSystemDeleteDialog ? confirmationTitle : fallbackTitle,
+				variant,
+				windowTitle: getLabel('move_folder_to_trash_window_title', '')
+			};
+		}
+
 		function getShellUrl() {
 			if (!config.shellUrl) {
 				return null;
@@ -827,6 +885,25 @@
 			}
 		});
 
+		register('desktop-icon.rename', {
+			isEnabled(payload, detail) {
+				return Boolean(
+					desktopIconManager
+					&& typeof desktopIconManager.startInlineRename === 'function'
+					&& detail
+					&& detail.type === 'desktop-app'
+					&& (payload.target || detail.id) === 'trash'
+				);
+			},
+			run(payload, detail) {
+				desktopIconManager.startInlineRename({
+					iconElement: detail && detail.targetElement ? detail.targetElement : null,
+					id: payload.target || (detail && detail.id) || '',
+					kind: 'app'
+				});
+			}
+		});
+
 		register('folder-tab.close', {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.closeFolderTab === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
@@ -893,15 +970,14 @@
 				const folderId = getFolderIdFromPayload(payload, detail);
 				const folder = folderManager.getFolder(folderId);
 				const folderLabel = folder && folder.label ? folder.label : getLabel('folder', 'Folder');
-				const title = formatLabel('move_folder_to_trash_title_format', 'Move "%s" to Trash?', [folderLabel]);
-				const confirmed = dialogs && typeof dialogs.confirm === 'function'
-					? await dialogs.confirm({
-						cancelLabel: getLabel('cancel', 'Cancel'),
-						confirmLabel: getLabel('move_to_trash', 'Move to Trash'),
-						message: getLabel('move_folder_to_trash_message', 'Only this PufferDesk folder will be moved. Apps and plugins inside it stay installed and available.'),
-						title
-					})
-					: window.confirm(title);
+				let confirmed = true;
+
+				if (isConfirmationEnabled('move_folder_to_trash', false)) {
+					const dialogOptions = getMoveFolderToTrashDialogOptions(folder, folderLabel);
+					confirmed = dialogs && typeof dialogs.confirm === 'function'
+						? await dialogs.confirm(dialogOptions)
+						: window.confirm(`${dialogOptions.title}\n\n${dialogOptions.message || ''}`);
+				}
 
 				if (confirmed) {
 					folderManager.moveFolderToTrash(folderId);

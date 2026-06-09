@@ -10,6 +10,9 @@
 		const dock = shell.querySelector('.pdk-dock');
 		const menuBar = shell.querySelector('.pdk-menu-bar');
 		const sessionStore = window.PufferDesk.session.createSessionStore(options.storageKey || '');
+		const eventBus = window.PufferDesk.events && typeof window.PufferDesk.events.emit === 'function'
+			? window.PufferDesk.events
+			: null;
 		let zIndex = 30;
 		let windowOffset = 0;
 		let windowId = 0;
@@ -39,6 +42,40 @@
 				closeWindow(win, appId);
 			}
 		});
+
+		function getWindowEventDetail(win, detail = {}) {
+			const state = win ? readWindowState(win) : null;
+			const folderId = win && win.dataset ? win.dataset.pdkFolderWindow || win.dataset.pdkFolderInfoWindow || '' : '';
+
+			return Object.assign({
+				active: Boolean(win && activeWindow === win),
+				appId: win && win.dataset ? win.dataset.pdkAppWindow || '' : '',
+				folderId,
+				hidden: Boolean(win && win.classList.contains('is-hidden')),
+				kind: win && win.dataset ? win.dataset.pdkWindowKind || (win.dataset.pdkAppWindow ? 'app' : 'window') : '',
+				maximized: Boolean(win && win.classList.contains('is-maximized')),
+				restoring: restoreInProgress,
+				state,
+				title: win && win.dataset ? win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || '' : '',
+				url: win && win.dataset ? win.dataset.pdkWindowUrl || '' : '',
+				windowElement: win || null,
+				windowId: win ? getWindowId(win) : ''
+			}, detail);
+		}
+
+		function emitWindowEvent(name, win, detail = {}) {
+			if (!eventBus || !name) {
+				return null;
+			}
+
+			return eventBus.emit(name, getWindowEventDetail(win, detail));
+		}
+
+		function emitWindowStateChanged(win, change, detail = {}) {
+			return emitWindowEvent('window:stateChanged', win, Object.assign({
+				change
+			}, detail));
+		}
 
 		function withIframeParam(url) {
 			try {
@@ -169,7 +206,40 @@
 			revealWindow(win);
 			constrainWindow(win);
 			setActiveWindow(win);
+			emitWindowStateChanged(win, 'focused');
 			scheduleSave();
+		}
+
+		function moveWindow(win, position = {}, moveOptions = {}) {
+			if (!win || !position || typeof position !== 'object') {
+				return false;
+			}
+
+			const startState = readWindowState(win);
+			win.style.transform = 'none';
+
+			if (Number.isFinite(position.left)) {
+				win.style.left = `${Math.round(position.left)}px`;
+			}
+			if (Number.isFinite(position.top)) {
+				win.style.top = `${Math.round(position.top)}px`;
+			}
+
+			if (moveOptions.focus !== false) {
+				focusWindow(win);
+			} else {
+				constrainWindow(win);
+			}
+
+			const nextState = readWindowState(win);
+			const changed = startState.left !== nextState.left || startState.top !== nextState.top;
+
+			if (changed && moveOptions.emit !== false) {
+				emitWindowStateChanged(win, 'moved');
+			}
+			scheduleSave();
+
+			return changed;
 		}
 
 		function minimizeWindow(win) {
@@ -197,6 +267,7 @@
 				win.classList.add('is-hidden');
 				win.removeAttribute('data-pdk-minimize-animation');
 				clearWindowAnimationTarget(win);
+				emitWindowStateChanged(win, 'minimized');
 				scheduleSave();
 			});
 		}
@@ -246,6 +317,7 @@
 			win.classList.toggle('is-maximized');
 			constrainWindow(win);
 			focusWindow(win);
+			emitWindowStateChanged(win, win.classList.contains('is-maximized') ? 'maximized' : 'restored');
 			scheduleSave();
 		}
 
@@ -257,6 +329,17 @@
 			cancelWindowAnimation(win);
 			removeMinimizedDockItem(win);
 			showDesktopWindows.delete(win);
+			const closedState = Object.assign({}, readWindowState(win), {
+				closed: true
+			});
+
+			emitWindowEvent('window:closed', win, {
+				appId: appId || win.dataset.pdkAppWindow || '',
+				state: closedState
+			});
+			emitWindowStateChanged(win, 'closed', {
+				state: closedState
+			});
 			win.remove();
 			if (appId) {
 				setDockRunning(appId, false);
@@ -314,6 +397,7 @@
 		}
 
 		function setActiveWindow(win) {
+			const previousWindow = activeWindow;
 			activeWindow = win || null;
 			shell.querySelectorAll('.pdk-window.is-active').forEach((item) => {
 				item.classList.remove('is-active');
@@ -323,6 +407,12 @@
 			}
 			dispatchActiveWindowChange();
 			syncFullscreenState();
+			if (activeWindow && activeWindow !== previousWindow) {
+				emitWindowEvent('window:focused', activeWindow, {
+					previousWindowElement: previousWindow || null,
+					previousWindowId: previousWindow ? getWindowId(previousWindow) : ''
+				});
+			}
 		}
 
 		function isVisibleWindow(win) {
@@ -511,6 +601,9 @@
 			win.removeAttribute('data-pdk-minimize-animation');
 			removeMinimizedDockItem(win);
 			constrainWindow(win);
+			if (wasHidden && options.emitState !== false) {
+				emitWindowStateChanged(win, 'restored');
+			}
 
 			if (wasHidden && options.animate !== false && shouldAnimateOpeningApps()) {
 				playWindowAnimation(win, 'is-restoring', target);
@@ -620,6 +713,7 @@
 			shell.dataset.pdkShowingDesktop = '1';
 			visibleWindows.forEach((win) => {
 				win.classList.add('is-show-desktop-hidden');
+				emitWindowStateChanged(win, 'showDesktopHidden');
 			});
 			setActiveWindow(null);
 		}
@@ -631,6 +725,7 @@
 
 			showDesktopWindows.forEach((win) => {
 				win.classList.remove('is-show-desktop-hidden');
+				emitWindowStateChanged(win, 'showDesktopRestored');
 			});
 			showDesktopWindows = new Set();
 			showDesktopActive = false;
@@ -718,6 +813,10 @@
 						handle.removeEventListener('pointermove', move);
 						handle.removeEventListener('pointerup', up);
 						handle.removeEventListener('pointercancel', up);
+						const nextRect = getRelativeRect(win);
+						if (Math.round(startLeft) !== nextRect.left || Math.round(startTop) !== nextRect.top) {
+							emitWindowStateChanged(win, 'moved');
+						}
 						scheduleSave();
 					};
 
@@ -872,6 +971,15 @@
 					handle.releasePointerCapture(releasePointerId);
 				}
 
+				const nextRect = getRelativeRect(win);
+				if (
+					nextRect.left !== startLeft
+					|| nextRect.top !== startTop
+					|| nextRect.width !== startWidth
+					|| nextRect.height !== startHeight
+				) {
+					emitWindowStateChanged(win, 'resized');
+				}
 				scheduleSave();
 			};
 
@@ -920,7 +1028,7 @@
 			};
 		}
 
-		function applyWindowState(win, state) {
+		function applyWindowState(win, state, stateOptions = {}) {
 			if (!state || typeof state !== 'object') {
 				return;
 			}
@@ -948,6 +1056,9 @@
 			win.classList.toggle('is-hidden', Boolean(state.hidden));
 			win.classList.toggle('is-closed', Boolean(state.closed));
 			constrainWindow(win);
+			if (stateOptions.emit !== false) {
+				emitWindowStateChanged(win, 'stateApplied');
+			}
 		}
 
 		function serializeWindows() {
@@ -1087,10 +1198,16 @@
 			desktop.appendChild(win);
 
 			if (windowOptions.state) {
-				applyWindowState(win, windowOptions.state);
+				applyWindowState(win, windowOptions.state, {
+					emit: false
+				});
 			}
 
 			bindWindowFrame(win);
+			emitWindowEvent('window:created', win, {
+				options: windowOptions
+			});
+			emitWindowStateChanged(win, 'created');
 
 			if (!windowOptions.skipFocus) {
 				focusWindow(win);
@@ -1258,6 +1375,7 @@
 			},
 			makeDraggable,
 			minimizeWindow,
+			moveWindow,
 			restoreSession,
 			saveSession,
 			setDockRunning,

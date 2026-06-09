@@ -26,14 +26,23 @@ final class PufferDesk_Runtime_Config {
 	private $theme_registry;
 
 	/**
+	 * Settings registry.
+	 *
+	 * @var PufferDesk_Settings_Registry
+	 */
+	private $settings_registry;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param PufferDesk_Router         $router Request router.
-	 * @param PufferDesk_Theme_Registry $theme_registry Theme registry.
+	 * @param PufferDesk_Router            $router Request router.
+	 * @param PufferDesk_Theme_Registry    $theme_registry Theme registry.
+	 * @param PufferDesk_Settings_Registry $settings_registry Settings registry.
 	 */
-	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry ) {
-		$this->router         = $router;
-		$this->theme_registry = $theme_registry;
+	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry ) {
+		$this->router            = $router;
+		$this->theme_registry    = $theme_registry;
+		$this->settings_registry = $settings_registry;
 	}
 
 	/**
@@ -59,6 +68,7 @@ final class PufferDesk_Runtime_Config {
 			'desktopDock'    => isset( $context['desktop_dock'] ) && is_array( $context['desktop_dock'] ) ? $context['desktop_dock'] : array(),
 			'desktopFolders' => isset( $context['desktop_folders'] ) && is_array( $context['desktop_folders'] ) ? $context['desktop_folders'] : array(),
 			'desktopTrash'   => isset( $context['desktop_trash'] ) && is_array( $context['desktop_trash'] ) ? $context['desktop_trash'] : array(),
+			'dialogs'        => isset( $theme['dialogs'] ) && is_array( $theme['dialogs'] ) ? $theme['dialogs'] : array(),
 			'logoutUrl'      => $this->get_logout_url(),
 			'menuBar'        => isset( $context['menu_bar'] ) && is_array( $context['menu_bar'] ) ? $context['menu_bar'] : array(),
 			'settings'       => $this->get_settings_config( $theme ),
@@ -453,6 +463,7 @@ final class PufferDesk_Runtime_Config {
 	private function get_settings_config( $theme = array() ) {
 		return array(
 			'capabilities' => $this->get_shell_capabilities_config( $theme ),
+			'domains'      => $this->settings_registry->get_client_domains(),
 			'general' => array(
 				'description' => __( 'Manage site information, updates, language, privacy, and WordPress tools.', 'pufferdesk-admin-desktop' ),
 				'groups'      => $this->get_general_settings_groups(),
@@ -513,6 +524,7 @@ final class PufferDesk_Runtime_Config {
 				'photoRemoved'           => __( 'Photo removed.', 'pufferdesk-admin-desktop' ),
 				'themeSaveError'         => __( 'Theme could not be saved.', 'pufferdesk-admin-desktop' ),
 				'themeSaved'             => __( 'Theme saved.', 'pufferdesk-admin-desktop' ),
+				'themeSwitching'         => __( 'Switching theme...', 'pufferdesk-admin-desktop' ),
 				'mediaUnavailable'       => __( 'Media Library is not available for this user.', 'pufferdesk-admin-desktop' ),
 				'invalidImage'           => __( 'Choose a valid image.', 'pufferdesk-admin-desktop' ),
 			),
@@ -620,7 +632,6 @@ final class PufferDesk_Runtime_Config {
 				'colorLabel'            => __( 'Color', 'pufferdesk-admin-desktop' ),
 				'iconWidgetStyleLabel'  => __( 'Icon & widget style', 'pufferdesk-admin-desktop' ),
 				'themeLabel'            => __( 'Theme', 'pufferdesk-admin-desktop' ),
-				'applyThemeLabel'       => __( 'Apply Theme', 'pufferdesk-admin-desktop' ),
 				'themeFallbackLabel'    => __( 'Theme', 'pufferdesk-admin-desktop' ),
 				'modeOptions'           => array(
 					array( 'value' => 'auto', 'label' => __( 'Auto', 'pufferdesk-admin-desktop' ) ),
@@ -1249,6 +1260,7 @@ final class PufferDesk_Runtime_Config {
 				'open_in_new_window'      => __( 'Open in New Window', 'pufferdesk-admin-desktop' ),
 				'pin_to_quick_access'     => __( 'Pin to Quick Access', 'pufferdesk-admin-desktop' ),
 				'pin_to_start'            => __( 'Pin to Start', 'pufferdesk-admin-desktop' ),
+				'properties'              => __( 'Properties', 'pufferdesk-admin-desktop' ),
 				'compress_to'             => __( 'Compress to...', 'pufferdesk-admin-desktop' ),
 				'zip_file'                => __( 'ZIP file', 'pufferdesk-admin-desktop' ),
 				'compressed_folder'       => __( 'Compressed folder', 'pufferdesk-admin-desktop' ),
@@ -1354,6 +1366,10 @@ final class PufferDesk_Runtime_Config {
 					'empty'                   => __( 'Empty', 'pufferdesk-admin-desktop' ),
 					'move_to_trash'           => __( 'Move to Trash', 'pufferdesk-admin-desktop' ),
 					'move_folder_to_trash_message' => __( 'Only this PufferDesk folder will be moved. Apps and plugins inside it stay installed and available.', 'pufferdesk-admin-desktop' ),
+					'move_folder_to_trash_confirmation' => __( 'Are you sure you want to move this folder to Trash?', 'pufferdesk-admin-desktop' ),
+					'move_folder_to_trash_confirm_label' => __( 'Move to Trash', 'pufferdesk-admin-desktop' ),
+					'move_folder_to_trash_cancel_label' => __( 'Cancel', 'pufferdesk-admin-desktop' ),
+					'move_folder_to_trash_window_title' => __( 'Move Folder', 'pufferdesk-admin-desktop' ),
 					/* translators: %s: folder label. */
 					'move_folder_to_trash_title_format' => __( 'Move "%s" to Trash?', 'pufferdesk-admin-desktop' ),
 				'put_back'                => __( 'Put Back', 'pufferdesk-admin-desktop' ),

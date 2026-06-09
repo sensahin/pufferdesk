@@ -78,6 +78,7 @@ final class PufferDesk_Plugin {
 		$wallpaper_registry = new PufferDesk_Wallpaper_Registry();
 		$workspace_state    = new PufferDesk_Workspace_State();
 		$asset_manifest     = new PufferDesk_Asset_Manifest();
+		$settings_registry  = new PufferDesk_Settings_Registry();
 		$this->router       = new PufferDesk_Router( $preferences );
 		$shell_context      = new PufferDesk_Shell_Context(
 			$preferences,
@@ -89,7 +90,8 @@ final class PufferDesk_Plugin {
 		);
 		$runtime_config     = new PufferDesk_Runtime_Config(
 			$this->router,
-			$theme_registry
+			$theme_registry,
+			$settings_registry
 		);
 		$renderer       = new PufferDesk_Shell_Renderer(
 			$shell_context
@@ -109,7 +111,8 @@ final class PufferDesk_Plugin {
 			$app_registry,
 			$theme_registry,
 			$wallpaper_registry,
-			$workspace_state
+			$workspace_state,
+			$settings_registry
 		);
 		$this->workspace_controller = new PufferDesk_Workspace_Controller(
 			$preferences,
