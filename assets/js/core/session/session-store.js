@@ -35,6 +35,7 @@
 				dockApps: [],
 				windows: [],
 				widgets: [],
+				stickyNotes: [],
 				desktopIcons: [],
 				desktopSort: {
 					mode: 'none'
@@ -73,6 +74,7 @@
 				dockApps: Array.isArray(session.dockApps) ? session.dockApps : [],
 				windows: Array.isArray(session.windows) ? session.windows : [],
 				widgets: Array.isArray(session.widgets) ? session.widgets : [],
+				stickyNotes: Array.isArray(session.stickyNotes) ? session.stickyNotes : [],
 				desktopIcons: Array.isArray(session.desktopIcons) ? session.desktopIcons : [],
 				desktopSort: isObject(session.desktopSort) ? session.desktopSort : defaults.desktopSort,
 				recentItems: Array.isArray(session.recentItems) ? session.recentItems : []

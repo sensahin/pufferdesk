@@ -33,6 +33,10 @@
 			"path": "assets/css/core/windows.css"
 		},
 		{
+			"handle": "pufferdesk-core-documents",
+			"path": "assets/css/core/documents.css"
+		},
+		{
 			"handle": "pufferdesk-core-apps",
 			"path": "assets/css/core/apps.css"
 		},
@@ -86,6 +90,11 @@
 			"handle": "pufferdesk-api-client",
 			"path": "assets/js/core/services/api-client.js",
 			"deps": ["pufferdesk-config"]
+		},
+		{
+			"handle": "pufferdesk-documents-service",
+			"path": "assets/js/core/services/documents.js",
+			"deps": ["pufferdesk-config", "pufferdesk-api-client"]
 		},
 		{
 			"handle": "pufferdesk-geometry",
@@ -171,6 +180,11 @@
 			"handle": "pufferdesk-folder-manager",
 			"path": "assets/js/core/desktop/folder-manager.js",
 			"deps": ["pufferdesk-dom", "pufferdesk-geometry", "pufferdesk-debounced-task", "pufferdesk-api-client"]
+		},
+		{
+			"handle": "pufferdesk-sticky-notes",
+			"path": "assets/js/core/desktop/sticky-notes.js",
+			"deps": ["pufferdesk-documents-service", "pufferdesk-geometry", "pufferdesk-debounced-task", "pufferdesk-session-store"]
 		},
 		{
 			"handle": "pufferdesk-about-window",
@@ -278,6 +292,16 @@
 			"deps": ["pufferdesk-dom", "pufferdesk-api-client", "pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-app-surfaces", "pufferdesk-app-preferences", "pufferdesk-native-apps", "pufferdesk-settings-labels", "pufferdesk-settings-ui", "pufferdesk-settings-mutations", "pufferdesk-settings-panel-general", "pufferdesk-settings-panel-profile", "pufferdesk-settings-panel-appearance", "pufferdesk-settings-panel-desktop-dock", "pufferdesk-settings-panel-menu-bar", "pufferdesk-settings-panel-wallpaper", "pufferdesk-settings-panel-widgets", "pufferdesk-settings-panel-apps", "pufferdesk-settings-panel-workspace", "pufferdesk-settings-panel-system"]
 		},
 		{
+			"handle": "pufferdesk-text-editor",
+			"path": "assets/js/core/apps/text-editor.js",
+			"deps": ["pufferdesk-dom", "pufferdesk-documents-service", "pufferdesk-native-apps"]
+		},
+		{
+			"handle": "pufferdesk-sticky-notes-app",
+			"path": "assets/js/core/apps/sticky-notes-app.js",
+			"deps": ["pufferdesk-documents-service", "pufferdesk-native-apps", "pufferdesk-sticky-notes"]
+		},
+		{
 			"handle": "pufferdesk-recent-items",
 			"path": "assets/js/core/apps/recent-items.js",
 			"deps": []
@@ -315,7 +339,7 @@
 		{
 			"handle": "pufferdesk-app-launcher",
 			"path": "assets/js/core/apps/app-launcher.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-geometry", "pufferdesk-about-window", "pufferdesk-site-about-window", "pufferdesk-native-apps", "pufferdesk-settings-app", "pufferdesk-recent-items", "pufferdesk-folder-data", "pufferdesk-folder-window-state", "pufferdesk-app-window-options", "pufferdesk-native-app-opener", "pufferdesk-launcher-renderer", "pufferdesk-folder-renderer"]
+			"deps": ["pufferdesk-dom", "pufferdesk-geometry", "pufferdesk-about-window", "pufferdesk-site-about-window", "pufferdesk-native-apps", "pufferdesk-settings-app", "pufferdesk-text-editor", "pufferdesk-sticky-notes-app", "pufferdesk-recent-items", "pufferdesk-folder-data", "pufferdesk-folder-window-state", "pufferdesk-app-window-options", "pufferdesk-native-app-opener", "pufferdesk-launcher-renderer", "pufferdesk-folder-renderer"]
 		},
 		{
 			"handle": "pufferdesk-search",
@@ -365,7 +389,7 @@
 		{
 			"handle": "pufferdesk-boot",
 			"path": "assets/js/core/boot.js",
-			"deps": ["pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-reopen-policy", "pufferdesk-window-manager", "pufferdesk-widget-manager", "pufferdesk-desktop-icons", "pufferdesk-folder-manager", "pufferdesk-desktop-api", "pufferdesk-app-launcher", "pufferdesk-search", "pufferdesk-shell-dialogs", "pufferdesk-menu", "pufferdesk-context-menu", "pufferdesk-shortcuts", "pufferdesk-clock"]
+			"deps": ["pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-reopen-policy", "pufferdesk-documents-service", "pufferdesk-window-manager", "pufferdesk-widget-manager", "pufferdesk-desktop-icons", "pufferdesk-folder-manager", "pufferdesk-sticky-notes", "pufferdesk-desktop-api", "pufferdesk-app-launcher", "pufferdesk-search", "pufferdesk-shell-dialogs", "pufferdesk-menu", "pufferdesk-context-menu", "pufferdesk-shortcuts", "pufferdesk-clock"]
 		}
 	]
 }

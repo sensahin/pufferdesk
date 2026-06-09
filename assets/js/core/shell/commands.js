@@ -11,6 +11,7 @@
 		const widgetManager = context.widgetManager || null;
 		const desktopIconManager = context.desktopIconManager || null;
 		const folderManager = context.folderManager || null;
+		const stickyNoteManager = context.stickyNoteManager || null;
 		const dialogs = context.dialogs || null;
 		const reopenPolicy = context.reopenPolicy || null;
 		const config = context.config && typeof context.config === 'object' ? context.config : {};
@@ -798,6 +799,15 @@
 			},
 			run() {
 				refreshDesktop();
+			}
+		});
+
+		register('document.new-sticky-note', {
+			isEnabled() {
+				return Boolean(stickyNoteManager && typeof stickyNoteManager.createStickyNote === 'function');
+			},
+			run(payload, detail) {
+				stickyNoteManager.createStickyNote(detail && detail.contextPoint ? detail.contextPoint : {});
 			}
 		});
 

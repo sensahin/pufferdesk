@@ -10,6 +10,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/css/core/desktop.css
 - assets/css/core/widgets.css
 - assets/css/core/windows.css
+- assets/css/core/documents.css
 - assets/css/core/apps.css
 - assets/css/core/folders.css
 - assets/css/core/about.css
@@ -29,6 +30,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/events/event-bus.js
 - assets/js/core/services/storage.js
 - assets/js/core/services/api-client.js
+- assets/js/core/services/documents.js
 - assets/js/core/services/geometry.js
 - assets/js/core/services/debounced-task.js
 - assets/js/core/session/session-store.js
@@ -46,6 +48,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/widgets/widget-manager.js
 - assets/js/core/desktop/desktop-icons.js
 - assets/js/core/desktop/folder-manager.js
+- assets/js/core/desktop/sticky-notes.js
 - assets/js/core/apps/about-window.js
 - assets/js/core/apps/site-about-window.js
 - assets/js/core/apps/app-badges.js
@@ -67,6 +70,8 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/apps/settings/panel-workspace.js
 - assets/js/core/apps/settings/panel-system.js
 - assets/js/core/apps/settings-app.js
+- assets/js/core/apps/text-editor.js
+- assets/js/core/apps/sticky-notes-app.js
 - assets/js/core/apps/recent-items.js
 - assets/js/core/apps/folder-data.js
 - assets/js/core/apps/folder-window-state.js

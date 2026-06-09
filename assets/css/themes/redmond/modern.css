@@ -165,6 +165,66 @@
 	--pdk-folder-icon-opacity: 1;
 }
 
+.pdk-shell[data-pdk-theme="redmond"] {
+	--pdk-sticky-note-bg: rgb(255 247 178);
+	--pdk-sticky-note-body-bg: rgb(255 248 191);
+	--pdk-sticky-note-border: rgb(60 60 60 / 0.28);
+	--pdk-sticky-note-content-padding: 24px 24px;
+	--pdk-sticky-note-control-ink: rgb(72 58 0);
+	--pdk-sticky-note-control-size: 28px;
+	--pdk-sticky-note-font-size: 20px;
+	--pdk-sticky-note-header-bg: rgb(223 187 63);
+	--pdk-sticky-note-header-height: 48px;
+	--pdk-sticky-note-header-padding: 0 14px;
+	--pdk-sticky-note-ink: #1b1b1b;
+	--pdk-sticky-note-placeholder: rgb(27 27 27 / 0.42);
+	--pdk-sticky-note-radius: 10px;
+	--pdk-sticky-note-shadow: 0 18px 38px rgb(0 0 0 / 0.24);
+	--pdk-sticky-note-toolbar-bg: rgb(255 248 191);
+	--pdk-sticky-note-toolbar-border: rgb(0 0 0 / 0.12);
+	--pdk-sticky-note-toolbar-height: 48px;
+	--pdk-sticky-note-toolbar-ink: rgb(27 27 27 / 0.72);
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] {
+	--pdk-sticky-note-bg: rgb(48 48 48);
+	--pdk-sticky-note-body-bg: rgb(48 48 48);
+	--pdk-sticky-note-border: rgb(255 255 255 / 0.1);
+	--pdk-sticky-note-ink: rgb(220 220 220);
+	--pdk-sticky-note-placeholder: rgb(220 220 220 / 0.62);
+	--pdk-sticky-note-shadow: 0 22px 46px rgb(0 0 0 / 0.38);
+	--pdk-sticky-note-toolbar-bg: rgb(48 48 48);
+	--pdk-sticky-note-toolbar-border: rgb(255 255 255 / 0.08);
+	--pdk-sticky-note-toolbar-ink: rgb(220 220 220 / 0.78);
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-new {
+	font-size: 34px;
+	font-weight: var(--pdk-weight-regular);
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-close {
+	font-size: 0;
+	position: relative;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-close::before,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-close::after {
+	background: currentColor;
+	content: "";
+	height: 28px;
+	position: absolute;
+	width: 2px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-close::before {
+	transform: rotate(45deg);
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-close::after {
+	transform: rotate(-45deg);
+}
+
 .pdk-shell[data-pdk-theme="redmond"] .pdk-desktop {
 	background-image: var(--pdk-wallpaper-image, var(--pdk-desktop-bg));
 	background-position: var(--pdk-wallpaper-position, center);

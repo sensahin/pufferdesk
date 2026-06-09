@@ -54,6 +54,20 @@ final class PufferDesk_Plugin {
 	private $workspace_controller;
 
 	/**
+	 * Document post type registration.
+	 *
+	 * @var PufferDesk_Document_Post_Type
+	 */
+	private $document_post_type;
+
+	/**
+	 * Document controller.
+	 *
+	 * @var PufferDesk_Document_Controller
+	 */
+	private $document_controller;
+
+	/**
 	 * Boot and return the singleton.
 	 *
 	 * @return PufferDesk_Plugin
@@ -77,6 +91,7 @@ final class PufferDesk_Plugin {
 		$theme_registry     = new PufferDesk_Theme_Registry();
 		$wallpaper_registry = new PufferDesk_Wallpaper_Registry();
 		$workspace_state    = new PufferDesk_Workspace_State();
+		$document_service   = new PufferDesk_Document_Service();
 		$asset_manifest     = new PufferDesk_Asset_Manifest();
 		$settings_registry  = new PufferDesk_Settings_Registry();
 		$this->router       = new PufferDesk_Router( $preferences );
@@ -121,6 +136,8 @@ final class PufferDesk_Plugin {
 			$theme_registry,
 			$workspace_state
 		);
+		$this->document_post_type = new PufferDesk_Document_Post_Type();
+		$this->document_controller = new PufferDesk_Document_Controller( $document_service );
 	}
 
 	/**
@@ -132,8 +149,10 @@ final class PufferDesk_Plugin {
 		add_action( 'admin_enqueue_scripts', array( $this->assets, 'enqueue' ) );
 		add_filter( 'admin_body_class', array( $this->assets, 'add_admin_body_classes' ) );
 		add_action( 'admin_head', array( $this->assets, 'print_iframe_head_style' ) );
+		$this->document_post_type->hooks();
 		$this->admin_controller->hooks();
 		$this->settings_controller->hooks();
 		$this->workspace_controller->hooks();
+		$this->document_controller->hooks();
 	}
 }

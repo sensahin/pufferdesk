@@ -1,0 +1,313 @@
+.pdk-sticky-note-layer {
+	inset: 0;
+	pointer-events: none;
+	position: absolute;
+	z-index: 20;
+}
+
+.pdk-sticky-note {
+	background: var(--pdk-sticky-note-bg, rgb(255 247 184));
+	border: 1px solid var(--pdk-sticky-note-border, rgb(96 88 48 / 0.38));
+	border-radius: var(--pdk-sticky-note-radius, 8px);
+	box-shadow: var(--pdk-sticky-note-shadow, 0 18px 42px rgb(0 0 0 / 0.24));
+	color: var(--pdk-sticky-note-ink, #191919);
+	display: grid;
+	grid-template-rows: var(--pdk-sticky-note-header-height, 38px) minmax(0, 1fr) var(--pdk-sticky-note-toolbar-height, 48px);
+	min-height: 140px;
+	min-width: 180px;
+	overflow: hidden;
+	pointer-events: auto;
+	position: absolute;
+	resize: both;
+	touch-action: none;
+}
+
+.pdk-sticky-note[hidden] {
+	display: none !important;
+}
+
+.pdk-sticky-note.is-dragging {
+	opacity: 0.94;
+}
+
+.pdk-sticky-note-chrome {
+	align-items: center;
+	background: var(--pdk-sticky-note-header-bg, rgb(223 187 63));
+	cursor: default;
+	display: flex;
+	justify-content: space-between;
+	min-height: 0;
+	padding: var(--pdk-sticky-note-header-padding, 0 10px);
+	user-select: none;
+}
+
+.pdk-sticky-note-actions {
+	align-items: center;
+	display: inline-flex;
+	gap: 8px;
+}
+
+.pdk-sticky-note-button {
+	align-items: center;
+	appearance: none;
+	background: transparent;
+	border: 0;
+	color: var(--pdk-sticky-note-control-ink, currentColor);
+	cursor: default;
+	display: inline-flex;
+	font-family: inherit;
+	font-size: var(--pdk-sticky-note-control-size, 24px);
+	height: 32px;
+	justify-content: center;
+	line-height: 1;
+	padding: 0;
+	width: 32px;
+}
+
+.pdk-sticky-note-button:focus-visible {
+	outline: 2px solid rgb(var(--pdk-focus-ring-rgb, 37 99 235) / 0.5);
+	outline-offset: -2px;
+}
+
+.pdk-sticky-note-content {
+	appearance: none;
+	background: var(--pdk-sticky-note-body-bg, transparent);
+	border: 0;
+	color: inherit;
+	font-family: var(--pdk-sticky-note-font, var(--pdk-font-ui));
+	font-size: var(--pdk-sticky-note-font-size, 18px);
+	font-weight: var(--pdk-weight-regular);
+	height: 100%;
+	line-height: 1.45;
+	min-height: 0;
+	outline: none;
+	padding: var(--pdk-sticky-note-content-padding, 20px);
+	resize: none;
+	width: 100%;
+}
+
+.pdk-sticky-note-content::placeholder {
+	color: var(--pdk-sticky-note-placeholder, rgb(0 0 0 / 0.42));
+	opacity: 1;
+}
+
+.pdk-sticky-note-toolbar {
+	align-items: center;
+	background: var(--pdk-sticky-note-toolbar-bg, transparent);
+	border-top: 1px solid var(--pdk-sticky-note-toolbar-border, transparent);
+	color: var(--pdk-sticky-note-toolbar-ink, currentColor);
+	display: var(--pdk-sticky-note-toolbar-display, flex);
+	gap: 22px;
+	min-height: 0;
+	padding: 0 18px;
+}
+
+.pdk-sticky-note-toolbar span {
+	align-items: center;
+	display: inline-flex;
+	font-size: 20px;
+	font-weight: var(--pdk-weight-semibold);
+	height: 24px;
+	justify-content: center;
+	min-width: 24px;
+}
+
+.pdk-document-editor-body,
+.pdk-sticky-notes-app-body {
+	padding: 0;
+}
+
+.pdk-document-editor {
+	background: var(--pdk-document-editor-bg, var(--pdk-window-content-bg, #fff));
+	color: var(--pdk-document-editor-ink, var(--pdk-ink));
+	display: grid;
+	grid-template-columns: minmax(190px, 230px) minmax(0, 1fr);
+	height: 100%;
+	min-height: 0;
+	width: 100%;
+}
+
+.pdk-document-editor-sidebar {
+	background: var(--pdk-document-editor-sidebar-bg, var(--pdk-card-bg));
+	border-right: 1px solid var(--pdk-document-editor-border, var(--pdk-divider));
+	display: grid;
+	grid-template-rows: auto minmax(0, 1fr);
+	min-width: 0;
+	padding: 12px;
+}
+
+.pdk-document-editor-new,
+.pdk-document-editor-button,
+.pdk-sticky-notes-app-new,
+.pdk-sticky-notes-app-button {
+	appearance: none;
+	background: var(--pdk-document-editor-button-bg, var(--pdk-control-bg));
+	border: 1px solid var(--pdk-document-editor-button-border, var(--pdk-material-control-border, transparent));
+	border-radius: 7px;
+	color: inherit;
+	cursor: default;
+	font-family: inherit;
+	font-size: var(--pdk-text-caption);
+	font-weight: var(--pdk-weight-medium);
+	min-height: 32px;
+	padding: 0 12px;
+}
+
+.pdk-document-editor-button.is-primary,
+.pdk-sticky-notes-app-new {
+	background: var(--pdk-accent-active-strong, var(--pdk-accent));
+	border-color: transparent;
+	color: var(--pdk-accent-ink, #fff);
+}
+
+.pdk-document-editor-button:disabled {
+	opacity: 0.54;
+}
+
+.pdk-document-editor-list {
+	margin-top: 12px;
+	min-height: 0;
+	overflow: auto;
+}
+
+.pdk-document-editor-list-item {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	border-radius: 7px;
+	color: inherit;
+	cursor: default;
+	display: grid;
+	font-family: inherit;
+	gap: 4px;
+	padding: 9px 10px;
+	text-align: left;
+	width: 100%;
+}
+
+.pdk-document-editor-list-item:hover,
+.pdk-document-editor-list-item.is-active {
+	background: var(--pdk-highlight, rgb(var(--pdk-accent-rgb) / 0.12));
+}
+
+.pdk-document-editor-list-title {
+	font-size: var(--pdk-text-body);
+	font-weight: var(--pdk-weight-medium);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pdk-document-editor-list-meta,
+.pdk-document-editor-empty {
+	color: var(--pdk-muted);
+	font-size: var(--pdk-text-caption);
+}
+
+.pdk-document-editor-main {
+	display: grid;
+	grid-template-rows: auto minmax(0, 1fr) auto;
+	min-width: 0;
+}
+
+.pdk-document-editor-title {
+	background: transparent;
+	border: 0;
+	border-bottom: 1px solid var(--pdk-document-editor-border, var(--pdk-divider));
+	color: inherit;
+	font-family: inherit;
+	font-size: 20px;
+	font-weight: var(--pdk-weight-semibold);
+	min-width: 0;
+	outline: none;
+	padding: 14px 16px;
+}
+
+.pdk-document-editor-content {
+	background: transparent;
+	border: 0;
+	color: inherit;
+	font-family: var(--pdk-font-ui);
+	font-size: 15px;
+	line-height: 1.55;
+	min-height: 0;
+	outline: none;
+	padding: 16px;
+	resize: none;
+	width: 100%;
+}
+
+.pdk-document-editor-footer {
+	align-items: center;
+	border-top: 1px solid var(--pdk-document-editor-border, var(--pdk-divider));
+	display: flex;
+	gap: 10px;
+	justify-content: end;
+	padding: 10px 12px;
+}
+
+.pdk-document-editor-status,
+.pdk-sticky-notes-app-status {
+	color: var(--pdk-muted);
+	font-size: var(--pdk-text-caption);
+	margin-right: auto;
+	min-width: 0;
+}
+
+.pdk-document-editor-status[data-pdk-tone="error"],
+.pdk-sticky-notes-app-status[data-pdk-tone="error"] {
+	color: var(--pdk-danger-bg, #b91c1c);
+}
+
+.pdk-sticky-notes-app {
+	background: var(--pdk-document-editor-bg, var(--pdk-window-content-bg, #fff));
+	color: var(--pdk-ink);
+	display: grid;
+	grid-template-rows: auto minmax(0, 1fr) auto;
+	height: 100%;
+	min-height: 0;
+	padding: 12px;
+}
+
+.pdk-sticky-notes-app-toolbar {
+	display: flex;
+	justify-content: end;
+}
+
+.pdk-sticky-notes-app-list {
+	display: grid;
+	gap: 8px;
+	margin-top: 12px;
+	min-height: 0;
+	overflow: auto;
+}
+
+.pdk-sticky-notes-app-item {
+	align-items: center;
+	background: var(--pdk-card-bg);
+	border: 1px solid var(--pdk-card-border);
+	border-radius: 7px;
+	display: grid;
+	gap: 10px;
+	grid-template-columns: minmax(0, 1fr) auto;
+	padding: 10px;
+}
+
+.pdk-sticky-notes-app-title {
+	font-size: var(--pdk-text-body);
+	font-weight: var(--pdk-weight-medium);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pdk-sticky-notes-app-actions {
+	display: inline-flex;
+	gap: 6px;
+}
+
+.pdk-sticky-notes-app-empty {
+	color: var(--pdk-muted);
+	font-size: var(--pdk-text-caption);
+	margin: 0;
+}

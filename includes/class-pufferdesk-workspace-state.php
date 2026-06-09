@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class PufferDesk_Workspace_State {
 	const META_PREFIX = 'pufferdesk_workspace_state';
-	const VERSION     = 2;
+	const VERSION     = 3;
 
 	/**
 	 * Get a user's workspace state for a theme.
@@ -115,6 +115,7 @@ final class PufferDesk_Workspace_State {
 			'dockApps'     => array(),
 			'windows'      => array(),
 			'widgets'      => array(),
+			'stickyNotes'  => array(),
 			'desktopIcons' => array(),
 			'desktopSort'  => array(
 				'mode' => 'none',
@@ -141,6 +142,7 @@ final class PufferDesk_Workspace_State {
 			'dockApps'     => $this->sanitize_dock_apps( isset( $state['dockApps'] ) ? $state['dockApps'] : array(), $apps ),
 			'windows'      => $this->sanitize_windows( isset( $state['windows'] ) ? $state['windows'] : array(), $apps, $folders ),
 			'widgets'      => $this->sanitize_widgets( isset( $state['widgets'] ) ? $state['widgets'] : array(), $widgets ),
+			'stickyNotes'  => $this->sanitize_sticky_notes( isset( $state['stickyNotes'] ) ? $state['stickyNotes'] : array() ),
 			'desktopIcons' => $this->sanitize_desktop_icons( isset( $state['desktopIcons'] ) ? $state['desktopIcons'] : array(), $apps, $folders ),
 			'desktopSort'  => $this->sanitize_desktop_sort( isset( $state['desktopSort'] ) ? $state['desktopSort'] : array() ),
 			'recentItems'  => $this->sanitize_recent_items( isset( $state['recentItems'] ) ? $state['recentItems'] : array(), $apps, $folders ),
@@ -538,6 +540,47 @@ final class PufferDesk_Workspace_State {
 			);
 
 			if ( count( $sanitized ) >= 50 ) {
+				break;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize sticky note layout records.
+	 *
+	 * @param mixed $notes Raw sticky note records.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function sanitize_sticky_notes( $notes ) {
+		$sanitized = array();
+		$seen      = array();
+
+		foreach ( is_array( $notes ) ? $notes : array() as $note ) {
+			if ( ! is_array( $note ) ) {
+				continue;
+			}
+
+			$id = isset( $note['id'] ) ? absint( $note['id'] ) : 0;
+			if ( $id <= 0 || isset( $seen[ $id ] ) ) {
+				continue;
+			}
+
+			$sanitized[] = array(
+				'id'    => $id,
+				'state' => $this->sanitize_rect_state(
+					isset( $note['state'] ) && is_array( $note['state'] ) ? $note['state'] : array(),
+					array(
+						'min_width'  => 180,
+						'min_height' => 140,
+						'z_index'    => true,
+					)
+				),
+			);
+			$seen[ $id ] = true;
+
+			if ( count( $sanitized ) >= 100 ) {
 				break;
 			}
 		}

@@ -14,11 +14,14 @@
 			!window.PufferDesk.config ||
 			!window.PufferDesk.session ||
 			!window.PufferDesk.session.createReopenPolicy ||
+			!window.PufferDesk.documents ||
+			!window.PufferDesk.documents.createDocumentStore ||
 			!window.PufferDesk.windows ||
 			!window.PufferDesk.widgets ||
 			!window.PufferDesk.desktop ||
 			!window.PufferDesk.desktop.createDesktopIconManager ||
 			!window.PufferDesk.desktop.createFolderManager ||
+			!window.PufferDesk.desktop.createStickyNoteManager ||
 			!window.PufferDesk.apps ||
 			!window.PufferDesk.menuBar ||
 			!window.PufferDesk.shell ||
@@ -111,6 +114,13 @@
 			},
 			storageKey: config.storageKey || ''
 		});
+		const documentStore = window.PufferDesk.documents.createDocumentStore(config);
+		const stickyNoteManager = window.PufferDesk.desktop.createStickyNoteManager(shell, {
+			config,
+			documentStore,
+			storageKey: config.storageKey || ''
+		});
+		window.PufferDesk.stickyNoteManager = stickyNoteManager;
 		const launcher = window.PufferDesk.apps.createAppLauncher(shell, manager, config);
 		folderManager = window.PufferDesk.desktop.createFolderManager(shell, launcher, config);
 		if (typeof launcher.setFolderProvider === 'function') {
@@ -125,6 +135,7 @@
 			manager,
 			reopenPolicy,
 			desktopIconManager,
+			stickyNoteManager,
 			widgetManager
 		});
 		const menuController = window.PufferDesk.shell.createMenuController(shell, config, {
@@ -140,6 +151,7 @@
 			folderManager,
 			launcher,
 			manager,
+			stickyNoteManager,
 			widgetManager
 		});
 		const shortcutController = window.PufferDesk.shell.createShortcutController(shell, {
@@ -165,6 +177,7 @@
 		folderManager.syncDesktopAppVisibility();
 		widgetManager.bindExistingWidgets();
 		widgetManager.restoreSession();
+		stickyNoteManager.restore();
 		manager.bindExistingWindows();
 		if (!manager.isPreservingStoredWindows()) {
 			manager.restoreSession({
@@ -194,6 +207,7 @@
 		window.PufferDesk.contextMenuController = contextMenuController;
 		window.PufferDesk.desktopFolderManager = folderManager;
 		window.PufferDesk.desktopIconManager = desktopIconManager;
+		window.PufferDesk.stickyNoteManager = stickyNoteManager;
 		window.PufferDesk.widgetManager = widgetManager;
 		window.PufferDesk.shellDialogs = dialogs;
 		window.PufferDesk.shortcutController = shortcutController;
@@ -204,7 +218,8 @@
 		window.PufferDesk.events.emit('desktop:ready', {
 			api: desktopApi,
 			config,
-			shell
+			shell,
+			stickyNoteManager
 		});
 	}
 

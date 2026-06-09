@@ -69,6 +69,7 @@ final class PufferDesk_Runtime_Config {
 			'desktopFolders' => isset( $context['desktop_folders'] ) && is_array( $context['desktop_folders'] ) ? $context['desktop_folders'] : array(),
 			'desktopTrash'   => isset( $context['desktop_trash'] ) && is_array( $context['desktop_trash'] ) ? $context['desktop_trash'] : array(),
 			'dialogs'        => isset( $theme['dialogs'] ) && is_array( $theme['dialogs'] ) ? $theme['dialogs'] : array(),
+			'documents'      => $this->get_documents_config(),
 			'logoutUrl'      => $this->get_logout_url(),
 			'menuBar'        => isset( $context['menu_bar'] ) && is_array( $context['menu_bar'] ) ? $context['menu_bar'] : array(),
 			'settings'       => $this->get_settings_config( $theme ),
@@ -119,6 +120,57 @@ final class PufferDesk_Runtime_Config {
 	 */
 	private function get_logout_url() {
 		return esc_url_raw( html_entity_decode( wp_logout_url(), ENT_QUOTES ) );
+	}
+
+	/**
+	 * Native document runtime endpoints.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_documents_config() {
+		return array(
+			'actions'      => array(
+				'create' => PufferDesk_Document_Controller::ACTION_CREATE,
+				'delete' => PufferDesk_Document_Controller::ACTION_DELETE,
+				'get'    => PufferDesk_Document_Controller::ACTION_GET,
+				'list'   => PufferDesk_Document_Controller::ACTION_LIST,
+				'update' => PufferDesk_Document_Controller::ACTION_UPDATE,
+			),
+			'capabilities' => array(
+				'canEdit' => current_user_can( PufferDesk_Document_Service::CAPABILITY ),
+			),
+			'kinds'        => array(
+				'sticky' => PufferDesk_Document_Service::KIND_STICKY,
+				'text'   => PufferDesk_Document_Service::KIND_TEXT,
+			),
+			'labels'       => array(
+				'close'            => __( 'Close', 'pufferdesk-admin-desktop' ),
+				'couldNotDeleteDocument' => __( 'Could not delete document.', 'pufferdesk-admin-desktop' ),
+				'couldNotLoadDocuments' => __( 'Could not load documents.', 'pufferdesk-admin-desktop' ),
+				'couldNotLoadStickyNotes' => __( 'Could not load sticky notes.', 'pufferdesk-admin-desktop' ),
+				'couldNotSaveDocument' => __( 'Could not save document.', 'pufferdesk-admin-desktop' ),
+				'delete'           => __( 'Delete', 'pufferdesk-admin-desktop' ),
+				'deleteDocumentConfirm' => __( 'Delete this document?', 'pufferdesk-admin-desktop' ),
+				'deleteStickyNote' => __( 'Delete this note?', 'pufferdesk-admin-desktop' ),
+				'deleted'          => __( 'Deleted', 'pufferdesk-admin-desktop' ),
+				'documentServiceUnavailable' => __( 'Document service unavailable.', 'pufferdesk-admin-desktop' ),
+				'loading'          => __( 'Loading...', 'pufferdesk-admin-desktop' ),
+				'newDocument'      => __( 'New Document', 'pufferdesk-admin-desktop' ),
+				'newStickyNote'    => __( 'New Sticky Note', 'pufferdesk-admin-desktop' ),
+				'noDocuments'      => __( 'No documents', 'pufferdesk-admin-desktop' ),
+				'noStickyNotes'    => __( 'No sticky notes', 'pufferdesk-admin-desktop' ),
+				'noteOptions'      => __( 'Note options', 'pufferdesk-admin-desktop' ),
+				'save'             => __( 'Save', 'pufferdesk-admin-desktop' ),
+				'saved'            => __( 'Saved', 'pufferdesk-admin-desktop' ),
+				'saving'           => __( 'Saving...', 'pufferdesk-admin-desktop' ),
+				'show'             => __( 'Show', 'pufferdesk-admin-desktop' ),
+				'stickyNote'       => __( 'Sticky Note', 'pufferdesk-admin-desktop' ),
+				'stickyNotes'      => __( 'Sticky Notes', 'pufferdesk-admin-desktop' ),
+				'stickyPlaceholder' => __( 'Take a note...', 'pufferdesk-admin-desktop' ),
+				'textEditor'       => __( 'Text Editor', 'pufferdesk-admin-desktop' ),
+				'untitledDocument' => __( 'Untitled Document', 'pufferdesk-admin-desktop' ),
+			),
+		);
 	}
 
 	/**
@@ -1249,6 +1301,7 @@ final class PufferDesk_Runtime_Config {
 				'untitled_folder'         => __( 'untitled folder', 'pufferdesk-admin-desktop' ),
 				'new'                     => __( 'New', 'pufferdesk-admin-desktop' ),
 				'new_folder'              => __( 'New Folder', 'pufferdesk-admin-desktop' ),
+				'new_sticky_note'         => __( 'New Sticky Note', 'pufferdesk-admin-desktop' ),
 				'get_info'                => __( 'Get Info', 'pufferdesk-admin-desktop' ),
 				'cancel'                  => __( 'Cancel', 'pufferdesk-admin-desktop' ),
 				'open'                    => __( 'Open', 'pufferdesk-admin-desktop' ),

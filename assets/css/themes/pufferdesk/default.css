@@ -189,6 +189,32 @@
 	--pdk-weight-widget-clock: var(--pdk-weight-medium);
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] {
+	--pdk-sticky-note-bg: rgb(252 244 167);
+	--pdk-sticky-note-body-bg: transparent;
+	--pdk-sticky-note-border: #1f1f1f;
+	--pdk-sticky-note-content-padding: 4px 22px 22px;
+	--pdk-sticky-note-font-size: 18px;
+	--pdk-sticky-note-header-bg: transparent;
+	--pdk-sticky-note-header-height: 28px;
+	--pdk-sticky-note-header-padding: 0;
+	--pdk-sticky-note-ink: #050505;
+	--pdk-sticky-note-placeholder: rgb(0 0 0 / 0.42);
+	--pdk-sticky-note-radius: 0;
+	--pdk-sticky-note-shadow: 18px 18px 26px rgb(0 0 0 / 0.18);
+	--pdk-sticky-note-toolbar-display: none;
+	--pdk-sticky-note-toolbar-height: 0px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note {
+	border-width: 2px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-button {
+	opacity: 0;
+	pointer-events: none;
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"]:is(
 	[data-pdk-accent-color="purple"],
 	[data-pdk-accent-color="pink"],

@@ -220,6 +220,10 @@
 									commandItem(getLabel('folder', 'Folder'), 'folder.create', {
 										icon: 'dashicons-category',
 										id: 'desktop-new-folder'
+									}),
+									commandItem(getLabel('new_sticky_note', 'New Sticky Note'), 'document.new-sticky-note', {
+										icon: 'dashicons-sticky',
+										id: 'desktop-new-sticky-note'
 									})
 								],
 								label: getLabel('new', 'New')
@@ -687,6 +691,9 @@
 						items: [
 							commandItem(getLabel('new_folder', 'New Folder'), 'folder.create', {
 								icon: 'dashicons-category'
+							}),
+							commandItem(getLabel('new_sticky_note', 'New Sticky Note'), 'document.new-sticky-note', {
+								icon: 'dashicons-sticky'
 							}),
 							{
 								icon: 'dashicons-sort',
