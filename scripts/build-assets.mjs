@@ -4,64 +4,26 @@ import * as esbuild from 'esbuild';
 
 const root = process.cwd();
 const distDir = path.join(root, 'assets/dist');
+const assetManifest = JSON.parse(await fs.readFile(path.join(root, 'assets/manifest.json'), 'utf8'));
 
-const coreCssSources = [
-	'assets/css/core/admin-chrome.css',
-	'assets/css/core/shell.css',
-	'assets/css/core/dialogs.css',
-	'assets/css/core/context-menu.css',
-	'assets/css/core/desktop.css',
-	'assets/css/core/widgets.css',
-	'assets/css/core/windows.css',
-	'assets/css/core/apps.css',
-	'assets/css/core/dock.css',
-	'assets/css/core/responsive.css'
-];
+const coreCssSources = readManifestSources(assetManifest.coreStyles, 'coreStyles');
+const jsSources = readManifestSources(assetManifest.scripts, 'scripts');
+const distCoreCss = assetManifest.dist?.coreCss || 'assets/dist/css/pufferdesk-core.min.css';
+const distScript = assetManifest.dist?.script || 'assets/dist/js/pufferdesk-admin-desktop.min.js';
 
-const jsSources = [
-	'assets/js/core/config.js',
-	'assets/js/core/dom.js',
-	'assets/js/core/services/storage.js',
-	'assets/js/core/services/api-client.js',
-	'assets/js/core/session/session-store.js',
-	'assets/js/core/session/reopen-policy.js',
-	'assets/js/core/appearance.js',
-	'assets/js/core/desktop-dock.js',
-	'assets/js/core/wallpaper.js',
-	'assets/js/core/windows/window-factory.js',
-	'assets/js/core/windows/window-manager.js',
-	'assets/js/core/widgets/widget-manager.js',
-	'assets/js/core/desktop/desktop-icons.js',
-	'assets/js/core/desktop/folder-manager.js',
-	'assets/js/core/apps/about-window.js',
-	'assets/js/core/apps/site-about-window.js',
-	'assets/js/core/apps/app-surfaces.js',
-	'assets/js/core/apps/native-apps.js',
-	'assets/js/core/apps/settings/labels.js',
-	'assets/js/core/apps/settings/ui.js',
-	'assets/js/core/apps/settings/panel-general.js',
-	'assets/js/core/apps/settings/panel-profile.js',
-	'assets/js/core/apps/settings/panel-appearance.js',
-	'assets/js/core/apps/settings/panel-desktop-dock.js',
-	'assets/js/core/apps/settings/panel-menu-bar.js',
-	'assets/js/core/apps/settings/panel-wallpaper.js',
-	'assets/js/core/apps/settings/panel-widgets.js',
-	'assets/js/core/apps/settings/panel-apps.js',
-	'assets/js/core/apps/settings/panel-workspace.js',
-	'assets/js/core/apps/settings/panel-system.js',
-	'assets/js/core/apps/settings-app.js',
-	'assets/js/core/apps/app-launcher.js',
-	'assets/js/core/shell/search.js',
-	'assets/js/core/shell/dialogs.js',
-	'assets/js/core/shell/commands.js',
-	'assets/js/core/shell/menu-schema.js',
-	'assets/js/core/shell/menu-renderer.js',
-	'assets/js/core/shell/menu.js',
-	'assets/js/core/shell/context-menu.js',
-	'assets/js/core/shell/shortcuts.js',
-	'assets/js/core/shell/clock.js',
-	'assets/js/core/boot.js'
-];
+function readManifestSources(entries, key) {
+	if (!Array.isArray(entries)) {
+		throw new Error(`assets/manifest.json must define ${key} as an array`);
+	}
+
+	return entries.map((entry) => {
+		if (!entry || typeof entry.path !== 'string' || entry.path === '') {
+			throw new Error(`assets/manifest.json contains an invalid ${key} entry`);
+		}
+
+		return entry.path;
+	});
+}
 
 async function fileExists(filePath) {
 	try {
@@ -149,7 +111,7 @@ async function main() {
 	await minify({
 		loader: 'css',
 		sources: coreCssSources,
-		outfile: 'assets/dist/css/pufferdesk-core.min.css',
+		outfile: distCoreCss,
 		label: 'core CSS'
 	});
 
@@ -165,7 +127,7 @@ async function main() {
 	await minify({
 		loader: 'js',
 		sources: jsSources,
-		outfile: 'assets/dist/js/pufferdesk-admin-desktop.min.js',
+		outfile: distScript,
 		label: 'JavaScript'
 	});
 

@@ -10,10 +10,12 @@
 			config,
 			createAccentGroup,
 			createButton,
+			createInlineSelect,
 			createOptionGroup,
 			createSection,
 			createSectionHeading,
 			createSettingsRow,
+			dom,
 			getThemeOptionLabel,
 			settingsLabels,
 			status,
@@ -22,12 +24,31 @@
 		} = ctx;
 		const capabilities = ctx.capabilities && typeof ctx.capabilities === 'object' ? ctx.capabilities : {};
 		const appearanceCapabilities = capabilities.appearance && typeof capabilities.appearance === 'object' ? capabilities.appearance : {};
-		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel');
+		const panel = dom.createElement('div', 'pdk-settings-pane-panel');
 		const appearanceSection = createSection('', 'pdk-settings-section-appearance');
 		const themeSection = createSection('', 'pdk-settings-section-theme');
-		let installedThemeSection = null;
 
 		panel.dataset.pdkSettingsPanel = 'appearance';
+
+		function createThemePicker() {
+			const control = dom.createElement('span', 'pdk-settings-theme-control');
+			const themePicker = createInlineSelect({
+				className: 'pdk-settings-theme-select',
+				options: themes.map((theme) => ({
+					label: getThemeOptionLabel(theme),
+					value: theme.id
+				})),
+				value: config.theme && config.theme.id ? config.theme.id : ''
+			});
+			const themeSelect = themePicker.select;
+			const saveThemeButton = createButton(t('appearance.applyThemeLabel', 'Apply Theme'), 'pdk-settings-button pdk-settings-theme-apply');
+
+			saveThemeButton.addEventListener('click', () => ctx.saveTheme(themeSelect.value, status));
+			control.append(themePicker.wrap, saveThemeButton);
+
+			return control;
+		}
+
 		appearanceSection.appendChild(createSettingsRow(
 			t('appearance.appearanceLabel', 'Appearance'),
 			createOptionGroup('mode', settingsLabels.getOptions('appearance.modeOptions'), status, 'pdk-settings-preview-option', 'pdk-settings-appearance-preview')
@@ -41,6 +62,14 @@
 			));
 		}
 
+		if (themes.length > 1) {
+			themeSection.appendChild(createSettingsRow(
+				t('appearance.themeLabel', 'Theme'),
+				createThemePicker(),
+				'',
+				'pdk-settings-theme-row'
+			));
+		}
 		if (appearanceCapabilities.accentColor !== false) {
 			themeSection.appendChild(createSettingsRow(t('appearance.colorLabel', 'Color'), createAccentGroup(status)));
 		}
@@ -51,32 +80,10 @@
 			));
 		}
 
-		if (themes.length > 1) {
-			const themeSelect = document.createElement('select');
-			installedThemeSection = createSection('', 'pdk-settings-section-installed-theme');
-			themeSelect.className = 'pdk-settings-control';
-			themes.forEach((theme) => {
-				const option = document.createElement('option');
-				option.value = theme.id;
-				option.textContent = getThemeOptionLabel(theme);
-				option.selected = config.theme && config.theme.id === theme.id;
-				themeSelect.appendChild(option);
-			});
-			installedThemeSection.appendChild(createSettingsRow(t('appearance.themeLabel', 'Theme'), themeSelect));
-
-			const saveThemeButton = createButton(t('appearance.applyThemeLabel', 'Apply Theme'));
-			saveThemeButton.addEventListener('click', () => ctx.saveTheme(themeSelect.value, status));
-			installedThemeSection.appendChild(saveThemeButton);
-		}
-
 		panel.appendChild(appearanceSection);
 		if (themeSection.children.length) {
 			panel.appendChild(createSectionHeading(t('appearance.themeHeading', 'Theme')));
 			panel.appendChild(themeSection);
-		}
-		if (installedThemeSection) {
-			panel.appendChild(createSectionHeading(t('appearance.installedThemeHeading', 'Installed Theme')));
-			panel.appendChild(installedThemeSection);
 		}
 
 		return panel;

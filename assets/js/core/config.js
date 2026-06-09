@@ -3,6 +3,12 @@
 
 	window.PufferDesk = window.PufferDesk || {};
 
+	function formatTemplate(template, values = []) {
+		let index = 0;
+
+		return String(template || '').replace(/%d|%s/g, () => String(values[index++] ?? ''));
+	}
+
 	window.PufferDesk.config = {
 		get() {
 			return window.pufferDesk || {};
@@ -39,10 +45,19 @@
 		},
 
 		formatLabel(key, fallback = '', values = []) {
-			let index = 0;
 			const template = this.getLabel(key, fallback);
 
-			return String(template).replace(/%d|%s/g, () => String(values[index++] ?? ''));
+			return this.formatTemplate(template, values);
+		},
+
+		formatTemplate,
+
+		formatFromLabels(labels, key, fallback = '', values = []) {
+			const source = labels && typeof labels === 'object' ? labels : {};
+			const value = source[key];
+			const template = typeof value === 'string' && value ? value : fallback;
+
+			return formatTemplate(template, values);
 		}
 	};
 })();

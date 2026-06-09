@@ -86,9 +86,14 @@
 	}
 
 	.pdk-settings-row > .pdk-settings-control,
+	.pdk-settings-theme-control,
 	.pdk-settings-option-group,
 	.pdk-settings-swatch-group {
 		justify-self: start;
+	}
+
+	.pdk-settings-theme-control {
+		flex-wrap: wrap;
 	}
 
 	.pdk-settings-option-group,

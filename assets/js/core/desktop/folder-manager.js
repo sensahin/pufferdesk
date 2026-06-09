@@ -62,10 +62,11 @@
 		}
 
 		function formatMenuLabel(key, fallback, values = []) {
-			let index = 0;
-			const template = getMenuLabel(key, fallback);
+			if (window.PufferDesk.config && typeof window.PufferDesk.config.formatFromLabels === 'function') {
+				return window.PufferDesk.config.formatFromLabels(menuLabels, key, fallback, values);
+			}
 
-			return String(template).replace(/%d|%s/g, () => String(values[index++] ?? ''));
+			return getMenuLabel(key, fallback);
 		}
 
 		function getUntitledFolderLabel() {

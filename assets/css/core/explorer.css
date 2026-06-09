@@ -1,0 +1,289 @@
+.pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-window-titlebar,
+.pdk-window[data-pdk-app-window="os-settings"][data-pdk-surface-layout="windows-settings"] .pdk-window-titlebar {
+	border-bottom: 1px solid var(--pdk-window-bar-border);
+	left: auto;
+	min-height: 32px;
+	padding: 0 0 0 12px;
+	position: relative;
+	top: auto;
+	width: auto;
+}
+
+.pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-window-body,
+.pdk-window[data-pdk-app-window="os-settings"][data-pdk-surface-layout="windows-settings"] .pdk-window-body {
+	flex: 1 1 auto;
+	height: auto;
+	min-height: 0;
+}
+
+.pdk-folder-content[data-pdk-folder-layout="file-explorer"] .pdk-finder-sidebar,
+.pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-sidebar {
+	padding-top: 16px;
+}
+
+.pdk-folder-content[data-pdk-folder-layout="file-explorer"] .pdk-finder-sidebar-heading {
+	padding-top: 0;
+}
+
+.pdk-explorer-main {
+	background: var(--pdk-panel);
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	min-width: 0;
+	overflow: hidden;
+}
+
+.pdk-explorer-commandbar,
+.pdk-explorer-addressbar {
+	align-items: center;
+	border-bottom: 1px solid var(--pdk-line);
+	box-sizing: border-box;
+	display: flex;
+	gap: 8px;
+	min-width: 0;
+	padding: 6px 10px;
+}
+
+.pdk-explorer-commandbar {
+	min-height: 44px;
+}
+
+.pdk-explorer-command-group {
+	align-items: center;
+	display: flex;
+	gap: 2px;
+	min-width: 0;
+	position: relative;
+}
+
+.pdk-explorer-command-group + .pdk-explorer-command-group {
+	padding-left: 10px;
+}
+
+.pdk-explorer-command-group + .pdk-explorer-command-group::before {
+	background: var(--pdk-line);
+	bottom: 6px;
+	content: "";
+	left: 2px;
+	position: absolute;
+	top: 6px;
+	width: 1px;
+}
+
+.pdk-explorer-command-button,
+.pdk-explorer-nav-button {
+	align-items: center;
+	appearance: none;
+	background: transparent;
+	border: 0;
+	border-radius: 4px;
+	color: var(--pdk-ink);
+	cursor: default;
+	display: inline-flex;
+	font-family: inherit;
+	font-size: var(--pdk-settings-text-label);
+	gap: 6px;
+	height: 30px;
+	justify-content: center;
+	line-height: 1;
+	min-width: 30px;
+	padding: 0 8px;
+}
+
+.pdk-explorer-command-button:disabled,
+.pdk-explorer-nav-button:disabled {
+	color: var(--pdk-muted);
+	opacity: 0.62;
+}
+
+.pdk-explorer-command-button:not(:disabled):hover,
+.pdk-explorer-command-button:not(:disabled):focus-visible,
+.pdk-explorer-nav-button:not(:disabled):hover,
+.pdk-explorer-nav-button:not(:disabled):focus-visible {
+	background: var(--pdk-control-bg-hover);
+	outline: none;
+}
+
+.pdk-explorer-command-button.is-menu-open {
+	background: var(--pdk-control-bg-hover);
+}
+
+.pdk-explorer-command-menu {
+	min-width: 224px;
+}
+
+.pdk-explorer-command-icon,
+.pdk-explorer-command-icon .dashicons {
+	align-items: center;
+	display: inline-flex;
+	font-size: 16px;
+	height: 16px;
+	justify-content: center;
+	line-height: 1;
+	width: 16px;
+}
+
+.pdk-explorer-command-disclosure {
+	border-bottom: 1.5px solid currentColor;
+	border-right: 1.5px solid currentColor;
+	display: inline-block;
+	height: 5px;
+	transform: translateY(-2px) rotate(45deg);
+	width: 5px;
+}
+
+.pdk-explorer-addressbar {
+	min-height: 42px;
+}
+
+.pdk-explorer-navigation {
+	align-items: center;
+	display: flex;
+	flex: 0 0 auto;
+	gap: 2px;
+}
+
+.pdk-explorer-nav-icon {
+	border-bottom: 2px solid currentColor;
+	border-right: 2px solid currentColor;
+	display: block;
+	height: 8px;
+	width: 8px;
+}
+
+.pdk-explorer-nav-button-back .pdk-explorer-nav-icon {
+	transform: translateX(2px) rotate(135deg);
+}
+
+.pdk-explorer-nav-button-forward .pdk-explorer-nav-icon {
+	transform: translateX(-2px) rotate(-45deg);
+}
+
+.pdk-explorer-nav-button-up .pdk-explorer-nav-icon {
+	transform: translateY(2px) rotate(225deg);
+}
+
+.pdk-explorer-address-field,
+.pdk-explorer-search {
+	align-items: center;
+	background: var(--pdk-control-bg);
+	border: 1px solid var(--pdk-card-border);
+	border-radius: 4px;
+	box-sizing: border-box;
+	color: var(--pdk-ink);
+	display: flex;
+	font-size: var(--pdk-settings-text-label);
+	min-height: 30px;
+	min-width: 0;
+}
+
+.pdk-explorer-address-field {
+	flex: 1 1 auto;
+	gap: 6px;
+	overflow: hidden;
+	padding: 0 10px;
+}
+
+.pdk-explorer-address-crumb {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pdk-explorer-address-separator {
+	border-bottom: 1.5px solid currentColor;
+	border-right: 1.5px solid currentColor;
+	color: var(--pdk-muted);
+	display: inline-block;
+	flex: 0 0 auto;
+	height: 6px;
+	transform: rotate(-45deg);
+	width: 6px;
+}
+
+.pdk-explorer-search {
+	flex: 0 1 220px;
+	gap: 6px;
+	padding: 0 9px;
+}
+
+.pdk-explorer-search .dashicons {
+	color: var(--pdk-muted);
+	font-size: 15px;
+	height: 15px;
+	width: 15px;
+}
+
+.pdk-explorer-search input {
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	color: inherit;
+	font: inherit;
+	min-width: 0;
+	outline: none;
+	width: 100%;
+}
+
+.pdk-explorer-pane {
+	padding: 18px 18px 20px;
+}
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="extra-large-icons"] .pdk-app-grid {
+	grid-template-columns: repeat(auto-fill, minmax(112px, 138px));
+}
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="large-icons"] .pdk-app-grid {
+	grid-template-columns: repeat(auto-fill, minmax(96px, 118px));
+}
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="medium-icons"] .pdk-app-grid {
+	grid-template-columns: repeat(auto-fill, minmax(78px, 96px));
+}
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="small-icons"] .pdk-app-grid {
+	grid-template-columns: repeat(auto-fill, minmax(62px, 76px));
+}
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-grid,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-grid,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-grid,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-grid {
+	display: grid;
+	gap: 2px;
+	grid-template-columns: minmax(220px, 1fr);
+}
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher {
+	align-items: center;
+	flex-direction: row;
+	gap: 10px;
+	justify-content: flex-start;
+	min-height: 34px;
+	padding: 4px 8px;
+	text-align: left;
+	width: 100%;
+}
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-icon,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-icon,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-icon,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-icon {
+	flex: 0 0 auto;
+	height: 24px;
+	width: 28px;
+}
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher > span:last-child,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher > span:last-child,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher > span:last-child,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher > span:last-child {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}

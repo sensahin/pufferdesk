@@ -31,14 +31,13 @@ The bundled PufferDesk family uses original plugin CSS and release-safe media. V
 
 The foundation separates shell behavior from OS appearance:
 
-- `includes/` owns routing, preferences, app/widget/theme registries, widget layout attributes, assets, and rendering.
+- `includes/` owns routing, preferences, app/widget/theme registries, shared shell context, runtime config, asset manifests/enqueueing, controllers, widget layout attributes, and rendering.
 - `templates/` owns shell markup through semantic folders:
   - `templates/shell/` for global shell surfaces such as menu bar, desktop, and dock.
   - `templates/windows/` for reusable window chrome.
-  - `templates/apps/` for native app content.
   - `templates/desktop/` for desktop icons and folder surfaces.
   - `templates/widgets/` for desktop widget surfaces.
-  - `templates/controls/` reserved for reusable settings controls.
+  - Native app content currently renders through purpose-specific JavaScript modules under `assets/js/core/apps/`; add PHP app templates only when server-rendered native app markup exists.
 - `assets/css/core/` owns semantic core styles:
   - `admin-chrome.css` for WordPress admin chrome suppression.
   - `shell.css` for global shell variables, menu bar, and shared primitives.
@@ -47,13 +46,18 @@ The foundation separates shell behavior from OS appearance:
   - `widgets.css` for desktop widget layout and shared widget chrome.
   - `windows.css` for reusable window chrome.
   - `dock.css` for dock behavior and states.
-  - `apps.css` for built-in app surfaces such as folders and System Settings.
+  - `apps.css` for generic app grids and app launcher tiles.
+  - `folders.css` for folder windows, Finder-style surfaces, Trash, and folder info panels.
+  - `about.css` for PufferDesk and site About windows.
+  - `settings.css` for native System Settings surfaces and controls.
+  - `explorer.css` for Explorer-style folder/settings shared surfaces.
   - `responsive.css` for core viewport adaptations.
 - `assets/js/core/` owns reusable shell behavior through purpose-specific modules:
   - `boot.js` wires the shell together.
   - `config.js` exposes the WordPress-provided runtime payload.
   - `dom.js` owns shared DOM helpers.
   - `services/` owns browser storage and AJAX clients.
+  - `preferences/` owns shell preference appliers such as appearance, wallpaper, launcher, and menu bar state.
   - `session/` owns per-user, per-theme workspace session sections, with WordPress user meta as durable state and browser storage as cache/fallback.
   - `windows/` owns window creation, drag/focus behavior, and window state serialization.
   - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
@@ -94,7 +98,7 @@ System Settings uses PHP-provided `settings.labels` runtime data for user-facing
 
 == Build and release assets ==
 
-Readable source assets stay in `assets/css/core/`, `assets/css/themes/`, and `assets/js/core/`.
+Readable source assets stay in `assets/css/core/`, `assets/css/themes/`, and `assets/js/core/`. `assets/manifest.json` is the source of truth for core CSS order, JavaScript dependency order, and dist bundle paths used by both WordPress enqueueing and `npm run build`.
 Release assets are generated into `assets/dist/`:
 
 - `assets/dist/css/pufferdesk-core.min.css`
@@ -117,7 +121,7 @@ Template resolution supports theme-specific overrides. The renderer checks paths
 2. `templates/themes/{family}/{template}`
 3. `templates/{template}`
 
-For example, a Windows family can override `templates/themes/windows/windows/titlebar.php` without replacing the whole shell.
+Use template overrides only when theme metadata, template data, or scoped CSS cannot describe the required structural difference. Bundled themes should prefer shared templates plus theme shell/surface metadata; external theme packs can still provide override files at those paths.
 
 Theme shell chrome is data-driven. A theme can declare its shell model and runtime labels without changing core behavior. Core currently consumes these fields to render or omit the menu bar, render no launcher, or render the app launcher as the default Dock or as a taskbar-style surface:
 
@@ -137,9 +141,11 @@ Theme shell chrome is data-driven. A theme can declare its shell model and runti
 	'top_bar'     => 'menu-bar',
 	'launcher'    => 'dock',
 	'system_menu' => 'mark',
-	'app_menu'    => 'global',
-	'status_area' => 'menu-bar',
-	'launcher_separator' => true,
+		'app_menu'    => 'global',
+		'status_area' => 'menu-bar',
+		'launcher_search' => false,
+		'system_menu_icon' => 'pufferdesk-mark',
+		'launcher_separator' => true,
 	'fixed_app_locations' => array(
 		'trash' => 'dock',
 	),
@@ -154,6 +160,7 @@ Theme shell chrome is data-driven. A theme can declare its shell model and runti
 ```
 
 `fixed_app_locations` lets a theme place fixed system apps on the surface that fits its shell model without changing the user's stored app-location preference. For example, Redmond keeps the fixed Trash app on the desktop and disables `launcher_separator` so taskbar items stay in one continuous run.
+`launcher_search` and `system_menu_icon` let taskbar themes add a search field or theme-drawn Start icon through the shared launcher template instead of replacing the launcher markup.
 `app_labels` and `menu.labels` let a theme adapt OS-family vocabulary such as Trash versus Recycle Bin while keeping app IDs and command IDs stable.
 
 Native app surface layout is theme metadata too. Use this when another OS family needs a different Settings or folder structure rather than a reskin of the PufferDesk defaults:
@@ -237,11 +244,9 @@ Theme media fields are normalized to local `assets/media/` descriptors with `pat
 
 Bundled alternate themes inherit from `pufferdesk-base` and keep their shell contracts data-driven. `workstation` is a public `workstation/default` theme with a bottom taskbar, start-style system menu, no global menu bar, no global app menu, and taskbar status controls. Window chrome uses right-aligned toolbar controls, left-aligned titles, and visible window icons. Typography uses redistribution-safe system stacks with a tighter utility scale. Theme shell labels rename launcher vocabulary and minimize animation option labels for the taskbar model without changing stored preference values. Media stays release-safe through a small original SVG icon pack under `assets/media/themes/workstation/default/icons/`; any missing app or folder icon falls back through the existing Dashicon descriptor.
 
-`redmond` is a public `redmond/modern` theme inspired by modern Windows desktop patterns without bundling Microsoft-owned assets or clone artwork. Its shell contract uses a bottom full-width taskbar, Start system menu, compact taskbar search field, no global menu bar, no global app menu, taskbar status controls, fixed Trash on the desktop, no taskbar separator, and right-aligned window controls ordered minimize, maximize, close. Its surface contract uses `windows-settings` for the native Settings app and `file-explorer` for folder windows, so those areas render Windows-style navigation, command, address, and list surfaces instead of inheriting PufferDesk/Finder layouts. The Redmond Start surface is rendered from registered apps and `menu.system` command data by the shared menu controller, while `templates/themes/redmond/shell/dock.php` adds the taskbar search and Start button markup needed for that family. Typography prefers local system stacks such as `"Segoe UI Variable"` and `"Segoe UI"` without shipping font files. Theme app icons use local SVG wrappers with selected Tabler Icons glyphs under the MIT License; bundled folders, wallpapers, Trash, and theme wrappers remain PufferDesk assets.
+`redmond` is a public `redmond/modern` theme inspired by modern Windows desktop patterns without bundling Microsoft-owned assets or clone artwork. Its shell contract uses a bottom full-width taskbar, Start system menu, compact taskbar search field, no global menu bar, no global app menu, taskbar status controls, fixed Trash on the desktop, no taskbar separator, and right-aligned window controls ordered minimize, maximize, close. Its surface contract uses `windows-settings` for the native Settings app and `file-explorer` for folder windows, so those areas render Windows-style navigation, command, address, and list surfaces instead of inheriting PufferDesk/Finder layouts. The Redmond Start surface is rendered from registered apps and `menu.system` command data by the shared menu controller, while taskbar search and the Start glyph are declared in theme shell metadata and rendered by the shared launcher template. Typography prefers local system stacks such as `"Segoe UI Variable"` and `"Segoe UI"` without shipping font files. Theme app icons use local SVG wrappers with selected Tabler Icons glyphs under the MIT License; bundled folders, wallpapers, Trash, and theme wrappers remain PufferDesk assets.
 
-The registry also includes an internal contract-test theme, `canary-taskbar`, that is hidden from the Settings theme picker unless `PUFFERDESK_ENABLE_INTERNAL_THEMES` is truthy. It deliberately uses a taskbar launcher, start-style system menu, no top menu bar, caption window controls, and centered title text so contributors can test theme contracts before adding public theme families.
-
-Wallpapers are managed by `PufferDesk_Wallpaper_Registry`. It combines one shared bundled wallpaper catalog, bundled original color backgrounds, optional theme-declared wallpaper collections, and user-selected Media Library uploads, then resolves the active choice into `--pdk-wallpaper-*` CSS variables for the shell. Bundled themes should set `media.wallpapers.default` to choose their starting wallpaper from the shared catalog instead of exposing different wallpaper lists per theme. Bundled gradient wallpapers use `css_value` instead of image files to keep plugin size small. Image wallpapers remain supported through `path` or `file` fields for original/licensed assets that need texture or detail. The older single `wallpaper` field remains a fallback for one-image themes, but new public bundled themes should normally declare only a default wallpaper id. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing. Third-party icon notices are tracked in `THIRD-PARTY-NOTICES.txt`.
+	Wallpapers are managed by `PufferDesk_Wallpaper_Registry`. It combines one shared bundled wallpaper catalog, bundled original color backgrounds, optional theme-declared wallpaper collections, and user-selected Media Library uploads, then resolves the active choice into `--pdk-wallpaper-*` CSS variables for the shell. Bundled themes should set `media.wallpapers.default` to choose their starting wallpaper from the shared catalog instead of exposing different wallpaper lists per theme. Bundled gradient wallpapers use `css_value` instead of image files to keep plugin size small. Image wallpapers remain supported through `path` or `file` fields for original/licensed assets that need texture or detail. The older single `wallpaper` field remains a fallback for one-image themes, but new public bundled themes should normally declare only a default wallpaper id. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing. Third-party icon notices are tracked in `THIRD-PARTY-NOTICES.txt`.
 
 Future phases can add optional alternate theme packs such as classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the PufferDesk identity rather than depending on another platform owner’s brand assets.
 

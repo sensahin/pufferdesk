@@ -98,6 +98,7 @@
 		const createSection = settingsUI.createSection;
 		const createSectionHeading = settingsUI.createSectionHeading;
 		const createButton = settingsUI.createButton;
+		const createInlineSelect = settingsUI.createInlineSelect;
 		const initialSidebarItem = sidebarItems.find((item) => item && !item.disabled) || sidebarItems[0] || { id: 'general' };
 		if (!sidebarItems.some((item) => item.id === activeSection && !item.disabled)) {
 			activeSection = initialSidebarItem.id;
@@ -1084,23 +1085,15 @@
 		}
 
 		function createDesktopDockSelect(key, status) {
-			const wrap = dom.createElement('span', 'pdk-settings-inline-select');
-			const select = document.createElement('select');
+			const { select, wrap } = createInlineSelect({
+				options: desktopDockSelectOptions[key] || [],
+				value: currentDesktopDock[key],
+				onChange: (value, control) => {
+					updateDesktopDock(key, value, status);
+					control.blur();
+				}
+			});
 
-			select.className = 'pdk-settings-value-select';
-			(desktopDockSelectOptions[key] || []).forEach((item) => {
-				const option = document.createElement('option');
-				option.value = item.value;
-				option.textContent = item.label;
-				option.selected = currentDesktopDock[key] === item.value;
-				select.appendChild(option);
-			});
-			select.addEventListener('change', () => {
-				updateDesktopDock(key, select.value, status);
-				select.blur();
-			});
-			wrap.appendChild(select);
-			wrap.appendChild(dom.createElement('span', 'pdk-settings-select-chevrons'));
 			desktopDockControls.push({
 				key,
 				select,
@@ -1136,23 +1129,15 @@
 		}
 
 		function createAppLocationSelect(app, status) {
-			const wrap = dom.createElement('span', 'pdk-settings-inline-select');
-			const select = document.createElement('select');
+			const { select, wrap } = createInlineSelect({
+				options: appLocationOptions,
+				value: getAppLocation(app.id),
+				onChange: (value, control) => {
+					updateAppLocation(app.id, value, status);
+					control.blur();
+				}
+			});
 
-			select.className = 'pdk-settings-value-select';
-			appLocationOptions.forEach((item) => {
-				const option = document.createElement('option');
-				option.value = item.value;
-				option.textContent = item.label;
-				option.selected = getAppLocation(app.id) === item.value;
-				select.appendChild(option);
-			});
-			select.addEventListener('change', () => {
-				updateAppLocation(app.id, select.value, status);
-				select.blur();
-			});
-			wrap.appendChild(select);
-			wrap.appendChild(dom.createElement('span', 'pdk-settings-select-chevrons'));
 			appLocationControls.push({
 				appId: app.id,
 				select
@@ -1441,24 +1426,15 @@
 		}
 
 		function createMenuBarSelect(key, status) {
-			const wrap = dom.createElement('span', 'pdk-settings-inline-select');
-			const select = document.createElement('select');
+			const { select, wrap } = createInlineSelect({
+				options: menuBarSelectOptions[key] || [],
+				value: currentMenuBar[key],
+				onChange: (value, control) => {
+					updateMenuBar(key, key === 'recent_count' ? Number.parseInt(value, 10) : value, status);
+					control.blur();
+				}
+			});
 
-			select.className = 'pdk-settings-value-select';
-			(menuBarSelectOptions[key] || []).forEach((item) => {
-				const option = document.createElement('option');
-				option.value = item.value;
-				option.textContent = item.label;
-				option.selected = String(currentMenuBar[key]) === item.value;
-				select.appendChild(option);
-			});
-			select.addEventListener('change', () => {
-				const value = key === 'recent_count' ? Number.parseInt(select.value, 10) : select.value;
-				updateMenuBar(key, value, status);
-				select.blur();
-			});
-			wrap.appendChild(select);
-			wrap.appendChild(dom.createElement('span', 'pdk-settings-select-chevrons'));
 			menuBarControls.push({
 				key,
 				select,
@@ -1739,6 +1715,7 @@
 				createDesktopDockSliderSection,
 				createDesktopDockToggleRow,
 				createEditableProfileAvatar,
+				createInlineSelect,
 				createMenuBarRow,
 				createMenuBarSelect,
 				createMenuBarToggle,

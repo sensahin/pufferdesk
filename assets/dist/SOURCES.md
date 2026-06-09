@@ -11,11 +11,14 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/css/core/widgets.css
 - assets/css/core/windows.css
 - assets/css/core/apps.css
+- assets/css/core/folders.css
+- assets/css/core/about.css
+- assets/css/core/settings.css
+- assets/css/core/explorer.css
 - assets/css/core/dock.css
 - assets/css/core/responsive.css
 
 ## Theme CSS
-- assets/css/themes/canary/taskbar.css -> assets/dist/css/themes/canary/taskbar.min.css
 - assets/css/themes/pufferdesk/base.css -> assets/dist/css/themes/pufferdesk/base.min.css
 - assets/css/themes/pufferdesk/default.css -> assets/dist/css/themes/pufferdesk/default.min.css
 - assets/css/themes/redmond/modern.css -> assets/dist/css/themes/redmond/modern.min.css
@@ -28,9 +31,10 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/services/api-client.js
 - assets/js/core/session/session-store.js
 - assets/js/core/session/reopen-policy.js
-- assets/js/core/appearance.js
-- assets/js/core/desktop-dock.js
-- assets/js/core/wallpaper.js
+- assets/js/core/preferences/appearance.js
+- assets/js/core/preferences/desktop-dock.js
+- assets/js/core/preferences/wallpaper.js
+- assets/js/core/preferences/menu-bar.js
 - assets/js/core/windows/window-factory.js
 - assets/js/core/windows/window-manager.js
 - assets/js/core/widgets/widget-manager.js

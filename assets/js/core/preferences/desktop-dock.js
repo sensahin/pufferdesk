@@ -12,7 +12,7 @@
 		auto_hide_dock: false,
 		animate_opening_apps: true,
 		show_open_indicators: true,
-		wallpaper_click: 'always',
+		wallpaper_click: 'never',
 		show_widgets_desktop: true,
 		dim_widgets: 'automatic'
 	};

@@ -26,11 +26,11 @@ final class PufferDesk_Plugin {
 	private $router;
 
 	/**
-	 * Shell renderer.
+	 * Admin controller.
 	 *
-	 * @var PufferDesk_Shell_Renderer
+	 * @var PufferDesk_Admin_Controller
 	 */
-	private $renderer;
+	private $admin_controller;
 
 	/**
 	 * Asset loader.
@@ -77,10 +77,9 @@ final class PufferDesk_Plugin {
 		$theme_registry     = new PufferDesk_Theme_Registry();
 		$wallpaper_registry = new PufferDesk_Wallpaper_Registry();
 		$workspace_state    = new PufferDesk_Workspace_State();
-
-		$this->router   = new PufferDesk_Router( $preferences );
-		$this->renderer = new PufferDesk_Shell_Renderer(
-			$this->router,
+		$asset_manifest     = new PufferDesk_Asset_Manifest();
+		$this->router       = new PufferDesk_Router( $preferences );
+		$shell_context      = new PufferDesk_Shell_Context(
 			$preferences,
 			$app_registry,
 			$widget_registry,
@@ -88,14 +87,22 @@ final class PufferDesk_Plugin {
 			$wallpaper_registry,
 			$workspace_state
 		);
+		$runtime_config     = new PufferDesk_Runtime_Config(
+			$this->router,
+			$theme_registry
+		);
+		$renderer       = new PufferDesk_Shell_Renderer(
+			$shell_context
+		);
+		$this->admin_controller = new PufferDesk_Admin_Controller(
+			$this->router,
+			$renderer
+		);
 		$this->assets   = new PufferDesk_Assets(
 			$this->router,
-			$preferences,
-			$app_registry,
-			$widget_registry,
-			$theme_registry,
-			$wallpaper_registry,
-			$workspace_state
+			$shell_context,
+			$runtime_config,
+			$asset_manifest
 		);
 		$this->settings_controller = new PufferDesk_Settings_Controller(
 			$preferences,
@@ -119,57 +126,11 @@ final class PufferDesk_Plugin {
 	private function hooks() {
 		add_action( 'admin_init', array( $this->router, 'handle_mode_toggle' ) );
 		add_action( 'admin_init', array( $this->router, 'redirect_dashboard_to_shell' ) );
-		add_action( 'admin_menu', array( $this, 'register_admin_page' ) );
-		add_action( 'admin_bar_menu', array( $this, 'register_admin_bar_toggle' ), 90 );
 		add_action( 'admin_enqueue_scripts', array( $this->assets, 'enqueue' ) );
 		add_filter( 'admin_body_class', array( $this->assets, 'add_admin_body_classes' ) );
 		add_action( 'admin_head', array( $this->assets, 'print_iframe_head_style' ) );
+		$this->admin_controller->hooks();
 		$this->settings_controller->hooks();
 		$this->workspace_controller->hooks();
-	}
-
-	/**
-	 * Register the OS shell page.
-	 */
-	public function register_admin_page() {
-		add_menu_page(
-			__( 'PufferDesk', 'pufferdesk-admin-desktop' ),
-			__( 'PufferDesk', 'pufferdesk-admin-desktop' ),
-			'read',
-			PufferDesk_Router::PAGE_SLUG,
-			array( $this->renderer, 'render' ),
-			'dashicons-desktop',
-			2
-		);
-	}
-
-	/**
-	 * Add the top-bar mode switch.
-	 *
-	 * @param WP_Admin_Bar $admin_bar Admin bar instance.
-	 */
-	public function register_admin_bar_toggle( $admin_bar ) {
-		if ( ! is_admin() || ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			return;
-		}
-
-		$is_shell = $this->router->is_shell_request();
-		$label    = $is_shell ? __( 'Classic Admin', 'pufferdesk-admin-desktop' ) : __( 'PufferDesk', 'pufferdesk-admin-desktop' );
-		$url      = $is_shell ? $this->router->get_toggle_url( false ) : $this->router->get_toggle_url( true );
-		$class    = $is_shell ? 'pufferdesk-active' : '';
-
-		$admin_bar->add_node(
-			array(
-				'parent' => 'top-secondary',
-				'id'     => 'pufferdesk-toggle',
-				'title'  => '<span class="ab-icon dashicons dashicons-desktop" aria-hidden="true"></span>'
-					. '<span class="ab-label">' . esc_html( $label ) . '</span>',
-				'href'   => $url,
-				'meta'   => array(
-					'class' => $class,
-					'title' => $label,
-				),
-			)
-		);
 	}
 }

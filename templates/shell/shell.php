@@ -133,7 +133,7 @@ $pufferdesk_desktop_dock = wp_parse_args(
 		'auto_hide_dock'         => false,
 		'animate_opening_apps'   => true,
 		'show_open_indicators'   => true,
-		'wallpaper_click'        => 'always',
+		'wallpaper_click'        => 'never',
 		'show_widgets_desktop'   => true,
 		'dim_widgets'            => 'automatic',
 	)
@@ -146,17 +146,19 @@ $pufferdesk_menu_bar     = wp_parse_args(
 		'recent_count'    => 10,
 	)
 );
-$pufferdesk_theme_shell  = wp_parse_args(
-	isset( $theme['shell'] ) && is_array( $theme['shell'] ) ? $theme['shell'] : array(),
-	array(
-		'chrome'      => 'global-menu-dock',
-		'top_bar'     => 'menu-bar',
-		'launcher'    => 'dock',
-		'system_menu' => 'mark',
-		'app_menu'    => 'global',
-		'status_area' => 'menu-bar',
-	)
-);
+	$pufferdesk_theme_shell  = wp_parse_args(
+		isset( $theme['shell'] ) && is_array( $theme['shell'] ) ? $theme['shell'] : array(),
+		array(
+			'chrome'           => 'global-menu-dock',
+			'top_bar'          => 'menu-bar',
+			'launcher'         => 'dock',
+			'system_menu'      => 'mark',
+			'app_menu'         => 'global',
+			'status_area'      => 'menu-bar',
+			'launcher_search'  => false,
+			'system_menu_icon' => 'pufferdesk-mark',
+		)
+	);
 $pufferdesk_has_menu_bar  = 'menu-bar' === $pufferdesk_theme_shell['top_bar']
 	|| 'global' === $pufferdesk_theme_shell['app_menu']
 	|| 'menu-bar' === $pufferdesk_theme_shell['status_area']
@@ -202,14 +204,16 @@ $pufferdesk_shell_attributes     = array(
 	'data-pdk-theme'                  => $theme['id'],
 	'data-pdk-theme-family'           => $theme['family'],
 	'data-pdk-theme-version'          => $theme['version'],
-	'data-pdk-shell-chrome'           => $pufferdesk_theme_shell['chrome'],
-	'data-pdk-shell-top-bar'          => $pufferdesk_theme_shell['top_bar'],
-	'data-pdk-shell-launcher'         => $pufferdesk_theme_shell['launcher'],
-	'data-pdk-shell-system-menu'      => $pufferdesk_theme_shell['system_menu'],
-	'data-pdk-shell-app-menu'         => $pufferdesk_theme_shell['app_menu'],
-	'data-pdk-shell-status-area'      => $pufferdesk_theme_shell['status_area'],
-	'data-pdk-shell-has-menu-bar'     => $pufferdesk_has_menu_bar ? '1' : '0',
-	'data-pdk-shell-has-launcher'     => $pufferdesk_has_launcher ? '1' : '0',
+		'data-pdk-shell-chrome'           => $pufferdesk_theme_shell['chrome'],
+		'data-pdk-shell-top-bar'          => $pufferdesk_theme_shell['top_bar'],
+		'data-pdk-shell-launcher'         => $pufferdesk_theme_shell['launcher'],
+		'data-pdk-shell-system-menu'      => $pufferdesk_theme_shell['system_menu'],
+		'data-pdk-shell-app-menu'         => $pufferdesk_theme_shell['app_menu'],
+		'data-pdk-shell-status-area'      => $pufferdesk_theme_shell['status_area'],
+		'data-pdk-shell-launcher-search'  => ! empty( $pufferdesk_theme_shell['launcher_search'] ) ? '1' : '0',
+		'data-pdk-shell-system-menu-icon' => $pufferdesk_theme_shell['system_menu_icon'],
+		'data-pdk-shell-has-menu-bar'     => $pufferdesk_has_menu_bar ? '1' : '0',
+		'data-pdk-shell-has-launcher'     => $pufferdesk_has_launcher ? '1' : '0',
 	'data-pdk-window-controls-placement' => $pufferdesk_window_controls['placement'],
 	'data-pdk-window-controls-style'  => $pufferdesk_window_controls['style'],
 	'data-pdk-window-title-alignment' => $pufferdesk_window_title['alignment'],

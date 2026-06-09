@@ -28,7 +28,6 @@
 				{ value: 'clear', label: 'Clear' },
 				{ value: 'tinted', label: 'Tinted' }
 			],
-			installedThemeHeading: 'Installed Theme',
 			materialDescription: 'Choose your preferred Liquid Glass look.',
 			materialLabel: 'Liquid Glass',
 			materialOptions: [
@@ -284,9 +283,11 @@
 	}
 
 	function format(template, values = []) {
-		let index = 0;
+		if (window.PufferDesk.config && typeof window.PufferDesk.config.formatTemplate === 'function') {
+			return window.PufferDesk.config.formatTemplate(template, values);
+		}
 
-		return String(template || '').replace(/%d|%s/g, () => String(values[index++] ?? ''));
+		return String(template || '');
 	}
 
 	function getOptions(source, path) {

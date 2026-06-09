@@ -12,53 +12,11 @@ defined( 'ABSPATH' ) || exit;
  */
 final class PufferDesk_Shell_Renderer {
 	/**
-	 * Router.
+	 * Shell context builder.
 	 *
-	 * @var PufferDesk_Router
+	 * @var PufferDesk_Shell_Context
 	 */
-	private $router;
-
-	/**
-	 * Preferences.
-	 *
-	 * @var PufferDesk_User_Preferences
-	 */
-	private $preferences;
-
-	/**
-	 * App registry.
-	 *
-	 * @var PufferDesk_App_Registry
-	 */
-	private $app_registry;
-
-	/**
-	 * Widget registry.
-	 *
-	 * @var PufferDesk_Widget_Registry
-	 */
-	private $widget_registry;
-
-	/**
-	 * Theme registry.
-	 *
-	 * @var PufferDesk_Theme_Registry
-	 */
-	private $theme_registry;
-
-	/**
-	 * Wallpaper registry.
-	 *
-	 * @var PufferDesk_Wallpaper_Registry
-	 */
-	private $wallpaper_registry;
-
-	/**
-	 * Workspace state service.
-	 *
-	 * @var PufferDesk_Workspace_State
-	 */
-	private $workspace_state;
+	private $shell_context;
 
 	/**
 	 * Current resolved theme during a render pass.
@@ -70,30 +28,10 @@ final class PufferDesk_Shell_Renderer {
 	/**
 	 * Constructor.
 	 *
-	 * @param PufferDesk_Router           $router Router.
-	 * @param PufferDesk_User_Preferences $preferences Preferences.
-	 * @param PufferDesk_App_Registry     $app_registry App registry.
-	 * @param PufferDesk_Widget_Registry  $widget_registry Widget registry.
-	 * @param PufferDesk_Theme_Registry   $theme_registry Theme registry.
-	 * @param PufferDesk_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
-	 * @param PufferDesk_Workspace_State    $workspace_state Workspace state service.
+	 * @param PufferDesk_Shell_Context $shell_context Shell context builder.
 	 */
-	public function __construct(
-		PufferDesk_Router $router,
-		PufferDesk_User_Preferences $preferences,
-		PufferDesk_App_Registry $app_registry,
-		PufferDesk_Widget_Registry $widget_registry,
-		PufferDesk_Theme_Registry $theme_registry,
-		PufferDesk_Wallpaper_Registry $wallpaper_registry,
-		PufferDesk_Workspace_State $workspace_state
-	) {
-		$this->router             = $router;
-		$this->preferences        = $preferences;
-		$this->app_registry       = $app_registry;
-		$this->widget_registry    = $widget_registry;
-		$this->theme_registry     = $theme_registry;
-		$this->wallpaper_registry = $wallpaper_registry;
-		$this->workspace_state    = $workspace_state;
+	public function __construct( PufferDesk_Shell_Context $shell_context ) {
+		$this->shell_context = $shell_context;
 	}
 
 	/**
@@ -104,38 +42,25 @@ final class PufferDesk_Shell_Renderer {
 			wp_die( esc_html__( 'You do not have permission to use PufferDesk.', 'pufferdesk-admin-desktop' ) );
 		}
 
-		$theme             = $this->theme_registry->get_current_theme( $this->preferences );
-		$apps              = $this->theme_registry->apply_app_labels( $this->app_registry->get_apps(), $theme );
-		$app_locations     = $this->preferences->get_effective_app_locations( $apps, $theme );
-		$dock_apps         = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'dock', $theme );
-		$desktop_apps      = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'desktop', $theme );
-		$widgets           = $this->widget_registry->get_widgets();
-		$folders           = $this->app_registry->get_folders( $apps );
-		$desktop_folders   = $this->preferences->get_desktop_folders( $apps );
-		$workspace_folders = array_merge( $folders, $desktop_folders );
-		$appearance        = $this->preferences->get_appearance();
-		$desktop_dock      = $this->preferences->get_desktop_dock();
-		$menu_bar          = $this->preferences->get_menu_bar();
-		$wallpaper         = $this->wallpaper_registry->get_client_config( $theme, $this->preferences );
-		$workspace_state   = $this->workspace_state->get_state( $theme['id'], $apps, $widgets, $workspace_folders );
-		$dock_apps         = $this->workspace_state->order_apps_for_dock( $dock_apps, $workspace_state );
+		$context             = $this->shell_context->get();
+		$theme               = isset( $context['theme'] ) && is_array( $context['theme'] ) ? $context['theme'] : array();
 		$this->current_theme = $theme;
 
 		$this->render_template(
 			'shell/shell.php',
 			array(
-				'appearance'      => $appearance,
-				'apps'            => $apps,
-				'desktop_apps'    => $desktop_apps,
-				'desktop_dock'    => $desktop_dock,
-				'dock_apps'       => $dock_apps,
-				'menu_bar'        => $menu_bar,
-				'widgets'         => $widgets,
-				'folders'         => $folders,
+				'appearance'      => isset( $context['appearance'] ) ? $context['appearance'] : array(),
+				'apps'            => isset( $context['apps'] ) ? $context['apps'] : array(),
+				'desktop_apps'    => isset( $context['desktop_apps'] ) ? $context['desktop_apps'] : array(),
+				'desktop_dock'    => isset( $context['desktop_dock'] ) ? $context['desktop_dock'] : array(),
+				'dock_apps'       => isset( $context['dock_apps'] ) ? $context['dock_apps'] : array(),
+				'menu_bar'        => isset( $context['menu_bar'] ) ? $context['menu_bar'] : array(),
+				'widgets'         => isset( $context['widgets'] ) ? $context['widgets'] : array(),
+				'folders'         => isset( $context['folders'] ) ? $context['folders'] : array(),
 				'site_name'       => get_bloginfo( 'name' ),
 				'theme'           => $theme,
-				'wallpaper'       => $wallpaper,
-				'workspace_state' => $workspace_state,
+				'wallpaper'       => isset( $context['wallpaper'] ) ? $context['wallpaper'] : array(),
+				'workspace_state' => isset( $context['workspace_state'] ) ? $context['workspace_state'] : array(),
 			)
 		);
 	}

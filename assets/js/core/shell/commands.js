@@ -39,10 +39,11 @@
 		}
 
 		function formatLabel(key, fallback, values = []) {
-			let index = 0;
-			const template = getLabel(key, fallback);
+			if (window.PufferDesk.config && typeof window.PufferDesk.config.formatFromLabels === 'function') {
+				return window.PufferDesk.config.formatFromLabels(labels, key, fallback, values);
+			}
 
-			return String(template).replace(/%d|%s/g, () => String(values[index++] ?? ''));
+			return getLabel(key, fallback);
 		}
 
 		function getTargetWindow(detail = activeDetail) {

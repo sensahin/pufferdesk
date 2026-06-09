@@ -42,6 +42,34 @@
 			return button;
 		}
 
+		function createInlineSelect(options = {}) {
+			const wrap = dom.createElement('span', `pdk-settings-inline-select ${options.className || ''}`.trim());
+			const select = document.createElement('select');
+			const selectedValue = Object.prototype.hasOwnProperty.call(options, 'value') ? String(options.value) : '';
+
+			select.className = 'pdk-settings-value-select';
+			select.disabled = options.disabled === true;
+			(Array.isArray(options.options) ? options.options : []).forEach((item) => {
+				const option = document.createElement('option');
+				const value = item && Object.prototype.hasOwnProperty.call(item, 'value') ? item.value : '';
+
+				option.value = String(value);
+				option.textContent = item && typeof item.label === 'string' ? item.label : option.value;
+				option.selected = String(value) === selectedValue;
+				select.appendChild(option);
+			});
+			if (typeof options.onChange === 'function') {
+				select.addEventListener('change', () => options.onChange(select.value, select));
+			}
+			wrap.appendChild(select);
+			wrap.appendChild(dom.createElement('span', 'pdk-settings-select-chevrons'));
+
+			return {
+				select,
+				wrap
+			};
+		}
+
 		function createRowIcon(iconName, tone = 'gray') {
 			const icon = dom.createElement('span', `pdk-settings-row-icon pdk-settings-sidebar-icon-${tone}`);
 			icon.appendChild(dom.createDashicon(iconName));
@@ -106,6 +134,7 @@
 		return {
 			createActionRow,
 			createButton,
+			createInlineSelect,
 			createRowIcon,
 			createSection,
 			createSectionHeading,

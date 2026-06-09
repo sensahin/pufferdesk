@@ -84,19 +84,25 @@ final class PufferDesk_Theme_Registry {
 					),
 				),
 				'shell'          => array(
-					'chrome'      => 'global-menu-dock',
-					'top_bar'     => 'menu-bar',
-					'launcher'    => 'dock',
-					'system_menu' => 'mark',
-					'app_menu'    => 'global',
-					'status_area' => 'menu-bar',
-					'labels'      => array(
+					'chrome'           => 'global-menu-dock',
+					'top_bar'          => 'menu-bar',
+					'launcher'         => 'dock',
+					'system_menu'      => 'mark',
+					'app_menu'         => 'global',
+					'status_area'      => 'menu-bar',
+					'launcher_search'  => false,
+					'system_menu_icon' => 'pufferdesk-mark',
+					'labels'           => array(
 						'launcher'             => __( 'Dock', 'pufferdesk-admin-desktop' ),
 						'desktop_launcher'     => __( 'Desktop & Dock', 'pufferdesk-admin-desktop' ),
 						'launcher_and_desktop' => __( 'Dock & Desktop', 'pufferdesk-admin-desktop' ),
 						'launcher_position'    => __( 'Dock position on screen', 'pufferdesk-admin-desktop' ),
 						'auto_hide_launcher'   => __( 'Automatically hide and show the Dock', 'pufferdesk-admin-desktop' ),
 						'launcher_options'     => __( 'Options', 'pufferdesk-admin-desktop' ),
+						'start'                => __( 'Start', 'pufferdesk-admin-desktop' ),
+						'open_start'           => __( 'Open Start', 'pufferdesk-admin-desktop' ),
+						'search'               => __( 'Search', 'pufferdesk-admin-desktop' ),
+						'search_apps'          => __( 'Search apps', 'pufferdesk-admin-desktop' ),
 						'keep_in_launcher'     => __( 'Keep in Dock', 'pufferdesk-admin-desktop' ),
 						'remove_from_launcher' => __( 'Remove from Dock', 'pufferdesk-admin-desktop' ),
 						'open_at_login'        => __( 'Open at Login', 'pufferdesk-admin-desktop' ),
@@ -310,23 +316,29 @@ final class PufferDesk_Theme_Registry {
 					),
 				),
 				'shell'          => array(
-					'chrome'      => 'taskbar',
-					'top_bar'     => 'none',
-					'launcher'    => 'taskbar',
-					'system_menu' => 'start',
-					'app_menu'    => 'none',
-					'status_area' => 'taskbar',
-					'launcher_separator' => false,
+					'chrome'              => 'taskbar',
+					'top_bar'             => 'none',
+					'launcher'            => 'taskbar',
+					'system_menu'         => 'start',
+					'app_menu'            => 'none',
+					'status_area'         => 'taskbar',
+					'launcher_search'     => true,
+					'system_menu_icon'    => 'theme',
+					'launcher_separator'  => false,
 					'fixed_app_locations' => array(
 						'trash' => 'desktop',
 					),
-					'labels'      => array(
+					'labels'              => array(
 						'launcher'             => __( 'Taskbar', 'pufferdesk-admin-desktop' ),
 						'desktop_launcher'     => __( 'Desktop & Taskbar', 'pufferdesk-admin-desktop' ),
 						'launcher_and_desktop' => __( 'Taskbar & Desktop', 'pufferdesk-admin-desktop' ),
 						'launcher_position'    => __( 'Taskbar position on screen', 'pufferdesk-admin-desktop' ),
 						'auto_hide_launcher'   => __( 'Automatically hide the taskbar', 'pufferdesk-admin-desktop' ),
 						'launcher_options'     => __( 'Taskbar Options', 'pufferdesk-admin-desktop' ),
+						'start'                => __( 'Start', 'pufferdesk-admin-desktop' ),
+						'open_start'           => __( 'Open Start', 'pufferdesk-admin-desktop' ),
+						'search'               => __( 'Search', 'pufferdesk-admin-desktop' ),
+						'search_apps'          => __( 'Search apps', 'pufferdesk-admin-desktop' ),
 						'keep_in_launcher'     => __( 'Pin to taskbar', 'pufferdesk-admin-desktop' ),
 						'remove_from_launcher' => __( 'Unpin from taskbar', 'pufferdesk-admin-desktop' ),
 						'open_at_login'        => __( 'Open at sign-in', 'pufferdesk-admin-desktop' ),
@@ -443,52 +455,6 @@ final class PufferDesk_Theme_Registry {
 					),
 				),
 			),
-			'canary-taskbar' => array(
-				'id'             => 'canary-taskbar',
-				'label'          => __( 'PufferDesk Canary Taskbar', 'pufferdesk-admin-desktop' ),
-				'family'         => 'canary',
-				'family_label'   => __( 'Canary', 'pufferdesk-admin-desktop' ),
-				'version'        => 'taskbar',
-				'version_label'  => __( 'Taskbar Contract', 'pufferdesk-admin-desktop' ),
-				'parent'         => 'pufferdesk-base',
-				'stylesheet'     => 'canary/taskbar.css',
-				'media'          => array(
-					'icon_pack' => 'themes/pufferdesk/default/icons',
-				),
-				'shell'          => array(
-					'chrome'      => 'taskbar',
-					'top_bar'     => 'none',
-					'launcher'    => 'taskbar',
-					'system_menu' => 'start',
-					'app_menu'    => 'none',
-					'status_area' => 'taskbar',
-					'labels'      => array(
-						'launcher'             => __( 'Taskbar', 'pufferdesk-admin-desktop' ),
-						'desktop_launcher'     => __( 'Desktop & Taskbar', 'pufferdesk-admin-desktop' ),
-						'launcher_and_desktop' => __( 'Taskbar & Desktop', 'pufferdesk-admin-desktop' ),
-						'launcher_position'    => __( 'Taskbar position on screen', 'pufferdesk-admin-desktop' ),
-						'auto_hide_launcher'   => __( 'Automatically hide and show the taskbar', 'pufferdesk-admin-desktop' ),
-						'launcher_options'     => __( 'Taskbar Options', 'pufferdesk-admin-desktop' ),
-						'keep_in_launcher'     => __( 'Keep in Taskbar', 'pufferdesk-admin-desktop' ),
-						'remove_from_launcher' => __( 'Remove from Taskbar', 'pufferdesk-admin-desktop' ),
-						'menu_bar'             => __( 'Top Bar', 'pufferdesk-admin-desktop' ),
-						'menu_bar_auto_hide'   => __( 'Automatically hide and show the top bar', 'pufferdesk-admin-desktop' ),
-						'menu_bar_background'  => __( 'Show top bar background', 'pufferdesk-admin-desktop' ),
-					),
-				),
-				'window_chrome'  => array(
-					'controls' => array(
-						'placement' => 'right',
-						'order'     => array( 'minimize', 'maximize', 'close' ),
-						'style'     => 'caption',
-					),
-					'title'    => array(
-						'alignment' => 'center',
-						'show_icon' => false,
-					),
-				),
-				'internal'       => true,
-			),
 		);
 
 		/**
@@ -519,7 +485,6 @@ final class PufferDesk_Theme_Registry {
 		if (
 			empty( $themes[ $theme_id ] )
 			|| ! empty( $themes[ $theme_id ]['abstract'] )
-			|| ( ! empty( $themes[ $theme_id ]['internal'] ) && ! $this->internal_themes_enabled() )
 		) {
 			$theme_id = $this->get_default_selectable_theme_id( $themes );
 		}
@@ -537,7 +502,7 @@ final class PufferDesk_Theme_Registry {
 		$options = array();
 
 		foreach ( $themes as $id => $theme ) {
-			if ( ! empty( $theme['abstract'] ) || ( ! empty( $theme['internal'] ) && ! $this->internal_themes_enabled() ) ) {
+			if ( ! empty( $theme['abstract'] ) ) {
 				continue;
 			}
 
@@ -554,12 +519,11 @@ final class PufferDesk_Theme_Registry {
 				'media'         => $resolved['media'],
 				'typography'    => $resolved['typography'],
 				'shell'         => $resolved['shell'],
-				'surfaces'      => $resolved['surfaces'],
-				'settings'      => $resolved['settings'],
-				'window_chrome' => $resolved['window_chrome'],
-				'internal'      => ! empty( $resolved['internal'] ),
-			);
-		}
+					'surfaces'      => $resolved['surfaces'],
+					'settings'      => $resolved['settings'],
+					'window_chrome' => $resolved['window_chrome'],
+				);
+			}
 
 		return $options;
 	}
@@ -636,12 +600,11 @@ final class PufferDesk_Theme_Registry {
 				'shell'          => $this->normalize_shell_config( isset( $theme['shell'] ) ? $theme['shell'] : array() ),
 				'menu'           => $this->normalize_menu_config( isset( $theme['menu'] ) ? $theme['menu'] : array() ),
 				'surfaces'       => $this->normalize_surface_config( isset( $theme['surfaces'] ) ? $theme['surfaces'] : array() ),
-				'settings'       => $this->normalize_settings_config( isset( $theme['settings'] ) ? $theme['settings'] : array() ),
-				'window_chrome'  => $this->normalize_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() ),
-				'abstract'       => ! empty( $theme['abstract'] ),
-				'internal'       => ! empty( $theme['internal'] ),
-			);
-		}
+					'settings'       => $this->normalize_settings_config( isset( $theme['settings'] ) ? $theme['settings'] : array() ),
+					'window_chrome'  => $this->normalize_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() ),
+					'abstract'       => ! empty( $theme['abstract'] ),
+				);
+			}
 
 		return $normalized;
 	}
@@ -712,21 +675,12 @@ final class PufferDesk_Theme_Registry {
 	 */
 	private function get_default_selectable_theme_id( $themes ) {
 		foreach ( $themes as $id => $theme ) {
-			if ( empty( $theme['abstract'] ) && ( empty( $theme['internal'] ) || $this->internal_themes_enabled() ) ) {
+			if ( empty( $theme['abstract'] ) ) {
 				return $id;
 			}
 		}
 
 		return key( $themes );
-	}
-
-	/**
-	 * Whether private contract-test themes should be user-selectable.
-	 *
-	 * @return bool
-	 */
-	private function internal_themes_enabled() {
-		return defined( 'PUFFERDESK_ENABLE_INTERNAL_THEMES' ) && PUFFERDESK_ENABLE_INTERNAL_THEMES;
 	}
 
 	/**
@@ -1126,21 +1080,27 @@ final class PufferDesk_Theme_Registry {
 	 */
 	private function get_default_shell_config() {
 		return array(
-			'chrome'      => 'global-menu-dock',
-			'top_bar'     => 'menu-bar',
-			'launcher'    => 'dock',
-			'system_menu' => 'mark',
-			'app_menu'    => 'global',
-			'status_area' => 'menu-bar',
-			'launcher_separator' => true,
+			'chrome'              => 'global-menu-dock',
+			'top_bar'             => 'menu-bar',
+			'launcher'            => 'dock',
+			'system_menu'         => 'mark',
+			'app_menu'            => 'global',
+			'status_area'         => 'menu-bar',
+			'launcher_search'     => false,
+			'system_menu_icon'    => 'pufferdesk-mark',
+			'launcher_separator'  => true,
 			'fixed_app_locations' => array(),
-			'labels'      => array(
+			'labels'              => array(
 				'launcher'             => __( 'Dock', 'pufferdesk-admin-desktop' ),
 				'desktop_launcher'     => __( 'Desktop & Dock', 'pufferdesk-admin-desktop' ),
 				'launcher_and_desktop' => __( 'Dock & Desktop', 'pufferdesk-admin-desktop' ),
 				'launcher_position'    => __( 'Dock position on screen', 'pufferdesk-admin-desktop' ),
 				'auto_hide_launcher'   => __( 'Automatically hide and show the Dock', 'pufferdesk-admin-desktop' ),
 				'launcher_options'     => __( 'Options', 'pufferdesk-admin-desktop' ),
+				'start'                => __( 'Start', 'pufferdesk-admin-desktop' ),
+				'open_start'           => __( 'Open Start', 'pufferdesk-admin-desktop' ),
+				'search'               => __( 'Search', 'pufferdesk-admin-desktop' ),
+				'search_apps'          => __( 'Search apps', 'pufferdesk-admin-desktop' ),
 				'keep_in_launcher'     => __( 'Keep in Dock', 'pufferdesk-admin-desktop' ),
 				'remove_from_launcher' => __( 'Remove from Dock', 'pufferdesk-admin-desktop' ),
 				'open_at_login'        => __( 'Open at Login', 'pufferdesk-admin-desktop' ),
@@ -1202,12 +1162,13 @@ final class PufferDesk_Theme_Registry {
 
 		$normalized = array();
 		$fields     = array(
-			'chrome'      => array( 'global-menu-dock', 'taskbar', 'minimal' ),
-			'top_bar'     => array( 'menu-bar', 'taskbar', 'none' ),
-			'launcher'    => array( 'dock', 'taskbar', 'none' ),
-			'system_menu' => array( 'mark', 'start', 'none' ),
-			'app_menu'    => array( 'global', 'window', 'none' ),
-			'status_area' => array( 'menu-bar', 'taskbar', 'none' ),
+			'chrome'           => array( 'global-menu-dock', 'taskbar', 'minimal' ),
+			'top_bar'          => array( 'menu-bar', 'taskbar', 'none' ),
+			'launcher'         => array( 'dock', 'taskbar', 'none' ),
+			'system_menu'      => array( 'mark', 'start', 'none' ),
+			'app_menu'         => array( 'global', 'window', 'none' ),
+			'status_area'      => array( 'menu-bar', 'taskbar', 'none' ),
+			'system_menu_icon' => array( 'pufferdesk-mark', 'theme', 'none' ),
 		);
 
 		foreach ( $fields as $field => $allowed ) {
@@ -1227,6 +1188,10 @@ final class PufferDesk_Theme_Registry {
 
 		if ( array_key_exists( 'launcher_separator', $shell ) ) {
 			$normalized['launcher_separator'] = $this->normalize_boolean( $shell['launcher_separator'] );
+		}
+
+		if ( array_key_exists( 'launcher_search', $shell ) ) {
+			$normalized['launcher_search'] = $this->normalize_boolean( $shell['launcher_search'] );
 		}
 
 		if ( isset( $shell['fixed_app_locations'] ) && is_array( $shell['fixed_app_locations'] ) ) {

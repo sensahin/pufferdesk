@@ -48,12 +48,14 @@ Root:
 - `AGENTS.md`: this contributor/agent instruction file.
 - `package.json`: build, check, and package scripts.
 - `scripts/`: build and packaging tools.
+- `assets/manifest.json`: canonical core CSS, JavaScript dependency, and dist bundle path manifest shared by PHP enqueueing and build scripts.
 - `assets/dist/`: generated release assets. Do not edit by hand.
 - `release/`: generated zip package. Ignored by git.
 
 PHP services in `includes/`:
 
-- `class-pufferdesk-plugin.php`: main orchestrator and WordPress hook wiring.
+- `class-pufferdesk-plugin.php`: minimal service composition and controller hook delegation.
+- `class-pufferdesk-admin-controller.php`: admin page and admin bar hook registration.
 - `class-pufferdesk-router.php`: mode toggles, shell URL, iframe/classic routing.
 - `class-pufferdesk-user-preferences.php`: per-user mode/theme preferences.
 - `class-pufferdesk-app-registry.php`: app/folder registry and app normalization.
@@ -62,7 +64,10 @@ PHP services in `includes/`:
 - `class-pufferdesk-theme-registry.php`: theme family/version/parent inheritance.
 - `class-pufferdesk-wallpaper-registry.php`: shared bundled/theme/upload wallpaper options and CSS-variable resolution.
 - `class-pufferdesk-workspace-state.php`: per-user/per-site/per-theme workspace layout persistence and sanitization.
-- `class-pufferdesk-assets.php`: CSS/JS enqueueing and runtime config.
+- `class-pufferdesk-shell-context.php`: shared resolved shell state for templates and runtime config.
+- `class-pufferdesk-runtime-config.php`: browser runtime payload, menu labels, settings labels, and system actions.
+- `class-pufferdesk-asset-manifest.php`: source/dist asset manifest reader for enqueue order.
+- `class-pufferdesk-assets.php`: CSS/JS registration, enqueueing, and admin chrome classes.
 - `class-pufferdesk-shell-renderer.php`: template rendering and theme override resolution.
 - `class-pufferdesk-settings-controller.php`: AJAX settings persistence.
 - `class-pufferdesk-workspace-controller.php`: AJAX workspace layout load/save/reset actions.
@@ -72,12 +77,11 @@ Templates in `templates/`:
 
 - `templates/shell/`: shell, menu bar, desktop, dock.
 - `templates/windows/`: reusable window chrome.
-- `templates/apps/`: native app content.
 - `templates/desktop/`: desktop icons and desktop object surfaces.
 - `templates/widgets/`: widget layer and widget templates.
-- `templates/controls/`: reserved for reusable controls.
 - `templates/themes/{theme_id}/...`: theme/version-specific overrides.
 - `templates/themes/{family}/...`: OS-family overrides.
+- Native app content currently renders through purpose-specific JavaScript modules in `assets/js/core/apps/`; add PHP app templates only when server-rendered native app markup exists.
 
 CSS:
 
@@ -87,7 +91,11 @@ CSS:
 - `assets/css/core/desktop.css`: desktop and desktop icons.
 - `assets/css/core/widgets.css`: desktop widgets.
 - `assets/css/core/windows.css`: reusable window chrome.
-- `assets/css/core/apps.css`: built-in app surfaces.
+- `assets/css/core/apps.css`: generic app grid and app launcher tiles.
+- `assets/css/core/folders.css`: folder windows, Finder-style surfaces, Trash, and folder info panels.
+- `assets/css/core/about.css`: PufferDesk and site About windows.
+- `assets/css/core/settings.css`: native System Settings surfaces and controls.
+- `assets/css/core/explorer.css`: Explorer-style folder/settings shared surfaces.
 - `assets/css/core/dock.css`: dock.
 - `assets/css/core/responsive.css`: responsive rules.
 - `assets/css/themes/{family}/base.css`: theme-family visual base.
@@ -100,7 +108,7 @@ JavaScript:
 - `assets/js/core/dom.js`: shared DOM helpers.
 - `assets/js/core/services/`: browser storage and AJAX clients.
 - `assets/js/core/session/`: shared workspace session sections.
-- `assets/js/core/wallpaper.js`: wallpaper CSS-variable application and preference helpers.
+- `assets/js/core/preferences/`: appearance, wallpaper, launcher, and menu bar preference appliers.
 - `assets/js/core/windows/`: windows, window factory, window state serialization.
 - `assets/js/core/widgets/`: widget binding, live updates, widget layout persistence.
 - `assets/js/core/apps/`: app launcher, reusable app surfaces such as about windows, and native apps.
@@ -165,14 +173,13 @@ Themes:
 - Themes are organized by family and version.
 - Use parent/child theme inheritance for common theme-family styling.
 - Put visual language in theme CSS. Put behavior in core JS/PHP.
-- Use theme `shell` metadata for OS-family shell surfaces. Supported fields include `chrome`, `top_bar`, `launcher`, `system_menu`, `app_menu`, `status_area`, `launcher_separator`, `fixed_app_locations`, and `labels`; these normalize into shell runtime config and shell `data-pdk-*` attributes.
+- Use theme `shell` metadata for OS-family shell surfaces. Supported fields include `chrome`, `top_bar`, `launcher`, `system_menu`, `app_menu`, `status_area`, `launcher_search`, `system_menu_icon`, `launcher_separator`, `fixed_app_locations`, and `labels`; these normalize into shell runtime config and shell `data-pdk-*` attributes.
 - Use theme `window_chrome` metadata for reusable window chrome. Supported fields include `controls.placement`, `controls.order`, `controls.style`, `controls.labels`, `title.alignment`, and `title.show_icon`; do not hard-code family-specific window controls in JS.
 - Use theme `surfaces` metadata for native app layout families. Supported fields include `settings` (`pufferdesk-settings`, `windows-settings`) and `folder` (`finder`, `file-explorer`). Do not make other OS families inherit PufferDesk/Finder-specific Settings, folder toolbar, sidebar, or titlebar layouts by styling alone.
 - Use theme shell labels for family-specific vocabulary such as Dock versus Taskbar. Do not hard-code launcher labels in settings panels, menus, or context menus when a runtime label exists.
 - Use theme `app_labels` and `menu.labels` for family-specific app/menu vocabulary such as Trash versus Recycle Bin. Keep app IDs and command IDs stable.
 - Use theme shell labels for family-specific minimize animation option labels when a theme should not expose another OS family's vocabulary. Keep stored option values stable.
 - Shell metadata is executable, not decorative. `top_bar`, `launcher`, `system_menu`, `app_menu`, and `status_area` must match rendered shell surfaces and settings capability visibility.
-- The internal `canary-taskbar` theme exists to test alternate shell contracts and is hidden unless `PUFFERDESK_ENABLE_INTERNAL_THEMES` is enabled. Do not treat it as a bundled public theme or product identity.
 - Use theme `typography` metadata for font stacks, type scale, line heights, weights, and neutral letter spacing. Typography normalizes into shell CSS variables; do not hard-code family-specific fonts or type sizes into component CSS when a token exists.
 - Do not bundle Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform font files. Use system font stacks or original/licensed font assets only.
 - Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `wallpapers`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
@@ -185,6 +192,7 @@ Themes:
   1. `templates/themes/{theme_id}/{template}`
   2. `templates/themes/{family}/{template}`
   3. `templates/{template}`
+- Bundled themes should prefer shared templates plus theme metadata. Add a theme template override only when a structural difference cannot be expressed by registry data, theme fields, template data, or scoped CSS.
 
 Icons:
 
@@ -367,7 +375,7 @@ When adding a feature, decide where it belongs:
 - New theme-specific skin belongs in `assets/css/themes/{family}/`.
 - New image/icon/wallpaper assets belong in `assets/media/`.
 
-Prefer data-driven registration over hard-coded conditionals. If future OS families or versions will need to change something, make it a registry field, theme field, template override, or scoped CSS variable.
+Prefer data-driven registration over hard-coded conditionals. If future OS families or versions will need to change something, make it a registry field, theme field, or scoped CSS variable first; use a template override only when the shared template cannot represent the structure.
 
 ## Feature Integration Checklist
 
