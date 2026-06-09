@@ -1,6 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-hidden="true">
-  <defs><linearGradient id="bg" x1="20" y1="15" x2="45" y2="55" gradientUnits="userSpaceOnUse"><stop stop-color="#f8fafc"/><stop offset="1" stop-color="#cbd5e1"/></linearGradient></defs>
-  <path d="M22 22h20l-2 28H24L22 22z" fill="url(#bg)" stroke="#64748b" stroke-width="2"/>
-  <path d="M19 20h26M27 16h10" stroke="#64748b" stroke-width="3" stroke-linecap="round"/>
-  <path d="M29 27v17M35 27v17" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Trash">
+  <desc>Trash glyph based on Tabler Icons v3.44.0 under the MIT License; wrapper by PufferDesk.</desc>
+  <defs>
+    <linearGradient id="rdm-trash-body" x1="18" y1="9" x2="46" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#cbd5e1"/>
+    </linearGradient>
+  </defs>
+  <path fill="#0f172a" opacity=".18" d="M22 24h22l-1.6 26.2A5.2 5.2 0 0 1 37.2 56H29a5.2 5.2 0 0 1-5.2-5.8L22 24Z"/>
+  <path fill="url(#rdm-trash-body)" stroke="#64748b" stroke-width="1.5" stroke-linejoin="round" d="M21 22h22l-1.7 27.6A5.2 5.2 0 0 1 36.1 55h-8.2a5.2 5.2 0 0 1-5.2-5.4L21 22Z"/>
+  <g fill="none" stroke="#475569" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" transform="translate(13.5 10.5) scale(1.55)">
+    <path d="M4 7l16 0" />
+    <path d="M10 11l0 6" />
+    <path d="M14 11l0 6" />
+    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+  </g>
 </svg>

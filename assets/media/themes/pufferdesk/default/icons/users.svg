@@ -1,15 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-	<defs>
-		<linearGradient id="g" x1="14" x2="114" y1="16" y2="116" gradientUnits="userSpaceOnUse">
-			<stop offset="0" stop-color="#8ee7ff"/>
-			<stop offset=".52" stop-color="#43a3f2"/>
-			<stop offset="1" stop-color="#5363d9"/>
-		</linearGradient>
-	</defs>
-	<rect x="8" y="8" width="112" height="112" rx="27" fill="url(#g)"/>
-	<circle cx="64" cy="48" r="20" fill="#fff" fill-opacity=".92"/>
-	<path fill="#fff" fill-opacity=".92" d="M30 99c3-21 19-32 34-32s31 11 34 32a7 7 0 0 1-7 8H37a7 7 0 0 1-7-8z"/>
-	<circle cx="36" cy="55" r="12" fill="#fff" fill-opacity=".55"/>
-	<circle cx="92" cy="55" r="12" fill="#fff" fill-opacity=".55"/>
-	<path fill="#fff" fill-opacity=".5" d="M17 96c3-15 13-23 25-23 5 0 9 1 13 4-8 5-14 13-17 24H23a6 6 0 0 1-6-5zm73-19c4-3 8-4 13-4 12 0 22 8 25 23a6 6 0 0 1-6 5h-15c-3-11-9-19-17-24z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Users">
+  <desc>App glyph based on Tabler Icons v3.44.0 under the MIT License; wrapper by PufferDesk.</desc>
+  <defs>
+    <linearGradient id="pdk-app-bg" x1="16" y1="12" x2="112" y2="118" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#45c2ff"/>
+      <stop offset="1" stop-color="#2f65d7"/>
+    </linearGradient>
+    <linearGradient id="pdk-app-shine" x1="18" y1="14" x2="90" y2="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="14" y="18" width="104" height="104" rx="25" fill="#13203a" opacity=".18"/>
+  <rect x="12" y="12" width="104" height="104" rx="25" fill="url(#pdk-app-bg)"/>
+  <rect x="14" y="14" width="100" height="100" rx="23" fill="url(#pdk-app-shine)"/>
+  <rect x="13" y="13" width="102" height="102" rx="24" fill="none" stroke="#ffffff" stroke-opacity=".32"/>
+  <g fill="none" stroke="#f8fbff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.68" transform="translate(34 34) scale(2.5)">
+    <path d="M5 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+    <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    <path d="M21 21v-2a4 4 0 0 0 -3 -3.85" />
+  </g>
 </svg>

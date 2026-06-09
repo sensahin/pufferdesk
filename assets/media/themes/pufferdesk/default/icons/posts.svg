@@ -1,16 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-	<defs>
-		<linearGradient id="g" x1="14" x2="112" y1="16" y2="118" gradientUnits="userSpaceOnUse">
-			<stop offset="0" stop-color="#ffb36a"/>
-			<stop offset=".55" stop-color="#ef6d69"/>
-			<stop offset="1" stop-color="#8d64d8"/>
-		</linearGradient>
-	</defs>
-	<rect x="8" y="8" width="112" height="112" rx="27" fill="url(#g)"/>
-	<rect x="30" y="24" width="68" height="80" rx="10" fill="#fff" fill-opacity=".9"/>
-	<rect x="42" y="38" width="36" height="7" rx="3.5" fill="#ef6d69"/>
-	<rect x="42" y="54" width="46" height="6" rx="3" fill="#8b98a7"/>
-	<rect x="42" y="68" width="40" height="6" rx="3" fill="#8b98a7"/>
-	<rect x="42" y="82" width="31" height="6" rx="3" fill="#8b98a7"/>
-	<circle cx="90" cy="40" r="9" fill="#ffb36a"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Posts">
+  <desc>App glyph based on Tabler Icons v3.44.0 under the MIT License; wrapper by PufferDesk.</desc>
+  <defs>
+    <linearGradient id="pdk-app-bg" x1="16" y1="12" x2="112" y2="118" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7d76ff"/>
+      <stop offset="1" stop-color="#5647cf"/>
+    </linearGradient>
+    <linearGradient id="pdk-app-shine" x1="18" y1="14" x2="90" y2="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="14" y="18" width="104" height="104" rx="25" fill="#13203a" opacity=".18"/>
+  <rect x="12" y="12" width="104" height="104" rx="25" fill="url(#pdk-app-bg)"/>
+  <rect x="14" y="14" width="100" height="100" rx="23" fill="url(#pdk-app-shine)"/>
+  <rect x="13" y="13" width="102" height="102" rx="24" fill="none" stroke="#ffffff" stroke-opacity=".32"/>
+  <g fill="none" stroke="#f8fbff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.68" transform="translate(34 34) scale(2.5)">
+    <path d="M3 6a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2l0 -12" />
+    <path d="M7 8h10" />
+    <path d="M7 12h10" />
+    <path d="M7 16h10" />
+  </g>
 </svg>

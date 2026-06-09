@@ -1,15 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-	<defs>
-		<linearGradient id="g" x1="15" x2="114" y1="14" y2="115" gradientUnits="userSpaceOnUse">
-			<stop offset="0" stop-color="#4ce0c8"/>
-			<stop offset=".6" stop-color="#2c93e2"/>
-			<stop offset="1" stop-color="#4b5ed7"/>
-		</linearGradient>
-	</defs>
-	<rect x="8" y="8" width="112" height="112" rx="27" fill="url(#g)"/>
-	<path fill="#fff" fill-opacity=".92" d="M31 35h66a10 10 0 0 1 10 10v30a10 10 0 0 1-10 10H61L42 99V85H31a10 10 0 0 1-10-10V45a10 10 0 0 1 10-10z"/>
-	<circle cx="46" cy="60" r="5" fill="#2c93e2"/>
-	<circle cx="64" cy="60" r="5" fill="#2c93e2"/>
-	<circle cx="82" cy="60" r="5" fill="#2c93e2"/>
-	<path fill="#fff" fill-opacity=".42" d="M44 27h40c7 0 13 5 14 12H36c1-7 7-12 14-12z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Comments">
+  <desc>App glyph based on Tabler Icons v3.44.0 under the MIT License; wrapper by PufferDesk.</desc>
+  <defs>
+    <linearGradient id="pdk-app-bg" x1="16" y1="12" x2="112" y2="118" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#55d8a8"/>
+      <stop offset="1" stop-color="#15936d"/>
+    </linearGradient>
+    <linearGradient id="pdk-app-shine" x1="18" y1="14" x2="90" y2="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="14" y="18" width="104" height="104" rx="25" fill="#13203a" opacity=".18"/>
+  <rect x="12" y="12" width="104" height="104" rx="25" fill="url(#pdk-app-bg)"/>
+  <rect x="14" y="14" width="100" height="100" rx="23" fill="url(#pdk-app-shine)"/>
+  <rect x="13" y="13" width="102" height="102" rx="24" fill="none" stroke="#ffffff" stroke-opacity=".32"/>
+  <g fill="none" stroke="#f8fbff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.68" transform="translate(34 34) scale(2.5)">
+    <path d="M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1" />
+  </g>
 </svg>

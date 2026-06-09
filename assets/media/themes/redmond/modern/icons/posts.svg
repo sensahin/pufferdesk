@@ -1,6 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-hidden="true">
-  <defs><linearGradient id="bg" x1="9" y1="8" x2="55" y2="57" gradientUnits="userSpaceOnUse"><stop stop-color="#8bc6ff"/><stop offset="1" stop-color="#0f6cbd"/></linearGradient></defs>
-  <rect x="9" y="8" width="46" height="48" rx="13" fill="url(#bg)"/>
-  <path d="M21 42l4-12 14-14 7 7-14 14-11 5z" fill="#fff" opacity=".92"/>
-  <path d="M38 17l8 8" stroke="#bde2ff" stroke-width="3" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Posts">
+  <desc>App glyph based on Tabler Icons v3.44.0 under the MIT License; wrapper by PufferDesk.</desc>
+  <defs>
+    <linearGradient id="rdm-app-bg" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7d76ff"/>
+      <stop offset="1" stop-color="#5647cf"/>
+    </linearGradient>
+  </defs>
+  <rect x="7" y="8" width="52" height="52" rx="13" fill="#0f172a" opacity=".18"/>
+  <rect x="6" y="6" width="52" height="52" rx="13" fill="url(#rdm-app-bg)"/>
+  <rect x="7" y="7" width="50" height="50" rx="12" fill="none" stroke="#ffffff" stroke-opacity=".24"/>
+  <path fill="#ffffff" fill-opacity=".16" d="M9 11a7 7 0 0 1 7-7h32a7 7 0 0 1 7 7v9H9z"/>
+  <g fill="none" stroke="#f8fbff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.65" transform="translate(16 16) scale(1.3333333)">
+    <path d="M3 6a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2l0 -12" />
+    <path d="M7 8h10" />
+    <path d="M7 12h10" />
+    <path d="M7 16h10" />
+  </g>
 </svg>

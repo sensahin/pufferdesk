@@ -1,16 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Trash">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Trash">
+  <desc>Trash glyph based on Tabler Icons v3.44.0 under the MIT License; wrapper by PufferDesk.</desc>
   <defs>
-    <linearGradient id="pdk-trash-body" x1="24" y1="20" x2="72" y2="84" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#f9fbff"/>
-      <stop offset="1" stop-color="#cfd7e6"/>
-    </linearGradient>
-    <linearGradient id="pdk-trash-lid" x1="22" y1="13" x2="74" y2="35" gradientUnits="userSpaceOnUse">
+    <linearGradient id="pdk-trash-body" x1="35" y1="18" x2="92" y2="112" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="1" stop-color="#d8dfec"/>
+      <stop offset=".52" stop-color="#e9eef7"/>
+      <stop offset="1" stop-color="#b8c3d3"/>
     </linearGradient>
   </defs>
-  <path fill="url(#pdk-trash-body)" stroke="#7f8aa0" stroke-linejoin="round" stroke-width="3" d="M27 32h42l-4 47a8 8 0 0 1-8 7H39a8 8 0 0 1-8-7l-4-47Z"/>
-  <path fill="url(#pdk-trash-lid)" stroke="#7f8aa0" stroke-linejoin="round" stroke-width="3" d="M21 25h54v8H21z"/>
-  <path fill="none" stroke="#7f8aa0" stroke-linecap="round" stroke-width="3" d="M39 25v-6h18v6M40 43l2 31M48 43v31M56 43l-2 31"/>
-  <path fill="#ffffff" opacity=".52" d="M31 35h34l-1 9H32z"/>
+  <path fill="#152238" opacity=".18" d="M41 45h50l-3.7 56.6A10.5 10.5 0 0 1 76.8 111H55.4a10.5 10.5 0 0 1-10.5-9.4L41 45Z"/>
+  <path fill="url(#pdk-trash-body)" stroke="#7c8799" stroke-width="2.5" stroke-linejoin="round" d="M39 42h50l-3.8 57.4A10.5 10.5 0 0 1 74.7 109H53.3a10.5 10.5 0 0 1-10.5-9.6L39 42Z"/>
+  <path fill="#f8fbff" stroke="#7c8799" stroke-width="2.5" stroke-linejoin="round" d="M33 35h62v9H33z"/>
+  <g fill="none" stroke="#536173" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.45" transform="translate(28 24) scale(3)">
+    <path d="M4 7l16 0" />
+    <path d="M10 11l0 6" />
+    <path d="M14 11l0 6" />
+    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+  </g>
 </svg>
