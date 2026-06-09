@@ -112,6 +112,18 @@
 	--pdk-dock-tooltip-color: #1f1f1f;
 	--pdk-dock-tooltip-shadow: 0 10px 26px rgb(31 41 55 / 0.18);
 	--pdk-running-indicator: #2563eb;
+	--pdk-redmond-taskbar-bg: rgb(243 243 243);
+	--pdk-redmond-taskbar-border: rgb(218 218 218);
+	--pdk-redmond-taskbar-hover-bg: rgb(232 232 232);
+	--pdk-redmond-taskbar-active-bg: rgb(226 226 226);
+	--pdk-redmond-taskbar-search-bg: rgb(255 255 255);
+	--pdk-redmond-taskbar-search-border: rgb(218 218 218);
+	--pdk-redmond-start-bg: rgb(243 243 243);
+	--pdk-redmond-start-border: rgb(211 211 211);
+	--pdk-redmond-start-footer-bg: rgb(238 238 238);
+	--pdk-redmond-start-footer-border: rgb(222 222 222);
+	--pdk-redmond-start-search-bg: rgb(255 255 255);
+	--pdk-redmond-start-search-border: rgb(218 218 218);
 	--pdk-scrollbar-thumb: rgb(75 85 99 / 0.34);
 	--pdk-scrollbar-thumb-hover: rgb(75 85 99 / 0.5);
 	--pdk-scrollbar-track: rgb(75 85 99 / 0.08);
@@ -188,17 +200,26 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock {
+	-webkit-backdrop-filter: none;
+	align-items: center;
+	backdrop-filter: none;
+	background: var(--pdk-redmond-taskbar-bg);
+	border: 0;
+	border-top: 1px solid var(--pdk-redmond-taskbar-border);
+	box-shadow: none;
+	gap: 4px;
 	justify-content: center;
-	min-height: 52px;
+	min-height: 46px;
 	overflow: hidden;
-	padding: 6px 128px;
+	padding: 3px 132px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-start {
 	background: transparent;
 	border-color: transparent;
-	border-radius: 5px;
+	border-radius: 4px;
 	color: #1f2937;
+	height: 40px;
 	min-width: 40px;
 	padding: 0;
 	width: 40px;
@@ -207,9 +228,9 @@
 .pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-start:hover,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-start:focus,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-start.is-active {
-	background: rgb(255 255 255 / 0.58);
-	border-color: rgb(255 255 255 / 0.42);
-	box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.34);
+	background: var(--pdk-redmond-taskbar-hover-bg);
+	border-color: transparent;
+	box-shadow: none;
 	color: #0f5fb3;
 }
 
@@ -236,21 +257,22 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-search {
 	align-items: center;
-	background: var(--pdk-redmond-input-bg);
-	border: 1px solid var(--pdk-redmond-input-border);
+	background: var(--pdk-redmond-taskbar-search-bg);
+	border: 1px solid var(--pdk-redmond-taskbar-search-border);
 	border-radius: 999px;
-	box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.34);
+	box-shadow: none;
 	color: #5f6268;
 	display: inline-flex;
 	flex: 0 0 auto;
 	gap: 7px;
-	height: calc(var(--pdk-dock-item-size, 48px) - 10px);
-	padding: 0 12px;
-	width: min(220px, 20vw);
+	height: 34px;
+	margin: 0 4px;
+	padding: 0 13px;
+	width: min(240px, 22vw);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-search:focus-within {
-	background: var(--pdk-redmond-input-bg);
+	background: var(--pdk-redmond-taskbar-search-bg);
 	border-color: var(--pdk-redmond-input-focus-border);
 	box-shadow: 0 0 0 3px var(--pdk-focus-ring);
 }
@@ -284,9 +306,11 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-window-item {
 	background: transparent;
 	border-color: transparent;
-	border-radius: 5px;
+	border-radius: 4px;
 	box-shadow: none;
 	color: #1f2937;
+	height: 40px;
+	width: 40px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item:hover,
@@ -294,31 +318,37 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item.is-running,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-window-item:hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-window-item:focus {
-	background: rgb(255 255 255 / 0.58);
-	border-color: rgb(255 255 255 / 0.38);
+	background: var(--pdk-redmond-taskbar-hover-bg);
+	border-color: transparent;
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item.is-running::after {
 	border-radius: 999px;
-	bottom: 2px;
+	bottom: 3px;
 	height: 3px;
-	width: 20px;
+	width: 18px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-status {
+	align-items: center;
 	background: transparent;
 	border: 0;
+	border-radius: 4px;
 	color: #1f2937;
+	font-size: 12px;
+	height: 40px;
+	line-height: 1.15;
 	margin-left: 0;
-	min-width: 98px;
+	min-width: 108px;
+	padding: 0 8px;
 	position: absolute;
-	right: 12px;
-	top: 6px;
+	right: 10px;
+	text-align: center;
+	top: 3px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-status:hover {
-	background: rgb(255 255 255 / 0.46);
-	border-radius: 5px;
+	background: var(--pdk-redmond-taskbar-hover-bg);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window {
@@ -397,30 +427,42 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-menu-popover[data-pdk-menu-popover="system"].pdk-start-panel {
-	border-radius: 18px;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: var(--pdk-redmond-start-bg);
+	border: 1px solid var(--pdk-redmond-start-border);
+	border-radius: 8px;
+	bottom: 58px !important;
+	box-sizing: border-box;
+	box-shadow: 0 16px 48px rgb(0 0 0 / 0.18);
 	display: grid;
-	gap: 16px;
-	max-height: min(680px, calc(100vh - 88px));
+	gap: 18px;
+	grid-template-rows: auto auto minmax(0, 1fr) auto;
+	height: min(864px, calc(100vh - 74px));
+	left: 50% !important;
+	max-height: min(864px, calc(100vh - 74px));
 	overflow: hidden;
-	padding: 22px 22px 0;
-	width: min(640px, calc(100vw - 24px));
+	padding: 16px 32px 0;
+	top: auto !important;
+	transform: translateX(-50%);
+	width: min(832px, calc(100vw - 48px));
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-search {
 	align-items: center;
-	background: var(--pdk-redmond-input-bg);
-	border: 1px solid var(--pdk-redmond-input-border);
+	background: var(--pdk-redmond-start-search-bg);
+	border: 1px solid var(--pdk-redmond-start-search-border);
 	border-radius: 999px;
-	box-shadow: inset 0 -1px 0 rgb(37 99 235 / 0.18), inset 0 1px 0 rgb(255 255 255 / 0.52);
+	box-shadow: none;
 	display: flex;
 	gap: 9px;
-	height: 40px;
-	padding: 0 14px;
+	height: 34px;
+	padding: 0 16px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-search:focus-within {
 	border-color: var(--pdk-redmond-input-focus-border);
-	box-shadow: 0 0 0 3px var(--pdk-focus-ring), inset 0 -1px 0 rgb(37 99 235 / 0.28);
+	box-shadow: 0 0 0 3px var(--pdk-focus-ring);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-search-icon {
@@ -453,7 +495,7 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-pinned-grid {
 	display: grid;
-	gap: 6px 8px;
+	gap: 10px 20px;
 	grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
@@ -462,7 +504,7 @@
 	appearance: none;
 	background: transparent;
 	border: 0;
-	border-radius: 8px;
+	border-radius: 4px;
 	color: #20242b;
 	cursor: default;
 	display: flex;
@@ -482,10 +524,10 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-pinned-icon {
 	align-items: center;
-	background: rgb(255 255 255 / 0.72);
-	border: 1px solid rgb(255 255 255 / 0.6);
-	border-radius: 9px;
-	box-shadow: 0 4px 12px rgb(31 41 55 / 0.08);
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
 	display: inline-flex;
 	height: 36px;
 	justify-content: center;
@@ -575,12 +617,13 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-footer {
 	align-items: center;
-	background: rgb(237 242 248 / 0.88);
-	border-top: 1px solid var(--pdk-divider);
+	background: var(--pdk-redmond-start-footer-bg);
+	border-top: 1px solid var(--pdk-redmond-start-footer-border);
 	display: flex;
 	justify-content: space-between;
-	margin: 0 -22px;
-	padding: 10px 20px;
+	margin: 0 -32px;
+	min-height: 64px;
+	padding: 12px 32px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-footer-actions {
@@ -606,15 +649,20 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="dock-app"],
 .pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-submenu-popover {
-	border-radius: 12px;
-	min-width: 240px;
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: var(--pdk-redmond-context-menu-bg);
+	border: 1px solid var(--pdk-redmond-context-menu-border);
+	border-radius: 8px;
+	box-shadow: var(--pdk-redmond-context-menu-shadow);
+	min-width: 260px;
 	padding: 6px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-item {
-	border-radius: 6px;
-	height: 30px;
-	padding: 0 10px;
+	border-radius: 4px;
+	height: 32px;
+	padding: 0 12px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-separator {
@@ -2281,9 +2329,11 @@
 
 	.pdk-shell[data-pdk-theme="redmond"] .pdk-menu-popover[data-pdk-menu-popover="system"].pdk-start-panel {
 		bottom: 62px;
+		height: auto;
 		left: 10px !important;
 		max-height: calc(100vh - 82px);
 		top: auto !important;
+		transform: none;
 		width: calc(100vw - 20px);
 	}
 
@@ -2393,6 +2443,18 @@
 	--pdk-dock-tooltip-bg: rgb(45 45 45 / 0.96);
 	--pdk-dock-tooltip-color: #f2f2f2;
 	--pdk-running-indicator: #57a7ff;
+	--pdk-redmond-taskbar-bg: rgb(32 32 32);
+	--pdk-redmond-taskbar-border: rgb(50 50 50);
+	--pdk-redmond-taskbar-hover-bg: rgb(45 45 45);
+	--pdk-redmond-taskbar-active-bg: rgb(55 55 55);
+	--pdk-redmond-taskbar-search-bg: rgb(43 43 43);
+	--pdk-redmond-taskbar-search-border: rgb(58 58 58);
+	--pdk-redmond-start-bg: rgb(36 36 36);
+	--pdk-redmond-start-border: rgb(48 48 48);
+	--pdk-redmond-start-footer-bg: rgb(26 26 26);
+	--pdk-redmond-start-footer-border: rgb(45 45 45);
+	--pdk-redmond-start-search-bg: rgb(31 31 31);
+	--pdk-redmond-start-search-border: rgb(52 52 52);
 	--pdk-redmond-subtle-hover-bg: rgb(40 40 40);
 	--pdk-redmond-control-hover-bg: rgb(40 40 40);
 	--pdk-redmond-control-active-bg: rgb(49 49 49);
@@ -2471,11 +2533,21 @@
 	color: #f2f2f2;
 }
 
-.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-taskbar-search,
-.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-start-search,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-start-pinned-icon {
-	background: var(--pdk-redmond-input-bg);
-	border-color: var(--pdk-redmond-input-border);
+	background: transparent;
+	border-color: transparent;
+	color: var(--pdk-muted);
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-taskbar-search {
+	background: var(--pdk-redmond-taskbar-search-bg);
+	border-color: var(--pdk-redmond-taskbar-search-border);
+	color: var(--pdk-muted);
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-start-search {
+	background: var(--pdk-redmond-start-search-bg);
+	border-color: var(--pdk-redmond-start-search-border);
 	color: var(--pdk-muted);
 }
 
@@ -2508,14 +2580,15 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item:hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item:focus,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item.is-running {
-	background: var(--pdk-redmond-subtle-hover-bg);
-	border-color: rgb(255 255 255 / 0.08);
+	background: var(--pdk-redmond-taskbar-hover-bg);
+	border-color: transparent;
 	box-shadow: none;
 	color: #f2f2f2;
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-start-footer {
-	background: #202020;
+	background: var(--pdk-redmond-start-footer-bg);
+	border-top-color: var(--pdk-redmond-start-footer-border);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-window-titlebar,
