@@ -165,10 +165,11 @@ Themes:
 - Themes are organized by family and version.
 - Use parent/child theme inheritance for common theme-family styling.
 - Put visual language in theme CSS. Put behavior in core JS/PHP.
-- Use theme `shell` metadata for OS-family shell surfaces. Supported fields include `chrome`, `top_bar`, `launcher`, `system_menu`, `app_menu`, `status_area`, and `labels`; these normalize into shell runtime config and shell `data-pdk-*` attributes.
+- Use theme `shell` metadata for OS-family shell surfaces. Supported fields include `chrome`, `top_bar`, `launcher`, `system_menu`, `app_menu`, `status_area`, `launcher_separator`, `fixed_app_locations`, and `labels`; these normalize into shell runtime config and shell `data-pdk-*` attributes.
 - Use theme `window_chrome` metadata for reusable window chrome. Supported fields include `controls.placement`, `controls.order`, `controls.style`, `controls.labels`, `title.alignment`, and `title.show_icon`; do not hard-code family-specific window controls in JS.
 - Use theme `surfaces` metadata for native app layout families. Supported fields include `settings` (`pufferdesk-settings`, `windows-settings`) and `folder` (`finder`, `file-explorer`). Do not make other OS families inherit PufferDesk/Finder-specific Settings, folder toolbar, sidebar, or titlebar layouts by styling alone.
 - Use theme shell labels for family-specific vocabulary such as Dock versus Taskbar. Do not hard-code launcher labels in settings panels, menus, or context menus when a runtime label exists.
+- Use theme `app_labels` and `menu.labels` for family-specific app/menu vocabulary such as Trash versus Recycle Bin. Keep app IDs and command IDs stable.
 - Use theme shell labels for family-specific minimize animation option labels when a theme should not expose another OS family's vocabulary. Keep stored option values stable.
 - Shell metadata is executable, not decorative. `top_bar`, `launcher`, `system_menu`, `app_menu`, and `status_area` must match rendered shell surfaces and settings capability visibility.
 - The internal `canary-taskbar` theme exists to test alternate shell contracts and is hidden unless `PUFFERDESK_ENABLE_INTERNAL_THEMES` is enabled. Do not treat it as a bundled public theme or product identity.

@@ -28,6 +28,7 @@ $pufferdesk_launcher_label = isset( $pufferdesk_shell_labels['launcher'] ) && ''
 	: ( 'taskbar' === $pufferdesk_launcher ? __( 'Taskbar', 'pufferdesk-admin-desktop' ) : __( 'Dock', 'pufferdesk-admin-desktop' ) );
 $pufferdesk_show_start   = 'taskbar' === $pufferdesk_launcher && 'start' === $pufferdesk_shell['system_menu'];
 $pufferdesk_show_status  = 'taskbar' === $pufferdesk_launcher && 'taskbar' === $pufferdesk_shell['status_area'];
+$pufferdesk_show_separator = ! array_key_exists( 'launcher_separator', $pufferdesk_shell ) || false !== (bool) $pufferdesk_shell['launcher_separator'];
 $pufferdesk_regular_apps = array();
 $pufferdesk_fixed_apps   = array();
 
@@ -114,7 +115,9 @@ $pufferdesk_render_dock_app = static function ( $pufferdesk_app, $theme, $puffer
 		<?php $pufferdesk_render_dock_app( $pufferdesk_app, $theme ); ?>
 	<?php endforeach; ?>
 	<?php if ( ! empty( $pufferdesk_fixed_apps ) ) : ?>
-		<span class="pdk-dock-separator" aria-hidden="true"></span>
+		<?php if ( $pufferdesk_show_separator ) : ?>
+			<span class="pdk-dock-separator" aria-hidden="true"></span>
+		<?php endif; ?>
 		<?php foreach ( $pufferdesk_fixed_apps as $pufferdesk_app ) : ?>
 			<?php $pufferdesk_render_dock_app( $pufferdesk_app, $theme, true ); ?>
 		<?php endforeach; ?>

@@ -37,7 +37,8 @@
 				}
 
 				if (isFixedDockApp(app)) {
-					normalized[app.id] = hasLauncher ? 'dock' : 'hidden';
+					const fixedLocation = getFixedAppLocation(app);
+					normalized[app.id] = normalizeFixedLocationForShell(fixedLocation, hasLauncher);
 					return;
 				}
 
@@ -70,7 +71,9 @@
 
 		function appIsShownIn(app, surface, locations = normalizeLocations(config.appLocations || {})) {
 			if (isFixedDockApp(app)) {
-				return surface === 'dock';
+				const fixedLocation = getFixedAppLocation(app);
+
+				return fixedLocation === 'both' || fixedLocation === surface;
 			}
 
 			const location = app && app.id ? locations[app.id] || 'dock' : 'dock';
@@ -80,6 +83,33 @@
 
 		function isFixedDockApp(app) {
 			return Boolean(app && app.dock && typeof app.dock === 'object' && app.dock.fixed === true);
+		}
+
+		function getFixedAppLocation(app) {
+			const fixedLocations = config.shellChrome && typeof config.shellChrome === 'object' && config.shellChrome.fixed_app_locations
+				? config.shellChrome.fixed_app_locations
+				: {};
+			const location = app && app.id && typeof fixedLocations[app.id] === 'string'
+				? fixedLocations[app.id]
+				: 'dock';
+
+			return ['dock', 'desktop', 'both', 'hidden'].includes(location) ? location : 'dock';
+		}
+
+		function normalizeFixedLocationForShell(location, hasLauncher) {
+			if (hasLauncher) {
+				return location;
+			}
+
+			if (location === 'both') {
+				return 'desktop';
+			}
+
+			return location === 'dock' ? 'hidden' : location;
+		}
+
+		function launcherShowsSeparator() {
+			return !(config.shellChrome && typeof config.shellChrome === 'object' && config.shellChrome.launcher_separator === false);
 		}
 
 		function normalizeAppBadge(app) {
@@ -261,7 +291,9 @@
 					dock.insertBefore(createDockAppButton(app), minimizedWindows || dockEndAnchor || null);
 				});
 				if (fixedDockApps.length) {
-					dock.insertBefore(createDockSeparator(), minimizedWindows || dockEndAnchor || null);
+					if (launcherShowsSeparator()) {
+						dock.insertBefore(createDockSeparator(), minimizedWindows || dockEndAnchor || null);
+					}
 					fixedDockApps.forEach((app) => {
 						dock.insertBefore(createDockAppButton(app, {
 							fixed: true

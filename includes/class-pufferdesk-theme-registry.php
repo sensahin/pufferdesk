@@ -251,6 +251,21 @@ final class PufferDesk_Theme_Registry {
 					),
 					'icon_pack'  => 'themes/redmond/modern/icons',
 				),
+				'app_labels'     => array(
+					'trash' => __( 'Recycle Bin', 'pufferdesk-admin-desktop' ),
+				),
+				'menu'           => array(
+					'labels' => array(
+						'trash'                   => __( 'Recycle Bin', 'pufferdesk-admin-desktop' ),
+						/* translators: %d: number of items in the Recycle Bin. */
+						'trash_item_count'        => __( 'Recycle Bin, %d item', 'pufferdesk-admin-desktop' ),
+						/* translators: %d: number of items in the Recycle Bin. */
+						'trash_item_count_plural' => __( 'Recycle Bin, %d items', 'pufferdesk-admin-desktop' ),
+						'empty_trash'             => __( 'Empty Recycle Bin', 'pufferdesk-admin-desktop' ),
+						'empty_trash_title'       => __( 'Empty Recycle Bin?', 'pufferdesk-admin-desktop' ),
+						'pufferdesk_trash_source' => __( 'PufferDesk Recycle Bin', 'pufferdesk-admin-desktop' ),
+					),
+				),
 				'typography'     => array(
 					'fonts'        => array(
 						'ui'      => '"Segoe UI Variable", "Segoe UI", system-ui, Arial, sans-serif',
@@ -301,6 +316,10 @@ final class PufferDesk_Theme_Registry {
 					'system_menu' => 'start',
 					'app_menu'    => 'none',
 					'status_area' => 'taskbar',
+					'launcher_separator' => false,
+					'fixed_app_locations' => array(
+						'trash' => 'desktop',
+					),
 					'labels'      => array(
 						'launcher'             => __( 'Taskbar', 'pufferdesk-admin-desktop' ),
 						'desktop_launcher'     => __( 'Desktop & Taskbar', 'pufferdesk-admin-desktop' ),
@@ -478,7 +497,8 @@ final class PufferDesk_Theme_Registry {
 		 * Theme keys are stable IDs. Values accept:
 		 * id, label, family, family_label, version, version_label, parent,
 		 * stylesheet, stylesheets, media, wallpaper, wallpapers, icon_pack,
-		 * cursor_pack, typography, shell, surfaces, window_chrome, and abstract.
+		 * cursor_pack, app_labels, typography, shell, menu, surfaces,
+		 * window_chrome, and abstract.
 		 *
 		 * @param array<string,array<string,mixed>> $themes Registered themes.
 		 */
@@ -545,6 +565,40 @@ final class PufferDesk_Theme_Registry {
 	}
 
 	/**
+	 * Apply theme-specific app display labels without changing stable app IDs.
+	 *
+	 * @param array<int,array<string,mixed>> $apps  Registered apps.
+	 * @param array<string,mixed>            $theme Resolved theme.
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function apply_app_labels( $apps, $theme = array() ) {
+		if ( ! is_array( $apps ) ) {
+			return array();
+		}
+
+		$labels = isset( $theme['app_labels'] ) && is_array( $theme['app_labels'] ) ? $theme['app_labels'] : array();
+		if ( empty( $labels ) ) {
+			return $apps;
+		}
+
+		return array_map(
+			static function ( $app ) use ( $labels ) {
+				if ( ! is_array( $app ) || empty( $app['id'] ) ) {
+					return $app;
+				}
+
+				$app_id = sanitize_key( (string) $app['id'] );
+				if ( isset( $labels[ $app_id ] ) && is_string( $labels[ $app_id ] ) && '' !== $labels[ $app_id ] ) {
+					$app['label'] = $labels[ $app_id ];
+				}
+
+				return $app;
+			},
+			$apps
+		);
+	}
+
+	/**
 	 * Normalize theme data.
 	 *
 	 * @param mixed $themes Raw theme data.
@@ -577,8 +631,10 @@ final class PufferDesk_Theme_Registry {
 				'parent'         => isset( $theme['parent'] ) ? sanitize_key( $theme['parent'] ) : '',
 				'stylesheets'    => $this->normalize_stylesheets( $theme ),
 				'media'          => $this->normalize_media( $theme ),
+				'app_labels'     => $this->normalize_string_map( isset( $theme['app_labels'] ) ? $theme['app_labels'] : array() ),
 				'typography'     => $this->normalize_typography_config( isset( $theme['typography'] ) ? $theme['typography'] : array() ),
 				'shell'          => $this->normalize_shell_config( isset( $theme['shell'] ) ? $theme['shell'] : array() ),
+				'menu'           => $this->normalize_menu_config( isset( $theme['menu'] ) ? $theme['menu'] : array() ),
 				'surfaces'       => $this->normalize_surface_config( isset( $theme['surfaces'] ) ? $theme['surfaces'] : array() ),
 				'settings'       => $this->normalize_settings_config( isset( $theme['settings'] ) ? $theme['settings'] : array() ),
 				'window_chrome'  => $this->normalize_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() ),
@@ -609,6 +665,7 @@ final class PufferDesk_Theme_Registry {
 			$theme['ancestors']        = array();
 			$theme['typography']       = $this->complete_typography_config( $theme['typography'] );
 			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
+			$theme['menu']             = $this->complete_menu_config( $theme['menu'] );
 			$theme['surfaces']         = $this->complete_surface_config( $theme['surfaces'] );
 			$theme['settings']         = $this->complete_settings_config( $theme['settings'] );
 			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
@@ -622,6 +679,7 @@ final class PufferDesk_Theme_Registry {
 			$theme['ancestors']        = array();
 			$theme['typography']       = $this->complete_typography_config( $theme['typography'] );
 			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
+			$theme['menu']             = $this->complete_menu_config( $theme['menu'] );
 			$theme['surfaces']         = $this->complete_surface_config( $theme['surfaces'] );
 			$theme['settings']         = $this->complete_settings_config( $theme['settings'] );
 			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
@@ -633,8 +691,10 @@ final class PufferDesk_Theme_Registry {
 		$theme['family']           = $theme['family'] ? $theme['family'] : $parent['family'];
 		$theme['family_label']     = $theme['family_label'] ? $theme['family_label'] : $parent['family_label'];
 		$theme['media']            = $this->merge_media( $parent['media'], $theme['media'] );
+		$theme['app_labels']       = $this->merge_theme_config( $parent['app_labels'], $theme['app_labels'] );
 		$theme['typography']       = $this->complete_typography_config( $this->merge_theme_config( $parent['typography'], $theme['typography'] ) );
 		$theme['shell']            = $this->complete_shell_config( $this->merge_theme_config( $parent['shell'], $theme['shell'] ) );
+		$theme['menu']             = $this->complete_menu_config( $this->merge_theme_config( $parent['menu'], $theme['menu'] ) );
 		$theme['surfaces']         = $this->complete_surface_config( $this->merge_theme_config( $parent['surfaces'], $theme['surfaces'] ) );
 		$theme['settings']         = $this->complete_settings_config( $this->merge_theme_config( $parent['settings'], $theme['settings'] ) );
 		$theme['window_chrome']    = $this->complete_window_chrome_config( $this->merge_theme_config( $parent['window_chrome'], $theme['window_chrome'] ) );
@@ -1072,6 +1132,8 @@ final class PufferDesk_Theme_Registry {
 			'system_menu' => 'mark',
 			'app_menu'    => 'global',
 			'status_area' => 'menu-bar',
+			'launcher_separator' => true,
+			'fixed_app_locations' => array(),
 			'labels'      => array(
 				'launcher'             => __( 'Dock', 'pufferdesk-admin-desktop' ),
 				'desktop_launcher'     => __( 'Desktop & Dock', 'pufferdesk-admin-desktop' ),
@@ -1163,6 +1225,14 @@ final class PufferDesk_Theme_Registry {
 			$normalized['labels'] = $this->normalize_string_map( $shell['labels'] );
 		}
 
+		if ( array_key_exists( 'launcher_separator', $shell ) ) {
+			$normalized['launcher_separator'] = $this->normalize_boolean( $shell['launcher_separator'] );
+		}
+
+		if ( isset( $shell['fixed_app_locations'] ) && is_array( $shell['fixed_app_locations'] ) ) {
+			$normalized['fixed_app_locations'] = $this->normalize_app_location_map( $shell['fixed_app_locations'] );
+		}
+
 		return $normalized;
 	}
 
@@ -1192,6 +1262,25 @@ final class PufferDesk_Theme_Registry {
 			if ( in_array( $value, $allowed, true ) ) {
 				$normalized[ $field ] = $value;
 			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize menu theme metadata.
+	 *
+	 * @param mixed $menu Raw menu metadata.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_menu_config( $menu ) {
+		if ( ! is_array( $menu ) ) {
+			return array();
+		}
+
+		$normalized = array();
+		if ( isset( $menu['labels'] ) && is_array( $menu['labels'] ) ) {
+			$normalized['labels'] = $this->normalize_string_map( $menu['labels'] );
 		}
 
 		return $normalized;
@@ -1366,6 +1455,16 @@ final class PufferDesk_Theme_Registry {
 	}
 
 	/**
+	 * Apply defaults to menu metadata.
+	 *
+	 * @param mixed $menu Menu metadata.
+	 * @return array<string,mixed>
+	 */
+	private function complete_menu_config( $menu ) {
+		return is_array( $menu ) ? $menu : array();
+	}
+
+	/**
 	 * Apply defaults to a settings metadata config.
 	 *
 	 * @param mixed $settings Settings metadata config.
@@ -1414,6 +1513,50 @@ final class PufferDesk_Theme_Registry {
 			$value = sanitize_text_field( $value );
 			if ( '' !== $value ) {
 				$normalized[ $key ] = $value;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize a boolean-like theme value.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return bool
+	 */
+	private function normalize_boolean( $value ) {
+		if ( is_bool( $value ) ) {
+			return $value;
+		}
+
+		if ( is_int( $value ) || is_float( $value ) ) {
+			return 1 === (int) $value;
+		}
+
+		$value = strtolower( trim( (string) $value ) );
+
+		return ! in_array( $value, array( '', '0', 'false', 'no', 'off' ), true );
+	}
+
+	/**
+	 * Normalize fixed app location metadata.
+	 *
+	 * @param mixed $locations Raw location map.
+	 * @return array<string,string>
+	 */
+	private function normalize_app_location_map( $locations ) {
+		$normalized = array();
+		if ( ! is_array( $locations ) ) {
+			return $normalized;
+		}
+
+		$allowed = array( 'dock', 'desktop', 'both', 'hidden' );
+		foreach ( $locations as $app_id => $location ) {
+			$app_id   = sanitize_key( (string) $app_id );
+			$location = sanitize_key( (string) $location );
+			if ( '' !== $app_id && in_array( $location, $allowed, true ) ) {
+				$normalized[ $app_id ] = $location;
 			}
 		}
 

@@ -122,6 +122,16 @@ For example, a Windows family can override `templates/themes/windows/windows/tit
 Theme shell chrome is data-driven. A theme can declare its shell model and runtime labels without changing core behavior. Core currently consumes these fields to render or omit the menu bar, render no launcher, or render the app launcher as the default Dock or as a taskbar-style surface:
 
 ```php
+'app_labels' => array(
+	'trash' => __( 'Recycle Bin', 'pufferdesk-admin-desktop' ),
+),
+'menu' => array(
+	'labels' => array(
+		'trash'             => __( 'Recycle Bin', 'pufferdesk-admin-desktop' ),
+		'empty_trash'       => __( 'Empty Recycle Bin', 'pufferdesk-admin-desktop' ),
+		'empty_trash_title' => __( 'Empty Recycle Bin?', 'pufferdesk-admin-desktop' ),
+	),
+),
 'shell' => array(
 	'chrome'      => 'global-menu-dock',
 	'top_bar'     => 'menu-bar',
@@ -129,6 +139,10 @@ Theme shell chrome is data-driven. A theme can declare its shell model and runti
 	'system_menu' => 'mark',
 	'app_menu'    => 'global',
 	'status_area' => 'menu-bar',
+	'launcher_separator' => true,
+	'fixed_app_locations' => array(
+		'trash' => 'dock',
+	),
 	'labels'      => array(
 		'launcher'             => __( 'Dock', 'pufferdesk-admin-desktop' ),
 		'desktop_launcher'     => __( 'Desktop & Dock', 'pufferdesk-admin-desktop' ),
@@ -138,6 +152,9 @@ Theme shell chrome is data-driven. A theme can declare its shell model and runti
 	),
 ),
 ```
+
+`fixed_app_locations` lets a theme place fixed system apps on the surface that fits its shell model without changing the user's stored app-location preference. For example, Redmond keeps the fixed Trash app on the desktop and disables `launcher_separator` so taskbar items stay in one continuous run.
+`app_labels` and `menu.labels` let a theme adapt OS-family vocabulary such as Trash versus Recycle Bin while keeping app IDs and command IDs stable.
 
 Native app surface layout is theme metadata too. Use this when another OS family needs a different Settings or folder structure rather than a reskin of the PufferDesk defaults:
 
@@ -220,11 +237,11 @@ Theme media fields are normalized to local `assets/media/` descriptors with `pat
 
 Bundled alternate themes inherit from `pufferdesk-base` and keep their shell contracts data-driven. `workstation` is a public `workstation/default` theme with a bottom taskbar, start-style system menu, no global menu bar, no global app menu, and taskbar status controls. Window chrome uses right-aligned toolbar controls, left-aligned titles, and visible window icons. Typography uses redistribution-safe system stacks with a tighter utility scale. Theme shell labels rename launcher vocabulary and minimize animation option labels for the taskbar model without changing stored preference values. Media stays release-safe through a small original SVG icon pack under `assets/media/themes/workstation/default/icons/`; any missing app or folder icon falls back through the existing Dashicon descriptor.
 
-`redmond` is a public `redmond/modern` theme inspired by modern Windows desktop patterns without bundling Microsoft-owned assets or clone artwork. Its shell contract uses a bottom full-width taskbar, Start system menu, compact taskbar search field, no global menu bar, no global app menu, taskbar status controls, and right-aligned window controls ordered minimize, maximize, close. Its surface contract uses `windows-settings` for the native Settings app and `file-explorer` for folder windows, so those areas render Windows-style navigation, command, address, and list surfaces instead of inheriting PufferDesk/Finder layouts. The Redmond Start surface is rendered from registered apps and `menu.system` command data by the shared menu controller, while `templates/themes/redmond/shell/dock.php` adds the taskbar search and Start button markup needed for that family. Typography prefers local system stacks such as `"Segoe UI Variable"` and `"Segoe UI"` without shipping font files. Theme app icons use local SVG wrappers with selected Tabler Icons glyphs under the MIT License; bundled folders, wallpapers, and theme wrappers remain PufferDesk assets.
+`redmond` is a public `redmond/modern` theme inspired by modern Windows desktop patterns without bundling Microsoft-owned assets or clone artwork. Its shell contract uses a bottom full-width taskbar, Start system menu, compact taskbar search field, no global menu bar, no global app menu, taskbar status controls, fixed Trash on the desktop, no taskbar separator, and right-aligned window controls ordered minimize, maximize, close. Its surface contract uses `windows-settings` for the native Settings app and `file-explorer` for folder windows, so those areas render Windows-style navigation, command, address, and list surfaces instead of inheriting PufferDesk/Finder layouts. The Redmond Start surface is rendered from registered apps and `menu.system` command data by the shared menu controller, while `templates/themes/redmond/shell/dock.php` adds the taskbar search and Start button markup needed for that family. Typography prefers local system stacks such as `"Segoe UI Variable"` and `"Segoe UI"` without shipping font files. Theme app icons use local SVG wrappers with selected Tabler Icons glyphs under the MIT License; bundled folders, wallpapers, Trash, and theme wrappers remain PufferDesk assets.
 
 The registry also includes an internal contract-test theme, `canary-taskbar`, that is hidden from the Settings theme picker unless `PUFFERDESK_ENABLE_INTERNAL_THEMES` is truthy. It deliberately uses a taskbar launcher, start-style system menu, no top menu bar, caption window controls, and centered title text so contributors can test theme contracts before adding public theme families.
 
-Wallpapers are managed by `PufferDesk_Wallpaper_Registry`. It combines one shared bundled wallpaper catalog, bundled original color backgrounds, optional theme-declared wallpaper collections, and user-selected Media Library uploads, then resolves the active choice into `--pdk-wallpaper-*` CSS variables for the shell. Bundled themes should set `media.wallpapers.default` to choose their starting wallpaper from the shared catalog instead of exposing different wallpaper lists per theme. Bundled gradient wallpapers use `css_value` instead of image files to keep plugin size small. Image wallpapers remain supported through `path` or `file` fields for original/licensed assets that need texture or detail. The older single `wallpaper` field remains a fallback for one-image themes, but new public bundled themes should normally declare only a default wallpaper id. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing. Third-party icon notices are tracked in `THIRD-PARTY-NOTICES.md`.
+Wallpapers are managed by `PufferDesk_Wallpaper_Registry`. It combines one shared bundled wallpaper catalog, bundled original color backgrounds, optional theme-declared wallpaper collections, and user-selected Media Library uploads, then resolves the active choice into `--pdk-wallpaper-*` CSS variables for the shell. Bundled themes should set `media.wallpapers.default` to choose their starting wallpaper from the shared catalog instead of exposing different wallpaper lists per theme. Bundled gradient wallpapers use `css_value` instead of image files to keep plugin size small. Image wallpapers remain supported through `path` or `file` fields for original/licensed assets that need texture or detail. The older single `wallpaper` field remains a fallback for one-image themes, but new public bundled themes should normally declare only a default wallpaper id. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing. Third-party icon notices are tracked in `THIRD-PARTY-NOTICES.txt`.
 
 Future phases can add optional alternate theme packs such as classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the PufferDesk identity rather than depending on another platform owner’s brand assets.
 

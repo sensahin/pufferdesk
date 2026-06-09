@@ -1,8 +1,10 @@
-# Third-Party Notices
+Third-Party Notices
+===================
 
-## Tabler Icons
+Tabler Icons
+------------
 
-Selected app and trash glyphs in the PufferDesk and Redmond theme icon packs are based on Tabler Icons v3.44.0.
+Selected app glyphs in the PufferDesk and Redmond theme icon packs are based on Tabler Icons v3.44.0.
 
 Source: https://github.com/tabler/tabler-icons
 

@@ -277,6 +277,18 @@ final class PufferDesk_User_Preferences {
 	}
 
 	/**
+	 * Get app placement preferences after applying theme-fixed app placement.
+	 *
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param array<string,mixed>            $theme Current theme.
+	 * @param int                            $user_id Optional user ID.
+	 * @return array<string,string>
+	 */
+	public function get_effective_app_locations( $apps, $theme = array(), $user_id = 0 ) {
+		return $this->apply_theme_fixed_app_locations( $this->get_app_locations( $apps, $user_id ), $apps, $theme );
+	}
+
+	/**
 	 * Save the user's app placement preferences.
 	 *
 	 * @param array<string,mixed>             $app_locations App location data.
@@ -404,9 +416,10 @@ final class PufferDesk_User_Preferences {
 	 * @param array<int,array<string,mixed>> $apps Available apps.
 	 * @param array<string,string>           $app_locations App location map.
 	 * @param string                         $surface Surface ID, either dock or desktop.
+	 * @param array<string,mixed>            $theme Current theme.
 	 * @return array<int,array<string,mixed>>
 	 */
-	public function filter_apps_for_surface( $apps, $app_locations, $surface ) {
+	public function filter_apps_for_surface( $apps, $app_locations, $surface, $theme = array() ) {
 		$surface = sanitize_key( (string) $surface );
 		if ( ! in_array( $surface, array( 'dock', 'desktop' ), true ) ) {
 			return array();
@@ -415,7 +428,7 @@ final class PufferDesk_User_Preferences {
 		return array_values(
 			array_filter(
 				(array) $apps,
-				function ( $app ) use ( $app_locations, $surface ) {
+				function ( $app ) use ( $app_locations, $surface, $theme ) {
 					if ( ! is_array( $app ) || empty( $app['id'] ) ) {
 						return false;
 					}
@@ -424,7 +437,7 @@ final class PufferDesk_User_Preferences {
 					$location = isset( $app_locations[ $id ] ) ? $app_locations[ $id ] : 'dock';
 
 					if ( $this->is_fixed_dock_app( $app ) ) {
-						return 'dock' === $surface;
+						$location = $this->get_theme_fixed_app_location( $app, $theme );
 					}
 
 					return 'both' === $location || $surface === $location;
@@ -764,6 +777,49 @@ final class PufferDesk_User_Preferences {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Apply theme-defined locations for fixed launcher apps.
+	 *
+	 * @param array<string,string>           $app_locations Sanitized app locations.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param array<string,mixed>            $theme Current theme.
+	 * @return array<string,string>
+	 */
+	private function apply_theme_fixed_app_locations( $app_locations, $apps, $theme ) {
+		$locations = is_array( $app_locations ) ? $app_locations : array();
+
+		foreach ( (array) $apps as $app ) {
+			if ( ! $this->is_fixed_dock_app( $app ) || empty( $app['id'] ) ) {
+				continue;
+			}
+
+			$locations[ sanitize_key( (string) $app['id'] ) ] = $this->get_theme_fixed_app_location( $app, $theme );
+		}
+
+		return $locations;
+	}
+
+	/**
+	 * Get a fixed launcher's effective location for the current theme.
+	 *
+	 * @param array<string,mixed> $app App data.
+	 * @param array<string,mixed> $theme Current theme.
+	 * @return string
+	 */
+	private function get_theme_fixed_app_location( $app, $theme ) {
+		if ( empty( $app['id'] ) ) {
+			return 'dock';
+		}
+
+		$app_id    = sanitize_key( (string) $app['id'] );
+		$locations = isset( $theme['shell']['fixed_app_locations'] ) && is_array( $theme['shell']['fixed_app_locations'] )
+			? $theme['shell']['fixed_app_locations']
+			: array();
+		$location  = isset( $locations[ $app_id ] ) ? sanitize_key( (string) $locations[ $app_id ] ) : 'dock';
+
+		return in_array( $location, $this->app_location_options, true ) ? $location : 'dock';
 	}
 
 	/**

@@ -101,7 +101,6 @@
 	--pdk-control-bg-hover: var(--pdk-material-control-hover-bg);
 	--pdk-dock-bg: var(--pdk-material-bar-bg);
 	--pdk-dock-border: var(--pdk-material-bar-border);
-	--pdk-dock-separator: rgb(86 101 121 / 0.24);
 	--pdk-dock-shadow: var(--pdk-material-bar-shadow);
 	--pdk-dock-hover-lift: 0px;
 	--pdk-dock-hover-scale: 1;
@@ -532,7 +531,7 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-pinned-grid {
 	display: grid;
-	gap: 10px 20px;
+	gap: 12px 20px;
 	grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
@@ -546,8 +545,8 @@
 	cursor: default;
 	display: flex;
 	flex-direction: column;
-	gap: 7px;
-	height: 78px;
+	gap: 6px;
+	height: 86px;
 	justify-content: center;
 	min-width: 0;
 	padding: 6px 4px;
@@ -566,17 +565,17 @@
 	border-radius: 0;
 	box-shadow: none;
 	display: inline-flex;
-	height: 40px;
+	height: 46px;
 	justify-content: center;
-	width: 40px;
+	width: 46px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-pinned-icon .pdk-icon-image,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-pinned-icon .dashicons {
-	font-size: 32px;
-	height: 32px;
-	line-height: 32px;
-	width: 32px;
+	font-size: 40px;
+	height: 40px;
+	line-height: 40px;
+	width: 40px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-pinned-label {
@@ -628,16 +627,16 @@
 	align-items: center;
 	display: inline-flex;
 	flex: 0 0 auto;
-	height: 22px;
+	height: 28px;
 	justify-content: center;
-	width: 22px;
+	width: 28px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-action-icon .dashicons,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-action-icon .pdk-icon-image {
-	font-size: 20px;
-	height: 20px;
-	width: 20px;
+	font-size: 24px;
+	height: 24px;
+	width: 24px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-action-label {

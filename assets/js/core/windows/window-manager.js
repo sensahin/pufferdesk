@@ -527,13 +527,15 @@
 			}
 
 			const fixedEndItem = getDockFixedEndItem();
+			const endAnchor = dock.querySelector('[data-pdk-launcher-end-anchor]');
 			let container = dock.querySelector('.pdk-dock-minimized-windows');
+			const anchor = fixedEndItem || endAnchor || null;
 			if (!container) {
 				container = document.createElement('span');
 				container.className = 'pdk-dock-minimized-windows';
-				dock.insertBefore(container, fixedEndItem || null);
-			} else if (fixedEndItem && container.nextElementSibling !== fixedEndItem) {
-				dock.insertBefore(container, fixedEndItem);
+				dock.insertBefore(container, anchor);
+			} else if (anchor && container.nextElementSibling !== anchor) {
+				dock.insertBefore(container, anchor);
 			}
 
 			return container;

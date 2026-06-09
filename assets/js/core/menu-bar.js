@@ -180,6 +180,46 @@
 		return Array.isArray(items) ? items.map(normalizeRecentItem).filter(Boolean) : [];
 	}
 
+	function getConfigApp(config = {}, appId = '') {
+		const apps = Array.isArray(config.apps) ? config.apps : [];
+
+		return apps.find((app) => app && app.id === appId) || null;
+	}
+
+	function getConfigLabel(config = {}, key = '', fallback = '') {
+		const labels = config.menu && config.menu.labels && typeof config.menu.labels === 'object'
+			? config.menu.labels
+			: {};
+		const value = labels[key];
+
+		return typeof value === 'string' && value ? value : fallback;
+	}
+
+	function getRecentDisplayItem(config = {}, item = {}) {
+		const appId = item.type === 'app' ? item.target || item.id : '';
+		const app = appId ? getConfigApp(config, appId) : null;
+
+		if (app) {
+			return Object.assign({}, item, {
+				icon: app.icon || item.icon,
+				label: app.label || item.label,
+				target: app.id,
+				title: app.label || item.title || item.label
+			});
+		}
+
+		if (item.type === 'folder' && (item.target || item.id) === 'trash') {
+			const trashLabel = getConfigLabel(config, 'trash', item.label || 'Trash');
+
+			return Object.assign({}, item, {
+				label: trashLabel,
+				title: trashLabel
+			});
+		}
+
+		return item;
+	}
+
 	function saveRecentItems(config = {}, items = []) {
 		const store = getSessionStore(config);
 		if (store) {
@@ -221,15 +261,19 @@
 	function getRecentMenuItems(config = {}, count = defaults.recent_count) {
 		return getRecentItems(config)
 			.slice(0, normalizeCount(count))
-			.map((item) => ({
-				command: item.command,
-				icon: item.icon,
-				id: `recent-${item.type}-${item.id}`.replace(/[^a-z0-9_-]/gi, '-'),
-				label: item.label,
-				target: item.target,
-				title: item.title,
-				url: item.url
-			}));
+			.map((item) => {
+				const displayItem = getRecentDisplayItem(config, item);
+
+				return {
+					command: displayItem.command,
+					icon: displayItem.icon,
+					id: `recent-${displayItem.type}-${displayItem.id}`.replace(/[^a-z0-9_-]/gi, '-'),
+					label: displayItem.label,
+					target: displayItem.target,
+					title: displayItem.title,
+					url: displayItem.url
+				};
+			});
 	}
 
 	window.PufferDesk.menuBar = {

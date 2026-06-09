@@ -115,11 +115,11 @@ final class PufferDesk_Assets {
 			wp_enqueue_media();
 		}
 
-		$apps          = $this->app_registry->get_apps();
-		$app_locations = $this->preferences->get_app_locations( $apps );
+		$theme         = $this->theme_registry->get_current_theme( $this->preferences );
+		$apps          = $this->theme_registry->apply_app_labels( $this->app_registry->get_apps(), $theme );
+		$app_locations = $this->preferences->get_effective_app_locations( $apps, $theme );
 		$folders       = $this->app_registry->get_folders( $apps );
 		$widgets       = $this->widget_registry->get_widgets();
-		$theme         = $this->theme_registry->get_current_theme( $this->preferences );
 
 		foreach ( $theme['stylesheet_stack'] as $index => $stylesheet ) {
 			$stylesheet_path = PUFFERDESK_DIR . 'assets/css/themes/' . $stylesheet;
@@ -732,6 +732,34 @@ final class PufferDesk_Assets {
 			: array();
 
 		return wp_parse_args( $labels, $defaults );
+	}
+
+	/**
+	 * Theme-provided menu labels.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @return array<string,string>
+	 */
+	private function get_theme_menu_labels( $theme = array() ) {
+		return isset( $theme['menu']['labels'] ) && is_array( $theme['menu']['labels'] )
+			? $theme['menu']['labels']
+			: array();
+	}
+
+	/**
+	 * Get a theme-provided menu label.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @param string              $key Label key.
+	 * @param string              $fallback Default label.
+	 * @return string
+	 */
+	private function get_theme_menu_label( $theme, $key, $fallback ) {
+		$labels = $this->get_theme_menu_labels( $theme );
+
+		return isset( $labels[ $key ] ) && is_string( $labels[ $key ] ) && '' !== $labels[ $key ]
+			? $labels[ $key ]
+			: $fallback;
 	}
 
 	/**
@@ -1395,9 +1423,9 @@ final class PufferDesk_Assets {
 					'overlayMessage' => __( 'Erasing PufferDesk settings...', 'pufferdesk-admin-desktop' ),
 				),
 				'emptyTrash' => array(
-					'title'        => __( 'Empty Trash?', 'pufferdesk-admin-desktop' ),
+					'title'        => $this->get_theme_menu_label( $theme, 'empty_trash_title', __( 'Empty Trash?', 'pufferdesk-admin-desktop' ) ),
 					'message'      => __( 'This permanently deletes all trashed PufferDesk folder records. Apps and plugins are not deleted.', 'pufferdesk-admin-desktop' ),
-					'confirmLabel' => __( 'Empty Trash', 'pufferdesk-admin-desktop' ),
+					'confirmLabel' => $this->get_theme_menu_label( $theme, 'empty_trash', __( 'Empty Trash', 'pufferdesk-admin-desktop' ) ),
 					'cancelLabel'  => __( 'Cancel', 'pufferdesk-admin-desktop' ),
 					'icon'         => 'dashicons-trash',
 				),
@@ -1417,7 +1445,7 @@ final class PufferDesk_Assets {
 		$shell_labels          = $this->get_theme_shell_labels( $theme );
 		$window_control_labels = $this->get_theme_window_control_labels( $theme );
 
-		return array(
+		$config = array(
 			'system'     => array(
 				'groups' => array(
 					array(
@@ -1698,6 +1726,13 @@ final class PufferDesk_Assets {
 				'window_maximize'         => $window_control_labels['maximize'],
 			),
 		);
+
+		$theme_labels = $this->get_theme_menu_labels( $theme );
+		if ( ! empty( $theme_labels ) ) {
+			$config['labels'] = wp_parse_args( $theme_labels, $config['labels'] );
+		}
+
+		return $config;
 	}
 
 	/**

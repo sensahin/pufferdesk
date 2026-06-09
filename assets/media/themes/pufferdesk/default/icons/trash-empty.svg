@@ -1,20 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Trash">
-  <desc>Trash glyph based on Tabler Icons v3.44.0 under the MIT License; wrapper by PufferDesk.</desc>
+  <desc>Original PufferDesk trash icon.</desc>
   <defs>
-    <linearGradient id="pdk-trash-body" x1="35" y1="18" x2="92" y2="112" gradientUnits="userSpaceOnUse">
+    <linearGradient id="pdk-trash-can" x1="38" y1="34" x2="89" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f9fbff"/>
+      <stop offset=".56" stop-color="#dfe6f1"/>
+      <stop offset="1" stop-color="#b7c1d0"/>
+    </linearGradient>
+    <linearGradient id="pdk-trash-lid" x1="30" y1="22" x2="98" y2="45" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#ffffff"/>
-      <stop offset=".52" stop-color="#e9eef7"/>
-      <stop offset="1" stop-color="#b8c3d3"/>
+      <stop offset="1" stop-color="#d7dfec"/>
     </linearGradient>
   </defs>
-  <path fill="#152238" opacity=".18" d="M41 45h50l-3.7 56.6A10.5 10.5 0 0 1 76.8 111H55.4a10.5 10.5 0 0 1-10.5-9.4L41 45Z"/>
-  <path fill="url(#pdk-trash-body)" stroke="#7c8799" stroke-width="2.5" stroke-linejoin="round" d="M39 42h50l-3.8 57.4A10.5 10.5 0 0 1 74.7 109H53.3a10.5 10.5 0 0 1-10.5-9.6L39 42Z"/>
-  <path fill="#f8fbff" stroke="#7c8799" stroke-width="2.5" stroke-linejoin="round" d="M33 35h62v9H33z"/>
-  <g fill="none" stroke="#536173" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.45" transform="translate(28 24) scale(3)">
-    <path d="M4 7l16 0" />
-    <path d="M10 11l0 6" />
-    <path d="M14 11l0 6" />
-    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-  </g>
+  <path fill="#172033" opacity=".18" d="M38 43h54l-5 62a10 10 0 0 1-10 9H53a10 10 0 0 1-10-9l-5-62Z"/>
+  <path fill="url(#pdk-trash-can)" stroke="#697689" stroke-linejoin="round" stroke-width="3" d="M36 40h56l-5.1 59.5A10.5 10.5 0 0 1 76.4 109H51.6a10.5 10.5 0 0 1-10.5-9.5L36 40Z"/>
+  <path fill="#ffffff" opacity=".44" d="M43 47h42l-1.1 11H44.1L43 47Z"/>
+  <path fill="url(#pdk-trash-lid)" stroke="#697689" stroke-linejoin="round" stroke-width="3" d="M27 33h74v9H27z"/>
+  <path fill="none" stroke="#697689" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M50 33v-7h28v7"/>
+  <path fill="none" stroke="#7f8b9d" stroke-linecap="round" stroke-width="3" d="M52 56l2 37M64 56v37M76 56l-2 37"/>
+  <path fill="none" stroke="#ffffff" stroke-linecap="round" stroke-opacity=".62" stroke-width="2" d="M45 43h38"/>
 </svg>

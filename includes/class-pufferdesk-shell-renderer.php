@@ -104,15 +104,15 @@ final class PufferDesk_Shell_Renderer {
 			wp_die( esc_html__( 'You do not have permission to use PufferDesk.', 'pufferdesk-admin-desktop' ) );
 		}
 
-		$apps              = $this->app_registry->get_apps();
-		$app_locations     = $this->preferences->get_app_locations( $apps );
-		$dock_apps         = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'dock' );
-		$desktop_apps      = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'desktop' );
+		$theme             = $this->theme_registry->get_current_theme( $this->preferences );
+		$apps              = $this->theme_registry->apply_app_labels( $this->app_registry->get_apps(), $theme );
+		$app_locations     = $this->preferences->get_effective_app_locations( $apps, $theme );
+		$dock_apps         = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'dock', $theme );
+		$desktop_apps      = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'desktop', $theme );
 		$widgets           = $this->widget_registry->get_widgets();
 		$folders           = $this->app_registry->get_folders( $apps );
 		$desktop_folders   = $this->preferences->get_desktop_folders( $apps );
 		$workspace_folders = array_merge( $folders, $desktop_folders );
-		$theme             = $this->theme_registry->get_current_theme( $this->preferences );
 		$appearance        = $this->preferences->get_appearance();
 		$desktop_dock      = $this->preferences->get_desktop_dock();
 		$menu_bar          = $this->preferences->get_menu_bar();
