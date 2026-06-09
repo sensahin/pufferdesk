@@ -2,7 +2,7 @@
 /**
  * Desktop widget layer.
  *
- * @package WPAdminOS
+ * @package PufferDesk
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -17,18 +17,18 @@ if ( empty( $widgets ) ) {
 	return;
 }
 ?>
-<section class="aos-widget-layer" aria-label="<?php esc_attr_e( 'Desktop widgets', 'wp-adminos' ); ?>">
-	<?php foreach ( $widgets as $wp_adminos_widget ) : ?>
+<section class="pdk-widget-layer" aria-label="<?php esc_attr_e( 'Desktop widgets', 'pufferdesk-admin-desktop' ); ?>">
+	<?php foreach ( $widgets as $pufferdesk_widget ) : ?>
 		<?php
-		$wp_adminos_template = isset( $wp_adminos_widget['template'] ) ? $wp_adminos_widget['template'] : 'widgets/generic.php';
-		if ( ! $this->template_exists( $wp_adminos_template, $theme ) ) {
-			$wp_adminos_template = 'widgets/generic.php';
+		$pufferdesk_template = isset( $pufferdesk_widget['template'] ) ? $pufferdesk_widget['template'] : 'widgets/generic.php';
+		if ( ! $this->template_exists( $pufferdesk_template, $theme ) ) {
+			$pufferdesk_template = 'widgets/generic.php';
 		}
 
 		$this->render_part(
-			$wp_adminos_template,
+			$pufferdesk_template,
 			array(
-				'widget'          => $wp_adminos_widget,
+				'widget'          => $pufferdesk_widget,
 				'theme'           => $theme,
 				'workspace_state' => isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array(),
 			)

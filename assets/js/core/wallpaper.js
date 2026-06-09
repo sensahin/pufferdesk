@@ -1,15 +1,15 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
+	window.PufferDesk = window.PufferDesk || {};
 
 	const cssDefaults = {
-		'--aos-wallpaper-image': 'none',
-		'--aos-wallpaper-position': 'center center',
-		'--aos-wallpaper-repeat': 'no-repeat',
-		'--aos-wallpaper-size': 'cover'
+		'--pdk-wallpaper-image': 'none',
+		'--pdk-wallpaper-position': 'center center',
+		'--pdk-wallpaper-repeat': 'no-repeat',
+		'--pdk-wallpaper-size': 'cover'
 	};
-	const menuContrastCachePrefix = 'wpAdminOS:wallpaper-menu-contrast:';
+	const menuContrastCachePrefix = 'pufferDesk:wallpaper-menu-contrast:';
 
 	function sanitizeContrast(value) {
 		return value === 'dark' || value === 'light' || value === 'auto' ? value : '';
@@ -234,7 +234,7 @@
 		return `${preference.type || ''}:${preference.id || ''}`;
 	}
 
-	window.WPAdminOS.wallpaper = {
+	window.PufferDesk.wallpaper = {
 		apply,
 		getCurrent,
 		getPreference,

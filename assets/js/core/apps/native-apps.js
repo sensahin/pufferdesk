@@ -1,8 +1,8 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
 
 	const renderers = new Map();
 
@@ -10,7 +10,7 @@
 		return String(nativeId || '').trim();
 	}
 
-	window.WPAdminOS.apps.registerNativeAppRenderer = function registerNativeAppRenderer(nativeId, renderer) {
+	window.PufferDesk.apps.registerNativeAppRenderer = function registerNativeAppRenderer(nativeId, renderer) {
 		const id = normalizeNativeId(nativeId);
 
 		if (!id || typeof renderer !== 'function') {
@@ -21,11 +21,11 @@
 		return true;
 	};
 
-	window.WPAdminOS.apps.hasNativeAppRenderer = function hasNativeAppRenderer(nativeId) {
+	window.PufferDesk.apps.hasNativeAppRenderer = function hasNativeAppRenderer(nativeId) {
 		return renderers.has(normalizeNativeId(nativeId));
 	};
 
-	window.WPAdminOS.apps.getNativeAppWindowOptions = function getNativeAppWindowOptions(nativeId, context = {}) {
+	window.PufferDesk.apps.getNativeAppWindowOptions = function getNativeAppWindowOptions(nativeId, context = {}) {
 		const renderer = renderers.get(normalizeNativeId(nativeId));
 		const options = renderer ? renderer(context) : null;
 

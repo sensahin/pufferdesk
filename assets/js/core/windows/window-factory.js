@@ -1,10 +1,10 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.windows = window.WPAdminOS.windows || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.windows = window.PufferDesk.windows || {};
 
-	window.WPAdminOS.windows.createWindowFactory = function createWindowFactory(callbacks = {}) {
+	window.PufferDesk.windows.createWindowFactory = function createWindowFactory(callbacks = {}) {
 		const defaultWindowChrome = {
 			controls: {
 				labels: {
@@ -37,8 +37,8 @@
 		};
 
 		function getRuntimeWindowChrome() {
-			const config = window.WPAdminOS.config && typeof window.WPAdminOS.config.get === 'function'
-				? window.WPAdminOS.config.get()
+			const config = window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
+				? window.PufferDesk.config.get()
 				: {};
 
 			if (config.windowChrome && typeof config.windowChrome === 'object') {
@@ -77,14 +77,14 @@
 			const labelElement = document.createElement('span');
 
 			button.type = 'button';
-			button.className = `aos-window-control aos-window-control-${definition.modifier}`;
+			button.className = `pdk-window-control pdk-window-control-${definition.modifier}`;
 			button.dataset[definition.action] = '';
 			button.setAttribute('aria-label', label);
 			button.disabled = disabled;
 			if (disabled) {
 				button.setAttribute('aria-disabled', 'true');
 			}
-			labelElement.className = 'aos-window-control-label';
+			labelElement.className = 'pdk-window-control-label';
 			labelElement.textContent = label;
 			button.appendChild(labelElement);
 
@@ -93,7 +93,7 @@
 
 		function bindWindowControl(button, control, titlebar, appId) {
 			button.addEventListener('click', () => {
-				const win = titlebar.closest('.aos-window');
+				const win = titlebar.closest('.pdk-window');
 				if (control === 'close' && typeof callbacks.onClose === 'function') {
 					callbacks.onClose(win, appId);
 				}
@@ -112,16 +112,16 @@
 			}
 
 			const label = document.createElement('span');
-			label.className = 'aos-window-titlebar-label';
-			if (chrome.title.show_icon && options.titlebarIcon && window.WPAdminOS.dom && typeof window.WPAdminOS.dom.createIcon === 'function') {
+			label.className = 'pdk-window-titlebar-label';
+			if (chrome.title.show_icon && options.titlebarIcon && window.PufferDesk.dom && typeof window.PufferDesk.dom.createIcon === 'function') {
 				const icon = document.createElement('span');
-				icon.className = 'aos-window-titlebar-label-icon';
-				icon.appendChild(window.WPAdminOS.dom.createIcon(options.titlebarIcon));
+				icon.className = 'pdk-window-titlebar-label-icon';
+				icon.appendChild(window.PufferDesk.dom.createIcon(options.titlebarIcon));
 				label.appendChild(icon);
 			}
 
 			const text = document.createElement('span');
-			text.className = 'aos-window-titlebar-label-text';
+			text.className = 'pdk-window-titlebar-label-text';
 			text.textContent = options.titlebarLabel;
 			label.appendChild(text);
 
@@ -132,14 +132,14 @@
 			const chrome = normalizeWindowChrome(options.windowChrome || getRuntimeWindowChrome());
 			const disabledControls = Array.isArray(options.disabledControls) ? options.disabledControls : [];
 			const titlebar = document.createElement('div');
-			titlebar.className = 'aos-window-titlebar';
+			titlebar.className = 'pdk-window-titlebar';
 			titlebar.dataset.aosDragHandle = '';
 			titlebar.dataset.aosWindowControlsPlacement = chrome.controls.placement;
 			titlebar.dataset.aosWindowControlsStyle = chrome.controls.style;
 			titlebar.dataset.aosWindowTitleAlignment = chrome.title.alignment;
 
 			const controls = document.createElement('div');
-			controls.className = 'aos-window-controls';
+			controls.className = 'pdk-window-controls';
 			chrome.controls.order.forEach((control) => {
 				const button = createWindowControl(control, chrome.controls.labels[control], disabledControls.includes(control));
 				bindWindowControl(button, control, titlebar, appId);
@@ -165,12 +165,15 @@
 		function createWindowElement(options, withIframeParam) {
 			const chrome = normalizeWindowChrome(options.windowChrome || getRuntimeWindowChrome());
 			const win = document.createElement('section');
-			win.className = 'aos-window aos-app-window';
+			win.className = 'pdk-window pdk-app-window';
 			win.dataset.aosAppWindow = options.appId || '';
 			win.dataset.aosContext = 'window';
 			win.dataset.aosContextId = options.appId || options.windowKind || 'window';
 			win.dataset.aosContextLabel = options.title || '';
 			win.dataset.aosResizeMode = options.resizeMode || 'both';
+			if (options.surfaceLayout) {
+				win.dataset.aosSurfaceLayout = options.surfaceLayout;
+			}
 			win.dataset.aosWindowKind = options.windowKind || (options.appId ? 'app' : 'window');
 			win.dataset.aosWindowTitle = options.title || '';
 			win.dataset.aosWindowControlsPlacement = chrome.controls.placement;
@@ -199,11 +202,11 @@
 			win.appendChild(createTitlebar(options.appId, Object.assign({}, options, { windowChrome: chrome })));
 
 			const body = document.createElement('div');
-			body.className = options.bodyClass || 'aos-window-body';
+			body.className = options.bodyClass || 'pdk-window-body';
 
 			if (options.url) {
 				const iframe = document.createElement('iframe');
-				iframe.className = 'aos-app-frame';
+				iframe.className = 'pdk-app-frame';
 				iframe.src = withIframeParam(options.url);
 				iframe.title = options.title;
 				body.appendChild(iframe);

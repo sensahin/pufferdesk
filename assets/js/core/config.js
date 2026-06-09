@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
+	window.PufferDesk = window.PufferDesk || {};
 
-	window.WPAdminOS.config = {
+	window.PufferDesk.config = {
 		get() {
-			return window.wpAdminOS || {};
+			return window.pufferDesk || {};
 		},
 
 		getApps() {

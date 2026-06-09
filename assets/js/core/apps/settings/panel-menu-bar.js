@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
-	window.WPAdminOS.apps.settings = window.WPAdminOS.apps.settings || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
+	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
-	window.WPAdminOS.apps.settings.createMenuBarPanel = function createMenuBarPanel(ctx) {
+	window.PufferDesk.apps.settings.createMenuBarPanel = function createMenuBarPanel(ctx) {
 		const {
 			createMenuBarRow,
 			createMenuBarSelect,
@@ -14,8 +14,8 @@
 			status,
 			t
 		} = ctx;
-		const panel = ctx.dom.createElement('div', 'aos-settings-pane-panel aos-settings-menu-bar-panel');
-		const section = createSection('', 'aos-settings-list aos-settings-menu-bar-list');
+		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-menu-bar-panel');
+		const section = createSection('', 'pdk-settings-list pdk-settings-menu-bar-list');
 
 		panel.dataset.aosSettingsPanel = 'menu-bar';
 		section.appendChild(createMenuBarRow(

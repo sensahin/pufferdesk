@@ -1,12 +1,12 @@
 # AGENTS.md
 
-Guidance for AI coding agents and contributors working on WP adminOS.
+Guidance for AI coding agents and contributors working on PufferDesk.
 
 This project is not a throwaway MVP. Treat it as a long-term WordPress plugin foundation for multiple OS-style admin experiences. Every change should keep the codebase modular, manageable, extensible, and release-safe.
 
 ## Project Purpose
 
-WP adminOS wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding an OS shell with themes, windows, apps, widgets, desktop surfaces, one primary WP adminOS identity, and optional future theme families such as Redmond-style, Linux desktop, and nostalgic retro systems.
+PufferDesk wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding an OS shell with themes, windows, apps, widgets, desktop surfaces, one primary PufferDesk identity, and optional theme families such as Redmond-style, Linux desktop, and nostalgic retro systems.
 
 The foundation matters more than short-term visual hacks.
 
@@ -17,7 +17,7 @@ Always:
 - Keep changes modular, small, and aligned with the existing structure.
 - Before implementing a feature, behavior, UI state, or visual pattern, search and read the existing codebase for an equivalent or adjacent implementation. Reuse, extend, or refactor the existing contract before creating a new one; if a new implementation is truly needed, document why the existing pattern does not fit.
 - Prefer registries, templates, and theme overrides over hard-coded one-off behavior.
-- Treat WP adminOS as the bundled product identity. Polish it with familiar desktop patterns, but do not add a redundant platform clone as a second bundled theme.
+- Treat PufferDesk as the bundled product identity. Polish it with familiar desktop patterns, but do not add a redundant platform clone as a second bundled theme.
 - Preserve Classic Admin as a reliable fallback.
 - Preserve per-user preferences and per-user/per-theme layout behavior.
 - Use WordPress-safe PHP: capability checks, nonces for state changes, sanitization on input, escaping on output.
@@ -43,7 +43,7 @@ Never:
 
 Root:
 
-- `wp-adminos.php`: plugin header, constants, class loading, singleton bootstrap.
+- `pufferdesk-admin-desktop.php`: plugin header, constants, class loading, singleton bootstrap.
 - `README.md`: user-facing plugin/readme documentation.
 - `AGENTS.md`: this contributor/agent instruction file.
 - `package.json`: build, check, and package scripts.
@@ -53,20 +53,20 @@ Root:
 
 PHP services in `includes/`:
 
-- `class-wp-adminos-plugin.php`: main orchestrator and WordPress hook wiring.
-- `class-wp-adminos-router.php`: mode toggles, shell URL, iframe/classic routing.
-- `class-wp-adminos-user-preferences.php`: per-user mode/theme preferences.
-- `class-wp-adminos-app-registry.php`: app/folder registry and app normalization.
-- `class-wp-adminos-widget-registry.php`: desktop widget registry and widget normalization.
-- `class-wp-adminos-widget-layout.php`: shared widget layout attributes for templates.
-- `class-wp-adminos-theme-registry.php`: theme family/version/parent inheritance.
-- `class-wp-adminos-wallpaper-registry.php`: built-in/theme/upload wallpaper options and CSS-variable resolution.
-- `class-wp-adminos-workspace-state.php`: per-user/per-site/per-theme workspace layout persistence and sanitization.
-- `class-wp-adminos-assets.php`: CSS/JS enqueueing and runtime config.
-- `class-wp-adminos-shell-renderer.php`: template rendering and theme override resolution.
-- `class-wp-adminos-settings-controller.php`: AJAX settings persistence.
-- `class-wp-adminos-workspace-controller.php`: AJAX workspace layout load/save/reset actions.
-- `class-wp-adminos-icon-renderer.php`: icon descriptor normalization and rendering.
+- `class-pufferdesk-plugin.php`: main orchestrator and WordPress hook wiring.
+- `class-pufferdesk-router.php`: mode toggles, shell URL, iframe/classic routing.
+- `class-pufferdesk-user-preferences.php`: per-user mode/theme preferences.
+- `class-pufferdesk-app-registry.php`: app/folder registry and app normalization.
+- `class-pufferdesk-widget-registry.php`: desktop widget registry and widget normalization.
+- `class-pufferdesk-widget-layout.php`: shared widget layout attributes for templates.
+- `class-pufferdesk-theme-registry.php`: theme family/version/parent inheritance.
+- `class-pufferdesk-wallpaper-registry.php`: shared bundled/theme/upload wallpaper options and CSS-variable resolution.
+- `class-pufferdesk-workspace-state.php`: per-user/per-site/per-theme workspace layout persistence and sanitization.
+- `class-pufferdesk-assets.php`: CSS/JS enqueueing and runtime config.
+- `class-pufferdesk-shell-renderer.php`: template rendering and theme override resolution.
+- `class-pufferdesk-settings-controller.php`: AJAX settings persistence.
+- `class-pufferdesk-workspace-controller.php`: AJAX workspace layout load/save/reset actions.
+- `class-pufferdesk-icon-renderer.php`: icon descriptor normalization and rendering.
 
 Templates in `templates/`:
 
@@ -118,7 +118,7 @@ Media:
 
 Apps:
 
-- Register apps through `WP_AdminOS_App_Registry` or the `wp_adminos_apps` filter.
+- Register apps through `PufferDesk_App_Registry` or the `pufferdesk_apps` filter.
 - Apps should define `id`, `label`, `cap`, `group`, `icon`, and either iframe data (`url`) or native data (`kind => native`, `native`).
 - App `cap` values are normalized as WordPress capability keys and default to `read` when missing, empty, or non-scalar. Use `read` only for current-user shell features; privileged WordPress screens or actions must use their exact WordPress capability.
 - Apps derived from WordPress top-level admin menu items should inherit the menu item's capability so dock, desktop, launcher, and native admin visibility stay aligned.
@@ -129,7 +129,7 @@ Apps:
 - About metadata must stay GPL-compatible for WordPress distribution. Do not use "All rights reserved" defaults in plugin UI.
 - App-specific top menu behavior belongs in the app's `menu` definition, not in hard-coded menu bar conditionals.
 - Keep the System Settings Apps panel aligned with app location and login-item preferences. It must use the existing app preference endpoints and respect fixed launcher metadata.
-- The fixed WP adminOS mark opens the system menu. Do not wire it directly to an app; system-menu items belong in the `menu.system` runtime definition.
+- The fixed PufferDesk mark opens the system menu. Do not wire it directly to an app; system-menu items belong in the `menu.system` runtime definition.
 - Keep app IDs stable. Layout/session behavior depends on stable IDs.
 
 Menus:
@@ -139,24 +139,24 @@ Menus:
 - Menu command items should define `label` plus optional `command`, `target`, `url`, `title`, `icon`, `shortcut`, `payload`, and `disabled`.
 - `shortcut` is executable data, not decorative text. Use macOS-style strings such as `⌘W`, `⌘M`, `⌘H`, `⌥⌘H`, or a structured descriptor with `key`, `modifiers`, `label`, `allowInTextFields`, and `preventDefault`. The keyboard engine lives in `assets/js/core/shell/shortcuts.js`.
 - Commands are registered in `assets/js/core/shell/commands.js`; schema normalization is in `assets/js/core/shell/menu-schema.js`; shared menu item rendering is in `assets/js/core/shell/menu-renderer.js`; top menu rendering is in `assets/js/core/shell/menu.js`.
-- Context menus are registered and rendered through `assets/js/core/shell/context-menu.js`. Context targets should use stable `data-aos-context` and `data-aos-context-id` attributes rather than one-off event handlers.
+- Context menus are registered and rendered through `assets/js/core/shell/context-menu.js`. Context targets should use stable `data-pdk-context` and `data-pdk-context-id` attributes rather than one-off event handlers.
 - Supported context target types include `desktop`, `app`, `desktop-app`, `dock-app`, `folder`, `desktop-folder`, `trash-item`, `window`, and `widget`.
 - Context menu providers should compose common command-backed items with target-specific items. Do not add right-click behavior inside dock, desktop, widget, or window modules unless it is exposing target state to the shared context menu system.
 - Before adding menu item icons, shortcuts, badges, separators, destructive styling, or other optional adornments, inspect the existing menu surface and match its established visual schema. Do not make one item visually different from peer items unless that whole menu type already uses the same affordance or the renderer contract explicitly requires it.
-- Runtime modules that need custom behavior should register commands through `window.WPAdminOS.menuCommands.register()` after boot, staying inside the `window.WPAdminOS` namespace.
+- Runtime modules that need custom behavior should register commands through `window.PufferDesk.menuCommands.register()` after boot, staying inside the `window.PufferDesk` namespace.
 - Dropdown rendering must stay generic and schema-driven. App-specific items belong in app `menu` definitions.
 - Do not add app-specific menu conditionals to `templates/shell/menu-bar.php` or the menu renderer. Add command-backed data to the registry/schema instead.
 - Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-folder-tab`, `open-url`, `open-about`, `open-system-about`, `open-external-url`, `navigate-url`, `shell.restart`, `shell.switch-classic`, `user.logout`, `session.reset-layout`, `folder.refresh`, `trash.restore`, `trash.delete-immediately`, `trash.empty`, `widget.hide`, `window.focus`, `window.focus-id`, `window.close`, `window.minimize`, `window.reload`, `window.history-back`, `window.history-forward`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
 
 Widgets:
 
-- Register widgets through `WP_AdminOS_Widget_Registry` or the `wp_adminos_widgets` filter.
+- Register widgets through `PufferDesk_Widget_Registry` or the `pufferdesk_widgets` filter.
 - Widgets should define `id`, `label`, `cap`, `icon`, `kind`, `native`, `template`, `default_position`, `default_size`, and optional `refresh_interval`.
 - Widget `cap` values are normalized as WordPress capability keys and default to `read` when missing, empty, or non-scalar. Widgets exposing privileged WordPress data must use the exact capability required for that data.
 - Widget `default_position` may use `left` or `right`, plus `top` or `bottom`; use one horizontal anchor and one vertical anchor.
 - Keep widget IDs stable. Widget layout persistence depends on stable IDs.
 - Add widget templates under `templates/widgets/`.
-- Use `WP_AdminOS_Widget_Layout::render_attributes()` for widget positioning and size attributes.
+- Use `PufferDesk_Widget_Layout::render_attributes()` for widget positioning and size attributes.
 - Use `templates/widgets/generic.php` as the fallback, not as a dumping ground.
 - Keep the System Settings Widgets panel aligned with registered widgets so hidden widgets have a restore path through the existing `widgets` workspace section.
 
@@ -165,17 +165,21 @@ Themes:
 - Themes are organized by family and version.
 - Use parent/child theme inheritance for common theme-family styling.
 - Put visual language in theme CSS. Put behavior in core JS/PHP.
-- Use theme `shell` metadata for OS-family shell surfaces. Supported fields include `chrome`, `top_bar`, `launcher`, `system_menu`, `app_menu`, `status_area`, and `labels`; these normalize into shell runtime config and shell `data-aos-*` attributes.
+- Use theme `shell` metadata for OS-family shell surfaces. Supported fields include `chrome`, `top_bar`, `launcher`, `system_menu`, `app_menu`, `status_area`, and `labels`; these normalize into shell runtime config and shell `data-pdk-*` attributes.
 - Use theme `window_chrome` metadata for reusable window chrome. Supported fields include `controls.placement`, `controls.order`, `controls.style`, `controls.labels`, `title.alignment`, and `title.show_icon`; do not hard-code family-specific window controls in JS.
+- Use theme `surfaces` metadata for native app layout families. Supported fields include `settings` (`pufferdesk-settings`, `windows-settings`) and `folder` (`finder`, `file-explorer`). Do not make other OS families inherit PufferDesk/Finder-specific Settings, folder toolbar, sidebar, or titlebar layouts by styling alone.
 - Use theme shell labels for family-specific vocabulary such as Dock versus Taskbar. Do not hard-code launcher labels in settings panels, menus, or context menus when a runtime label exists.
+- Use theme shell labels for family-specific minimize animation option labels when a theme should not expose another OS family's vocabulary. Keep stored option values stable.
 - Shell metadata is executable, not decorative. `top_bar`, `launcher`, `system_menu`, `app_menu`, and `status_area` must match rendered shell surfaces and settings capability visibility.
-- The internal `canary-taskbar` theme exists to test alternate shell contracts and is hidden unless `WP_ADMINOS_ENABLE_INTERNAL_THEMES` is enabled. Do not treat it as a bundled public theme or product identity.
+- The internal `canary-taskbar` theme exists to test alternate shell contracts and is hidden unless `PUFFERDESK_ENABLE_INTERNAL_THEMES` is enabled. Do not treat it as a bundled public theme or product identity.
 - Use theme `typography` metadata for font stacks, type scale, line heights, weights, and neutral letter spacing. Typography normalizes into shell CSS variables; do not hard-code family-specific fonts or type sizes into component CSS when a token exists.
 - Do not bundle Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform font files. Use system font stacks or original/licensed font assets only.
 - Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `wallpapers`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
-- Use `wallpapers` for a theme-managed wallpaper collection. The canonical shape is `array( 'default' => 'wallpaper-id', 'items' => array( array( 'id' => 'wallpaper-id', 'label' => 'Wallpaper Label', 'path' => 'themes/{family}/{version}/wallpapers/file.jpg' ) ) )`.
-- Use `WP_AdminOS_Wallpaper_Registry` for built-in color backgrounds, theme image wallpapers, upload validation, and `--aos-wallpaper-*` CSS-variable resolution. Do not read theme wallpaper URLs directly from templates or app JS.
+- Bundled themes should use `media.wallpapers.default` to choose their starting wallpaper from the shared wallpaper catalog. Do not give bundled themes separate wallpaper option lists unless the product intentionally needs a private theme pack.
+- External theme packs may still use `wallpapers` for theme-managed wallpaper collections. The canonical shape is `array( 'default' => 'wallpaper-id', 'items' => array( array( 'id' => 'wallpaper-id', 'label' => 'Wallpaper Label', 'path' => 'themes/{family}/{version}/wallpapers/file.jpg' ) ) )`.
+- Use `PufferDesk_Wallpaper_Registry` for the shared bundled wallpaper catalog, color backgrounds, theme image wallpapers, upload validation, and `--pdk-wallpaper-*` CSS-variable resolution. Do not read wallpaper URLs directly from templates or app JS.
 - Keep OS media original, licensed for redistribution, or otherwise release-safe.
+- The public `redmond/modern` theme is Windows-inspired, not a Windows clone. Keep it on the taskbar/Start shell contract, use original CSS/SVG assets, use system font stacks only, and do not add Microsoft-owned logos, wallpapers, icons, font files, or copied trade dress.
 - Template override resolution order is:
   1. `templates/themes/{theme_id}/{template}`
   2. `templates/themes/{family}/{template}`
@@ -196,7 +200,7 @@ Icons:
 
 'icon' => array(
 	'type' => 'image',
-	'src'  => 'themes/adminos/default/icons/posts.svg',
+	'src'  => 'themes/pufferdesk/default/icons/posts.svg',
 );
 
 'icon' => array(
@@ -208,12 +212,12 @@ Icons:
 
 Session:
 
-- Use `assets/js/core/session/session-store.js` for persisted shell layout. It should treat WordPress user meta, via `WP_AdminOS_Workspace_State`, as durable state and browser `localStorage` as cache only.
+- Use `assets/js/core/session/session-store.js` for persisted shell layout. It should treat WordPress user meta, via `PufferDesk_Workspace_State`, as durable state and browser `localStorage` as cache only.
 - Use `assets/js/core/session/reopen-policy.js` for one-time shell reopen behavior; do not clear stored layout just to skip reopening windows for one transition.
 - Store layout by named section, such as `windows`, `widgets`, `desktopIcons`, `desktopSort`, and `recentItems`.
 - The `windows` section may persist stable `app` and `folder` window records. Keep transient windows such as About, info panels, dialogs, and one-off document helpers out of workspace restoration.
 - Workspace saves must include the last accepted server `updatedAt` revision and must not silently overwrite newer server state. Conflict responses should adopt or merge the newer server state.
-- Keep the System Settings Workspace panel wired to `WP_AdminOS_Workspace_State` actions. Current-theme layout reset should not erase unrelated preference domains; full System erase may clear preference domains and all theme workspace states.
+- Keep the System Settings Workspace panel wired to `PufferDesk_Workspace_State` actions. Current-theme layout reset should not erase unrelated preference domains; full System erase may clear preference domains and all theme workspace states.
 - Same-browser workspace sync may use `BroadcastChannel`; do not imply cross-browser live sync unless a remote polling or push mechanism exists.
 - Do not overwrite the whole session blob from one module.
 - New desktop object types should add their own section instead of hijacking `windows` or `widgets`.
@@ -224,19 +228,19 @@ Session:
 PHP:
 
 - Guard all PHP files with `defined( 'ABSPATH' ) || exit;`.
-- Prefix public functions, hooks, filters, and IDs with `wp_adminos` or `WP_AdminOS`.
+- Prefix public functions, hooks, filters, and IDs with `pufferdesk` or `PufferDesk`.
 - Use capabilities before rendering privileged actions or performing mutations.
 - Use nonces for AJAX/state-changing requests.
 - Sanitize input with WordPress functions such as `sanitize_key`, `sanitize_text_field`, `absint`, and `esc_url_raw`.
 - Escape output with `esc_html`, `esc_attr`, `esc_url`, or `wp_json_encode` as appropriate.
-- Use translation functions with the `wp-adminos` text domain for user-facing strings.
+- Use translation functions with the `pufferdesk-admin-desktop` text domain for user-facing strings.
 - Prefer WordPress APIs over raw globals or direct database access.
 - Avoid PHP notices/warnings on missing array keys.
 
 JavaScript:
 
 - Keep modules purpose-specific.
-- Use existing namespaces under `window.WPAdminOS`.
+- Use existing namespaces under `window.PufferDesk`.
 - Do not create unrelated globals.
 - Keep boot wiring in `boot.js`.
 - Keep DOM helpers in `dom.js`.
@@ -250,7 +254,7 @@ CSS:
 - Avoid one-note palettes and unmaintainable selector sprawl.
 - Keep selectors semantic and aligned with template structure.
 - Do not add visual polish by hard-coding theme-specific values into core component files.
-- Divider and separator lines must use neutral divider tokens such as `--aos-line`, `--aos-divider`, `--aos-divider-soft`, or component-specific divider variables. Do not route dividers through accent, wallpaper, tinted-material, or translucent glass border tokens; check Settings, Finder/folder windows, and window titlebars when changing shared border variables.
+- Divider and separator lines must use neutral divider tokens such as `--pdk-line`, `--pdk-divider`, `--pdk-divider-soft`, or component-specific divider variables. Do not route dividers through accent, wallpaper, tinted-material, or translucent glass border tokens; check Settings, Finder/folder windows, and window titlebars when changing shared border variables.
 
 Accessibility:
 
@@ -287,9 +291,9 @@ npm run package
 
 Generated release assets:
 
-- `assets/dist/css/wp-adminos-core.min.css`
+- `assets/dist/css/pufferdesk-core.min.css`
 - `assets/dist/css/themes/{family}/{version}.min.css`
-- `assets/dist/js/wp-adminos.min.js`
+- `assets/dist/js/pufferdesk-admin-desktop.min.js`
 - `assets/dist/SOURCES.md`
 
 Do not edit generated dist files by hand. Change source files, then run `npm run build`.
@@ -305,7 +309,7 @@ Local WordPress path:
 Plugin path:
 
 ```bash
-/Users/senolsahin/Sites/new/wp-content/plugins/wp-adminos
+/Users/senolsahin/Sites/new/wp-content/plugins/pufferdesk-admin-desktop
 ```
 
 WP-CLI needs the MAMP MySQL socket:
@@ -319,10 +323,10 @@ WP-CLI may print PHP deprecation warnings from WP-CLI internals on newer PHP ver
 Recommended Plugin Check command:
 
 ```bash
-PLUGIN_DIR=/Users/senolsahin/Sites/new/wp-content/plugins/wp-adminos
+PLUGIN_DIR=/Users/senolsahin/Sites/new/wp-content/plugins/pufferdesk-admin-desktop
 find "$PLUGIN_DIR" -name .DS_Store -delete
 find "$PLUGIN_DIR" -type d -exec chmod u-w {} +
-php -d mysqli.default_socket=/Applications/MAMP/tmp/mysql/mysql.sock /usr/local/bin/wp --path=/Users/senolsahin/Sites/new plugin check wp-adminos --exclude-directories=.github,release,node_modules --exclude-files=.gitignore,.gitattributes,.DS_Store,AGENTS.md
+php -d mysqli.default_socket=/Applications/MAMP/tmp/mysql/mysql.sock /usr/local/bin/wp --path=/Users/senolsahin/Sites/new plugin check pufferdesk-admin-desktop --exclude-directories=.github,release,node_modules --exclude-files=.gitignore,.gitattributes,.DS_Store,AGENTS.md
 STATUS=$?
 find "$PLUGIN_DIR" -type d -exec chmod u+w {} +
 find "$PLUGIN_DIR" -name .DS_Store -delete
@@ -336,7 +340,7 @@ Use this pattern because Finder can recreate `.DS_Store`, and Plugin Check shoul
 The GitHub repository is private:
 
 ```bash
-https://github.com/sensahin/wpadminos.git
+https://github.com/sensahin/pufferdesk-admin-desktop.git
 ```
 
 Before committing:

@@ -1,31 +1,31 @@
-body.wp-adminos-shell #wpadminbar,
-body.wp-adminos-shell #adminmenumain,
-body.wp-adminos-shell #wpfooter,
-body.wp-adminos-shell #screen-meta,
-body.wp-adminos-shell #screen-meta-links,
-body.wp-adminos-shell .notice,
-body.wp-adminos-shell .update-nag {
+body.pufferdesk-shell #wpadminbar,
+body.pufferdesk-shell #adminmenumain,
+body.pufferdesk-shell #wpfooter,
+body.pufferdesk-shell #screen-meta,
+body.pufferdesk-shell #screen-meta-links,
+body.pufferdesk-shell .notice,
+body.pufferdesk-shell .update-nag {
 	display: none !important;
 }
 
-body.wp-adminos-shell {
+body.pufferdesk-shell {
 	overflow: hidden;
 }
 
-body.wp-adminos-shell #wpcontent {
+body.pufferdesk-shell #wpcontent {
 	margin-left: 0 !important;
 	padding-left: 0 !important;
 }
 
-body.wp-adminos-shell #wpbody-content {
+body.pufferdesk-shell #wpbody-content {
 	padding-bottom: 0;
 }
 
-body.wp-adminos-shell #wpbody-content > .wrap {
+body.pufferdesk-shell #wpbody-content > .wrap {
 	display: none;
 }
 
-body.wp-adminos-shell .aos-shell {
+body.pufferdesk-shell .pdk-shell {
 	height: 100vh;
 	inset: 0;
 	position: fixed;
@@ -33,21 +33,21 @@ body.wp-adminos-shell .aos-shell {
 	z-index: 100000;
 }
 
-body.wp-adminos-iframe #wpadminbar,
-body.wp-adminos-iframe #adminmenumain,
-body.wp-adminos-iframe #wpfooter,
-body.wp-adminos-iframe #screen-meta,
-body.wp-adminos-iframe #screen-meta-links,
-body.wp-adminos-iframe .notice,
-body.wp-adminos-iframe .update-nag {
+body.pufferdesk-iframe #wpadminbar,
+body.pufferdesk-iframe #adminmenumain,
+body.pufferdesk-iframe #wpfooter,
+body.pufferdesk-iframe #screen-meta,
+body.pufferdesk-iframe #screen-meta-links,
+body.pufferdesk-iframe .notice,
+body.pufferdesk-iframe .update-nag {
 	display: none !important;
 }
 
-body.wp-adminos-iframe #wpcontent {
+body.pufferdesk-iframe #wpcontent {
 	margin-left: 0 !important;
 	padding: 18px 22px 32px !important;
 }
 
-body.wp-adminos-iframe #wpbody-content {
+body.pufferdesk-iframe #wpbody-content {
 	padding-bottom: 0;
 }

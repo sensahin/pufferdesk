@@ -1,13 +1,13 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
 	const standardGroupIds = ['app', 'file', 'edit', 'view', 'go', 'window', 'help'];
 	const recognizedGroupIds = ['site'].concat(standardGroupIds);
 
-	window.WPAdminOS.shell.createMenuSchema = function createMenuSchema(labels = {}) {
+	window.PufferDesk.shell.createMenuSchema = function createMenuSchema(labels = {}) {
 		function getLabel(key, fallback) {
 			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
 		}
@@ -61,6 +61,15 @@
 
 			if (item.type === 'separator' || item.separator === true) {
 				return { type: 'separator' };
+			}
+
+			if (item.type === 'action-strip') {
+				return {
+					id: typeof item.id === 'string' ? item.id : '',
+					items: normalizeCommandItems(item.items),
+					label: typeof item.label === 'string' ? item.label : '',
+					type: 'action-strip'
+				};
 			}
 
 			if (typeof item.label !== 'string' || !item.label) {

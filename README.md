@@ -1,4 +1,4 @@
-=== WP adminOS ===
+=== PufferDesk - Admin Desktop ===
 Contributors: senols
 Tags: desktop, admin, ui, productivity, ai
 Requires at least: 6.0
@@ -8,26 +8,26 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WP adminOS turns the WordPress dashboard entry point into a desktop-style admin workspace.
+PufferDesk turns the WordPress dashboard entry point into a desktop-style admin workspace.
 
 == Description ==
 
-WP adminOS wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe WP adminOS experience: a top menu bar, generated and user-created desktop folders, a dock-style launcher, app search, draggable windows, desktop widgets, and iframe-based admin apps.
+PufferDesk wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe PufferDesk experience: a top menu bar, generated and user-created desktop folders, a dock-style launcher, app search, draggable windows, desktop widgets, and iframe-based admin apps.
 
 == Current foundation features ==
 
-- Top admin-bar switch between WP adminOS and Classic Admin.
+- Top admin-bar switch between PufferDesk and Classic Admin.
 - Per-user mode preference.
-- Dashboard entry redirects to WP adminOS by default.
-- Emergency one-request classic override: `/wp-admin/index.php?wp_adminos_classic=1`.
-- WP adminOS shell with system menu, site title menu, app menu bar, right-click context menus, generated and user-created desktop folders, desktop widgets, theme-driven launcher surfaces, search, draggable windows, and iframe-based admin apps.
+- Dashboard entry redirects to PufferDesk by default.
+- Emergency one-request classic override: `/wp-admin/index.php?pufferdesk_classic=1`.
+- PufferDesk shell with system menu, site title menu, app menu bar, right-click context menus, generated and user-created desktop folders, desktop widgets, theme-driven launcher surfaces, search, draggable windows, and iframe-based admin apps.
 - Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave more like OS windows.
 
 == Notes ==
 
-WP adminOS intentionally wraps existing WordPress admin screens instead of replacing them. That keeps plugin compatibility high and makes Classic Admin a reliable fallback.
+PufferDesk intentionally wraps existing WordPress admin screens instead of replacing them. That keeps plugin compatibility high and makes Classic Admin a reliable fallback.
 
-The bundled WP adminOS family uses original plugin CSS and release-safe media. Visual polish may use familiar desktop conventions, but the product identity, assets, and naming must remain WP adminOS. Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
+The bundled PufferDesk family uses original plugin CSS and release-safe media. Visual polish may use familiar desktop conventions, but the product identity, assets, and naming must remain PufferDesk. Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
 
 The foundation separates shell behavior from OS appearance:
 
@@ -78,7 +78,7 @@ Apps and folders use structured icon descriptors internally. Dashicon strings st
 
 'icon' => array(
 	'type' => 'image',
-	'src'  => 'themes/adminos/default/icons/posts.svg',
+	'src'  => 'themes/pufferdesk/default/icons/posts.svg',
 );
 
 'icon' => array(
@@ -88,18 +88,18 @@ Apps and folders use structured icon descriptors internally. Dashicon strings st
 );
 ```
 
-Apps are registered through `WP_AdminOS_App_Registry` or the `wp_adminos_apps` filter. Iframe apps provide a `url`; native apps provide `kind => native` and a stable `native` renderer ID. Each app should declare the WordPress capability required for its target screen or action through `cap`; missing, empty, or non-scalar capabilities normalize to `read`, which is intended only for current-user shell features. Top-level WordPress admin menu apps inherit the capability WordPress used to show that menu item, so the dock, desktop, and launcher stay aligned with the native admin menu. Apps can opt out of workspace window restoration with `window_persistence => none`; the default `workspace` behavior restores stable app windows across shell loads. JavaScript native app windows are registered with `window.WPAdminOS.apps.registerNativeAppRenderer( nativeId, renderer )`, and the renderer returns reusable window options such as `content`, `bodyClass`, `width`, `height`, and `resizeMode`. Apps may define a `badge` with `text`, optional `count`, `tone`, and `aria_label`; top-level WordPress admin menu count spans are normalized into this same badge shape for dock and desktop app icons. The app launcher stays generic and does not special-case individual native apps.
+Apps are registered through `PufferDesk_App_Registry` or the `pufferdesk_apps` filter. Iframe apps provide a `url`; native apps provide `kind => native` and a stable `native` renderer ID. Each app should declare the WordPress capability required for its target screen or action through `cap`; missing, empty, or non-scalar capabilities normalize to `read`, which is intended only for current-user shell features. Top-level WordPress admin menu apps inherit the capability WordPress used to show that menu item, so the dock, desktop, and launcher stay aligned with the native admin menu. Apps can opt out of workspace window restoration with `window_persistence => none`; the default `workspace` behavior restores stable app windows across shell loads. JavaScript native app windows are registered with `window.PufferDesk.apps.registerNativeAppRenderer( nativeId, renderer )`, and the renderer returns reusable window options such as `content`, `bodyClass`, `width`, `height`, and `resizeMode`. Apps may define a `badge` with `text`, optional `count`, `tone`, and `aria_label`; top-level WordPress admin menu count spans are normalized into this same badge shape for dock and desktop app icons. The app launcher stays generic and does not special-case individual native apps.
 
-System Settings uses PHP-provided `settings.labels` runtime data for user-facing panel labels, option lists, and status messages. The browser-side `assets/js/core/apps/settings/labels.js` module merges that translated runtime data with local fallbacks before the panel factories render. Theme-derived `settings.capabilities` and `shellCapabilities` control whether shell-specific panels and rows are visible, so a theme without a menu bar or Dock does not expose irrelevant controls. Apps, Widgets, Workspace, and System panels are live restore/reset surfaces: app placement and login items use the existing app preference endpoints, widgets use the `widgets` workspace section, Workspace resets current-theme or all-theme layout state, and System routes restart, Classic Admin, and full WP adminOS preference reset through shared shell commands.
+System Settings uses PHP-provided `settings.labels` runtime data for user-facing panel labels, option lists, and status messages. The browser-side `assets/js/core/apps/settings/labels.js` module merges that translated runtime data with local fallbacks before the panel factories render. Theme-derived `settings.capabilities` and `shellCapabilities` control whether shell-specific panels and rows are visible, so a theme without a menu bar or Dock does not expose irrelevant controls. Apps, Widgets, Workspace, and System panels are live restore/reset surfaces: app placement and login items use the existing app preference endpoints, widgets use the `widgets` workspace section, Workspace resets current-theme or all-theme layout state, and System routes restart, Classic Admin, and full PufferDesk preference reset through shared shell commands.
 
 == Build and release assets ==
 
 Readable source assets stay in `assets/css/core/`, `assets/css/themes/`, and `assets/js/core/`.
 Release assets are generated into `assets/dist/`:
 
-- `assets/dist/css/wp-adminos-core.min.css`
+- `assets/dist/css/pufferdesk-core.min.css`
 - `assets/dist/css/themes/{family}/{version}.min.css`
-- `assets/dist/js/wp-adminos.min.js`
+- `assets/dist/js/pufferdesk-admin-desktop.min.js`
 - `assets/dist/SOURCES.md`
 
 WordPress uses source assets when `SCRIPT_DEBUG` is enabled or when dist files are missing. Otherwise it uses the minified release assets for fewer requests.
@@ -130,12 +130,21 @@ Theme shell chrome is data-driven. A theme can declare its shell model and runti
 	'app_menu'    => 'global',
 	'status_area' => 'menu-bar',
 	'labels'      => array(
-		'launcher'             => __( 'Dock', 'wp-adminos' ),
-		'desktop_launcher'     => __( 'Desktop & Dock', 'wp-adminos' ),
-		'launcher_and_desktop' => __( 'Dock & Desktop', 'wp-adminos' ),
-		'keep_in_launcher'     => __( 'Keep in Dock', 'wp-adminos' ),
-		'remove_from_launcher' => __( 'Remove from Dock', 'wp-adminos' ),
+		'launcher'             => __( 'Dock', 'pufferdesk-admin-desktop' ),
+		'desktop_launcher'     => __( 'Desktop & Dock', 'pufferdesk-admin-desktop' ),
+		'launcher_and_desktop' => __( 'Dock & Desktop', 'pufferdesk-admin-desktop' ),
+		'keep_in_launcher'     => __( 'Keep in Dock', 'pufferdesk-admin-desktop' ),
+		'remove_from_launcher' => __( 'Remove from Dock', 'pufferdesk-admin-desktop' ),
 	),
+),
+```
+
+Native app surface layout is theme metadata too. Use this when another OS family needs a different Settings or folder structure rather than a reskin of the PufferDesk defaults:
+
+```php
+'surfaces' => array(
+	'settings' => 'pufferdesk-settings', // Or windows-settings.
+	'folder'   => 'finder',           // Or file-explorer.
 ),
 ```
 
@@ -148,9 +157,9 @@ Window chrome is also theme metadata. Core still owns window behavior, but theme
 		'order'     => array( 'close', 'minimize', 'maximize' ),
 		'style'     => 'traffic',
 		'labels'    => array(
-			'close'    => __( 'Close', 'wp-adminos' ),
-			'minimize' => __( 'Minimize', 'wp-adminos' ),
-			'maximize' => __( 'Maximize', 'wp-adminos' ),
+			'close'    => __( 'Close', 'pufferdesk-admin-desktop' ),
+			'minimize' => __( 'Minimize', 'pufferdesk-admin-desktop' ),
+			'maximize' => __( 'Maximize', 'pufferdesk-admin-desktop' ),
 		),
 	),
 	'title'    => array(
@@ -191,40 +200,37 @@ Typography is theme metadata and resolves to shell CSS variables before first pa
 Themes support family/version inheritance. A concrete theme can declare a parent theme and receives its stylesheet stack before its own styles are loaded:
 
 ```php
-'adminos' => array(
-	'id'            => 'adminos',
-	'family'        => 'adminos',
+'pufferdesk' => array(
+	'id'            => 'pufferdesk',
+	'family'        => 'pufferdesk',
 	'version'       => 'default',
-	'parent'        => 'adminos-base',
-	'stylesheet'    => 'adminos/default.css',
+	'parent'        => 'pufferdesk-base',
+	'stylesheet'    => 'pufferdesk/default.css',
 	'version_label' => 'Default',
 	'media'         => array(
 		'wallpapers'  => array(
 			'default' => 'aurora-flow',
-			'items'   => array(
-				array(
-					'id'        => 'aurora-flow',
-					'label'     => __( 'Aurora', 'wp-adminos' ),
-					'css_value' => 'linear-gradient(135deg, #2447c7 0%, #2fb8d2 52%, #8d3cff 100%)',
-				),
-			),
 		),
-		'icon_pack'   => 'themes/adminos/default/icons',
+		'icon_pack'   => 'themes/pufferdesk/default/icons',
 	),
 );
 ```
 
 Theme media fields are normalized to local `assets/media/` descriptors with `path` and `url` values, then exposed in the runtime theme config. Keep OS media original or licensed for redistribution.
 
-The registry also includes an internal contract-test theme, `canary-taskbar`, that is hidden from the Settings theme picker unless `WP_ADMINOS_ENABLE_INTERNAL_THEMES` is truthy. It deliberately uses a taskbar launcher, start-style system menu, no top menu bar, caption window controls, and centered title text so contributors can test theme contracts before adding public theme families.
+Bundled alternate themes inherit from `pufferdesk-base` and keep their shell contracts data-driven. `workstation` is a public `workstation/default` theme with a bottom taskbar, start-style system menu, no global menu bar, no global app menu, and taskbar status controls. Window chrome uses right-aligned toolbar controls, left-aligned titles, and visible window icons. Typography uses redistribution-safe system stacks with a tighter utility scale. Theme shell labels rename launcher vocabulary and minimize animation option labels for the taskbar model without changing stored preference values. Media stays release-safe through a small original SVG icon pack under `assets/media/themes/workstation/default/icons/`; any missing app or folder icon falls back through the existing Dashicon descriptor.
 
-Wallpapers are managed by `WP_AdminOS_Wallpaper_Registry`. It combines theme-declared CSS or image wallpaper collections, bundled original color backgrounds, and user-selected Media Library uploads, then resolves the active choice into `--aos-wallpaper-*` CSS variables for the shell. Bundled gradient wallpapers should use `css_value` instead of image files to keep plugin size small. Image wallpapers remain supported through `path` or `file` fields for original/licensed assets that need texture or detail. The older single `wallpaper` field remains a fallback for one-image themes, but new themes should declare `wallpapers` with stable item IDs. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing.
+`redmond` is a public `redmond/modern` theme inspired by modern Windows desktop patterns without bundling Microsoft-owned assets or clone artwork. Its shell contract uses a bottom full-width taskbar, Start system menu, compact taskbar search field, no global menu bar, no global app menu, taskbar status controls, and right-aligned window controls ordered minimize, maximize, close. Its surface contract uses `windows-settings` for the native Settings app and `file-explorer` for folder windows, so those areas render Windows-style navigation, command, address, and list surfaces instead of inheriting PufferDesk/Finder layouts. The Redmond Start surface is rendered from registered apps and `menu.system` command data by the shared menu controller, while `templates/themes/redmond/shell/dock.php` adds the taskbar search and Start button markup needed for that family. Typography prefers local system stacks such as `"Segoe UI Variable"` and `"Segoe UI"` without shipping font files. Icons are original SVG assets under `assets/media/themes/redmond/modern/icons/`.
 
-Future phases can add optional alternate theme packs such as Redmond-style, classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the WP adminOS identity rather than depending on another platform owner’s brand assets.
+The registry also includes an internal contract-test theme, `canary-taskbar`, that is hidden from the Settings theme picker unless `PUFFERDESK_ENABLE_INTERNAL_THEMES` is truthy. It deliberately uses a taskbar launcher, start-style system menu, no top menu bar, caption window controls, and centered title text so contributors can test theme contracts before adding public theme families.
 
-Workspace layout is persisted in WordPress user meta per site, user, and selected theme through `WP_AdminOS_Workspace_State`. Fresh shell loads treat WordPress user meta as the authoritative workspace state and refresh the browser `localStorage` cache from that server payload. Workspace saves send the last known server `updatedAt` revision; stale browser saves receive a conflict response with the newer server state instead of overwriting it. Same-browser tabs share accepted workspace updates through `BroadcastChannel`, while cross-browser sessions such as Chrome to Safari pick up changes on reload unless a future remote polling/push sync is added. `sessionStorage` is reserved for one-time page-transition behavior such as skipping window restore once. Core stores layout in named sections, currently `windows`, `widgets`, `desktopIcons`, `desktopSort`, and `recentItems`, so future spaces or theme-specific surfaces can join without replacing the whole payload. Windows track app and folder windows, position, size, maximized/minimized state, and restore stable open windows when the shell loads. Widgets track widget position, size, and hidden state. User-created desktop folder definitions and membership are persisted separately in WordPress user meta, and their icon positions live in the workspace layout state. System Settings exposes current-theme layout reset and all-theme layout reset through the same workspace state controller; full "Erase All Content and Settings" additionally clears WP adminOS preference domains such as app locations, login items, desktop folders, wallpaper, and selected theme.
+Wallpapers are managed by `PufferDesk_Wallpaper_Registry`. It combines one shared bundled wallpaper catalog, bundled original color backgrounds, optional theme-declared wallpaper collections, and user-selected Media Library uploads, then resolves the active choice into `--pdk-wallpaper-*` CSS variables for the shell. Bundled themes should set `media.wallpapers.default` to choose their starting wallpaper from the shared catalog instead of exposing different wallpaper lists per theme. Bundled gradient wallpapers use `css_value` instead of image files to keep plugin size small. Image wallpapers remain supported through `path` or `file` fields for original/licensed assets that need texture or detail. The older single `wallpaper` field remains a fallback for one-image themes, but new public bundled themes should normally declare only a default wallpaper id. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing.
 
-Widgets are registered through `WP_AdminOS_Widget_Registry` and can be extended with the `wp_adminos_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Missing, empty, or non-scalar widget capabilities normalize to `read`; widgets that expose privileged WordPress data should use the exact WordPress capability needed for that data. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. System Settings includes a Widgets panel that can show or hide registered widgets through the existing `widgets` workspace section. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, settings panel, and session section.
+Future phases can add optional alternate theme packs such as classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and WooCommerce. The bundled default should remain the PufferDesk identity rather than depending on another platform owner’s brand assets.
+
+Workspace layout is persisted in WordPress user meta per site, user, and selected theme through `PufferDesk_Workspace_State`. Fresh shell loads treat WordPress user meta as the authoritative workspace state and refresh the browser `localStorage` cache from that server payload. Workspace saves send the last known server `updatedAt` revision; stale browser saves receive a conflict response with the newer server state instead of overwriting it. Same-browser tabs share accepted workspace updates through `BroadcastChannel`, while cross-browser sessions such as Chrome to Safari pick up changes on reload unless a future remote polling/push sync is added. `sessionStorage` is reserved for one-time page-transition behavior such as skipping window restore once. Core stores layout in named sections, currently `windows`, `widgets`, `desktopIcons`, `desktopSort`, and `recentItems`, so future spaces or theme-specific surfaces can join without replacing the whole payload. Windows track app and folder windows, position, size, maximized/minimized state, and restore stable open windows when the shell loads. Widgets track widget position, size, and hidden state. User-created desktop folder definitions and membership are persisted separately in WordPress user meta, and their icon positions live in the workspace layout state. System Settings exposes current-theme layout reset and all-theme layout reset through the same workspace state controller; full "Erase All Content and Settings" additionally clears PufferDesk preference domains such as app locations, login items, desktop folders, wallpaper, and selected theme.
+
+Widgets are registered through `PufferDesk_Widget_Registry` and can be extended with the `pufferdesk_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Missing, empty, or non-scalar widget capabilities normalize to `read`; widgets that expose privileged WordPress data should use the exact WordPress capability needed for that data. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. System Settings includes a Widgets panel that can show or hide registered widgets through the existing `widgets` workspace section. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, settings panel, and session section.
 
 == Changelog ==
 

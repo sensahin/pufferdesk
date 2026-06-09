@@ -1,23 +1,45 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
 
-	window.WPAdminOS.apps.createAppLauncher = function createAppLauncher(shell, manager, config = {}) {
-		const dom = window.WPAdminOS.dom;
+	window.PufferDesk.apps.createAppLauncher = function createAppLauncher(shell, manager, config = {}) {
+		const dom = window.PufferDesk.dom;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const folders = Array.isArray(config.folders) ? config.folders : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
 		const folderMap = new Map(folders.map((folder) => [folder.id, folder]));
-		const folderWindowHistory = new WeakMap();
-		const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
-		const trashFolderId = 'trash';
-		let folderTabSequence = 0;
-		let folderProvider = null;
+			const folderWindowHistory = new WeakMap();
+			const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
+			const explorerSortModes = new Set(['none', 'name', 'kind']);
+			const explorerViewModes = new Set(['extra-large-icons', 'large-icons', 'medium-icons', 'small-icons', 'list', 'details', 'tiles', 'content']);
+			const trashFolderId = 'trash';
+			let folderTabSequence = 0;
+			let folderProvider = null;
+			let explorerCommandMenu = null;
+			let explorerCommandMenuButton = null;
+			let explorerCommandMenuCleanup = null;
 		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object'
 			? config.menu.labels
 			: {};
+		const themeSurfaces = config.theme && config.theme.surfaces && typeof config.theme.surfaces === 'object'
+			? config.theme.surfaces
+			: {};
+
+		function getThemeSurface(surface, fallback) {
+			const value = typeof themeSurfaces[surface] === 'string' ? themeSurfaces[surface] : '';
+
+			return value || fallback;
+		}
+
+		function getFolderLayout() {
+			return getThemeSurface('folder', 'finder');
+		}
+
+		function isFileExplorerLayout() {
+			return getFolderLayout() === 'file-explorer';
+		}
 
 		function getMenuLabel(key, fallback) {
 			return typeof menuLabels[key] === 'string' && menuLabels[key] ? menuLabels[key] : fallback;
@@ -31,8 +53,8 @@
 
 		function getFolderProvider() {
 			return folderProvider
-				|| (window.WPAdminOS.desktopFolderManager && typeof window.WPAdminOS.desktopFolderManager.getFolder === 'function'
-					? window.WPAdminOS.desktopFolderManager
+				|| (window.PufferDesk.desktopFolderManager && typeof window.PufferDesk.desktopFolderManager.getFolder === 'function'
+					? window.PufferDesk.desktopFolderManager
 					: null);
 		}
 
@@ -73,18 +95,30 @@
 				: normalized.concat(getTrashFolder());
 		}
 
-		function getFolderApps(folderId) {
-			if (isTrashFolderId(folderId)) {
-				return [];
-			}
+			function getFolderApps(folderId) {
+				if (isTrashFolderId(folderId)) {
+					return [];
+				}
 
 			const provider = getFolderProvider();
 			const folderApps = provider && typeof provider.getFolderApps === 'function'
 				? provider.getFolderApps(folderId)
 				: apps.filter((app) => app.group === folderId);
 
-			return folderApps.filter((app) => app && !isHiddenFromLaunchSurfaces(app));
-		}
+				return folderApps.filter((app) => app && !isHiddenFromLaunchSurfaces(app));
+			}
+
+			function getFolderChildFolders(folderId) {
+				if (isTrashFolderId(folderId)) {
+					return [];
+				}
+
+				const provider = getFolderProvider();
+
+				return provider && typeof provider.getFolderChildFolders === 'function'
+					? provider.getFolderChildFolders(folderId).filter(Boolean)
+					: [];
+			}
 
 		function getTrashItems() {
 			const provider = getFolderProvider();
@@ -99,7 +133,7 @@
 		}
 
 		function executeCommand(command, payload = {}) {
-			const commands = window.WPAdminOS.menuCommands;
+			const commands = window.PufferDesk.menuCommands;
 
 			if (commands && typeof commands.execute === 'function') {
 				commands.execute({
@@ -145,7 +179,7 @@
 		}
 
 		function getNativeAppWindowOptions(app, baseOptions) {
-			const getOptions = window.WPAdminOS.apps.getNativeAppWindowOptions;
+			const getOptions = window.PufferDesk.apps.getNativeAppWindowOptions;
 			const nativeOptions = typeof getOptions === 'function'
 				? getOptions(app.native, {
 					app,
@@ -186,11 +220,11 @@
 		}
 
 		function addRecentItem(item) {
-			if (!window.WPAdminOS.menuBar || typeof window.WPAdminOS.menuBar.addRecentItem !== 'function') {
+			if (!window.PufferDesk.menuBar || typeof window.PufferDesk.menuBar.addRecentItem !== 'function') {
 				return;
 			}
 
-			window.WPAdminOS.menuBar.addRecentItem(config, item);
+			window.PufferDesk.menuBar.addRecentItem(config, item);
 		}
 
 		function openApp(appId) {
@@ -226,7 +260,7 @@
 
 		function openSettingsPanel(panelId) {
 			const win = openApp('os-settings');
-			const settingsRoot = win ? win.querySelector('.aos-settings') : null;
+			const settingsRoot = win ? win.querySelector('.pdk-settings') : null;
 
 			if (settingsRoot && typeof settingsRoot.aosOpenPanel === 'function') {
 				return settingsRoot.aosOpenPanel(panelId);
@@ -237,16 +271,16 @@
 
 		function openAbout(appId) {
 			const app = appMap.get(appId);
-			if (!app || !window.WPAdminOS.apps.createAboutWindow) {
+			if (!app || !window.PufferDesk.apps.createAboutWindow) {
 				return;
 			}
 
 			manager.createWindow({
 				appId: `about-${app.id}`,
-				bodyClass: 'aos-window-body aos-about-body',
+				bodyClass: 'pdk-window-body pdk-about-body',
 				centered: true,
 				contextMenu: false,
-				content: window.WPAdminOS.apps.createAboutWindow(app),
+				content: window.PufferDesk.apps.createAboutWindow(app),
 				disabledControls: ['minimize', 'maximize'],
 				height: '206px',
 				icon: app.icon,
@@ -263,16 +297,16 @@
 			const siteInfo = config.siteInfo && typeof config.siteInfo === 'object' ? config.siteInfo : {};
 			const title = siteInfo.title || 'About This Site';
 
-			if (!window.WPAdminOS.apps.createSiteAboutWindow) {
+			if (!window.PufferDesk.apps.createSiteAboutWindow) {
 				return;
 			}
 
 			manager.createWindow({
 				appId: 'about-this-site',
-				bodyClass: 'aos-window-body aos-site-about-body',
+				bodyClass: 'pdk-window-body pdk-site-about-body',
 				centered: true,
 				contextMenu: false,
-				content: window.WPAdminOS.apps.createSiteAboutWindow(siteInfo),
+				content: window.PufferDesk.apps.createSiteAboutWindow(siteInfo),
 				disabledControls: ['minimize', 'maximize'],
 				height: '500px',
 				icon: 'dashicons-admin-site-alt3',
@@ -308,7 +342,7 @@
 		function createFolderAppButton(app, folderId = '', removable = false) {
 			const button = document.createElement('button');
 			button.type = 'button';
-			button.className = 'aos-app-launcher';
+			button.className = 'pdk-app-launcher';
 			button.dataset.aosContext = removable ? 'folder-app' : 'app';
 			button.dataset.aosContextId = app.id;
 			button.dataset.aosContextLabel = app.label;
@@ -317,7 +351,7 @@
 			}
 
 			const appIcon = document.createElement('span');
-			appIcon.className = 'aos-app-icon';
+			appIcon.className = 'pdk-app-icon';
 			appIcon.appendChild(dom.createIcon(app.icon));
 
 			const label = document.createElement('span');
@@ -330,11 +364,47 @@
 			return button;
 		}
 
+		function createFolderChildButton(folder, parentFolderId = '', win = null) {
+			const button = document.createElement('button');
+			const label = folder && folder.label ? folder.label : getMenuLabel('folder', 'Folder');
+
+			button.type = 'button';
+			button.className = 'pdk-app-launcher pdk-folder-launcher';
+			button.dataset.aosContext = 'folder';
+			button.dataset.aosContextId = folder.id;
+			button.dataset.aosContextLabel = label;
+			button.dataset.aosOpenFolder = folder.id;
+			if (parentFolderId) {
+				button.dataset.aosFolderId = parentFolderId;
+			}
+			button.setAttribute('aria-label', label);
+
+			const appIcon = document.createElement('span');
+			appIcon.className = 'pdk-app-icon';
+			appIcon.appendChild(dom.createIcon(folder.icon || 'dashicons-category'));
+
+			const itemLabel = document.createElement('span');
+			itemLabel.textContent = label;
+
+			button.append(appIcon, itemLabel);
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				if (win) {
+					renderFolderWindow(win, folder.id);
+				} else {
+					openFolder(folder.id);
+				}
+			});
+
+			return button;
+		}
+
 		function selectFinderItem(button) {
-			const grid = button ? button.closest('.aos-finder-grid') : null;
+			const grid = button ? button.closest('.pdk-finder-grid') : null;
 
 			if (grid) {
-				grid.querySelectorAll('.aos-finder-trash-item.is-selected').forEach((item) => {
+				grid.querySelectorAll('.pdk-finder-trash-item.is-selected').forEach((item) => {
 					item.classList.remove('is-selected');
 					item.setAttribute('aria-selected', 'false');
 					item.setAttribute('aria-pressed', 'false');
@@ -354,7 +424,7 @@
 			const icon = item && item.icon ? item.icon : item && item.folder && item.folder.icon ? item.folder.icon : 'dashicons-category';
 
 			button.type = 'button';
-			button.className = 'aos-desktop-icon aos-desktop-folder aos-finder-trash-item';
+			button.className = 'pdk-desktop-icon pdk-desktop-folder pdk-finder-trash-item';
 			button.dataset.aosContext = 'trash-item';
 			button.dataset.aosContextId = item.id;
 			button.dataset.aosContextLabel = label;
@@ -364,11 +434,11 @@
 			button.setAttribute('aria-selected', 'false');
 
 			const appIcon = document.createElement('span');
-			appIcon.className = 'aos-app-icon';
+			appIcon.className = 'pdk-app-icon';
 			appIcon.appendChild(dom.createIcon(icon));
 
 			const itemLabel = document.createElement('span');
-			itemLabel.className = 'aos-desktop-app-label';
+			itemLabel.className = 'pdk-desktop-app-label';
 			itemLabel.textContent = label;
 
 			button.append(appIcon, itemLabel);
@@ -387,7 +457,7 @@
 		function getFolderTitle(folder) {
 			const folderLabel = folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin');
 
-			if (folder && folder.id === trashFolderId) {
+			if (isFileExplorerLayout() || (folder && folder.id === trashFolderId)) {
 				return folderLabel;
 			}
 
@@ -559,7 +629,7 @@
 
 		function setFolderToolbarDisplayMode(win, mode) {
 			const normalized = folderToolbarDisplayModes.has(mode) ? mode : 'icon-text';
-			const toolbar = win ? win.querySelector('.aos-finder-toolbar') : null;
+			const toolbar = win ? win.querySelector('.pdk-finder-toolbar') : null;
 
 			if (win && win.dataset) {
 				win.dataset.aosFolderToolbarDisplay = normalized;
@@ -568,6 +638,117 @@
 			if (toolbar) {
 				toolbar.dataset.aosFolderToolbarDisplay = normalized;
 			}
+
+			return normalized;
+		}
+
+		function normalizeExplorerViewMode(mode) {
+			return explorerViewModes.has(mode) ? mode : 'large-icons';
+		}
+
+		function getExplorerViewMode(win) {
+			return normalizeExplorerViewMode(win && win.dataset ? win.dataset.aosExplorerViewMode : '');
+		}
+
+		function setExplorerViewMode(win, mode) {
+			const normalized = normalizeExplorerViewMode(mode);
+			const pane = win ? win.querySelector('.pdk-explorer-pane') : null;
+			const statusbar = win ? win.querySelector('.pdk-explorer-statusbar') : null;
+
+			if (win && win.dataset) {
+				win.dataset.aosExplorerViewMode = normalized;
+			}
+
+			if (pane) {
+				pane.dataset.aosExplorerViewMode = normalized;
+			}
+
+			if (statusbar) {
+				statusbar.querySelectorAll('[data-pdk-explorer-view-mode]').forEach((button) => {
+					const active = button.dataset.aosExplorerViewMode === normalized;
+					button.classList.toggle('is-active', active);
+					button.setAttribute('aria-pressed', active ? 'true' : 'false');
+				});
+			}
+
+			return normalized;
+		}
+
+		function normalizeExplorerSortMode(mode) {
+			return explorerSortModes.has(mode) ? mode : 'none';
+		}
+
+		function getExplorerSortMode(win) {
+			return normalizeExplorerSortMode(win && win.dataset ? win.dataset.aosExplorerSortMode : '');
+		}
+
+			function sortExplorerFolderItems(items, win) {
+				const sortMode = getExplorerSortMode(win);
+				const collator = new Intl.Collator(undefined, {
+					numeric: true,
+					sensitivity: 'base'
+				});
+				const normalized = Array.isArray(items) ? items.slice() : [];
+
+				if (sortMode === 'name') {
+					return normalized.sort((a, b) => collator.compare(a && a.label ? a.label : '', b && b.label ? b.label : ''));
+				}
+
+				if (sortMode === 'kind') {
+					return normalized.sort((a, b) => {
+						const firstKind = a && a.type === 'folder' ? getMenuLabel('folder', 'Folder') : getMenuLabel('application', 'Application');
+						const secondKind = b && b.type === 'folder' ? getMenuLabel('folder', 'Folder') : getMenuLabel('application', 'Application');
+						const kindCompare = collator.compare(firstKind, secondKind);
+
+						return kindCompare || collator.compare(a && a.label ? a.label : '', b && b.label ? b.label : '');
+					});
+				}
+
+				return normalized;
+			}
+
+			function getFolderDisplayItems(folderId, win = null) {
+				const folderItems = getFolderChildFolders(folderId).map((folder) => ({
+					folder,
+					icon: folder.icon || 'dashicons-category',
+					id: folder.id,
+					label: folder.label || getMenuLabel('folder', 'Folder'),
+					type: 'folder'
+				}));
+				const appItems = getFolderApps(folderId).map((app) => ({
+					app,
+					icon: app.icon || 'dashicons-admin-generic',
+					id: app.id,
+					label: app.label || app.id,
+					type: 'app'
+				}));
+
+				return isFileExplorerLayout()
+					? sortExplorerFolderItems(folderItems.concat(appItems), win)
+					: folderItems.concat(appItems);
+			}
+
+			function createFolderDisplayButton(item, folderId = '', removable = false, win = null) {
+				if (item && item.type === 'folder') {
+					return createFolderChildButton(item.folder, folderId, win);
+				}
+
+				return createFolderAppButton(item.app, folderId, removable);
+			}
+
+		function setExplorerSortMode(win, mode) {
+			const normalized = normalizeExplorerSortMode(mode);
+			const folderId = win && win.dataset ? win.dataset.aosFolderWindow : '';
+
+			if (!win || !folderId) {
+				return normalized;
+			}
+
+			win.dataset.aosExplorerSortMode = normalized;
+			renderFolderWindow(win, folderId, {
+				replaceHistory: true,
+				touch: false
+			});
 
 			return normalized;
 		}
@@ -593,10 +774,10 @@
 			const history = getFolderWindowHistoryState(win);
 			const canNavigate = direction === 'back' ? history.canBack : history.canForward;
 			button.type = 'button';
-			button.className = `aos-settings-history-button aos-settings-history-button-${direction} aos-finder-history-button`;
+			button.className = `pdk-settings-history-button pdk-settings-history-button-${direction} pdk-finder-history-button`;
 			button.disabled = !canNavigate;
 			button.setAttribute('aria-label', direction === 'back' ? 'Back' : 'Forward');
-			button.appendChild(dom.createElement('span', 'aos-settings-history-chevron'));
+			button.appendChild(dom.createElement('span', 'pdk-settings-history-chevron'));
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
@@ -606,19 +787,504 @@
 			return button;
 		}
 
+		function createExplorerNavigationButton(direction, win) {
+			const button = document.createElement('button');
+			const history = getFolderWindowHistoryState(win);
+			const labels = {
+				back: 'Back',
+				forward: 'Forward',
+				up: 'Up',
+				refresh: 'Refresh'
+			};
+			const canNavigate = direction === 'back'
+				? history.canBack
+				: (direction === 'forward' ? history.canForward : direction === 'refresh');
+
+			button.type = 'button';
+			button.className = `pdk-explorer-nav-button pdk-explorer-nav-button-${direction}`;
+			button.dataset.aosNoDrag = '';
+			button.disabled = !canNavigate;
+			button.setAttribute('aria-label', labels[direction] || direction);
+			button.appendChild(dom.createElement('span', 'pdk-explorer-nav-icon'));
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				if (direction === 'back') {
+					navigateFolderHistory(win, -1);
+				} else if (direction === 'forward') {
+					navigateFolderHistory(win, 1);
+				} else if (direction === 'refresh') {
+					refreshFolderWindow(win && win.dataset ? win.dataset.aosFolderWindow : '');
+				}
+			});
+
+			return button;
+		}
+
+		function createExplorerCommandIcon(action) {
+			const icon = dom.createElement('span', 'pdk-explorer-command-icon');
+
+			if (action.icon) {
+				icon.appendChild(dom.createDashicon(action.icon));
+			}
+
+			return icon;
+		}
+
+		function getExplorerCommandDetail(folderId, win) {
+			const folder = getFolder(folderId);
+
+			return {
+				folder,
+				folderId,
+				id: folderId,
+				kind: 'folder-toolbar',
+				label: folder && folder.label ? folder.label : '',
+				type: 'folder-toolbar',
+				windowElement: win || null
+			};
+		}
+
+		function getExplorerCommandItem(action, folderId) {
+			return {
+				command: action.command || '',
+				disabled: Boolean(action.disabled),
+				label: action.label || '',
+				payload: action.payload && typeof action.payload === 'object' ? action.payload : { target: folderId },
+				target: action.target || folderId
+			};
+		}
+
+		function canRunExplorerCommand(action, folderId, win) {
+			const commands = window.PufferDesk.menuCommands;
+
+			if (hasExplorerCommandMenu(action)) {
+				return getExplorerCommandMenuItems(action, folderId, win).length > 0;
+			}
+
+			if (!action.command) {
+				return action.disabled === false;
+			}
+
+			if (!commands || typeof commands.canExecute !== 'function') {
+				return action.disabled !== true;
+			}
+
+			return commands.canExecute(
+				getExplorerCommandItem(action, folderId),
+				getExplorerCommandDetail(folderId, win)
+			);
+		}
+
+		function runExplorerCommand(action, folderId, win) {
+			const commands = window.PufferDesk.menuCommands;
+
+			if (!action.command || !commands || typeof commands.execute !== 'function') {
+				return false;
+			}
+
+			return commands.execute(
+				getExplorerCommandItem(action, folderId),
+				getExplorerCommandDetail(folderId, win)
+			);
+		}
+
+		function explorerMenuItem(label, command, options = {}) {
+			return Object.assign({
+				command,
+				label
+			}, options);
+		}
+
+		function explorerMenuSeparator() {
+			return { type: 'separator' };
+		}
+
+		function disabledExplorerMenuItem(label, options = {}) {
+			return explorerMenuItem(label, '', Object.assign({}, options, {
+				disabled: true
+			}));
+		}
+
+		function explorerChoiceItem(label, command, mode, activeMode, folderId, options = {}) {
+			return explorerMenuItem(label, command, Object.assign({
+				icon: mode === activeMode ? 'dashicons-yes' : '',
+				payload: {
+					folderId,
+					mode,
+					target: folderId
+				},
+				target: folderId
+			}, options));
+		}
+
+		function getExplorerCommandMenuItems(action, folderId, win) {
+			const sortMode = getExplorerSortMode(win);
+			const viewMode = getExplorerViewMode(win);
+
+			if (action.id === 'sort') {
+				return [
+					explorerChoiceItem(getMenuLabel('sort_none', 'None'), 'folder.set-sort-mode', 'none', sortMode, folderId),
+					explorerMenuSeparator(),
+					explorerChoiceItem(getMenuLabel('sort_name', 'Name'), 'folder.set-sort-mode', 'name', sortMode, folderId),
+					explorerChoiceItem(getMenuLabel('sort_kind', 'Kind'), 'folder.set-sort-mode', 'kind', sortMode, folderId),
+					disabledExplorerMenuItem(getMenuLabel('sort_date_modified', 'Date Modified')),
+					disabledExplorerMenuItem(getMenuLabel('sort_size', 'Size'))
+				];
+			}
+
+			if (action.id === 'view') {
+				return [
+					explorerChoiceItem(getMenuLabel('extra_large_icons', 'Extra large icons'), 'folder.set-view-mode', 'extra-large-icons', viewMode, folderId),
+					explorerChoiceItem(getMenuLabel('large_icons', 'Large icons'), 'folder.set-view-mode', 'large-icons', viewMode, folderId),
+					explorerChoiceItem(getMenuLabel('medium_icons', 'Medium icons'), 'folder.set-view-mode', 'medium-icons', viewMode, folderId),
+					explorerChoiceItem(getMenuLabel('small_icons', 'Small icons'), 'folder.set-view-mode', 'small-icons', viewMode, folderId),
+					explorerMenuSeparator(),
+					explorerChoiceItem(getMenuLabel('list_view_short', 'List'), 'folder.set-view-mode', 'list', viewMode, folderId),
+					explorerChoiceItem(getMenuLabel('details_view_short', 'Details'), 'folder.set-view-mode', 'details', viewMode, folderId),
+					explorerChoiceItem(getMenuLabel('tiles_view', 'Tiles'), 'folder.set-view-mode', 'tiles', viewMode, folderId),
+					explorerChoiceItem(getMenuLabel('content_view', 'Content'), 'folder.set-view-mode', 'content', viewMode, folderId),
+					explorerMenuSeparator(),
+					explorerMenuItem(getMenuLabel('details_pane', 'Details pane'), '', {
+						icon: ''
+					}),
+					explorerMenuItem(getMenuLabel('preview_pane', 'Preview pane'), '', {
+						icon: 'dashicons-yes'
+					}),
+					explorerMenuSeparator(),
+					explorerMenuItem(getMenuLabel('show', 'Show'), '', {
+						id: 'show',
+						items: [
+							disabledExplorerMenuItem(getMenuLabel('show_view_options', 'View options'))
+						]
+					})
+				];
+			}
+
+			if (action.id === 'more') {
+				return [
+					explorerMenuItem(getMenuLabel('refresh', 'Refresh'), 'folder.refresh', {
+						icon: 'dashicons-update',
+						target: folderId
+					}),
+					explorerMenuSeparator(),
+					disabledExplorerMenuItem(getMenuLabel('pin_to_quick_access', 'Pin to Quick Access'), {
+						icon: 'dashicons-admin-links'
+					}),
+					disabledExplorerMenuItem(getMenuLabel('copy_as_path', 'Copy as path'), {
+						icon: 'dashicons-clipboard',
+						shortcut: 'Ctrl+Shift+C'
+					}),
+					explorerMenuSeparator(),
+					explorerMenuItem(getMenuLabel('properties', 'Properties'), 'folder.get-info', {
+						icon: 'dashicons-info-outline',
+						shortcut: 'Alt+Enter',
+						target: folderId
+					}),
+					disabledExplorerMenuItem(getMenuLabel('show_more_options', 'Show more options'), {
+						icon: 'dashicons-external'
+					})
+				];
+			}
+
+			return [];
+		}
+
+		function hasExplorerCommandMenu(action) {
+			return Boolean(action && ['sort', 'view', 'more'].includes(action.id));
+		}
+
+		function closeExplorerCommandMenu() {
+			if (typeof explorerCommandMenuCleanup === 'function') {
+				explorerCommandMenuCleanup();
+				explorerCommandMenuCleanup = null;
+			}
+
+			if (explorerCommandMenu) {
+				explorerCommandMenu.remove();
+				explorerCommandMenu = null;
+			}
+
+			if (explorerCommandMenuButton) {
+				explorerCommandMenuButton.classList.remove('is-menu-open');
+				explorerCommandMenuButton.setAttribute('aria-expanded', 'false');
+				explorerCommandMenuButton = null;
+			}
+		}
+
+		function positionExplorerCommandMenu(button) {
+			if (!explorerCommandMenu || !button || typeof button.getBoundingClientRect !== 'function') {
+				return;
+			}
+
+			const shellRect = shell.getBoundingClientRect();
+			const buttonRect = button.getBoundingClientRect();
+			const minLeft = 8;
+			const minTop = 8;
+			const maxLeft = Math.max(minLeft, shell.clientWidth - explorerCommandMenu.offsetWidth - 8);
+			const maxTop = Math.max(minTop, shell.clientHeight - explorerCommandMenu.offsetHeight - 8);
+			const left = Math.min(Math.max(minLeft, Math.round(buttonRect.left - shellRect.left)), maxLeft);
+			const top = Math.min(Math.max(minTop, Math.round(buttonRect.bottom - shellRect.top + 4)), maxTop);
+
+			explorerCommandMenu.style.left = `${left}px`;
+			explorerCommandMenu.style.top = `${top}px`;
+		}
+
+		function bindExplorerCommandMenuClose(button) {
+			const pointerHandler = (event) => {
+				if (
+					explorerCommandMenu
+					&& !explorerCommandMenu.contains(event.target)
+					&& !button.contains(event.target)
+				) {
+					closeExplorerCommandMenu();
+				}
+			};
+			const keyHandler = (event) => {
+				if (event.key === 'Escape') {
+					event.preventDefault();
+					closeExplorerCommandMenu();
+					button.focus({ preventScroll: true });
+				}
+			};
+			const reposition = () => positionExplorerCommandMenu(button);
+
+			document.addEventListener('pointerdown', pointerHandler, true);
+			document.addEventListener('keydown', keyHandler, true);
+			window.addEventListener('resize', reposition);
+			explorerCommandMenuCleanup = () => {
+				document.removeEventListener('pointerdown', pointerHandler, true);
+				document.removeEventListener('keydown', keyHandler, true);
+				window.removeEventListener('resize', reposition);
+			};
+		}
+
+		function openExplorerCommandMenu(action, folderId, win, button) {
+			const commands = window.PufferDesk.menuCommands;
+			const rendererFactory = window.PufferDesk.shell && window.PufferDesk.shell.createMenuItemRenderer;
+			const items = getExplorerCommandMenuItems(action, folderId, win);
+			const detail = Object.assign(getExplorerCommandDetail(folderId, win), {
+				targetElement: button
+			});
+			let renderer = null;
+
+			if (!items.length || !commands || typeof rendererFactory !== 'function') {
+				return false;
+			}
+
+			if (explorerCommandMenu && explorerCommandMenuButton === button) {
+				closeExplorerCommandMenu();
+				return true;
+			}
+
+			closeExplorerCommandMenu();
+			renderer = rendererFactory(commands);
+			explorerCommandMenuButton = button;
+			explorerCommandMenu = document.createElement('div');
+			explorerCommandMenu.className = 'pdk-menu-popover pdk-context-menu pdk-explorer-command-menu';
+			explorerCommandMenu.dataset.aosContextMenu = 'folder-toolbar';
+			explorerCommandMenu.dataset.aosExplorerCommandMenu = action.id;
+			explorerCommandMenu.setAttribute('role', 'menu');
+			explorerCommandMenu.setAttribute('aria-label', action.label);
+			explorerCommandMenu.replaceChildren(...items.map((item) => renderer.createItem(item, detail, closeExplorerCommandMenu)));
+			shell.appendChild(explorerCommandMenu);
+			button.classList.add('is-menu-open');
+			button.setAttribute('aria-expanded', 'true');
+			positionExplorerCommandMenu(button);
+			window.setTimeout(() => bindExplorerCommandMenuClose(button), 0);
+
+			return true;
+		}
+
+		function createExplorerCommandButton(action, folderId, win) {
+			const button = document.createElement('button');
+			const canRun = canRunExplorerCommand(action, folderId, win);
+
+			button.type = 'button';
+			button.className = `pdk-explorer-command-button pdk-explorer-command-button-${action.id}`;
+			button.dataset.aosNoDrag = '';
+			button.disabled = !canRun;
+			button.setAttribute('aria-label', action.label);
+			if (hasExplorerCommandMenu(action)) {
+				button.setAttribute('aria-haspopup', 'menu');
+				button.setAttribute('aria-expanded', 'false');
+			}
+			button.appendChild(createExplorerCommandIcon(action));
+			if (action.showLabel !== false) {
+				button.appendChild(dom.createElement('span', 'pdk-explorer-command-label', action.label));
+			}
+			if (action.disclosure) {
+				button.appendChild(dom.createElement('span', 'pdk-explorer-command-disclosure'));
+			}
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				if (hasExplorerCommandMenu(action)) {
+					openExplorerCommandMenu(action, folderId, win, button);
+					return;
+				}
+				runExplorerCommand(action, folderId, win);
+			});
+			button.addEventListener('keydown', (event) => {
+				if (!hasExplorerCommandMenu(action) || !['ArrowDown', 'Enter', ' '].includes(event.key)) {
+					return;
+				}
+
+				event.preventDefault();
+				openExplorerCommandMenu(action, folderId, win, button);
+				const firstEnabled = explorerCommandMenu ? explorerCommandMenu.querySelector('.pdk-menu-item:not(:disabled)') : null;
+				if (firstEnabled) {
+					firstEnabled.focus({ preventScroll: true });
+				}
+			});
+
+			return button;
+		}
+
+		function getExplorerCommandGroups(folderId) {
+			const currentFolderActionsEnabled = isUserFolder(folderId);
+
+			return [
+				[
+					{ id: 'new', label: 'New', icon: 'dashicons-plus-alt2', command: 'folder.create', disclosure: true }
+				],
+				[
+					{ id: 'cut', label: 'Cut', icon: 'dashicons-admin-page', showLabel: false },
+					{ id: 'copy', label: 'Copy', icon: 'dashicons-clipboard', showLabel: false },
+					{ id: 'paste', label: 'Paste', icon: 'dashicons-admin-page', showLabel: false },
+					{ id: 'rename', label: 'Rename', icon: 'dashicons-edit', command: currentFolderActionsEnabled ? 'folder.rename' : '', showLabel: false },
+					{ id: 'share', label: 'Share', icon: 'dashicons-share', showLabel: false },
+					{ id: 'delete', label: 'Delete', icon: 'dashicons-trash', command: currentFolderActionsEnabled ? 'folder.delete' : '', showLabel: false }
+				],
+				[
+					{ id: 'sort', label: 'Sort', icon: 'dashicons-sort', disclosure: true },
+					{ id: 'view', label: 'View', icon: 'dashicons-grid-view', disclosure: true },
+					{ id: 'more', label: 'More', icon: 'dashicons-ellipsis', showLabel: false }
+				],
+				[
+					{ id: 'details', label: getMenuLabel('preview', 'Preview'), icon: 'dashicons-list-view', command: 'folder.get-info' }
+				]
+			];
+		}
+
+		function createExplorerCommandBar(folderId, win) {
+			const bar = dom.createElement('div', 'pdk-explorer-commandbar');
+
+			bar.dataset.aosContext = 'folder-toolbar';
+			bar.dataset.aosContextId = folderId;
+			bar.dataset.aosContextLabel = 'Folder Command Bar';
+			bar.dataset.aosNoDrag = '';
+			getExplorerCommandGroups(folderId).forEach((group, index, groups) => {
+				const groupElement = dom.createElement('div', index === groups.length - 1 ? 'pdk-explorer-command-group pdk-explorer-command-group-details' : 'pdk-explorer-command-group');
+				group.forEach((action) => {
+					groupElement.appendChild(createExplorerCommandButton(action, folderId, win));
+				});
+				bar.appendChild(groupElement);
+			});
+
+			return bar;
+		}
+
+		function createExplorerAddressBar(folderId, win) {
+			const folder = getFolder(folderId);
+			const folderTitle = getFolderTitle(folder);
+			const bar = dom.createElement('div', 'pdk-explorer-addressbar');
+			const navigation = dom.createElement('div', 'pdk-explorer-navigation');
+			const address = dom.createElement('div', 'pdk-explorer-address-field');
+			const crumbs = [
+				getMenuLabel('admin', 'Admin'),
+				folderTitle
+			];
+			const search = dom.createElement('label', 'pdk-explorer-search');
+			const searchInput = document.createElement('input');
+
+			bar.dataset.aosNoDrag = '';
+			navigation.append(
+				createExplorerNavigationButton('back', win),
+				createExplorerNavigationButton('forward', win),
+				createExplorerNavigationButton('up', win),
+				createExplorerNavigationButton('refresh', win)
+			);
+
+			address.setAttribute('aria-label', 'Address');
+			crumbs.forEach((crumb, index) => {
+				if (index > 0) {
+					address.appendChild(dom.createElement('span', 'pdk-explorer-address-separator'));
+				}
+				address.appendChild(dom.createElement('span', index === crumbs.length - 1 ? 'pdk-explorer-address-crumb is-current' : 'pdk-explorer-address-crumb', crumb));
+			});
+
+			search.appendChild(dom.createDashicon('dashicons-search'));
+			searchInput.type = 'search';
+			searchInput.placeholder = `${getMenuLabel('search', 'Search')} ${folderTitle}`;
+			searchInput.setAttribute('aria-label', `${getMenuLabel('search', 'Search')} ${folderTitle}`);
+			searchInput.addEventListener('keydown', (event) => {
+				event.stopPropagation();
+			});
+			search.appendChild(searchInput);
+
+			bar.append(navigation, address, search);
+
+			return bar;
+		}
+
+				function createExplorerStatusBar(folderId, win = null) {
+					const bar = dom.createElement('div', 'pdk-explorer-statusbar');
+					const isTrash = isTrashFolderId(folderId);
+					const count = isTrash ? getTrashItems().length : getFolderDisplayItems(folderId, win).length;
+				const summary = dom.createElement('span', 'pdk-explorer-status-summary', `${count} ${count === 1 ? getMenuLabel('item_singular', 'item') : getMenuLabel('item_plural', 'items')}`);
+				const viewGroup = dom.createElement('div', 'pdk-explorer-status-view-group');
+				const listButton = document.createElement('button');
+				const detailButton = document.createElement('button');
+				const setViewButtons = (mode) => {
+					listButton.classList.toggle('is-active', mode === 'list');
+					detailButton.classList.toggle('is-active', mode === 'details');
+					listButton.setAttribute('aria-pressed', mode === 'list' ? 'true' : 'false');
+					detailButton.setAttribute('aria-pressed', mode === 'details' ? 'true' : 'false');
+				};
+				const getTargetWindow = () => bar.closest ? bar.closest('.pdk-window') : null;
+
+				bar.dataset.aosNoDrag = '';
+				listButton.type = 'button';
+				listButton.className = 'pdk-explorer-status-view-button pdk-explorer-status-view-button-list';
+				listButton.dataset.aosExplorerViewMode = 'list';
+				listButton.setAttribute('aria-label', getMenuLabel('list_view', 'List view'));
+				listButton.appendChild(dom.createElement('span', 'pdk-explorer-status-view-icon'));
+				detailButton.type = 'button';
+				detailButton.className = 'pdk-explorer-status-view-button pdk-explorer-status-view-button-details';
+				detailButton.dataset.aosExplorerViewMode = 'details';
+				detailButton.setAttribute('aria-label', getMenuLabel('details_view', 'Details view'));
+				detailButton.appendChild(dom.createElement('span', 'pdk-explorer-status-view-icon'));
+				listButton.addEventListener('click', (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+					setExplorerViewMode(getTargetWindow(), 'list');
+				});
+				detailButton.addEventListener('click', (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+					setExplorerViewMode(getTargetWindow(), 'details');
+				});
+				setViewButtons(getExplorerViewMode(win));
+				viewGroup.append(listButton, detailButton);
+				bar.append(summary, viewGroup);
+
+				return bar;
+		}
+
 		function createFolderToolbarIcon(action) {
-			const icon = dom.createElement('span', `aos-finder-toolbar-icon aos-finder-toolbar-icon-${action.id}`);
+			const icon = dom.createElement('span', `pdk-finder-toolbar-icon pdk-finder-toolbar-icon-${action.id}`);
 
 			if (action.icon) {
 				icon.appendChild(dom.createDashicon(action.icon));
 			}
 
 			if (action.badge) {
-				icon.appendChild(dom.createElement('span', `aos-finder-toolbar-badge aos-finder-toolbar-badge-${action.badge}`));
+				icon.appendChild(dom.createElement('span', `pdk-finder-toolbar-badge pdk-finder-toolbar-badge-${action.badge}`));
 			}
 
 			if (action.disclosure) {
-				icon.appendChild(dom.createElement('span', 'aos-finder-toolbar-disclosure'));
+				icon.appendChild(dom.createElement('span', 'pdk-finder-toolbar-disclosure'));
 			}
 
 			return icon;
@@ -627,14 +1293,14 @@
 		function createFolderToolbarButton(action) {
 			const button = document.createElement('button');
 			button.type = 'button';
-			button.className = `aos-finder-toolbar-button aos-finder-toolbar-button-${action.id}`;
+			button.className = `pdk-finder-toolbar-button pdk-finder-toolbar-button-${action.id}`;
 			button.tabIndex = -1;
 			button.dataset.aosNoDrag = '';
 			button.dataset.aosToolbarAction = action.id;
 			button.setAttribute('aria-disabled', 'true');
 			button.setAttribute('aria-label', action.label);
 			button.appendChild(createFolderToolbarIcon(action));
-			button.appendChild(dom.createElement('span', 'aos-finder-toolbar-label', action.label));
+			button.appendChild(dom.createElement('span', 'pdk-finder-toolbar-label', action.label));
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
@@ -659,15 +1325,15 @@
 
 		function createFolderToolbarOverflowButton() {
 			const button = document.createElement('button');
-			const icon = dom.createElement('span', 'aos-finder-toolbar-icon aos-finder-toolbar-icon-overflow');
+			const icon = dom.createElement('span', 'pdk-finder-toolbar-icon pdk-finder-toolbar-icon-overflow');
 
 			button.type = 'button';
-			button.className = 'aos-finder-toolbar-button aos-finder-toolbar-overflow-button';
+			button.className = 'pdk-finder-toolbar-button pdk-finder-toolbar-overflow-button';
 			button.dataset.aosNoDrag = '';
 			button.setAttribute('aria-label', 'More Toolbar Items');
 			icon.append(
-				dom.createElement('span', 'aos-finder-toolbar-overflow-chevron'),
-				dom.createElement('span', 'aos-finder-toolbar-overflow-chevron')
+				dom.createElement('span', 'pdk-finder-toolbar-overflow-chevron'),
+				dom.createElement('span', 'pdk-finder-toolbar-overflow-chevron')
 			);
 			button.appendChild(icon);
 
@@ -675,8 +1341,8 @@
 		}
 
 		function createFolderToolbarOverflowMenuItem(action) {
-			const item = dom.createElement('div', 'aos-finder-toolbar-overflow-menu-item');
-			const label = dom.createElement('span', 'aos-finder-toolbar-overflow-menu-label', action.label);
+			const item = dom.createElement('div', 'pdk-finder-toolbar-overflow-menu-item');
+			const label = dom.createElement('span', 'pdk-finder-toolbar-overflow-menu-label', action.label);
 
 			item.setAttribute('role', 'menuitem');
 			item.setAttribute('aria-disabled', 'true');
@@ -686,7 +1352,7 @@
 		}
 
 		function setFolderToolbarOverflowMenu(actions, hiddenIds) {
-			const menu = actions ? actions.querySelector('.aos-finder-toolbar-overflow-menu') : null;
+			const menu = actions ? actions.querySelector('.pdk-finder-toolbar-overflow-menu') : null;
 			const hiddenSet = new Set(hiddenIds);
 			if (!menu) {
 				return;
@@ -701,10 +1367,10 @@
 		}
 
 		function createFolderToolbarActions() {
-			const actions = dom.createElement('div', 'aos-finder-toolbar-actions');
-			const overflow = dom.createElement('div', 'aos-finder-toolbar-overflow');
+			const actions = dom.createElement('div', 'pdk-finder-toolbar-actions');
+			const overflow = dom.createElement('div', 'pdk-finder-toolbar-overflow');
 			const overflowButton = createFolderToolbarOverflowButton();
-			const overflowMenu = dom.createElement('div', 'aos-finder-toolbar-overflow-menu');
+			const overflowMenu = dom.createElement('div', 'pdk-finder-toolbar-overflow-menu');
 			const toolbarActions = getFolderToolbarActions();
 			const searchAction = toolbarActions.find((action) => action.id === 'search');
 
@@ -744,13 +1410,13 @@
 		}
 
 		function syncFolderToolbarOverflow(win) {
-			const toolbar = win ? win.querySelector('.aos-finder-toolbar') : null;
-			const title = win ? win.querySelector('.aos-finder-title') : null;
-			const actions = win ? win.querySelector('.aos-finder-toolbar-actions') : null;
-			const overflow = actions ? actions.querySelector('.aos-finder-toolbar-overflow') : null;
-			const overflowMenu = overflow ? overflow.querySelector('.aos-finder-toolbar-overflow-menu') : null;
+			const toolbar = win ? win.querySelector('.pdk-finder-toolbar') : null;
+			const title = win ? win.querySelector('.pdk-finder-title') : null;
+			const actions = win ? win.querySelector('.pdk-finder-toolbar-actions') : null;
+			const overflow = actions ? actions.querySelector('.pdk-finder-toolbar-overflow') : null;
+			const overflowMenu = overflow ? overflow.querySelector('.pdk-finder-toolbar-overflow-menu') : null;
 			const buttons = actions
-				? Array.from(actions.querySelectorAll('[data-aos-toolbar-action]'))
+				? Array.from(actions.querySelectorAll('[data-pdk-toolbar-action]'))
 				: [];
 			const hideOrder = ['action', 'new-folder', 'info', 'delete', 'tags', 'share', 'group', 'view'];
 			const hiddenIds = [];
@@ -765,8 +1431,8 @@
 				return actions
 					? Array.from(actions.children).filter((item) => {
 						return !item.hidden && (
-							item.classList.contains('aos-finder-toolbar-button')
-							|| item.classList.contains('aos-finder-toolbar-overflow')
+							item.classList.contains('pdk-finder-toolbar-button')
+							|| item.classList.contains('pdk-finder-toolbar-overflow')
 						);
 					})
 					: [];
@@ -810,7 +1476,7 @@
 
 			overflow.hidden = false;
 			hideOrder.some((actionId) => {
-				const button = actions.querySelector(`[data-aos-toolbar-action="${actionId}"]`);
+				const button = actions.querySelector(`[data-pdk-toolbar-action="${actionId}"]`);
 				if (!button || button.hidden) {
 					return false;
 				}
@@ -829,7 +1495,7 @@
 		}
 
 		function bindFolderToolbarOverflow(win) {
-			const toolbar = win ? win.querySelector('.aos-finder-toolbar') : null;
+			const toolbar = win ? win.querySelector('.pdk-finder-toolbar') : null;
 			if (!toolbar) {
 				return;
 			}
@@ -843,11 +1509,11 @@
 			};
 
 			if (win.aosFolderToolbarDisplayHandler) {
-				win.removeEventListener('wpAdminOS:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
+				win.removeEventListener('pufferDesk:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
 			}
 
 			win.aosFolderToolbarDisplayHandler = sync;
-			win.addEventListener('wpAdminOS:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
+			win.addEventListener('pufferDesk:folder-toolbar-display-change', win.aosFolderToolbarDisplayHandler);
 
 			sync();
 
@@ -891,7 +1557,7 @@
 				return activeWindow;
 			}
 
-			return shell.querySelector('.aos-window[data-aos-window-kind="folder"]:not(.is-closed)');
+			return shell.querySelector('.pdk-window[data-pdk-window-kind="folder"]:not(.is-closed)');
 		}
 
 		function getFolderWindowWithTab(folderId) {
@@ -899,7 +1565,7 @@
 				return null;
 			}
 
-			return Array.from(shell.querySelectorAll('.aos-window[data-aos-window-kind="folder"]:not(.is-closed)'))
+			return Array.from(shell.querySelectorAll('.pdk-window[data-pdk-window-kind="folder"]:not(.is-closed)'))
 				.find((win) => {
 					const state = folderWindowHistory.get(win);
 
@@ -928,12 +1594,12 @@
 		}
 
 		function createTrashSubbar() {
-			const bar = dom.createElement('div', 'aos-finder-subbar aos-trash-subbar');
-			const title = dom.createElement('strong', 'aos-finder-subbar-title', getMenuLabel('trash', 'Trash'));
+			const bar = dom.createElement('div', 'pdk-finder-subbar pdk-trash-subbar');
+			const title = dom.createElement('strong', 'pdk-finder-subbar-title', getMenuLabel('trash', 'Trash'));
 			const emptyButton = document.createElement('button');
 
 			emptyButton.type = 'button';
-			emptyButton.className = 'aos-trash-empty-control';
+			emptyButton.className = 'pdk-trash-empty-control';
 			emptyButton.dataset.aosNoDrag = '';
 			emptyButton.disabled = getTrashCount() <= 0;
 			emptyButton.textContent = getMenuLabel('empty', 'Empty');
@@ -1029,10 +1695,10 @@
 			const label = getFolderTabTitle(tab);
 
 			button.type = 'button';
-			button.className = 'aos-finder-tab-close';
+			button.className = 'pdk-finder-tab-close';
 			button.dataset.aosNoDrag = '';
 			button.setAttribute('aria-label', `${getMenuLabel('close_tab', 'Close Tab')}: ${label}`);
-			button.appendChild(dom.createElement('span', 'aos-finder-tab-close-icon'));
+			button.appendChild(dom.createElement('span', 'pdk-finder-tab-close-icon'));
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
@@ -1043,13 +1709,13 @@
 		}
 
 		function createFolderTabButton(win, tab, activeTabId) {
-			const item = dom.createElement('div', `aos-finder-tab${tab.id === activeTabId ? ' is-active' : ''}`);
+			const item = dom.createElement('div', `pdk-finder-tab${tab.id === activeTabId ? ' is-active' : ''}`);
 			const button = document.createElement('button');
 			const label = getFolderTabTitle(tab);
 
 			item.setAttribute('role', 'presentation');
 			button.type = 'button';
-			button.className = 'aos-finder-tab-button';
+			button.className = 'pdk-finder-tab-button';
 			button.dataset.aosNoDrag = '';
 			button.setAttribute('aria-selected', tab.id === activeTabId ? 'true' : 'false');
 			button.setAttribute('role', 'tab');
@@ -1067,12 +1733,12 @@
 
 		function createFolderTabs(win) {
 			const state = getFolderWindowTabs(win, win && win.dataset ? win.dataset.aosFolderWindow : '');
-			const tabBar = dom.createElement('div', 'aos-finder-tabs');
-			const list = dom.createElement('div', 'aos-finder-tab-list');
+			const tabBar = dom.createElement('div', 'pdk-finder-tabs');
+			const list = dom.createElement('div', 'pdk-finder-tab-list');
 			const addButton = document.createElement('button');
 			const activeTab = getActiveFolderTab(win);
 
-			if (state.tabs.length < 2) {
+			if (isFileExplorerLayout() || state.tabs.length < 2) {
 				return null;
 			}
 
@@ -1084,10 +1750,10 @@
 			});
 
 			addButton.type = 'button';
-			addButton.className = 'aos-finder-tab-add';
+			addButton.className = 'pdk-finder-tab-add';
 			addButton.dataset.aosNoDrag = '';
 			addButton.setAttribute('aria-label', getMenuLabel('new_tab', 'New Tab'));
-			addButton.appendChild(dom.createElement('span', 'aos-finder-tab-add-icon'));
+			addButton.appendChild(dom.createElement('span', 'pdk-finder-tab-add-icon'));
 			addButton.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
@@ -1099,33 +1765,285 @@
 			return tabBar;
 		}
 
+		function createExplorerTitlebarTabCloseButton(win, tabId, label) {
+			const button = document.createElement('button');
+
+			button.type = 'button';
+			button.className = 'pdk-explorer-titlebar-tab-close';
+			button.dataset.aosNoDrag = '';
+			button.setAttribute('aria-label', `${getMenuLabel('close_tab', 'Close Tab')}: ${label}`);
+			button.appendChild(dom.createElement('span', 'pdk-explorer-titlebar-tab-close-icon'));
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				closeFolderTab(win, tabId);
+			});
+
+			return button;
+		}
+
+		function createExplorerTitlebarTab(win, tab, activeTabId) {
+			const folder = getFolder(tab.folderId);
+			const label = getFolderTabTitle(tab);
+			const item = dom.createElement('span', `pdk-explorer-titlebar-tab${tab.id === activeTabId ? ' is-active' : ''}`);
+			const button = document.createElement('button');
+			const icon = dom.createElement('span', 'pdk-explorer-titlebar-tab-icon');
+			const text = dom.createElement('span', 'pdk-explorer-titlebar-tab-text', label);
+
+			item.setAttribute('role', 'presentation');
+			button.type = 'button';
+			button.className = 'pdk-explorer-titlebar-tab-button';
+			button.dataset.aosNoDrag = '';
+			button.setAttribute('aria-selected', tab.id === activeTabId ? 'true' : 'false');
+			button.setAttribute('role', 'tab');
+			icon.appendChild(dom.createIcon(folder && folder.icon ? folder.icon : 'dashicons-category'));
+			button.append(icon, text);
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				activateFolderTab(win, tab.id);
+			});
+
+			item.append(button, createExplorerTitlebarTabCloseButton(win, tab.id, label));
+
+			return item;
+		}
+
+		function syncExplorerTitlebarTabControls(win, folderId) {
+			const titlebar = win ? win.querySelector('.pdk-window-titlebar') : null;
+			const label = titlebar ? titlebar.querySelector('.pdk-window-titlebar-label') : null;
+			const controls = titlebar ? titlebar.querySelector('.pdk-window-controls') : null;
+			let strip = titlebar ? titlebar.querySelector('.pdk-explorer-titlebar-tab-strip') : null;
+			let addButton = titlebar ? titlebar.querySelector('.pdk-explorer-titlebar-new-tab') : null;
+
+			if (!titlebar) {
+				return false;
+			}
+
+			if (!isFileExplorerLayout()) {
+				if (label) {
+					label.classList.remove('pdk-explorer-titlebar-tab-active');
+					label.removeAttribute('role');
+					label.removeAttribute('aria-selected');
+					const closeButton = label.querySelector('.pdk-explorer-titlebar-tab-close');
+					if (closeButton) {
+						closeButton.remove();
+					}
+				}
+				if (addButton) {
+					addButton.remove();
+				}
+				if (strip) {
+					if (label) {
+						if (controls) {
+							titlebar.insertBefore(label, controls);
+						} else {
+							titlebar.appendChild(label);
+						}
+					}
+					strip.remove();
+				}
+				return true;
+			}
+
+			if (!label) {
+				return false;
+			}
+
+				if (!strip) {
+					strip = dom.createElement('div', 'pdk-explorer-titlebar-tab-strip');
+					strip.setAttribute('aria-label', getMenuLabel('folder_tabs', 'Folder Tabs'));
+					strip.setAttribute('role', 'tablist');
+				if (controls) {
+					titlebar.insertBefore(strip, controls);
+				} else {
+					titlebar.appendChild(strip);
+				}
+			}
+
+			if (!addButton) {
+				addButton = document.createElement('button');
+				addButton.type = 'button';
+				addButton.className = 'pdk-explorer-titlebar-new-tab';
+				addButton.dataset.aosNoDrag = '';
+				addButton.setAttribute('aria-label', getMenuLabel('new_tab', 'New Tab'));
+				addButton.appendChild(dom.createElement('span', 'pdk-explorer-titlebar-new-tab-icon'));
+				addButton.addEventListener('click', (event) => {
+					const activeTab = getActiveFolderTab(win, win && win.dataset ? win.dataset.aosFolderWindow : folderId);
+					event.preventDefault();
+					event.stopPropagation();
+					addFolderTab(win, activeTab && activeTab.folderId ? activeTab.folderId : folderId);
+				});
+			}
+
+			const state = getFolderWindowTabs(win, folderId);
+			const activeTabId = state.activeTabId;
+			const activeTab = getActiveFolderTab(win, folderId);
+			const activeLabel = activeTab ? getFolderTabTitle(activeTab) : getFolderLabel(folderId);
+			const activeCloseButton = label.querySelector('.pdk-explorer-titlebar-tab-close');
+			const nodes = [];
+
+			label.classList.add('pdk-explorer-titlebar-tab-active');
+			label.dataset.aosNoDrag = '';
+			label.setAttribute('aria-selected', 'true');
+			label.setAttribute('role', 'tab');
+			if (activeCloseButton) {
+				activeCloseButton.remove();
+			}
+			label.appendChild(createExplorerTitlebarTabCloseButton(win, activeTabId, activeLabel));
+			state.tabs.forEach((tab) => {
+				nodes.push(tab.id === activeTabId ? label : createExplorerTitlebarTab(win, tab, activeTabId));
+			});
+			if (!nodes.includes(label)) {
+				nodes.unshift(label);
+			}
+			nodes.push(addButton);
+			strip.replaceChildren(...nodes);
+
+			return true;
+		}
+
 		function createFolderSidebarIcon(folder) {
-			const icon = dom.createElement('span', 'aos-settings-sidebar-icon aos-settings-sidebar-icon-blue aos-finder-sidebar-icon');
+			const icon = dom.createElement('span', 'pdk-settings-sidebar-icon pdk-settings-sidebar-icon-blue pdk-finder-sidebar-icon');
 			icon.appendChild(dom.createIcon(folder && folder.icon ? folder.icon : 'dashicons-category'));
 
 			return icon;
 		}
 
-		function createFolderSidebar(folderId, win) {
-			const sidebar = dom.createElement('aside', 'aos-settings-sidebar aos-finder-sidebar');
-			const dragZone = dom.createElement('div', 'aos-split-sidebar-drag-zone');
-			const nav = dom.createElement('nav', 'aos-settings-sidebar-nav aos-finder-sidebar-nav');
+		function createExplorerSidebarIcon(iconName) {
+			const icon = dom.createElement('span', 'pdk-settings-sidebar-icon pdk-finder-sidebar-icon pdk-explorer-sidebar-icon');
+			icon.appendChild(dom.createIcon(iconName || 'dashicons-category'));
 
-			sidebar.setAttribute('aria-label', 'Folders');
+			return icon;
+		}
+
+		function createExplorerSidebarButton(options = {}) {
+			const button = document.createElement('button');
+
+			button.type = 'button';
+			button.className = `pdk-settings-sidebar-item pdk-finder-sidebar-item pdk-explorer-sidebar-item${options.active ? ' is-active' : ''}${options.pinned ? ' has-pin' : ''}`;
+			if (options.context) {
+				button.dataset.aosContext = options.context;
+			}
+			if (options.id) {
+				button.dataset.aosContextId = options.id;
+			}
+			if (options.label) {
+				button.dataset.aosContextLabel = options.label;
+			}
+			if (options.active) {
+				button.setAttribute('aria-current', 'page');
+			}
+			button.appendChild(createExplorerSidebarIcon(options.icon));
+			button.appendChild(dom.createElement('span', 'pdk-settings-sidebar-label', options.label || 'Folder'));
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				if (typeof options.onClick === 'function') {
+					options.onClick();
+				}
+			});
+
+			return button;
+		}
+
+		function createExplorerSidebarStaticItem(label, iconName, options = {}) {
+			const item = dom.createElement('div', `pdk-settings-sidebar-item pdk-finder-sidebar-item pdk-explorer-sidebar-item pdk-explorer-sidebar-static${options.collapsed ? ' is-collapsed' : ''}`);
+
+			item.setAttribute('role', 'treeitem');
+			item.setAttribute('aria-label', label);
+			if (options.collapsed) {
+				item.setAttribute('aria-expanded', 'false');
+			}
+			if (options.collapsed) {
+				item.appendChild(dom.createElement('span', 'pdk-explorer-sidebar-expander'));
+			}
+			item.appendChild(createExplorerSidebarIcon(iconName));
+			item.appendChild(dom.createElement('span', 'pdk-settings-sidebar-label', label));
+
+			return item;
+		}
+
+		function createFolderSidebar(folderId, win, layout = getFolderLayout()) {
+			const isExplorer = layout === 'file-explorer';
+			const sidebar = dom.createElement('aside', `pdk-settings-sidebar pdk-finder-sidebar${isExplorer ? ' pdk-explorer-sidebar' : ''}`);
+			const dragZone = dom.createElement('div', 'pdk-split-sidebar-drag-zone');
+			const nav = dom.createElement('nav', 'pdk-settings-sidebar-nav pdk-finder-sidebar-nav');
+
+			sidebar.setAttribute('aria-label', isExplorer ? 'Navigation pane' : 'Folders');
 			dragZone.dataset.aosDragHandle = '';
 			dragZone.setAttribute('aria-hidden', 'true');
-			sidebar.appendChild(dragZone);
-			sidebar.appendChild(dom.createElement('div', 'aos-finder-sidebar-heading', 'Folders'));
+			if (!isExplorer) {
+				sidebar.appendChild(dragZone);
+			}
+			if (!isExplorer) {
+				sidebar.appendChild(dom.createElement('div', 'pdk-finder-sidebar-heading', 'Folders'));
+			}
+
+			if (isExplorer) {
+				const primaryGroup = dom.createElement('div', 'pdk-settings-sidebar-group pdk-explorer-sidebar-group pdk-explorer-sidebar-group-primary');
+				const folderGroup = dom.createElement('div', 'pdk-settings-sidebar-group pdk-explorer-sidebar-group pdk-explorer-sidebar-group-folders');
+				const systemGroup = dom.createElement('div', 'pdk-settings-sidebar-group pdk-explorer-sidebar-group pdk-explorer-sidebar-group-system');
+				const currentFolder = getFolder(folderId);
+				const mediaApp = appMap.get('media');
+
+				primaryGroup.appendChild(createExplorerSidebarButton({
+					active: !isTrashFolderId(folderId),
+					context: 'folder',
+					icon: currentFolder && currentFolder.icon ? currentFolder.icon : 'dashicons-admin-home',
+					id: folderId,
+					label: getMenuLabel('home', 'Home'),
+					onClick() {
+						renderFolderWindow(win, folderId);
+					}
+				}));
+				if (mediaApp) {
+					primaryGroup.appendChild(createExplorerSidebarButton({
+						context: 'app',
+						icon: mediaApp.icon || 'dashicons-format-gallery',
+						id: mediaApp.id,
+						label: getMenuLabel('gallery', 'Gallery'),
+						onClick() {
+							openApp(mediaApp.id);
+						}
+					}));
+				}
+
+				getFolders().forEach((folder) => {
+					if (!folder || folder.id === trashFolderId) {
+						return;
+					}
+					folderGroup.appendChild(createExplorerSidebarButton({
+						context: 'folder',
+						icon: folder.icon || 'dashicons-category',
+						id: folder.id,
+						label: folder.label || 'Folder',
+						pinned: true,
+						onClick() {
+							if (win && folder.id !== folderId) {
+								renderFolderWindow(win, folder.id);
+							}
+						}
+					}));
+				});
+
+				systemGroup.appendChild(createExplorerSidebarStaticItem(getMenuLabel('this_pc', 'This PC'), 'dashicons-desktop', { collapsed: true }));
+				systemGroup.appendChild(createExplorerSidebarStaticItem(getMenuLabel('network', 'Network'), 'dashicons-admin-site-alt3', { collapsed: true }));
+				nav.append(primaryGroup, folderGroup, systemGroup);
+				sidebar.appendChild(nav);
+
+				return sidebar;
+			}
 
 			getFolders().forEach((folder) => {
 				const button = document.createElement('button');
 				button.type = 'button';
-				button.className = 'aos-settings-sidebar-item aos-finder-sidebar-item';
+				button.className = 'pdk-settings-sidebar-item pdk-finder-sidebar-item';
 				button.dataset.aosContext = 'folder';
 				button.dataset.aosContextId = folder.id;
 				button.dataset.aosContextLabel = folder.label || 'Folder';
 				button.appendChild(createFolderSidebarIcon(folder));
-				button.appendChild(dom.createElement('span', 'aos-settings-sidebar-label', folder.label || 'Folder'));
+				button.appendChild(dom.createElement('span', 'pdk-settings-sidebar-label', folder.label || 'Folder'));
 				if (folder.id === folderId) {
 					button.classList.add('is-active');
 					button.setAttribute('aria-current', 'page');
@@ -1146,21 +2064,21 @@
 		}
 
 		function createFolderMain(folderId, win) {
-			const folder = getFolder(folderId);
-			const isTrash = isTrashFolderId(folderId);
-			const folderApps = isTrash ? [] : getFolderApps(folderId);
-			const trashItems = isTrash ? getTrashItems() : [];
-			const removable = isUserFolder(folderId);
+				const folder = getFolder(folderId);
+				const isTrash = isTrashFolderId(folderId);
+				const folderItems = isTrash ? [] : getFolderDisplayItems(folderId, win);
+				const trashItems = isTrash ? getTrashItems() : [];
+				const removable = isUserFolder(folderId);
 			const toolbarDisplayMode = getFolderToolbarDisplayMode(win);
-			const main = dom.createElement('main', 'aos-settings-main aos-finder-main');
-			const header = dom.createElement('header', 'aos-settings-pane-header aos-finder-toolbar');
-			const leading = dom.createElement('div', 'aos-finder-toolbar-leading');
-			const historyGroup = dom.createElement('div', 'aos-finder-toolbar-history-group');
-			const history = dom.createElement('div', 'aos-settings-history aos-finder-history');
-			const title = dom.createElement('h1', 'aos-finder-title', folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin'));
+			const main = dom.createElement('main', 'pdk-settings-main pdk-finder-main');
+			const header = dom.createElement('header', 'pdk-settings-pane-header pdk-finder-toolbar');
+			const leading = dom.createElement('div', 'pdk-finder-toolbar-leading');
+			const historyGroup = dom.createElement('div', 'pdk-finder-toolbar-history-group');
+			const history = dom.createElement('div', 'pdk-settings-history pdk-finder-history');
+			const title = dom.createElement('h1', 'pdk-finder-title', folder && folder.label ? folder.label : getMenuLabel('admin', 'Admin'));
 			const tabs = createFolderTabs(win);
 			const subbar = isTrash ? createTrashSubbar() : null;
-			const pane = dom.createElement('div', 'aos-settings-pane aos-finder-pane');
+			const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane');
 
 			header.dataset.aosContext = 'folder-toolbar';
 			header.dataset.aosContextId = folderId;
@@ -1171,14 +2089,14 @@
 			history.dataset.aosNoDrag = '';
 			history.appendChild(createFolderHistoryButton('back', win));
 			history.appendChild(createFolderHistoryButton('forward', win));
-			historyGroup.append(history, dom.createElement('span', 'aos-finder-toolbar-caption', 'Back/Forward'));
+			historyGroup.append(history, dom.createElement('span', 'pdk-finder-toolbar-caption', 'Back/Forward'));
 			leading.append(historyGroup, title);
 			header.append(leading, createFolderToolbarActions());
 
 			if (isTrash) {
 				if (trashItems.length) {
 					const grid = document.createElement('div');
-					grid.className = 'aos-app-grid aos-finder-grid aos-finder-trash-grid';
+					grid.className = 'pdk-app-grid pdk-finder-grid pdk-finder-trash-grid';
 					trashItems.forEach((item) => grid.appendChild(createTrashItemButton(item)));
 					pane.appendChild(grid);
 				}
@@ -1186,24 +2104,87 @@
 				return main;
 			}
 
-			if (!folderApps.length) {
-				main.append(...[header, tabs, pane].filter(Boolean));
-				return main;
-			}
+				if (!folderItems.length) {
+					main.append(...[header, tabs, pane].filter(Boolean));
+					return main;
+				}
 
-			const grid = document.createElement('div');
-			grid.className = 'aos-app-grid aos-finder-grid';
-			folderApps.forEach((app) => grid.appendChild(createFolderAppButton(app, folderId, removable)));
-			pane.appendChild(grid);
-			main.append(...[header, tabs, pane].filter(Boolean));
+				const grid = document.createElement('div');
+				grid.className = 'pdk-app-grid pdk-finder-grid';
+				folderItems.forEach((item) => grid.appendChild(createFolderDisplayButton(item, folderId, removable, win)));
+				pane.appendChild(grid);
+				main.append(...[header, tabs, pane].filter(Boolean));
 
 			return main;
 		}
 
-		function createFolderContent(folderId, win = null) {
+				function createExplorerFolderMain(folderId, win) {
+					const folder = getFolder(folderId);
+					const isTrash = isTrashFolderId(folderId);
+					const folderItems = isTrash ? [] : getFolderDisplayItems(folderId, win);
+					const trashItems = isTrash ? getTrashItems() : [];
+					const removable = isUserFolder(folderId);
+				const main = dom.createElement('main', 'pdk-settings-main pdk-finder-main pdk-explorer-main');
+				const subbar = isTrash ? createTrashSubbar() : null;
+				const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane pdk-explorer-pane');
+
+				pane.dataset.aosExplorerViewMode = getExplorerViewMode(win);
+
+				if (isTrash && trashItems.length) {
+				const grid = document.createElement('div');
+				grid.className = 'pdk-app-grid pdk-finder-grid pdk-finder-trash-grid';
+				trashItems.forEach((item) => grid.appendChild(createTrashItemButton(item)));
+				pane.appendChild(grid);
+				} else if (!isTrash && folderItems.length) {
+					const grid = document.createElement('div');
+					grid.className = 'pdk-app-grid pdk-finder-grid';
+					folderItems.forEach((item) => grid.appendChild(createFolderDisplayButton(item, folderId, removable, win)));
+					pane.appendChild(grid);
+				}
+
+			main.dataset.aosFolderId = folder && folder.id ? folder.id : folderId;
+			main.append(...[
+				subbar,
+					pane,
+					createExplorerStatusBar(folderId, win)
+				].filter(Boolean));
+
+			return main;
+		}
+
+		function createExplorerFolderContent(folderId, win = null) {
 			const content = document.createElement('div');
-			content.className = 'aos-folder-content';
-			content.append(createFolderSidebar(folderId, win), createFolderMain(folderId, win));
+			const body = dom.createElement('div', 'pdk-folder-content-explorer-body');
+
+			content.className = 'pdk-folder-content pdk-folder-content-explorer';
+			content.dataset.aosFolderLayout = 'file-explorer';
+			body.append(
+				createFolderSidebar(folderId, win, 'file-explorer'),
+				createExplorerFolderMain(folderId, win)
+			);
+			content.append(
+				createExplorerAddressBar(folderId, win),
+				createExplorerCommandBar(folderId, win),
+				body
+			);
+
+			return content;
+		}
+
+		function createFolderContent(folderId, win = null) {
+			const layout = getFolderLayout();
+
+			if (layout === 'file-explorer') {
+				return createExplorerFolderContent(folderId, win);
+			}
+
+			const content = document.createElement('div');
+			content.className = `pdk-folder-content${layout === 'file-explorer' ? ' pdk-folder-content-explorer' : ''}`;
+			content.dataset.aosFolderLayout = layout;
+			content.append(
+				createFolderSidebar(folderId, win, layout),
+				createFolderMain(folderId, win)
+			);
 
 			return content;
 		}
@@ -1211,7 +2192,7 @@
 		function updateFolderWindowMeta(win, folderId) {
 			const folder = getFolder(folderId);
 			const folderTitle = getFolderTitle(folder);
-			const titlebarLabel = win ? win.querySelector('.aos-window-titlebar-label-text') : null;
+			const titlebarLabel = win ? win.querySelector('.pdk-window-titlebar-label-text') : null;
 
 			if (!win || !folder) {
 				return false;
@@ -1230,7 +2211,7 @@
 		}
 
 		function renderFolderWindow(win, folderId, options = {}) {
-			const body = win ? win.querySelector('.aos-window-body') : null;
+			const body = win ? win.querySelector('.pdk-window-body') : null;
 			if (!win || !body) {
 				return false;
 			}
@@ -1265,12 +2246,22 @@
 			}
 
 			updateFolderWindowMeta(win, folderId);
+			syncExplorerTitlebarTabControls(win, folderId);
 			win.aosSerializeFolderTabs = () => serializeFolderTabs(win);
-			setFolderToolbarDisplayMode(win, getFolderToolbarDisplayMode(win));
-			body.replaceChildren(createFolderContent(folderId, win));
-			if (manager && typeof manager.makeDraggable === 'function') {
-				manager.makeDraggable(win);
-			}
+				win.dataset.aosFolderLayout = getFolderLayout();
+				win.dataset.aosExplorerViewMode = getExplorerViewMode(win);
+				win.dataset.aosExplorerSortMode = getExplorerSortMode(win);
+				body.dataset.aosFolderLayout = getFolderLayout();
+				body.classList.toggle('pdk-explorer-body', isFileExplorerLayout());
+				body.classList.toggle('pdk-finder-body', !isFileExplorerLayout());
+				setFolderToolbarDisplayMode(win, getFolderToolbarDisplayMode(win));
+				body.replaceChildren(createFolderContent(folderId, win));
+				if (isFileExplorerLayout()) {
+					setExplorerViewMode(win, getExplorerViewMode(win));
+				}
+				if (manager && typeof manager.makeDraggable === 'function') {
+					manager.makeDraggable(win);
+				}
 			bindFolderToolbarOverflow(win);
 
 			if (options.touch !== false) {
@@ -1292,7 +2283,7 @@
 				return null;
 			}
 
-			return shell.querySelector(`.aos-window[data-aos-folder-window="${dom.escapeAttribute(folderId)}"]:not(.is-closed)`);
+			return shell.querySelector(`.pdk-window[data-pdk-folder-window="${dom.escapeAttribute(folderId)}"]:not(.is-closed)`);
 		}
 
 		function refreshFolderWindow(folderId) {
@@ -1348,12 +2339,13 @@
 			const folder = getFolder(folderId);
 			const folderTitle = getFolderTitle(folder);
 			const existing = getFolderWindow(folderId);
+			const forceNewWindow = options.forceNewWindow === true;
 
 			if (!folder) {
 				return null;
 			}
 
-			if (existing) {
+			if (existing && !forceNewWindow) {
 				renderFolderWindow(existing, folderId, {
 					replaceHistory: true,
 					touch: options.touch
@@ -1368,7 +2360,7 @@
 			}
 
 			const tabWindow = getFolderWindowWithTab(folderId);
-			if (tabWindow) {
+			if (tabWindow && !forceNewWindow) {
 				const tabState = folderWindowHistory.get(tabWindow);
 				const tab = tabState && Array.isArray(tabState.tabs)
 					? tabState.tabs.find((item) => item.folderId === folderId)
@@ -1391,8 +2383,10 @@
 				appId: isTrashFolderId(folderId) ? 'trash' : '',
 				title: folderTitle,
 				icon: folder && folder.icon ? folder.icon : 'dashicons-admin-generic',
+				titlebarIcon: isFileExplorerLayout() && folder && folder.icon ? folder.icon : '',
+				titlebarLabel: isFileExplorerLayout() ? folderTitle : '',
 				content: placeholder,
-				bodyClass: 'aos-window-body aos-folder-body aos-finder-body',
+				bodyClass: `pdk-window-body pdk-folder-body ${isFileExplorerLayout() ? 'pdk-explorer-body' : 'pdk-finder-body'}`,
 				windowKind: 'folder',
 				state: options.state || null,
 				skipFocus: options.skipFocus === true,
@@ -1416,7 +2410,7 @@
 		}
 
 		function refreshTrashWindows() {
-			Array.from(shell.querySelectorAll(`.aos-window[data-aos-folder-window="${dom.escapeAttribute(trashFolderId)}"]:not(.is-closed)`))
+			Array.from(shell.querySelectorAll(`.pdk-window[data-pdk-folder-window="${dom.escapeAttribute(trashFolderId)}"]:not(.is-closed)`))
 				.forEach((win) => {
 					renderFolderWindow(win, trashFolderId, {
 						replaceHistory: true,
@@ -1431,14 +2425,14 @@
 				return null;
 			}
 
-			return shell.querySelector(`.aos-window[data-aos-folder-info-window="${dom.escapeAttribute(folderId)}"]:not(.is-closed)`);
+			return shell.querySelector(`.pdk-window[data-pdk-folder-info-window="${dom.escapeAttribute(folderId)}"]:not(.is-closed)`);
 		}
 
 		function refreshFolderInfoWindow(folderId) {
 			const win = getFolderInfoWindow(folderId);
-			const body = win ? win.querySelector('.aos-window-body') : null;
+			const body = win ? win.querySelector('.pdk-window-body') : null;
 			const info = getFolderInfo(folderId);
-			if (!win || !body || !info || !window.WPAdminOS.apps.createFolderInfoWindow) {
+			if (!win || !body || !info || !window.PufferDesk.apps.createFolderInfoWindow) {
 				return false;
 			}
 
@@ -1446,7 +2440,7 @@
 			win.dataset.aosContextLabel = title;
 			win.dataset.aosWindowTitle = title;
 			win.setAttribute('aria-label', `${title} window`);
-			const titlebarLabel = win.querySelector('.aos-window-titlebar-label-text');
+			const titlebarLabel = win.querySelector('.pdk-window-titlebar-label-text');
 			if (titlebarLabel) {
 				titlebarLabel.textContent = title;
 			}
@@ -1468,7 +2462,7 @@
 		}
 
 		function getFolderInfoSafeTop() {
-			const menuBar = shell.querySelector('.aos-menu-bar');
+			const menuBar = shell.querySelector('.pdk-menu-bar');
 			const menuBarHeight = menuBar && shell.dataset.aosMenuBarHidden !== '1'
 				? Math.ceil(menuBar.getBoundingClientRect().height)
 				: 0;
@@ -1477,7 +2471,7 @@
 		}
 
 		function fitFolderInfoWindow(win) {
-			const desktop = shell.querySelector('.aos-desktop');
+			const desktop = shell.querySelector('.pdk-desktop');
 			if (!win || !desktop) {
 				return;
 			}
@@ -1503,7 +2497,7 @@
 			if (win.dataset.aosFolderInfoAutoSizeBound !== '1') {
 				win.dataset.aosFolderInfoAutoSizeBound = '1';
 				win.addEventListener('toggle', (event) => {
-					if (!event.target || !event.target.classList || !event.target.classList.contains('aos-info-panel-section')) {
+					if (!event.target || !event.target.classList || !event.target.classList.contains('pdk-info-panel-section')) {
 						return;
 					}
 
@@ -1517,7 +2511,7 @@
 		function createFolderInfoContent(info) {
 			const provider = getFolderProvider();
 
-			return window.WPAdminOS.apps.createFolderInfoWindow(info, {
+			return window.PufferDesk.apps.createFolderInfoWindow(info, {
 				onComment(comment) {
 					if (provider && typeof provider.setFolderComment === 'function') {
 						provider.setFolderComment(info.id, comment);
@@ -1537,7 +2531,7 @@
 		function openFolderInfo(folderId) {
 			const info = getFolderInfo(folderId);
 			const existing = getFolderInfoWindow(folderId);
-			if (!info || !window.WPAdminOS.apps.createFolderInfoWindow) {
+			if (!info || !window.PufferDesk.apps.createFolderInfoWindow) {
 				return null;
 			}
 
@@ -1550,7 +2544,7 @@
 			const title = `${info.label} Info`;
 			const win = manager.createWindow({
 				appId: `folder-info-${info.id}`,
-				bodyClass: 'aos-window-body aos-info-panel-body',
+				bodyClass: 'pdk-window-body pdk-info-panel-body',
 				content: createFolderInfoContent(info),
 				disabledControls: ['maximize'],
 				height: 'auto',
@@ -1584,25 +2578,25 @@
 
 		function bindShellClicks() {
 			shell.addEventListener('click', (event) => {
-				const appButton = event.target.closest('[data-aos-open-app]');
+				const appButton = event.target.closest('[data-pdk-open-app]');
 				if (appButton) {
-					if (appButton.matches('.aos-desktop-app')) {
+					if (appButton.matches('.pdk-desktop-app')) {
 						return;
 					}
 					openApp(appButton.dataset.aosOpenApp);
 					return;
 				}
 
-				const folderButton = event.target.closest('[data-aos-open-folder]');
+				const folderButton = event.target.closest('[data-pdk-open-folder]');
 				if (folderButton) {
-					if (folderButton.matches('.aos-desktop-folder')) {
+					if (folderButton.matches('.pdk-desktop-folder')) {
 						return;
 					}
 					openFolder(folderButton.dataset.aosOpenFolder);
 					return;
 				}
 
-				const urlButton = event.target.closest('[data-aos-open-url]');
+				const urlButton = event.target.closest('[data-pdk-open-url]');
 				if (urlButton) {
 					openUrl(urlButton.dataset.aosOpenUrl, urlButton.dataset.aosTitle, urlButton.dataset.aosIcon);
 					return;
@@ -1610,15 +2604,15 @@
 			});
 
 			shell.addEventListener('dblclick', (event) => {
-				const appButton = event.target.closest('[data-aos-open-app]');
-				if (appButton && appButton.matches('.aos-desktop-app')) {
+				const appButton = event.target.closest('[data-pdk-open-app]');
+				if (appButton && appButton.matches('.pdk-desktop-app')) {
 					event.preventDefault();
 					openApp(appButton.dataset.aosOpenApp);
 					return;
 				}
 
-				const folderButton = event.target.closest('[data-aos-open-folder]');
-				if (!folderButton || !folderButton.matches('.aos-desktop-folder') || folderButton.classList.contains('is-renaming')) {
+				const folderButton = event.target.closest('[data-pdk-open-folder]');
+				if (!folderButton || !folderButton.matches('.pdk-desktop-folder') || folderButton.classList.contains('is-renaming')) {
 					return;
 				}
 
@@ -1627,7 +2621,7 @@
 			});
 		}
 
-		shell.addEventListener('wpAdminOS:trash-change', refreshTrashWindows);
+		shell.addEventListener('pufferDesk:trash-change', refreshTrashWindows);
 
 		return {
 			bindShellClicks,
@@ -1637,17 +2631,30 @@
 			openAbout,
 			openApp,
 			openFolder,
+			openFolderWindow(folderId, options = {}) {
+				return openFolder(folderId, Object.assign({}, options, {
+					forceNewWindow: true
+				}));
+			},
 			openFolderTab,
 			openFolderInfo,
 			openTrash,
 			openSettingsPanel,
 			openSiteAbout,
-			openUrl,
-			refreshFolderInfoWindow,
-			refreshFolderWindow,
-			setFolderProvider(provider) {
-				folderProvider = provider && typeof provider === 'object' ? provider : null;
-			},
+				openUrl,
+				refreshFolderInfoWindow,
+				refreshFolderWindow,
+				setFolderSortMode(folderId, mode, options = {}) {
+					const win = options.windowElement || getFolderWindow(folderId);
+					return setExplorerSortMode(win, mode);
+				},
+				setFolderViewMode(folderId, mode, options = {}) {
+					const win = options.windowElement || getFolderWindow(folderId);
+					return setExplorerViewMode(win, mode);
+				},
+				setFolderProvider(provider) {
+					folderProvider = provider && typeof provider === 'object' ? provider : null;
+				},
 			runSearch
 		};
 	};

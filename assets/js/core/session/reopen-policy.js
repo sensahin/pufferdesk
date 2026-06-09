@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.session = window.WPAdminOS.session || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.session = window.PufferDesk.session || {};
 
-	window.WPAdminOS.session.createReopenPolicy = function createReopenPolicy(storageKey) {
-		const keyBase = storageKey || 'wp-adminos';
+	window.PufferDesk.session.createReopenPolicy = function createReopenPolicy(storageKey) {
+		const keyBase = storageKey || 'pufferdesk-admin-desktop';
 		const skipWindowRestoreKey = `${keyBase}:skip-window-restore-once`;
 
 		function getSessionStorage() {

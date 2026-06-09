@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
-	window.WPAdminOS.apps.settings = window.WPAdminOS.apps.settings || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
+	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
-	window.WPAdminOS.apps.settings.createAppearancePanel = function createAppearancePanel(ctx) {
+	window.PufferDesk.apps.settings.createAppearancePanel = function createAppearancePanel(ctx) {
 		const {
 			config,
 			createAccentGroup,
@@ -22,22 +22,22 @@
 		} = ctx;
 		const capabilities = ctx.capabilities && typeof ctx.capabilities === 'object' ? ctx.capabilities : {};
 		const appearanceCapabilities = capabilities.appearance && typeof capabilities.appearance === 'object' ? capabilities.appearance : {};
-		const panel = ctx.dom.createElement('div', 'aos-settings-pane-panel');
-		const appearanceSection = createSection('', 'aos-settings-section-appearance');
-		const themeSection = createSection('', 'aos-settings-section-theme');
+		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel');
+		const appearanceSection = createSection('', 'pdk-settings-section-appearance');
+		const themeSection = createSection('', 'pdk-settings-section-theme');
 		let installedThemeSection = null;
 
 		panel.dataset.aosSettingsPanel = 'appearance';
 		appearanceSection.appendChild(createSettingsRow(
 			t('appearance.appearanceLabel', 'Appearance'),
-			createOptionGroup('mode', settingsLabels.getOptions('appearance.modeOptions'), status, 'aos-settings-preview-option', 'aos-settings-appearance-preview')
+			createOptionGroup('mode', settingsLabels.getOptions('appearance.modeOptions'), status, 'pdk-settings-preview-option', 'pdk-settings-appearance-preview')
 		));
 		if (appearanceCapabilities.windowMaterial !== false) {
 			appearanceSection.appendChild(createSettingsRow(
 				t('appearance.materialLabel', 'Liquid Glass'),
-				createOptionGroup('window_material', settingsLabels.getOptions('appearance.materialOptions'), status, 'aos-settings-preview-option', 'aos-settings-material-preview'),
+				createOptionGroup('window_material', settingsLabels.getOptions('appearance.materialOptions'), status, 'pdk-settings-preview-option', 'pdk-settings-material-preview'),
 				t('appearance.materialDescription', 'Choose your preferred Liquid Glass look.'),
-				'aos-settings-row-fluid-label'
+				'pdk-settings-row-fluid-label'
 			));
 		}
 
@@ -47,14 +47,14 @@
 		if (appearanceCapabilities.iconWidgetStyle !== false) {
 			themeSection.appendChild(createSettingsRow(
 				t('appearance.iconWidgetStyleLabel', 'Icon & widget style'),
-				createOptionGroup('icon_widget_style', settingsLabels.getOptions('appearance.iconWidgetStyleOptions'), status, 'aos-settings-icon-option', 'aos-settings-icon-preview')
+				createOptionGroup('icon_widget_style', settingsLabels.getOptions('appearance.iconWidgetStyleOptions'), status, 'pdk-settings-icon-option', 'pdk-settings-icon-preview')
 			));
 		}
 
 		if (themes.length > 1) {
 			const themeSelect = document.createElement('select');
-			installedThemeSection = createSection('', 'aos-settings-section-installed-theme');
-			themeSelect.className = 'aos-settings-control';
+			installedThemeSection = createSection('', 'pdk-settings-section-installed-theme');
+			themeSelect.className = 'pdk-settings-control';
 			themes.forEach((theme) => {
 				const option = document.createElement('option');
 				option.value = theme.id;

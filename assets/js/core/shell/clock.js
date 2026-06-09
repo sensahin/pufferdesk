@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
-	window.WPAdminOS.shell.bindClock = function bindClock(shell) {
-		const clock = shell.querySelector('[data-aos-clock]');
+	window.PufferDesk.shell.bindClock = function bindClock(shell) {
+		const clock = shell.querySelector('[data-pdk-clock]');
 
 		if (!clock) {
 			return;

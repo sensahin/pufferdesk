@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
-	window.WPAdminOS.apps.settings = window.WPAdminOS.apps.settings || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
+	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
-	window.WPAdminOS.apps.settings.createWallpaperPanel = function createWallpaperPanel(ctx) {
+	window.PufferDesk.apps.settings.createWallpaperPanel = function createWallpaperPanel(ctx) {
 		const {
 			createCollapsibleWallpaperSection,
 			createPhotoWallpaperGroup,
@@ -13,15 +13,15 @@
 			status,
 			t
 		} = ctx;
-		const panel = ctx.dom.createElement('div', 'aos-settings-pane-panel');
+		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel');
 		const wallpaperItems = getWallpaperGroup('wallpapers');
 		const builtInSection = createCollapsibleWallpaperSection(
 			t('wallpaper.wallpapersHeading', 'Wallpapers'),
 			wallpaperItems,
 			status,
 			{
-				sectionClassName: 'aos-settings-section-wallpaper-builtins',
-				gridClassName: 'aos-settings-wallpaper-builtins-grid',
+				sectionClassName: 'pdk-settings-section-wallpaper-builtins',
+				gridClassName: 'pdk-settings-wallpaper-builtins-grid',
 				visibleCount: 4
 			}
 		);
@@ -30,9 +30,9 @@
 			getWallpaperGroup('colors'),
 			status,
 			{
-				sectionClassName: 'aos-settings-section-wallpaper-colors',
-				gridClassName: 'aos-settings-wallpaper-color-grid',
-				optionClassName: 'aos-settings-wallpaper-color-option',
+				sectionClassName: 'pdk-settings-section-wallpaper-colors',
+				gridClassName: 'pdk-settings-wallpaper-color-grid',
+				optionClassName: 'pdk-settings-wallpaper-color-option',
 				visibleCount: 8
 			}
 		);

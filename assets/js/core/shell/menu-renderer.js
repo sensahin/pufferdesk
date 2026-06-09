@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
-	window.WPAdminOS.shell.createMenuItemRenderer = function createMenuItemRenderer(commands) {
-		const dom = window.WPAdminOS.dom;
+	window.PufferDesk.shell.createMenuItemRenderer = function createMenuItemRenderer(commands) {
+		const dom = window.PufferDesk.dom;
 
 		function isIconDescriptor(icon) {
 			return icon && typeof icon === 'object';
@@ -49,7 +49,7 @@
 			}
 
 			const icon = document.createElement('span');
-			icon.className = 'aos-menu-item-icon';
+			icon.className = 'pdk-menu-item-icon';
 			icon.appendChild(dom.createIcon(item.icon));
 
 			return icon;
@@ -63,14 +63,66 @@
 			}
 
 			const label = document.createElement('span');
-			label.className = 'aos-menu-item-label';
+			label.className = 'pdk-menu-item-label';
 			label.textContent = item.label;
 			button.appendChild(label);
 
 			const shortcut = document.createElement('span');
-			shortcut.className = 'aos-menu-item-shortcut';
+			shortcut.className = 'pdk-menu-item-shortcut';
 			shortcut.textContent = submenu ? '›' : getShortcutLabel(item.shortcut);
 			button.appendChild(shortcut);
+		}
+
+		function createActionStrip(item, detail = {}, onExecute = null) {
+			const strip = document.createElement('div');
+			const stripItems = Array.isArray(item.items) ? item.items : [];
+
+			strip.className = 'pdk-menu-action-strip';
+			strip.dataset.aosMenuItem = item.id || 'action-strip';
+			strip.setAttribute('role', 'group');
+			if (item.label) {
+				strip.setAttribute('aria-label', item.label);
+			}
+
+			stripItems.forEach((stripItem) => {
+				const disabled = getItemDisabled(stripItem, detail);
+				const button = document.createElement('button');
+				const label = document.createElement('span');
+
+				button.type = 'button';
+				button.className = 'pdk-menu-action-strip-button';
+				button.dataset.aosMenuItem = stripItem.id || stripItem.command || stripItem.label;
+				button.setAttribute('role', 'menuitem');
+				button.disabled = disabled;
+				button.setAttribute('aria-label', stripItem.label);
+				if (disabled) {
+					button.setAttribute('aria-disabled', 'true');
+				}
+
+				if (shouldRenderIcon(detail) && hasIcon(stripItem)) {
+					const icon = document.createElement('span');
+					icon.className = 'pdk-menu-action-strip-icon';
+					icon.appendChild(dom.createIcon(stripItem.icon));
+					button.appendChild(icon);
+				}
+
+				label.className = 'pdk-menu-action-strip-label';
+				label.textContent = stripItem.label;
+				button.appendChild(label);
+
+				if (stripItem.command && !disabled) {
+					button.addEventListener('click', () => {
+						commands.execute(stripItem, detail);
+						if (typeof onExecute === 'function') {
+							onExecute(stripItem, detail);
+						}
+					});
+				}
+
+				strip.appendChild(button);
+			});
+
+			return strip;
 		}
 
 		function createSubmenu(item, detail = {}, onExecute = null) {
@@ -79,17 +131,17 @@
 			const subPopover = document.createElement('span');
 			let closeTimer = null;
 
-			wrapper.className = 'aos-menu-submenu';
+			wrapper.className = 'pdk-menu-submenu';
 			wrapper.dataset.aosMenuSubmenu = item.id || item.label;
 			button.type = 'button';
-			button.className = 'aos-menu-item aos-menu-submenu-trigger';
+			button.className = 'pdk-menu-item pdk-menu-submenu-trigger';
 			button.dataset.aosMenuItem = item.id || item.label;
 			button.setAttribute('role', 'menuitem');
 			button.setAttribute('aria-haspopup', 'menu');
 			button.setAttribute('aria-expanded', 'false');
 			appendMenuItemContent(button, item, true, detail);
 
-			subPopover.className = 'aos-menu-submenu-popover';
+			subPopover.className = 'pdk-menu-submenu-popover';
 			subPopover.setAttribute('role', 'menu');
 			subPopover.setAttribute('aria-label', item.label);
 			subPopover.replaceChildren(...item.items.map((child) => createItem(child, detail, onExecute)));
@@ -128,7 +180,7 @@
 				if (event.key === 'ArrowRight' || event.key === 'Enter' || event.key === ' ') {
 					event.preventDefault();
 					open();
-					const firstEnabled = subPopover.querySelector('.aos-menu-item:not(:disabled)');
+					const firstEnabled = subPopover.querySelector('.pdk-menu-item:not(:disabled)');
 					if (firstEnabled) {
 						firstEnabled.focus();
 					}
@@ -148,9 +200,13 @@
 		function createItem(item, detail = {}, onExecute = null) {
 			if (item.type === 'separator') {
 				const separator = document.createElement('span');
-				separator.className = 'aos-menu-separator';
+				separator.className = 'pdk-menu-separator';
 				separator.setAttribute('role', 'separator');
 				return separator;
+			}
+
+			if (item.type === 'action-strip') {
+				return createActionStrip(item, detail, onExecute);
 			}
 
 			if (hasSubmenu(item) && !item.disabled) {
@@ -160,7 +216,7 @@
 			const disabled = getItemDisabled(item, detail);
 			const button = document.createElement('button');
 			button.type = 'button';
-			button.className = 'aos-menu-item';
+			button.className = 'pdk-menu-item';
 			button.dataset.aosMenuItem = item.id || item.command || item.label;
 			button.setAttribute('role', 'menuitem');
 			button.disabled = disabled;

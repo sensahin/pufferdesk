@@ -1,14 +1,14 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.widgets = window.WPAdminOS.widgets || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.widgets = window.PufferDesk.widgets || {};
 
-	window.WPAdminOS.widgets.createWidgetManager = function createWidgetManager(shell, options = {}) {
-		const dom = window.WPAdminOS.dom;
-		const desktop = shell.querySelector('.aos-desktop');
-		const layer = shell.querySelector('.aos-widget-layer');
-		const sessionStore = window.WPAdminOS.session.createSessionStore(options.storageKey || '');
+	window.PufferDesk.widgets.createWidgetManager = function createWidgetManager(shell, options = {}) {
+		const dom = window.PufferDesk.dom;
+		const desktop = shell.querySelector('.pdk-desktop');
+		const layer = shell.querySelector('.pdk-widget-layer');
+		const sessionStore = window.PufferDesk.session.createSessionStore(options.storageKey || '');
 		let restoreInProgress = false;
 		let sessionSaveDisabled = false;
 		let saveTimer = null;
@@ -86,7 +86,7 @@
 		}
 
 		function makeDraggable(widget) {
-			const handle = widget.querySelector('[data-aos-widget-drag-handle]');
+			const handle = widget.querySelector('[data-pdk-widget-drag-handle]');
 
 			if (!handle || !desktop) {
 				return;
@@ -140,7 +140,7 @@
 				return [];
 			}
 
-			return Array.from(layer.querySelectorAll('[data-aos-widget]'))
+			return Array.from(layer.querySelectorAll('[data-pdk-widget]'))
 				.map((widget) => {
 					const id = widget.dataset.aosWidget;
 					if (!id) {
@@ -173,8 +173,8 @@
 		}
 
 		function bindClockWidget(widget) {
-			const timeNode = widget.querySelector('[data-aos-widget-clock]');
-			const dateNode = widget.querySelector('[data-aos-widget-clock-date]');
+			const timeNode = widget.querySelector('[data-pdk-widget-clock]');
+			const dateNode = widget.querySelector('[data-pdk-widget-clock-date]');
 
 			if (!timeNode || widget.dataset.aosWidgetClockBound === '1') {
 				return;
@@ -229,7 +229,7 @@
 				return;
 			}
 
-			layer.querySelectorAll('[data-aos-widget]').forEach(bindWidget);
+			layer.querySelectorAll('[data-pdk-widget]').forEach(bindWidget);
 		}
 
 		function restoreSession() {
@@ -249,7 +249,7 @@
 					return;
 				}
 
-				const widget = layer.querySelector(`[data-aos-widget="${dom.escapeAttribute(item.id)}"]`);
+				const widget = layer.querySelector(`[data-pdk-widget="${dom.escapeAttribute(item.id)}"]`);
 				if (widget) {
 					applyWidgetState(widget, item.state);
 				}
@@ -263,7 +263,7 @@
 				return null;
 			}
 
-			return layer.querySelector(`[data-aos-widget="${dom.escapeAttribute(widgetId)}"]`);
+			return layer.querySelector(`[data-pdk-widget="${dom.escapeAttribute(widgetId)}"]`);
 		}
 
 		function setWidgetHidden(widgetOrId, hidden) {
@@ -274,7 +274,7 @@
 
 			widget.hidden = Boolean(hidden);
 			scheduleSave();
-			shell.dispatchEvent(new window.CustomEvent('wpAdminOS:widgets-change', {
+			shell.dispatchEvent(new window.CustomEvent('pufferDesk:widgets-change', {
 				detail: {
 					widgets: serializeWidgets()
 				}
@@ -307,7 +307,7 @@
 		}
 
 		window.addEventListener('beforeunload', saveSession);
-		window.addEventListener('wpAdminOS:workspace-state-changed', handleWorkspaceStateChanged);
+		window.addEventListener('pufferDesk:workspace-state-changed', handleWorkspaceStateChanged);
 
 		return {
 			bindExistingWidgets,

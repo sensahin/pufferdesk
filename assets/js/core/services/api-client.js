@@ -1,12 +1,12 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.services = window.WPAdminOS.services || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.services = window.PufferDesk.services || {};
 
-	window.WPAdminOS.services.api = {
+	window.PufferDesk.services.api = {
 		post(action, data = {}) {
-			const config = window.WPAdminOS.config.get();
+			const config = window.PufferDesk.config.get();
 
 			if (!config.ajaxUrl || !config.nonce) {
 				return Promise.reject(new Error('Settings service unavailable.'));

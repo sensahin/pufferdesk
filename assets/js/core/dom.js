@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
+	window.PufferDesk = window.PufferDesk || {};
 
 	function escapeAttribute(value) {
 		if (window.CSS && typeof window.CSS.escape === 'function') {
@@ -36,7 +36,7 @@
 	}
 
 	function getThemeIconPackUrl() {
-		const config = window.WPAdminOS.config ? window.WPAdminOS.config.get() : (window.wpAdminOS || {});
+		const config = window.PufferDesk.config ? window.PufferDesk.config.get() : (window.pufferDesk || {});
 		const iconPack = config.theme && config.theme.media && config.theme.media.icon_pack ? config.theme.media.icon_pack : null;
 		return iconPack && iconPack.url ? String(iconPack.url) : '';
 	}
@@ -101,7 +101,7 @@
 
 		if (descriptor.type === 'image') {
 			const image = document.createElement('img');
-			image.className = 'aos-icon-image';
+			image.className = 'pdk-icon-image';
 			image.src = descriptor.url;
 			image.alt = descriptor.alt;
 			image.setAttribute('aria-hidden', 'true');
@@ -123,7 +123,7 @@
 		return createDashicon(descriptor.value);
 	}
 
-	window.WPAdminOS.dom = {
+	window.PufferDesk.dom = {
 		createDashicon,
 		createElement,
 		createIcon,

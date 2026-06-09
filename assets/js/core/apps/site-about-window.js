@@ -1,8 +1,8 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
 
 	function addClassNames(element, classNames) {
 		(Array.isArray(classNames) ? classNames : [classNames]).forEach((className) => {
@@ -43,12 +43,12 @@
 	}
 
 	function createHeader(options = {}) {
-		const dom = window.WPAdminOS.dom;
-		const header = dom.createElement('header', 'aos-info-panel-header');
-		const icon = dom.createElement('span', 'aos-info-panel-icon');
-		const headline = dom.createElement('div', 'aos-info-panel-headline');
-		const title = dom.createElement('h1', 'aos-info-panel-title', getText(options.title, 'Info'));
-		const subtitle = dom.createElement('p', 'aos-info-panel-subtitle', getText(options.subtitle));
+		const dom = window.PufferDesk.dom;
+		const header = dom.createElement('header', 'pdk-info-panel-header');
+		const icon = dom.createElement('span', 'pdk-info-panel-icon');
+		const headline = dom.createElement('div', 'pdk-info-panel-headline');
+		const title = dom.createElement('h1', 'pdk-info-panel-title', getText(options.title, 'Info'));
+		const subtitle = dom.createElement('p', 'pdk-info-panel-subtitle', getText(options.subtitle));
 
 		icon.appendChild(dom.createIcon(options.icon || 'dashicons-info'));
 		headline.appendChild(title);
@@ -59,31 +59,31 @@
 		header.append(icon, headline);
 
 		if (hasValue(options.meta)) {
-			header.appendChild(dom.createElement('strong', 'aos-info-panel-meta', options.meta));
+			header.appendChild(dom.createElement('strong', 'pdk-info-panel-meta', options.meta));
 		}
 
 		return header;
 	}
 
 	function appendTitle(root, options = {}) {
-		const dom = window.WPAdminOS.dom;
+		const dom = window.PufferDesk.dom;
 
 		if (hasValue(options.title)) {
-			const title = dom.createElement('h1', 'aos-info-panel-title', options.title);
+			const title = dom.createElement('h1', 'pdk-info-panel-title', options.title);
 			addClassNames(title, options.titleClassName);
 			root.appendChild(title);
 		}
 
 		if (hasValue(options.subtitle)) {
-			const subtitle = dom.createElement('p', 'aos-info-panel-subtitle', options.subtitle);
+			const subtitle = dom.createElement('p', 'pdk-info-panel-subtitle', options.subtitle);
 			addClassNames(subtitle, options.subtitleClassName);
 			root.appendChild(subtitle);
 		}
 	}
 
 	function appendSpecs(root, rows = [], options = {}) {
-		const dom = window.WPAdminOS.dom;
-		const specs = dom.createElement('dl', 'aos-info-panel-specs');
+		const dom = window.PufferDesk.dom;
+		const specs = dom.createElement('dl', 'pdk-info-panel-specs');
 		addClassNames(specs, options.specsClassName);
 
 		rows.forEach((row) => {
@@ -91,7 +91,7 @@
 				return;
 			}
 
-			const item = dom.createElement('div', 'aos-info-panel-spec');
+			const item = dom.createElement('div', 'pdk-info-panel-spec');
 			addClassNames(item, options.specClassName);
 			item.appendChild(dom.createElement('dt', '', row.label));
 			item.appendChild(dom.createElement('dd', '', row.value));
@@ -106,7 +106,7 @@
 	function createActionButton(options = {}) {
 		const button = document.createElement('button');
 		button.type = 'button';
-		button.className = 'aos-info-panel-button';
+		button.className = 'pdk-info-panel-button';
 		addClassNames(button, options.className);
 		button.textContent = options.label || 'More Info...';
 		button.addEventListener('click', () => {
@@ -120,15 +120,15 @@
 
 	function createDisclosure(title, options = {}) {
 		const section = document.createElement('details');
-		section.className = 'aos-info-panel-section';
+		section.className = 'pdk-info-panel-section';
 		section.open = options.open !== false;
 
 		const summary = document.createElement('summary');
-		summary.className = 'aos-info-panel-summary';
+		summary.className = 'pdk-info-panel-summary';
 		summary.textContent = title;
 
 		const body = document.createElement('div');
-		body.className = 'aos-info-panel-section-body';
+		body.className = 'pdk-info-panel-section-body';
 
 		section.append(summary, body);
 
@@ -140,14 +140,14 @@
 
 	function appendDefinition(body, label, value) {
 		const row = document.createElement('div');
-		row.className = 'aos-info-panel-row';
+		row.className = 'pdk-info-panel-row';
 
 		const term = document.createElement('span');
-		term.className = 'aos-info-panel-term';
+		term.className = 'pdk-info-panel-term';
 		term.textContent = `${label}:`;
 
 		const description = document.createElement('span');
-		description.className = 'aos-info-panel-value';
+		description.className = 'pdk-info-panel-value';
 		description.textContent = hasValue(value) ? value : 'Not available';
 
 		row.append(term, description);
@@ -156,7 +156,7 @@
 
 	function createCheckbox(label, options = {}) {
 		const item = document.createElement('label');
-		item.className = 'aos-info-panel-checkbox';
+		item.className = 'pdk-info-panel-checkbox';
 		if (options.disabledStyle) {
 			item.classList.add('is-disabled');
 		}
@@ -175,11 +175,11 @@
 	}
 
 	function createInfoPanelWindow(options = {}) {
-		const dom = window.WPAdminOS.dom;
-		const content = dom.createElement('div', 'aos-info-panel');
+		const dom = window.PufferDesk.dom;
+		const content = dom.createElement('div', 'pdk-info-panel');
 
 		if (options.variant) {
-			content.classList.add(`aos-info-panel-${options.variant}`);
+			content.classList.add(`pdk-info-panel-${options.variant}`);
 		}
 
 		if (options.layout) {
@@ -197,7 +197,7 @@
 		}
 
 		if (options.tagsPlaceholder) {
-			content.appendChild(dom.createElement('div', 'aos-info-panel-tags', options.tagsPlaceholder));
+			content.appendChild(dom.createElement('div', 'pdk-info-panel-tags', options.tagsPlaceholder));
 		}
 
 		appendTitle(content, options);
@@ -216,7 +216,7 @@
 		}
 
 		if (hasValue(options.footer)) {
-			const footer = dom.createElement('p', 'aos-info-panel-footer', options.footer);
+			const footer = dom.createElement('p', 'pdk-info-panel-footer', options.footer);
 			addClassNames(footer, options.footerClassName);
 			content.appendChild(footer);
 		}
@@ -225,10 +225,10 @@
 	}
 
 	function createSiteVisual(siteInfo = {}) {
-		const dom = window.WPAdminOS.dom;
-		const device = dom.createElement('div', 'aos-site-about-device');
-		const screen = dom.createElement('div', 'aos-site-about-screen');
-		const stand = dom.createElement('span', 'aos-site-about-stand');
+		const dom = window.PufferDesk.dom;
+		const device = dom.createElement('div', 'pdk-site-about-device');
+		const screen = dom.createElement('div', 'pdk-site-about-screen');
+		const stand = dom.createElement('span', 'pdk-site-about-stand');
 
 		if (siteInfo.iconUrl) {
 			const image = document.createElement('img');
@@ -247,7 +247,7 @@
 	}
 
 	function openSiteMoreInfo(siteInfo = {}) {
-		const commands = window.WPAdminOS && window.WPAdminOS.menuCommands;
+		const commands = window.PufferDesk && window.PufferDesk.menuCommands;
 		const command = siteInfo.moreInfoCommand || '';
 
 		if (command && commands && typeof commands.execute === 'function') {
@@ -265,8 +265,8 @@
 			}
 		}
 
-		if (siteInfo.moreInfoUrl && window.WPAdminOS.appLauncher && typeof window.WPAdminOS.appLauncher.openUrl === 'function') {
-			window.WPAdminOS.appLauncher.openUrl(siteInfo.moreInfoUrl, siteInfo.moreInfoTitle || 'Site Health Info', siteInfo.moreInfoIcon || 'dashicons-heart');
+		if (siteInfo.moreInfoUrl && window.PufferDesk.appLauncher && typeof window.PufferDesk.appLauncher.openUrl === 'function') {
+			window.PufferDesk.appLauncher.openUrl(siteInfo.moreInfoUrl, siteInfo.moreInfoTitle || 'Site Health Info', siteInfo.moreInfoIcon || 'dashicons-heart');
 		}
 	}
 
@@ -276,20 +276,20 @@
 
 		return createInfoPanelWindow({
 			action: siteInfo.moreInfoCommand || siteInfo.moreInfoUrl ? {
-				className: 'aos-site-about-button',
+				className: 'pdk-site-about-button',
 				label: siteInfo.moreInfoLabel || 'More Info...',
 				onClick: () => openSiteMoreInfo(siteInfo)
 			} : null,
-			className: 'aos-site-about',
+			className: 'pdk-site-about',
 			footer: siteInfo.footer || '',
-			footerClassName: 'aos-site-about-footer',
+			footerClassName: 'pdk-site-about-footer',
 			hero: createSiteVisual(siteInfo),
 			layout: 'site',
-			specClassName: 'aos-site-about-spec',
+			specClassName: 'pdk-site-about-spec',
 			specs,
-			specsClassName: 'aos-site-about-specs',
+			specsClassName: 'pdk-site-about-specs',
 			subtitle: aboutSubtitle,
-			subtitleClassName: 'aos-site-about-subtitle',
+			subtitleClassName: 'pdk-site-about-subtitle',
 			title: siteInfo.name || 'WordPress Site',
 			variant: 'site'
 		});
@@ -306,13 +306,13 @@
 
 		appendDefinition(general.body, 'Kind', info.kind || 'Folder');
 		appendDefinition(general.body, 'Size', `${plural(itemCount, 'item', 'items')} in this folder`);
-		appendDefinition(general.body, 'Where', info.where || 'WP adminOS');
-		appendDefinition(general.body, 'Source', info.source || 'WP adminOS');
+		appendDefinition(general.body, 'Where', info.where || 'PufferDesk');
+		appendDefinition(general.body, 'Source', info.source || 'PufferDesk');
 		appendDefinition(general.body, 'Created', formatDate(info.createdAt));
 		appendDefinition(general.body, 'Modified', formatDate(info.modifiedAt));
 
 		const checks = document.createElement('div');
-		checks.className = 'aos-info-panel-checks';
+		checks.className = 'pdk-info-panel-checks';
 		['Shared folder', 'Locked'].forEach((label) => {
 			checks.appendChild(createCheckbox(label));
 		});
@@ -325,7 +325,7 @@
 		}
 
 		const nameInput = document.createElement('input');
-		nameInput.className = 'aos-info-panel-name-input';
+		nameInput.className = 'pdk-info-panel-name-input';
 		nameInput.type = 'text';
 		nameInput.value = info.label || 'Folder';
 		nameInput.disabled = !info.canRename;
@@ -340,7 +340,7 @@
 		}));
 
 		const textarea = document.createElement('textarea');
-		textarea.className = 'aos-info-panel-comments';
+		textarea.className = 'pdk-info-panel-comments';
 		textarea.value = info.comment || '';
 		textarea.disabled = !info.canComment;
 		textarea.addEventListener('change', () => {
@@ -351,7 +351,7 @@
 		comments.body.appendChild(textarea);
 
 		const previewText = document.createElement('p');
-		previewText.className = 'aos-info-panel-muted';
+		previewText.className = 'pdk-info-panel-muted';
 		previewText.textContent = itemCount ? `${plural(itemCount, 'application', 'applications')} available.` : 'No items to preview.';
 		preview.body.appendChild(previewText);
 
@@ -378,7 +378,7 @@
 		});
 	}
 
-	window.WPAdminOS.apps.createInfoPanelWindow = createInfoPanelWindow;
-	window.WPAdminOS.apps.createSiteAboutWindow = createSiteAboutWindow;
-	window.WPAdminOS.apps.createFolderInfoWindow = createFolderInfoWindow;
+	window.PufferDesk.apps.createInfoPanelWindow = createInfoPanelWindow;
+	window.PufferDesk.apps.createSiteAboutWindow = createSiteAboutWindow;
+	window.PufferDesk.apps.createFolderInfoWindow = createFolderInfoWindow;
 })();

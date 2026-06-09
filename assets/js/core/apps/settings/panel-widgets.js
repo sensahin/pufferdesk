@@ -1,20 +1,20 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
-	window.WPAdminOS.apps.settings = window.WPAdminOS.apps.settings || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
+	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
-	window.WPAdminOS.apps.settings.createWidgetsPanel = function createWidgetsPanel(ctx) {
+	window.PufferDesk.apps.settings.createWidgetsPanel = function createWidgetsPanel(ctx) {
 		const {
 			createSection,
 			dom,
 			t
 		} = ctx;
 		const widgets = Array.isArray(ctx.config.widgets) ? ctx.config.widgets : [];
-		const widgetManager = window.WPAdminOS.widgetManager || null;
-		const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-widgets-panel');
-		const section = createSection('', 'aos-settings-list aos-settings-widgets-list');
+		const widgetManager = window.PufferDesk.widgetManager || null;
+		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-widgets-panel');
+		const section = createSection('', 'pdk-settings-list pdk-settings-widgets-list');
 
 		panel.dataset.aosSettingsPanel = 'widgets';
 
@@ -59,9 +59,9 @@
 			};
 
 			button.type = 'button';
-			button.className = 'aos-settings-toggle';
+			button.className = 'pdk-settings-toggle';
 			button.setAttribute('aria-label', t('widgets.showOnDesktopLabel', 'Show on desktop'));
-			button.appendChild(dom.createElement('span', 'aos-settings-toggle-knob'));
+			button.appendChild(dom.createElement('span', 'pdk-settings-toggle-knob'));
 			button.addEventListener('click', () => {
 				setWidgetVisible(widget.id, !isWidgetVisible(widget.id));
 				sync();
@@ -72,21 +72,21 @@
 		}
 
 		function createWidgetRow(widget) {
-			const row = dom.createElement('div', 'aos-settings-row aos-settings-widget-row');
-			const icon = dom.createElement('span', 'aos-settings-row-icon aos-settings-sidebar-icon-green');
-			const labelStack = dom.createElement('span', 'aos-settings-label-stack');
+			const row = dom.createElement('div', 'pdk-settings-row pdk-settings-widget-row');
+			const icon = dom.createElement('span', 'pdk-settings-row-icon pdk-settings-sidebar-icon-green');
+			const labelStack = dom.createElement('span', 'pdk-settings-label-stack');
 
 			icon.appendChild(dom.createIcon(widget.icon || 'dashicons-screenoptions'));
 			row.appendChild(icon);
-			labelStack.appendChild(dom.createElement('span', 'aos-settings-label', widget.label || widget.id));
-			labelStack.appendChild(dom.createElement('span', 'aos-settings-description', t('widgets.showOnDesktopLabel', 'Show on desktop')));
+			labelStack.appendChild(dom.createElement('span', 'pdk-settings-label', widget.label || widget.id));
+			labelStack.appendChild(dom.createElement('span', 'pdk-settings-description', t('widgets.showOnDesktopLabel', 'Show on desktop')));
 			row.append(labelStack, createWidgetToggle(widget));
 
 			return row;
 		}
 
 		if (!widgets.length) {
-			section.appendChild(dom.createElement('p', 'aos-settings-description', t('widgets.emptyLabel', 'No widgets are registered for this account.')));
+			section.appendChild(dom.createElement('p', 'pdk-settings-description', t('widgets.emptyLabel', 'No widgets are registered for this account.')));
 		} else {
 			widgets.forEach((widget) => {
 				if (widget && widget.id) {

@@ -2,7 +2,7 @@
 /**
  * Generic desktop widget.
  *
- * @package WPAdminOS
+ * @package PufferDesk
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -15,18 +15,18 @@ defined( 'ABSPATH' ) || exit;
 
 ?>
 <section
-	class="aos-widget"
-	data-aos-context="widget"
-	data-aos-context-id="<?php echo esc_attr( $widget['id'] ); ?>"
-	data-aos-context-label="<?php echo esc_attr( $widget['label'] ); ?>"
-	data-aos-widget="<?php echo esc_attr( $widget['id'] ); ?>"
-	data-aos-widget-kind="<?php echo esc_attr( $widget['kind'] ); ?>"
-	data-aos-widget-native="<?php echo esc_attr( $widget['native'] ); ?>"
-	<?php WP_AdminOS_Widget_Layout::render_attributes( $widget, isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array() ); ?>
+	class="pdk-widget"
+	data-pdk-context="widget"
+	data-pdk-context-id="<?php echo esc_attr( $widget['id'] ); ?>"
+	data-pdk-context-label="<?php echo esc_attr( $widget['label'] ); ?>"
+	data-pdk-widget="<?php echo esc_attr( $widget['id'] ); ?>"
+	data-pdk-widget-kind="<?php echo esc_attr( $widget['kind'] ); ?>"
+	data-pdk-widget-native="<?php echo esc_attr( $widget['native'] ); ?>"
+	<?php PufferDesk_Widget_Layout::render_attributes( $widget, isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array() ); ?>
 	aria-label="<?php echo esc_attr( $widget['label'] ); ?>"
 >
-	<div class="aos-widget-handle" data-aos-widget-drag-handle>
-		<span class="aos-widget-icon"><?php WP_AdminOS_Icon_Renderer::render( $widget['icon'], $theme ); ?></span>
+	<div class="pdk-widget-handle" data-pdk-widget-drag-handle>
+		<span class="pdk-widget-icon"><?php PufferDesk_Icon_Renderer::render( $widget['icon'], $theme ); ?></span>
 		<strong><?php echo esc_html( $widget['label'] ); ?></strong>
 	</div>
 </section>

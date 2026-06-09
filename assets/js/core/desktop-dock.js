@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
+	window.PufferDesk = window.PufferDesk || {};
 
 	const defaults = {
 		dock_size: 48,
@@ -96,12 +96,12 @@
 		shell.dataset.aosShowWidgetsDesktop = current.show_widgets_desktop ? '1' : '0';
 		shell.dataset.aosDimWidgets = current.dim_widgets;
 
-		shell.style.setProperty('--aos-dock-item-size', `${current.dock_size}px`);
-		shell.style.setProperty('--aos-dock-icon-size', `${iconSize}px`);
-		shell.style.setProperty('--aos-dock-tile-size', `${tileSize}px`);
-		shell.style.setProperty('--aos-dock-hover-lift', `${lift}px`);
-		shell.style.setProperty('--aos-dock-hover-scale', scale);
-		shell.dispatchEvent(new window.CustomEvent('wpAdminOS:desktop-dock-change', {
+		shell.style.setProperty('--pdk-dock-item-size', `${current.dock_size}px`);
+		shell.style.setProperty('--pdk-dock-icon-size', `${iconSize}px`);
+		shell.style.setProperty('--pdk-dock-tile-size', `${tileSize}px`);
+		shell.style.setProperty('--pdk-dock-hover-lift', `${lift}px`);
+		shell.style.setProperty('--pdk-dock-hover-scale', scale);
+		shell.dispatchEvent(new window.CustomEvent('pufferDesk:desktop-dock-change', {
 			detail: current
 		}));
 
@@ -186,13 +186,13 @@
 
 	function getDockItem(target) {
 		return target && typeof target.closest === 'function'
-			? target.closest('.aos-dock-item, .aos-dock-window-item')
+			? target.closest('.pdk-dock-item, .pdk-dock-window-item')
 			: null;
 	}
 
 	function getDockAppItem(target, dock) {
 		const item = target && typeof target.closest === 'function'
-			? target.closest('.aos-dock-item[data-aos-open-app]')
+			? target.closest('.pdk-dock-item[data-pdk-open-app]')
 			: null;
 
 		return item && dock && dock.contains(item) && !isFixedDockItem(item) ? item : null;
@@ -205,7 +205,7 @@
 
 		return Array.from(dock.children).filter((child) => (
 			child.classList
-			&& child.classList.contains('aos-dock-item')
+			&& child.classList.contains('pdk-dock-item')
 			&& child.dataset
 			&& child.dataset.aosOpenApp
 			&& !isFixedDockItem(child)
@@ -213,7 +213,7 @@
 	}
 
 	function getDockEndAnchor(dock) {
-		return dock ? dock.querySelector('.aos-dock-separator, .aos-dock-minimized-windows, .aos-dock-item[data-aos-dock-fixed], [data-aos-launcher-end-anchor]') : null;
+		return dock ? dock.querySelector('.pdk-dock-separator, .pdk-dock-minimized-windows, .pdk-dock-item[data-pdk-dock-fixed], [data-pdk-launcher-end-anchor]') : null;
 	}
 
 	function getDockOrderFromDom(dock) {
@@ -227,7 +227,7 @@
 	}
 
 	function applyOrderToDock(shell, config = {}) {
-		const dock = shell ? shell.querySelector('.aos-dock') : null;
+		const dock = shell ? shell.querySelector('.pdk-dock') : null;
 		const order = getDockOrder(config);
 		if (!dock || !order.length) {
 			return false;
@@ -279,9 +279,9 @@
 		const storageKey = options.storageKey || config.storageKey || '';
 
 		return storageKey
-			&& window.WPAdminOS.session
-			&& typeof window.WPAdminOS.session.createSessionStore === 'function'
-			? window.WPAdminOS.session.createSessionStore(storageKey)
+			&& window.PufferDesk.session
+			&& typeof window.PufferDesk.session.createSessionStore === 'function'
+			? window.PufferDesk.session.createSessionStore(storageKey)
 			: null;
 	}
 
@@ -303,7 +303,7 @@
 	}
 
 	function bindTooltipDismissal(shell) {
-		const dock = shell ? shell.querySelector('.aos-dock') : null;
+		const dock = shell ? shell.querySelector('.pdk-dock') : null;
 
 		if (!dock || dock.dataset.aosTooltipDismissalBound === '1') {
 			return;
@@ -345,7 +345,7 @@
 	}
 
 	function bindReordering(shell, config = {}, options = {}) {
-		const dock = shell ? shell.querySelector('.aos-dock') : null;
+		const dock = shell ? shell.querySelector('.pdk-dock') : null;
 		const sessionStore = createSessionStore(config, options);
 		const moveTolerance = 8;
 		const layoutAnimationDuration = 170;
@@ -381,8 +381,8 @@
 			return Array.from(dock.children).filter((child) => (
 				child.classList
 				&& (
-					child.classList.contains('aos-dock-item')
-					|| child.classList.contains('aos-dock-reorder-placeholder')
+					child.classList.contains('pdk-dock-item')
+					|| child.classList.contains('pdk-dock-reorder-placeholder')
 				)
 			));
 		}
@@ -429,7 +429,7 @@
 			const rect = item.getBoundingClientRect();
 			const placeholder = document.createElement('span');
 
-			placeholder.className = 'aos-dock-reorder-placeholder';
+			placeholder.className = 'pdk-dock-reorder-placeholder';
 			placeholder.setAttribute('aria-hidden', 'true');
 			placeholder.style.width = `${rect.width}px`;
 			placeholder.style.height = `${rect.height}px`;
@@ -470,7 +470,7 @@
 				return;
 			}
 
-			item.classList.remove('is-dock-reorder-pending', 'is-dock-reordering', 'aos-dock-drag-proxy', 'is-tooltip-dismissed');
+			item.classList.remove('is-dock-reorder-pending', 'is-dock-reordering', 'pdk-dock-drag-proxy', 'is-tooltip-dismissed');
 			item.style.height = '';
 			item.style.left = '';
 			item.style.position = '';
@@ -479,7 +479,7 @@
 			item.style.transition = '';
 			item.style.width = '';
 			item.style.zIndex = '';
-			item.removeAttribute('data-aos-dock-reorder-proxy');
+			item.removeAttribute('data-pdk-dock-reorder-proxy');
 
 			if (item.aosDockOriginalAriaHidden === null) {
 				item.removeAttribute('aria-hidden');
@@ -500,13 +500,13 @@
 			drag.item.aosDockOriginalAriaHidden = drag.item.getAttribute('aria-hidden');
 			drag.item.setAttribute('aria-hidden', 'true');
 			drag.item.classList.remove('is-dock-reorder-pending');
-			drag.item.classList.add('is-dock-reordering', 'aos-dock-drag-proxy', 'is-tooltip-dismissed');
+			drag.item.classList.add('is-dock-reordering', 'pdk-dock-drag-proxy', 'is-tooltip-dismissed');
 			drag.item.dataset.aosDockReorderProxy = '1';
 			drag.item.style.width = `${itemRect.width}px`;
 			drag.item.style.height = `${itemRect.height}px`;
 			drag.item.style.left = `${Math.round(itemRect.left)}px`;
 			drag.item.style.top = `${Math.round(itemRect.top)}px`;
-			drag.item.style.zIndex = 'var(--aos-layer-context-menu)';
+			drag.item.style.zIndex = 'var(--pdk-layer-context-menu)';
 			dock.insertBefore(placeholder, drag.item);
 			shell.appendChild(drag.item);
 			dock.classList.add('is-reordering');
@@ -626,7 +626,7 @@
 			}
 
 			const item = getDockAppItem(event.target, dock);
-			if (!item || item.closest('.aos-dock-minimized-windows')) {
+			if (!item || item.closest('.pdk-dock-minimized-windows')) {
 				return;
 			}
 
@@ -693,7 +693,7 @@
 
 		shell.addEventListener('click', (event) => {
 			const item = event.target && typeof event.target.closest === 'function'
-				? event.target.closest('.aos-dock-item[data-aos-open-app]')
+				? event.target.closest('.pdk-dock-item[data-pdk-open-app]')
 				: null;
 
 			if (
@@ -711,7 +711,7 @@
 			event.stopPropagation();
 		}, true);
 
-		window.addEventListener('wpAdminOS:workspace-state-changed', (event) => {
+		window.addEventListener('pufferDesk:workspace-state-changed', (event) => {
 			if (drag && drag.dragging) {
 				return;
 			}
@@ -724,7 +724,7 @@
 		});
 	}
 
-	window.WPAdminOS.desktopDock = {
+	window.PufferDesk.desktopDock = {
 		apply,
 		applyOrderToDock,
 		bindTooltipDismissal,

@@ -1,20 +1,20 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
 
-	window.WPAdminOS.apps.createAppSurfaceManager = function createAppSurfaceManager(shell, config = {}, options = {}) {
-		const dom = window.WPAdminOS.dom;
+	window.PufferDesk.apps.createAppSurfaceManager = function createAppSurfaceManager(shell, config = {}, options = {}) {
+		const dom = window.PufferDesk.dom;
 		const apps = Array.isArray(options.apps) ? options.apps : (Array.isArray(config.apps) ? config.apps : []);
 		const preserveUnknown = options.preserveUnknown === true;
 
 		function getFolderManager() {
-			return options.folderManager || window.WPAdminOS.desktopFolderManager || null;
+			return options.folderManager || window.PufferDesk.desktopFolderManager || null;
 		}
 
 		function getDesktopIconManager() {
-			return options.desktopIconManager || window.WPAdminOS.desktopIconManager || null;
+			return options.desktopIconManager || window.PufferDesk.desktopIconManager || null;
 		}
 
 		function hasLauncherSurface() {
@@ -124,14 +124,14 @@
 				return null;
 			}
 
-			const element = dom.createElement('span', `aos-app-badge aos-app-badge-${badge.tone}`, badge.text);
+			const element = dom.createElement('span', `pdk-app-badge pdk-app-badge-${badge.tone}`, badge.text);
 			element.setAttribute('aria-hidden', 'true');
 
 			return element;
 		}
 
 		function createDockSeparator() {
-			const separator = dom.createElement('span', 'aos-dock-separator');
+			const separator = dom.createElement('span', 'pdk-dock-separator');
 			separator.setAttribute('aria-hidden', 'true');
 
 			return separator;
@@ -139,20 +139,20 @@
 
 		function getDockEndAnchor(dock) {
 			return dock
-				? dock.querySelector('[data-aos-launcher-end-anchor]') || dock.querySelector('.aos-dock-minimized-windows')
+				? dock.querySelector('[data-pdk-launcher-end-anchor]') || dock.querySelector('.pdk-dock-minimized-windows')
 				: null;
 		}
 
 		function createDockAppButton(app, options = {}) {
 			const button = document.createElement('button');
 			const label = getAppLabel(app);
-			const tooltip = dom.createElement('span', 'aos-dock-tooltip', label);
+			const tooltip = dom.createElement('span', 'pdk-dock-tooltip', label);
 			const screenReaderText = dom.createElement('span', 'screen-reader-text', label);
 			const badge = createAppBadge(app);
 			const fixed = options.fixed === true || isFixedDockApp(app);
 
 			button.type = 'button';
-			button.className = fixed ? 'aos-dock-item aos-dock-fixed-item' : 'aos-dock-item';
+			button.className = fixed ? 'pdk-dock-item pdk-dock-fixed-item' : 'pdk-dock-item';
 			button.dataset.aosContext = 'dock-app';
 			button.dataset.aosContextId = app.id;
 			button.dataset.aosContextLabel = label;
@@ -175,13 +175,13 @@
 
 		function createDesktopAppButton(app) {
 			const button = document.createElement('button');
-			const icon = dom.createElement('span', 'aos-app-icon');
+			const icon = dom.createElement('span', 'pdk-app-icon');
 			const label = getAppLabel(app);
 			const badge = createAppBadge(app);
-			const labelElement = dom.createElement('span', 'aos-desktop-app-label', label);
+			const labelElement = dom.createElement('span', 'pdk-desktop-app-label', label);
 
 			button.type = 'button';
-			button.className = 'aos-desktop-icon aos-desktop-app';
+			button.className = 'pdk-desktop-icon pdk-desktop-app';
 			button.dataset.aosContext = 'desktop-app';
 			button.dataset.aosContextId = app.id;
 			button.dataset.aosContextLabel = label;
@@ -204,13 +204,13 @@
 				return;
 			}
 
-			shell.querySelectorAll('.aos-dock-item.is-running').forEach((button) => {
+			shell.querySelectorAll('.pdk-dock-item.is-running').forEach((button) => {
 				button.classList.remove('is-running');
 			});
-			shell.querySelectorAll('.aos-window[data-aos-app-window]:not(.is-closed)').forEach((win) => {
+			shell.querySelectorAll('.pdk-window[data-pdk-app-window]:not(.is-closed)').forEach((win) => {
 				const appId = win.dataset.aosAppWindow;
 				const button = appId
-					? shell.querySelector(`.aos-dock-item[data-aos-open-app="${dom.escapeAttribute(appId)}"]`)
+					? shell.querySelector(`.pdk-dock-item[data-pdk-open-app="${dom.escapeAttribute(appId)}"]`)
 					: null;
 
 				if (button) {
@@ -240,20 +240,20 @@
 			}
 
 			const normalizedLocations = normalizeLocations(locations);
-			const dock = shell.querySelector('.aos-dock');
+			const dock = shell.querySelector('.pdk-dock');
 
 			if (dock) {
-				const minimizedWindows = dock.querySelector('.aos-dock-minimized-windows');
+				const minimizedWindows = dock.querySelector('.pdk-dock-minimized-windows');
 				const dockEndAnchor = getDockEndAnchor(dock);
 				const dockApps = apps.filter((app) => appIsShownIn(app, 'dock', normalizedLocations));
 				const fixedDockApps = dockApps.filter(isFixedDockApp);
 				const regularDockApps = dockApps.filter((app) => !isFixedDockApp(app));
-				const orderedDockApps = window.WPAdminOS.desktopDock && typeof window.WPAdminOS.desktopDock.orderApps === 'function'
-					? window.WPAdminOS.desktopDock.orderApps(regularDockApps, config)
+				const orderedDockApps = window.PufferDesk.desktopDock && typeof window.PufferDesk.desktopDock.orderApps === 'function'
+					? window.PufferDesk.desktopDock.orderApps(regularDockApps, config)
 					: regularDockApps;
 
 				Array.from(dock.children).forEach((child) => {
-					if (child.classList && (child.classList.contains('aos-dock-item') || child.classList.contains('aos-dock-separator'))) {
+					if (child.classList && (child.classList.contains('pdk-dock-item') || child.classList.contains('pdk-dock-separator'))) {
 						child.remove();
 					}
 				});
@@ -271,12 +271,12 @@
 				syncRunningDockItems();
 			}
 
-			const desktop = shell.querySelector('.aos-desktop');
+			const desktop = shell.querySelector('.pdk-desktop');
 			if (!desktop) {
 				return;
 			}
 
-			let layer = desktop.querySelector('.aos-desktop-apps');
+			let layer = desktop.querySelector('.pdk-desktop-apps');
 			const desktopApps = apps.filter((app) => appIsShownIn(app, 'desktop', normalizedLocations));
 
 			if (!desktopApps.length) {
@@ -288,9 +288,9 @@
 			}
 
 			if (!layer) {
-				layer = dom.createElement('section', 'aos-desktop-apps aos-desktop-icon-layer');
+				layer = dom.createElement('section', 'pdk-desktop-apps pdk-desktop-icon-layer');
 				layer.setAttribute('aria-label', 'Desktop apps');
-				const folderLayer = desktop.querySelector('.aos-desktop-folders');
+				const folderLayer = desktop.querySelector('.pdk-desktop-folders');
 				desktop.insertBefore(layer, folderLayer ? folderLayer.nextSibling : desktop.firstChild);
 			}
 

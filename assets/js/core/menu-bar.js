@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
+	window.PufferDesk = window.PufferDesk || {};
 
 	const defaults = {
 		auto_hide: 'fullscreen',
@@ -73,7 +73,7 @@
 			setRevealed(shell, false);
 		}
 
-		shell.dispatchEvent(new window.CustomEvent('wpAdminOS:menu-bar-layout-change', {
+		shell.dispatchEvent(new window.CustomEvent('pufferDesk:menu-bar-layout-change', {
 			detail: {
 				hidden
 			}
@@ -90,7 +90,7 @@
 		shell.dataset.aosMenuBarBackground = current.show_background ? '1' : '0';
 		shell.dataset.aosMenuBarRecentCount = String(current.recent_count);
 		syncHiddenState(shell, current);
-		shell.dispatchEvent(new window.CustomEvent('wpAdminOS:menu-bar-change', {
+		shell.dispatchEvent(new window.CustomEvent('pufferDesk:menu-bar-change', {
 			detail: current
 		}));
 
@@ -98,7 +98,7 @@
 	}
 
 	function bindAutoHide(shell) {
-		const menuBar = shell ? shell.querySelector('.aos-menu-bar') : null;
+		const menuBar = shell ? shell.querySelector('.pdk-menu-bar') : null;
 
 		if (!shell || !menuBar || shell.dataset.aosMenuBarBound === '1') {
 			return;
@@ -131,7 +131,7 @@
 		}, { passive: true });
 		menuBar.addEventListener('pointerenter', reveal);
 		menuBar.addEventListener('pointerleave', conceal);
-		shell.addEventListener('wpAdminOS:fullscreen-window-change', () => {
+		shell.addEventListener('pufferDesk:fullscreen-window-change', () => {
 			apply(shell, {
 				auto_hide: shell.dataset.aosMenuBarAutoHide,
 				show_background: shell.dataset.aosMenuBarBackground === '1',
@@ -143,13 +143,13 @@
 	function getSessionStore(config = {}) {
 		if (
 			!config.storageKey ||
-			!window.WPAdminOS.session ||
-			!window.WPAdminOS.session.createSessionStore
+			!window.PufferDesk.session ||
+			!window.PufferDesk.session.createSessionStore
 		) {
 			return null;
 		}
 
-		return window.WPAdminOS.session.createSessionStore(config.storageKey);
+		return window.PufferDesk.session.createSessionStore(config.storageKey);
 	}
 
 	function normalizeRecentItem(item = {}) {
@@ -198,7 +198,7 @@
 			.filter((current) => `${current.type}:${current.id}` !== key);
 		next.unshift(normalized);
 		saveRecentItems(config, next);
-		window.dispatchEvent(new window.CustomEvent('wpAdminOS:recent-items-change', {
+		window.dispatchEvent(new window.CustomEvent('pufferDesk:recent-items-change', {
 			detail: {
 				items: next
 			}
@@ -209,7 +209,7 @@
 
 	function clearRecentItems(config = {}) {
 		saveRecentItems(config, []);
-		window.dispatchEvent(new window.CustomEvent('wpAdminOS:recent-items-change', {
+		window.dispatchEvent(new window.CustomEvent('pufferDesk:recent-items-change', {
 			detail: {
 				items: []
 			}
@@ -232,7 +232,7 @@
 			}));
 	}
 
-	window.WPAdminOS.menuBar = {
+	window.PufferDesk.menuBar = {
 		addRecentItem,
 		apply,
 		bindAutoHide,

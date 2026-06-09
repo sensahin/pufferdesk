@@ -1,18 +1,18 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
-	window.WPAdminOS.apps.settings = window.WPAdminOS.apps.settings || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
+	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
-	window.WPAdminOS.apps.settings.createUI = function createUI({ dom }) {
+	window.PufferDesk.apps.settings.createUI = function createUI({ dom }) {
 		function createSettingsRow(labelText, control, descriptionText = '', rowClassName = '') {
-			const row = dom.createElement('div', `aos-settings-row ${rowClassName}`.trim());
-			const labelStack = dom.createElement('span', 'aos-settings-label-stack');
+			const row = dom.createElement('div', `pdk-settings-row ${rowClassName}`.trim());
+			const labelStack = dom.createElement('span', 'pdk-settings-label-stack');
 
-			labelStack.appendChild(dom.createElement('span', 'aos-settings-label', labelText));
+			labelStack.appendChild(dom.createElement('span', 'pdk-settings-label', labelText));
 			if (descriptionText) {
-				labelStack.appendChild(dom.createElement('span', 'aos-settings-description', descriptionText));
+				labelStack.appendChild(dom.createElement('span', 'pdk-settings-description', descriptionText));
 			}
 			row.appendChild(labelStack);
 			row.appendChild(control);
@@ -21,7 +21,7 @@
 		}
 
 		function createSection(title = '', className = '') {
-			const section = dom.createElement('section', `aos-settings-section ${className}`.trim());
+			const section = dom.createElement('section', `pdk-settings-section ${className}`.trim());
 			if (title) {
 				section.appendChild(dom.createElement('h2', '', title));
 			}
@@ -30,28 +30,28 @@
 		}
 
 		function createSectionHeading(title) {
-			return dom.createElement('h2', 'aos-settings-group-heading', title);
+			return dom.createElement('h2', 'pdk-settings-group-heading', title);
 		}
 
 		function createButton(labelText, className) {
 			const button = document.createElement('button');
 			button.type = 'button';
-			button.className = className || 'aos-settings-button';
+			button.className = className || 'pdk-settings-button';
 			button.textContent = labelText;
 
 			return button;
 		}
 
 		function createRowIcon(iconName, tone = 'gray') {
-			const icon = dom.createElement('span', `aos-settings-row-icon aos-settings-sidebar-icon-${tone}`);
+			const icon = dom.createElement('span', `pdk-settings-row-icon pdk-settings-sidebar-icon-${tone}`);
 			icon.appendChild(dom.createDashicon(iconName));
 
 			return icon;
 		}
 
 		function createSummaryHero(options = {}) {
-			const hero = dom.createElement('section', 'aos-settings-summary-card');
-			const icon = dom.createElement('span', 'aos-settings-summary-icon aos-settings-sidebar-icon-gray');
+			const hero = dom.createElement('section', 'pdk-settings-summary-card');
+			const icon = dom.createElement('span', 'pdk-settings-summary-icon pdk-settings-sidebar-icon-gray');
 
 			icon.appendChild(dom.createDashicon(options.icon || 'dashicons-admin-generic'));
 			hero.appendChild(icon);
@@ -69,7 +69,7 @@
 			const hasPanel = Boolean(options.panel);
 			const isInteractive = hasUrl || hasCommand || hasPanel;
 			const row = isInteractive ? document.createElement('button') : dom.createElement('div');
-			const text = dom.createElement('span', 'aos-settings-row-text');
+			const text = dom.createElement('span', 'pdk-settings-row-text');
 
 			if (isInteractive) {
 				row.type = 'button';
@@ -86,7 +86,7 @@
 				row.addEventListener('click', () => actions.openPanel(options.panel));
 			}
 
-			row.className = `aos-settings-action-row ${options.className || ''}`.trim();
+			row.className = `pdk-settings-action-row ${options.className || ''}`.trim();
 			row.appendChild(createRowIcon(options.icon || 'dashicons-admin-generic', options.tone || 'gray'));
 			text.appendChild(dom.createElement('strong', '', options.label || 'Profile'));
 			if (options.description) {
@@ -95,9 +95,9 @@
 			row.appendChild(text);
 
 			if (options.value) {
-				row.appendChild(dom.createElement('span', 'aos-settings-row-value', options.value));
+				row.appendChild(dom.createElement('span', 'pdk-settings-row-value', options.value));
 			} else if (isInteractive) {
-				row.appendChild(dom.createElement('span', 'aos-settings-row-chevron'));
+				row.appendChild(dom.createElement('span', 'pdk-settings-row-chevron'));
 			}
 
 			return row;

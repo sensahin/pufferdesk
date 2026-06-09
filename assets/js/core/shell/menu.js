@@ -1,19 +1,21 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
-	window.WPAdminOS.shell.createMenuController = function createMenuController(shell, config = {}, context = {}) {
-		const systemButton = shell.querySelector('[data-aos-system-menu]');
-		const menu = shell.querySelector('[data-aos-menu-items]');
+	window.PufferDesk.shell.createMenuController = function createMenuController(shell, config = {}, context = {}) {
+		const systemButton = shell.querySelector('[data-pdk-system-menu]');
+		const menu = shell.querySelector('[data-pdk-menu-items]');
+		const dom = window.PufferDesk.dom;
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
-		const schema = window.WPAdminOS.shell.createMenuSchema(labels);
-		const commands = context.commands || window.WPAdminOS.shell.createCommandRegistry(shell, context);
-		const itemRenderer = window.WPAdminOS.shell.createMenuItemRenderer(commands);
+		const schema = window.PufferDesk.shell.createMenuSchema(labels);
+		const commands = context.commands || window.PufferDesk.shell.createCommandRegistry(shell, context);
+		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands);
 		const desktopIconManager = context.desktopIconManager || null;
+		const launcher = context.launcher || null;
 		const standardGroupIds = ['app', 'file', 'edit', 'view', 'go', 'window', 'help'];
 		let activeDetail = { kind: 'desktop' };
 		const persistentDefinition = menuConfig.persistent
@@ -23,12 +25,12 @@
 			: { groups: [] };
 		const systemDefinition = menuConfig.system
 			? schema.normalizeDefinition(menuConfig.system, {
-				appLabel: labels.system || 'WP adminOS'
+				appLabel: labels.system || 'PufferDesk'
 			})
 			: { groups: [] };
 		const systemGroupBase = {
 			id: 'system',
-			label: systemDefinition.groups[0] && systemDefinition.groups[0].label ? systemDefinition.groups[0].label : 'WP adminOS'
+			label: systemDefinition.groups[0] && systemDefinition.groups[0].label ? systemDefinition.groups[0].label : 'PufferDesk'
 		};
 		const persistentGroupIds = new Set(persistentDefinition.groups.map((group) => group.id));
 		let activeDefinition = getDesktopDefinition();
@@ -53,13 +55,13 @@
 			if (
 				context.restoreWindows === false ||
 				!config.storageKey ||
-				!window.WPAdminOS.session ||
-				!window.WPAdminOS.session.createSessionStore
+				!window.PufferDesk.session ||
+				!window.PufferDesk.session.createSessionStore
 			) {
 				return { kind: 'desktop' };
 			}
 
-			const savedWindows = window.WPAdminOS.session.createSessionStore(config.storageKey).getSection('windows', []);
+			const savedWindows = window.PufferDesk.session.createSessionStore(config.storageKey).getSection('windows', []);
 			if (!Array.isArray(savedWindows) || !savedWindows.length) {
 				return { kind: 'desktop' };
 			}
@@ -333,7 +335,7 @@
 		}
 
 		function getOpenWindowItems() {
-			const windows = Array.from(shell.querySelectorAll('.aos-window:not(.is-closed)'));
+			const windows = Array.from(shell.querySelectorAll('.pdk-window:not(.is-closed)'));
 			if (!windows.length) {
 				return [];
 			}
@@ -519,8 +521,8 @@
 				}
 
 				const count = getRecentCount();
-				const recentItems = window.WPAdminOS.menuBar
-					? window.WPAdminOS.menuBar.getRecentMenuItems(config, count)
+				const recentItems = window.PufferDesk.menuBar
+					? window.PufferDesk.menuBar.getRecentMenuItems(config, count)
 					: [];
 				const submenuItems = recentItems.length
 					? recentItems.concat([
@@ -541,6 +543,223 @@
 			});
 
 			return Object.assign({}, systemGroupBase, { items });
+		}
+
+		function isStartPanelGroup(group = {}) {
+			return group.id === 'system'
+				&& shell.dataset.aosShellLauncher === 'taskbar'
+				&& shell.dataset.aosShellSystemMenu === 'start'
+				&& shell.dataset.aosThemeFamily === 'redmond';
+		}
+
+		function isVisibleStartApp(app) {
+			const appLocations = config.appLocations && typeof config.appLocations === 'object' ? config.appLocations : {};
+
+			return Boolean(app && app.id && app.label && appLocations[app.id] !== 'hidden');
+		}
+
+		function getPinnedStartApps() {
+			const preferredIds = ['dashboard', 'posts', 'pages', 'media', 'comments', 'appearance', 'plugins', 'users', 'settings', 'tools', 'site-health', 'os-settings'];
+			const byId = new Map();
+			const apps = Array.isArray(config.apps) ? config.apps.filter(isVisibleStartApp) : [];
+
+			preferredIds.forEach((appId) => {
+				const app = appMap.get(appId);
+				if (isVisibleStartApp(app)) {
+					byId.set(app.id, app);
+				}
+			});
+
+			apps.forEach((app) => {
+				if (!byId.has(app.id)) {
+					byId.set(app.id, app);
+				}
+			});
+
+			return Array.from(byId.values()).slice(0, 12);
+		}
+
+		function createStartSectionHeading(label) {
+			const heading = document.createElement('div');
+			heading.className = 'pdk-start-section-heading';
+			heading.textContent = label;
+
+			return heading;
+		}
+
+		function createStartSearch() {
+			const wrapper = document.createElement('label');
+			const icon = document.createElement('span');
+			const input = document.createElement('input');
+
+			wrapper.className = 'pdk-start-search';
+			icon.className = 'dashicons dashicons-search pdk-start-search-icon';
+			icon.setAttribute('aria-hidden', 'true');
+			input.type = 'search';
+			input.className = 'pdk-start-search-input';
+			input.autocomplete = 'off';
+			input.placeholder = getLabel('start_search_placeholder', 'Search');
+			input.setAttribute('aria-label', getLabel('start_search_label', 'Search apps, settings, and commands'));
+			input.addEventListener('keydown', (event) => {
+				if (event.key !== 'Enter') {
+					return;
+				}
+
+				const query = input.value.trim();
+				const foundApp = launcher && typeof launcher.runSearch === 'function'
+					? launcher.runSearch(query)
+					: getPinnedStartApps().find((app) => app.label.toLowerCase().includes(query.toLowerCase()) || app.id.includes(query.toLowerCase()));
+
+				if (!foundApp || !launcher || typeof launcher.openApp !== 'function') {
+					return;
+				}
+
+				event.preventDefault();
+				launcher.openApp(foundApp.id);
+				closePopover();
+			});
+
+			wrapper.append(icon, input);
+
+			return wrapper;
+		}
+
+		function createStartPinnedItem(app) {
+			const button = document.createElement('button');
+			const icon = document.createElement('span');
+			const label = document.createElement('span');
+
+			button.type = 'button';
+			button.className = 'pdk-start-pinned-item';
+			button.dataset.aosStartPinnedApp = app.id;
+			button.setAttribute('aria-label', app.label);
+			icon.className = 'pdk-start-pinned-icon';
+			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
+			label.className = 'pdk-start-pinned-label';
+			label.textContent = app.label;
+			button.append(icon, label);
+			button.addEventListener('click', () => {
+				commands.execute(commandItem(app.label, 'open-app', {
+					icon: app.icon || 'dashicons-admin-generic',
+					target: app.id
+				}), activeDetail);
+				closePopover();
+			});
+
+			return button;
+		}
+
+		function createStartActionButton(item, className) {
+			const button = document.createElement('button');
+			const icon = document.createElement('span');
+			const label = document.createElement('span');
+			const disabled = itemRenderer.getItemDisabled(item, activeDetail);
+
+			button.type = 'button';
+			button.className = className;
+			button.disabled = disabled;
+			button.dataset.aosMenuItem = item.id || item.command || item.label;
+			if (disabled) {
+				button.setAttribute('aria-disabled', 'true');
+			}
+
+			if (item.icon) {
+				icon.className = 'pdk-start-action-icon';
+				icon.appendChild(dom.createIcon(item.icon));
+				button.appendChild(icon);
+			}
+
+			label.className = 'pdk-start-action-label';
+			label.textContent = item.label;
+			button.appendChild(label);
+
+			if (item.command && !disabled) {
+				button.addEventListener('click', () => {
+					commands.execute(item, activeDetail);
+					closePopover();
+				});
+			}
+
+			return button;
+		}
+
+		function getStartRecommendedItems(group) {
+			const count = Math.min(4, getRecentCount());
+			const recentItems = count && window.PufferDesk.menuBar
+				? window.PufferDesk.menuBar.getRecentMenuItems(config, count)
+				: [];
+
+			if (recentItems.length) {
+				return recentItems.slice(0, 4);
+			}
+
+			return group.items
+				.filter((item) => item && item.command && ['open-site-about', 'open-app', 'open-url'].includes(item.command))
+				.slice(0, 4);
+		}
+
+		function getStartFooterItems(group) {
+			const footerCommands = new Set(['shell.restart', 'shell.switch-classic', 'user.logout']);
+
+			return group.items.filter((item) => item && item.command && footerCommands.has(item.command));
+		}
+
+		function createStartFooterUserItem() {
+			const user = config.user && typeof config.user === 'object' ? config.user : {};
+			const item = commandItem(user.name || getLabel('admin', 'Admin'), 'open-url', {
+				icon: 'dashicons-admin-users',
+				url: user.profileUrl || ''
+			});
+
+			return createStartActionButton(item, 'pdk-start-footer-user');
+		}
+
+		function createStartPanelContent(group) {
+			const pinnedSection = document.createElement('section');
+			const pinnedGrid = document.createElement('div');
+			const recommendedSection = document.createElement('section');
+			const recommendedList = document.createElement('div');
+			const footer = document.createElement('footer');
+			const footerActions = document.createElement('div');
+			const recommendedItems = getStartRecommendedItems(group);
+
+			pinnedSection.className = 'pdk-start-section pdk-start-section-pinned';
+			pinnedSection.appendChild(createStartSectionHeading(getLabel('start_pinned', 'Pinned')));
+			pinnedGrid.className = 'pdk-start-pinned-grid';
+			getPinnedStartApps().forEach((app) => {
+				pinnedGrid.appendChild(createStartPinnedItem(app));
+			});
+			pinnedSection.appendChild(pinnedGrid);
+
+			recommendedSection.className = 'pdk-start-section pdk-start-section-recommended';
+			recommendedSection.appendChild(createStartSectionHeading(getLabel('start_recommended', 'Recommended')));
+			recommendedList.className = 'pdk-start-recommended-list';
+			if (recommendedItems.length) {
+				recommendedItems.forEach((item) => {
+					recommendedList.appendChild(createStartActionButton(item, 'pdk-start-recommended-item'));
+				});
+			} else {
+				const empty = document.createElement('div');
+				empty.className = 'pdk-start-recommended-empty';
+				empty.textContent = getLabel('start_no_recent_items', 'No recent items yet');
+				recommendedList.appendChild(empty);
+			}
+			recommendedSection.appendChild(recommendedList);
+
+			footer.className = 'pdk-start-footer';
+			footerActions.className = 'pdk-start-footer-actions';
+			getStartFooterItems(group).forEach((item) => {
+				footerActions.appendChild(createStartActionButton(item, 'pdk-start-footer-action'));
+			});
+			footer.setAttribute('aria-label', getLabel('start_power', 'Power and session'));
+			footer.append(createStartFooterUserItem(), footerActions);
+
+			return [
+				createStartSearch(),
+				pinnedSection,
+				recommendedSection,
+				footer
+			];
 		}
 
 		function resolveGroup(groupSource) {
@@ -584,11 +803,18 @@
 
 			const shellRect = shell.getBoundingClientRect();
 			const buttonRect = button.getBoundingClientRect();
-			const top = Math.round(buttonRect.bottom - shellRect.top + 2);
+			const opensAbove = shell.dataset.aosShellLauncher === 'taskbar' || buttonRect.top > shellRect.top + shellRect.height / 2;
+			const belowTop = Math.round(buttonRect.bottom - shellRect.top + 2);
+			const aboveTop = Math.round(buttonRect.top - shellRect.top - popover.offsetHeight - 8);
+			const top = opensAbove ? Math.max(8, aboveTop) : belowTop;
 			const minLeft = 8;
 			const maxLeft = Math.max(minLeft, shell.clientWidth - popover.offsetWidth - 8);
-			const left = Math.min(Math.max(minLeft, Math.round(buttonRect.left - shellRect.left)), maxLeft);
+			const preferredLeft = opensAbove && button.hasAttribute('data-pdk-system-menu')
+				? Math.round(buttonRect.left - shellRect.left + buttonRect.width / 2 - popover.offsetWidth / 2)
+				: Math.round(buttonRect.left - shellRect.left);
+			const left = Math.min(Math.max(minLeft, preferredLeft), maxLeft);
 
+			popover.dataset.aosMenuPlacement = opensAbove ? 'above' : 'below';
 			popover.style.left = `${left}px`;
 			popover.style.top = `${top}px`;
 		}
@@ -610,17 +836,26 @@
 			activeButton.setAttribute('aria-expanded', 'true');
 
 			popover = document.createElement('div');
-			popover.className = 'aos-menu-popover';
+			popover.className = 'pdk-menu-popover';
 			popover.dataset.aosMenuPopover = group.id;
-			popover.setAttribute('role', 'menu');
+			if (isStartPanelGroup(group)) {
+				popover.classList.add('pdk-start-panel');
+				popover.setAttribute('role', 'dialog');
+			} else {
+				popover.setAttribute('role', 'menu');
+			}
 			popover.setAttribute('aria-label', group.label);
-			popover.replaceChildren(...group.items.map(createMenuItem));
+			popover.replaceChildren(...(
+				isStartPanelGroup(group)
+					? createStartPanelContent(group)
+					: group.items.map(createMenuItem)
+			));
 
 			shell.appendChild(popover);
 			positionPopover(button);
 
 			if (options.focus) {
-				const firstEnabled = popover.querySelector('.aos-menu-item:not(:disabled)');
+				const firstEnabled = popover.querySelector('.pdk-start-search-input, .pdk-menu-item:not(:disabled), button:not(:disabled)');
 				if (firstEnabled) {
 					firstEnabled.focus();
 				}
@@ -645,7 +880,7 @@
 			button.dataset.aosMenuGroup = initialGroup.id;
 
 			if (hasMenuItems(initialGroup)) {
-				button.setAttribute('aria-haspopup', 'menu');
+				button.setAttribute('aria-haspopup', isStartPanelGroup(initialGroup) ? 'dialog' : 'menu');
 				button.setAttribute('aria-expanded', 'false');
 				button.addEventListener('click', () => {
 					const group = resolveGroup(groupSource);
@@ -730,7 +965,7 @@
 			bindSystemButton();
 			if (menu) {
 				render(getInitialActiveDetail());
-				shell.addEventListener('wpAdminOS:active-window-change', (event) => {
+				shell.addEventListener('pufferDesk:active-window-change', (event) => {
 					render(event.detail || { kind: 'desktop' });
 				});
 			}
@@ -749,12 +984,12 @@
 					closePopover();
 				}
 			});
-			window.addEventListener('wpAdminOS:recent-items-change', () => {
+			window.addEventListener('pufferDesk:recent-items-change', () => {
 				if (openGroupId === 'system') {
 					openPopover(getSystemGroup(), activeButton || systemButton);
 				}
 			});
-			shell.addEventListener('wpAdminOS:menu-bar-change', () => {
+			shell.addEventListener('pufferDesk:menu-bar-change', () => {
 				config.menuBar = Object.assign({}, config.menuBar || {}, {
 					auto_hide: shell.dataset.aosMenuBarAutoHide || 'fullscreen',
 					recent_count: Number.parseInt(shell.dataset.aosMenuBarRecentCount, 10) || 0,

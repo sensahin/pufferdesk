@@ -1,15 +1,15 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.windows = window.WPAdminOS.windows || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.windows = window.PufferDesk.windows || {};
 
-	window.WPAdminOS.windows.createWindowManager = function createWindowManager(shell, options = {}) {
-		const dom = window.WPAdminOS.dom;
-		const desktop = shell.querySelector('.aos-desktop');
-		const dock = shell.querySelector('.aos-dock');
-		const menuBar = shell.querySelector('.aos-menu-bar');
-		const sessionStore = window.WPAdminOS.session.createSessionStore(options.storageKey || '');
+	window.PufferDesk.windows.createWindowManager = function createWindowManager(shell, options = {}) {
+		const dom = window.PufferDesk.dom;
+		const desktop = shell.querySelector('.pdk-desktop');
+		const dock = shell.querySelector('.pdk-dock');
+		const menuBar = shell.querySelector('.pdk-menu-bar');
+		const sessionStore = window.PufferDesk.session.createSessionStore(options.storageKey || '');
 		let zIndex = 30;
 		let windowOffset = 0;
 		let windowId = 0;
@@ -26,7 +26,7 @@
 		const resizeObserver = typeof window.ResizeObserver === 'function'
 			? new window.ResizeObserver(() => scheduleSave())
 			: null;
-		const factory = window.WPAdminOS.windows.createWindowFactory({
+		const factory = window.PufferDesk.windows.createWindowFactory({
 			onMinimize(win) {
 				minimizeWindow(win);
 			},
@@ -43,11 +43,11 @@
 		function withIframeParam(url) {
 			try {
 				const next = new URL(url, window.location.origin);
-				next.searchParams.set('wp_adminos_iframe', '1');
+				next.searchParams.set('pufferdesk_iframe', '1');
 				return next.toString();
 			} catch (error) {
 				const joiner = url.indexOf('?') === -1 ? '?' : '&';
-				return `${url}${joiner}wp_adminos_iframe=1`;
+				return `${url}${joiner}pufferdesk_iframe=1`;
 			}
 		}
 
@@ -73,22 +73,38 @@
 		}
 
 		function getWindowSafeEdge() {
-			return getCssPixelValue('--aos-window-safe-edge', 10);
+			return getCssPixelValue('--pdk-window-safe-edge', 10);
 		}
 
 		function getWindowSafeTop() {
 			return getMenuBarHeight() + getWindowSafeEdge();
 		}
 
+		function getWindowSafeBottom() {
+			const edge = getWindowSafeEdge();
+
+			if (!dock || shell.dataset.aosDockAutoHide === '1') {
+				return edge;
+			}
+
+			if (shell.dataset.aosShellLauncher === 'taskbar') {
+				return Math.max(edge, Math.ceil(dock.getBoundingClientRect().height));
+			}
+
+			return edge;
+		}
+
 		function syncWindowSafeArea() {
 			const edge = getWindowSafeEdge();
 			const top = getWindowSafeTop();
+			const bottom = getWindowSafeBottom();
 
-			shell.style.setProperty('--aos-window-maximized-edge', `${edge}px`);
-			shell.style.setProperty('--aos-window-maximized-top', `${top}px`);
-			shell.style.setProperty('--aos-window-maximized-height', `calc(100% - ${top + edge}px)`);
+			shell.style.setProperty('--pdk-window-maximized-edge', `${edge}px`);
+			shell.style.setProperty('--pdk-window-maximized-top', `${top}px`);
+			shell.style.setProperty('--pdk-window-maximized-height', `calc(100% - ${top + bottom}px)`);
 
 			return {
+				bottom,
 				edge,
 				top
 			};
@@ -97,7 +113,7 @@
 		function getWindowBounds(win) {
 			const safeArea = syncWindowSafeArea();
 			const maxLeft = Math.max(0, desktop.clientWidth - win.offsetWidth);
-			const maxTop = Math.max(safeArea.top, desktop.clientHeight - 64);
+			const maxTop = Math.max(safeArea.top, desktop.clientHeight - safeArea.bottom - 64);
 
 			return {
 				maxLeft,
@@ -122,15 +138,24 @@
 			const bounds = getWindowBounds(win);
 			const currentLeft = readNumber(win.style.left) ?? Math.round(rect.left - desktopRect.left);
 			const currentTop = readNumber(win.style.top) ?? Math.round(rect.top - desktopRect.top);
+			const nextLeft = clamp(currentLeft, bounds.minLeft, bounds.maxLeft);
+			const nextTop = clamp(currentTop, bounds.minTop, bounds.maxTop);
+			const maxHeight = Math.max(0, desktop.clientHeight - syncWindowSafeArea().bottom - nextTop);
 
 			win.style.transform = 'none';
-			win.style.left = `${clamp(currentLeft, bounds.minLeft, bounds.maxLeft)}px`;
-			win.style.top = `${clamp(currentTop, bounds.minTop, bounds.maxTop)}px`;
+			win.style.left = `${nextLeft}px`;
+			win.style.top = `${nextTop}px`;
+
+			if (maxHeight > 0 && win.offsetHeight > maxHeight) {
+				const minSize = getResizeMinSize(win);
+				const height = Math.max(Math.min(minSize.height, maxHeight), Math.min(win.offsetHeight, maxHeight));
+				win.style.height = `${Math.round(height)}px`;
+			}
 		}
 
 		function constrainVisibleWindows() {
 			syncWindowSafeArea();
-			shell.querySelectorAll('.aos-window').forEach((win) => constrainWindow(win));
+			shell.querySelectorAll('.pdk-window').forEach((win) => constrainWindow(win));
 		}
 
 		function focusWindow(win) {
@@ -170,7 +195,7 @@
 			finishWindowAnimation(win, 'is-minimizing', () => {
 				win.classList.remove('is-minimizing');
 				win.classList.add('is-hidden');
-				win.removeAttribute('data-aos-minimize-animation');
+				win.removeAttribute('data-pdk-minimize-animation');
 				clearWindowAnimationTarget(win);
 				scheduleSave();
 			});
@@ -181,7 +206,7 @@
 				return;
 			}
 
-			shell.querySelectorAll('.aos-window').forEach((win) => {
+			shell.querySelectorAll('.pdk-window').forEach((win) => {
 				if (win !== referenceWindow && isVisibleWindow(win)) {
 					minimizeWindow(win);
 				}
@@ -196,7 +221,7 @@
 		}
 
 		function showAllWindows() {
-			shell.querySelectorAll('.aos-window.is-hidden:not(.is-closed)').forEach((win) => {
+			shell.querySelectorAll('.pdk-window.is-hidden:not(.is-closed)').forEach((win) => {
 				revealWindow(win);
 			});
 
@@ -209,7 +234,7 @@
 		}
 
 		function hasHiddenWindows() {
-			return Boolean(shell.querySelector('.aos-window.is-hidden:not(.is-closed)'));
+			return Boolean(shell.querySelector('.pdk-window.is-hidden:not(.is-closed)'));
 		}
 
 		function toggleMaximizeWindow(win) {
@@ -267,7 +292,7 @@
 		}
 
 		function dispatchActiveWindowChange() {
-			shell.dispatchEvent(new window.CustomEvent('wpAdminOS:active-window-change', {
+			shell.dispatchEvent(new window.CustomEvent('pufferDesk:active-window-change', {
 				detail: getActiveWindowDetail(activeWindow)
 			}));
 		}
@@ -281,7 +306,7 @@
 
 			fullscreenState = fullscreen;
 			shell.dataset.aosFullscreenWindow = fullscreen ? '1' : '0';
-			shell.dispatchEvent(new window.CustomEvent('wpAdminOS:fullscreen-window-change', {
+			shell.dispatchEvent(new window.CustomEvent('pufferDesk:fullscreen-window-change', {
 				detail: {
 					fullscreen
 				}
@@ -290,7 +315,7 @@
 
 		function setActiveWindow(win) {
 			activeWindow = win || null;
-			shell.querySelectorAll('.aos-window.is-active').forEach((item) => {
+			shell.querySelectorAll('.pdk-window.is-active').forEach((item) => {
 				item.classList.remove('is-active');
 			});
 			if (activeWindow) {
@@ -314,13 +339,13 @@
 		}
 
 		function getTopVisibleWindow() {
-			return Array.from(shell.querySelectorAll('.aos-window'))
+			return Array.from(shell.querySelectorAll('.pdk-window'))
 				.filter(isVisibleWindow)
 				.sort((first, second) => getWindowZIndex(second) - getWindowZIndex(first))[0] || null;
 		}
 
 		function setDockRunning(appId, running) {
-			const selector = `[data-aos-open-app="${dom.escapeAttribute(appId)}"].aos-dock-item`;
+			const selector = `[data-pdk-open-app="${dom.escapeAttribute(appId)}"].pdk-dock-item`;
 			const items = shell.querySelectorAll(selector);
 			items.forEach((item) => item.classList.toggle('is-running', running));
 		}
@@ -367,12 +392,12 @@
 				return null;
 			}
 
-			return shell.querySelector(`[data-aos-open-app="${dom.escapeAttribute(appId)}"].aos-dock-item`);
+			return shell.querySelector(`[data-pdk-open-app="${dom.escapeAttribute(appId)}"].pdk-dock-item`);
 		}
 
 		function getAppWindow(appId) {
 			return appId
-				? desktop.querySelector(`[data-aos-app-window="${dom.escapeAttribute(appId)}"]:not(.is-closed)`)
+				? desktop.querySelector(`[data-pdk-app-window="${dom.escapeAttribute(appId)}"]:not(.is-closed)`)
 				: null;
 		}
 
@@ -390,7 +415,7 @@
 		function getMinimizedDockItem(win) {
 			const id = win && win.dataset.aosWindowId;
 
-			return id ? shell.querySelector(`[data-aos-restore-window-id="${dom.escapeAttribute(id)}"]`) : null;
+			return id ? shell.querySelector(`[data-pdk-restore-window-id="${dom.escapeAttribute(id)}"]`) : null;
 		}
 
 		function getWindowAnimationTarget(win) {
@@ -414,13 +439,13 @@
 			const x = target ? target.x : 0;
 			const y = target ? target.y : fallbackY;
 
-			win.style.setProperty('--aos-window-animation-x', `${x}px`);
-			win.style.setProperty('--aos-window-animation-y', `${y}px`);
+			win.style.setProperty('--pdk-window-animation-x', `${x}px`);
+			win.style.setProperty('--pdk-window-animation-y', `${y}px`);
 		}
 
 		function clearWindowAnimationTarget(win) {
-			win.style.removeProperty('--aos-window-animation-x');
-			win.style.removeProperty('--aos-window-animation-y');
+			win.style.removeProperty('--pdk-window-animation-x');
+			win.style.removeProperty('--pdk-window-animation-y');
 		}
 
 		function cancelWindowAnimation(win) {
@@ -472,7 +497,7 @@
 
 			finishWindowAnimation(win, className, () => {
 				win.classList.remove(className);
-				win.removeAttribute('data-aos-minimize-animation');
+				win.removeAttribute('data-pdk-minimize-animation');
 				clearWindowAnimationTarget(win);
 			}, duration);
 		}
@@ -483,7 +508,7 @@
 
 			cancelWindowAnimation(win);
 			win.classList.remove('is-hidden', 'is-closed', 'is-minimizing', 'is-show-desktop-hidden');
-			win.removeAttribute('data-aos-minimize-animation');
+			win.removeAttribute('data-pdk-minimize-animation');
 			removeMinimizedDockItem(win);
 			constrainWindow(win);
 
@@ -493,7 +518,7 @@
 		}
 
 		function getDockFixedEndItem() {
-			return dock ? dock.querySelector('.aos-dock-item[data-aos-dock-fixed="end"]') : null;
+			return dock ? dock.querySelector('.pdk-dock-item[data-pdk-dock-fixed="end"]') : null;
 		}
 
 		function getMinimizedDockContainer() {
@@ -502,10 +527,10 @@
 			}
 
 			const fixedEndItem = getDockFixedEndItem();
-			let container = dock.querySelector('.aos-dock-minimized-windows');
+			let container = dock.querySelector('.pdk-dock-minimized-windows');
 			if (!container) {
 				container = document.createElement('span');
-				container.className = 'aos-dock-minimized-windows';
+				container.className = 'pdk-dock-minimized-windows';
 				dock.insertBefore(container, fixedEndItem || null);
 			} else if (fixedEndItem && container.nextElementSibling !== fixedEndItem) {
 				dock.insertBefore(container, fixedEndItem);
@@ -525,10 +550,10 @@
 			const button = document.createElement('button');
 			const title = win.dataset.aosWindowTitle || win.getAttribute('aria-label') || 'Window';
 			const dockAppButton = getDockAppButton(win);
-			const icon = dockAppButton ? dockAppButton.querySelector('.aos-icon-image, .dashicons') : null;
+			const icon = dockAppButton ? dockAppButton.querySelector('.pdk-icon-image, .dashicons') : null;
 
 			button.type = 'button';
-			button.className = 'aos-dock-window-item';
+			button.className = 'pdk-dock-window-item';
 			button.dataset.aosContext = 'window';
 			button.dataset.aosContextId = id;
 			button.dataset.aosContextLabel = title;
@@ -543,7 +568,7 @@
 			} else {
 				button.appendChild(dom.createDashicon('dashicons-admin-generic'));
 			}
-			const tooltip = dom.createElement('span', 'aos-dock-tooltip', title);
+			const tooltip = dom.createElement('span', 'pdk-dock-tooltip', title);
 			tooltip.setAttribute('aria-hidden', 'true');
 			button.appendChild(tooltip);
 			button.addEventListener('click', () => focusWindow(win));
@@ -559,7 +584,7 @@
 				item.remove();
 			}
 
-			const container = dock && dock.querySelector('.aos-dock-minimized-windows');
+			const container = dock && dock.querySelector('.pdk-dock-minimized-windows');
 			if (container && !container.children.length) {
 				container.remove();
 			}
@@ -567,21 +592,21 @@
 
 		function syncMinimizedDockItems() {
 			if (shouldMinimizeIntoAppIcon()) {
-				shell.querySelectorAll('.aos-dock-window-item').forEach((item) => item.remove());
-				const container = dock && dock.querySelector('.aos-dock-minimized-windows');
+				shell.querySelectorAll('.pdk-dock-window-item').forEach((item) => item.remove());
+				const container = dock && dock.querySelector('.pdk-dock-minimized-windows');
 				if (container && !container.children.length) {
 					container.remove();
 				}
 				return;
 			}
 
-			shell.querySelectorAll('.aos-window.is-hidden:not(.is-closed)').forEach((win) => {
+			shell.querySelectorAll('.pdk-window.is-hidden:not(.is-closed)').forEach((win) => {
 				createMinimizedDockItem(win);
 			});
 		}
 
 		function enterShowDesktop() {
-			const visibleWindows = Array.from(shell.querySelectorAll('.aos-window')).filter(isVisibleWindow);
+			const visibleWindows = Array.from(shell.querySelectorAll('.pdk-window')).filter(isVisibleWindow);
 
 			if (!visibleWindows.length) {
 				setActiveWindow(null);
@@ -627,12 +652,12 @@
 			return Boolean(
 				target
 				&& typeof target.closest === 'function'
-				&& target.closest('button, input, select, textarea, a, [contenteditable="true"], [data-aos-no-drag]')
+				&& target.closest('button, input, select, textarea, a, [contenteditable="true"], [data-pdk-no-drag]')
 			);
 		}
 
 		function makeDraggable(win) {
-			const handles = Array.from(win.querySelectorAll('[data-aos-drag-handle]'));
+			const handles = Array.from(win.querySelectorAll('[data-pdk-drag-handle]'));
 
 			if (!handles.length || !desktop) {
 				return;
@@ -735,7 +760,7 @@
 
 			getResizeDirections(win).forEach((direction) => {
 				const handle = document.createElement('span');
-				handle.className = `aos-window-resize-handle aos-window-resize-handle-${direction}`;
+				handle.className = `pdk-window-resize-handle pdk-window-resize-handle-${direction}`;
 				handle.dataset.aosResizeHandle = direction;
 				handle.setAttribute('aria-hidden', 'true');
 
@@ -805,7 +830,7 @@
 				}
 
 				if (direction.includes('s')) {
-					nextHeight = clamp(startHeight + deltaY, minSize.height, desktop.clientHeight - startTop);
+					nextHeight = clamp(startHeight + deltaY, minSize.height, desktop.clientHeight - safeArea.bottom - startTop);
 				}
 
 				if (direction.includes('w')) {
@@ -817,6 +842,8 @@
 					nextTop = clamp(startTop + deltaY, safeArea.top, startTop + startHeight - minSize.height);
 					nextHeight = startHeight + startTop - nextTop;
 				}
+
+				nextHeight = Math.min(nextHeight, Math.max(minSize.height, desktop.clientHeight - safeArea.bottom - nextTop));
 
 				win.style.left = `${Math.round(nextLeft)}px`;
 				win.style.top = `${Math.round(nextTop)}px`;
@@ -924,7 +951,7 @@
 		function serializeWindows() {
 			const windows = [];
 
-			desktop.querySelectorAll('.aos-window').forEach((win) => {
+			desktop.querySelectorAll('.pdk-window').forEach((win) => {
 				if (win.dataset.aosPersist === '0') {
 					return;
 				}
@@ -988,11 +1015,12 @@
 		}
 
 		function getDefaultPosition() {
+			const safeArea = syncWindowSafeArea();
 			const bounds = {
 				maxLeft: Math.max(0, desktop.clientWidth - 420),
-				maxTop: Math.max(getWindowSafeTop(), desktop.clientHeight - 360),
+				maxTop: Math.max(safeArea.top, desktop.clientHeight - safeArea.bottom - 360),
 				minLeft: 0,
-				minTop: getWindowSafeTop()
+				minTop: safeArea.top
 			};
 			const left = clamp(180 + windowOffset, bounds.minLeft, bounds.maxLeft);
 			const top = clamp(bounds.minTop + windowOffset, bounds.minTop, bounds.maxTop);
@@ -1005,16 +1033,18 @@
 		}
 
 		function getCenteredPosition(windowOptions = {}) {
+			const safeArea = syncWindowSafeArea();
 			const width = readNumber(windowOptions.width) ?? 360;
 			const height = readNumber(windowOptions.height) ?? 260;
+			const workHeight = Math.max(0, desktop.clientHeight - safeArea.top - safeArea.bottom);
 			const bounds = {
 				maxLeft: Math.max(0, desktop.clientWidth - width),
-				maxTop: Math.max(getWindowSafeTop(), desktop.clientHeight - height),
+				maxTop: Math.max(safeArea.top, desktop.clientHeight - safeArea.bottom - height),
 				minLeft: 0,
-				minTop: getWindowSafeTop()
+				minTop: safeArea.top
 			};
 			const left = clamp(Math.round((desktop.clientWidth - width) / 2), bounds.minLeft, bounds.maxLeft);
-			const top = clamp(Math.round((desktop.clientHeight - height) / 2), bounds.minTop, bounds.maxTop);
+			const top = clamp(safeArea.top + Math.round((workHeight - height) / 2), bounds.minTop, bounds.maxTop);
 
 			return {
 				left: `${left}px`,
@@ -1037,7 +1067,7 @@
 
 		function createWindow(windowOptions) {
 			const existing = windowOptions.appId
-				? desktop.querySelector(`[data-aos-app-window="${dom.escapeAttribute(windowOptions.appId)}"]`)
+				? desktop.querySelector(`[data-pdk-app-window="${dom.escapeAttribute(windowOptions.appId)}"]`)
 				: null;
 
 			if (existing) {
@@ -1080,38 +1110,38 @@
 
 		function bindExistingWindows() {
 			syncWindowSafeArea();
-			shell.querySelectorAll('.aos-window').forEach((win) => {
+			shell.querySelectorAll('.pdk-window').forEach((win) => {
 				bindWindowFrame(win);
 				constrainWindow(win);
 			});
 
-			shell.querySelectorAll('[data-aos-close]').forEach((button) => {
+			shell.querySelectorAll('[data-pdk-close]').forEach((button) => {
 				if (button.dataset.aosActionBound === '1') {
 					return;
 				}
 				button.dataset.aosActionBound = '1';
 				button.addEventListener('click', () => {
-					closeWindow(button.closest('.aos-window'), null);
+					closeWindow(button.closest('.pdk-window'), null);
 				});
 			});
 
-			shell.querySelectorAll('[data-aos-minimize]').forEach((button) => {
+			shell.querySelectorAll('[data-pdk-minimize]').forEach((button) => {
 				if (button.dataset.aosActionBound === '1') {
 					return;
 				}
 				button.dataset.aosActionBound = '1';
 				button.addEventListener('click', () => {
-					minimizeWindow(button.closest('.aos-window'));
+					minimizeWindow(button.closest('.pdk-window'));
 				});
 			});
 
-			shell.querySelectorAll('[data-aos-maximize]').forEach((button) => {
+			shell.querySelectorAll('[data-pdk-maximize]').forEach((button) => {
 				if (button.dataset.aosActionBound === '1') {
 					return;
 				}
 				button.dataset.aosActionBound = '1';
 				button.addEventListener('click', () => {
-					toggleMaximizeWindow(button.closest('.aos-window'));
+					toggleMaximizeWindow(button.closest('.pdk-window'));
 				});
 			});
 		}
@@ -1187,14 +1217,15 @@
 			});
 		}
 
-		shell.addEventListener('wpAdminOS:desktop-dock-change', () => {
+		shell.addEventListener('pufferDesk:desktop-dock-change', () => {
 			syncMinimizedDockItems();
+			constrainVisibleWindows();
 			if (!shouldWallpaperClickShowDesktop()) {
 				exitShowDesktop(true);
 			}
 		});
 
-		shell.addEventListener('wpAdminOS:menu-bar-layout-change', () => {
+		shell.addEventListener('pufferDesk:menu-bar-layout-change', () => {
 			constrainVisibleWindows();
 		});
 
@@ -1234,5 +1265,5 @@
 		};
 	};
 
-	window.WPAdminOS.createWindowManager = window.WPAdminOS.windows.createWindowManager;
+	window.PufferDesk.createWindowManager = window.PufferDesk.windows.createWindowManager;
 })();

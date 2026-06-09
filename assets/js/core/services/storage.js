@@ -1,10 +1,10 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.services = window.WPAdminOS.services || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.services = window.PufferDesk.services || {};
 
-	window.WPAdminOS.services.storage = {
+	window.PufferDesk.services.storage = {
 		getJSON(key) {
 			if (!key) {
 				return null;

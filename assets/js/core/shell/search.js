@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
-	window.WPAdminOS.shell.bindSearch = function bindSearch(shell, launcher) {
-		const searchInput = shell.querySelector('[data-aos-search]');
+	window.PufferDesk.shell.bindSearch = function bindSearch(shell, launcher) {
+		const searchInput = shell.querySelector('[data-pdk-search]');
 
 		if (!searchInput) {
 			return;

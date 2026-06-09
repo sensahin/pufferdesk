@@ -1,14 +1,14 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
-	window.WPAdminOS.apps.settings = window.WPAdminOS.apps.settings || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
+	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
-	window.WPAdminOS.apps.settings.createGeneralPanel = function createGeneralPanel(ctx) {
+	window.PufferDesk.apps.settings.createGeneralPanel = function createGeneralPanel(ctx) {
 		const general = ctx.getGeneralSettingsConfig();
 		const groups = Array.isArray(general.groups) ? general.groups : [];
-		const panel = ctx.dom.createElement('div', 'aos-settings-pane-panel aos-settings-general-panel');
+		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-general-panel');
 
 		panel.dataset.aosSettingsPanel = 'general';
 		panel.appendChild(ctx.createSettingsHero({
@@ -23,7 +23,7 @@
 				return;
 			}
 
-			const section = ctx.createSection('', 'aos-settings-list');
+			const section = ctx.createSection('', 'pdk-settings-list');
 			items.forEach((item) => {
 				section.appendChild(ctx.createSettingsActionRow(item));
 			});
@@ -33,11 +33,11 @@
 		return panel;
 	};
 
-	window.WPAdminOS.apps.settings.createGeneralAboutPanel = function createGeneralAboutPanel(ctx) {
+	window.PufferDesk.apps.settings.createGeneralAboutPanel = function createGeneralAboutPanel(ctx) {
 		const dom = ctx.dom;
 		const siteInfo = ctx.config.siteInfo && typeof ctx.config.siteInfo === 'object' ? ctx.config.siteInfo : {};
-		const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-about-panel');
-		const hero = dom.createElement('div', 'aos-settings-about-hero');
+		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-about-panel');
+		const hero = dom.createElement('div', 'pdk-settings-about-hero');
 		const diagnostics = createSettingsAboutDiagnostics(ctx, siteInfo);
 		const wordpressSection = createSettingsAboutFeatureCard(ctx, siteInfo.wordpress);
 		const displaySection = createSettingsAboutFeatureCard(ctx, siteInfo.display);
@@ -66,7 +66,7 @@
 			panel.appendChild(diagnostics);
 		}
 		if (siteInfo.footer) {
-			panel.appendChild(dom.createElement('p', 'aos-settings-about-footer', siteInfo.footer));
+			panel.appendChild(dom.createElement('p', 'pdk-settings-about-footer', siteInfo.footer));
 		}
 
 		return panel;
@@ -74,9 +74,9 @@
 
 	function createSettingsAboutDevice(ctx, siteInfo = {}) {
 		const dom = ctx.dom;
-		const device = dom.createElement('div', 'aos-settings-about-device');
-		const screen = dom.createElement('div', 'aos-settings-about-screen');
-		const stand = dom.createElement('span', 'aos-settings-about-stand');
+		const device = dom.createElement('div', 'pdk-settings-about-device');
+		const screen = dom.createElement('div', 'pdk-settings-about-screen');
+		const stand = dom.createElement('span', 'pdk-settings-about-stand');
 
 		if (siteInfo.iconUrl) {
 			const image = document.createElement('img');
@@ -95,16 +95,16 @@
 	}
 
 	function createSettingsAboutInfoRow(ctx, label, value) {
-		const row = ctx.dom.createElement('div', 'aos-settings-about-info-row');
+		const row = ctx.dom.createElement('div', 'pdk-settings-about-info-row');
 
-		row.appendChild(ctx.dom.createElement('span', 'aos-settings-about-info-label', label));
-		row.appendChild(ctx.dom.createElement('span', 'aos-settings-about-info-value', value));
+		row.appendChild(ctx.dom.createElement('span', 'pdk-settings-about-info-label', label));
+		row.appendChild(ctx.dom.createElement('span', 'pdk-settings-about-info-value', value));
 
 		return row;
 	}
 
 	function createSettingsAboutInfoCard(ctx, siteInfo = {}) {
-		const section = ctx.createSection('', 'aos-settings-about-info-card');
+		const section = ctx.createSection('', 'pdk-settings-about-info-card');
 		const rows = [
 			{ label: ctx.t('generalPanel.nameLabel', 'Name'), value: siteInfo.name || '' },
 			{ label: ctx.t('generalPanel.addressLabel', 'Address'), value: siteInfo.url || '' }
@@ -122,7 +122,7 @@
 	}
 
 	function createSettingsAboutFeatureIcon(ctx, iconName) {
-		const icon = ctx.dom.createElement('span', 'aos-settings-about-feature-icon');
+		const icon = ctx.dom.createElement('span', 'pdk-settings-about-feature-icon');
 		icon.appendChild(ctx.dom.createDashicon(iconName || 'dashicons-admin-generic'));
 
 		return icon;
@@ -134,9 +134,9 @@
 			return null;
 		}
 
-		const section = ctx.createSection('', 'aos-settings-about-feature-card');
-		const row = dom.createElement('div', 'aos-settings-about-feature-row');
-		const text = dom.createElement('span', 'aos-settings-about-feature-text');
+		const section = ctx.createSection('', 'pdk-settings-about-feature-card');
+		const row = dom.createElement('div', 'pdk-settings-about-feature-row');
+		const text = dom.createElement('span', 'pdk-settings-about-feature-text');
 
 		text.appendChild(dom.createElement('strong', '', info.title));
 		if (info.description) {
@@ -146,16 +146,16 @@
 		row.appendChild(createSettingsAboutFeatureIcon(ctx, info.icon));
 		row.appendChild(text);
 		if (info.value) {
-			row.appendChild(dom.createElement('span', 'aos-settings-about-feature-value', info.value));
+			row.appendChild(dom.createElement('span', 'pdk-settings-about-feature-value', info.value));
 		}
 		section.appendChild(row);
 
 		if (info.buttonLabel && info.buttonUrl) {
-			const actionRow = dom.createElement('div', 'aos-settings-about-feature-action');
+			const actionRow = dom.createElement('div', 'pdk-settings-about-feature-action');
 			const button = document.createElement('button');
 
 			button.type = 'button';
-			button.className = 'aos-settings-about-button';
+			button.className = 'pdk-settings-about-button';
 			button.textContent = info.buttonLabel;
 			button.addEventListener('click', () => {
 				ctx.executeMenuCommand('open-url', {
@@ -178,13 +178,13 @@
 			return null;
 		}
 
-		const section = ctx.createSection('', 'aos-settings-about-diagnostics');
-		const row = dom.createElement('div', 'aos-settings-about-diagnostics-row');
-		const text = dom.createElement('span', 'aos-settings-row-text');
+		const section = ctx.createSection('', 'pdk-settings-about-diagnostics');
+		const row = dom.createElement('div', 'pdk-settings-about-diagnostics-row');
+		const text = dom.createElement('span', 'pdk-settings-row-text');
 		const button = document.createElement('button');
 
 		button.type = 'button';
-		button.className = 'aos-settings-about-button';
+		button.className = 'pdk-settings-about-button';
 		button.textContent = siteInfo.moreInfoLabel || ctx.t('generalPanel.moreInfoLabel', 'More Info...');
 		button.addEventListener('click', () => {
 			ctx.executeMenuCommand('open-url', {

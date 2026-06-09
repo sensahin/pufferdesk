@@ -2,7 +2,7 @@
 /**
  * Desktop surface template.
  *
- * @package WPAdminOS
+ * @package PufferDesk
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -17,7 +17,7 @@ defined( 'ABSPATH' ) || exit;
  * @var array<string,mixed>             $shell
  * @var array<string,mixed>             $workspace_state
  */
-$wp_adminos_shell    = wp_parse_args(
+$pufferdesk_shell    = wp_parse_args(
 	isset( $shell ) && is_array( $shell ) ? $shell : array(),
 	array(
 		'launcher'    => 'dock',
@@ -25,13 +25,13 @@ $wp_adminos_shell    = wp_parse_args(
 		'status_area' => 'menu-bar',
 	)
 );
-$wp_adminos_launcher = isset( $wp_adminos_shell['launcher'] ) ? (string) $wp_adminos_shell['launcher'] : 'dock';
+$pufferdesk_launcher = isset( $pufferdesk_shell['launcher'] ) ? (string) $pufferdesk_shell['launcher'] : 'dock';
 ?>
 <main
-	class="aos-desktop"
-	data-aos-context="desktop"
-	data-aos-context-id="desktop"
-	aria-label="<?php esc_attr_e( 'WP adminOS desktop', 'wp-adminos' ); ?>"
+	class="pdk-desktop"
+	data-pdk-context="desktop"
+	data-pdk-context-id="desktop"
+	aria-label="<?php esc_attr_e( 'PufferDesk desktop', 'pufferdesk-admin-desktop' ); ?>"
 >
 	<?php
 	$this->render_part(
@@ -61,13 +61,13 @@ $wp_adminos_launcher = isset( $wp_adminos_shell['launcher'] ) ? (string) $wp_adm
 		)
 	);
 
-	if ( 'none' !== $wp_adminos_launcher ) {
+	if ( 'none' !== $pufferdesk_launcher ) {
 		$this->render_part(
 			'shell/dock.php',
 			array(
 				'apps'  => isset( $dock_apps ) && is_array( $dock_apps ) ? $dock_apps : $apps,
 				'theme' => $theme,
-				'shell' => $wp_adminos_shell,
+				'shell' => $pufferdesk_shell,
 			)
 		);
 	}

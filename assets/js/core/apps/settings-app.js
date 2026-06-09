@@ -1,28 +1,41 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
 
-	window.WPAdminOS.apps.createSettingsApp = function createSettingsApp(context = {}) {
-		const dom = window.WPAdminOS.dom;
-		const api = window.WPAdminOS.services.api;
-		const storage = window.WPAdminOS.services.storage;
-		const appearance = window.WPAdminOS.appearance;
-		const desktopDock = window.WPAdminOS.desktopDock;
-		const menuBar = window.WPAdminOS.menuBar;
-		const wallpaper = window.WPAdminOS.wallpaper;
-		const config = context.config || window.WPAdminOS.config.get();
+	function getThemeSurfaces(config = {}) {
+		return config.theme && config.theme.surfaces && typeof config.theme.surfaces === 'object'
+			? config.theme.surfaces
+			: {};
+	}
+
+	function getSettingsLayout(config = {}) {
+		const surfaces = getThemeSurfaces(config);
+		const layout = typeof surfaces.settings === 'string' ? surfaces.settings : '';
+
+		return layout || 'pufferdesk-settings';
+	}
+
+	window.PufferDesk.apps.createSettingsApp = function createSettingsApp(context = {}) {
+		const dom = window.PufferDesk.dom;
+		const api = window.PufferDesk.services.api;
+		const storage = window.PufferDesk.services.storage;
+		const appearance = window.PufferDesk.appearance;
+		const desktopDock = window.PufferDesk.desktopDock;
+		const menuBar = window.PufferDesk.menuBar;
+		const wallpaper = window.PufferDesk.wallpaper;
+		const config = context.config || window.PufferDesk.config.get();
 		const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
 		const capabilities = settingsConfig.capabilities && typeof settingsConfig.capabilities === 'object'
 			? settingsConfig.capabilities
 			: (config.shellCapabilities && typeof config.shellCapabilities === 'object' ? config.shellCapabilities : {});
-		const settingsLabels = window.WPAdminOS.apps.settings.createLabels(settingsConfig);
-		const settingsUI = window.WPAdminOS.apps.settings.createUI({ dom });
+		const settingsLabels = window.PufferDesk.apps.settings.createLabels(settingsConfig);
+		const settingsUI = window.PufferDesk.apps.settings.createUI({ dom });
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const themes = Array.isArray(config.themes) ? config.themes : [];
-		const shell = document.querySelector('[data-wp-adminos-shell]');
-		const appSurfaceManager = window.WPAdminOS.apps.createAppSurfaceManager(shell, config, {
+		const shell = document.querySelector('[data-pufferdesk-shell]');
+		const appSurfaceManager = window.PufferDesk.apps.createAppSurfaceManager(shell, config, {
 			apps
 		});
 		let optionGroups = [];
@@ -72,6 +85,8 @@
 		const sidebarButtons = [];
 		const wallpaperPhotoVisibleCount = 4;
 		const t = settingsLabels.get;
+		const settingsLayout = getSettingsLayout(config);
+		const isWindowsSettingsLayout = settingsLayout === 'windows-settings';
 
 		const accentOptions = settingsLabels.getOptions('appearance.accentOptions');
 		const desktopDockSelectOptions = t('desktopDock.selectOptions', {});
@@ -119,7 +134,7 @@
 		}
 
 		function showSettingsPanel(panelId, options = {}) {
-			const panel = (settingsRoot || document).querySelector(`[data-aos-settings-panel="${panelId}"]`);
+			const panel = (settingsRoot || document).querySelector(`[data-pdk-settings-panel="${panelId}"]`);
 			if (!panel) {
 				return;
 			}
@@ -131,7 +146,7 @@
 				}
 			}
 
-			(settingsRoot || document).querySelectorAll('[data-aos-settings-panel]').forEach((settingsPanel) => {
+			(settingsRoot || document).querySelectorAll('[data-pdk-settings-panel]').forEach((settingsPanel) => {
 				settingsPanel.hidden = settingsPanel.dataset.aosSettingsPanel !== panelId;
 			});
 
@@ -165,8 +180,11 @@
 		}
 
 		function getThemeOptionLabel(theme) {
-			const family = theme.family_label || theme.family || t('appearance.themeFallbackLabel', 'Theme');
-			const version = theme.version_label || theme.version || theme.label;
+			const family = theme.family_label || theme.label || theme.family || t('appearance.themeFallbackLabel', 'Theme');
+			const version = theme.version_label || theme.version || '';
+			if (!version || theme.version === 'default') {
+				return family;
+			}
 
 			return `${family} · ${version}`;
 		}
@@ -240,10 +258,10 @@
 			const position = item.position || 'center center';
 
 			return {
-				'--aos-wallpaper-image': cssValue,
-				'--aos-wallpaper-position': repeatWallpaperLayerValue(position, layerCount),
-				'--aos-wallpaper-repeat': repeatWallpaperLayerValue('no-repeat', layerCount),
-				'--aos-wallpaper-size': repeatWallpaperLayerValue(fit, layerCount)
+				'--pdk-wallpaper-image': cssValue,
+				'--pdk-wallpaper-position': repeatWallpaperLayerValue(position, layerCount),
+				'--pdk-wallpaper-repeat': repeatWallpaperLayerValue('no-repeat', layerCount),
+				'--pdk-wallpaper-size': repeatWallpaperLayerValue(fit, layerCount)
 			};
 		}
 
@@ -340,7 +358,7 @@
 		function createEditableProfileAvatar(user, name, profileUrl) {
 			const avatar = profileUrl ? document.createElement('button') : document.createElement('span');
 
-			avatar.className = 'aos-settings-profile-hero-avatar';
+			avatar.className = 'pdk-settings-profile-hero-avatar';
 			if (profileUrl) {
 				avatar.type = 'button';
 				avatar.dataset.aosOpenUrl = profileUrl;
@@ -351,7 +369,7 @@
 
 			populateAvatar(avatar, user, name);
 			if (profileUrl) {
-				avatar.appendChild(dom.createElement('span', 'aos-settings-profile-hero-edit', t('profile.editLabel', 'Edit')));
+				avatar.appendChild(dom.createElement('span', 'pdk-settings-profile-hero-edit', t('profile.editLabel', 'Edit')));
 			}
 
 			return avatar;
@@ -445,8 +463,8 @@
 
 			uploads.forEach((item) => {
 				const button = ensureUploadedPhotoOption(item);
-				const preview = button.querySelector('.aos-settings-wallpaper-selected-photo-preview');
-				const label = button.querySelector('.aos-settings-wallpaper-selected-photo-label');
+				const preview = button.querySelector('.pdk-settings-wallpaper-selected-photo-preview');
+				const label = button.querySelector('.pdk-settings-wallpaper-selected-photo-label');
 				const title = item.label || t('wallpaper.selectedPhotoLabel', 'Selected Photo');
 
 				button.aosWallpaperItem = item;
@@ -497,14 +515,14 @@
 				return existing;
 			}
 
-			const photoItem = dom.createElement('div', 'aos-settings-wallpaper-photo-item aos-settings-wallpaper-uploaded-photo-item');
+			const photoItem = dom.createElement('div', 'pdk-settings-wallpaper-photo-item pdk-settings-wallpaper-uploaded-photo-item');
 			const uploadedButton = document.createElement('button');
-			const uploadedPreview = dom.createElement('span', 'aos-settings-wallpaper-upload-preview aos-settings-wallpaper-selected-photo-preview');
-			const uploadedLabel = dom.createElement('span', 'aos-settings-wallpaper-upload-label aos-settings-wallpaper-selected-photo-label');
+			const uploadedPreview = dom.createElement('span', 'pdk-settings-wallpaper-upload-preview pdk-settings-wallpaper-selected-photo-preview');
+			const uploadedLabel = dom.createElement('span', 'pdk-settings-wallpaper-upload-label pdk-settings-wallpaper-selected-photo-label');
 			const removeButton = document.createElement('button');
 
 			uploadedButton.type = 'button';
-			uploadedButton.className = 'aos-settings-wallpaper-photo-button aos-settings-wallpaper-selected-photo-button';
+			uploadedButton.className = 'pdk-settings-wallpaper-photo-button pdk-settings-wallpaper-selected-photo-button';
 			uploadedButton.dataset.aosWallpaperKey = key;
 			uploadedButton.setAttribute('aria-pressed', 'false');
 			uploadedPreview.setAttribute('aria-hidden', 'true');
@@ -516,7 +534,7 @@
 			});
 
 			removeButton.type = 'button';
-			removeButton.className = 'aos-settings-wallpaper-remove-photo';
+			removeButton.className = 'pdk-settings-wallpaper-remove-photo';
 			removeButton.hidden = true;
 			removeButton.setAttribute('aria-label', t('wallpaper.removePhotoLabel', 'Remove photo'));
 			removeButton.addEventListener('click', (event) => {
@@ -556,7 +574,7 @@
 			status.textContent = t('status.saving', 'Saving...');
 
 			saveTimer = window.setTimeout(() => {
-				api.post('wp_adminos_save_appearance', currentAppearance)
+				api.post('pufferdesk_save_appearance', currentAppearance)
 					.then((result) => {
 						if (!result || !result.success) {
 							const message = result && result.data && result.data.message
@@ -599,7 +617,7 @@
 			window.clearTimeout(desktopDockSaveTimer);
 
 			desktopDockSaveTimer = window.setTimeout(() => {
-				api.post('wp_adminos_save_desktop_dock', currentDesktopDock)
+				api.post('pufferdesk_save_desktop_dock', currentDesktopDock)
 					.then((result) => {
 						if (!result || !result.success) {
 							status.textContent = result && result.data && result.data.message
@@ -671,7 +689,7 @@
 			status.textContent = t('status.saving', 'Saving...');
 
 			appLocationSaveTimer = window.setTimeout(() => {
-				api.post('wp_adminos_save_app_locations', {
+				api.post('pufferdesk_save_app_locations', {
 					locations: JSON.stringify(currentAppLocations)
 				})
 					.then((result) => {
@@ -709,7 +727,7 @@
 			status.textContent = t('status.saving', 'Saving...');
 
 			appLoginItemSaveTimer = window.setTimeout(() => {
-				api.post('wp_adminos_save_app_login_items', {
+				api.post('pufferdesk_save_app_login_items', {
 					items: JSON.stringify(currentAppLoginItems)
 				})
 					.then((result) => {
@@ -759,7 +777,7 @@
 			menuBarSaveTimer = window.setTimeout(() => {
 				const payload = Object.assign({}, currentMenuBar);
 
-				api.post('wp_adminos_save_menu_bar', payload)
+				api.post('pufferdesk_save_menu_bar', payload)
 					.then((result) => {
 						if (sequence !== menuBarSaveSequence) {
 							return;
@@ -845,13 +863,13 @@
 			const value = Number.parseFloat(input.value) || min;
 			const ratio = max > min ? (value - min) / (max - min) : 0;
 
-			input.style.setProperty('--aos-range-fill', `${Math.max(0, Math.min(100, ratio * 100))}%`);
+			input.style.setProperty('--pdk-range-fill', `${Math.max(0, Math.min(100, ratio * 100))}%`);
 		}
 
 		function saveWallpaper(payload, status, fallbackWallpaper = null) {
 			status.textContent = t('status.saving', 'Saving...');
 
-			return api.post('wp_adminos_save_wallpaper', payload)
+			return api.post('pufferdesk_save_wallpaper', payload)
 				.then((result) => {
 					if (!result || !result.success) {
 						const message = result && result.data && result.data.message
@@ -889,7 +907,7 @@
 
 			status.textContent = t('status.removing', 'Removing...');
 
-			api.post('wp_adminos_remove_wallpaper_upload', {
+			api.post('pufferdesk_remove_wallpaper_upload', {
 				attachment_id: attachmentId
 			})
 				.then((result) => {
@@ -944,13 +962,13 @@
 			preview.setAttribute('aria-hidden', 'true');
 			preview.dataset.aosPreviewValue = option.value;
 			button.appendChild(preview);
-			button.appendChild(dom.createElement('span', 'aos-settings-option-label', option.label));
+			button.appendChild(dom.createElement('span', 'pdk-settings-option-label', option.label));
 
 			return button;
 		}
 
 		function createOptionGroup(key, options, status, className, previewClassName) {
-			const group = dom.createElement('div', 'aos-settings-option-group');
+			const group = dom.createElement('div', 'pdk-settings-option-group');
 			const buttons = options.map((option) => {
 				const button = createOptionButton(key, option, status, className, previewClassName);
 				group.appendChild(button);
@@ -967,24 +985,24 @@
 		}
 
 		function createAccentGroup(status) {
-			const group = dom.createElement('div', 'aos-settings-swatch-group');
+			const group = dom.createElement('div', 'pdk-settings-swatch-group');
 			const buttons = accentOptions.map((option) => {
 				const button = document.createElement('button');
 				button.type = 'button';
-				button.className = `aos-settings-swatch aos-settings-swatch-${option.value}`;
+				button.className = `pdk-settings-swatch pdk-settings-swatch-${option.value}`;
 				button.value = option.value;
 				button.title = option.label;
 				button.setAttribute('aria-label', option.label);
 				button.setAttribute('aria-pressed', 'false');
 				button.addEventListener('click', () => updateAppearance('accent_color', option.value, status));
-				const swatch = dom.createElement('span', 'aos-settings-swatch-dot');
+				const swatch = dom.createElement('span', 'pdk-settings-swatch-dot');
 				swatch.setAttribute('aria-hidden', 'true');
 				button.appendChild(swatch);
 				group.appendChild(button);
 
 				return button;
 			});
-			accentLabel = dom.createElement('span', 'aos-settings-swatch-label', getAccentOption(currentAppearance.accent_color).label);
+			accentLabel = dom.createElement('span', 'pdk-settings-swatch-label', getAccentOption(currentAppearance.accent_color).label);
 			group.appendChild(accentLabel);
 
 			optionGroups.push({
@@ -997,7 +1015,7 @@
 
 		function createSingleOptionSelect(labelText) {
 			const select = document.createElement('select');
-			select.className = 'aos-settings-control';
+			select.className = 'pdk-settings-control';
 			select.disabled = true;
 
 			const option = document.createElement('option');
@@ -1010,10 +1028,10 @@
 		}
 
 		function createDesktopDockRange(key, labelText, options, status) {
-			const field = dom.createElement('label', 'aos-settings-range-field');
-			const label = dom.createElement('span', 'aos-settings-range-title', labelText);
+			const field = dom.createElement('label', 'pdk-settings-range-field');
+			const label = dom.createElement('span', 'pdk-settings-range-title', labelText);
 			const input = document.createElement('input');
-			const legend = dom.createElement('span', 'aos-settings-range-legend');
+			const legend = dom.createElement('span', 'pdk-settings-range-legend');
 
 			input.type = 'range';
 			input.min = String(options.min);
@@ -1040,10 +1058,10 @@
 		}
 
 		function createDesktopDockSelect(key, status) {
-			const wrap = dom.createElement('span', 'aos-settings-inline-select');
+			const wrap = dom.createElement('span', 'pdk-settings-inline-select');
 			const select = document.createElement('select');
 
-			select.className = 'aos-settings-value-select';
+			select.className = 'pdk-settings-value-select';
 			(desktopDockSelectOptions[key] || []).forEach((item) => {
 				const option = document.createElement('option');
 				option.value = item.value;
@@ -1056,7 +1074,7 @@
 				select.blur();
 			});
 			wrap.appendChild(select);
-			wrap.appendChild(dom.createElement('span', 'aos-settings-select-chevrons'));
+			wrap.appendChild(dom.createElement('span', 'pdk-settings-select-chevrons'));
 			desktopDockControls.push({
 				key,
 				select,
@@ -1070,10 +1088,10 @@
 			const button = document.createElement('button');
 
 			button.type = 'button';
-			button.className = 'aos-settings-toggle';
+			button.className = 'pdk-settings-toggle';
 			button.setAttribute('aria-pressed', currentDesktopDock[key] ? 'true' : 'false');
 			button.addEventListener('click', () => updateDesktopDock(key, !currentDesktopDock[key], status));
-			button.appendChild(dom.createElement('span', 'aos-settings-toggle-knob'));
+			button.appendChild(dom.createElement('span', 'pdk-settings-toggle-knob'));
 			desktopDockControls.push({
 				button,
 				key,
@@ -1084,7 +1102,7 @@
 		}
 
 		function createAppLocationIcon(app) {
-			const icon = dom.createElement('span', 'aos-settings-row-icon aos-settings-sidebar-icon-gray');
+			const icon = dom.createElement('span', 'pdk-settings-row-icon pdk-settings-sidebar-icon-gray');
 
 			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
 
@@ -1092,10 +1110,10 @@
 		}
 
 		function createAppLocationSelect(app, status) {
-			const wrap = dom.createElement('span', 'aos-settings-inline-select');
+			const wrap = dom.createElement('span', 'pdk-settings-inline-select');
 			const select = document.createElement('select');
 
-			select.className = 'aos-settings-value-select';
+			select.className = 'pdk-settings-value-select';
 			appLocationOptions.forEach((item) => {
 				const option = document.createElement('option');
 				option.value = item.value;
@@ -1108,7 +1126,7 @@
 				select.blur();
 			});
 			wrap.appendChild(select);
-			wrap.appendChild(dom.createElement('span', 'aos-settings-select-chevrons'));
+			wrap.appendChild(dom.createElement('span', 'pdk-settings-select-chevrons'));
 			appLocationControls.push({
 				appId: app.id,
 				select
@@ -1121,11 +1139,11 @@
 			const button = document.createElement('button');
 
 			button.type = 'button';
-			button.className = 'aos-settings-toggle';
+			button.className = 'pdk-settings-toggle';
 			button.setAttribute('aria-label', t('apps.openAtLoginLabel', 'Open at login'));
 			button.setAttribute('aria-pressed', appOpensAtLogin(app.id) ? 'true' : 'false');
 			button.addEventListener('click', () => updateAppLoginItem(app.id, !appOpensAtLogin(app.id), status));
-			button.appendChild(dom.createElement('span', 'aos-settings-toggle-knob'));
+			button.appendChild(dom.createElement('span', 'pdk-settings-toggle-knob'));
 			appLoginItemControls.push({
 				appId: app.id,
 				button
@@ -1135,17 +1153,17 @@
 		}
 
 		function createAppLocationRow(app, status) {
-			const row = dom.createElement('div', 'aos-settings-row aos-settings-app-location-row');
+			const row = dom.createElement('div', 'pdk-settings-row pdk-settings-app-location-row');
 
 			row.appendChild(createAppLocationIcon(app));
-			row.appendChild(dom.createElement('span', 'aos-settings-label', app.label || app.id));
+			row.appendChild(dom.createElement('span', 'pdk-settings-label', app.label || app.id));
 			row.appendChild(createAppLocationSelect(app, status));
 
 			return row;
 		}
 
 		function createAppLocationSection(status) {
-			const section = createSection('', 'aos-settings-list aos-settings-app-location-list');
+			const section = createSection('', 'pdk-settings-list pdk-settings-app-location-list');
 
 			apps.forEach((app) => {
 				if (app && app.id && !(app.dock && typeof app.dock === 'object' && app.dock.fixed === true)) {
@@ -1157,12 +1175,12 @@
 		}
 
 		function createDesktopDockRow(labelText, control, descriptionText = '') {
-			const row = dom.createElement('div', 'aos-settings-row aos-settings-desktop-dock-row');
-			const labelStack = dom.createElement('span', 'aos-settings-label-stack');
+			const row = dom.createElement('div', 'pdk-settings-row pdk-settings-desktop-dock-row');
+			const labelStack = dom.createElement('span', 'pdk-settings-label-stack');
 
-			labelStack.appendChild(dom.createElement('span', 'aos-settings-label', labelText));
+			labelStack.appendChild(dom.createElement('span', 'pdk-settings-label', labelText));
 			if (descriptionText) {
-				labelStack.appendChild(dom.createElement('span', 'aos-settings-description', descriptionText));
+				labelStack.appendChild(dom.createElement('span', 'pdk-settings-description', descriptionText));
 			}
 			row.append(labelStack, control);
 
@@ -1171,8 +1189,8 @@
 
 		function createWallpaperOption(item, status, extraClassName = '') {
 			const button = document.createElement('button');
-			const preview = dom.createElement('span', item.type === 'color' ? 'aos-settings-wallpaper-swatch' : 'aos-settings-wallpaper-preview');
-			const label = dom.createElement('span', 'aos-settings-wallpaper-label', item.label || item.id);
+			const preview = dom.createElement('span', item.type === 'color' ? 'pdk-settings-wallpaper-swatch' : 'pdk-settings-wallpaper-preview');
+			const label = dom.createElement('span', 'pdk-settings-wallpaper-label', item.label || item.id);
 			const key = getWallpaperKey({
 				type: item.type,
 				id: item.id,
@@ -1180,7 +1198,7 @@
 			});
 
 			button.type = 'button';
-			button.className = `aos-settings-wallpaper-option ${extraClassName}`.trim();
+			button.className = `pdk-settings-wallpaper-option ${extraClassName}`.trim();
 			button.dataset.aosWallpaperKey = key;
 			button.setAttribute('aria-label', item.label || item.id);
 			button.setAttribute('aria-pressed', 'false');
@@ -1194,7 +1212,7 @@
 		}
 
 		function createWallpaperGrid(status, items, className = '', optionClassName = '') {
-			const grid = dom.createElement('div', `aos-settings-wallpaper-grid ${className}`.trim());
+			const grid = dom.createElement('div', `pdk-settings-wallpaper-grid ${className}`.trim());
 			items.forEach((item) => {
 				if (item && item.type !== 'upload') {
 					grid.appendChild(createWallpaperOption(item, status, optionClassName));
@@ -1207,7 +1225,7 @@
 		function createCollapsibleWallpaperSection(title, items, status, options = {}) {
 			const visibleCount = Number.parseInt(options.visibleCount, 10) || 4;
 			const section = createSection('', options.sectionClassName || '');
-			const header = dom.createElement('div', 'aos-settings-section-header');
+			const header = dom.createElement('div', 'pdk-settings-section-header');
 			const heading = dom.createElement('h2', '', title);
 			const grid = createWallpaperGrid(
 				status,
@@ -1228,7 +1246,7 @@
 			if (items.length > visibleCount) {
 				const toggle = document.createElement('button');
 				toggle.type = 'button';
-				toggle.className = 'aos-settings-section-toggle';
+				toggle.className = 'pdk-settings-section-toggle';
 
 					const syncExpandedState = () => {
 						grid.classList.toggle('is-collapsed', !expanded);
@@ -1304,10 +1322,10 @@
 							position: 'center center'
 						},
 						css_variables: {
-							'--aos-wallpaper-image': imageCssValue,
-							'--aos-wallpaper-position': 'center center',
-							'--aos-wallpaper-repeat': 'no-repeat',
-							'--aos-wallpaper-size': 'cover'
+							'--pdk-wallpaper-image': imageCssValue,
+							'--pdk-wallpaper-position': 'center center',
+							'--pdk-wallpaper-repeat': 'no-repeat',
+							'--pdk-wallpaper-size': 'cover'
 						}
 					});
 
@@ -1320,18 +1338,18 @@
 		}
 
 		function createPhotoWallpaperGroup(status) {
-			const group = dom.createElement('div', 'aos-settings-wallpaper-photos');
-			const header = dom.createElement('div', 'aos-settings-wallpaper-photos-header');
+			const group = dom.createElement('div', 'pdk-settings-wallpaper-photos');
+			const header = dom.createElement('div', 'pdk-settings-wallpaper-photos-header');
 			const heading = dom.createElement('h3', '', t('wallpaper.yourPhotosHeading', 'Your Photos'));
-			const grid = dom.createElement('div', 'aos-settings-wallpaper-photo-grid');
+			const grid = dom.createElement('div', 'pdk-settings-wallpaper-photo-grid');
 			const addButton = document.createElement('button');
 			const toggle = document.createElement('button');
-			const preview = dom.createElement('span', 'aos-settings-wallpaper-upload-preview');
-			const icon = dom.createElement('span', 'aos-settings-wallpaper-upload-icon');
-			const label = dom.createElement('span', 'aos-settings-wallpaper-upload-label', t('wallpaper.addPhotoLabel', 'Add Photo...'));
+			const preview = dom.createElement('span', 'pdk-settings-wallpaper-upload-preview');
+			const icon = dom.createElement('span', 'pdk-settings-wallpaper-upload-icon');
+			const label = dom.createElement('span', 'pdk-settings-wallpaper-upload-label', t('wallpaper.addPhotoLabel', 'Add Photo...'));
 
 			toggle.type = 'button';
-			toggle.className = 'aos-settings-section-toggle';
+			toggle.className = 'pdk-settings-section-toggle';
 			toggle.hidden = true;
 			toggle.setAttribute('aria-expanded', 'false');
 			toggle.addEventListener('click', () => {
@@ -1340,7 +1358,7 @@
 			});
 
 			addButton.type = 'button';
-			addButton.className = 'aos-settings-wallpaper-photo-button aos-settings-wallpaper-add-photo-button';
+			addButton.className = 'pdk-settings-wallpaper-photo-button pdk-settings-wallpaper-add-photo-button';
 			addButton.setAttribute('aria-pressed', 'false');
 			preview.setAttribute('aria-hidden', 'true');
 			icon.setAttribute('aria-hidden', 'true');
@@ -1363,8 +1381,8 @@
 		}
 
 		function createDesktopDockSliderSection(status, options = {}) {
-			const section = createSection('', 'aos-settings-desktop-dock-slider-section');
-			const row = dom.createElement('div', 'aos-settings-desktop-dock-slider-row');
+			const section = createSection('', 'pdk-settings-desktop-dock-slider-section');
+			const row = dom.createElement('div', 'pdk-settings-desktop-dock-slider-row');
 
 			if (options.size !== false) {
 				row.appendChild(createDesktopDockRange('dock_size', t('desktopDock.rows.dockSize', 'Size'), {
@@ -1397,10 +1415,10 @@
 		}
 
 		function createMenuBarSelect(key, status) {
-			const wrap = dom.createElement('span', 'aos-settings-inline-select');
+			const wrap = dom.createElement('span', 'pdk-settings-inline-select');
 			const select = document.createElement('select');
 
-			select.className = 'aos-settings-value-select';
+			select.className = 'pdk-settings-value-select';
 			(menuBarSelectOptions[key] || []).forEach((item) => {
 				const option = document.createElement('option');
 				option.value = item.value;
@@ -1414,7 +1432,7 @@
 				select.blur();
 			});
 			wrap.appendChild(select);
-			wrap.appendChild(dom.createElement('span', 'aos-settings-select-chevrons'));
+			wrap.appendChild(dom.createElement('span', 'pdk-settings-select-chevrons'));
 			menuBarControls.push({
 				key,
 				select,
@@ -1428,10 +1446,10 @@
 			const button = document.createElement('button');
 
 			button.type = 'button';
-			button.className = 'aos-settings-toggle';
+			button.className = 'pdk-settings-toggle';
 			button.setAttribute('aria-pressed', currentMenuBar[key] ? 'true' : 'false');
 			button.addEventListener('click', () => updateMenuBar(key, !currentMenuBar[key], status));
-			button.appendChild(dom.createElement('span', 'aos-settings-toggle-knob'));
+			button.appendChild(dom.createElement('span', 'pdk-settings-toggle-knob'));
 			menuBarControls.push({
 				button,
 				key,
@@ -1442,11 +1460,11 @@
 		}
 
 		function createMenuBarRow(labelText, control) {
-			return createSettingsRow(labelText, control, '', 'aos-settings-menu-bar-row aos-settings-row-fluid-label');
+			return createSettingsRow(labelText, control, '', 'pdk-settings-menu-bar-row pdk-settings-row-fluid-label');
 		}
 
 		function createSidebarIcon(item) {
-			const icon = dom.createElement('span', `aos-settings-sidebar-icon aos-settings-sidebar-icon-${item.tone || 'blue'}`);
+			const icon = dom.createElement('span', `pdk-settings-sidebar-icon pdk-settings-sidebar-icon-${item.tone || 'blue'}`);
 			icon.appendChild(dom.createDashicon(item.icon));
 
 			return icon;
@@ -1457,7 +1475,7 @@
 		}
 
 		function executeMenuCommand(command, options = {}) {
-			const commands = window.WPAdminOS && window.WPAdminOS.menuCommands;
+			const commands = window.PufferDesk && window.PufferDesk.menuCommands;
 
 			if (commands && typeof commands.execute === 'function') {
 				commands.execute({
@@ -1481,7 +1499,7 @@
 
 		function createProfileActionRow(options = {}) {
 			return createSettingsActionRow(Object.assign({}, options, {
-				className: 'aos-settings-profile-action'
+				className: 'pdk-settings-profile-action'
 			}));
 		}
 
@@ -1492,6 +1510,15 @@
 		}
 
 		function createSettingsHero(options = {}) {
+			if (isWindowsSettingsLayout) {
+				const hero = dom.createElement('section', 'pdk-settings-page-intro');
+				if (options.description) {
+					hero.appendChild(dom.createElement('p', '', options.description));
+				}
+
+				return hero;
+			}
+
 			return settingsUI.createSummaryHero(options);
 		}
 
@@ -1501,15 +1528,15 @@
 			const profile = document.createElement('button');
 
 			profile.type = 'button';
-			profile.className = 'aos-settings-profile';
+			profile.className = 'pdk-settings-profile';
 			profile.dataset.aosSettingsSection = profileItem.id;
 			profile.setAttribute('aria-label', `${profileItem.label}: ${name}`);
 			profile.addEventListener('click', () => setActiveSection(profileItem.id));
-			const text = dom.createElement('span', 'aos-settings-profile-text');
+			const text = dom.createElement('span', 'pdk-settings-profile-text');
 			text.appendChild(dom.createElement('strong', '', name));
 			text.appendChild(dom.createElement('span', '', user.subtitle || t('profile.defaultRole', 'WordPress User')));
 
-			profile.appendChild(createAvatar('aos-settings-profile-avatar', user, name));
+			profile.appendChild(createAvatar('pdk-settings-profile-avatar', user, name));
 			profile.appendChild(text);
 			sidebarButtons.push({
 				button: profile,
@@ -1520,16 +1547,19 @@
 		}
 
 		function createSettingsSidebar() {
-			const sidebar = dom.createElement('aside', 'aos-settings-sidebar');
-			const dragZone = dom.createElement('div', 'aos-split-sidebar-drag-zone');
-			const search = dom.createElement('label', 'aos-settings-search-field');
+			const sidebar = dom.createElement('aside', 'pdk-settings-sidebar');
+			const dragZone = dom.createElement('div', 'pdk-split-sidebar-drag-zone');
+			const sidebarTitle = dom.createElement('h2', 'pdk-settings-sidebar-title', t('appTitle', 'Settings'));
+			const search = dom.createElement('label', 'pdk-settings-search-field');
 			const searchInput = document.createElement('input');
-			const nav = dom.createElement('nav', 'aos-settings-sidebar-nav');
+			const nav = dom.createElement('nav', 'pdk-settings-sidebar-nav');
 			const navItems = [];
 
 			dragZone.dataset.aosDragHandle = '';
 			dragZone.setAttribute('aria-hidden', 'true');
-			sidebar.appendChild(dragZone);
+			if (!isWindowsSettingsLayout) {
+				sidebar.appendChild(dragZone);
+			}
 
 			search.appendChild(dom.createDashicon('dashicons-search'));
 			searchInput.type = 'search';
@@ -1537,18 +1567,24 @@
 			searchInput.setAttribute('aria-label', t('sidebar.searchLabel', 'Search settings'));
 			search.appendChild(searchInput);
 
-			sidebar.appendChild(search);
-			sidebar.appendChild(createUserProfile());
+			if (isWindowsSettingsLayout) {
+				sidebar.appendChild(sidebarTitle);
+				sidebar.appendChild(createUserProfile());
+				sidebar.appendChild(search);
+			} else {
+				sidebar.appendChild(search);
+				sidebar.appendChild(createUserProfile());
+			}
 
 			nav.setAttribute('aria-label', t('sidebar.navLabel', 'Settings sections'));
 			sidebarItems.forEach((item) => {
 				const button = document.createElement('button');
 				button.type = 'button';
-				button.className = 'aos-settings-sidebar-item';
+				button.className = 'pdk-settings-sidebar-item';
 				button.dataset.aosSettingsSection = item.id;
 				button.disabled = Boolean(item.disabled);
 				button.appendChild(createSidebarIcon(item));
-				button.appendChild(dom.createElement('span', 'aos-settings-sidebar-label', item.label));
+				button.appendChild(dom.createElement('span', 'pdk-settings-sidebar-label', item.label));
 				if (!item.disabled) {
 					button.addEventListener('click', () => setActiveSection(item.id));
 				}
@@ -1580,46 +1616,47 @@
 		}
 
 		function createPaneHeader(title) {
-			const header = dom.createElement('header', 'aos-settings-pane-header');
-			const history = dom.createElement('div', 'aos-settings-history');
+			const header = dom.createElement('header', 'pdk-settings-pane-header');
+			const history = dom.createElement('div', 'pdk-settings-history');
 			const titleElement = dom.createElement('h1', '', title);
 			header.dataset.aosDragHandle = '';
 			history.dataset.aosNoDrag = '';
 
-			['back', 'forward'].forEach((direction) => {
-				const button = document.createElement('button');
-				button.type = 'button';
-				button.className = `aos-settings-history-button aos-settings-history-button-${direction}`;
-				button.disabled = true;
-				button.setAttribute('aria-label', direction === 'back' ? t('history.back', 'Back') : t('history.forward', 'Forward'));
-				button.appendChild(dom.createElement('span', 'aos-settings-history-chevron'));
-				if (direction === 'back') {
-					backButton = button;
-					button.addEventListener('click', () => {
-						const previousPanel = panelHistory.pop();
-						if (previousPanel) {
-							panelForwardHistory.push(activePanel);
-							showSettingsPanel(previousPanel, {
-								clearForward: false
-							});
-						}
-					});
-				} else {
-					forwardButton = button;
-					button.addEventListener('click', () => {
-						const nextPanel = panelForwardHistory.pop();
-						if (nextPanel) {
-							showSettingsPanel(nextPanel, {
-								clearForward: false,
-								pushHistory: true
-							});
-						}
-					});
-				}
-				history.appendChild(button);
-			});
-
-			header.appendChild(history);
+			if (!isWindowsSettingsLayout) {
+				['back', 'forward'].forEach((direction) => {
+					const button = document.createElement('button');
+					button.type = 'button';
+					button.className = `pdk-settings-history-button pdk-settings-history-button-${direction}`;
+					button.disabled = true;
+					button.setAttribute('aria-label', direction === 'back' ? t('history.back', 'Back') : t('history.forward', 'Forward'));
+					button.appendChild(dom.createElement('span', 'pdk-settings-history-chevron'));
+					if (direction === 'back') {
+						backButton = button;
+						button.addEventListener('click', () => {
+							const previousPanel = panelHistory.pop();
+							if (previousPanel) {
+								panelForwardHistory.push(activePanel);
+								showSettingsPanel(previousPanel, {
+									clearForward: false
+								});
+							}
+						});
+					} else {
+						forwardButton = button;
+						button.addEventListener('click', () => {
+							const nextPanel = panelForwardHistory.pop();
+							if (nextPanel) {
+								showSettingsPanel(nextPanel, {
+									clearForward: false,
+									pushHistory: true
+								});
+							}
+						});
+					}
+					history.appendChild(button);
+				});
+				header.appendChild(history);
+			}
 			header.appendChild(titleElement);
 			paneTitle = titleElement;
 
@@ -1629,7 +1666,7 @@
 		function saveTheme(themeId, status) {
 			status.textContent = t('status.saving', 'Saving...');
 
-			api.post('wp_adminos_save_theme', {
+			api.post('pufferdesk_save_theme', {
 				theme_id: themeId
 			})
 				.then((result) => {
@@ -1651,12 +1688,16 @@
 					});
 			}
 
-			const content = dom.createElement('div', 'aos-settings');
+			const content = dom.createElement('div', 'pdk-settings');
 			settingsRoot = content;
-			const main = dom.createElement('div', 'aos-settings-main');
-			const pane = dom.createElement('div', 'aos-settings-pane');
-			const status = dom.createElement('div', 'aos-settings-status');
-			const settingsPanels = window.WPAdminOS.apps.settings;
+			content.dataset.aosSettingsLayout = settingsLayout;
+			if (isWindowsSettingsLayout) {
+				content.classList.add('pdk-settings-windows');
+			}
+			const main = dom.createElement('div', 'pdk-settings-main');
+			const pane = dom.createElement('div', 'pdk-settings-pane');
+			const status = dom.createElement('div', 'pdk-settings-status');
+			const settingsPanels = window.PufferDesk.apps.settings;
 			status.setAttribute('role', 'status');
 			status.setAttribute('aria-live', 'polite');
 			const panelContext = {
@@ -1724,7 +1765,7 @@
 		syncWallpaperControls();
 		setActiveSection(activeSection);
 		content.aosOpenPanel = (panelId) => {
-			if (!panelId || !content.querySelector(`[data-aos-settings-panel="${dom.escapeAttribute(panelId)}"]`)) {
+			if (!panelId || !content.querySelector(`[data-pdk-settings-panel="${dom.escapeAttribute(panelId)}"]`)) {
 				return false;
 			}
 
@@ -1737,14 +1778,20 @@
 		return content;
 	};
 
-	if (typeof window.WPAdminOS.apps.registerNativeAppRenderer === 'function') {
-		window.WPAdminOS.apps.registerNativeAppRenderer('settings', ({ config }) => ({
-			bodyClass: 'aos-window-body aos-settings-body',
-			contextMenu: false,
-			content: window.WPAdminOS.apps.createSettingsApp({ config }),
-			height: '680px',
-			resizeMode: 'vertical',
-			width: '725px'
-		}));
+	if (typeof window.PufferDesk.apps.registerNativeAppRenderer === 'function') {
+		window.PufferDesk.apps.registerNativeAppRenderer('settings', ({ config }) => {
+			const layout = getSettingsLayout(config);
+			const isWindowsLayout = layout === 'windows-settings';
+
+			return {
+				bodyClass: `pdk-window-body pdk-settings-body${isWindowsLayout ? ' pdk-settings-windows-body' : ''}`,
+				contextMenu: false,
+				content: window.PufferDesk.apps.createSettingsApp({ config }),
+				height: isWindowsLayout ? '650px' : '680px',
+				resizeMode: isWindowsLayout ? 'both' : 'vertical',
+				surfaceLayout: layout,
+				width: isWindowsLayout ? '920px' : '725px'
+			};
+		});
 	}
 })();

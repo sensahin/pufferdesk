@@ -1,9 +1,9 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
-	window.WPAdminOS.apps.settings = window.WPAdminOS.apps.settings || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
+	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
 	const defaults = {
 		appearance: {
@@ -46,7 +46,7 @@
 			title: 'Appearance'
 		},
 		apps: {
-			description: 'Choose where apps appear and which apps open when WP adminOS starts.',
+			description: 'Choose where apps appear and which apps open when PufferDesk starts.',
 			emptyLabel: 'No apps are available for this account.',
 			fixedPlacementLabel: 'Fixed',
 			openAtLoginLabel: 'Open at login',
@@ -223,7 +223,7 @@
 			resetAllConfirmLabel: 'Reset All',
 			resetAllDescription: 'Clear saved workspace layouts across every theme for this WordPress account.',
 			resetAllLabel: 'All theme layouts',
-			resetAllMessage: 'This resets saved workspace layouts for every WP adminOS theme for this WordPress account.',
+			resetAllMessage: 'This resets saved workspace layouts for every PufferDesk theme for this WordPress account.',
 			resetAllTitle: 'Reset Layouts for All Themes?',
 			resetCurrentButton: 'Reset Current Theme Layout',
 			resetCurrentConfirmLabel: 'Reset',
@@ -238,10 +238,10 @@
 		system: {
 			classicDescription: 'Leave the shell and open the standard WordPress admin.',
 			classicLabel: 'Switch to Classic Admin...',
-			eraseDescription: 'Reset WP adminOS preferences, wallpaper, apps, windows, widgets, and layout for this account.',
+			eraseDescription: 'Reset PufferDesk preferences, wallpaper, apps, windows, widgets, and layout for this account.',
 			eraseLabel: 'Erase All Content and Settings...',
-			restartDescription: 'Reload WP adminOS and start a fresh shell session.',
-			restartLabel: 'Restart WP adminOS...',
+			restartDescription: 'Reload PufferDesk and start a fresh shell session.',
+			restartLabel: 'Restart PufferDesk...',
 			title: 'System'
 		}
 	};
@@ -295,7 +295,7 @@
 		return Array.isArray(options) ? options.slice() : [];
 	}
 
-	window.WPAdminOS.apps.settings.createLabels = function createLabels(settingsConfig = {}) {
+	window.PufferDesk.apps.settings.createLabels = function createLabels(settingsConfig = {}) {
 		const runtimeLabels = settingsConfig.labels && isPlainObject(settingsConfig.labels)
 			? settingsConfig.labels
 			: {};

@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
-	window.WPAdminOS.shell.createCommandRegistry = function createCommandRegistry(shell, context = {}) {
-		const dom = window.WPAdminOS.dom;
+	window.PufferDesk.shell.createCommandRegistry = function createCommandRegistry(shell, context = {}) {
+		const dom = window.PufferDesk.dom;
 		const launcher = context.launcher || null;
 		const manager = context.manager || null;
 		const widgetManager = context.widgetManager || null;
@@ -14,21 +14,23 @@
 		const dialogs = context.dialogs || null;
 		const reopenPolicy = context.reopenPolicy || null;
 		const config = context.config && typeof context.config === 'object' ? context.config : {};
-		const api = window.WPAdminOS.services && window.WPAdminOS.services.api ? window.WPAdminOS.services.api : null;
+		const api = window.PufferDesk.services && window.PufferDesk.services.api ? window.PufferDesk.services.api : null;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
 		const labels = config.menu && config.menu.labels && typeof config.menu.labels === 'object' ? config.menu.labels : {};
-		const appSurfaceManager = window.WPAdminOS.apps && typeof window.WPAdminOS.apps.createAppSurfaceManager === 'function'
-			? window.WPAdminOS.apps.createAppSurfaceManager(shell, config, {
+		const appSurfaceManager = window.PufferDesk.apps && typeof window.PufferDesk.apps.createAppSurfaceManager === 'function'
+			? window.PufferDesk.apps.createAppSurfaceManager(shell, config, {
 				apps,
 				desktopIconManager,
 				folderManager,
 				preserveUnknown: true
 			})
 			: null;
-		const commands = new Map();
-		const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
-		let activeDetail = { kind: 'desktop' };
+			const commands = new Map();
+			const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
+			const folderExplorerSortModes = new Set(['none', 'name', 'kind']);
+			const folderExplorerViewModes = new Set(['extra-large-icons', 'large-icons', 'medium-icons', 'small-icons', 'list', 'details', 'tiles', 'content']);
+			let activeDetail = { kind: 'desktop' };
 
 		function getLabel(key, fallback) {
 			const value = labels[key];
@@ -44,12 +46,12 @@
 		}
 
 		function getTargetWindow(detail = activeDetail) {
-			if (detail && detail.windowElement && detail.windowElement.classList && detail.windowElement.classList.contains('aos-window')) {
+			if (detail && detail.windowElement && detail.windowElement.classList && detail.windowElement.classList.contains('pdk-window')) {
 				return detail.windowElement;
 			}
 
 			if (detail && detail.appId) {
-				return shell.querySelector(`.aos-window[data-aos-app-window="${dom.escapeAttribute(detail.appId)}"]:not(.is-closed)`);
+				return shell.querySelector(`.pdk-window[data-pdk-app-window="${dom.escapeAttribute(detail.appId)}"]:not(.is-closed)`);
 			}
 
 			if (manager && typeof manager.getActiveWindow === 'function') {
@@ -64,18 +66,26 @@
 
 		function getWindowById(windowId) {
 			return windowId
-				? shell.querySelector(`.aos-window[data-aos-window-id="${dom.escapeAttribute(windowId)}"]:not(.is-closed)`)
+				? shell.querySelector(`.pdk-window[data-pdk-window-id="${dom.escapeAttribute(windowId)}"]:not(.is-closed)`)
 				: null;
 		}
 
 		function getTargetWindowFrame(detail = activeDetail) {
 			const win = getTargetWindow(detail);
 
-			return win ? win.querySelector('iframe.aos-app-frame') : null;
+			return win ? win.querySelector('iframe.pdk-app-frame') : null;
 		}
 
 		function normalizeFolderToolbarDisplayMode(mode) {
 			return folderToolbarDisplayModes.has(mode) ? mode : '';
+		}
+
+		function normalizeFolderExplorerSortMode(mode) {
+			return folderExplorerSortModes.has(mode) ? mode : '';
+		}
+
+		function normalizeFolderExplorerViewMode(mode) {
+			return folderExplorerViewModes.has(mode) ? mode : '';
 		}
 
 		function getFolderToolbarWindow(detail = activeDetail) {
@@ -107,7 +117,7 @@
 
 			try {
 				const next = new URL(url, window.location.origin);
-				next.searchParams.delete('wp_adminos_iframe');
+				next.searchParams.delete('pufferdesk_iframe');
 				return next.toString();
 			} catch (error) {
 				return url;
@@ -119,7 +129,7 @@
 			let url = '';
 
 			if (win) {
-				const frame = win.querySelector('iframe.aos-app-frame');
+				const frame = win.querySelector('iframe.pdk-app-frame');
 
 				if (frame) {
 					try {
@@ -188,7 +198,7 @@
 			if (result && typeof result.catch === 'function') {
 				result.catch((error) => {
 					if (window.console && typeof window.console.error === 'function') {
-						window.console.error('WP adminOS command failed.', error);
+						window.console.error('PufferDesk command failed.', error);
 					}
 				});
 			}
@@ -200,7 +210,7 @@
 		}
 
 		function refreshActiveMenu(detail = activeDetail) {
-			shell.dispatchEvent(new window.CustomEvent('wpAdminOS:active-window-change', {
+			shell.dispatchEvent(new window.CustomEvent('pufferDesk:active-window-change', {
 				detail
 			}));
 		}
@@ -218,9 +228,25 @@
 			return detail && detail.id ? detail.id : '';
 		}
 
-		function getFolderIdFromPayload(payload = {}, detail = {}) {
-			return payload.folderId || payload.target || (detail && detail.folderId) || getFolderTargetFromDetail(detail);
-		}
+			function getFolderIdFromPayload(payload = {}, detail = {}) {
+				return payload.folderId || payload.target || (detail && detail.folderId) || getFolderTargetFromDetail(detail);
+			}
+
+			function getFolderCreateParentId(payload = {}, detail = {}) {
+				if (payload.parentId) {
+					return payload.parentId;
+				}
+
+				if (detail && detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.aosWindowKind === 'folder') {
+					return detail.folderId || detail.windowElement.dataset.aosFolderWindow || detail.id || '';
+				}
+
+				if (detail && (detail.type === 'folder-toolbar' || detail.kind === 'folder-toolbar')) {
+					return detail.folderId || detail.id || '';
+				}
+
+				return '';
+			}
 
 		function getAppIdFromPayload(payload = {}, detail = {}) {
 			return payload.target || payload.appId || getAppTargetFromDetail(detail) || (detail && detail.id) || '';
@@ -256,7 +282,7 @@
 				return Promise.reject(new Error('Settings service unavailable.'));
 			}
 
-			return api.post('wp_adminos_save_app_locations', {
+			return api.post('pufferdesk_save_app_locations', {
 				locations: JSON.stringify(config.appLocations)
 			}).then((result) => {
 				if (!result || !result.success) {
@@ -319,7 +345,7 @@
 				return Promise.reject(new Error('Settings service unavailable.'));
 			}
 
-			return api.post('wp_adminos_save_app_login_items', {
+			return api.post('pufferdesk_save_app_login_items', {
 				items: JSON.stringify(config.appLoginItems)
 			}).then((result) => {
 				if (!result || !result.success) {
@@ -365,15 +391,15 @@
 				eraseContentSettings: {
 					cancelLabel: 'Cancel',
 					confirmLabel: 'Erase',
-					message: 'This will reset WP adminOS settings, wallpaper, dock, windows, and layout for this WordPress account. WordPress site content will not be affected.',
-					overlayMessage: 'Erasing WP adminOS settings...',
+					message: 'This will reset PufferDesk settings, wallpaper, dock, windows, and layout for this WordPress account. WordPress site content will not be affected.',
+					overlayMessage: 'Erasing PufferDesk settings...',
 					title: 'Erase All Content and Settings?'
 				},
 				emptyTrash: {
 					cancelLabel: 'Cancel',
 					confirmLabel: 'Empty Trash',
 					icon: 'dashicons-trash',
-					message: 'This permanently deletes all trashed WP adminOS folder records. Apps and plugins are not deleted.',
+					message: 'This permanently deletes all trashed PufferDesk folder records. Apps and plugins are not deleted.',
 					title: 'Empty Trash?'
 				},
 				restart: {
@@ -381,11 +407,11 @@
 					confirmLabel: 'Restart',
 					countdownSeconds: 60,
 					icon: 'power',
-					message: 'If you do nothing, WP adminOS will restart automatically in {seconds} seconds.',
-					overlayMessage: 'Restarting WP adminOS...',
+					message: 'If you do nothing, PufferDesk will restart automatically in {seconds} seconds.',
+					overlayMessage: 'Restarting PufferDesk...',
 					reopenWindowsDefault: false,
 					reopenWindowsLabel: 'Reopen windows after restarting',
-					title: 'Are you sure you want to restart WP adminOS?'
+					title: 'Are you sure you want to restart PufferDesk?'
 				},
 				switchClassic: {
 					cancelLabel: 'Cancel',
@@ -395,7 +421,7 @@
 					message: 'If you do nothing, Classic Admin will open automatically in {seconds} seconds.',
 					overlayMessage: 'Switching to Classic Admin...',
 					reopenWindowsDefault: false,
-					reopenWindowsLabel: 'Reopen windows when returning to WP adminOS',
+					reopenWindowsLabel: 'Reopen windows when returning to PufferDesk',
 					title: 'Are you sure you want to switch to Classic Admin?'
 				}
 			};
@@ -483,8 +509,8 @@
 		}
 
 		function getSessionStore() {
-			if (config.storageKey && window.WPAdminOS.session && window.WPAdminOS.session.createSessionStore) {
-				return window.WPAdminOS.session.createSessionStore(config.storageKey);
+			if (config.storageKey && window.PufferDesk.session && window.PufferDesk.session.createSessionStore) {
+				return window.PufferDesk.session.createSessionStore(config.storageKey);
 			}
 
 			return null;
@@ -518,7 +544,7 @@
 			let removed = false;
 
 			if (storage && userId > 0) {
-				const prefix = `wpAdminOS:${userId}:`;
+				const prefix = `pufferDesk:${userId}:`;
 				const keys = [];
 
 				for (let index = 0; index < storage.length; index += 1) {
@@ -625,14 +651,14 @@
 			}
 
 			try {
-				const result = await api.post('wp_adminos_reset', {
+				const result = await api.post('pufferdesk_reset', {
 					profile: 'erase_content_settings'
 				});
 
 				if (!result || !result.success) {
 					const message = result && result.data && result.data.message
 						? result.data.message
-						: 'WP adminOS settings could not be reset.';
+						: 'PufferDesk settings could not be reset.';
 					throw new Error(message);
 				}
 
@@ -686,18 +712,37 @@
 			}
 		});
 
-		register('folder.create', {
-			isEnabled() {
-				return Boolean(folderManager && typeof folderManager.createFolder === 'function');
+		register('open-folder-window', {
+			isEnabled(payload, detail) {
+				return Boolean(launcher && typeof launcher.openFolderWindow === 'function' && getFolderIdFromPayload(payload, detail));
 			},
 			run(payload, detail) {
-				const folder = folderManager.createFolder(getLabel('untitled_folder', 'untitled folder'), [], {
-					point: detail && detail.contextPoint ? detail.contextPoint : null
+				launcher.openFolderWindow(getFolderIdFromPayload(payload, detail), {
+					windowElement: detail && detail.windowElement ? detail.windowElement : null
 				});
-				if (folder && typeof folderManager.startInlineRename === 'function') {
-					folderManager.startInlineRename(folder.id);
-				}
 			}
+		});
+
+			register('folder.create', {
+				isEnabled(payload, detail) {
+					const parentId = getFolderCreateParentId(payload, detail);
+
+					return Boolean(
+						folderManager
+						&& typeof folderManager.createFolder === 'function'
+						&& parentId !== 'trash'
+					);
+				},
+				run(payload, detail) {
+					const parentId = getFolderCreateParentId(payload, detail);
+					const folder = folderManager.createFolder(getLabel('untitled_folder', 'untitled folder'), [], {
+						parentId: parentId || 'desktop',
+						point: detail && detail.contextPoint ? detail.contextPoint : null
+					});
+					if (folder && (!parentId || parentId === 'desktop') && typeof folderManager.startInlineRename === 'function') {
+						folderManager.startInlineRename(folder.id);
+					}
+				}
 		});
 
 		register('folder.get-info', {
@@ -753,7 +798,7 @@
 					? await dialogs.confirm({
 						cancelLabel: getLabel('cancel', 'Cancel'),
 						confirmLabel: getLabel('move_to_trash', 'Move to Trash'),
-						message: getLabel('move_folder_to_trash_message', 'Only this WP adminOS folder will be moved. Apps and plugins inside it stay installed and available.'),
+						message: getLabel('move_folder_to_trash_message', 'Only this PufferDesk folder will be moved. Apps and plugins inside it stay installed and available.'),
 						title
 					})
 					: window.confirm(title);
@@ -782,10 +827,10 @@
 					? await dialogs.confirm({
 						cancelLabel: getLabel('cancel', 'Cancel'),
 						confirmLabel: getLabel('delete', 'Delete'),
-						message: getLabel('delete_immediately_message', 'This permanently deletes the WP adminOS folder record. Apps and plugins are not deleted.'),
+						message: getLabel('delete_immediately_message', 'This permanently deletes the PufferDesk folder record. Apps and plugins are not deleted.'),
 						title: getLabel('delete_immediately_title', 'Delete Immediately?')
 					})
-					: window.confirm(getLabel('delete_immediately_fallback_message', 'Delete this WP adminOS folder record immediately?'));
+					: window.confirm(getLabel('delete_immediately_fallback_message', 'Delete this PufferDesk folder record immediately?'));
 
 				if (confirmed) {
 					folderManager.deleteTrashItem(payload.target);
@@ -852,7 +897,7 @@
 			run(payload, detail) {
 				const win = getFolderToolbarWindow(detail);
 				const mode = normalizeFolderToolbarDisplayMode(payload.mode);
-				const toolbar = win ? win.querySelector('.aos-finder-toolbar') : null;
+				const toolbar = win ? win.querySelector('.pdk-finder-toolbar') : null;
 
 				if (!win || !mode) {
 					return;
@@ -864,7 +909,7 @@
 					toolbar.dataset.aosFolderToolbarDisplay = mode;
 				}
 
-				win.dispatchEvent(new window.CustomEvent('wpAdminOS:folder-toolbar-display-change', {
+				win.dispatchEvent(new window.CustomEvent('pufferDesk:folder-toolbar-display-change', {
 					detail: {
 						mode
 					}
@@ -872,6 +917,44 @@
 				refreshActiveMenu(Object.assign({}, activeDetail, detail || {}, {
 					toolbarDisplay: mode,
 					windowElement: win
+				}));
+			}
+		});
+
+		register('folder.set-sort-mode', {
+			isEnabled(payload, detail) {
+				return Boolean(
+					launcher
+					&& typeof launcher.setFolderSortMode === 'function'
+					&& getFolderIdFromPayload(payload, detail)
+					&& normalizeFolderExplorerSortMode(payload.mode)
+				);
+			},
+			run(payload, detail) {
+				launcher.setFolderSortMode(getFolderIdFromPayload(payload, detail), payload.mode, {
+					windowElement: detail && detail.windowElement ? detail.windowElement : null
+				});
+				refreshActiveMenu(Object.assign({}, activeDetail, detail || {}, {
+					folderSortMode: payload.mode
+				}));
+			}
+		});
+
+		register('folder.set-view-mode', {
+			isEnabled(payload, detail) {
+				return Boolean(
+					launcher
+					&& typeof launcher.setFolderViewMode === 'function'
+					&& getFolderIdFromPayload(payload, detail)
+					&& normalizeFolderExplorerViewMode(payload.mode)
+				);
+			},
+			run(payload, detail) {
+				launcher.setFolderViewMode(getFolderIdFromPayload(payload, detail), payload.mode, {
+					windowElement: detail && detail.windowElement ? detail.windowElement : null
+				});
+				refreshActiveMenu(Object.assign({}, activeDetail, detail || {}, {
+					folderViewMode: payload.mode
 				}));
 			}
 		});
@@ -963,10 +1046,10 @@
 
 		register('recent-items.clear', {
 			isEnabled() {
-				return Boolean(window.WPAdminOS.menuBar && typeof window.WPAdminOS.menuBar.clearRecentItems === 'function');
+				return Boolean(window.PufferDesk.menuBar && typeof window.PufferDesk.menuBar.clearRecentItems === 'function');
 			},
 			run() {
-				window.WPAdminOS.menuBar.clearRecentItems(config);
+				window.PufferDesk.menuBar.clearRecentItems(config);
 			}
 		});
 
@@ -999,7 +1082,7 @@
 
 		register('session.reset-layout', {
 			isEnabled() {
-				return Boolean(config.storageKey && window.WPAdminOS.session && window.WPAdminOS.session.createSessionStore);
+				return Boolean(config.storageKey && window.PufferDesk.session && window.PufferDesk.session.createSessionStore);
 			},
 			run() {
 				skipWindowRestoreOnce();

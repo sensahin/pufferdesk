@@ -1,13 +1,13 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.desktop = window.WPAdminOS.desktop || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.desktop = window.PufferDesk.desktop || {};
 
-	window.WPAdminOS.desktop.createFolderManager = function createFolderManager(shell, launcher, config = {}) {
-		const dom = window.WPAdminOS.dom;
-		const desktop = shell.querySelector('.aos-desktop');
-		const api = window.WPAdminOS.services && window.WPAdminOS.services.api ? window.WPAdminOS.services.api : null;
+	window.PufferDesk.desktop.createFolderManager = function createFolderManager(shell, launcher, config = {}) {
+		const dom = window.PufferDesk.dom;
+		const desktop = shell.querySelector('.pdk-desktop');
+		const api = window.PufferDesk.services && window.PufferDesk.services.api ? window.PufferDesk.services.api : null;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const systemFolders = Array.isArray(config.folders) ? config.folders : [];
 		const defaultFolderIcon = { type: 'theme', name: 'folder.svg', fallback: 'dashicons-category' };
@@ -32,9 +32,23 @@
 			return Math.min(Math.max(min, value), Math.max(min, max));
 		}
 
-		function normalizeId(value) {
-			return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80);
-		}
+			function normalizeId(value) {
+				return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80);
+			}
+
+			function normalizeParentId(value) {
+				const id = normalizeId(value);
+
+				return id || 'desktop';
+			}
+
+			function getFolderParentId(folder) {
+				return normalizeParentId(folder && folder.parentId ? folder.parentId : 'desktop');
+			}
+
+			function isDesktopFolder(folder) {
+				return getFolderParentId(folder) === 'desktop';
+			}
 
 		function getDefaultFolderIcon() {
 			const contentFolder = systemFolders.find((folder) => folder.id === 'content');
@@ -132,14 +146,15 @@
 				comment: typeof folder.comment === 'string' ? folder.comment : '',
 				createdAt: normalizeTimestamp(folder.createdAt, now),
 				icon: folder.icon || getDefaultFolderIcon(),
-				id,
-				kind: 'user',
-				label: String(folder.label || '').trim() || getUntitledFolderLabel(),
-				lastOpenedAt: normalizeTimestamp(folder.lastOpenedAt),
-				modifiedAt: normalizeTimestamp(folder.modifiedAt, normalizeTimestamp(folder.createdAt, now)),
-				user: true
-			};
-		}
+					id,
+					kind: 'user',
+					label: String(folder.label || '').trim() || getUntitledFolderLabel(),
+					lastOpenedAt: normalizeTimestamp(folder.lastOpenedAt),
+					modifiedAt: normalizeTimestamp(folder.modifiedAt, normalizeTimestamp(folder.createdAt, now)),
+					parentId: normalizeParentId(folder.parentId),
+					user: true
+				};
+			}
 
 		function loadFolders() {
 			const stored = Array.isArray(config.desktopFolders) ? config.desktopFolders : [];
@@ -157,31 +172,47 @@
 				}
 
 				folder.label = next;
-				labels.add(next.toLowerCase());
-			});
-		}
+					labels.add(next.toLowerCase());
+				});
+
+				const userFolderIds = new Set(userFolders.map((folder) => folder.id));
+				userFolders.forEach((folder) => {
+					const parentId = getFolderParentId(folder);
+					if (
+						parentId === folder.id
+						|| (
+							parentId !== 'desktop'
+							&& !systemFolderMap.has(parentId)
+							&& !userFolderIds.has(parentId)
+						)
+					) {
+						folder.parentId = 'desktop';
+					}
+				});
+			}
 
 		function serializeFolder(folder) {
 			return {
 				appIds: normalizeAppIds(folder.appIds),
 				comment: folder.comment || '',
 				createdAt: folder.createdAt || '',
-				icon: folder.icon || getDefaultFolderIcon(),
-				id: folder.id,
-				label: folder.label,
-				lastOpenedAt: folder.lastOpenedAt || '',
-				modifiedAt: folder.modifiedAt || ''
-			};
-		}
+					icon: folder.icon || getDefaultFolderIcon(),
+					id: folder.id,
+					label: folder.label,
+					lastOpenedAt: folder.lastOpenedAt || '',
+					modifiedAt: folder.modifiedAt || '',
+					parentId: getFolderParentId(folder)
+				};
+			}
 
 		function serializeFolders() {
 			return userFolders.map(serializeFolder);
 		}
 
 		function normalizeTrashRestore(restore = {}) {
-			const normalized = {
-				previousParent: 'desktop'
-			};
+				const normalized = {
+					previousParent: normalizeParentId(restore.previousParent)
+				};
 			const position = restore && restore.desktopPosition && typeof restore.desktopPosition === 'object'
 				? restore.desktopPosition
 				: null;
@@ -258,7 +289,7 @@
 			const folders = serializeFolders();
 			config.desktopFolders = folders;
 
-			api.post('wp_adminos_save_desktop_folders', {
+			api.post('pufferdesk_save_desktop_folders', {
 				folders: JSON.stringify(folders)
 			}).then((result) => {
 				if (result && result.success && result.data && Array.isArray(result.data.desktopFolders)) {
@@ -287,7 +318,7 @@
 			const items = serializeTrash();
 			config.desktopTrash = items;
 
-			api.post('wp_adminos_save_desktop_trash', {
+			api.post('pufferdesk_save_desktop_trash', {
 				items: JSON.stringify(items)
 			}).then((result) => {
 				if (result && result.success && result.data && Array.isArray(result.data.desktopTrash)) {
@@ -310,13 +341,13 @@
 				return null;
 			}
 
-			let layer = desktop.querySelector('.aos-desktop-folders');
+			let layer = desktop.querySelector('.pdk-desktop-folders');
 			if (layer) {
-				layer.classList.add('aos-desktop-icon-layer');
+				layer.classList.add('pdk-desktop-icon-layer');
 				return layer;
 			}
 
-			layer = dom.createElement('section', 'aos-desktop-folders aos-desktop-icon-layer');
+			layer = dom.createElement('section', 'pdk-desktop-folders pdk-desktop-icon-layer');
 			layer.setAttribute('aria-label', getMenuLabel('desktop_folders', 'Desktop folders'));
 			desktop.insertBefore(layer, desktop.firstChild);
 
@@ -326,7 +357,7 @@
 		function createFolderButton(folder) {
 			const button = document.createElement('button');
 			button.type = 'button';
-			button.className = 'aos-desktop-icon aos-desktop-folder';
+			button.className = 'pdk-desktop-icon pdk-desktop-folder';
 			button.dataset.aosContext = 'desktop-folder';
 			button.dataset.aosContextId = folder.id;
 			button.dataset.aosContextLabel = folder.label;
@@ -342,10 +373,10 @@
 			button.dataset.aosUserFolder = '1';
 			button.setAttribute('aria-label', folder.label);
 
-			const icon = dom.createElement('span', 'aos-app-icon');
+			const icon = dom.createElement('span', 'pdk-app-icon');
 			icon.appendChild(dom.createIcon(folder.icon || getDefaultFolderIcon()));
 
-			const label = dom.createElement('span', 'aos-desktop-app-label', folder.label);
+			const label = dom.createElement('span', 'pdk-desktop-app-label', folder.label);
 
 			button.append(icon, label);
 
@@ -358,25 +389,27 @@
 				return;
 			}
 
-			layer.querySelectorAll('[data-aos-user-folder="1"]').forEach((folder) => folder.remove());
-			userFolders.forEach((folder) => layer.appendChild(createFolderButton(folder)));
+			layer.querySelectorAll('[data-pdk-user-folder="1"]').forEach((folder) => folder.remove());
+				userFolders
+					.filter(isDesktopFolder)
+					.forEach((folder) => layer.appendChild(createFolderButton(folder)));
 		}
 
 		function refreshDesktopIcons() {
-			if (window.WPAdminOS.desktopIconManager && typeof window.WPAdminOS.desktopIconManager.rebind === 'function') {
-				window.WPAdminOS.desktopIconManager.rebind();
+			if (window.PufferDesk.desktopIconManager && typeof window.PufferDesk.desktopIconManager.rebind === 'function') {
+				window.PufferDesk.desktopIconManager.rebind();
 			}
 		}
 
 		function saveDesktopIconSession() {
-			if (window.WPAdminOS.desktopIconManager && typeof window.WPAdminOS.desktopIconManager.saveSession === 'function') {
-				window.WPAdminOS.desktopIconManager.saveSession();
+			if (window.PufferDesk.desktopIconManager && typeof window.PufferDesk.desktopIconManager.saveSession === 'function') {
+				window.PufferDesk.desktopIconManager.saveSession();
 			}
 		}
 
 		function getFolderIcon(folderId) {
 			return desktop
-				? desktop.querySelector(`[data-aos-user-folder="1"][data-aos-open-folder="${dom.escapeAttribute(folderId)}"]`)
+				? desktop.querySelector(`[data-pdk-user-folder="1"][data-pdk-open-folder="${dom.escapeAttribute(folderId)}"]`)
 				: null;
 		}
 
@@ -404,8 +437,8 @@
 				? formatMenuLabel(count === 1 ? 'trash_item_count' : 'trash_item_count_plural', count === 1 ? 'Trash, %d item' : 'Trash, %d items', [count])
 				: getMenuLabel('trash', 'Trash');
 
-			shell.querySelectorAll('[data-aos-open-app="trash"]').forEach((button) => {
-				const badge = button.querySelector('.aos-trash-badge');
+			shell.querySelectorAll('[data-pdk-open-app="trash"]').forEach((button) => {
+				const badge = button.querySelector('.pdk-trash-badge');
 
 				button.classList.toggle('is-trash-full', count > 0);
 				button.dataset.aosTrashState = count > 0 ? 'full' : 'empty';
@@ -419,7 +452,7 @@
 
 		function dispatchTrashChange() {
 			syncTrashSurfaceState();
-			shell.dispatchEvent(new window.CustomEvent('wpAdminOS:trash-change', {
+			shell.dispatchEvent(new window.CustomEvent('pufferDesk:trash-change', {
 				detail: {
 					count: getTrashCount(),
 					items: getTrashItems()
@@ -429,7 +462,7 @@
 
 		function getFolderDesktopPosition(folderId) {
 			const icon = getFolderIcon(folderId);
-			const layer = icon ? icon.closest('.aos-desktop-icon-layer') : null;
+			const layer = icon ? icon.closest('.pdk-desktop-icon-layer') : null;
 			const left = icon ? readNumber(icon.style.left) : null;
 			const top = icon ? readNumber(icon.style.top) : null;
 
@@ -502,13 +535,21 @@
 			}
 		}
 
-		function getFolder(folderId) {
-			if (isTrashFolderId(folderId)) {
-				return getTrashFolder();
+			function getFolder(folderId) {
+				if (isTrashFolderId(folderId)) {
+					return getTrashFolder();
+				}
+
+				return getUserFolder(folderId) || systemFolderMap.get(folderId) || null;
 			}
 
-			return getUserFolder(folderId) || systemFolderMap.get(folderId) || null;
-		}
+			function getFolderChildFolders(folderId) {
+				const parentId = normalizeParentId(folderId);
+
+				return userFolders
+					.filter((folder) => folder.id !== parentId && getFolderParentId(folder) === parentId)
+					.map((folder) => Object.assign({}, folder));
+			}
 
 		function getFolders() {
 			const folders = systemFolders
@@ -573,17 +614,19 @@
 					label: folder.label || getMenuLabel('trash', 'Trash'),
 					lastOpenedAt: '',
 					modifiedAt: '',
-					source: getMenuLabel('wp_adminos_trash_source', 'WP adminOS Trash'),
+					source: getMenuLabel('pufferdesk_trash_source', 'PufferDesk Trash'),
 					user: false,
-					where: getMenuLabel('wp_adminos_desktop', 'WP adminOS Desktop')
+					where: getMenuLabel('pufferdesk_desktop', 'PufferDesk Desktop')
 				};
 			}
 
-			const folderApps = getFolderApps(folderId);
-			const userFolder = getUserFolder(folderId);
-			const itemCount = folderApps.length;
+				const folderApps = getFolderApps(folderId);
+				const childFolders = getFolderChildFolders(folderId);
+				const userFolder = getUserFolder(folderId);
+				const parent = userFolder ? getFolder(getFolderParentId(userFolder)) : null;
+				const itemCount = folderApps.length + childFolders.length;
 
-			return {
+				return {
 				canComment: Boolean(userFolder),
 				canRename: Boolean(userFolder),
 				comment: userFolder ? userFolder.comment || '' : '',
@@ -591,30 +634,37 @@
 				icon: folder.icon || getDefaultFolderIcon(),
 				id: folder.id,
 				itemCount,
-				items: folderApps.map((app) => ({
-					id: app.id,
-					label: app.label,
-					source: app.source || 'registry',
-					url: app.url || ''
-				})),
-				kind: getFolderLabel(),
+					items: childFolders.map((childFolder) => ({
+						id: childFolder.id,
+						label: childFolder.label,
+						source: 'user-folder',
+						type: 'folder',
+						url: ''
+					})).concat(folderApps.map((app) => ({
+						id: app.id,
+						label: app.label,
+						source: app.source || 'registry',
+						type: 'app',
+						url: app.url || ''
+					}))),
+					kind: getFolderLabel(),
 				label: folder.label || getFolderLabel(),
 				lastOpenedAt: userFolder ? userFolder.lastOpenedAt || '' : '',
 				modifiedAt: userFolder ? userFolder.modifiedAt || userFolder.createdAt || '' : '',
-				source: userFolder ? getMenuLabel('wp_adminos_user_folder_source', 'WP adminOS user folder') : getMenuLabel('wordpress_admin_group_source', 'WordPress admin group'),
+				source: userFolder ? getMenuLabel('pufferdesk_user_folder_source', 'PufferDesk user folder') : getMenuLabel('wordpress_admin_group_source', 'WordPress admin group'),
 				user: Boolean(userFolder),
-				where: userFolder
-					? getMenuLabel('wp_adminos_desktop', 'WP adminOS Desktop')
-					: formatMenuLabel('wordpress_admin_menu_format', 'WordPress Admin Menu > %s', [folder.label || getFolderLabel()])
-			};
-		}
+					where: userFolder && parent
+						? parent.label || getMenuLabel('pufferdesk_desktop', 'PufferDesk Desktop')
+						: formatMenuLabel('wordpress_admin_menu_format', 'WordPress Admin Menu > %s', [folder.label || getFolderLabel()])
+				};
+			}
 
 		function syncDesktopAppVisibility() {
 			if (!desktop) {
 				return;
 			}
 
-			desktop.querySelectorAll('[data-aos-desktop-icon-kind="app"][data-aos-open-app]').forEach((icon) => {
+			desktop.querySelectorAll('[data-pdk-desktop-icon-kind="app"][data-pdk-open-app]').forEach((icon) => {
 				const appId = icon.dataset.aosOpenApp || '';
 				const folder = appId ? getUserFolderForApp(appId) : null;
 
@@ -647,28 +697,33 @@
 		function createFolder(label = '', appIds = [], createOptions = {}) {
 			const now = new Date().toISOString();
 			const id = `user-folder-${Date.now().toString(36)}-${idCounter += 1}`;
-			const folder = {
-				appIds: normalizeAppIds(appIds),
-				comment: '',
-				createdAt: now,
+				const parentId = normalizeParentId(createOptions.parentId);
+				const folder = {
+					appIds: normalizeAppIds(appIds),
+					comment: '',
+					createdAt: now,
 				icon: getDefaultFolderIcon(),
 				id,
 				kind: 'user',
-				label: uniqueLabel(label),
-				lastOpenedAt: '',
-				modifiedAt: now,
-				user: true
-			};
+					label: uniqueLabel(label),
+					lastOpenedAt: '',
+					modifiedAt: now,
+					parentId,
+					user: true
+				};
 
 			userFolders.push(folder);
-			renderUserFolders();
-			syncDesktopAppVisibility();
-			refreshDesktopIcons();
-			positionFolderIcon(folder.id, createOptions.point || createOptions.position || null);
-			scheduleSave();
+				renderUserFolders();
+				syncDesktopAppVisibility();
+				refreshDesktopIcons();
+				if (isDesktopFolder(folder)) {
+					positionFolderIcon(folder.id, createOptions.point || createOptions.position || null);
+				}
+				refreshFolderWindows([parentId, folder.id]);
+				scheduleSave();
 
-			return folder;
-		}
+				return folder;
+			}
 
 		function renameFolder(folderId, label) {
 			const folder = getUserFolder(folderId);
@@ -687,9 +742,27 @@
 			return folder;
 		}
 
-		function closeFolderSurfaces(folderId) {
+			function closeFolderSurfaces(folderId) {
 			if (launcher && typeof launcher.closeFolderWindow === 'function') {
 				launcher.closeFolderWindow(folderId);
+			}
+
+			function reparentChildFolders(parentId, nextParentId = 'desktop') {
+				const normalizedParentId = normalizeParentId(parentId);
+				const normalizedNextParentId = normalizeParentId(nextParentId);
+				const changed = [];
+
+				userFolders.forEach((folder) => {
+					if (getFolderParentId(folder) !== normalizedParentId) {
+						return;
+					}
+
+					folder.parentId = normalizedNextParentId;
+					markFolderModified(folder);
+					changed.push(folder.id);
+				});
+
+				return changed;
 			}
 			if (launcher && typeof launcher.closeFolderInfoWindow === 'function') {
 				launcher.closeFolderInfoWindow(folderId);
@@ -711,25 +784,27 @@
 				return false;
 			}
 
-			const folder = userFolders[index];
-			const trashedAt = new Date().toISOString();
-			const trashItem = {
+				const folder = userFolders[index];
+				const previousParent = getFolderParentId(folder);
+				const trashedAt = new Date().toISOString();
+				const trashItem = {
 				folder: serializeFolder(folder),
 				icon: folder.icon || getDefaultFolderIcon(),
 				id: `folder-${folder.id}`,
 				label: folder.label || getFolderLabel(),
-				restore: {
-					desktopPosition: getFolderDesktopPosition(folder.id),
-					previousParent: 'desktop'
-				},
+					restore: {
+						desktopPosition: getFolderDesktopPosition(folder.id),
+						previousParent
+					},
 				trashedAt,
 				type: 'folder'
 			};
 
-			removeTrashItemByFolderId(folder.id);
-			trashItems.unshift(normalizeTrashItem(trashItem));
-			trashItems = trashItems.filter(Boolean).slice(0, 100);
-			userFolders.splice(index, 1);
+				removeTrashItemByFolderId(folder.id);
+				trashItems.unshift(normalizeTrashItem(trashItem));
+				trashItems = trashItems.filter(Boolean).slice(0, 100);
+				reparentChildFolders(folder.id, previousParent);
+				userFolders.splice(index, 1);
 			renderUserFolders();
 			syncDesktopAppVisibility();
 			refreshDesktopIcons();
@@ -758,7 +833,11 @@
 			restored.label = uniqueLabel(restored.label || item.label || getFolderLabel(), restored.id);
 			markFolderModified(restored);
 			trashItems.splice(index, 1);
-			userFolders.push(restored);
+				restored.parentId = normalizeParentId(item.restore && item.restore.previousParent ? item.restore.previousParent : restored.parentId);
+				if (restored.parentId !== 'desktop' && !getFolder(restored.parentId)) {
+					restored.parentId = 'desktop';
+				}
+				userFolders.push(restored);
 			renderUserFolders();
 			syncDesktopAppVisibility();
 			refreshDesktopIcons();
@@ -797,11 +876,12 @@
 
 		function deleteFolder(folderId) {
 			const index = userFolders.findIndex((folder) => folder.id === folderId);
-			if (index < 0) {
-				return false;
-			}
+				if (index < 0) {
+					return false;
+				}
 
-			userFolders.splice(index, 1);
+				reparentChildFolders(folderId, getFolderParentId(userFolders[index]));
+				userFolders.splice(index, 1);
 			renderUserFolders();
 			syncDesktopAppVisibility();
 			refreshDesktopIcons();
@@ -900,7 +980,7 @@
 		function startInlineRename(folderId) {
 			const folder = getUserFolder(folderId);
 			const icon = getFolderIcon(folderId);
-			const label = icon ? icon.querySelector('.aos-desktop-app-label') : null;
+			const label = icon ? icon.querySelector('.pdk-desktop-app-label') : null;
 			if (!folder || !icon || !label || label.dataset.aosInlineRename === '1') {
 				return false;
 			}
@@ -924,10 +1004,10 @@
 			})();
 
 			if (renameMetrics) {
-				icon.style.setProperty('--aos-desktop-rename-left', `${renameMetrics.left.toFixed(2)}px`);
-				icon.style.setProperty('--aos-desktop-rename-top', `${renameMetrics.top.toFixed(2)}px`);
-				icon.style.setProperty('--aos-desktop-rename-width', `${Math.ceil(renameMetrics.width)}px`);
-				icon.style.setProperty('--aos-desktop-rename-height', `${Math.ceil(renameMetrics.height)}px`);
+				icon.style.setProperty('--pdk-desktop-rename-left', `${renameMetrics.left.toFixed(2)}px`);
+				icon.style.setProperty('--pdk-desktop-rename-top', `${renameMetrics.top.toFixed(2)}px`);
+				icon.style.setProperty('--pdk-desktop-rename-width', `${Math.ceil(renameMetrics.width)}px`);
+				icon.style.setProperty('--pdk-desktop-rename-height', `${Math.ceil(renameMetrics.height)}px`);
 			}
 
 			function cleanup() {
@@ -939,10 +1019,10 @@
 				label.removeAttribute('spellcheck');
 				delete label.dataset.aosInlineRename;
 				icon.classList.remove('is-renaming');
-				icon.style.removeProperty('--aos-desktop-rename-left');
-				icon.style.removeProperty('--aos-desktop-rename-top');
-				icon.style.removeProperty('--aos-desktop-rename-width');
-				icon.style.removeProperty('--aos-desktop-rename-height');
+				icon.style.removeProperty('--pdk-desktop-rename-left');
+				icon.style.removeProperty('--pdk-desktop-rename-top');
+				icon.style.removeProperty('--pdk-desktop-rename-width');
+				icon.style.removeProperty('--pdk-desktop-rename-height');
 			}
 
 			function finish(commit) {
@@ -1025,9 +1105,10 @@
 				window.clearTimeout(trashSaveTimer);
 			},
 			emptyTrash,
-			getFolder,
-			getFolderApps,
-			getFolderInfo,
+				getFolder,
+				getFolderApps,
+				getFolderChildFolders,
+				getFolderInfo,
 			getFolders,
 			getTrashCount,
 			getTrashItem,

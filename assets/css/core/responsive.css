@@ -1,29 +1,29 @@
 @media (max-width: 960px) {
-	.aos-shell {
+	.pdk-shell {
 		height: calc(100vh - 46px);
 	}
 
-	.aos-menu-bar {
+	.pdk-menu-bar {
 		grid-template-columns: auto 1fr;
 		height: auto;
 		min-height: 56px;
 		padding: 8px 12px;
 	}
 
-	.aos-menu-items,
-	.aos-clock {
+	.pdk-menu-items,
+	.pdk-clock {
 		display: none;
 	}
 
-	.aos-search {
+	.pdk-search {
 		min-width: 140px;
 	}
 
-	.aos-desktop {
+	.pdk-desktop {
 		height: calc(100% - 56px);
 	}
 
-	.aos-window {
+	.pdk-window {
 		left: 12px;
 		min-width: 0;
 		top: 84px;
@@ -31,111 +31,124 @@
 		width: calc(100% - 24px);
 	}
 
-	.aos-window[data-aos-app-window="os-settings"] {
-		--aos-settings-sidebar-width: 210px;
+	.pdk-window[data-pdk-app-window="os-settings"] {
+		--pdk-settings-sidebar-width: 210px;
 		max-width: none;
 		min-width: 0;
 	}
 
-	.aos-window[data-aos-window-kind="folder"] {
-		--aos-finder-toolbar-gap: 30px;
-		--aos-settings-sidebar-width: 196px;
-		--aos-finder-toolbar-icon-size: 30px;
+	.pdk-window[data-pdk-window-kind="folder"] {
+		--pdk-finder-toolbar-gap: 30px;
+		--pdk-settings-sidebar-width: 196px;
+		--pdk-finder-toolbar-icon-size: 30px;
 		min-width: 0;
 	}
 
-	.aos-settings-pane-header.aos-finder-toolbar {
+	.pdk-settings-pane-header.pdk-finder-toolbar {
 		gap: 10px;
 		min-height: 76px;
 	}
 
-	.aos-finder-toolbar-actions {
+	.pdk-finder-toolbar-actions {
 		gap: 5px;
 	}
 
-	.aos-finder-toolbar-button {
+	.pdk-finder-toolbar-button {
 		min-width: 42px;
 	}
 
-	.aos-settings-pane-header {
+	.pdk-settings-pane-header {
 		padding: 14px 18px 8px;
 	}
 
-	.aos-settings-pane {
+	.pdk-settings-pane {
 		padding: 8px 18px 24px;
 	}
 
-	.aos-settings-sidebar-item,
-	.aos-settings-search-field input,
-	.aos-settings-profile-text strong {
-		font-size: var(--aos-settings-text-body);
+	.pdk-settings-sidebar-item,
+	.pdk-settings-search-field input,
+	.pdk-settings-profile-text strong {
+		font-size: var(--pdk-settings-text-body);
 	}
 
-	.aos-settings-row {
+	.pdk-settings-row {
 		grid-template-columns: 1fr;
 	}
 
-	.aos-settings-row-fluid-label .aos-settings-label,
-	.aos-settings-row-fluid-label .aos-settings-description {
+	.pdk-settings-row-fluid-label .pdk-settings-label,
+	.pdk-settings-row-fluid-label .pdk-settings-description {
 		white-space: normal;
 	}
 
-	.aos-settings-wallpaper-builtins-grid,
-	.aos-settings-wallpaper-photo-grid {
+	.pdk-settings-wallpaper-builtins-grid,
+	.pdk-settings-wallpaper-photo-grid {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
-	.aos-settings-row > .aos-settings-control,
-	.aos-settings-option-group,
-	.aos-settings-swatch-group {
+	.pdk-settings-row > .pdk-settings-control,
+	.pdk-settings-option-group,
+	.pdk-settings-swatch-group {
 		justify-self: start;
 	}
 
-	.aos-settings-option-group,
-	.aos-settings-swatch-group {
+	.pdk-settings-option-group,
+	.pdk-settings-swatch-group {
 		justify-content: flex-start;
 	}
 
-	.aos-settings-swatch-label {
+	.pdk-settings-swatch-label {
 		text-align: left;
 	}
 
 }
 
 @media (max-width: 720px) {
-	.aos-folder-content,
-	.aos-settings {
+	.pdk-folder-content,
+	.pdk-settings {
 		grid-template-columns: 1fr;
 	}
 
-	.aos-finder-sidebar,
-	.aos-settings-sidebar {
+	.pdk-finder-sidebar,
+	.pdk-settings-sidebar {
 		display: none;
 	}
 
-	.aos-window[data-aos-app-window="os-settings"] .aos-window-titlebar,
-	.aos-window[data-aos-window-kind="folder"] .aos-window-titlebar {
+	.pdk-window[data-pdk-app-window="os-settings"] .pdk-window-titlebar,
+	.pdk-window[data-pdk-window-kind="folder"] .pdk-window-titlebar {
 		width: 112px;
 	}
 
-	.aos-settings-history {
+	.pdk-settings-history {
 		display: none;
 	}
 
-	.aos-finder-toolbar,
-	.aos-settings-pane-header {
+	.pdk-finder-toolbar,
+	.pdk-settings-pane-header {
 		padding-left: 96px;
 	}
 
-	.aos-settings-pane-header.aos-finder-toolbar {
+	.pdk-settings-pane-header.pdk-finder-toolbar {
 		min-height: 62px;
 	}
 
-	.aos-finder-toolbar-actions {
+	.pdk-finder-toolbar-actions {
 		display: none;
 	}
 
-	.aos-finder-toolbar-caption {
+	.pdk-finder-toolbar-caption {
+		display: none;
+	}
+
+	.pdk-explorer-commandbar {
+		overflow-x: auto;
+	}
+
+	.pdk-explorer-command-button {
+		flex: 0 0 auto;
+		min-width: 34px;
+	}
+
+	.pdk-explorer-command-label {
 		display: none;
 	}
 

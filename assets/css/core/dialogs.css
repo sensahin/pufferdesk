@@ -1,5 +1,5 @@
-.aos-shell-dialog-layer,
-.aos-shell-blocking-overlay {
+.pdk-shell-dialog-layer,
+.pdk-shell-blocking-overlay {
 	align-items: center;
 	background: rgba(0, 0, 0, 0);
 	display: flex;
@@ -9,22 +9,22 @@
 	pointer-events: auto;
 	position: absolute;
 	transition: opacity 140ms ease, background-color 140ms ease;
-	z-index: var(--aos-layer-overlay);
+	z-index: var(--pdk-layer-overlay);
 }
 
-.aos-shell-dialog-layer.is-visible {
+.pdk-shell-dialog-layer.is-visible {
 	background: rgba(0, 0, 0, 0.12);
 	opacity: 1;
 }
 
-.aos-shell-dialog {
-	-webkit-backdrop-filter: var(--aos-material-dialog-filter);
-	backdrop-filter: var(--aos-material-dialog-filter);
-	background: var(--aos-dialog-bg);
-	border: 1px solid var(--aos-dialog-border);
+.pdk-shell-dialog {
+	-webkit-backdrop-filter: var(--pdk-material-dialog-filter);
+	backdrop-filter: var(--pdk-material-dialog-filter);
+	background: var(--pdk-dialog-bg);
+	border: 1px solid var(--pdk-dialog-border);
 	border-radius: 14px;
-	box-shadow: var(--aos-dialog-shadow);
-	color: var(--aos-dialog-ink);
+	box-shadow: var(--pdk-dialog-shadow);
+	color: var(--pdk-dialog-ink);
 	display: grid;
 	gap: 9px;
 	max-width: min(360px, calc(100% - 48px));
@@ -35,8 +35,8 @@
 	width: 320px;
 }
 
-.aos-shell-dialog::before {
-	background: var(--aos-material-sheen, linear-gradient(155deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0)));
+.pdk-shell-dialog::before {
+	background: var(--pdk-material-sheen, linear-gradient(155deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0)));
 	border-radius: inherit;
 	content: "";
 	inset: 0;
@@ -46,44 +46,44 @@
 	z-index: 0;
 }
 
-.aos-shell-dialog > * {
+.pdk-shell-dialog > * {
 	position: relative;
 	z-index: 1;
 }
 
-.aos-shell-dialog.is-dragging {
+.pdk-shell-dialog.is-dragging {
 	transition: none;
 	user-select: none;
 }
 
-.aos-shell-dialog-title {
+.pdk-shell-dialog-title {
 	color: inherit;
-	font-family: var(--aos-font-display);
-	font-size: var(--aos-text-dialog-title);
-	font-weight: var(--aos-weight-semibold);
-	letter-spacing: var(--aos-letter-spacing-default);
-	line-height: var(--aos-line-height-body);
+	font-family: var(--pdk-font-display);
+	font-size: var(--pdk-text-dialog-title);
+	font-weight: var(--pdk-weight-semibold);
+	letter-spacing: var(--pdk-letter-spacing-default);
+	line-height: var(--pdk-line-height-body);
 	margin: 0;
 }
 
-.aos-shell-dialog-message {
-	color: var(--aos-dialog-muted);
-	font-family: var(--aos-font-ui);
-	font-size: var(--aos-text-caption);
-	font-weight: var(--aos-weight-medium);
+.pdk-shell-dialog-message {
+	color: var(--pdk-dialog-muted);
+	font-family: var(--pdk-font-ui);
+	font-size: var(--pdk-text-caption);
+	font-weight: var(--pdk-weight-medium);
 	line-height: 1.3;
 	margin: 0;
 }
 
-.aos-shell-dialog-input {
+.pdk-shell-dialog-input {
 	appearance: none;
 	background: rgba(255, 255, 255, 0.18);
-	border: 1px solid var(--aos-dialog-button-border);
+	border: 1px solid var(--pdk-dialog-button-border);
 	border-radius: 7px;
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset;
-	color: var(--aos-dialog-ink);
-	font-family: var(--aos-font-ui);
-	font-size: var(--aos-text-body);
+	color: var(--pdk-dialog-ink);
+	font-family: var(--pdk-font-ui);
+	font-size: var(--pdk-text-body);
 	line-height: 1.2;
 	min-height: 28px;
 	outline: none;
@@ -91,70 +91,70 @@
 	width: 100%;
 }
 
-.aos-shell-dialog-input:focus {
-	border-color: var(--aos-accent);
-	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(36, 88, 202, 0.28));
+.pdk-shell-dialog-input:focus {
+	border-color: var(--pdk-accent);
+	box-shadow: 0 0 0 3px var(--pdk-focus-ring, rgba(36, 88, 202, 0.28));
 }
 
-.aos-shell-dialog-actions {
+.pdk-shell-dialog-actions {
 	display: flex;
 	gap: 8px;
 	justify-content: flex-end;
 	margin-top: 5px;
 }
 
-.aos-shell-dialog-button {
+.pdk-shell-dialog-button {
 	appearance: none;
-	background: var(--aos-dialog-button-bg);
-	border: 1px solid var(--aos-dialog-button-border);
+	background: var(--pdk-dialog-button-bg);
+	border: 1px solid var(--pdk-dialog-button-border);
 	border-radius: 999px;
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset;
-	color: var(--aos-dialog-ink);
+	color: var(--pdk-dialog-ink);
 	cursor: default;
-	font-family: var(--aos-font-ui);
-	font-size: var(--aos-text-caption);
-	font-weight: var(--aos-weight-medium);
+	font-family: var(--pdk-font-ui);
+	font-size: var(--pdk-text-caption);
+	font-weight: var(--pdk-weight-medium);
 	line-height: 1;
 	min-height: 28px;
 	min-width: 76px;
 	padding: 0 12px;
 }
 
-.aos-shell-dialog-button:hover,
-.aos-shell-dialog-button:focus {
-	background: var(--aos-dialog-button-bg);
+.pdk-shell-dialog-button:hover,
+.pdk-shell-dialog-button:focus {
+	background: var(--pdk-dialog-button-bg);
 	outline: none;
 }
 
-.aos-shell-dialog-button:active {
-	background: var(--aos-dialog-button-hover-bg);
+.pdk-shell-dialog-button:active {
+	background: var(--pdk-dialog-button-hover-bg);
 }
 
-.aos-shell-dialog-button:focus-visible {
-	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(36, 88, 202, 0.28));
+.pdk-shell-dialog-button:focus-visible {
+	box-shadow: 0 0 0 3px var(--pdk-focus-ring, rgba(36, 88, 202, 0.28));
 }
 
-.aos-shell-dialog-button-primary {
-	background: var(--aos-accent);
-	border-color: var(--aos-accent);
+.pdk-shell-dialog-button-primary {
+	background: var(--pdk-accent);
+	border-color: var(--pdk-accent);
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.24) inset;
-	color: var(--aos-accent-ink);
+	color: var(--pdk-accent-ink);
 }
 
-.aos-shell-dialog-button-primary:hover,
-.aos-shell-dialog-button-primary:focus {
-	background: var(--aos-accent);
+.pdk-shell-dialog-button-primary:hover,
+.pdk-shell-dialog-button-primary:focus {
+	background: var(--pdk-accent);
 	filter: none;
 }
 
-.aos-shell-dialog-button-primary:active {
+.pdk-shell-dialog-button-primary:active {
 	filter: brightness(1.05);
 }
 
-.aos-shell-action-dialog {
+.pdk-shell-action-dialog {
 	align-content: start;
 	border-radius: 20px;
-	box-shadow: var(--aos-dialog-shadow);
+	box-shadow: var(--pdk-dialog-shadow);
 	display: flex;
 	flex-direction: column;
 	gap: 0;
@@ -164,11 +164,11 @@
 	width: 272px;
 }
 
-.aos-shell-action-dialog-icon {
+.pdk-shell-action-dialog-icon {
 	align-items: center;
-	background: var(--aos-action-dialog-icon-bg);
+	background: var(--pdk-action-dialog-icon-bg);
 	border-radius: 50%;
-	color: var(--aos-action-dialog-icon-ink);
+	color: var(--pdk-action-dialog-icon-ink);
 	display: inline-flex;
 	height: 54px;
 	justify-content: center;
@@ -176,13 +176,13 @@
 	width: 54px;
 }
 
-.aos-shell-action-dialog-icon .dashicons {
+.pdk-shell-action-dialog-icon .dashicons {
 	font-size: 29px;
 	height: 29px;
 	width: 29px;
 }
 
-.aos-shell-action-dialog-icon-power span {
+.pdk-shell-action-dialog-icon-power span {
 	border: 2px solid currentColor;
 	border-radius: 50%;
 	display: block;
@@ -191,7 +191,7 @@
 	width: 34px;
 }
 
-.aos-shell-action-dialog-icon-power span::before {
+.pdk-shell-action-dialog-icon-power span::before {
 	background: currentColor;
 	border-radius: 999px;
 	content: "";
@@ -203,54 +203,54 @@
 	width: 2px;
 }
 
-.aos-shell-action-dialog-title {
-	font-size: var(--aos-text-body);
-	font-weight: var(--aos-weight-bold);
+.pdk-shell-action-dialog-title {
+	font-size: var(--pdk-text-body);
+	font-weight: var(--pdk-weight-bold);
 	line-height: 1.2;
 	margin-bottom: 11px;
 }
 
-.aos-shell-action-dialog-message {
+.pdk-shell-action-dialog-message {
 	color: inherit;
-	font-size: var(--aos-text-caption);
+	font-size: var(--pdk-text-caption);
 	font-feature-settings: "tnum";
-	font-weight: var(--aos-weight-medium);
+	font-weight: var(--pdk-weight-medium);
 	font-variant-numeric: tabular-nums;
 	line-height: 1.28;
 	margin-bottom: 12px;
 }
 
-.aos-shell-action-dialog-countdown {
+.pdk-shell-action-dialog-countdown {
 	display: inline-block;
 	font-feature-settings: "tnum";
 	font-variant-numeric: tabular-nums;
 	text-align: right;
 }
 
-.aos-shell-action-dialog-checkbox {
+.pdk-shell-action-dialog-checkbox {
 	align-items: center;
 	color: inherit;
 	cursor: default;
 	display: flex;
-	font-family: var(--aos-font-ui);
-	font-size: var(--aos-text-caption);
-	font-weight: var(--aos-weight-semibold);
+	font-family: var(--pdk-font-ui);
+	font-size: var(--pdk-text-caption);
+	font-weight: var(--pdk-weight-semibold);
 	gap: 6px;
 	line-height: 1.2;
 	margin-top: 0;
 	position: relative;
 }
 
-.aos-shell-action-dialog-checkbox input {
+.pdk-shell-action-dialog-checkbox input {
 	height: 1px;
 	opacity: 0;
 	position: absolute;
 	width: 1px;
 }
 
-.aos-shell-action-dialog-checkbox-box {
+.pdk-shell-action-dialog-checkbox-box {
 	background: rgba(255, 255, 255, 0.12);
-	border: 2px solid var(--aos-accent);
+	border: 2px solid var(--pdk-accent);
 	border-radius: 7px;
 	display: inline-block;
 	flex: 0 0 auto;
@@ -259,17 +259,17 @@
 	width: 20px;
 }
 
-.aos-shell-action-dialog-checkbox input:checked + .aos-shell-action-dialog-checkbox-box {
-	background: var(--aos-accent);
+.pdk-shell-action-dialog-checkbox input:checked + .pdk-shell-action-dialog-checkbox-box {
+	background: var(--pdk-accent);
 }
 
-.aos-shell-action-dialog-checkbox input:focus-visible + .aos-shell-action-dialog-checkbox-box {
-	box-shadow: 0 0 0 3px var(--aos-focus-ring, rgba(36, 88, 202, 0.28));
+.pdk-shell-action-dialog-checkbox input:focus-visible + .pdk-shell-action-dialog-checkbox-box {
+	box-shadow: 0 0 0 3px var(--pdk-focus-ring, rgba(36, 88, 202, 0.28));
 }
 
-.aos-shell-action-dialog-checkbox input:checked + .aos-shell-action-dialog-checkbox-box::after {
-	border-bottom: 2px solid var(--aos-accent-ink);
-	border-right: 2px solid var(--aos-accent-ink);
+.pdk-shell-action-dialog-checkbox input:checked + .pdk-shell-action-dialog-checkbox-box::after {
+	border-bottom: 2px solid var(--pdk-accent-ink);
+	border-right: 2px solid var(--pdk-accent-ink);
 	content: "";
 	height: 9px;
 	left: 6px;
@@ -279,11 +279,11 @@
 	width: 5px;
 }
 
-.aos-shell-action-dialog-checkbox-label {
+.pdk-shell-action-dialog-checkbox-label {
 	min-width: 0;
 }
 
-.aos-shell-action-dialog-actions {
+.pdk-shell-action-dialog-actions {
 	display: grid;
 	gap: 10px;
 	grid-template-columns: 1fr 1fr;
@@ -291,7 +291,7 @@
 	width: 100%;
 }
 
-.aos-shell-action-dialog-actions .aos-shell-dialog-button {
+.pdk-shell-action-dialog-actions .pdk-shell-dialog-button {
 	background: rgba(255, 255, 255, 0.12);
 	border: 0;
 	box-shadow: none;
@@ -299,46 +299,46 @@
 	width: 100%;
 }
 
-.aos-shell-action-dialog-actions .aos-shell-dialog-button:active {
+.pdk-shell-action-dialog-actions .pdk-shell-dialog-button:active {
 	background: rgba(255, 255, 255, 0.16);
 }
 
-.aos-shell-action-dialog-actions .aos-shell-dialog-button-primary {
-	background: var(--aos-accent);
+.pdk-shell-action-dialog-actions .pdk-shell-dialog-button-primary {
+	background: var(--pdk-accent);
 	border: 0;
 	box-shadow: none;
-	color: var(--aos-accent-ink);
+	color: var(--pdk-accent-ink);
 }
 
-.aos-shell-action-dialog-actions .aos-shell-dialog-button-primary:hover,
-.aos-shell-action-dialog-actions .aos-shell-dialog-button-primary:focus {
-	background: var(--aos-accent);
+.pdk-shell-action-dialog-actions .pdk-shell-dialog-button-primary:hover,
+.pdk-shell-action-dialog-actions .pdk-shell-dialog-button-primary:focus {
+	background: var(--pdk-accent);
 }
 
-.aos-shell-action-dialog-actions .aos-shell-dialog-button-primary:active {
+.pdk-shell-action-dialog-actions .pdk-shell-dialog-button-primary:active {
 	filter: brightness(1.04);
 }
 
-.aos-shell-blocking-overlay {
+.pdk-shell-blocking-overlay {
 	background: rgba(0, 0, 0, 0.26);
 	color: #fff;
-	font-family: var(--aos-font-ui);
-	font-size: var(--aos-text-body);
-	font-weight: var(--aos-weight-semibold);
-	letter-spacing: var(--aos-letter-spacing-default);
+	font-family: var(--pdk-font-ui);
+	font-size: var(--pdk-text-body);
+	font-weight: var(--pdk-weight-semibold);
+	letter-spacing: var(--pdk-letter-spacing-default);
 }
 
-.aos-shell-blocking-overlay.is-visible {
+.pdk-shell-blocking-overlay.is-visible {
 	opacity: 1;
 }
 
-.aos-shell-blocking-message {
-	-webkit-backdrop-filter: var(--aos-material-popover-filter);
-	backdrop-filter: var(--aos-material-popover-filter);
-	background: var(--aos-material-popover-bg);
-	border: 1px solid var(--aos-material-popover-border);
+.pdk-shell-blocking-message {
+	-webkit-backdrop-filter: var(--pdk-material-popover-filter);
+	backdrop-filter: var(--pdk-material-popover-filter);
+	background: var(--pdk-material-popover-bg);
+	border: 1px solid var(--pdk-material-popover-border);
 	border-radius: 999px;
-	box-shadow: var(--aos-material-popover-shadow);
-	color: var(--aos-menu-popover-ink);
+	box-shadow: var(--pdk-material-popover-shadow);
+	color: var(--pdk-menu-popover-ink);
 	padding: 10px 18px;
 }

@@ -1,18 +1,18 @@
-.aos-context-menu {
+.pdk-context-menu {
 	min-width: 218px;
 	position: absolute;
-	z-index: calc(var(--aos-layer-menu-popover) + 1);
+	z-index: calc(var(--pdk-layer-menu-popover) + 1);
 }
 
-.aos-context-menu .aos-menu-item {
+.pdk-context-menu .pdk-menu-item {
 	grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.aos-context-menu .aos-menu-item.has-icon {
+.pdk-context-menu .pdk-menu-item.has-icon {
 	grid-template-columns: 16px minmax(0, 1fr) auto;
 }
 
-.aos-context-menu[data-aos-context-menu="dock-app"] {
+.pdk-context-menu[data-pdk-context-menu="dock-app"] {
 	border-radius: 20px;
 	max-width: min(320px, calc(100vw - 16px));
 	min-width: 246px;
@@ -20,29 +20,29 @@
 	width: max-content;
 }
 
-.aos-context-menu[data-aos-context-menu="dock-app"] .aos-menu-item {
+.pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-item {
 	border-radius: 8px;
-	font-size: var(--aos-text-context-menu);
+	font-size: var(--pdk-text-context-menu);
 	height: 34px;
 	grid-template-columns: minmax(0, 1fr) auto;
 	padding: 0 20px;
 }
 
-.aos-context-menu[data-aos-context-menu="dock-app"] .aos-menu-item-shortcut {
-	font-size: var(--aos-text-context-menu-shortcut);
+.pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-item-shortcut {
+	font-size: var(--pdk-text-context-menu-shortcut);
 	min-width: 18px;
 }
 
-.aos-context-menu[data-aos-context-menu="dock-app"] .aos-menu-item-label {
+.pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-item-label {
 	overflow: visible;
 	text-overflow: clip;
 }
 
-.aos-context-menu[data-aos-context-menu="dock-app"] .aos-menu-separator {
+.pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-separator {
 	margin: 8px 20px;
 }
 
-.aos-context-menu[data-aos-context-menu="dock-app"] .aos-menu-submenu-popover {
+.pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-submenu-popover {
 	border-radius: 18px;
 	max-width: min(320px, calc(100vw - 16px));
 	min-width: 246px;

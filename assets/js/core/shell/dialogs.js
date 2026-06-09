@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
-	window.WPAdminOS.shell.createShellDialogs = function createShellDialogs(shell) {
-		const dom = window.WPAdminOS.dom || null;
+	window.PufferDesk.shell.createShellDialogs = function createShellDialogs(shell) {
+		const dom = window.PufferDesk.dom || null;
 		let activeDialog = null;
 		let activeOverlay = null;
 
@@ -19,11 +19,11 @@
 
 		function createActionIcon(iconValue) {
 			const icon = document.createElement('span');
-			icon.className = 'aos-shell-action-dialog-icon';
+			icon.className = 'pdk-shell-action-dialog-icon';
 			icon.setAttribute('aria-hidden', 'true');
 
 			if (iconValue === 'power') {
-				icon.classList.add('aos-shell-action-dialog-icon-power');
+				icon.classList.add('pdk-shell-action-dialog-icon-power');
 				icon.appendChild(document.createElement('span'));
 				return icon;
 			}
@@ -53,7 +53,7 @@
 
 				if (index < parts.length - 1) {
 					const countdown = document.createElement('span');
-					countdown.className = 'aos-shell-action-dialog-countdown';
+					countdown.className = 'pdk-shell-action-dialog-countdown';
 					countdown.style.minWidth = `${digitCount}ch`;
 					countdown.textContent = String(seconds);
 					element.appendChild(countdown);
@@ -153,34 +153,34 @@
 				const message = options.message || '';
 				const confirmLabel = options.confirmLabel || 'OK';
 				const cancelLabel = options.cancelLabel || 'Cancel';
-				const titleId = `aos-shell-dialog-title-${Date.now()}`;
-				const messageId = `aos-shell-dialog-message-${Date.now()}`;
+				const titleId = `pdk-shell-dialog-title-${Date.now()}`;
+				const messageId = `pdk-shell-dialog-message-${Date.now()}`;
 
 				const layer = document.createElement('div');
-				layer.className = 'aos-shell-dialog-layer';
+				layer.className = 'pdk-shell-dialog-layer';
 
 				const dialog = document.createElement('div');
-				dialog.className = 'aos-shell-dialog';
+				dialog.className = 'pdk-shell-dialog';
 				dialog.setAttribute('role', 'dialog');
 				dialog.setAttribute('aria-modal', 'true');
 				dialog.setAttribute('aria-labelledby', titleId);
 				dialog.setAttribute('aria-describedby', messageId);
 
 				const titleElement = document.createElement('h2');
-				titleElement.className = 'aos-shell-dialog-title';
+				titleElement.className = 'pdk-shell-dialog-title';
 				titleElement.id = titleId;
 				titleElement.textContent = title;
 
 				const messageElement = document.createElement('p');
-				messageElement.className = 'aos-shell-dialog-message';
+				messageElement.className = 'pdk-shell-dialog-message';
 				messageElement.id = messageId;
 				messageElement.textContent = message;
 
 				const actions = document.createElement('div');
-				actions.className = 'aos-shell-dialog-actions';
+				actions.className = 'pdk-shell-dialog-actions';
 
-				const cancelButton = createButton(cancelLabel, 'aos-shell-dialog-button');
-				const confirmButton = createButton(confirmLabel, 'aos-shell-dialog-button aos-shell-dialog-button-primary');
+				const cancelButton = createButton(cancelLabel, 'pdk-shell-dialog-button');
+				const confirmButton = createButton(confirmLabel, 'pdk-shell-dialog-button pdk-shell-dialog-button-primary');
 
 				function finish(confirmed) {
 					layer.removeEventListener('keydown', onKeyDown);
@@ -226,17 +226,17 @@
 				const cancelLabel = options.cancelLabel || 'Cancel';
 				const reopenWindowsLabel = options.reopenWindowsLabel || '';
 				const reopenWindowsDefault = options.reopenWindowsDefault === true;
-				const titleId = `aos-shell-dialog-title-${Date.now()}`;
-				const messageId = `aos-shell-dialog-message-${Date.now()}`;
+				const titleId = `pdk-shell-dialog-title-${Date.now()}`;
+				const messageId = `pdk-shell-dialog-message-${Date.now()}`;
 				const countdownDigitCount = String(countdownSeconds).length;
 				let remaining = countdownSeconds;
 				let timerId = null;
 
 				const layer = document.createElement('div');
-				layer.className = 'aos-shell-dialog-layer';
+				layer.className = 'pdk-shell-dialog-layer';
 
 				const dialog = document.createElement('div');
-				dialog.className = 'aos-shell-dialog aos-shell-action-dialog';
+				dialog.className = 'pdk-shell-dialog pdk-shell-action-dialog';
 				dialog.setAttribute('role', 'dialog');
 				dialog.setAttribute('aria-modal', 'true');
 				dialog.setAttribute('aria-labelledby', titleId);
@@ -245,35 +245,35 @@
 				const icon = createActionIcon(options.icon || 'power');
 
 				const titleElement = document.createElement('h2');
-				titleElement.className = 'aos-shell-dialog-title aos-shell-action-dialog-title';
+				titleElement.className = 'pdk-shell-dialog-title pdk-shell-action-dialog-title';
 				titleElement.id = titleId;
 				titleElement.textContent = title;
 
 				const messageElement = document.createElement('p');
-				messageElement.className = 'aos-shell-dialog-message aos-shell-action-dialog-message';
+				messageElement.className = 'pdk-shell-dialog-message pdk-shell-action-dialog-message';
 				messageElement.id = messageId;
 
 				const checkboxLabel = document.createElement('label');
-				checkboxLabel.className = 'aos-shell-action-dialog-checkbox';
+				checkboxLabel.className = 'pdk-shell-action-dialog-checkbox';
 
 				const checkbox = document.createElement('input');
 				checkbox.type = 'checkbox';
 				checkbox.checked = reopenWindowsDefault;
 
 				const checkboxBox = document.createElement('span');
-				checkboxBox.className = 'aos-shell-action-dialog-checkbox-box';
+				checkboxBox.className = 'pdk-shell-action-dialog-checkbox-box';
 
 				const checkboxText = document.createElement('span');
-				checkboxText.className = 'aos-shell-action-dialog-checkbox-label';
+				checkboxText.className = 'pdk-shell-action-dialog-checkbox-label';
 				checkboxText.textContent = reopenWindowsLabel;
 
 				checkboxLabel.append(checkbox, checkboxBox, checkboxText);
 
 				const actions = document.createElement('div');
-				actions.className = 'aos-shell-dialog-actions aos-shell-action-dialog-actions';
+				actions.className = 'pdk-shell-dialog-actions pdk-shell-action-dialog-actions';
 
-				const cancelButton = createButton(cancelLabel, 'aos-shell-dialog-button');
-				const confirmButton = createButton(confirmLabel, 'aos-shell-dialog-button aos-shell-dialog-button-primary');
+				const cancelButton = createButton(cancelLabel, 'pdk-shell-dialog-button');
+				const confirmButton = createButton(confirmLabel, 'pdk-shell-dialog-button pdk-shell-dialog-button-primary');
 
 				function updateMessage() {
 					if (hasTimer) {
@@ -354,39 +354,39 @@
 				const value = typeof options.value === 'string' ? options.value : '';
 				const confirmLabel = options.confirmLabel || 'OK';
 				const cancelLabel = options.cancelLabel || 'Cancel';
-				const titleId = `aos-shell-dialog-title-${Date.now()}`;
-				const messageId = `aos-shell-dialog-message-${Date.now()}`;
+				const titleId = `pdk-shell-dialog-title-${Date.now()}`;
+				const messageId = `pdk-shell-dialog-message-${Date.now()}`;
 
 				const layer = document.createElement('div');
-				layer.className = 'aos-shell-dialog-layer';
+				layer.className = 'pdk-shell-dialog-layer';
 
 				const dialog = document.createElement('div');
-				dialog.className = 'aos-shell-dialog aos-shell-prompt-dialog';
+				dialog.className = 'pdk-shell-dialog pdk-shell-prompt-dialog';
 				dialog.setAttribute('role', 'dialog');
 				dialog.setAttribute('aria-modal', 'true');
 				dialog.setAttribute('aria-labelledby', titleId);
 				dialog.setAttribute('aria-describedby', messageId);
 
 				const titleElement = document.createElement('h2');
-				titleElement.className = 'aos-shell-dialog-title';
+				titleElement.className = 'pdk-shell-dialog-title';
 				titleElement.id = titleId;
 				titleElement.textContent = title;
 
 				const messageElement = document.createElement('p');
-				messageElement.className = 'aos-shell-dialog-message';
+				messageElement.className = 'pdk-shell-dialog-message';
 				messageElement.id = messageId;
 				messageElement.textContent = message;
 
 				const input = document.createElement('input');
-				input.className = 'aos-shell-dialog-input';
+				input.className = 'pdk-shell-dialog-input';
 				input.type = 'text';
 				input.value = value;
 
 				const actions = document.createElement('div');
-				actions.className = 'aos-shell-dialog-actions';
+				actions.className = 'pdk-shell-dialog-actions';
 
-				const cancelButton = createButton(cancelLabel, 'aos-shell-dialog-button');
-				const confirmButton = createButton(confirmLabel, 'aos-shell-dialog-button aos-shell-dialog-button-primary');
+				const cancelButton = createButton(cancelLabel, 'pdk-shell-dialog-button');
+				const confirmButton = createButton(confirmLabel, 'pdk-shell-dialog-button pdk-shell-dialog-button-primary');
 
 				function finish(nextValue) {
 					layer.removeEventListener('keydown', onKeyDown);
@@ -431,12 +431,12 @@
 			closeActiveDialog();
 
 			const overlay = document.createElement('div');
-			overlay.className = 'aos-shell-blocking-overlay';
+			overlay.className = 'pdk-shell-blocking-overlay';
 			overlay.setAttribute('role', 'status');
 			overlay.setAttribute('aria-live', 'polite');
 
 			const label = document.createElement('div');
-			label.className = 'aos-shell-blocking-message';
+			label.className = 'pdk-shell-blocking-message';
 			label.textContent = message || '';
 
 			overlay.appendChild(label);

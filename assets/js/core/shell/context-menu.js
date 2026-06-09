@@ -1,10 +1,10 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.shell = window.WPAdminOS.shell || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
-	window.WPAdminOS.shell.createContextMenuRegistry = function createContextMenuRegistry(config = {}, schema = null, context = {}) {
+	window.PufferDesk.shell.createContextMenuRegistry = function createContextMenuRegistry(config = {}, schema = null, context = {}) {
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const folderMap = new Map((Array.isArray(config.folders) ? config.folders : []).map((folder) => [folder.id, folder]));
 		const widgetMap = new Map((Array.isArray(config.widgets) ? config.widgets : []).map((widget) => [widget.id, widget]));
@@ -14,7 +14,10 @@
 		const folderManager = context.folderManager || null;
 		const manager = context.manager || null;
 		const providers = new Map();
-		const menuSchema = schema || window.WPAdminOS.shell.createMenuSchema();
+		const menuSchema = schema || window.PufferDesk.shell.createMenuSchema();
+		const themeSurfaces = config.theme && config.theme.surfaces && typeof config.theme.surfaces === 'object'
+			? config.theme.surfaces
+			: {};
 
 		function commandItem(label, command, options = {}) {
 			return Object.assign({
@@ -29,6 +32,21 @@
 
 		function separator() {
 			return { type: 'separator' };
+		}
+
+		function disabledItem(label, options = {}) {
+			return commandItem(label, '', Object.assign({}, options, {
+				disabled: true
+			}));
+		}
+
+		function actionStrip(items, options = {}) {
+			return Object.assign({
+				id: 'action-strip',
+				items,
+				label: getLabel('quick_actions', 'Quick Actions'),
+				type: 'action-strip'
+			}, options);
 		}
 
 		function getFolders() {
@@ -59,6 +77,10 @@
 			return Boolean(folder && folder.id === 'trash');
 		}
 
+		function isFileExplorerSurface() {
+			return themeSurfaces.folder === 'file-explorer';
+		}
+
 		function getDesktopSortMode() {
 			return desktopIconManager && typeof desktopIconManager.getSortMode === 'function'
 				? desktopIconManager.getSortMode()
@@ -70,7 +92,7 @@
 				return manager.getAppWindowState(appId);
 			}
 
-			const win = appId ? document.querySelector(`[data-aos-app-window="${window.WPAdminOS.dom.escapeAttribute(appId)}"]:not(.is-closed)`) : null;
+			const win = appId ? document.querySelector(`[data-pdk-app-window="${window.PufferDesk.dom.escapeAttribute(appId)}"]:not(.is-closed)`) : null;
 
 			return {
 				hidden: Boolean(win && (win.classList.contains('is-hidden') || win.classList.contains('is-minimizing') || win.classList.contains('is-show-desktop-hidden'))),
@@ -290,22 +312,107 @@
 				];
 			}
 
-			const items = [
+			const canMutateFolder = folder.user === true || isUserFolder(folder.id);
+			const useExplorerMenu = isFileExplorerSurface();
+			const items = [];
+
+			if (useExplorerMenu) {
+				items.push(actionStrip([
+					commandItem(getLabel('cut', 'Cut'), '', {
+						disabled: true,
+						icon: 'dashicons-admin-page',
+						id: 'cut'
+					}),
+					commandItem(getLabel('copy', 'Copy'), '', {
+						disabled: true,
+						icon: 'dashicons-clipboard',
+						id: 'copy'
+					}),
+					commandItem(getLabel('rename', 'Rename'), canMutateFolder ? 'folder.rename' : '', {
+						disabled: !canMutateFolder,
+						icon: 'dashicons-edit',
+						id: 'rename',
+						target: folder.id
+					}),
+					commandItem(getLabel('delete', 'Delete'), canMutateFolder ? 'folder.delete' : '', {
+						disabled: !canMutateFolder,
+						icon: 'dashicons-trash',
+						id: 'delete',
+						target: folder.id
+					})
+				], {
+					id: 'folder-actions'
+				}));
+			}
+
+			items.push(
 				commandItem(getLabel('open', 'Open'), 'open-folder', {
 					icon: folder.icon || 'dashicons-category',
+					shortcut: useExplorerMenu ? getLabel('enter_key', 'Enter') : '',
 					target: folder.id
 				}),
 				commandItem(getLabel('open_in_new_tab', 'Open in New Tab'), 'open-folder-tab', {
 					icon: 'dashicons-plus-alt2',
 					target: folder.id
-				}),
-				commandItem(getLabel('get_info', 'Get Info'), 'folder.get-info', {
+				})
+			);
+
+			if (useExplorerMenu) {
+				items.push(
+					commandItem(getLabel('open_in_new_window', 'Open in New Window'), 'open-folder-window', {
+						icon: 'dashicons-external',
+						id: 'open-in-new-window',
+						target: folder.id
+					}),
+					disabledItem(getLabel('pin_to_quick_access', 'Pin to Quick Access'), {
+						icon: 'dashicons-admin-links',
+						id: 'pin-to-quick-access'
+					}),
+					disabledItem(getLabel('pin_to_start', 'Pin to Start'), {
+						icon: 'dashicons-admin-links',
+						id: 'pin-to-start'
+					}),
+					{
+						icon: 'dashicons-archive',
+						id: 'compress-to',
+						items: [
+							disabledItem(getLabel('zip_file', 'ZIP file')),
+							disabledItem(getLabel('compressed_folder', 'Compressed folder'))
+						],
+						label: getLabel('compress_to', 'Compress to...')
+					},
+					disabledItem(getLabel('copy_as_path', 'Copy as path'), {
+						icon: 'dashicons-media-code',
+						id: 'copy-as-path',
+						shortcut: 'Ctrl+Shift+C'
+					})
+				);
+			}
+
+			items.push(
+				commandItem(useExplorerMenu ? getLabel('properties', 'Properties') : getLabel('get_info', 'Get Info'), 'folder.get-info', {
 					icon: 'dashicons-info-outline',
+					shortcut: useExplorerMenu ? 'Alt+Enter' : '',
 					target: folder.id
 				})
-			];
+			);
 
-			if (folder.user === true || isUserFolder(folder.id)) {
+			if (useExplorerMenu) {
+				items.push(
+					separator(),
+					disabledItem(getLabel('open_in_terminal', 'Open in Terminal'), {
+						icon: 'dashicons-editor-code',
+						id: 'open-in-terminal'
+					}),
+					separator(),
+					disabledItem(getLabel('show_more_options', 'Show more options'), {
+						icon: 'dashicons-external',
+						id: 'show-more-options'
+					})
+				);
+			}
+
+			if (canMutateFolder && !useExplorerMenu) {
 				items.push(
 					separator(),
 					commandItem(getLabel('rename', 'Rename'), 'folder.rename', {
@@ -356,7 +463,7 @@
 			});
 			const groups = normalized.groups
 				.map((group) => Object.assign({}, group, {
-					items: group.items.filter((item) => item.type === 'separator' || item.command || item.label)
+					items: group.items.filter((item) => item.type === 'separator' || item.type === 'action-strip' || item.command || item.label)
 				}))
 				.filter((group) => group.items.length);
 
@@ -532,13 +639,13 @@
 		};
 	};
 
-	window.WPAdminOS.shell.createContextMenuController = function createContextMenuController(shell, config = {}, context = {}) {
+	window.PufferDesk.shell.createContextMenuController = function createContextMenuController(shell, config = {}, context = {}) {
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
-		const schema = window.WPAdminOS.shell.createMenuSchema(labels);
-		const commands = context.commands || window.WPAdminOS.shell.createCommandRegistry(shell, context);
-		const registry = context.registry || window.WPAdminOS.shell.createContextMenuRegistry(config, schema, context);
-		const itemRenderer = window.WPAdminOS.shell.createMenuItemRenderer(commands);
+		const schema = window.PufferDesk.shell.createMenuSchema(labels);
+		const commands = context.commands || window.PufferDesk.shell.createCommandRegistry(shell, context);
+		const registry = context.registry || window.PufferDesk.shell.createContextMenuRegistry(config, schema, context);
+		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands);
 		const folderManager = context.folderManager || null;
 		const dockLongPressDelay = 560;
 		const dockLongPressMoveTolerance = 8;
@@ -564,18 +671,18 @@
 				return null;
 			}
 
-			if (target.classList.contains('aos-window')) {
+			if (target.classList.contains('pdk-window')) {
 				return target;
 			}
 
-			const closest = target.closest('.aos-window');
+			const closest = target.closest('.pdk-window');
 			if (closest) {
 				return closest;
 			}
 
 			const windowId = target.dataset.aosRestoreWindowId || target.dataset.aosWindowId || '';
 			return windowId
-				? shell.querySelector(`.aos-window[data-aos-window-id="${window.WPAdminOS.dom.escapeAttribute(windowId)}"]:not(.is-closed)`)
+				? shell.querySelector(`.pdk-window[data-pdk-window-id="${window.PufferDesk.dom.escapeAttribute(windowId)}"]:not(.is-closed)`)
 				: null;
 		}
 
@@ -623,16 +730,16 @@
 				return null;
 			}
 
-			if (eventTarget.closest('.aos-context-menu')) {
+			if (eventTarget.closest('.pdk-context-menu')) {
 				return null;
 			}
 
-			const explicit = eventTarget.closest('[data-aos-context]');
+			const explicit = eventTarget.closest('[data-pdk-context]');
 			if (explicit && shell.contains(explicit)) {
 				return explicit;
 			}
 
-			const desktop = shell.querySelector('.aos-desktop');
+			const desktop = shell.querySelector('.pdk-desktop');
 			return desktop && desktop.contains(eventTarget) ? desktop : null;
 		}
 
@@ -746,7 +853,7 @@
 			closeMenu();
 			activeDetail = nextDetail;
 			popover = document.createElement('div');
-			popover.className = 'aos-menu-popover aos-context-menu';
+			popover.className = 'pdk-menu-popover pdk-context-menu';
 			popover.dataset.aosContextMenu = activeDetail.type;
 			popover.setAttribute('role', 'menu');
 			popover.setAttribute('aria-label', activeDetail.label || 'Context menu');
@@ -757,7 +864,7 @@
 				}
 
 				const separator = document.createElement('span');
-				separator.className = 'aos-menu-separator';
+				separator.className = 'pdk-menu-separator';
 				separator.setAttribute('role', 'separator');
 				return [separator].concat(groupItems);
 			}));
@@ -789,7 +896,7 @@
 		}
 
 		function openFromEvent(event) {
-			const disabled = event.target.closest('[data-aos-context-menu-disabled="1"]');
+			const disabled = event.target.closest('[data-pdk-context-menu-disabled="1"]');
 			if (disabled && shell.contains(disabled)) {
 				closeMenu();
 				event.preventDefault();
@@ -819,7 +926,7 @@
 
 		function getDockLongPressTarget(target) {
 			const item = target && typeof target.closest === 'function'
-				? target.closest('[data-aos-context="dock-app"]')
+				? target.closest('[data-pdk-context="dock-app"]')
 				: null;
 
 			return item && shell.contains(item) ? item : null;
@@ -861,7 +968,7 @@
 
 			const element = document.elementFromPoint(event.clientX, event.clientY);
 			const item = element && typeof element.closest === 'function'
-				? element.closest('.aos-context-menu .aos-menu-item:not(:disabled)')
+				? element.closest('.pdk-context-menu .pdk-menu-item:not(:disabled)')
 				: null;
 
 			return item && popover.contains(item) ? item : null;
@@ -893,7 +1000,7 @@
 				event.stopPropagation();
 			}
 
-			if (item && !item.classList.contains('aos-menu-submenu-trigger')) {
+			if (item && !item.classList.contains('pdk-menu-submenu-trigger')) {
 				item.click();
 			} else {
 				closeMenu();
@@ -973,7 +1080,7 @@
 				clearDockLongPress();
 			});
 			shell.addEventListener('click', (event) => {
-				const target = getDockLongPressTarget(event.target) || shell.querySelector('[data-aos-dock-long-press-open="1"]');
+				const target = getDockLongPressTarget(event.target) || shell.querySelector('[data-pdk-dock-long-press-open="1"]');
 				if (!target || target.dataset.aosDockLongPressOpen !== '1') {
 					return;
 				}

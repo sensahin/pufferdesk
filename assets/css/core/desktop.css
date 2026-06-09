@@ -1,50 +1,54 @@
-.aos-desktop {
-	background: var(--aos-wallpaper-image), var(--aos-desktop-bg);
-	background-position: var(--aos-wallpaper-position), center, 0 0, 0 0, center;
-	background-repeat: var(--aos-wallpaper-repeat), no-repeat, repeat, repeat, no-repeat;
-	background-size: var(--aos-wallpaper-size), auto, 42px 42px, 42px 42px, auto;
+.pdk-desktop {
+	background: var(--pdk-wallpaper-image), var(--pdk-desktop-bg);
+	background-position: var(--pdk-wallpaper-position), center, 0 0, 0 0, center;
+	background-repeat: var(--pdk-wallpaper-repeat), no-repeat, repeat, repeat, no-repeat;
+	background-size: var(--pdk-wallpaper-size), auto, 42px 42px, 42px 42px, auto;
 	height: calc(100% - 48px);
 	overflow: hidden;
 	position: relative;
 }
 
-.aos-desktop:focus {
+.pdk-shell[data-pdk-shell-launcher="taskbar"] .pdk-desktop {
+	height: 100%;
+}
+
+.pdk-desktop:focus {
 	outline: none;
 }
 
-.aos-desktop-marquee {
-	background: var(--aos-desktop-marquee-bg, rgba(36, 88, 202, 0.16));
-	border: 1px solid var(--aos-desktop-marquee-border, rgba(36, 88, 202, 0.52));
+.pdk-desktop-marquee {
+	background: var(--pdk-desktop-marquee-bg, rgba(36, 88, 202, 0.16));
+	border: 1px solid var(--pdk-desktop-marquee-border, rgba(36, 88, 202, 0.52));
 	border-radius: 6px;
-	box-shadow: 0 0 0 1px var(--aos-desktop-marquee-inner-border, rgba(255, 255, 255, 0.18)) inset;
+	box-shadow: 0 0 0 1px var(--pdk-desktop-marquee-inner-border, rgba(255, 255, 255, 0.18)) inset;
 	opacity: 0;
 	pointer-events: none;
 	position: absolute;
 	z-index: 29;
 }
 
-.aos-desktop-marquee.is-active {
+.pdk-desktop-marquee.is-active {
 	opacity: 1;
 }
 
-.aos-app-icon {
+.pdk-app-icon {
 	align-items: center;
-	background: var(--aos-tile-bg);
-	border: 1px solid var(--aos-tile-border);
-	box-shadow: var(--aos-tile-shadow);
-	color: var(--aos-accent);
+	background: var(--pdk-tile-bg);
+	border: 1px solid var(--pdk-tile-border);
+	box-shadow: var(--pdk-tile-shadow);
+	color: var(--pdk-accent);
 	display: flex;
 	justify-content: center;
 }
 
-.aos-app-icon .dashicons {
+.pdk-app-icon .dashicons {
 	font-size: 27px;
 	height: 27px;
 	width: 27px;
 }
 
-.aos-desktop-apps,
-.aos-desktop-folders {
+.pdk-desktop-apps,
+.pdk-desktop-folders {
 	align-content: start;
 	display: grid;
 	gap: 14px 10px;
@@ -57,16 +61,16 @@
 	z-index: 9;
 }
 
-.aos-desktop-icon-layer.is-managed {
+.pdk-desktop-icon-layer.is-managed {
 	display: block;
 	inset: 24px 24px 112px 24px;
 }
 
-.aos-desktop-icon-layer.is-managed .aos-desktop-icon {
+.pdk-desktop-icon-layer.is-managed .pdk-desktop-icon {
 	position: absolute;
 }
 
-.aos-desktop-icon {
+.pdk-desktop-icon {
 	align-items: center;
 	align-content: start;
 	appearance: none;
@@ -76,7 +80,7 @@
 	cursor: default;
 	display: grid;
 	font-family: inherit;
-	gap: var(--aos-desktop-icon-label-gap, 10px);
+	gap: var(--pdk-desktop-icon-label-gap, 10px);
 	grid-template-columns: 100%;
 	grid-template-rows: 48px minmax(0, auto);
 	height: 94px;
@@ -93,11 +97,11 @@
 	width: 74px;
 }
 
-.aos-desktop-icon[hidden] {
+.pdk-desktop-icon[hidden] {
 	display: none !important;
 }
 
-.aos-desktop-icon::before {
+.pdk-desktop-icon::before {
 	background: rgba(255, 255, 255, 0.12);
 	border-radius: 11px;
 	content: "";
@@ -107,19 +111,19 @@
 	transition: opacity 120ms ease;
 }
 
-.aos-desktop-icon.is-drop-target::before {
+.pdk-desktop-icon.is-drop-target::before {
 	opacity: 1;
 }
 
-.aos-desktop-icon.is-selected:not(.is-dragging):not(.is-drop-target):not(.is-renaming)::before {
+.pdk-desktop-icon.is-selected:not(.is-dragging):not(.is-drop-target):not(.is-renaming)::before {
 	opacity: 0;
 }
 
-.aos-desktop-icon:focus {
+.pdk-desktop-icon:focus {
 	outline: none;
 }
 
-.aos-desktop-icon .aos-app-icon {
+.pdk-desktop-icon .pdk-app-icon {
 	border-radius: 12px;
 	height: 48px;
 	isolation: isolate;
@@ -129,43 +133,43 @@
 	z-index: 1;
 }
 
-.aos-desktop-icon .aos-app-icon::before {
-	background: var(--aos-desktop-icon-selection-icon-bg, rgba(255, 255, 255, 0.16));
-	border-radius: var(--aos-desktop-icon-selection-icon-radius, 10px);
+.pdk-desktop-icon .pdk-app-icon::before {
+	background: var(--pdk-desktop-icon-selection-icon-bg, rgba(255, 255, 255, 0.16));
+	border-radius: var(--pdk-desktop-icon-selection-icon-radius, 10px);
 	content: "";
-	inset: var(--aos-desktop-icon-selection-icon-inset, -7px -10px);
+	inset: var(--pdk-desktop-icon-selection-icon-inset, -7px -10px);
 	opacity: 0;
 	position: absolute;
 	transition: opacity 120ms ease;
 	z-index: 0;
 }
 
-.aos-desktop-icon .aos-app-icon > * {
+.pdk-desktop-icon .pdk-app-icon > * {
 	position: relative;
 	z-index: 1;
 }
 
-.aos-desktop-icon.is-selected:not(.is-dragging) .aos-app-icon::before,
-.aos-desktop-icon.is-renaming .aos-app-icon::before {
+.pdk-desktop-icon.is-selected:not(.is-dragging) .pdk-app-icon::before,
+.pdk-desktop-icon.is-renaming .pdk-app-icon::before {
 	opacity: 1;
 }
 
-.aos-desktop-icon.is-dragging {
+.pdk-desktop-icon.is-dragging {
 	opacity: 0.92;
 	transform: scale(1.02);
 	z-index: 30;
 }
 
-.aos-desktop-icon.is-dragging .aos-app-icon {
+.pdk-desktop-icon.is-dragging .pdk-app-icon {
 	transform: scale(0.98);
 }
 
-.aos-desktop-icon.is-drop-target .aos-app-icon {
-	box-shadow: 0 0 0 3px var(--aos-focus-ring), var(--aos-tile-shadow);
+.pdk-desktop-icon.is-drop-target .pdk-app-icon {
+	box-shadow: 0 0 0 3px var(--pdk-focus-ring), var(--pdk-tile-shadow);
 	transform: translateY(-1px) scale(1.04);
 }
 
-.aos-desktop-icon .aos-icon-image {
+.pdk-desktop-icon .pdk-icon-image {
 	height: 40px;
 	object-fit: contain;
 	object-position: center;
@@ -174,20 +178,20 @@
 	width: 40px;
 }
 
-.aos-desktop-icon .aos-app-badge {
+.pdk-desktop-icon .pdk-app-badge {
 	position: absolute;
-	right: var(--aos-desktop-badge-right, -4px);
-	top: var(--aos-desktop-badge-top, -4px);
+	right: var(--pdk-desktop-badge-right, -4px);
+	top: var(--pdk-desktop-badge-top, -4px);
 	z-index: 4;
 }
 
-.aos-desktop-app-label {
+.pdk-desktop-app-label {
 	display: -webkit-box;
-	font-size: var(--aos-text-caption);
-	font-weight: var(--aos-weight-medium);
-	line-height: var(--aos-line-height-caption);
+	font-size: var(--pdk-text-caption);
+	font-weight: var(--pdk-weight-medium);
+	line-height: var(--pdk-line-height-caption);
 	max-height: 2.4em;
-	max-width: var(--aos-desktop-label-line-width, 18ch);
+	max-width: var(--pdk-desktop-label-line-width, 18ch);
 	overflow: hidden;
 	position: relative;
 	text-overflow: ellipsis;
@@ -201,74 +205,74 @@
 	z-index: 1;
 }
 
-.aos-desktop-icon.is-selected .aos-desktop-app-label {
-	background: var(--aos-desktop-icon-selection-bg, rgba(36, 88, 202, 0.82));
+.pdk-desktop-icon.is-selected .pdk-desktop-app-label {
+	background: var(--pdk-desktop-icon-selection-bg, rgba(36, 88, 202, 0.82));
 	border-radius: 4px;
-	color: var(--aos-desktop-icon-selection-ink, #fff);
+	color: var(--pdk-desktop-icon-selection-ink, #fff);
 	margin-inline: -3px;
 	padding-inline: 3px;
 	text-shadow: none;
 }
 
-.aos-desktop-icon.is-renaming .aos-desktop-app-label {
-	background: var(--aos-desktop-rename-bg, transparent);
+.pdk-desktop-icon.is-renaming .pdk-desktop-app-label {
+	background: var(--pdk-desktop-rename-bg, transparent);
 	border: 0;
 	border-radius: 4px;
 	box-sizing: border-box;
-	box-shadow: var(--aos-desktop-rename-shadow, 0 1px 4px rgba(0, 0, 0, 0.22));
-	color: var(--aos-desktop-rename-ink, #1d1d1f);
+	box-shadow: var(--pdk-desktop-rename-shadow, 0 1px 4px rgba(0, 0, 0, 0.22));
+	color: var(--pdk-desktop-rename-ink, #1d1d1f);
 	cursor: text;
 	display: block;
-	left: var(--aos-desktop-rename-left, 50%);
-	line-height: var(--aos-line-height-caption);
+	left: var(--pdk-desktop-rename-left, 50%);
+	line-height: var(--pdk-line-height-caption);
 	margin-inline: 0;
 	max-height: 86px;
 	max-width: min(256px, calc(100vw - 48px));
-	min-height: var(--aos-desktop-rename-height, 0);
-	min-width: var(--aos-desktop-rename-width, 0);
-	outline: 1px solid var(--aos-desktop-rename-border, rgba(0, 0, 0, 0.18));
+	min-height: var(--pdk-desktop-rename-height, 0);
+	min-width: var(--pdk-desktop-rename-width, 0);
+	outline: 1px solid var(--pdk-desktop-rename-border, rgba(0, 0, 0, 0.18));
 	overflow-x: hidden;
 	overflow-y: auto;
 	padding: 0 3px;
 	position: absolute;
-	scrollbar-color: var(--aos-desktop-rename-scrollbar-thumb, rgba(60, 60, 67, 0.52)) var(--aos-desktop-rename-scrollbar-track, rgba(60, 60, 67, 0.12));
+	scrollbar-color: var(--pdk-desktop-rename-scrollbar-thumb, rgba(60, 60, 67, 0.52)) var(--pdk-desktop-rename-scrollbar-track, rgba(60, 60, 67, 0.12));
 	scrollbar-width: thin;
 	text-shadow: none;
-	top: var(--aos-desktop-rename-top, calc(48px + var(--aos-desktop-icon-label-gap, 10px)));
+	top: var(--pdk-desktop-rename-top, calc(48px + var(--pdk-desktop-icon-label-gap, 10px)));
 	transform: translateX(-50%);
 	user-select: text;
 	white-space: normal;
-	width: var(--aos-desktop-rename-width, max-content);
+	width: var(--pdk-desktop-rename-width, max-content);
 	-webkit-box-orient: initial;
 	-webkit-line-clamp: initial;
 	line-clamp: initial;
 	word-break: break-word;
 }
 
-.aos-desktop-icon.is-renaming .aos-desktop-app-label::-webkit-scrollbar {
+.pdk-desktop-icon.is-renaming .pdk-desktop-app-label::-webkit-scrollbar {
 	width: 8px;
 }
 
-.aos-desktop-icon.is-renaming .aos-desktop-app-label::-webkit-scrollbar-track {
-	background: var(--aos-desktop-rename-scrollbar-track, rgba(60, 60, 67, 0.12));
+.pdk-desktop-icon.is-renaming .pdk-desktop-app-label::-webkit-scrollbar-track {
+	background: var(--pdk-desktop-rename-scrollbar-track, rgba(60, 60, 67, 0.12));
 	border-radius: 999px;
 }
 
-.aos-desktop-icon.is-renaming .aos-desktop-app-label::-webkit-scrollbar-thumb {
-	background: var(--aos-desktop-rename-scrollbar-thumb, rgba(60, 60, 67, 0.52));
+.pdk-desktop-icon.is-renaming .pdk-desktop-app-label::-webkit-scrollbar-thumb {
+	background: var(--pdk-desktop-rename-scrollbar-thumb, rgba(60, 60, 67, 0.52));
 	border-radius: 999px;
 }
 
-.aos-desktop-icon.is-renaming .aos-desktop-app-label::selection {
-	background: var(--aos-accent);
-	color: var(--aos-accent-ink);
+.pdk-desktop-icon.is-renaming .pdk-desktop-app-label::selection {
+	background: var(--pdk-accent);
+	color: var(--pdk-accent-ink);
 }
 
-.aos-shell[data-aos-show-widgets-desktop="0"] .aos-widget-layer {
+.pdk-shell[data-pdk-show-widgets-desktop="0"] .pdk-widget-layer {
 	display: none;
 }
 
-.aos-shell[data-aos-dim-widgets="always"] .aos-widget-layer,
-.aos-shell[data-aos-dim-widgets="automatic"] .aos-desktop:has(.aos-window:not(.is-hidden):not(.is-closed)) .aos-widget-layer {
+.pdk-shell[data-pdk-dim-widgets="always"] .pdk-widget-layer,
+.pdk-shell[data-pdk-dim-widgets="automatic"] .pdk-desktop:has(.pdk-window:not(.is-hidden):not(.is-closed)) .pdk-widget-layer {
 	opacity: 0.54;
 }

@@ -2,7 +2,7 @@
 /**
  * Desktop folder icons.
  *
- * @package WPAdminOS
+ * @package PufferDesk
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -17,32 +17,32 @@ if ( empty( $folders ) ) {
 	return;
 }
 
-$wp_adminos_workspace_state        = isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array();
-$wp_adminos_folders_layer_restored = WP_AdminOS_Desktop_Layout::layer_has_saved_icon_positions( $folders, $wp_adminos_workspace_state, 'folder' );
-$wp_adminos_folders_layer_class    = 'aos-desktop-folders aos-desktop-icon-layer';
-$wp_adminos_folders_layer_class   .= $wp_adminos_folders_layer_restored ? ' is-managed' : '';
+$pufferdesk_workspace_state        = isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array();
+$pufferdesk_folders_layer_restored = PufferDesk_Desktop_Layout::layer_has_saved_icon_positions( $folders, $pufferdesk_workspace_state, 'folder' );
+$pufferdesk_folders_layer_class    = 'pdk-desktop-folders pdk-desktop-icon-layer';
+$pufferdesk_folders_layer_class   .= $pufferdesk_folders_layer_restored ? ' is-managed' : '';
 ?>
-<section class="<?php echo esc_attr( $wp_adminos_folders_layer_class ); ?>" aria-label="<?php esc_attr_e( 'Desktop folders', 'wp-adminos' ); ?>">
-	<?php foreach ( $folders as $wp_adminos_folder ) : ?>
+<section class="<?php echo esc_attr( $pufferdesk_folders_layer_class ); ?>" aria-label="<?php esc_attr_e( 'Desktop folders', 'pufferdesk-admin-desktop' ); ?>">
+	<?php foreach ( $folders as $pufferdesk_folder ) : ?>
 		<button
 			type="button"
-			class="aos-desktop-icon aos-desktop-folder"
-			data-aos-context="desktop-folder"
-			data-aos-context-id="<?php echo esc_attr( $wp_adminos_folder['id'] ); ?>"
-			data-aos-context-label="<?php echo esc_attr( $wp_adminos_folder['label'] ); ?>"
-			data-aos-desktop-icon
-			data-aos-desktop-icon-id="<?php echo esc_attr( 'folder:' . $wp_adminos_folder['id'] ); ?>"
-			data-aos-desktop-icon-kind="folder"
-			data-aos-open-folder="<?php echo esc_attr( $wp_adminos_folder['id'] ); ?>"
-			<?php if ( $wp_adminos_folders_layer_restored ) : ?>
-				<?php WP_AdminOS_Desktop_Layout::render_icon_attributes( 'folder:' . $wp_adminos_folder['id'], $wp_adminos_workspace_state ); ?>
+			class="pdk-desktop-icon pdk-desktop-folder"
+			data-pdk-context="desktop-folder"
+			data-pdk-context-id="<?php echo esc_attr( $pufferdesk_folder['id'] ); ?>"
+			data-pdk-context-label="<?php echo esc_attr( $pufferdesk_folder['label'] ); ?>"
+			data-pdk-desktop-icon
+			data-pdk-desktop-icon-id="<?php echo esc_attr( 'folder:' . $pufferdesk_folder['id'] ); ?>"
+			data-pdk-desktop-icon-kind="folder"
+			data-pdk-open-folder="<?php echo esc_attr( $pufferdesk_folder['id'] ); ?>"
+			<?php if ( $pufferdesk_folders_layer_restored ) : ?>
+				<?php PufferDesk_Desktop_Layout::render_icon_attributes( 'folder:' . $pufferdesk_folder['id'], $pufferdesk_workspace_state ); ?>
 			<?php endif; ?>
-			aria-label="<?php echo esc_attr( $wp_adminos_folder['label'] ); ?>"
+			aria-label="<?php echo esc_attr( $pufferdesk_folder['label'] ); ?>"
 		>
-			<span class="aos-app-icon">
-				<?php WP_AdminOS_Icon_Renderer::render( $wp_adminos_folder['icon'], $theme ); ?>
+			<span class="pdk-app-icon">
+				<?php PufferDesk_Icon_Renderer::render( $pufferdesk_folder['icon'], $theme ); ?>
 			</span>
-			<span class="aos-desktop-app-label"><?php echo esc_html( $wp_adminos_folder['label'] ); ?></span>
+			<span class="pdk-desktop-app-label"><?php echo esc_html( $pufferdesk_folder['label'] ); ?></span>
 		</button>
 	<?php endforeach; ?>
 </section>

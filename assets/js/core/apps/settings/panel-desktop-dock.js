@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
-	window.WPAdminOS.apps.settings = window.WPAdminOS.apps.settings || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
+	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
-	window.WPAdminOS.apps.settings.createDesktopDockPanel = function createDesktopDockPanel(ctx) {
+	window.PufferDesk.apps.settings.createDesktopDockPanel = function createDesktopDockPanel(ctx) {
 		const {
 			createAppLocationSection,
 			createDesktopDockSelectRow,
@@ -19,12 +19,12 @@
 		const capabilities = ctx.capabilities && typeof ctx.capabilities === 'object' ? ctx.capabilities : {};
 		const launcher = capabilities.launcher && typeof capabilities.launcher === 'object' ? capabilities.launcher : {};
 		const showLauncher = launcher.enabled !== false;
-		const panel = ctx.dom.createElement('div', 'aos-settings-pane-panel aos-settings-desktop-dock-panel');
-		const dockSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
-		const behaviorSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-desktop-dock-panel');
+		const dockSection = createSection('', 'pdk-settings-list pdk-settings-desktop-dock-list');
+		const behaviorSection = createSection('', 'pdk-settings-list pdk-settings-desktop-dock-list');
 		const appsSection = createAppLocationSection(status);
-		const desktopSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
-		const widgetsSection = createSection('', 'aos-settings-list aos-settings-desktop-dock-list');
+		const desktopSection = createSection('', 'pdk-settings-list pdk-settings-desktop-dock-list');
+		const widgetsSection = createSection('', 'pdk-settings-list pdk-settings-desktop-dock-list');
 		const sliderSection = showLauncher
 			? createDesktopDockSliderSection(status, {
 				magnification: launcher.magnification !== false,

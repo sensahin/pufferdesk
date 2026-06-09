@@ -1,19 +1,19 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.session = window.WPAdminOS.session || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.session = window.PufferDesk.session || {};
 
 	const stores = {};
 
-	window.WPAdminOS.session.createSessionStore = function createSessionStore(storageKey) {
-		const storage = window.WPAdminOS.services.storage;
-		const config = window.WPAdminOS.config && typeof window.WPAdminOS.config.get === 'function'
-			? window.WPAdminOS.config.get()
+	window.PufferDesk.session.createSessionStore = function createSessionStore(storageKey) {
+		const storage = window.PufferDesk.services.storage;
+		const config = window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
+			? window.PufferDesk.config.get()
 			: {};
 		const workspace = config.workspace && typeof config.workspace === 'object' ? config.workspace : {};
-		const api = window.WPAdminOS.services && window.WPAdminOS.services.api
-			? window.WPAdminOS.services.api
+		const api = window.PufferDesk.services && window.PufferDesk.services.api
+			? window.PufferDesk.services.api
 			: null;
 		const key = storageKey || '';
 
@@ -98,7 +98,7 @@
 				return;
 			}
 
-			window.dispatchEvent(new window.CustomEvent('wpAdminOS:workspace-state-changed', {
+			window.dispatchEvent(new window.CustomEvent('pufferDesk:workspace-state-changed', {
 				detail: {
 					source: source || 'local',
 					state: clone(currentSession),
@@ -108,7 +108,7 @@
 		}
 
 		function getBroadcastChannelName() {
-			return `wpAdminOS:workspace:${key}`;
+			return `pufferDesk:workspace:${key}`;
 		}
 
 		function broadcastSession(session, source) {
@@ -399,6 +399,6 @@
 		return store;
 	};
 
-	window.WPAdminOS.windows = window.WPAdminOS.windows || {};
-	window.WPAdminOS.windows.createSessionStore = window.WPAdminOS.session.createSessionStore;
+	window.PufferDesk.windows = window.PufferDesk.windows || {};
+	window.PufferDesk.windows.createSessionStore = window.PufferDesk.session.createSessionStore;
 })();

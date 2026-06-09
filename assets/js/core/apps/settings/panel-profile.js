@@ -1,19 +1,19 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
-	window.WPAdminOS.apps.settings = window.WPAdminOS.apps.settings || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
+	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
-	window.WPAdminOS.apps.settings.createProfilePanel = function createProfilePanel(ctx) {
+	window.PufferDesk.apps.settings.createProfilePanel = function createProfilePanel(ctx) {
 		const dom = ctx.dom;
 		const user = ctx.getUserProfile();
 		const name = user.name || ctx.t('profile.defaultName', 'Admin');
 		const role = user.role || user.subtitle || ctx.t('profile.defaultRole', 'WordPress User');
 		const profileUrl = user.profileUrl || '';
-		const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-profile-panel');
-		const hero = dom.createElement('div', 'aos-settings-profile-hero');
-		const accountSection = ctx.createSection('', 'aos-settings-profile-list');
+		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-profile-panel');
+		const hero = dom.createElement('div', 'pdk-settings-profile-hero');
+		const accountSection = ctx.createSection('', 'pdk-settings-profile-list');
 
 		panel.dataset.aosSettingsPanel = 'profile';
 		hero.appendChild(ctx.createEditableProfileAvatar(user, name, profileUrl));
@@ -44,11 +44,11 @@
 	};
 
 	function createProfileSignOutButton(ctx) {
-		const footer = ctx.dom.createElement('div', 'aos-settings-profile-footer');
+		const footer = ctx.dom.createElement('div', 'pdk-settings-profile-footer');
 		const button = document.createElement('button');
 
 		button.type = 'button';
-		button.className = 'aos-settings-profile-sign-out';
+		button.className = 'pdk-settings-profile-sign-out';
 		button.textContent = ctx.t('profile.signOutLabel', 'Sign Out...');
 		button.addEventListener('click', () => {
 			ctx.executeMenuCommand('user.logout', {

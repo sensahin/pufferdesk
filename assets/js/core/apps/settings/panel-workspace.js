@@ -1,11 +1,11 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.apps = window.WPAdminOS.apps || {};
-	window.WPAdminOS.apps.settings = window.WPAdminOS.apps.settings || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.apps = window.PufferDesk.apps || {};
+	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
-	window.WPAdminOS.apps.settings.createWorkspacePanel = function createWorkspacePanel(ctx) {
+	window.PufferDesk.apps.settings.createWorkspacePanel = function createWorkspacePanel(ctx) {
 		const {
 			createButton,
 			createSection,
@@ -17,10 +17,10 @@
 		} = ctx;
 		const config = ctx.config || {};
 		const workspace = config.workspace && typeof config.workspace === 'object' ? config.workspace : {};
-		const api = window.WPAdminOS.services && window.WPAdminOS.services.api ? window.WPAdminOS.services.api : null;
-		const dialogs = window.WPAdminOS.shellDialogs || null;
-		const panel = dom.createElement('div', 'aos-settings-pane-panel aos-settings-workspace-panel');
-		const section = createSection('', 'aos-settings-list aos-settings-workspace-list');
+		const api = window.PufferDesk.services && window.PufferDesk.services.api ? window.PufferDesk.services.api : null;
+		const dialogs = window.PufferDesk.shellDialogs || null;
+		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-workspace-panel');
+		const section = createSection('', 'pdk-settings-list pdk-settings-workspace-list');
 
 		panel.dataset.aosSettingsPanel = 'workspace';
 
@@ -31,10 +31,10 @@
 		function skipWindowRestoreOnce() {
 			if (
 				config.storageKey
-				&& window.WPAdminOS.session
-				&& typeof window.WPAdminOS.session.createReopenPolicy === 'function'
+				&& window.PufferDesk.session
+				&& typeof window.PufferDesk.session.createReopenPolicy === 'function'
 			) {
-				window.WPAdminOS.session.createReopenPolicy(config.storageKey).skipWindowRestoreOnce();
+				window.PufferDesk.session.createReopenPolicy(config.storageKey).skipWindowRestoreOnce();
 			}
 		}
 
@@ -45,7 +45,7 @@
 			}
 
 			try {
-				const prefix = `wpAdminOS:${userId}:`;
+				const prefix = `pufferDesk:${userId}:`;
 				const storage = window.localStorage;
 				const keys = [];
 
@@ -63,9 +63,9 @@
 
 		function getSessionStore() {
 			return config.storageKey
-				&& window.WPAdminOS.session
-				&& typeof window.WPAdminOS.session.createSessionStore === 'function'
-				? window.WPAdminOS.session.createSessionStore(config.storageKey)
+				&& window.PufferDesk.session
+				&& typeof window.PufferDesk.session.createSessionStore === 'function'
+				? window.PufferDesk.session.createSessionStore(config.storageKey)
 				: null;
 		}
 
@@ -111,7 +111,7 @@
 		function resetAllLayouts() {
 			const action = {
 				confirmLabel: t('workspace.resetAllConfirmLabel', 'Reset All'),
-				message: t('workspace.resetAllMessage', 'This resets saved workspace layouts for every WP adminOS theme for this WordPress account.'),
+				message: t('workspace.resetAllMessage', 'This resets saved workspace layouts for every PufferDesk theme for this WordPress account.'),
 				title: t('workspace.resetAllTitle', 'Reset Layouts for All Themes?')
 			};
 
@@ -148,8 +148,8 @@
 			});
 		}
 
-		const currentButton = createButton(t('workspace.resetCurrentButton', 'Reset Current Theme Layout'), 'aos-settings-button');
-		const allButton = createButton(t('workspace.resetAllButton', 'Reset Layouts for All Themes'), 'aos-settings-button aos-settings-danger-button');
+		const currentButton = createButton(t('workspace.resetCurrentButton', 'Reset Current Theme Layout'), 'pdk-settings-button');
+		const allButton = createButton(t('workspace.resetAllButton', 'Reset Layouts for All Themes'), 'pdk-settings-button pdk-settings-danger-button');
 
 		currentButton.addEventListener('click', resetCurrentLayout);
 		allButton.addEventListener('click', resetAllLayouts);
@@ -158,13 +158,13 @@
 			t('workspace.resetCurrentLabel', 'Current theme layout'),
 			currentButton,
 			t('workspace.resetCurrentDescription', 'Reset windows, widgets, desktop icons, and launcher order for the active theme.'),
-			'aos-settings-row-fluid-label'
+			'pdk-settings-row-fluid-label'
 		));
 		section.appendChild(createSettingsRow(
 			t('workspace.resetAllLabel', 'All theme layouts'),
 			allButton,
 			t('workspace.resetAllDescription', 'Clear saved workspace layouts across every theme for this WordPress account.'),
-			'aos-settings-row-fluid-label'
+			'pdk-settings-row-fluid-label'
 		));
 
 		panel.appendChild(createSectionHeading(t('workspace.title', 'Workspace')));

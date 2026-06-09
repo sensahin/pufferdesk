@@ -1,13 +1,13 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
-	window.WPAdminOS.desktop = window.WPAdminOS.desktop || {};
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.desktop = window.PufferDesk.desktop || {};
 
-	window.WPAdminOS.desktop.createDesktopIconManager = function createDesktopIconManager(shell, options = {}) {
-		const dom = window.WPAdminOS.dom;
-		const desktop = shell.querySelector('.aos-desktop');
-		const sessionStore = window.WPAdminOS.session.createSessionStore(options.storageKey || '');
+	window.PufferDesk.desktop.createDesktopIconManager = function createDesktopIconManager(shell, options = {}) {
+		const dom = window.PufferDesk.dom;
+		const desktop = shell.querySelector('.pdk-desktop');
+		const sessionStore = window.PufferDesk.session.createSessionStore(options.storageKey || '');
 		let restoreInProgress = false;
 		let sessionSaveDisabled = false;
 		let saveTimer = null;
@@ -47,11 +47,11 @@
 		}
 
 		function getIconLayer(icon) {
-			return icon.closest('.aos-desktop-icon-layer') || desktop;
+			return icon.closest('.pdk-desktop-icon-layer') || desktop;
 		}
 
 		function getIcons() {
-			return desktop ? Array.from(desktop.querySelectorAll('[data-aos-desktop-icon]')) : [];
+			return desktop ? Array.from(desktop.querySelectorAll('[data-pdk-desktop-icon]')) : [];
 		}
 
 		function getVisibleIcons() {
@@ -116,7 +116,7 @@
 
 		function getIconLabel(icon) {
 			const label = icon.dataset.aosContextLabel
-				|| (icon.querySelector('.aos-desktop-app-label') ? icon.querySelector('.aos-desktop-app-label').textContent : '')
+				|| (icon.querySelector('.pdk-desktop-app-label') ? icon.querySelector('.pdk-desktop-app-label').textContent : '')
 				|| '';
 
 			return String(label).trim().toLowerCase();
@@ -696,13 +696,13 @@
 		}
 
 		function ensureMarquee() {
-			let marquee = desktop.querySelector('.aos-desktop-marquee');
+			let marquee = desktop.querySelector('.pdk-desktop-marquee');
 			if (marquee) {
 				return marquee;
 			}
 
 			marquee = document.createElement('div');
-			marquee.className = 'aos-desktop-marquee';
+			marquee.className = 'pdk-desktop-marquee';
 			marquee.setAttribute('aria-hidden', 'true');
 			desktop.appendChild(marquee);
 
@@ -921,7 +921,7 @@
 				return;
 			}
 
-			desktop.querySelectorAll('.aos-desktop-icon-layer').forEach((layer) => {
+			desktop.querySelectorAll('.pdk-desktop-icon-layer').forEach((layer) => {
 				layer.classList.add('is-managed');
 			});
 		}
@@ -1014,7 +1014,7 @@
 		}
 
 		window.addEventListener('beforeunload', saveSession);
-		window.addEventListener('wpAdminOS:workspace-state-changed', handleWorkspaceStateChanged);
+		window.addEventListener('pufferDesk:workspace-state-changed', handleWorkspaceStateChanged);
 		window.addEventListener('resize', () => {
 			window.clearTimeout(saveTimer);
 			saveTimer = window.setTimeout(clampToDesktop, 160);

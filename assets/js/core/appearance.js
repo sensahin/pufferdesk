@@ -1,7 +1,7 @@
 (function () {
 	'use strict';
 
-	window.WPAdminOS = window.WPAdminOS || {};
+	window.PufferDesk = window.PufferDesk || {};
 
 	const defaults = {
 		mode: 'auto',
@@ -110,16 +110,16 @@
 	function applyAccent(shell, accentColor) {
 		const accent = accentColors[accentColor] || accentColors.multicolor;
 
-		shell.style.setProperty('--aos-accent', accent.color);
-		shell.style.setProperty('--aos-accent-hue-shift', accent.hueShift);
-		shell.style.setProperty('--aos-accent-rgb', accent.rgb);
-		shell.style.setProperty('--aos-accent-ink', accent.ink);
-		shell.style.setProperty('--aos-accent-soft', accent.soft);
-		shell.style.setProperty('--aos-accent-medium', accent.medium);
-		shell.style.setProperty('--aos-accent-active', accent.active);
-		shell.style.setProperty('--aos-accent-active-strong', accent.activeStrong);
-		shell.style.setProperty('--aos-focus-ring', accent.focus);
-		shell.style.setProperty('--aos-highlight', accent.highlight);
+		shell.style.setProperty('--pdk-accent', accent.color);
+		shell.style.setProperty('--pdk-accent-hue-shift', accent.hueShift);
+		shell.style.setProperty('--pdk-accent-rgb', accent.rgb);
+		shell.style.setProperty('--pdk-accent-ink', accent.ink);
+		shell.style.setProperty('--pdk-accent-soft', accent.soft);
+		shell.style.setProperty('--pdk-accent-medium', accent.medium);
+		shell.style.setProperty('--pdk-accent-active', accent.active);
+		shell.style.setProperty('--pdk-accent-active-strong', accent.activeStrong);
+		shell.style.setProperty('--pdk-focus-ring', accent.focus);
+		shell.style.setProperty('--pdk-highlight', accent.highlight);
 	}
 
 	function apply(shell, appearance = {}) {
@@ -159,7 +159,7 @@
 		systemModeBound = true;
 	}
 
-	window.WPAdminOS.appearance = {
+	window.PufferDesk.appearance = {
 		accentColors,
 		apply,
 		bindSystemMode,
