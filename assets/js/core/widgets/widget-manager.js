@@ -6,21 +6,19 @@
 
 	window.PufferDesk.widgets.createWidgetManager = function createWidgetManager(shell, options = {}) {
 		const dom = window.PufferDesk.dom;
+		const geometry = window.PufferDesk.geometry;
+		const createDebouncedTask = window.PufferDesk.services.createDebouncedTask;
+		const clamp = geometry.clamp;
+		const readNumber = geometry.readNumber;
 		const desktop = shell.querySelector('.pdk-desktop');
 		const layer = shell.querySelector('.pdk-widget-layer');
 		const sessionStore = window.PufferDesk.session.createSessionStore(options.storageKey || '');
 		let restoreInProgress = false;
 		let sessionSaveDisabled = false;
-		let saveTimer = null;
-
-		function readNumber(value) {
-			const parsed = Number.parseFloat(value);
-			return Number.isFinite(parsed) ? parsed : null;
-		}
-
-		function clamp(value, min, max) {
-			return Math.min(Math.max(min, value), Math.max(min, max));
-		}
+		const sessionSaveTask = createDebouncedTask(() => saveSession(), {
+			shouldRun: () => Boolean(options.storageKey && !restoreInProgress && !sessionSaveDisabled),
+			wait: 160
+		});
 
 		function getRelativeRect(widget) {
 			const desktopRect = desktop.getBoundingClientRect();
@@ -164,12 +162,7 @@
 		}
 
 		function scheduleSave() {
-			if (!options.storageKey || restoreInProgress || sessionSaveDisabled) {
-				return;
-			}
-
-			window.clearTimeout(saveTimer);
-			saveTimer = window.setTimeout(saveSession, 160);
+			sessionSaveTask.schedule();
 		}
 
 		function bindClockWidget(widget) {
@@ -313,7 +306,7 @@
 			bindExistingWidgets,
 			disableSessionSave() {
 				sessionSaveDisabled = true;
-				window.clearTimeout(saveTimer);
+				sessionSaveTask.cancel();
 			},
 			getWidget,
 			hideWidget,

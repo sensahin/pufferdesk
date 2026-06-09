@@ -6,11 +6,14 @@
 
 	window.PufferDesk.desktop.createDesktopIconManager = function createDesktopIconManager(shell, options = {}) {
 		const dom = window.PufferDesk.dom;
+		const geometry = window.PufferDesk.geometry;
+		const createDebouncedTask = window.PufferDesk.services.createDebouncedTask;
+		const clamp = geometry.clamp;
+		const readNumber = geometry.readNumber;
 		const desktop = shell.querySelector('.pdk-desktop');
 		const sessionStore = window.PufferDesk.session.createSessionStore(options.storageKey || '');
 		let restoreInProgress = false;
 		let sessionSaveDisabled = false;
-		let saveTimer = null;
 		let dragZIndex = 20;
 		let activeDropTarget = null;
 		let currentSortMode = 'none';
@@ -36,15 +39,13 @@
 			'last-modified-by': 'pdkLastModifiedBy',
 			size: 'pdkSize'
 		};
-
-		function readNumber(value) {
-			const parsed = Number.parseFloat(value);
-			return Number.isFinite(parsed) ? parsed : null;
-		}
-
-		function clamp(value, min, max) {
-			return Math.min(Math.max(min, value), Math.max(min, max));
-		}
+		const sessionSaveTask = createDebouncedTask(() => saveSession(), {
+			shouldRun: () => Boolean(options.storageKey && !restoreInProgress && !sessionSaveDisabled),
+			wait: 160
+		});
+		const clampToDesktopTask = createDebouncedTask(() => clampToDesktop(), {
+			wait: 160
+		});
 
 		function getIconLayer(icon) {
 			return icon.closest('.pdk-desktop-icon-layer') || desktop;
@@ -709,12 +710,7 @@
 		}
 
 		function scheduleSave() {
-			if (!options.storageKey || restoreInProgress || sessionSaveDisabled) {
-				return;
-			}
-
-			window.clearTimeout(saveTimer);
-			saveTimer = window.setTimeout(saveSession, 160);
+			sessionSaveTask.schedule();
 		}
 
 		function suppressNextClick(icon) {
@@ -1206,15 +1202,15 @@
 		window.addEventListener('beforeunload', saveSession);
 		window.addEventListener('pufferDesk:workspace-state-changed', handleWorkspaceStateChanged);
 		window.addEventListener('resize', () => {
-			window.clearTimeout(saveTimer);
-			saveTimer = window.setTimeout(clampToDesktop, 160);
+			clampToDesktopTask.schedule();
 		});
 
 		return {
 			bindExistingIcons,
 			disableSessionSave() {
 				sessionSaveDisabled = true;
-				window.clearTimeout(saveTimer);
+				sessionSaveTask.cancel();
+				clampToDesktopTask.cancel();
 			},
 			getSortMode() {
 				return currentSortMode;

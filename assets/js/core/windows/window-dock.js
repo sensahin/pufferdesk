@@ -1,0 +1,294 @@
+(function () {
+	'use strict';
+
+	window.PufferDesk = window.PufferDesk || {};
+	window.PufferDesk.windows = window.PufferDesk.windows || {};
+
+	window.PufferDesk.windows.createWindowDock = function createWindowDock(shell, options = {}) {
+		const dom = window.PufferDesk.dom;
+		const desktop = options.desktop || shell.querySelector('.pdk-desktop');
+		const dock = options.dock || shell.querySelector('.pdk-dock');
+		const animationTimers = new WeakMap();
+		const noop = () => null;
+		const getWindowId = typeof options.getWindowId === 'function' ? options.getWindowId : () => '';
+		const getActiveWindow = typeof options.getActiveWindow === 'function' ? options.getActiveWindow : noop;
+		const setActiveWindow = typeof options.setActiveWindow === 'function' ? options.setActiveWindow : noop;
+		const getTopVisibleWindow = typeof options.getTopVisibleWindow === 'function' ? options.getTopVisibleWindow : noop;
+		const isVisibleWindow = typeof options.isVisibleWindow === 'function' ? options.isVisibleWindow : () => false;
+		const focusWindow = typeof options.focusWindow === 'function' ? options.focusWindow : noop;
+		const constrainWindow = typeof options.constrainWindow === 'function' ? options.constrainWindow : noop;
+		const emitWindowStateChanged = typeof options.emitWindowStateChanged === 'function'
+			? options.emitWindowStateChanged
+			: noop;
+		const scheduleSave = typeof options.scheduleSave === 'function' ? options.scheduleSave : noop;
+
+		function setDockRunning(appId, running) {
+			const selector = `[data-pdk-open-app="${dom.escapeAttribute(appId)}"].pdk-dock-item`;
+			const items = shell.querySelectorAll(selector);
+			items.forEach((item) => item.classList.toggle('is-running', running));
+		}
+
+		function shouldAnimateOpeningApps() {
+			return shell.dataset.pdkDockAnimateApps !== '0';
+		}
+
+		function getMinimizeAnimation() {
+			return shell.dataset.pdkMinimizeAnimation === 'scale' ? 'scale' : 'genie';
+		}
+
+		function shouldMinimizeIntoAppIcon() {
+			return shell.dataset.pdkMinimizeIntoAppIcon === '1';
+		}
+
+		function getDockAppButton(win) {
+			const appId = win && win.dataset.pdkAppWindow;
+
+			if (!appId) {
+				return null;
+			}
+
+			return shell.querySelector(`[data-pdk-open-app="${dom.escapeAttribute(appId)}"].pdk-dock-item`);
+		}
+
+		function getMinimizedDockItem(win) {
+			const id = win && win.dataset.pdkWindowId;
+
+			return id ? shell.querySelector(`[data-pdk-restore-window-id="${dom.escapeAttribute(id)}"]`) : null;
+		}
+
+		function getWindowAnimationTarget(win) {
+			const target = shouldMinimizeIntoAppIcon() ? getDockAppButton(win) : getMinimizedDockItem(win);
+
+			if (!target) {
+				return null;
+			}
+
+			const winRect = win.getBoundingClientRect();
+			const targetRect = target.getBoundingClientRect();
+
+			return {
+				x: Math.round(targetRect.left + targetRect.width / 2 - (winRect.left + winRect.width / 2)),
+				y: Math.round(targetRect.top + targetRect.height / 2 - (winRect.top + winRect.height / 2))
+			};
+		}
+
+		function setWindowAnimationTarget(win, target) {
+			const fallbackY = Math.max(96, Math.round(desktop.getBoundingClientRect().bottom - win.getBoundingClientRect().bottom + 64));
+			const x = target ? target.x : 0;
+			const y = target ? target.y : fallbackY;
+
+			win.style.setProperty('--pdk-window-animation-x', `${x}px`);
+			win.style.setProperty('--pdk-window-animation-y', `${y}px`);
+		}
+
+		function clearWindowAnimationTarget(win) {
+			win.style.removeProperty('--pdk-window-animation-x');
+			win.style.removeProperty('--pdk-window-animation-y');
+		}
+
+		function cancelWindowAnimation(win) {
+			const entry = animationTimers.get(win);
+
+			if (entry) {
+				window.clearTimeout(entry.timer);
+				win.removeEventListener('animationend', entry.finish);
+				animationTimers.delete(win);
+			}
+		}
+
+		function finishWindowAnimation(win, className, callback, duration = 280) {
+			cancelWindowAnimation(win);
+
+			let finished = false;
+			const finish = (event) => {
+				if (event && event.target !== win) {
+					return;
+				}
+				if (finished) {
+					return;
+				}
+
+				finished = true;
+				cancelWindowAnimation(win);
+				if (typeof callback === 'function') {
+					callback();
+				} else {
+					win.classList.remove(className);
+					clearWindowAnimationTarget(win);
+				}
+			};
+			const timer = window.setTimeout(finish, duration);
+
+			animationTimers.set(win, {
+				finish,
+				timer
+			});
+			win.addEventListener('animationend', finish);
+		}
+
+		function playWindowAnimation(win, className, target, duration = 280) {
+			cancelWindowAnimation(win);
+			setWindowAnimationTarget(win, target);
+			win.dataset.pdkMinimizeAnimation = getMinimizeAnimation();
+			win.classList.remove('is-opening', 'is-restoring');
+			win.classList.add(className);
+
+			finishWindowAnimation(win, className, () => {
+				win.classList.remove(className);
+				win.removeAttribute('data-pdk-minimize-animation');
+				clearWindowAnimationTarget(win);
+			}, duration);
+		}
+
+		function revealWindow(win, revealOptions = {}) {
+			const wasHidden = win.classList.contains('is-hidden') || win.classList.contains('is-minimizing');
+			const target = getWindowAnimationTarget(win);
+
+			cancelWindowAnimation(win);
+			win.classList.remove('is-hidden', 'is-closed', 'is-minimizing', 'is-show-desktop-hidden');
+			win.removeAttribute('data-pdk-minimize-animation');
+			removeMinimizedDockItem(win);
+			constrainWindow(win);
+			if (wasHidden && revealOptions.emitState !== false) {
+				emitWindowStateChanged(win, 'restored');
+			}
+
+			if (wasHidden && revealOptions.animate !== false && shouldAnimateOpeningApps()) {
+				playWindowAnimation(win, 'is-restoring', target);
+			}
+		}
+
+		function getDockFixedEndItem() {
+			return dock ? dock.querySelector('.pdk-dock-item[data-pdk-dock-fixed="end"]') : null;
+		}
+
+		function getMinimizedDockContainer() {
+			if (!dock) {
+				return null;
+			}
+
+			const fixedEndItem = getDockFixedEndItem();
+			const endAnchor = dock.querySelector('[data-pdk-launcher-end-anchor]');
+			let container = dock.querySelector('.pdk-dock-minimized-windows');
+			const anchor = fixedEndItem || endAnchor || null;
+			if (!container) {
+				container = document.createElement('span');
+				container.className = 'pdk-dock-minimized-windows';
+				dock.insertBefore(container, anchor);
+			} else if (anchor && container.nextElementSibling !== anchor) {
+				dock.insertBefore(container, anchor);
+			}
+
+			return container;
+		}
+
+		function createMinimizedDockItem(win) {
+			const container = getMinimizedDockContainer();
+			const id = getWindowId(win);
+
+			if (!container || getMinimizedDockItem(win)) {
+				return getMinimizedDockItem(win);
+			}
+
+			const button = document.createElement('button');
+			const title = win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || 'Window';
+			const dockAppButton = getDockAppButton(win);
+			const icon = dockAppButton ? dockAppButton.querySelector('.pdk-icon-image, .dashicons') : null;
+
+			button.type = 'button';
+			button.className = 'pdk-dock-window-item';
+			button.dataset.pdkContext = 'window';
+			button.dataset.pdkContextId = id;
+			button.dataset.pdkContextLabel = title;
+			button.dataset.pdkRestoreWindowId = id;
+			button.dataset.pdkDockTooltip = title;
+			if (win.dataset.pdkAppWindow) {
+				button.dataset.pdkAppWindow = win.dataset.pdkAppWindow;
+			}
+			button.setAttribute('aria-label', `Restore ${title}`);
+			if (icon) {
+				button.appendChild(icon.cloneNode(true));
+			} else {
+				button.appendChild(dom.createDashicon('dashicons-admin-generic'));
+			}
+			const tooltip = dom.createElement('span', 'pdk-dock-tooltip', title);
+			tooltip.setAttribute('aria-hidden', 'true');
+			button.appendChild(tooltip);
+			button.addEventListener('click', () => focusWindow(win));
+			container.appendChild(button);
+
+			return button;
+		}
+
+		function removeMinimizedDockItem(win) {
+			const item = getMinimizedDockItem(win);
+
+			if (item) {
+				item.remove();
+			}
+
+			const container = dock && dock.querySelector('.pdk-dock-minimized-windows');
+			if (container && !container.children.length) {
+				container.remove();
+			}
+		}
+
+		function syncMinimizedDockItems() {
+			if (shouldMinimizeIntoAppIcon()) {
+				shell.querySelectorAll('.pdk-dock-window-item').forEach((item) => item.remove());
+				const container = dock && dock.querySelector('.pdk-dock-minimized-windows');
+				if (container && !container.children.length) {
+					container.remove();
+				}
+				return;
+			}
+
+			shell.querySelectorAll('.pdk-window.is-hidden:not(.is-closed)').forEach((win) => {
+				createMinimizedDockItem(win);
+			});
+		}
+
+		function minimizeWindow(win) {
+			if (!win || win.classList.contains('is-hidden') || win.classList.contains('is-minimizing')) {
+				return;
+			}
+
+			cancelWindowAnimation(win);
+			win.classList.remove('is-opening', 'is-restoring', 'is-show-desktop-hidden');
+			if (!shouldMinimizeIntoAppIcon()) {
+				createMinimizedDockItem(win);
+			}
+
+			const target = getWindowAnimationTarget(win);
+			setWindowAnimationTarget(win, target);
+			win.dataset.pdkMinimizeAnimation = getMinimizeAnimation();
+			win.classList.add('is-minimizing');
+
+			if (getActiveWindow() === win) {
+				setActiveWindow(getTopVisibleWindow());
+			}
+
+			finishWindowAnimation(win, 'is-minimizing', () => {
+				win.classList.remove('is-minimizing');
+				win.classList.add('is-hidden');
+				win.removeAttribute('data-pdk-minimize-animation');
+				clearWindowAnimationTarget(win);
+				emitWindowStateChanged(win, 'minimized');
+				scheduleSave();
+			});
+		}
+
+		return {
+			cancelWindowAnimation,
+			getDockAppButton,
+			getWindowAnimationTarget,
+			minimizeWindow,
+			playWindowAnimation,
+			removeMinimizedDockItem,
+			revealWindow,
+			setDockRunning,
+			shouldAnimateOpeningApps,
+			syncMinimizedDockItems
+		};
+	};
+})();

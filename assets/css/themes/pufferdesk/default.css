@@ -97,10 +97,6 @@
 	--pdk-accent-hue-shift: 170deg;
 	--pdk-accent-rgb: 36 88 202;
 	--pdk-accent-ink: #fff;
-	--pdk-accent-soft: rgba(36, 88, 202, 0.16);
-	--pdk-accent-medium: rgba(36, 88, 202, 0.28);
-	--pdk-accent-active: rgba(36, 88, 202, 0.82);
-	--pdk-accent-active-strong: linear-gradient(180deg, rgba(36, 88, 202, 0.92), rgba(36, 88, 202, 0.78));
 	--pdk-desktop-icon-label-gap: 12px;
 	--pdk-desktop-label-line-width: 18ch;
 	--pdk-desktop-icon-selection-bg: var(--pdk-accent-active);
@@ -177,7 +173,8 @@
 	--pdk-dock-pressed-icon-filter: brightness(0.58) saturate(0.76) contrast(0.94);
 	--pdk-dock-pressed-icon-opacity: 0.78;
 	--pdk-dock-pressed-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.34), inset 0 0 0 1px rgba(16, 20, 24, 0.14), 0 1px 0 rgba(255, 255, 255, 0.12);
-	--pdk-focus-ring: rgba(83, 165, 196, 0.42);
+	--pdk-focus-ring-rgb: 83 165 196;
+	--pdk-focus-ring-alpha: 0.42;
 	--pdk-scrollbar-track: rgba(255, 255, 255, 0.08);
 	--pdk-scrollbar-thumb: rgba(122, 122, 122, 0.74);
 	--pdk-scrollbar-thumb-hover: rgba(105, 105, 105, 0.84);
@@ -192,17 +189,24 @@
 	--pdk-weight-widget-clock: var(--pdk-weight-medium);
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"]:is(
+	[data-pdk-accent-color="purple"],
+	[data-pdk-accent-color="pink"],
+	[data-pdk-accent-color="red"],
+	[data-pdk-accent-color="orange"],
+	[data-pdk-accent-color="yellow"],
+	[data-pdk-accent-color="green"],
+	[data-pdk-accent-color="graphite"]
+) {
+	--pdk-focus-ring-rgb: var(--pdk-accent-rgb);
+	--pdk-focus-ring-alpha: 0.34;
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="purple"] {
 	--pdk-accent: #9b3fb0;
 	--pdk-accent-hue-shift: 225deg;
 	--pdk-accent-rgb: 155 63 176;
 	--pdk-accent-ink: #fff;
-	--pdk-accent-soft: rgba(155, 63, 176, 0.16);
-	--pdk-accent-medium: rgba(155, 63, 176, 0.28);
-	--pdk-accent-active: rgba(155, 63, 176, 0.82);
-	--pdk-accent-active-strong: linear-gradient(180deg, rgba(155, 63, 176, 0.92), rgba(155, 63, 176, 0.78));
-	--pdk-focus-ring: rgba(155, 63, 176, 0.34);
-	--pdk-highlight: rgba(155, 63, 176, 0.18);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="pink"] {
@@ -210,12 +214,6 @@
 	--pdk-accent-hue-shift: 285deg;
 	--pdk-accent-rgb: 240 68 154;
 	--pdk-accent-ink: #fff;
-	--pdk-accent-soft: rgba(240, 68, 154, 0.16);
-	--pdk-accent-medium: rgba(240, 68, 154, 0.28);
-	--pdk-accent-active: rgba(240, 68, 154, 0.82);
-	--pdk-accent-active-strong: linear-gradient(180deg, rgba(240, 68, 154, 0.92), rgba(240, 68, 154, 0.78));
-	--pdk-focus-ring: rgba(240, 68, 154, 0.34);
-	--pdk-highlight: rgba(240, 68, 154, 0.18);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="red"] {
@@ -223,12 +221,6 @@
 	--pdk-accent-hue-shift: 320deg;
 	--pdk-accent-rgb: 237 51 59;
 	--pdk-accent-ink: #fff;
-	--pdk-accent-soft: rgba(237, 51, 59, 0.16);
-	--pdk-accent-medium: rgba(237, 51, 59, 0.28);
-	--pdk-accent-active: rgba(237, 51, 59, 0.82);
-	--pdk-accent-active-strong: linear-gradient(180deg, rgba(237, 51, 59, 0.92), rgba(237, 51, 59, 0.78));
-	--pdk-focus-ring: rgba(237, 51, 59, 0.34);
-	--pdk-highlight: rgba(237, 51, 59, 0.18);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="orange"] {
@@ -236,12 +228,6 @@
 	--pdk-accent-hue-shift: 340deg;
 	--pdk-accent-rgb: 255 122 22;
 	--pdk-accent-ink: #fff;
-	--pdk-accent-soft: rgba(255, 122, 22, 0.16);
-	--pdk-accent-medium: rgba(255, 122, 22, 0.28);
-	--pdk-accent-active: rgba(255, 122, 22, 0.82);
-	--pdk-accent-active-strong: linear-gradient(180deg, rgba(255, 122, 22, 0.92), rgba(255, 122, 22, 0.78));
-	--pdk-focus-ring: rgba(255, 122, 22, 0.34);
-	--pdk-highlight: rgba(255, 122, 22, 0.18);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="yellow"] {
@@ -249,12 +235,7 @@
 	--pdk-accent-hue-shift: 0deg;
 	--pdk-accent-rgb: 255 194 38;
 	--pdk-accent-ink: #2f2815;
-	--pdk-accent-soft: rgba(255, 194, 38, 0.16);
-	--pdk-accent-medium: rgba(255, 194, 38, 0.28);
-	--pdk-accent-active: rgba(255, 194, 38, 0.82);
-	--pdk-accent-active-strong: linear-gradient(180deg, rgba(255, 194, 38, 0.92), rgba(255, 194, 38, 0.78));
-	--pdk-focus-ring: rgba(255, 194, 38, 0.34);
-	--pdk-highlight: rgba(255, 194, 38, 0.2);
+	--pdk-highlight-alpha: 0.2;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="green"] {
@@ -262,12 +243,6 @@
 	--pdk-accent-hue-shift: 80deg;
 	--pdk-accent-rgb: 88 185 71;
 	--pdk-accent-ink: #fff;
-	--pdk-accent-soft: rgba(88, 185, 71, 0.16);
-	--pdk-accent-medium: rgba(88, 185, 71, 0.28);
-	--pdk-accent-active: rgba(88, 185, 71, 0.82);
-	--pdk-accent-active-strong: linear-gradient(180deg, rgba(88, 185, 71, 0.92), rgba(88, 185, 71, 0.78));
-	--pdk-focus-ring: rgba(88, 185, 71, 0.34);
-	--pdk-highlight: rgba(88, 185, 71, 0.18);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="graphite"] {
@@ -275,12 +250,6 @@
 	--pdk-accent-hue-shift: 0deg;
 	--pdk-accent-rgb: 142 142 147;
 	--pdk-accent-ink: #fff;
-	--pdk-accent-soft: rgba(142, 142, 147, 0.16);
-	--pdk-accent-medium: rgba(142, 142, 147, 0.28);
-	--pdk-accent-active: rgba(142, 142, 147, 0.82);
-	--pdk-accent-active-strong: linear-gradient(180deg, rgba(142, 142, 147, 0.92), rgba(142, 142, 147, 0.78));
-	--pdk-focus-ring: rgba(142, 142, 147, 0.34);
-	--pdk-highlight: rgba(142, 142, 147, 0.18);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-bar {

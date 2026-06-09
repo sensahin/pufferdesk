@@ -431,6 +431,20 @@
 	width: 100%;
 }
 
+.pdk-shell[data-pdk-shell-launcher="taskbar"] .pdk-dock-minimized-windows {
+	order: 1;
+}
+
+.pdk-shell[data-pdk-shell-launcher="taskbar"] .pdk-dock-item,
+.pdk-shell[data-pdk-shell-launcher="taskbar"] .pdk-dock-separator,
+.pdk-shell[data-pdk-shell-launcher="taskbar"] .pdk-dock-end-anchor {
+	order: 2;
+}
+
+.pdk-shell[data-pdk-shell-launcher="taskbar"] .pdk-taskbar-status {
+	order: 3;
+}
+
 .pdk-shell[data-pdk-shell-launcher="taskbar"][data-pdk-dock-auto-hide="1"] .pdk-dock {
 	transform: translateY(calc(100% - 5px));
 }

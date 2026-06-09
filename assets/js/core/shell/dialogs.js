@@ -6,6 +6,7 @@
 
 	window.PufferDesk.shell.createShellDialogs = function createShellDialogs(shell) {
 		const dom = window.PufferDesk.dom || null;
+		const geometry = window.PufferDesk.geometry;
 		let activeDialog = null;
 		let activeOverlay = null;
 
@@ -193,10 +194,6 @@
 			});
 		}
 
-		function clamp(value, min, max) {
-			return Math.min(Math.max(value, min), Math.max(min, max));
-		}
-
 		function isDragExcluded(target) {
 			if (!target || typeof target.closest !== 'function') {
 				return false;
@@ -224,8 +221,8 @@
 
 				function positionDialog(left, top) {
 					dialog.style.position = 'absolute';
-					dialog.style.left = `${clamp(left, 0, maxLeft)}px`;
-					dialog.style.top = `${clamp(top, 0, maxTop)}px`;
+					dialog.style.left = `${geometry.clamp(left, 0, maxLeft)}px`;
+					dialog.style.top = `${geometry.clamp(top, 0, maxTop)}px`;
 					dialog.style.transform = 'none';
 				}
 

@@ -83,7 +83,7 @@ final class PufferDesk_Shell_Renderer {
 	 * @return bool
 	 */
 	public function template_exists( $template, $theme = null ) {
-		$template = $this->normalize_template_path( $template );
+		$template = PufferDesk_Path_Normalizer::normalize_relative_path( $template );
 		if ( '' === $template ) {
 			return false;
 		}
@@ -102,7 +102,7 @@ final class PufferDesk_Shell_Renderer {
 	 * @param array<string,mixed> $data Template data.
 	 */
 	private function render_template( $template, $data ) {
-		$template = $this->normalize_template_path( $template );
+		$template = PufferDesk_Path_Normalizer::normalize_relative_path( $template );
 		if ( '' === $template ) {
 			return;
 		}
@@ -156,29 +156,4 @@ final class PufferDesk_Shell_Renderer {
 		return PUFFERDESK_DIR . 'templates/' . $template;
 	}
 
-	/**
-	 * Sanitize a relative template path while preserving semantic folders.
-	 *
-	 * @param string $template Template path.
-	 * @return string
-	 */
-	private function normalize_template_path( $template ) {
-		$template = str_replace( '\\', '/', (string) $template );
-		$template = ltrim( $template, '/' );
-		$parts    = array_filter( explode( '/', $template ) );
-
-		$normalized = array();
-		foreach ( $parts as $part ) {
-			if ( '.' === $part || '..' === $part ) {
-				continue;
-			}
-
-			$part = sanitize_file_name( $part );
-			if ( '' !== $part ) {
-				$normalized[] = $part;
-			}
-		}
-
-		return implode( '/', $normalized );
-	}
 }

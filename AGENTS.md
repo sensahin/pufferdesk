@@ -55,17 +55,20 @@ Root:
 PHP services in `includes/`:
 
 - `class-pufferdesk-plugin.php`: minimal service composition and controller hook delegation.
+- `class-pufferdesk-path-normalizer.php`: shared relative template/media/asset path normalization.
 - `class-pufferdesk-admin-controller.php`: admin page and admin bar hook registration.
 - `class-pufferdesk-router.php`: mode toggles, shell URL, iframe/classic routing.
 - `class-pufferdesk-user-preferences.php`: per-user mode/theme preferences.
 - `class-pufferdesk-app-registry.php`: app/folder registry and app normalization.
 - `class-pufferdesk-app-badge-normalizer.php`: app badge descriptor and WordPress menu count normalization.
+- `class-pufferdesk-app-badge-renderer.php`: shared app badge ARIA-label and badge span rendering for shell templates.
 - `class-pufferdesk-app-menu-normalizer.php`: schema-driven app menu normalization and default app menus.
 - `class-pufferdesk-app-normalizer.php`: app descriptor capability, dock, about, badge, and menu normalization.
 - `class-pufferdesk-admin-menu-app-provider.php`: WordPress top-level admin menu to app provider.
 - `class-pufferdesk-widget-registry.php`: desktop widget registry and widget normalization.
 - `class-pufferdesk-widget-layout.php`: shared widget layout attributes for templates.
 - `class-pufferdesk-theme-registry.php`: theme family/version/parent inheritance.
+- `class-pufferdesk-theme-token-renderer.php`: theme typography/token/wallpaper/preference CSS-variable emission for shell first paint.
 - `class-pufferdesk-wallpaper-registry.php`: shared bundled/theme/upload wallpaper options and CSS-variable resolution.
 - `class-pufferdesk-workspace-state.php`: per-user/per-site/per-theme workspace layout persistence and sanitization.
 - `class-pufferdesk-shell-context.php`: shared resolved shell state for templates and runtime config.
@@ -114,11 +117,15 @@ JavaScript:
 - `assets/js/core/dom.js`: shared DOM helpers.
 - `assets/js/core/events/`: internal event bus.
 - `assets/js/core/services/`: browser storage and AJAX clients.
+- `assets/js/core/services/geometry.js`: shared numeric/CSS geometry helpers.
+- `assets/js/core/services/debounced-task.js`: shared debounced task scheduling for delayed state saves and mutations.
 - `assets/js/core/session/`: shared workspace session sections.
 - `assets/js/core/preferences/`: appearance, wallpaper, launcher, and menu bar preference appliers.
 - `assets/js/core/windows/`: windows, window factory, window state serialization.
 - `assets/js/core/widgets/`: widget binding, live updates, widget layout persistence.
 - `assets/js/core/apps/`: app launcher, reusable app surfaces such as about windows, and native apps.
+- `assets/js/core/apps/app-badges.js`: shared browser app badge normalization, ARIA labels, and badge element rendering.
+- `assets/js/core/apps/app-preferences.js`: shared app location and login-item normalization, optimistic persistence, rollback, and endpoint actions.
 - `assets/js/core/apps/app-window-options.js`: app and native renderer window option resolver used by the launcher.
 - `assets/js/core/apps/native-app-opener.js`: native app opening helper used by the launcher.
 - `assets/js/core/apps/launcher-renderer.js`: shared launcher/folder/trash item button renderer.
@@ -127,6 +134,7 @@ JavaScript:
 - `assets/js/core/apps/folder-window-state.js`: folder window tab/history state helper.
 - `assets/js/core/apps/recent-items.js`: recent item persistence helper.
 - `assets/js/core/apps/settings/`: System Settings label normalization, shared UI helpers, and panel factory modules.
+- `assets/js/core/apps/settings/mutations.js`: shared Settings AJAX mutation/status helper.
 - `assets/js/core/shell/`: search, menu bar clock, command registry, top menus, context menus, global shell controls.
 
 Media:
@@ -145,14 +153,14 @@ Apps:
 - App `cap` values are normalized as WordPress capability keys and default to `read` when missing, empty, or non-scalar. Use `read` only for current-user shell features; privileged WordPress screens or actions must use their exact WordPress capability.
 - Apps derived from WordPress top-level admin menu items should inherit the menu item's capability so dock, desktop, launcher, and native admin visibility stay aligned.
 - Apps may define `window_persistence` as `workspace` or `none`. Use `workspace` for stable app windows that should reopen with the workspace, and `none` for transient/helper surfaces.
-- Apps may define a normalized `badge` with `text`, optional `count`, `tone`, and `aria_label`; WordPress menu count spans are extracted into this shape for top-level menu apps.
+- Apps may define a normalized `badge` with `text`, optional `count`, `tone`, and `aria_label`; WordPress menu count spans are extracted into this shape for top-level menu apps. PHP-rendered surfaces must use `PufferDesk_App_Badge_Renderer`; browser-rendered app surfaces must use `assets/js/core/apps/app-badges.js`.
 - Apps may define Dock metadata such as `dock.fixed` and `dock.placement` for system Dock slots. Generic controllers must respect fixed metadata for visibility, ordering, dragging, persistence, and menu options; do not let fixed shell items inherit ordinary app controls unless those actions are explicitly supported.
 - Apps may define reusable `about` metadata with `name`, `version`, `copyright`, `rights`, and `icon`; do not hard-code app-specific about windows.
 - About metadata must stay GPL-compatible for WordPress distribution. Do not use "All rights reserved" defaults in plugin UI.
 - App-specific top menu behavior belongs in the app's `menu` definition, not in hard-coded menu bar conditionals.
 - Runtime code should prefer `window.PufferDesk.desktopApi` or `window.PufferDesk.desktop.api` for app/window operations instead of reaching directly into the app launcher or window manager. The facade wraps app opening, URL opening, settings panel opening, window create/focus/minimize/maximize/close/move/show-all, command execution/registration, native renderer registration, and event subscription.
 - The window manager emits `window:created`, `window:focused`, `window:closed`, and `window:stateChanged` through `window.PufferDesk.events`. Use this event contract for decoupled module reactions to window lifecycle and state changes instead of patching or directly coupling modules to the window manager.
-- Keep the System Settings Apps panel aligned with app location and login-item preferences. It must use the existing app preference endpoints and respect fixed launcher metadata.
+- Keep the System Settings Apps panel aligned with app location and login-item preferences. It must use `assets/js/core/apps/app-preferences.js`, the existing app preference endpoints, and fixed launcher metadata.
 - The fixed PufferDesk mark opens the system menu. Do not wire it directly to an app; system-menu items belong in the `menu.system` runtime definition.
 - Keep app IDs stable. Layout/session behavior depends on stable IDs.
 
@@ -199,7 +207,7 @@ Themes:
 - Use theme shell labels for family-specific minimize animation option labels when a theme should not expose another OS family's vocabulary. Keep stored option values stable.
 - Shell metadata is executable, not decorative. `top_bar`, `launcher`, `system_menu`, `app_menu`, and `status_area` must match rendered shell surfaces and settings capability visibility.
 - Use theme `typography` metadata for font stacks, type scale, line heights, weights, and neutral letter spacing. Typography normalizes into shell CSS variables; do not hard-code family-specific fonts or type sizes into component CSS when a token exists.
-- Use theme `tokens` metadata for shared colors, material/glass effects, spacing, radii, borders, and shadows. Explicit tokens normalize into shell CSS variables before first paint; do not fill missing tokens from generic defaults because emitted inline variables override concrete theme CSS such as dark-mode colors and family-specific window radii. Use `mode_tokens.light` and `mode_tokens.dark` for appearance-dependent surface values such as context menus, Settings panels/sidebar chrome, reusable window chrome, and Explorer/Finder rows or toolbars; mode tokens emit as scoped CSS rules so material and accessibility overrides can still win through specificity. Core CSS can keep fallback values, but new reusable visual constants should flow through the token contract when future theme families may need to change them. Current shared radius tokens include `window`, `window_maximized`, and `menu_popover`.
+- Use theme `tokens` metadata for shared colors, material/glass effects, spacing, radii, borders, and shadows. Explicit tokens normalize into shell CSS variables before first paint; do not fill missing tokens from generic defaults because emitted inline variables override concrete theme CSS such as dark-mode colors and family-specific window radii. Use `mode_tokens.light` and `mode_tokens.dark` for appearance-dependent surface values such as context menus, Settings panels/sidebar chrome, reusable window chrome, and Explorer/Finder rows or toolbars; mode tokens emit as scoped CSS rules so material and accessibility overrides can still win through specificity. Core CSS can keep fallback values, but new reusable visual constants should flow through the token contract when future theme families may need to change them. Derived accent values such as soft, medium, active, active gradient, focus ring, and highlight should flow from `--pdk-accent-rgb` and alpha tokens instead of being repeated in every accent variant. Current shared radius tokens include `window`, `window_maximized`, and `menu_popover`.
 - Do not bundle Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform font files. Use system font stacks or original/licensed font assets only.
 - Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `wallpapers`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
 - Bundled themes should use `media.wallpapers.default` to choose their starting wallpaper from the shared wallpaper catalog. Do not give bundled themes separate wallpaper option lists unless the product intentionally needs a private theme pack.

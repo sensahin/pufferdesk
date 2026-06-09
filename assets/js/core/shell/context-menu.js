@@ -908,6 +908,7 @@
 		const registry = context.registry || window.PufferDesk.shell.createContextMenuRegistry(config, schema, context);
 		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands);
 		const folderManager = context.folderManager || null;
+		const geometry = window.PufferDesk.geometry;
 		const dockLongPressDelay = 560;
 		const dockLongPressMoveTolerance = 8;
 		let popover = null;
@@ -1020,10 +1021,6 @@
 			activeDockPressMenu = null;
 		}
 
-		function clampPosition(value, min, max) {
-			return Math.min(Math.max(min, value), max);
-		}
-
 		function positionDockMenu(detail = {}) {
 			const target = detail.targetElement;
 			if (!popover || !target || typeof target.getBoundingClientRect !== 'function') {
@@ -1040,7 +1037,7 @@
 			const targetCenterX = targetRect.left - shellRect.left + (targetRect.width / 2);
 			const targetCenterY = targetRect.top - shellRect.top + (targetRect.height / 2);
 			const gap = 26;
-			const preferredMenuOffset = clampPosition(Math.round(popover.offsetWidth * 0.24), 52, 66);
+			const preferredMenuOffset = geometry.clamp(Math.round(popover.offsetWidth * 0.24), 52, 66);
 			let left = targetCenterX - preferredMenuOffset;
 			let top = targetRect.top - shellRect.top - popover.offsetHeight - gap;
 
@@ -1052,8 +1049,8 @@
 				top = targetCenterY - (popover.offsetHeight / 2);
 			}
 
-			left = clampPosition(Math.round(left), minLeft, maxLeft);
-			top = clampPosition(Math.round(top), minTop, maxTop);
+			left = geometry.clamp(Math.round(left), minLeft, maxLeft);
+			top = geometry.clamp(Math.round(top), minTop, maxTop);
 			delete popover.dataset.pdkDockContextPlacement;
 			popover.style.left = `${left}px`;
 			popover.style.top = `${top}px`;
@@ -1075,8 +1072,8 @@
 			const minTop = 8;
 			const maxLeft = Math.max(minLeft, shell.clientWidth - popover.offsetWidth - 8);
 			const maxTop = Math.max(minTop, shell.clientHeight - popover.offsetHeight - 8);
-			const left = Math.min(Math.max(minLeft, Math.round(clientX - shellRect.left)), maxLeft);
-			const top = Math.min(Math.max(minTop, Math.round(clientY - shellRect.top)), maxTop);
+			const left = geometry.clamp(Math.round(clientX - shellRect.left), minLeft, maxLeft);
+			const top = geometry.clamp(Math.round(clientY - shellRect.top), minTop, maxTop);
 
 			popover.style.left = `${left}px`;
 			popover.style.top = `${top}px`;

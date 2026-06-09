@@ -6,6 +6,10 @@
 
 	window.PufferDesk.desktop.createFolderManager = function createFolderManager(shell, launcher, config = {}) {
 		const dom = window.PufferDesk.dom;
+		const geometry = window.PufferDesk.geometry;
+		const createDebouncedTask = window.PufferDesk.services.createDebouncedTask;
+		const clamp = geometry.clamp;
+		const readNumber = geometry.readNumber;
 		const desktop = shell.querySelector('.pdk-desktop');
 		const api = window.PufferDesk.services && window.PufferDesk.services.api ? window.PufferDesk.services.api : null;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
@@ -18,19 +22,16 @@
 		let userFolders = [];
 		let trashItems = [];
 		let sessionSaveDisabled = false;
-		let saveTimer = null;
-		let trashSaveTimer = null;
 		let idCounter = 0;
-
-		function readNumber(value) {
-			const parsed = Number.parseFloat(value);
-
-			return Number.isFinite(parsed) ? parsed : null;
-		}
-
-		function clamp(value, min, max) {
-			return Math.min(Math.max(min, value), Math.max(min, max));
-		}
+		const canSave = () => Boolean(!sessionSaveDisabled && api && typeof api.post === 'function');
+		const folderSaveTask = createDebouncedTask(() => saveFolders(), {
+			shouldRun: canSave,
+			wait: 120
+		});
+		const trashSaveTask = createDebouncedTask(() => saveTrash(), {
+			shouldRun: canSave,
+			wait: 120
+		});
 
 			function normalizeId(value) {
 				return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 80);
@@ -284,9 +285,6 @@
 				return;
 			}
 
-			window.clearTimeout(saveTimer);
-			saveTimer = null;
-
 			const folders = serializeFolders();
 			config.desktopFolders = folders;
 
@@ -300,21 +298,13 @@
 		}
 
 		function scheduleSave() {
-			if (sessionSaveDisabled || !api || typeof api.post !== 'function') {
-				return;
-			}
-
-			window.clearTimeout(saveTimer);
-			saveTimer = window.setTimeout(saveFolders, 120);
+			folderSaveTask.schedule();
 		}
 
 		function saveTrash() {
 			if (sessionSaveDisabled || !api || typeof api.post !== 'function') {
 				return;
 			}
-
-			window.clearTimeout(trashSaveTimer);
-			trashSaveTimer = null;
 
 			const items = serializeTrash();
 			config.desktopTrash = items;
@@ -329,12 +319,7 @@
 		}
 
 		function scheduleTrashSave() {
-			if (sessionSaveDisabled || !api || typeof api.post !== 'function') {
-				return;
-			}
-
-			window.clearTimeout(trashSaveTimer);
-			trashSaveTimer = window.setTimeout(saveTrash, 120);
+			trashSaveTask.schedule();
 		}
 
 		function ensureFolderLayer() {
@@ -1103,8 +1088,8 @@
 			deleteTrashItem,
 			disableSessionSave() {
 				sessionSaveDisabled = true;
-				window.clearTimeout(saveTimer);
-				window.clearTimeout(trashSaveTimer);
+				folderSaveTask.cancel();
+				trashSaveTask.cancel();
 			},
 			emptyTrash,
 				getFolder,

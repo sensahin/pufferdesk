@@ -181,7 +181,7 @@ final class PufferDesk_Icon_Renderer {
 			return '';
 		}
 
-		$path = self::normalize_media_path( $icon['src'] );
+		$path = PufferDesk_Path_Normalizer::normalize_media_path( $icon['src'] );
 		if ( '' === $path ) {
 			return '';
 		}
@@ -201,7 +201,7 @@ final class PufferDesk_Icon_Renderer {
 			return '';
 		}
 
-		$path = self::normalize_media_path( trailingslashit( $theme['media']['icon_pack']['path'] ) . $icon['name'] );
+		$path = PufferDesk_Path_Normalizer::normalize_media_path( trailingslashit( $theme['media']['icon_pack']['path'] ) . $icon['name'] );
 		if ( '' === $path || ! file_exists( PUFFERDESK_DIR . 'assets/media/' . $path ) ) {
 			return '';
 		}
@@ -244,29 +244,4 @@ final class PufferDesk_Icon_Renderer {
 		return (bool) preg_match( '#^data:image/(?:png|gif|jpe?g|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$#', $url );
 	}
 
-	/**
-	 * Normalize a relative path below assets/media.
-	 *
-	 * @param string $path Raw media path.
-	 * @return string
-	 */
-	private static function normalize_media_path( $path ) {
-		$path  = str_replace( '\\', '/', (string) $path );
-		$path  = preg_replace( '#^assets/media/#', '', ltrim( $path, '/' ) );
-		$parts = array_filter( explode( '/', $path ) );
-
-		$normalized = array();
-		foreach ( $parts as $part ) {
-			if ( '.' === $part || '..' === $part ) {
-				continue;
-			}
-
-			$part = sanitize_file_name( $part );
-			if ( '' !== $part ) {
-				$normalized[] = $part;
-			}
-		}
-
-		return implode( '/', $normalized );
-	}
 }

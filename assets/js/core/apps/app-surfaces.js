@@ -6,6 +6,17 @@
 
 	window.PufferDesk.apps.createAppSurfaceManager = function createAppSurfaceManager(shell, config = {}, options = {}) {
 		const dom = window.PufferDesk.dom;
+		const appBadges = window.PufferDesk.apps.badges || {
+			createElement() {
+				return null;
+			},
+			getAriaLabel(label) {
+				return label || '';
+			},
+			normalize() {
+				return null;
+			}
+		};
 		const apps = Array.isArray(options.apps) ? options.apps : (Array.isArray(config.apps) ? config.apps : []);
 		const preserveUnknown = options.preserveUnknown === true;
 
@@ -112,31 +123,6 @@
 			return !(config.shellChrome && typeof config.shellChrome === 'object' && config.shellChrome.launcher_separator === false);
 		}
 
-		function normalizeAppBadge(app) {
-			const badge = app && app.badge && typeof app.badge === 'object' ? app.badge : null;
-			if (!badge) {
-				return null;
-			}
-
-			const text = typeof badge.text === 'string' || typeof badge.text === 'number'
-				? String(badge.text).trim()
-				: '';
-			if (!text || text === '0') {
-				return null;
-			}
-
-			const allowedTones = ['attention', 'neutral', 'update'];
-			const tone = typeof badge.tone === 'string' && allowedTones.includes(badge.tone)
-				? badge.tone
-				: 'attention';
-
-			return {
-				ariaLabel: typeof badge.aria_label === 'string' ? badge.aria_label.trim() : '',
-				text,
-				tone
-			};
-		}
-
 		function getAppLabel(app) {
 			return app.label || app.id;
 		}
@@ -147,25 +133,6 @@
 			const icon = icons.find((item) => item && item.id === `app:${appId}` && typeof item.label === 'string' && item.label.trim());
 
 			return icon ? icon.label.trim() : '';
-		}
-
-		function getAppButtonLabel(app) {
-			const label = getAppLabel(app);
-			const badge = normalizeAppBadge(app);
-
-			return badge && badge.ariaLabel ? `${label}, ${badge.ariaLabel}` : label;
-		}
-
-		function createAppBadge(app) {
-			const badge = normalizeAppBadge(app);
-			if (!badge) {
-				return null;
-			}
-
-			const element = dom.createElement('span', `pdk-app-badge pdk-app-badge-${badge.tone}`, badge.text);
-			element.setAttribute('aria-hidden', 'true');
-
-			return element;
 		}
 
 		function createDockSeparator() {
@@ -186,7 +153,7 @@
 			const label = getAppLabel(app);
 			const tooltip = dom.createElement('span', 'pdk-dock-tooltip', label);
 			const screenReaderText = dom.createElement('span', 'screen-reader-text', label);
-			const badge = createAppBadge(app);
+			const badge = appBadges.createElement(app);
 			const fixed = options.fixed === true || isFixedDockApp(app);
 
 			button.type = 'button';
@@ -200,7 +167,7 @@
 				button.dataset.pdkDockFixed = app.dock && app.dock.placement ? app.dock.placement : 'end';
 			}
 			button.draggable = false;
-			button.setAttribute('aria-label', getAppButtonLabel(app));
+			button.setAttribute('aria-label', appBadges.getAriaLabel(label, app));
 			button.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
 			if (badge) {
 				button.appendChild(badge);
@@ -217,8 +184,8 @@
 			const defaultLabel = getAppLabel(app);
 			const labelOverride = getDesktopIconLabelOverride(app.id);
 			const label = labelOverride || defaultLabel;
-			const badgeInfo = normalizeAppBadge(app);
-			const badge = badgeInfo ? dom.createElement('span', `pdk-app-badge pdk-app-badge-${badgeInfo.tone}`, badgeInfo.text) : null;
+			const badgeInfo = appBadges.normalize(app);
+			const badge = appBadges.createElement(badgeInfo);
 			const labelElement = dom.createElement('span', 'pdk-desktop-app-label', label);
 
 			button.type = 'button';
@@ -234,10 +201,9 @@
 			if (labelOverride) {
 				button.dataset.pdkDesktopIconLabelOverride = '1';
 			}
-			button.setAttribute('aria-label', badgeInfo && badgeInfo.ariaLabel ? `${label}, ${badgeInfo.ariaLabel}` : label);
+			button.setAttribute('aria-label', appBadges.getAriaLabel(label, badgeInfo));
 			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
 			if (badge) {
-				badge.setAttribute('aria-hidden', 'true');
 				icon.appendChild(badge);
 			}
 			button.append(icon, labelElement);

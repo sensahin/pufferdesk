@@ -8,6 +8,7 @@
 		const systemButton = shell.querySelector('[data-pdk-system-menu]');
 		const menu = shell.querySelector('[data-pdk-menu-items]');
 		const dom = window.PufferDesk.dom;
+		const geometry = window.PufferDesk.geometry;
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
@@ -968,7 +969,7 @@
 			const preferredLeft = opensAbove && button.hasAttribute('data-pdk-system-menu')
 				? Math.round(buttonRect.left - shellRect.left + buttonRect.width / 2 - popover.offsetWidth / 2)
 				: Math.round(buttonRect.left - shellRect.left);
-			const left = Math.min(Math.max(minLeft, preferredLeft), maxLeft);
+			const left = geometry.clamp(preferredLeft, minLeft, maxLeft);
 
 			popover.dataset.pdkMenuPlacement = opensAbove ? 'above' : 'below';
 			popover.style.left = `${left}px`;

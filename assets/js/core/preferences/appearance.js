@@ -17,24 +17,23 @@
 		icon_widget_style: ['default', 'dark', 'clear', 'tinted']
 	};
 
-	function rgba(rgb, alpha) {
-		return `rgba(${rgb.join(', ')}, ${alpha})`;
-	}
-
 	function defineAccent(color, rgb, options = {}) {
 		const ink = options.ink || '#fff';
+		const rgbValue = rgb.join(' ');
 
 		return {
+			activeAlpha: options.active || 0.82,
+			activeBottomAlpha: options.activeBottom || 0.78,
+			activeTopAlpha: options.activeTop || 0.92,
 			color,
+			focusAlpha: options.focus || 0.34,
+			focusRgb: options.focusRgb ? options.focusRgb.join(' ') : rgbValue,
+			highlightAlpha: options.highlight || 0.18,
 			hueShift: options.hueShift || '170deg',
-			rgb: rgb.join(' '),
 			ink,
-			focus: rgba(rgb, options.focus || 0.34),
-			highlight: rgba(rgb, options.highlight || 0.18),
-			soft: rgba(rgb, options.soft || 0.16),
-			medium: rgba(rgb, options.medium || 0.28),
-			active: rgba(rgb, options.active || 0.82),
-			activeStrong: `linear-gradient(180deg, ${rgba(rgb, options.activeTop || 0.92)}, ${rgba(rgb, options.activeBottom || 0.78)})`
+			mediumAlpha: options.medium || 0.28,
+			rgb: rgbValue,
+			softAlpha: options.soft || 0.16
 		};
 	}
 
@@ -114,12 +113,14 @@
 		shell.style.setProperty('--pdk-accent-hue-shift', accent.hueShift);
 		shell.style.setProperty('--pdk-accent-rgb', accent.rgb);
 		shell.style.setProperty('--pdk-accent-ink', accent.ink);
-		shell.style.setProperty('--pdk-accent-soft', accent.soft);
-		shell.style.setProperty('--pdk-accent-medium', accent.medium);
-		shell.style.setProperty('--pdk-accent-active', accent.active);
-		shell.style.setProperty('--pdk-accent-active-strong', accent.activeStrong);
-		shell.style.setProperty('--pdk-focus-ring', accent.focus);
-		shell.style.setProperty('--pdk-highlight', accent.highlight);
+		shell.style.setProperty('--pdk-accent-soft-alpha', String(accent.softAlpha));
+		shell.style.setProperty('--pdk-accent-medium-alpha', String(accent.mediumAlpha));
+		shell.style.setProperty('--pdk-accent-active-alpha', String(accent.activeAlpha));
+		shell.style.setProperty('--pdk-accent-active-strong-start-alpha', String(accent.activeTopAlpha));
+		shell.style.setProperty('--pdk-accent-active-strong-end-alpha', String(accent.activeBottomAlpha));
+		shell.style.setProperty('--pdk-focus-ring-rgb', accent.focusRgb);
+		shell.style.setProperty('--pdk-focus-ring-alpha', String(accent.focusAlpha));
+		shell.style.setProperty('--pdk-highlight-alpha', String(accent.highlightAlpha));
 	}
 
 	function apply(shell, appearance = {}) {

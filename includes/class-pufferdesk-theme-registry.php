@@ -2306,27 +2306,6 @@ final class PufferDesk_Theme_Registry {
 	 * @return string
 	 */
 	private function sanitize_asset_path( $path, $prefix ) {
-		$path = str_replace( '\\', '/', (string) $path );
-		$path = ltrim( $path, '/' );
-
-		if ( '' !== $prefix ) {
-			$path = preg_replace( '#^' . preg_quote( $prefix, '#' ) . '#', '', $path );
-		}
-
-		$raw_parts = array_filter( explode( '/', $path ) );
-		$parts     = array();
-
-		foreach ( $raw_parts as $part ) {
-			if ( '.' === $part || '..' === $part ) {
-				continue;
-			}
-
-			$part = sanitize_file_name( $part );
-			if ( '' !== $part ) {
-				$parts[] = $part;
-			}
-		}
-
-		return implode( '/', $parts );
+		return PufferDesk_Path_Normalizer::normalize_relative_path( $path, $prefix );
 	}
 }

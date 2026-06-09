@@ -6,6 +6,7 @@
 
 	window.PufferDesk.apps.createAppLauncher = function createAppLauncher(shell, manager, config = {}) {
 		const dom = window.PufferDesk.dom;
+		const geometry = window.PufferDesk.geometry;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const folders = Array.isArray(config.folders) ? config.folders : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
@@ -721,8 +722,8 @@
 			const minTop = 8;
 			const maxLeft = Math.max(minLeft, shell.clientWidth - explorerCommandMenu.offsetWidth - 8);
 			const maxTop = Math.max(minTop, shell.clientHeight - explorerCommandMenu.offsetHeight - 8);
-			const left = Math.min(Math.max(minLeft, Math.round(buttonRect.left - shellRect.left)), maxLeft);
-			const top = Math.min(Math.max(minTop, Math.round(buttonRect.bottom - shellRect.top + 4)), maxTop);
+			const left = geometry.clamp(Math.round(buttonRect.left - shellRect.left), minLeft, maxLeft);
+			const top = geometry.clamp(Math.round(buttonRect.bottom - shellRect.top + 4), minTop, maxTop);
 
 			explorerCommandMenu.style.left = `${left}px`;
 			explorerCommandMenu.style.top = `${top}px`;
@@ -2249,7 +2250,7 @@
 			const safeTop = getFolderInfoSafeTop();
 			const maxTop = Math.max(safeTop, desktop.clientHeight - rect.height - 8);
 			const relativeTop = Number.isFinite(currentTop) ? currentTop : Math.round(rect.top - desktopRect.top);
-			const nextTop = Math.min(Math.max(relativeTop, safeTop), maxTop);
+			const nextTop = geometry.clamp(relativeTop, safeTop, maxTop);
 
 			win.style.top = `${Math.round(nextTop)}px`;
 		}

@@ -20,7 +20,6 @@
 	window.PufferDesk.apps.createSettingsApp = function createSettingsApp(context = {}) {
 		const dom = window.PufferDesk.dom;
 		const api = window.PufferDesk.services.api;
-		const storage = window.PufferDesk.services.storage;
 		const appearance = window.PufferDesk.appearance;
 		const desktopDock = window.PufferDesk.desktopDock;
 		const menuBar = window.PufferDesk.menuBar;
@@ -38,6 +37,19 @@
 		const appSurfaceManager = window.PufferDesk.apps.createAppSurfaceManager(shell, config, {
 			apps
 		});
+		const appPreferences = window.PufferDesk.apps.createAppPreferenceStore(config, {
+			api,
+			apps,
+			appSurfaceManager,
+			onLocationsChange(locations) {
+				currentAppLocations = locations;
+				syncAppLocationControls();
+			},
+			onLoginItemsChange(items) {
+				currentAppLoginItems = items.slice();
+				syncAppLoginItemControls();
+			}
+		});
 		let optionGroups = [];
 		let currentAppearance = appearance
 			? appearance.normalize(config.appearance || {})
@@ -48,17 +60,11 @@
 		let currentDesktopDock = desktopDock
 			? desktopDock.normalize(config.desktopDock || {})
 			: Object.assign({}, config.desktopDock || {});
-		let currentAppLocations = normalizeAppLocations(config.appLocations || {});
-		let currentAppLoginItems = normalizeAppLoginItems(config.appLoginItems || []);
+		let currentAppLocations = appPreferences.getLocations();
+		let currentAppLoginItems = appPreferences.getLoginItems();
 		let currentMenuBar = menuBar
 			? menuBar.normalize(config.menuBar || {})
 			: Object.assign({}, config.menuBar || {});
-		let saveTimer = null;
-		let desktopDockSaveTimer = null;
-		let appLocationSaveTimer = null;
-		let appLoginItemSaveTimer = null;
-		let menuBarSaveTimer = null;
-		let menuBarSaveSequence = 0;
 		let accentLabel = null;
 		let activeSection = 'general';
 		let activePanel = 'general';
@@ -99,6 +105,55 @@
 		const createSectionHeading = settingsUI.createSectionHeading;
 		const createButton = settingsUI.createButton;
 		const createInlineSelect = settingsUI.createInlineSelect;
+		const mutations = window.PufferDesk.apps.settings.createMutations({ api, t });
+		const saveAppearanceMutation = mutations.createDebounced({
+			action: 'pufferdesk_save_appearance',
+			errorText: t('status.appearanceSaveError', 'Appearance could not be saved.'),
+			onSuccess(data) {
+				applyAppearance(data.appearance || currentAppearance);
+
+				return data.message || t('status.appearanceSaved', 'Appearance saved.');
+			},
+			payload: () => currentAppearance,
+			wait: 180
+		});
+		const saveDesktopDockMutation = mutations.createDebounced({
+			action: 'pufferdesk_save_desktop_dock',
+			errorText: t('status.desktopDockSaveError', 'Desktop & Dock could not be saved.'),
+			onSuccess(data) {
+				applyDesktopDock(data.desktopDock || currentDesktopDock);
+
+				return false;
+			},
+			payload: () => currentDesktopDock,
+			wait: 180
+		});
+		const saveAppLocationsMutation = mutations.createDebounced(appPreferences.createLocationsMutationRequest({
+			errorText: t('status.appLocationsSaveError', 'App locations could not be saved.'),
+			onSuccess(data) {
+				return data.message || t('status.appLocationsSaved', 'App locations saved.');
+			},
+			wait: 180
+		}));
+		const saveAppLoginItemsMutation = mutations.createDebounced(appPreferences.createLoginItemsMutationRequest({
+			errorText: t('status.loginItemsSaveError', 'Login items could not be saved.'),
+			onSuccess(data) {
+				return data.message || t('status.loginItemsSaved', 'Login items saved.');
+			},
+			wait: 180
+		}));
+		const saveMenuBarMutation = mutations.createDebounced({
+			action: 'pufferdesk_save_menu_bar',
+			errorText: t('status.menuBarSaveError', 'Menu Bar could not be saved.'),
+			latestOnly: true,
+			onSuccess(data) {
+				applyMenuBar(data.menuBar || currentMenuBar);
+
+				return false;
+			},
+			payload: () => Object.assign({}, currentMenuBar),
+			wait: 180
+		});
 		const initialSidebarItem = sidebarItems.find((item) => item && !item.disabled) || sidebarItems[0] || { id: 'general' };
 		if (!sidebarItems.some((item) => item.id === activeSection && !item.disabled)) {
 			activeSection = initialSidebarItem.id;
@@ -597,27 +652,7 @@
 		}
 
 		function saveAppearance(status) {
-			window.clearTimeout(saveTimer);
-			status.textContent = t('status.saving', 'Saving...');
-
-			saveTimer = window.setTimeout(() => {
-				api.post('pufferdesk_save_appearance', currentAppearance)
-					.then((result) => {
-						if (!result || !result.success) {
-							const message = result && result.data && result.data.message
-								? result.data.message
-								: t('status.appearanceSaveError', 'Appearance could not be saved.');
-							status.textContent = message;
-							return;
-						}
-
-						applyAppearance(result.data.appearance || currentAppearance);
-						status.textContent = result.data.message || t('status.appearanceSaved', 'Appearance saved.');
-					})
-					.catch((error) => {
-						status.textContent = error && error.message ? error.message : t('status.appearanceSaveError', 'Appearance could not be saved.');
-					});
-			}, 180);
+			saveAppearanceMutation({ status });
 		}
 
 		function updateAppearance(key, value, status) {
@@ -641,24 +676,7 @@
 		}
 
 		function saveDesktopDock(status) {
-			window.clearTimeout(desktopDockSaveTimer);
-
-			desktopDockSaveTimer = window.setTimeout(() => {
-				api.post('pufferdesk_save_desktop_dock', currentDesktopDock)
-					.then((result) => {
-						if (!result || !result.success) {
-							status.textContent = result && result.data && result.data.message
-								? result.data.message
-									: t('status.desktopDockSaveError', 'Desktop & Dock could not be saved.');
-							return;
-						}
-
-						applyDesktopDock(result.data.desktopDock || currentDesktopDock);
-					})
-					.catch((error) => {
-						status.textContent = error && error.message ? error.message : t('status.desktopDockSaveError', 'Desktop & Dock could not be saved.');
-					});
-			}, 180);
+			saveDesktopDockMutation({ status });
 		}
 
 		function updateDesktopDock(key, value, status) {
@@ -668,72 +686,22 @@
 			saveDesktopDock(status);
 		}
 
-		function normalizeAppLocations(locations = {}) {
-			return appSurfaceManager.normalizeLocations(locations);
-		}
-
-		function normalizeAppLoginItems(items = []) {
-			const validAppIds = new Set(apps.map((app) => app && app.id).filter(Boolean));
-			const normalized = [];
-			const seen = new Set();
-
-			(Array.isArray(items) ? items : []).forEach((item) => {
-				const appId = String(item || '');
-				if (!appId || seen.has(appId) || !validAppIds.has(appId)) {
-					return;
-				}
-
-				seen.add(appId);
-				normalized.push(appId);
-			});
-
-			return normalized;
-		}
-
 		function getAppLocation(appId) {
 			const fallback = appLocationOptions.length ? appLocationOptions[0].value : 'dock';
 
-			return currentAppLocations[appId] || fallback;
+			return appPreferences.getLocation(appId, fallback);
 		}
 
 		function appOpensAtLogin(appId) {
-			return currentAppLoginItems.includes(appId);
-		}
-
-		function renderAppLocationSurfaces() {
-			appSurfaceManager.render(currentAppLocations);
+			return appPreferences.opensAtLogin(appId);
 		}
 
 		function applyAppLocations(nextAppLocations) {
-			currentAppLocations = normalizeAppLocations(nextAppLocations);
-			config.appLocations = currentAppLocations;
-			syncAppLocationControls();
-			renderAppLocationSurfaces();
+			appPreferences.applyLocations(nextAppLocations);
 		}
 
 		function saveAppLocations(status) {
-			window.clearTimeout(appLocationSaveTimer);
-			status.textContent = t('status.saving', 'Saving...');
-
-			appLocationSaveTimer = window.setTimeout(() => {
-				api.post('pufferdesk_save_app_locations', {
-					locations: JSON.stringify(currentAppLocations)
-				})
-					.then((result) => {
-						if (!result || !result.success) {
-							status.textContent = result && result.data && result.data.message
-								? result.data.message
-								: t('status.appLocationsSaveError', 'App locations could not be saved.');
-							return;
-						}
-
-						applyAppLocations(result.data.appLocations || currentAppLocations);
-						status.textContent = result.data.message || t('status.appLocationsSaved', 'App locations saved.');
-					})
-					.catch((error) => {
-						status.textContent = error && error.message ? error.message : t('status.appLocationsSaveError', 'App locations could not be saved.');
-					});
-			}, 180);
+			saveAppLocationsMutation({ status });
 		}
 
 		function updateAppLocation(appId, location, status) {
@@ -744,34 +712,11 @@
 		}
 
 		function applyAppLoginItems(nextItems) {
-			currentAppLoginItems = normalizeAppLoginItems(nextItems);
-			config.appLoginItems = currentAppLoginItems.slice();
-			syncAppLoginItemControls();
+			appPreferences.applyLoginItems(nextItems);
 		}
 
 		function saveAppLoginItems(status) {
-			window.clearTimeout(appLoginItemSaveTimer);
-			status.textContent = t('status.saving', 'Saving...');
-
-			appLoginItemSaveTimer = window.setTimeout(() => {
-				api.post('pufferdesk_save_app_login_items', {
-					items: JSON.stringify(currentAppLoginItems)
-				})
-					.then((result) => {
-						if (!result || !result.success) {
-							status.textContent = result && result.data && result.data.message
-								? result.data.message
-								: t('status.loginItemsSaveError', 'Login items could not be saved.');
-							return;
-						}
-
-						applyAppLoginItems(result.data.appLoginItems || currentAppLoginItems);
-						status.textContent = result.data.message || t('status.loginItemsSaved', 'Login items saved.');
-					})
-					.catch((error) => {
-						status.textContent = error && error.message ? error.message : t('status.loginItemsSaveError', 'Login items could not be saved.');
-					});
-			}, 180);
+			saveAppLoginItemsMutation({ status });
 		}
 
 		function updateAppLoginItem(appId, enabled, status) {
@@ -797,36 +742,7 @@
 		}
 
 		function saveMenuBar(status) {
-			const sequence = menuBarSaveSequence + 1;
-			menuBarSaveSequence = sequence;
-			window.clearTimeout(menuBarSaveTimer);
-
-			menuBarSaveTimer = window.setTimeout(() => {
-				const payload = Object.assign({}, currentMenuBar);
-
-				api.post('pufferdesk_save_menu_bar', payload)
-					.then((result) => {
-						if (sequence !== menuBarSaveSequence) {
-							return;
-						}
-
-						if (!result || !result.success) {
-							status.textContent = result && result.data && result.data.message
-								? result.data.message
-									: t('status.menuBarSaveError', 'Menu Bar could not be saved.');
-							return;
-						}
-
-						applyMenuBar(result.data.menuBar || currentMenuBar);
-					})
-					.catch((error) => {
-						if (sequence !== menuBarSaveSequence) {
-							return;
-						}
-
-							status.textContent = error && error.message ? error.message : t('status.menuBarSaveError', 'Menu Bar could not be saved.');
-					});
-			}, 180);
+			saveMenuBarMutation({ status });
 		}
 
 		function updateMenuBar(key, value, status) {
@@ -894,36 +810,24 @@
 		}
 
 		function saveWallpaper(payload, status, fallbackWallpaper = null) {
-			status.textContent = t('status.saving', 'Saving...');
-
-			return api.post('pufferdesk_save_wallpaper', payload)
-				.then((result) => {
-					if (!result || !result.success) {
-						const message = result && result.data && result.data.message
-							? result.data.message
-							: t('status.wallpaperSaveError', 'Wallpaper could not be saved.');
-						status.textContent = message;
-						if (fallbackWallpaper) {
-							applyWallpaper(fallbackWallpaper);
-						} else {
-							syncWallpaperControls();
-						}
-						return null;
-					}
-
-					applyWallpaper(result.data.wallpaper || currentWallpaper);
-					status.textContent = result.data.message || t('status.wallpaperSaved', 'Wallpaper saved.');
-					return result.data.wallpaper || currentWallpaper;
-				})
-				.catch((error) => {
-					status.textContent = error && error.message ? error.message : t('status.wallpaperSaveError', 'Wallpaper could not be saved.');
+			return mutations.post({
+				action: 'pufferdesk_save_wallpaper',
+				errorText: t('status.wallpaperSaveError', 'Wallpaper could not be saved.'),
+				onError() {
 					if (fallbackWallpaper) {
 						applyWallpaper(fallbackWallpaper);
 					} else {
 						syncWallpaperControls();
 					}
-					return null;
-				});
+				},
+				onSuccess(data) {
+					applyWallpaper(data.wallpaper || currentWallpaper);
+
+					return data.message || t('status.wallpaperSaved', 'Wallpaper saved.');
+				},
+				payload,
+				status
+			}).then((data) => data ? data.wallpaper || currentWallpaper : null);
 		}
 
 		function removeUploadedWallpaper(item, status) {
@@ -932,28 +836,23 @@
 				return;
 			}
 
-			status.textContent = t('status.removing', 'Removing...');
-
-			api.post('pufferdesk_remove_wallpaper_upload', {
-				attachment_id: attachmentId
-			})
-				.then((result) => {
-					if (!result || !result.success) {
-						const message = result && result.data && result.data.message
-							? result.data.message
-							: t('status.photoRemoveError', 'Photo could not be removed.');
-						status.textContent = message;
-						syncWallpaperControls();
-						return;
-					}
-
-					applyWallpaper(result.data.wallpaper || currentWallpaper);
-					status.textContent = result.data.message || t('status.photoRemoved', 'Photo removed.');
-				})
-				.catch((error) => {
-					status.textContent = error && error.message ? error.message : t('status.photoRemoveError', 'Photo could not be removed.');
+			mutations.post({
+				action: 'pufferdesk_remove_wallpaper_upload',
+				errorText: t('status.photoRemoveError', 'Photo could not be removed.'),
+				onError() {
 					syncWallpaperControls();
-				});
+				},
+				onSuccess(data) {
+					applyWallpaper(data.wallpaper || currentWallpaper);
+
+					return data.message || t('status.photoRemoved', 'Photo removed.');
+				},
+				payload: {
+					attachment_id: attachmentId
+				},
+				pendingText: t('status.removing', 'Removing...'),
+				status
+			});
 		}
 
 		function selectWallpaperItem(item, status) {
@@ -1665,8 +1564,6 @@
 		}
 
 		function saveTheme(themeId, status) {
-			status.textContent = t('status.saving', 'Saving...');
-
 			function showThemeSwitchOverlay() {
 				const dialogs = window.PufferDesk && window.PufferDesk.shellDialogs ? window.PufferDesk.shellDialogs : null;
 
@@ -1675,27 +1572,22 @@
 				}
 			}
 
-			api.post('pufferdesk_save_theme', {
-				theme_id: themeId
-			})
-				.then((result) => {
-					if (!result || !result.success) {
-						const message = result && result.data && result.data.message
-							? result.data.message
-							: t('status.themeSaveError', 'Theme could not be saved.');
-						status.textContent = message;
-						return;
-					}
-
-					status.textContent = t('status.themeSaved', 'Theme saved.');
+			mutations.post({
+				action: 'pufferdesk_save_theme',
+				errorText: t('status.themeSaveError', 'Theme could not be saved.'),
+				onSuccess() {
 					showThemeSwitchOverlay();
 					window.setTimeout(() => {
 						window.location.href = config.shellUrl || window.location.href;
 					}, 320);
-				})
-				.catch((error) => {
-					status.textContent = error && error.message ? error.message : t('status.themeSaveError', 'Theme could not be saved.');
-				});
+
+					return t('status.themeSaved', 'Theme saved.');
+				},
+				payload: {
+					theme_id: themeId
+				},
+				status
+			});
 			}
 
 			const content = dom.createElement('div', 'pdk-settings');

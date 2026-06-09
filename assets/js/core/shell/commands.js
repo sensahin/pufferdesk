@@ -26,6 +26,13 @@
 				preserveUnknown: true
 			})
 			: null;
+		const appPreferences = window.PufferDesk.apps && typeof window.PufferDesk.apps.createAppPreferenceStore === 'function'
+			? window.PufferDesk.apps.createAppPreferenceStore(config, {
+				api,
+				apps,
+				appSurfaceManager
+			})
+			: null;
 			const commands = new Map();
 			const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
 			const folderExplorerSortModes = new Set(['none', 'name', 'kind']);
@@ -258,120 +265,29 @@
 		}
 
 		function isFixedDockApp(appId) {
-			const app = appMap.get(appId);
-
-			return Boolean(app && app.dock && typeof app.dock === 'object' && app.dock.fixed === true);
-		}
-
-		function normalizeAppLocations(locations = {}) {
-			return appSurfaceManager ? appSurfaceManager.normalizeLocations(locations) : {};
-		}
-
-		function getAppLocation(appId) {
-			const locations = normalizeAppLocations(config.appLocations || {});
-			return locations[appId] || 'dock';
-		}
-
-		function applyAppLocations(locations = {}) {
-			config.appLocations = normalizeAppLocations(locations);
-			if (appSurfaceManager) {
-				appSurfaceManager.render(config.appLocations);
-			}
-		}
-
-		function saveAppLocations(nextLocations) {
-			const previous = normalizeAppLocations(config.appLocations || {});
-			applyAppLocations(nextLocations);
-
-			if (!api || typeof api.post !== 'function') {
-				return Promise.reject(new Error('Settings service unavailable.'));
-			}
-
-			return api.post('pufferdesk_save_app_locations', {
-				locations: JSON.stringify(config.appLocations)
-			}).then((result) => {
-				if (!result || !result.success) {
-					applyAppLocations(previous);
-					throw new Error(result && result.data && result.data.message ? result.data.message : 'App locations could not be saved.');
-				}
-
-				applyAppLocations(result.data.appLocations || config.appLocations);
-			}).catch((error) => {
-				applyAppLocations(previous);
-				throw error;
-			});
+			return Boolean(appPreferences && appPreferences.isFixedDockApp(appId));
 		}
 
 		function setAppDockPresence(appId, keepInDock) {
-			const app = appMap.get(appId);
-			const locations = normalizeAppLocations(config.appLocations || {});
-			const current = getAppLocation(appId);
-
-			if (!app) {
-				return Promise.reject(new Error('App unavailable.'));
-			}
-
-			if (isFixedDockApp(appId)) {
-				return Promise.reject(new Error(formatLabel('fixed_launcher_placement_format', 'App has a fixed %s placement.', [getLabel('launcher', 'Dock')])));
-			}
-
-			if (keepInDock) {
-				locations[appId] = current === 'desktop' ? 'both' : current === 'hidden' ? 'dock' : current;
-			} else {
-				locations[appId] = current === 'both' ? 'desktop' : current === 'dock' ? 'hidden' : current;
-			}
-
-			return saveAppLocations(locations);
-		}
-
-		function normalizeAppLoginItems(items = config.appLoginItems || []) {
-			const normalized = [];
-			const seen = new Set();
-
-			(Array.isArray(items) ? items : []).forEach((item) => {
-				const appId = String(item || '');
-				if (!appId || seen.has(appId) || !appMap.has(appId)) {
-					return;
-				}
-
-				seen.add(appId);
-				normalized.push(appId);
-			});
-
-			return normalized;
-		}
-
-		function saveAppLoginItems(items) {
-			const previous = normalizeAppLoginItems(config.appLoginItems || []);
-			config.appLoginItems = normalizeAppLoginItems(items);
-
-			if (!api || typeof api.post !== 'function') {
-				config.appLoginItems = previous;
+			if (!appPreferences) {
 				return Promise.reject(new Error('Settings service unavailable.'));
 			}
 
-			return api.post('pufferdesk_save_app_login_items', {
-				items: JSON.stringify(config.appLoginItems)
-			}).then((result) => {
-				if (!result || !result.success) {
-					config.appLoginItems = previous;
-					throw new Error(result && result.data && result.data.message ? result.data.message : 'Login items could not be saved.');
-				}
-
-				config.appLoginItems = normalizeAppLoginItems(result.data.appLoginItems || config.appLoginItems);
-			}).catch((error) => {
-				config.appLoginItems = previous;
-				throw error;
+			return appPreferences.setDockPresence(appId, keepInDock, {
+				errorText: 'App locations could not be saved.',
+				fixedMessage: formatLabel('fixed_launcher_placement_format', 'App has a fixed %s placement.', [getLabel('launcher', 'Dock')]),
+				unavailableText: 'App unavailable.'
 			});
 		}
 
 		function toggleAppLoginItem(appId) {
-			const items = normalizeAppLoginItems(config.appLoginItems || []);
-			const nextItems = items.includes(appId)
-				? items.filter((item) => item !== appId)
-				: items.concat(appId);
+			if (!appPreferences) {
+				return Promise.reject(new Error('Settings service unavailable.'));
+			}
 
-			return saveAppLoginItems(nextItems);
+			return appPreferences.toggleLoginItem(appId, {
+				errorText: 'Login items could not be saved.'
+			});
 		}
 
 		function getSystemActions() {
@@ -1166,7 +1082,7 @@
 			isEnabled(payload, detail) {
 				const appId = getAppIdFromPayload(payload, detail);
 
-				return Boolean(api && appSurfaceManager && appMap.has(appId) && !isFixedDockApp(appId));
+				return Boolean(api && appPreferences && appMap.has(appId) && !isFixedDockApp(appId));
 			},
 			run(payload, detail) {
 				return setAppDockPresence(getAppIdFromPayload(payload, detail), true);
@@ -1177,7 +1093,7 @@
 			isEnabled(payload, detail) {
 				const appId = getAppIdFromPayload(payload, detail);
 
-				return Boolean(api && appSurfaceManager && appMap.has(appId) && !isFixedDockApp(appId));
+				return Boolean(api && appPreferences && appMap.has(appId) && !isFixedDockApp(appId));
 			},
 			run(payload, detail) {
 				return setAppDockPresence(getAppIdFromPayload(payload, detail), false);
@@ -1186,7 +1102,7 @@
 
 		register('app.toggle-login-item', {
 			isEnabled(payload, detail) {
-				return Boolean(api && appMap.has(getAppIdFromPayload(payload, detail)));
+				return Boolean(api && appPreferences && appMap.has(getAppIdFromPayload(payload, detail)));
 			},
 			run(payload, detail) {
 				return toggleAppLoginItem(getAppIdFromPayload(payload, detail));

@@ -58,20 +58,9 @@ foreach ( $apps as $pufferdesk_app ) {
 }
 
 $pufferdesk_render_dock_app = static function ( $pufferdesk_app, $theme, $pufferdesk_fixed = false ) {
-	$pufferdesk_app_label   = isset( $pufferdesk_app['label'] ) ? (string) $pufferdesk_app['label'] : '';
-	$pufferdesk_app_badge   = isset( $pufferdesk_app['badge'] ) && is_array( $pufferdesk_app['badge'] ) ? $pufferdesk_app['badge'] : array();
-	$pufferdesk_badge_text  = isset( $pufferdesk_app_badge['text'] ) ? (string) $pufferdesk_app_badge['text'] : '';
-	$pufferdesk_badge_tone  = isset( $pufferdesk_app_badge['tone'] ) ? sanitize_html_class( (string) $pufferdesk_app_badge['tone'] ) : 'attention';
-	$pufferdesk_badge_tone  = '' !== $pufferdesk_badge_tone ? $pufferdesk_badge_tone : 'attention';
-	$pufferdesk_badge_label = isset( $pufferdesk_app_badge['aria_label'] ) ? (string) $pufferdesk_app_badge['aria_label'] : '';
-	$pufferdesk_aria_label  = '' !== $pufferdesk_badge_label
-		? sprintf(
-			/* translators: 1: app label, 2: app badge accessibility label. */
-			__( '%1$s, %2$s', 'pufferdesk-admin-desktop' ),
-			$pufferdesk_app_label,
-			$pufferdesk_badge_label
-		)
-		: $pufferdesk_app_label;
+	$pufferdesk_app_label  = isset( $pufferdesk_app['label'] ) ? (string) $pufferdesk_app['label'] : '';
+	$pufferdesk_app_badge  = isset( $pufferdesk_app['badge'] ) && is_array( $pufferdesk_app['badge'] ) ? $pufferdesk_app['badge'] : array();
+	$pufferdesk_aria_label = PufferDesk_App_Badge_Renderer::get_aria_label( $pufferdesk_app_label, $pufferdesk_app_badge );
 	?>
 	<button
 		type="button"
@@ -88,9 +77,7 @@ $pufferdesk_render_dock_app = static function ( $pufferdesk_app, $theme, $puffer
 		aria-label="<?php echo esc_attr( $pufferdesk_aria_label ); ?>"
 	>
 		<?php PufferDesk_Icon_Renderer::render( $pufferdesk_app['icon'], $theme ); ?>
-		<?php if ( '' !== $pufferdesk_badge_text ) : ?>
-			<span class="pdk-app-badge pdk-app-badge-<?php echo esc_attr( $pufferdesk_badge_tone ); ?>" aria-hidden="true"><?php echo esc_html( $pufferdesk_badge_text ); ?></span>
-		<?php endif; ?>
+		<?php PufferDesk_App_Badge_Renderer::render( $pufferdesk_app_badge ); ?>
 		<span class="pdk-dock-tooltip" aria-hidden="true"><?php echo esc_html( $pufferdesk_app_label ); ?></span>
 		<span class="screen-reader-text"><?php echo esc_html( $pufferdesk_app_label ); ?></span>
 	</button>

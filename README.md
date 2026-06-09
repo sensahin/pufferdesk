@@ -31,7 +31,7 @@ The bundled PufferDesk family uses original plugin CSS and release-safe media. V
 
 The foundation separates shell behavior from OS appearance:
 
-- `includes/` owns routing, preferences, app/widget/theme registries, shared shell context, runtime config, asset manifests/enqueueing, controllers, widget layout attributes, and rendering.
+- `includes/` owns routing, preferences, shared path normalization, app/widget/theme registries, app badge rendering, theme token CSS-variable rendering, shared shell context, runtime config, asset manifests/enqueueing, controllers, widget layout attributes, and rendering.
 - `templates/` owns shell markup through semantic folders:
   - `templates/shell/` for global shell surfaces such as menu bar, desktop, and dock.
   - `templates/windows/` for reusable window chrome.
@@ -58,14 +58,14 @@ The foundation separates shell behavior from OS appearance:
   - `config.js` exposes the WordPress-provided runtime payload.
   - `dom.js` owns shared DOM helpers.
   - `events/` owns the internal event bus used for decoupled shell/module notifications.
-  - `services/` owns browser storage and AJAX clients.
+  - `services/` owns browser storage, AJAX clients, geometry helpers, and debounced task scheduling.
   - `preferences/` owns shell preference appliers such as appearance, wallpaper, launcher, and menu bar state.
   - `session/` owns per-user, per-theme workspace session sections, with WordPress user meta as durable state and browser storage as cache/fallback.
   - `windows/` owns window creation, drag/focus behavior, and window state serialization.
   - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
   - `desktop/` owns desktop icon layout plus user-created folder rendering and membership behavior.
-  - `apps/` owns app launching, native app renderer registration, native app content such as System Settings, and extracted helpers for app window options, native app opening, launcher rendering, folder rendering/data/window state, and recent items.
-  - `apps/settings/` owns System Settings label normalization, shared panel UI helpers, and panel factory modules.
+  - `apps/` owns app launching, native app renderer registration, native app content such as System Settings, and extracted helpers for app badges, app preferences, app window options, native app opening, launcher rendering, folder rendering/data/window state, and recent items.
+  - `apps/settings/` owns System Settings label normalization, shared panel UI helpers, AJAX mutation/status helpers, and panel factory modules.
   - `shell/` owns global shell controls such as search, clock behavior, menu commands, top menus, and context menus.
 - `assets/css/themes/` owns theme-specific visual language.
 - `assets/media/` reserves release-safe media locations:
@@ -94,7 +94,7 @@ Apps and folders use structured icon descriptors internally. Dashicon strings st
 );
 ```
 
-Apps are registered through `PufferDesk_App_Registry` or the `pufferdesk_apps` filter. Iframe apps provide a `url`; native apps provide `kind => native` and a stable `native` renderer ID. Each app should declare the WordPress capability required for its target screen or action through `cap`; missing, empty, or non-scalar capabilities normalize to `read`, which is intended only for current-user shell features. Top-level WordPress admin menu apps inherit the capability WordPress used to show that menu item, so the dock, desktop, and launcher stay aligned with the native admin menu. Apps can opt out of workspace window restoration with `window_persistence => none`; the default `workspace` behavior restores stable app windows across shell loads. JavaScript native app windows are registered with `window.PufferDesk.apps.registerNativeAppRenderer( nativeId, renderer )`, and the renderer returns reusable window options such as `content`, `bodyClass`, `width`, `height`, and `resizeMode`. Apps may define a `badge` with `text`, optional `count`, `tone`, and `aria_label`; top-level WordPress admin menu count spans are normalized into this same badge shape for dock and desktop app icons. The app launcher stays generic and does not special-case individual native apps.
+Apps are registered through `PufferDesk_App_Registry` or the `pufferdesk_apps` filter. Iframe apps provide a `url`; native apps provide `kind => native` and a stable `native` renderer ID. Each app should declare the WordPress capability required for its target screen or action through `cap`; missing, empty, or non-scalar capabilities normalize to `read`, which is intended only for current-user shell features. Top-level WordPress admin menu apps inherit the capability WordPress used to show that menu item, so the dock, desktop, and launcher stay aligned with the native admin menu. Apps can opt out of workspace window restoration with `window_persistence => none`; the default `workspace` behavior restores stable app windows across shell loads. JavaScript native app windows are registered with `window.PufferDesk.apps.registerNativeAppRenderer( nativeId, renderer )`, and the renderer returns reusable window options such as `content`, `bodyClass`, `width`, `height`, and `resizeMode`. Apps may define a `badge` with `text`, optional `count`, `tone`, and `aria_label`; top-level WordPress admin menu count spans are normalized into this same badge shape for dock and desktop app icons. PHP-rendered shell surfaces use the shared app badge renderer, and browser-rendered surfaces use `apps/app-badges.js`, so Dock and desktop badge markup and accessibility labels stay aligned. App location and login-item state is mediated by `apps/app-preferences.js`; Settings panels and command/context-menu actions should not duplicate those endpoint flows. The app launcher stays generic and does not special-case individual native apps.
 
 The browser runtime exposes `window.PufferDesk.desktopApi` and `window.PufferDesk.desktop.api` as a facade over the current window manager, app launcher, command registry, and native app renderer registry. Extensions should prefer this facade for opening apps, creating/focusing/minimizing/closing/moving windows, registering command-backed behavior, and registering native renderers instead of reaching into lower-level managers. `window.PufferDesk.events` provides a small internal event bus with `on`, `once`, `off`, and `emit`; shell boot emits `desktop:ready` with the facade and runtime context. The window manager emits `window:created`, `window:focused`, `window:closed`, and `window:stateChanged`; handlers receive a `CustomEvent` and should read state from `event.detail`.
 
@@ -186,7 +186,7 @@ add_filter( 'pufferdesk_themes', function ( $themes ) {
 } );
 ```
 
-System Settings uses PHP-provided `settings.labels` runtime data for user-facing panel labels, option lists, and status messages. `PufferDesk_Settings_Registry` describes the stable settings domains, AJAX actions, capabilities, reset domains, meta keys, defaults, and panel ownership; `settings.domains` exposes the client-safe portion of that schema. The browser-side `assets/js/core/apps/settings/labels.js` module merges translated runtime labels with local fallbacks before the panel factories render. Theme-derived `settings.capabilities` and `shellCapabilities` control whether shell-specific panels and rows are visible, so a theme without a menu bar or Dock does not expose irrelevant controls. Apps, Widgets, Workspace, and System panels are live restore/reset surfaces: app placement and login items use the existing app preference endpoints, widgets use the `widgets` workspace section, Workspace resets current-theme or all-theme layout state, and System routes restart, Classic Admin, and full PufferDesk preference reset through shared shell commands. Settings domain metadata can be inspected or extended with the `pufferdesk_settings_domains` filter, but existing IDs, action names, meta keys, and reset domains are compatibility anchors.
+System Settings uses PHP-provided `settings.labels` runtime data for user-facing panel labels, option lists, and status messages. `PufferDesk_Settings_Registry` describes the stable settings domains, AJAX actions, capabilities, reset domains, meta keys, defaults, and panel ownership; `settings.domains` exposes the client-safe portion of that schema. The browser-side `assets/js/core/apps/settings/labels.js` module merges translated runtime labels with local fallbacks before the panel factories render. Theme-derived `settings.capabilities` and `shellCapabilities` control whether shell-specific panels and rows are visible, so a theme without a menu bar or Dock does not expose irrelevant controls. Apps, Widgets, Workspace, and System panels are live restore/reset surfaces: app placement and login items use the shared app preference store and existing app preference endpoints, widgets use the `widgets` workspace section, Workspace resets current-theme or all-theme layout state, and System routes restart, Classic Admin, and full PufferDesk preference reset through shared shell commands. Settings domain metadata can be inspected or extended with the `pufferdesk_settings_domains` filter, but existing IDs, action names, meta keys, and reset domains are compatibility anchors.
 
 == Build and release assets ==
 
@@ -354,7 +354,7 @@ Design tokens are theme metadata too. Explicit resolved `tokens` inherit through
 ),
 ```
 
-Use `mode_tokens.light` and `mode_tokens.dark` for visual values that vary by appearance, such as context menu color/radius/shadow, Settings sidebar and panel surfaces, window chrome material/border/shadow, and Explorer or Finder toolbar/row surfaces. Mode tokens are emitted as scoped CSS rules instead of shell inline styles, so light/dark values can change without blocking higher-specificity material or accessibility overrides.
+Use `mode_tokens.light` and `mode_tokens.dark` for visual values that vary by appearance, such as context menu color/radius/shadow, Settings sidebar and panel surfaces, window chrome material/border/shadow, and Explorer or Finder toolbar/row surfaces. Mode tokens are emitted as scoped CSS rules instead of shell inline styles, so light/dark values can change without blocking higher-specificity material or accessibility overrides. Derived accent variables such as soft, medium, active, active gradient, focus ring, and highlight should flow from `--pdk-accent-rgb` plus alpha tokens instead of repeating per-accent visual values.
 
 Themes support family/version inheritance. A concrete theme can declare a parent theme and receives its stylesheet stack before its own styles are loaded:
 

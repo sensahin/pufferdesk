@@ -100,7 +100,7 @@ final class PufferDesk_Widget_Registry {
 			$label    = sanitize_text_field( $widget['label'] );
 			$kind     = isset( $widget['kind'] ) ? sanitize_key( $widget['kind'] ) : 'native';
 			$native   = isset( $widget['native'] ) ? sanitize_key( $widget['native'] ) : '';
-			$template = isset( $widget['template'] ) ? $this->normalize_template_path( $widget['template'] ) : '';
+			$template = isset( $widget['template'] ) ? PufferDesk_Path_Normalizer::normalize_relative_path( $widget['template'] ) : '';
 
 			if ( '' === $id || '' === $label ) {
 				continue;
@@ -194,32 +194,6 @@ final class PufferDesk_Widget_Registry {
 			'width'  => isset( $size['width'] ) ? max( 120, absint( $size['width'] ) ) : self::DEFAULT_WIDTH,
 			'height' => isset( $size['height'] ) ? max( 80, absint( $size['height'] ) ) : self::DEFAULT_HEIGHT,
 		);
-	}
-
-	/**
-	 * Sanitize a relative template path while preserving semantic folders.
-	 *
-	 * @param string $template Template path.
-	 * @return string
-	 */
-	private function normalize_template_path( $template ) {
-		$template = str_replace( '\\', '/', (string) $template );
-		$template = ltrim( $template, '/' );
-		$parts    = array_filter( explode( '/', $template ) );
-
-		$normalized = array();
-		foreach ( $parts as $part ) {
-			if ( '.' === $part || '..' === $part ) {
-				continue;
-			}
-
-			$part = sanitize_file_name( $part );
-			if ( '' !== $part ) {
-				$normalized[] = $part;
-			}
-		}
-
-		return implode( '/', $normalized );
 	}
 
 	/**

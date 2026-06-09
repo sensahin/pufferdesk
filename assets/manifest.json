@@ -88,6 +88,16 @@
 			"deps": ["pufferdesk-config"]
 		},
 		{
+			"handle": "pufferdesk-geometry",
+			"path": "assets/js/core/services/geometry.js",
+			"deps": []
+		},
+		{
+			"handle": "pufferdesk-debounced-task",
+			"path": "assets/js/core/services/debounced-task.js",
+			"deps": []
+		},
+		{
 			"handle": "pufferdesk-session-store",
 			"path": "assets/js/core/session/session-store.js",
 			"deps": ["pufferdesk-storage", "pufferdesk-api-client"]
@@ -123,24 +133,44 @@
 			"deps": ["pufferdesk-dom"]
 		},
 		{
+			"handle": "pufferdesk-window-layout",
+			"path": "assets/js/core/windows/window-layout.js",
+			"deps": ["pufferdesk-geometry"]
+		},
+		{
+			"handle": "pufferdesk-window-state",
+			"path": "assets/js/core/windows/window-state.js",
+			"deps": ["pufferdesk-geometry", "pufferdesk-window-layout"]
+		},
+		{
+			"handle": "pufferdesk-window-dock",
+			"path": "assets/js/core/windows/window-dock.js",
+			"deps": ["pufferdesk-dom"]
+		},
+		{
+			"handle": "pufferdesk-window-interactions",
+			"path": "assets/js/core/windows/window-interactions.js",
+			"deps": ["pufferdesk-geometry", "pufferdesk-window-layout"]
+		},
+		{
 			"handle": "pufferdesk-window-manager",
 			"path": "assets/js/core/windows/window-manager.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-event-bus", "pufferdesk-session-store", "pufferdesk-window-factory"]
+			"deps": ["pufferdesk-dom", "pufferdesk-event-bus", "pufferdesk-debounced-task", "pufferdesk-session-store", "pufferdesk-window-factory", "pufferdesk-window-layout", "pufferdesk-window-state", "pufferdesk-window-dock", "pufferdesk-window-interactions"]
 		},
 		{
 			"handle": "pufferdesk-widget-manager",
 			"path": "assets/js/core/widgets/widget-manager.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-session-store"]
+			"deps": ["pufferdesk-dom", "pufferdesk-geometry", "pufferdesk-debounced-task", "pufferdesk-session-store"]
 		},
 		{
 			"handle": "pufferdesk-desktop-icons",
 			"path": "assets/js/core/desktop/desktop-icons.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-session-store"]
+			"deps": ["pufferdesk-dom", "pufferdesk-geometry", "pufferdesk-debounced-task", "pufferdesk-session-store"]
 		},
 		{
 			"handle": "pufferdesk-folder-manager",
 			"path": "assets/js/core/desktop/folder-manager.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-api-client"]
+			"deps": ["pufferdesk-dom", "pufferdesk-geometry", "pufferdesk-debounced-task", "pufferdesk-api-client"]
 		},
 		{
 			"handle": "pufferdesk-about-window",
@@ -153,9 +183,19 @@
 			"deps": ["pufferdesk-dom"]
 		},
 		{
+			"handle": "pufferdesk-app-badges",
+			"path": "assets/js/core/apps/app-badges.js",
+			"deps": ["pufferdesk-dom"]
+		},
+		{
 			"handle": "pufferdesk-app-surfaces",
 			"path": "assets/js/core/apps/app-surfaces.js",
-			"deps": ["pufferdesk-dom"]
+			"deps": ["pufferdesk-dom", "pufferdesk-app-badges"]
+		},
+		{
+			"handle": "pufferdesk-app-preferences",
+			"path": "assets/js/core/apps/app-preferences.js",
+			"deps": ["pufferdesk-api-client"]
 		},
 		{
 			"handle": "pufferdesk-native-apps",
@@ -176,6 +216,11 @@
 			"handle": "pufferdesk-settings-ui",
 			"path": "assets/js/core/apps/settings/ui.js",
 			"deps": ["pufferdesk-dom"]
+		},
+		{
+			"handle": "pufferdesk-settings-mutations",
+			"path": "assets/js/core/apps/settings/mutations.js",
+			"deps": ["pufferdesk-api-client", "pufferdesk-debounced-task"]
 		},
 		{
 			"handle": "pufferdesk-settings-panel-general",
@@ -230,7 +275,7 @@
 		{
 			"handle": "pufferdesk-settings-app",
 			"path": "assets/js/core/apps/settings-app.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-storage", "pufferdesk-api-client", "pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-app-surfaces", "pufferdesk-native-apps", "pufferdesk-settings-labels", "pufferdesk-settings-ui", "pufferdesk-settings-panel-general", "pufferdesk-settings-panel-profile", "pufferdesk-settings-panel-appearance", "pufferdesk-settings-panel-desktop-dock", "pufferdesk-settings-panel-menu-bar", "pufferdesk-settings-panel-wallpaper", "pufferdesk-settings-panel-widgets", "pufferdesk-settings-panel-apps", "pufferdesk-settings-panel-workspace", "pufferdesk-settings-panel-system"]
+			"deps": ["pufferdesk-dom", "pufferdesk-api-client", "pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-app-surfaces", "pufferdesk-app-preferences", "pufferdesk-native-apps", "pufferdesk-settings-labels", "pufferdesk-settings-ui", "pufferdesk-settings-mutations", "pufferdesk-settings-panel-general", "pufferdesk-settings-panel-profile", "pufferdesk-settings-panel-appearance", "pufferdesk-settings-panel-desktop-dock", "pufferdesk-settings-panel-menu-bar", "pufferdesk-settings-panel-wallpaper", "pufferdesk-settings-panel-widgets", "pufferdesk-settings-panel-apps", "pufferdesk-settings-panel-workspace", "pufferdesk-settings-panel-system"]
 		},
 		{
 			"handle": "pufferdesk-recent-items",
@@ -270,7 +315,7 @@
 		{
 			"handle": "pufferdesk-app-launcher",
 			"path": "assets/js/core/apps/app-launcher.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-about-window", "pufferdesk-site-about-window", "pufferdesk-native-apps", "pufferdesk-settings-app", "pufferdesk-recent-items", "pufferdesk-folder-data", "pufferdesk-folder-window-state", "pufferdesk-app-window-options", "pufferdesk-native-app-opener", "pufferdesk-launcher-renderer", "pufferdesk-folder-renderer"]
+			"deps": ["pufferdesk-dom", "pufferdesk-geometry", "pufferdesk-about-window", "pufferdesk-site-about-window", "pufferdesk-native-apps", "pufferdesk-settings-app", "pufferdesk-recent-items", "pufferdesk-folder-data", "pufferdesk-folder-window-state", "pufferdesk-app-window-options", "pufferdesk-native-app-opener", "pufferdesk-launcher-renderer", "pufferdesk-folder-renderer"]
 		},
 		{
 			"handle": "pufferdesk-search",
@@ -280,12 +325,12 @@
 		{
 			"handle": "pufferdesk-shell-dialogs",
 			"path": "assets/js/core/shell/dialogs.js",
-			"deps": ["pufferdesk-dom"]
+			"deps": ["pufferdesk-dom", "pufferdesk-geometry"]
 		},
 		{
 			"handle": "pufferdesk-menu-commands",
 			"path": "assets/js/core/shell/commands.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-app-surfaces"]
+			"deps": ["pufferdesk-dom", "pufferdesk-app-surfaces", "pufferdesk-app-preferences"]
 		},
 		{
 			"handle": "pufferdesk-menu-schema",
@@ -300,12 +345,12 @@
 		{
 			"handle": "pufferdesk-menu",
 			"path": "assets/js/core/shell/menu.js",
-			"deps": ["pufferdesk-config", "pufferdesk-menu-commands", "pufferdesk-menu-schema", "pufferdesk-menu-renderer"]
+			"deps": ["pufferdesk-config", "pufferdesk-geometry", "pufferdesk-menu-commands", "pufferdesk-menu-schema", "pufferdesk-menu-renderer"]
 		},
 		{
 			"handle": "pufferdesk-context-menu",
 			"path": "assets/js/core/shell/context-menu.js",
-			"deps": ["pufferdesk-config", "pufferdesk-menu-commands", "pufferdesk-menu-schema", "pufferdesk-menu-renderer"]
+			"deps": ["pufferdesk-config", "pufferdesk-geometry", "pufferdesk-menu-commands", "pufferdesk-menu-schema", "pufferdesk-menu-renderer"]
 		},
 		{
 			"handle": "pufferdesk-shortcuts",
