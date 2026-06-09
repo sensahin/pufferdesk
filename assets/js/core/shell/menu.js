@@ -36,6 +36,7 @@
 		let activeDefinition = getDesktopDefinition();
 		let activeButton = null;
 		let popover = null;
+		let startFooterFlyout = null;
 		let openGroupId = '';
 
 		function getDesktopDefinition() {
@@ -698,20 +699,178 @@
 				.slice(0, 4);
 		}
 
-		function getStartFooterItems(group) {
-			const footerCommands = new Set(['shell.restart', 'shell.switch-classic', 'user.logout']);
+		function closeStartFooterFlyout() {
+			if (!startFooterFlyout) {
+				return;
+			}
 
-			return group.items.filter((item) => item && item.command && footerCommands.has(item.command));
+			const trigger = startFooterFlyout.pdkTrigger || null;
+			if (trigger) {
+				trigger.classList.remove('is-active');
+				trigger.setAttribute('aria-expanded', 'false');
+			}
+
+			startFooterFlyout.remove();
+			startFooterFlyout = null;
 		}
 
-		function createStartFooterUserItem() {
+		function createStartAvatar(user = {}) {
+			const avatar = document.createElement('span');
+			avatar.className = 'pdk-start-user-avatar';
+
+			if (user.avatar) {
+				const image = document.createElement('img');
+				image.src = user.avatar;
+				image.alt = '';
+				image.loading = 'lazy';
+				image.decoding = 'async';
+				image.setAttribute('aria-hidden', 'true');
+				avatar.appendChild(image);
+			} else {
+				avatar.appendChild(dom.createIcon('dashicons-admin-users'));
+			}
+
+			return avatar;
+		}
+
+		function getStartAccountItems() {
 			const user = config.user && typeof config.user === 'object' ? config.user : {};
-			const item = commandItem(user.name || getLabel('admin', 'Admin'), 'open-url', {
-				icon: 'dashicons-admin-users',
-				url: user.profileUrl || ''
+
+			return [
+				commandItem(getLabel('start_manage_account', 'Manage account'), 'open-url', {
+					icon: 'dashicons-admin-users',
+					url: user.profileUrl || ''
+				}),
+				commandItem(getLabel('start_sign_out', 'Sign out'), 'user.logout', {
+					icon: 'dashicons-migrate',
+					target: config.logoutUrl || ''
+				})
+			];
+		}
+
+		function getStartPowerItems() {
+			return [
+				commandItem(getLabel('start_lock', 'Lock'), 'shell.lock', {
+					icon: 'dashicons-lock',
+					target: config.logoutUrl || ''
+				}),
+				commandItem(getLabel('start_sleep', 'Sleep'), 'shell.sleep', {
+					icon: 'dashicons-hidden',
+					target: config.classicUrl || ''
+				}),
+				commandItem(getLabel('start_shutdown', 'Shut down'), 'shell.shutdown', {
+					icon: 'dashicons-migrate',
+					target: config.classicUrl || ''
+				}),
+				commandItem(getLabel('start_restart', 'Restart'), 'shell.restart', {
+					icon: 'dashicons-update'
+				})
+			];
+		}
+
+		function createStartFooterMenuItem(item) {
+			const button = document.createElement('button');
+			const icon = document.createElement('span');
+			const label = document.createElement('span');
+			const disabled = itemRenderer.getItemDisabled(item, activeDetail);
+
+			button.type = 'button';
+			button.className = 'pdk-start-footer-menu-item';
+			button.disabled = disabled;
+			button.dataset.pdkMenuItem = item.id || item.command || item.label;
+			button.setAttribute('role', 'menuitem');
+			if (disabled) {
+				button.setAttribute('aria-disabled', 'true');
+			}
+
+			if (item.icon) {
+				icon.className = 'pdk-start-footer-menu-icon';
+				icon.appendChild(dom.createIcon(item.icon));
+				button.appendChild(icon);
+			}
+
+			label.className = 'pdk-start-footer-menu-label';
+			label.textContent = item.label;
+			button.appendChild(label);
+
+			if (item.command && !disabled) {
+				button.addEventListener('click', () => {
+					commands.execute(item, activeDetail);
+					closeStartFooterFlyout();
+					closePopover();
+				});
+			}
+
+			return button;
+		}
+
+		function openStartFooterFlyout(trigger, kind, items, label) {
+			if (startFooterFlyout && startFooterFlyout.pdkTrigger === trigger) {
+				closeStartFooterFlyout();
+				return;
+			}
+
+			closeStartFooterFlyout();
+
+			const footer = trigger.closest('.pdk-start-footer');
+			if (!footer) {
+				return;
+			}
+
+			const flyout = document.createElement('div');
+			flyout.className = `pdk-start-footer-flyout pdk-start-${kind}-menu`;
+			flyout.dataset.pdkStartFooterFlyout = kind;
+			flyout.pdkTrigger = trigger;
+			flyout.setAttribute('role', 'menu');
+			flyout.setAttribute('aria-label', label);
+			flyout.replaceChildren(...items.map(createStartFooterMenuItem));
+
+			trigger.classList.add('is-active');
+			trigger.setAttribute('aria-expanded', 'true');
+			footer.appendChild(flyout);
+			startFooterFlyout = flyout;
+		}
+
+		function createStartAccountButton() {
+			const user = config.user && typeof config.user === 'object' ? config.user : {};
+			const button = document.createElement('button');
+			const label = document.createElement('span');
+			const name = user.name || getLabel('admin', 'Admin');
+
+			button.type = 'button';
+			button.className = 'pdk-start-footer-user pdk-start-account-button';
+			button.dataset.pdkStartFooterMenuTrigger = 'account';
+			button.setAttribute('aria-haspopup', 'menu');
+			button.setAttribute('aria-expanded', 'false');
+			button.setAttribute('aria-label', name);
+			label.className = 'pdk-start-account-label';
+			label.textContent = name;
+			button.append(createStartAvatar(user), label);
+			button.addEventListener('click', () => {
+				openStartFooterFlyout(button, 'account', getStartAccountItems(), getLabel('start_account', 'Account'));
 			});
 
-			return createStartActionButton(item, 'pdk-start-footer-user');
+			return button;
+		}
+
+		function createStartPowerButton() {
+			const button = document.createElement('button');
+			const icon = document.createElement('span');
+
+			button.type = 'button';
+			button.className = 'pdk-start-footer-power';
+			button.dataset.pdkStartFooterMenuTrigger = 'power';
+			button.setAttribute('aria-haspopup', 'menu');
+			button.setAttribute('aria-expanded', 'false');
+			button.setAttribute('aria-label', getLabel('start_power_menu', 'Power options'));
+			icon.className = 'pdk-start-power-icon';
+			icon.setAttribute('aria-hidden', 'true');
+			button.appendChild(icon);
+			button.addEventListener('click', () => {
+				openStartFooterFlyout(button, 'power', getStartPowerItems(), getLabel('start_power_menu', 'Power options'));
+			});
+
+			return button;
 		}
 
 		function createStartPanelContent(group) {
@@ -720,7 +879,6 @@
 			const recommendedSection = document.createElement('section');
 			const recommendedList = document.createElement('div');
 			const footer = document.createElement('footer');
-			const footerActions = document.createElement('div');
 			const recommendedItems = getStartRecommendedItems(group);
 
 			pinnedSection.className = 'pdk-start-section pdk-start-section-pinned';
@@ -747,12 +905,8 @@
 			recommendedSection.appendChild(recommendedList);
 
 			footer.className = 'pdk-start-footer';
-			footerActions.className = 'pdk-start-footer-actions';
-			getStartFooterItems(group).forEach((item) => {
-				footerActions.appendChild(createStartActionButton(item, 'pdk-start-footer-action'));
-			});
 			footer.setAttribute('aria-label', getLabel('start_power', 'Power and session'));
-			footer.append(createStartFooterUserItem(), footerActions);
+			footer.append(createStartAccountButton(), createStartPowerButton());
 
 			return [
 				createStartSearch(),
@@ -782,6 +936,8 @@
 		}
 
 		function closePopover() {
+			closeStartFooterFlyout();
+
 			if (popover) {
 				popover.remove();
 				popover = null;
@@ -970,6 +1126,17 @@
 				});
 			}
 			document.addEventListener('pointerdown', (event) => {
+				const target = event.target && event.target.nodeType === 1 ? event.target : event.target.parentElement;
+				if (
+					popover
+					&& startFooterFlyout
+					&& popover.contains(event.target)
+					&& !startFooterFlyout.contains(event.target)
+					&& (!target || !target.closest('[data-pdk-start-footer-menu-trigger]'))
+				) {
+					closeStartFooterFlyout();
+				}
+
 				if (
 					popover
 					&& !popover.contains(event.target)

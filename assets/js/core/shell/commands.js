@@ -392,6 +392,39 @@
 					reopenWindowsLabel: 'Reopen windows when logging back in',
 					title: 'Are you sure you want to log out?'
 				},
+				lock: {
+					cancelLabel: 'Cancel',
+					confirmLabel: 'Lock',
+					countdownSeconds: 60,
+					icon: 'power',
+					message: 'You will be signed out and returned to the WordPress login screen.',
+					overlayMessage: 'Locking PufferDesk...',
+					reopenWindowsDefault: false,
+					reopenWindowsLabel: 'Reopen windows when signing back in',
+					title: 'Lock PufferDesk?'
+				},
+				sleep: {
+					cancelLabel: 'Cancel',
+					confirmLabel: 'Sleep',
+					countdownSeconds: 60,
+					icon: 'power',
+					message: 'PufferDesk will close and Classic Admin will open.',
+					overlayMessage: 'Putting PufferDesk to sleep...',
+					reopenWindowsDefault: false,
+					reopenWindowsLabel: 'Reopen windows when returning to PufferDesk',
+					title: 'Sleep PufferDesk?'
+				},
+				shutdown: {
+					cancelLabel: 'Cancel',
+					confirmLabel: 'Shut down',
+					countdownSeconds: 60,
+					icon: 'power',
+					message: 'PufferDesk will close and Classic Admin will open.',
+					overlayMessage: 'Shutting down PufferDesk...',
+					reopenWindowsDefault: false,
+					reopenWindowsLabel: 'Reopen windows when returning to PufferDesk',
+					title: 'Shut down PufferDesk?'
+				},
 				eraseContentSettings: {
 					cancelLabel: 'Cancel',
 					confirmLabel: 'Erase',
@@ -640,14 +673,14 @@
 			return runTimedAction('restart', reloadShell);
 		}
 
-		function switchToClassicAdmin(payload) {
-			return runTimedAction('switchClassic', () => {
+		function switchToClassicAdmin(payload, actionKey = 'switchClassic') {
+			return runTimedAction(actionKey, () => {
 				window.location.href = payload.url || payload.target || config.classicUrl;
 			});
 		}
 
-		function logOut(payload) {
-			return runTimedAction('logout', () => {
+		function logOut(payload, actionKey = 'logout') {
+			return runTimedAction(actionKey, () => {
 				window.location.href = payload.url || payload.target;
 			});
 		}
@@ -1134,6 +1167,35 @@
 			},
 			run(payload) {
 				return switchToClassicAdmin(payload);
+			}
+		});
+
+		register('shell.lock', {
+			isEnabled(payload) {
+				return Boolean(payload.url || payload.target || config.logoutUrl);
+			},
+			run(payload) {
+				return logOut({
+					target: payload.target || payload.url || config.logoutUrl
+				}, 'lock');
+			}
+		});
+
+		register('shell.sleep', {
+			isEnabled(payload) {
+				return Boolean(payload.url || payload.target || config.classicUrl);
+			},
+			run(payload) {
+				return switchToClassicAdmin(payload, 'sleep');
+			}
+		});
+
+		register('shell.shutdown', {
+			isEnabled(payload) {
+				return Boolean(payload.url || payload.target || config.classicUrl);
+			},
+			run(payload) {
+				return switchToClassicAdmin(payload, 'shutdown');
 			}
 		});
 
