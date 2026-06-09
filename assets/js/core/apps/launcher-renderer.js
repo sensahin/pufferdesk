@@ -46,6 +46,7 @@
 			appIcon.appendChild(dom.createIcon(app.icon));
 
 			const label = document.createElement('span');
+			label.className = 'pdk-app-launcher-label';
 			label.textContent = app.label;
 
 			button.append(appIcon, label);
@@ -76,6 +77,7 @@
 			appIcon.appendChild(dom.createIcon(folder.icon || 'dashicons-category'));
 
 			const itemLabel = document.createElement('span');
+			itemLabel.className = 'pdk-app-launcher-label';
 			itemLabel.textContent = label;
 
 			button.append(appIcon, itemLabel);
@@ -121,6 +123,7 @@
 			appIcon.appendChild(dom.createIcon(item.icon || 'dashicons-media-document'));
 
 			const itemLabel = document.createElement('span');
+			itemLabel.className = 'pdk-app-launcher-label';
 			itemLabel.textContent = label;
 
 			button.append(appIcon, itemLabel);

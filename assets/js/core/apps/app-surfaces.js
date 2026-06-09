@@ -4,6 +4,98 @@
 	window.PufferDesk = window.PufferDesk || {};
 	window.PufferDesk.apps = window.PufferDesk.apps || {};
 
+	function createRunningState() {
+		const externalRunningApps = new Set();
+
+		function normalizeAppId(appId) {
+			return String(appId || '').trim();
+		}
+
+		function getWindowRunningAppIds(shell) {
+			const appIds = new Set();
+
+			if (!shell) {
+				return appIds;
+			}
+
+			shell.querySelectorAll('.pdk-window[data-pdk-app-window]:not(.is-closed)').forEach((win) => {
+				const appId = normalizeAppId(win.dataset.pdkAppWindow);
+				if (appId) {
+					appIds.add(appId);
+				}
+			});
+
+			return appIds;
+		}
+
+		function getRunningAppIds(shell) {
+			const appIds = getWindowRunningAppIds(shell);
+
+			externalRunningApps.forEach((appId) => appIds.add(appId));
+
+			return appIds;
+		}
+
+		function syncDock(shell) {
+			if (!shell) {
+				return new Set();
+			}
+
+			const runningAppIds = getRunningAppIds(shell);
+
+			shell.querySelectorAll('.pdk-dock-item[data-pdk-open-app]').forEach((button) => {
+				button.classList.toggle('is-running', runningAppIds.has(normalizeAppId(button.dataset.pdkOpenApp)));
+			});
+
+			return runningAppIds;
+		}
+
+		function setExternal(appId, running, options = {}) {
+			const normalizedAppId = normalizeAppId(appId);
+			const shouldRun = Boolean(running);
+			const changed = normalizedAppId && (shouldRun !== externalRunningApps.has(normalizedAppId));
+
+			if (!normalizedAppId) {
+				return false;
+			}
+
+			if (shouldRun) {
+				externalRunningApps.add(normalizedAppId);
+			} else {
+				externalRunningApps.delete(normalizedAppId);
+			}
+
+			if (options.shell) {
+				syncDock(options.shell);
+			}
+
+			if (changed && window.PufferDesk.events && typeof window.PufferDesk.events.emit === 'function') {
+				window.PufferDesk.events.emit('app:running-state-changed', {
+					appId: normalizedAppId,
+					running: shouldRun,
+					source: options.source || 'external'
+				});
+			}
+
+			return shouldRun;
+		}
+
+		return {
+			getExternalRunningAppIds() {
+				return Array.from(externalRunningApps);
+			},
+			getRunningAppIds,
+			isExternalRunning(appId) {
+				return externalRunningApps.has(normalizeAppId(appId));
+			},
+			setExternal,
+			syncDock
+		};
+	}
+
+	const runningState = window.PufferDesk.apps.runningState || createRunningState();
+	window.PufferDesk.apps.runningState = runningState;
+
 	window.PufferDesk.apps.createAppSurfaceManager = function createAppSurfaceManager(shell, config = {}, options = {}) {
 		const dom = window.PufferDesk.dom;
 		const appBadges = window.PufferDesk.apps.badges || {
@@ -212,23 +304,11 @@
 		}
 
 		function syncRunningDockItems() {
-			if (!shell) {
-				return;
-			}
+			runningState.syncDock(shell);
+		}
 
-			shell.querySelectorAll('.pdk-dock-item.is-running').forEach((button) => {
-				button.classList.remove('is-running');
-			});
-			shell.querySelectorAll('.pdk-window[data-pdk-app-window]:not(.is-closed)').forEach((win) => {
-				const appId = win.dataset.pdkAppWindow;
-				const button = appId
-					? shell.querySelector(`.pdk-dock-item[data-pdk-open-app="${dom.escapeAttribute(appId)}"]`)
-					: null;
-
-				if (button) {
-					button.classList.add('is-running');
-				}
-			});
+		if (window.PufferDesk.events && typeof window.PufferDesk.events.on === 'function') {
+			window.PufferDesk.events.on('app:running-state-changed', syncRunningDockItems);
 		}
 
 		function syncDesktopManagers() {

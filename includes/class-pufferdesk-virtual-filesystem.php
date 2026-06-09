@@ -39,7 +39,7 @@ final class PufferDesk_Virtual_Filesystem {
 				$labels['home'],
 				$paths[ self::FOLDER_HOME ],
 				'',
-				'dashicons-admin-users',
+				$this->theme_icon( 'home.svg', 'dashicons-admin-home' ),
 				'home'
 			),
 			$this->create_folder(
@@ -47,7 +47,7 @@ final class PufferDesk_Virtual_Filesystem {
 				$labels['desktop'],
 				$paths[ self::FOLDER_DESKTOP ],
 				self::FOLDER_HOME,
-				'dashicons-desktop',
+				$this->theme_icon( 'desktop.svg', 'dashicons-desktop' ),
 				'desktop'
 			),
 			$this->create_folder(
@@ -55,11 +55,7 @@ final class PufferDesk_Virtual_Filesystem {
 				$labels['documents'],
 				$paths[ self::FOLDER_DOCUMENTS ],
 				self::FOLDER_HOME,
-				array(
-					'type'     => 'theme',
-					'name'     => 'folder.svg',
-					'fallback' => 'dashicons-media-document',
-				),
+				$this->theme_icon( 'documents.svg', 'dashicons-media-document' ),
 				'documents'
 			),
 			$this->create_folder(
@@ -67,7 +63,7 @@ final class PufferDesk_Virtual_Filesystem {
 				$labels['notes'],
 				$paths[ self::FOLDER_NOTES ],
 				self::FOLDER_HOME,
-				'dashicons-edit-page',
+				$this->theme_icon( 'notes.svg', 'dashicons-edit-page' ),
 				'notes'
 			),
 			$this->create_folder(
@@ -75,7 +71,7 @@ final class PufferDesk_Virtual_Filesystem {
 				$labels['stickies'],
 				$paths[ self::FOLDER_STICKIES ],
 				self::FOLDER_HOME,
-				'dashicons-sticky',
+				$this->theme_icon( 'sticky-notes.svg', 'dashicons-sticky' ),
 				'stickies'
 			),
 			$this->create_folder(
@@ -259,6 +255,21 @@ final class PufferDesk_Virtual_Filesystem {
 			'source'   => __( 'PufferDesk virtual filesystem', 'pufferdesk-admin-desktop' ),
 			'user'     => false,
 			'virtual'  => true,
+		);
+	}
+
+	/**
+	 * Build a theme icon descriptor with a Dashicon fallback.
+	 *
+	 * @param string $name Theme icon file name.
+	 * @param string $fallback Dashicon fallback.
+	 * @return array<string,string>
+	 */
+	private function theme_icon( $name, $fallback ) {
+		return array(
+			'type'     => 'theme',
+			'name'     => $name,
+			'fallback' => $fallback,
 		);
 	}
 

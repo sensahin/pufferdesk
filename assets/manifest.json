@@ -189,7 +189,7 @@
 		{
 			"handle": "pufferdesk-sticky-notes",
 			"path": "assets/js/core/desktop/sticky-notes.js",
-			"deps": ["pufferdesk-documents-service", "pufferdesk-geometry", "pufferdesk-debounced-task", "pufferdesk-session-store"]
+			"deps": ["pufferdesk-documents-service", "pufferdesk-geometry", "pufferdesk-debounced-task", "pufferdesk-session-store", "pufferdesk-app-surfaces"]
 		},
 		{
 			"handle": "pufferdesk-about-window",

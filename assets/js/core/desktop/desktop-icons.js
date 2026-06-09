@@ -475,35 +475,13 @@
 			}) || null;
 		}
 
-		function getDefaultState(icon, index) {
-			const layer = getIconLayer(icon);
-			const iconWidth = icon.offsetWidth || 74;
-			const iconHeight = icon.offsetHeight || 94;
-			const topInset = 24;
-			const rightInset = 24;
-			const columnGap = 10;
-			const rowGap = 14;
-			const rowStep = iconHeight + rowGap;
-			const columnStep = iconWidth + columnGap;
-			const availableHeight = Math.max(rowStep, (layer ? layer.clientHeight : 0) - topInset);
-			const rows = Math.max(1, Math.floor(availableHeight / rowStep));
-			const row = index % rows;
-			const column = Math.floor(index / rows);
-			const left = (layer ? layer.clientWidth : 0) - rightInset - iconWidth - column * columnStep;
-			const top = topInset + row * rowStep;
-
-			return {
-				left: Math.max(0, left),
-				top
-			};
-		}
-
 		function getGridMetrics(icon) {
 			const layer = getIconLayer(icon);
 			const iconWidth = icon.offsetWidth || 74;
 			const iconHeight = icon.offsetHeight || 94;
 			const topInset = 24;
-			const rightInset = 24;
+			const leftInset = 24;
+			const legacyRightInset = 24;
 			const columnGap = 10;
 			const rowGap = 14;
 			const rowStep = iconHeight + rowGap;
@@ -516,18 +494,22 @@
 				iconHeight,
 				iconWidth,
 				layer,
-				rightInset,
+				leftInset,
+				legacyRightInset,
 				rowStep,
 				rows,
 				topInset
 			};
 		}
 
-		function getGridPosition(icon, row, column) {
+		function getGridPosition(icon, row, column, origin = 'left') {
 			const metrics = getGridMetrics(icon);
 			const maxLeft = metrics.layer ? metrics.layer.clientWidth - metrics.iconWidth : 0;
 			const maxTop = metrics.layer ? metrics.layer.clientHeight - metrics.iconHeight : 0;
-			const left = (metrics.layer ? metrics.layer.clientWidth : 0) - metrics.rightInset - metrics.iconWidth - column * metrics.columnStep;
+			const layerWidth = metrics.layer ? metrics.layer.clientWidth : 0;
+			const left = origin === 'right'
+				? layerWidth - metrics.legacyRightInset - metrics.iconWidth - column * metrics.columnStep
+				: metrics.leftInset + column * metrics.columnStep;
 			const top = metrics.topInset + row * metrics.rowStep;
 
 			return {
@@ -536,9 +518,36 @@
 			};
 		}
 
+		function getDefaultState(icon, index, origin = 'left') {
+			const metrics = getGridMetrics(icon);
+			const row = index % metrics.rows;
+			const column = Math.floor(index / metrics.rows);
+
+			return getGridPosition(icon, row, column, origin);
+		}
+
+		function isDefaultPosition(state, defaults) {
+			const left = Number.parseFloat(state && state.left);
+			const top = Number.parseFloat(state && state.top);
+
+			if (!Number.isFinite(left) || !Number.isFinite(top)) {
+				return false;
+			}
+
+			return Math.abs(left - defaults.left) <= 2 && Math.abs(top - defaults.top) <= 2;
+		}
+
+		function shouldMigrateLegacyDefaultPosition(icon, item, index) {
+			if (!item || !item.state || typeof item.state !== 'object') {
+				return false;
+			}
+
+			return isDefaultPosition(item.state, getDefaultState(icon, index, 'right'));
+		}
+
 		function getNearestCell(icon, state) {
 			const metrics = getGridMetrics(icon);
-			const rawColumn = ((metrics.layer ? metrics.layer.clientWidth : 0) - metrics.rightInset - metrics.iconWidth - state.left) / metrics.columnStep;
+			const rawColumn = (state.left - metrics.leftInset) / metrics.columnStep;
 			const rawRow = (state.top - metrics.topInset) / metrics.rowStep;
 
 			return {
@@ -1158,19 +1167,28 @@
 
 			const stored = getStoredIconMap();
 			restoreInProgress = true;
+			let migratedDefaultPosition = false;
 
 			icons.forEach((icon, index) => {
 				const id = getIconKey(icon);
 				const item = id ? stored.get(id) : null;
+				const migrateLegacyPosition = shouldMigrateLegacyDefaultPosition(icon, item, index);
+				const state = migrateLegacyPosition ? null : (item ? item.state : null);
 
 				if (item && typeof item.label === 'string' && item.label.trim()) {
 					setIconLabelOverride(icon, item.label);
 				}
-				applyIconState(icon, item ? item.state : null, index);
+				if (migrateLegacyPosition) {
+					migratedDefaultPosition = true;
+				}
+				applyIconState(icon, state, index);
 			});
 
 			restoreInProgress = false;
 			arrangeIcons(currentSortMode, false);
+			if (migratedDefaultPosition) {
+				scheduleSave();
+			}
 		}
 
 		function rebind() {

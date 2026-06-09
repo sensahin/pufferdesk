@@ -116,6 +116,9 @@
 		function normalizeDocumentItem(documentData) {
 			const documentId = Number.parseInt(documentData && documentData.id, 10);
 			const isSticky = documentData && documentData.kind === (documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note');
+			const icon = isSticky
+				? { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' }
+				: { type: 'theme', name: 'text-editor.svg', fallback: 'dashicons-media-document' };
 
 			if (!documentId) {
 				return null;
@@ -123,7 +126,7 @@
 
 			return {
 				document: documentData,
-				icon: isSticky ? 'dashicons-sticky' : 'dashicons-media-document',
+				icon,
 				id: `document-${documentId}`,
 				kindLabel: isSticky ? getMenuLabel('sticky_note', 'Sticky Note') : getMenuLabel('document', 'Document'),
 				label: documentData.title || (isSticky ? getMenuLabel('sticky_note', 'Sticky Note') : getMenuLabel('document', 'Document')),

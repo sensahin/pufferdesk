@@ -28,6 +28,10 @@
 		const createDebouncedTask = window.PufferDesk.services && window.PufferDesk.services.createDebouncedTask
 			? window.PufferDesk.services.createDebouncedTask
 			: null;
+		const runningState = window.PufferDesk.apps && window.PufferDesk.apps.runningState
+			? window.PufferDesk.apps.runningState
+			: null;
+		const stickyNotesAppId = 'sticky-notes';
 		const noteMap = new Map();
 		let layer = null;
 		let restorePromise = null;
@@ -39,6 +43,19 @@
 
 		function getDialogs() {
 			return options.dialogs || window.PufferDesk.shellDialogs || null;
+		}
+
+		function hasOpenNotes() {
+			return Array.from(noteMap.values()).some((entry) => entry && entry.element && !entry.element.hidden);
+		}
+
+		function syncRunningState() {
+			if (runningState && typeof runningState.setExternal === 'function') {
+				runningState.setExternal(stickyNotesAppId, hasOpenNotes(), {
+					shell,
+					source: 'sticky-notes'
+				});
+			}
 		}
 
 		function getLabel(key, fallback) {
@@ -275,6 +292,7 @@
 
 			entry.element.hidden = true;
 			saveLayout();
+			syncRunningState();
 			return true;
 		}
 
@@ -289,6 +307,7 @@
 			entry.element.style.height = `${toNumber(entry.element.dataset.pdkExpandedHeight, 285)}px`;
 			bringToFront(entry.element);
 			entry.content.focus();
+			syncRunningState();
 			return true;
 		}
 
@@ -299,6 +318,7 @@
 					entry.element.remove();
 					noteMap.delete(entry.document.id);
 					saveLayout();
+					syncRunningState();
 				}
 
 				return true;
@@ -496,6 +516,7 @@
 				existing.document = documentData;
 				existing.content.value = documentData.content || '';
 				applyState(existing.element, normalizeState(state, noteMap.size));
+				syncRunningState();
 				return existing.element;
 			}
 
@@ -541,6 +562,7 @@
 			applyState(noteElement, normalizeState(state, noteMap.size - 1));
 			bindDrag(noteElement, dragHandle);
 			bindResizePersistence(noteElement);
+			syncRunningState();
 
 			noteElement.addEventListener('pointerdown', () => bringToFront(noteElement));
 			content.addEventListener('input', () => entry.saveTask.schedule());
@@ -593,6 +615,7 @@
 
 			if (!documentStore || typeof documentStore.list !== 'function') {
 				restorePromise = Promise.resolve([]);
+				syncRunningState();
 				return restorePromise;
 			}
 
@@ -601,8 +624,12 @@
 					renderNote(documentData, getSavedState(documentData.id));
 				});
 
+				syncRunningState();
 				return documents;
-			}).catch(() => []);
+			}).catch(() => {
+				syncRunningState();
+				return [];
+			});
 
 			return restorePromise;
 		}
@@ -615,6 +642,7 @@
 			createStickyNote,
 			deleteNote,
 			getNotes,
+			hasOpenNotes,
 			hideNote,
 			renderNote,
 			restore,

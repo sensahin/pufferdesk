@@ -691,6 +691,96 @@
 	width: 52px;
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+	background: transparent;
+	border-color: transparent;
+	box-shadow: none;
+	gap: 8px;
+	padding: 8px 6px;
+	transform: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:hover,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:focus,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-selected,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher[aria-selected="true"],
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-context-menu-active {
+	background: transparent;
+	border-color: transparent;
+	box-shadow: none;
+	outline: none;
+	transform: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher .pdk-app-icon {
+	isolation: isolate;
+	position: relative;
+	transition: transform 120ms ease;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher .pdk-app-icon::before {
+	background: var(--pdk-desktop-icon-selection-icon-bg, rgba(255, 255, 255, 0.16));
+	border-radius: var(--pdk-desktop-icon-selection-icon-radius, 10px);
+	content: "";
+	inset: var(--pdk-desktop-icon-selection-icon-inset, -7px -10px);
+	opacity: 0;
+	position: absolute;
+	transition: opacity 120ms ease;
+	z-index: 0;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher .pdk-app-icon > * {
+	position: relative;
+	z-index: 1;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:hover .pdk-app-icon::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:focus .pdk-app-icon::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-selected .pdk-app-icon::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher[aria-selected="true"] .pdk-app-icon::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-context-menu-active .pdk-app-icon::before {
+	opacity: 1;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-launcher .pdk-app-icon {
+	background: transparent;
+	border-color: transparent;
+	box-shadow: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-launcher .pdk-icon-image {
+	filter: var(--pdk-folder-icon-filter);
+	opacity: var(--pdk-folder-icon-opacity);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher-label {
+	border-radius: 4px;
+	display: -webkit-box;
+	line-height: var(--pdk-line-height-caption);
+	max-height: 2.4em;
+	max-width: 18ch;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: normal;
+	width: max-content;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	overflow-wrap: anywhere;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-selected .pdk-app-launcher-label,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher[aria-selected="true"] .pdk-app-launcher-label,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-context-menu-active .pdk-app-launcher-label {
+	background: var(--pdk-desktop-icon-selection-bg, rgba(36, 88, 202, 0.82));
+	color: var(--pdk-desktop-icon-selection-ink, #fff);
+	margin-inline: -3px;
+	padding-inline: 3px;
+	text-shadow: none;
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-widget {
 	-webkit-backdrop-filter: var(--pdk-material-card-filter);
 	backdrop-filter: var(--pdk-material-card-filter);

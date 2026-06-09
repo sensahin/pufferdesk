@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Text Editor">
+  <desc>Glyph based on Tabler Icons v3.44.0 under the MIT License; wrapper by PufferDesk.</desc>
+  <rect width="64" height="64" rx="14" fill="#1f2c3a"/>
+  <g fill="none" stroke="#f3f0e7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" transform="translate(13 13) scale(1.6)">
+    <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
+    <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2"/>
+    <path d="M10 18l5 -5a1.414 1.414 0 0 0 -2 -2l-5 5v2h2"/>
+  </g>
+</svg>
