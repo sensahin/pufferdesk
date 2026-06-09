@@ -226,6 +226,47 @@
 	filter: brightness(1.05);
 }
 
+.pdk-shell-choice-dialog {
+	gap: 16px;
+	text-align: left;
+}
+
+.pdk-shell-choice-dialog .pdk-shell-dialog-icon {
+	height: 54px;
+	justify-self: start;
+	width: 54px;
+}
+
+.pdk-shell-choice-dialog-copy {
+	gap: 14px;
+}
+
+.pdk-shell-choice-dialog-actions {
+	display: grid;
+	gap: 10px;
+	grid-template-columns: minmax(0, 1fr);
+	justify-content: stretch;
+	margin-top: 0;
+}
+
+.pdk-shell-choice-dialog-button {
+	justify-self: stretch;
+	min-height: 36px;
+	width: 100%;
+}
+
+.pdk-shell-dialog-button-danger {
+	background: var(--pdk-dialog-danger-button-bg, var(--pdk-dialog-button-bg));
+	border-color: var(--pdk-dialog-danger-button-border, var(--pdk-dialog-button-border));
+	color: var(--pdk-dialog-danger-button-ink, var(--pdk-danger-bg, #b91c1c));
+}
+
+.pdk-shell-dialog-button-cancel {
+	background: var(--pdk-dialog-cancel-button-bg, var(--pdk-dialog-button-bg));
+	border-color: var(--pdk-dialog-cancel-button-border, var(--pdk-dialog-button-border));
+	color: var(--pdk-dialog-cancel-button-ink, var(--pdk-dialog-ink));
+}
+
 .pdk-shell-action-dialog {
 	align-content: start;
 	border-radius: 20px;

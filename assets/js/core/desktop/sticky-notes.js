@@ -37,6 +37,10 @@
 			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note';
 		}
 
+		function getDialogs() {
+			return options.dialogs || window.PufferDesk.shellDialogs || null;
+		}
+
 		function getLabel(key, fallback) {
 			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
 		}
@@ -93,6 +97,9 @@
 			const desktopRect = desktop ? desktop.getBoundingClientRect() : { width: 1200, height: 800 };
 			const minWidth = 180;
 			const minHeight = 140;
+			const collapsed = Boolean(state.collapsed);
+			const expandedHeight = toNumber(state.expandedHeight, defaults.height);
+			const restoreState = state.restore && typeof state.restore === 'object' ? state.restore : {};
 			const width = clamp(toNumber(state.width, defaults.width), minWidth, Math.max(minWidth, desktopRect.width - 24));
 			const height = clamp(toNumber(state.height, defaults.height), minHeight, Math.max(minHeight, desktopRect.height - 24));
 			const maxLeft = Math.max(8, desktopRect.width - width - 8);
@@ -102,9 +109,16 @@
 			highestZ = Math.max(highestZ, zIndex);
 
 			return {
+				collapsed,
+				expandedHeight,
+				fullscreen: !collapsed && Boolean(state.fullscreen),
 				height,
 				hidden: Boolean(state.hidden),
 				left: clamp(toNumber(state.left, defaults.left), 8, maxLeft),
+				restoreHeight: toNumber(state.restoreHeight, toNumber(restoreState.height, expandedHeight)),
+				restoreLeft: toNumber(state.restoreLeft, toNumber(restoreState.left, defaults.left)),
+				restoreTop: toNumber(state.restoreTop, toNumber(restoreState.top, defaults.top)),
+				restoreWidth: toNumber(state.restoreWidth, toNumber(restoreState.width, defaults.width)),
 				top: clamp(toNumber(state.top, defaults.top), 8, maxTop),
 				width,
 				zIndex
@@ -130,19 +144,65 @@
 		}
 
 		function applyState(noteElement, state) {
-			noteElement.style.left = `${state.left}px`;
-			noteElement.style.top = `${state.top}px`;
-			noteElement.style.width = `${state.width}px`;
-			noteElement.style.height = `${state.height}px`;
+			const fullscreenBounds = state.fullscreen ? getFullscreenBounds() : null;
+			const nextLeft = fullscreenBounds ? fullscreenBounds.left : state.left;
+			const nextTop = fullscreenBounds ? fullscreenBounds.top : state.top;
+			const nextWidth = fullscreenBounds ? fullscreenBounds.width : state.width;
+			const nextHeight = fullscreenBounds ? fullscreenBounds.height : state.height;
+
+			noteElement.dataset.pdkRestoreLeft = `${toNumber(state.restoreLeft, state.left)}px`;
+			noteElement.dataset.pdkRestoreTop = `${toNumber(state.restoreTop, state.top)}px`;
+			noteElement.dataset.pdkRestoreWidth = `${toNumber(state.restoreWidth, state.width)}px`;
+			noteElement.dataset.pdkRestoreHeight = `${toNumber(state.restoreHeight, state.expandedHeight || state.height || 285)}px`;
+			noteElement.style.left = `${nextLeft}px`;
+			noteElement.style.top = `${nextTop}px`;
+			noteElement.style.width = `${nextWidth}px`;
+			noteElement.style.height = state.collapsed
+				? `${getCollapsedHeight(noteElement)}px`
+				: `${nextHeight}px`;
 			noteElement.style.zIndex = String(state.zIndex);
 			noteElement.hidden = Boolean(state.hidden);
+			noteElement.dataset.pdkExpandedHeight = String(Math.max(140, state.expandedHeight || state.height || 285));
+			noteElement.classList.toggle('is-collapsed', Boolean(state.collapsed));
+			noteElement.classList.toggle('is-fullscreen', Boolean(state.fullscreen));
+		}
+
+		function getCollapsedHeight(noteElement) {
+			const chrome = noteElement ? noteElement.querySelector('.pdk-sticky-note-chrome') : null;
+			const height = chrome ? Math.round(chrome.getBoundingClientRect().height) : 28;
+
+			return Math.max(24, height);
+		}
+
+		function getFullscreenBounds() {
+			const menuBar = shell ? shell.querySelector('.pdk-menu-bar') : null;
+			const safeTop = menuBar && shell.dataset.pdkShellTopBar !== 'none'
+				? Math.max(8, Math.round(menuBar.getBoundingClientRect().height) + 8)
+				: 8;
+
+			return {
+				height: Math.max(140, desktop.clientHeight - safeTop - 8),
+				left: 8,
+				top: safeTop,
+				width: Math.max(180, desktop.clientWidth - 16)
+			};
 		}
 
 		function readState(noteElement) {
+			const collapsed = noteElement.classList.contains('is-collapsed');
+			const expandedHeight = toNumber(noteElement.dataset.pdkExpandedHeight, Math.round(noteElement.offsetHeight || 285));
+
 			return {
-				height: Math.round(noteElement.offsetHeight || 0),
+				collapsed,
+				expandedHeight,
+				fullscreen: noteElement.classList.contains('is-fullscreen'),
+				height: collapsed ? expandedHeight : Math.round(noteElement.offsetHeight || 0),
 				hidden: noteElement.hidden,
 				left: toNumber(noteElement.style.left, Math.round(noteElement.offsetLeft || 0)),
+				restoreHeight: toNumber(noteElement.dataset.pdkRestoreHeight, expandedHeight),
+				restoreLeft: toNumber(noteElement.dataset.pdkRestoreLeft, toNumber(noteElement.style.left, Math.round(noteElement.offsetLeft || 0))),
+				restoreTop: toNumber(noteElement.dataset.pdkRestoreTop, toNumber(noteElement.style.top, Math.round(noteElement.offsetTop || 0))),
+				restoreWidth: toNumber(noteElement.dataset.pdkRestoreWidth, Math.round(noteElement.offsetWidth || 0)),
 				top: toNumber(noteElement.style.top, Math.round(noteElement.offsetTop || 0)),
 				width: Math.round(noteElement.offsetWidth || 0),
 				zIndex: toNumber(noteElement.style.zIndex, highestZ)
@@ -225,6 +285,8 @@
 			}
 
 			entry.element.hidden = false;
+			entry.element.classList.remove('is-collapsed');
+			entry.element.style.height = `${toNumber(entry.element.dataset.pdkExpandedHeight, 285)}px`;
 			bringToFront(entry.element);
 			entry.content.focus();
 			return true;
@@ -247,6 +309,112 @@
 			}
 
 			return documentStore.remove(documentId).then(removeElement);
+		}
+
+		function setCollapsed(entry, collapsed) {
+			if (!entry || !entry.element) {
+				return false;
+			}
+
+			if (collapsed) {
+				entry.element.dataset.pdkExpandedHeight = String(Math.max(140, Math.round(entry.element.offsetHeight || 285)));
+				entry.element.classList.remove('is-fullscreen');
+				entry.element.classList.add('is-collapsed');
+				entry.element.style.height = `${getCollapsedHeight(entry.element)}px`;
+			} else {
+				entry.element.classList.remove('is-collapsed');
+				entry.element.style.height = `${toNumber(entry.element.dataset.pdkExpandedHeight, 285)}px`;
+			}
+
+			saveLayout();
+			return true;
+		}
+
+		function setFullscreen(entry, fullscreen) {
+			if (!entry || !entry.element || !desktop) {
+				return false;
+			}
+
+			if (fullscreen) {
+				const bounds = getFullscreenBounds();
+				entry.element.dataset.pdkRestoreLeft = entry.element.style.left || '';
+				entry.element.dataset.pdkRestoreTop = entry.element.style.top || '';
+				entry.element.dataset.pdkRestoreWidth = entry.element.style.width || '';
+				entry.element.dataset.pdkRestoreHeight = entry.element.style.height || '';
+				entry.element.classList.remove('is-collapsed');
+				entry.element.classList.add('is-fullscreen');
+				entry.element.style.left = `${bounds.left}px`;
+				entry.element.style.top = `${bounds.top}px`;
+				entry.element.style.width = `${bounds.width}px`;
+				entry.element.style.height = `${bounds.height}px`;
+			} else {
+				entry.element.classList.remove('is-fullscreen');
+				entry.element.style.left = entry.element.dataset.pdkRestoreLeft || entry.element.style.left;
+				entry.element.style.top = entry.element.dataset.pdkRestoreTop || entry.element.style.top;
+				entry.element.style.width = entry.element.dataset.pdkRestoreWidth || entry.element.style.width;
+				entry.element.style.height = entry.element.dataset.pdkRestoreHeight || `${toNumber(entry.element.dataset.pdkExpandedHeight, 285)}px`;
+			}
+
+			bringToFront(entry.element);
+			saveLayout();
+			return true;
+		}
+
+		function confirmDiscardNote(entry) {
+			const content = entry && entry.content ? String(entry.content.value || '') : '';
+			if (!content.trim()) {
+				return deleteNote(entry.document.id);
+			}
+
+			const dialogs = getDialogs();
+			const fallback = () => {
+				if (window.confirm && !window.confirm(getLabel('deleteStickyNote', 'Delete this note?'))) {
+					return Promise.resolve(false);
+				}
+
+				return deleteNote(entry.document.id);
+			};
+
+			if (!dialogs || typeof dialogs.choose !== 'function') {
+				return fallback();
+			}
+
+			return dialogs.choose({
+				actions: [
+					{
+						default: true,
+						id: 'save',
+						label: getLabel('saveEllipsis', 'Save...'),
+						variant: 'primary'
+					},
+					{
+						id: 'delete',
+						label: getLabel('deleteNote', 'Delete Note'),
+						variant: 'danger'
+					},
+					{
+						id: 'cancel',
+						label: getLabel('cancel', 'Cancel'),
+						variant: 'cancel'
+					}
+				],
+				cancelAction: 'cancel',
+				icon: 'dashicons-sticky',
+				message: getLabel('discardNoteMessage', 'Are you sure you want to discard this Stickies note?'),
+				style: 'floating',
+				title: getLabel('discardNoteTitle', "If you don't save this note, its contents will be lost."),
+				variant: 'sticky-note-discard'
+			}).then((action) => {
+				if (action === 'delete') {
+					return deleteNote(entry.document.id);
+				}
+
+				if (action === 'save') {
+					return entry.saveTask.run();
+				}
+
+				return false;
+			});
 		}
 
 		function bindDrag(noteElement, dragHandle) {
@@ -343,7 +511,10 @@
 				saveTask: null
 			};
 			const createButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-new', getLabel('newStickyNote', 'New Sticky Note'), '+');
+			const discardButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-discard', getLabel('discardNote', 'Discard Note'), '');
 			const menuButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-menu', getLabel('noteOptions', 'Note options'), '...');
+			const fullscreenButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-fullscreen', getLabel('fullscreenNote', 'Make Full Screen'), '');
+			const collapseButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-collapse', getLabel('hideNote', 'Hide Note'), '');
 			const closeButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-close', getLabel('close', 'Close'), 'x');
 
 			noteElement.className = 'pdk-sticky-note';
@@ -360,8 +531,8 @@
 			toolbar.setAttribute('aria-hidden', 'true');
 			toolbar.innerHTML = '<span>B</span><span>I</span><span>U</span><span>ab</span><span class="dashicons dashicons-editor-ul"></span><span class="dashicons dashicons-format-image"></span>';
 
-			actionGroup.append(menuButton, closeButton);
-			dragHandle.append(createButton, actionGroup);
+			actionGroup.append(menuButton, fullscreenButton, collapseButton, closeButton);
+			dragHandle.append(createButton, discardButton, actionGroup);
 			noteElement.append(dragHandle, content, toolbar);
 			nextLayer.appendChild(noteElement);
 			noteMap.set(documentId, entry);
@@ -380,6 +551,9 @@
 					top: noteElement.offsetTop + 28
 				});
 			});
+			discardButton.addEventListener('click', () => confirmDiscardNote(entry));
+			fullscreenButton.addEventListener('click', () => setFullscreen(entry, !noteElement.classList.contains('is-fullscreen')));
+			collapseButton.addEventListener('click', () => setCollapsed(entry, !noteElement.classList.contains('is-collapsed')));
 			closeButton.addEventListener('click', () => hideNote(documentId));
 			menuButton.addEventListener('click', () => {
 				if (window.confirm && !window.confirm(getLabel('deleteStickyNote', 'Delete this note?'))) {

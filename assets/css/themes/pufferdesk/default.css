@@ -193,26 +193,140 @@
 	--pdk-sticky-note-bg: rgb(252 244 167);
 	--pdk-sticky-note-body-bg: transparent;
 	--pdk-sticky-note-border: #1f1f1f;
-	--pdk-sticky-note-content-padding: 4px 22px 22px;
-	--pdk-sticky-note-font-size: 18px;
-	--pdk-sticky-note-header-bg: transparent;
-	--pdk-sticky-note-header-height: 28px;
-	--pdk-sticky-note-header-padding: 0;
+	--pdk-sticky-note-content-padding: 9px 20px 24px;
+	--pdk-sticky-note-font-size: 26px;
+	--pdk-sticky-note-header-bg: rgb(248 232 58 / 0.72);
+	--pdk-sticky-note-header-height: 14px;
+	--pdk-sticky-note-header-padding: 0 7px;
 	--pdk-sticky-note-ink: #050505;
-	--pdk-sticky-note-placeholder: rgb(0 0 0 / 0.42);
+	--pdk-sticky-note-placeholder: transparent;
 	--pdk-sticky-note-radius: 0;
 	--pdk-sticky-note-shadow: 18px 18px 26px rgb(0 0 0 / 0.18);
+	--pdk-sticky-note-symbol: rgb(168 145 0 / 0.54);
 	--pdk-sticky-note-toolbar-display: none;
 	--pdk-sticky-note-toolbar-height: 0px;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note {
-	border-width: 2px;
+	border-width: 1px;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-button {
-	opacity: 0;
-	pointer-events: none;
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-new,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-menu,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-close {
+	display: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-actions {
+	gap: 4px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-discard,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-fullscreen,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-collapse {
+	color: var(--pdk-sticky-note-symbol);
+	display: inline-flex;
+	height: 14px;
+	position: relative;
+	width: 14px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-discard::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-fullscreen::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-collapse::before {
+	background: currentColor;
+	content: "";
+	display: block;
+	height: 11px;
+	mask-position: center;
+	mask-repeat: no-repeat;
+	mask-size: contain;
+	width: 11px;
+	-webkit-mask-position: center;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-size: contain;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-discard::before {
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='3.2' y='3.2' width='9.6' height='9.6' fill='none' stroke='black' stroke-width='1.7'/%3E%3C/svg%3E");
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='3.2' y='3.2' width='9.6' height='9.6' fill='none' stroke='black' stroke-width='1.7'/%3E%3C/svg%3E");
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-fullscreen::before {
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.2 12.8H12.8V3.2L3.2 12.8Z' fill='none' stroke='black' stroke-linejoin='miter' stroke-width='1.7'/%3E%3C/svg%3E");
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.2 12.8H12.8V3.2L3.2 12.8Z' fill='none' stroke='black' stroke-linejoin='miter' stroke-width='1.7'/%3E%3C/svg%3E");
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note-collapse::before {
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 5.2H13M3 10.8H13' fill='none' stroke='black' stroke-linecap='square' stroke-width='1.9'/%3E%3C/svg%3E");
+	-webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3 5.2H13M3 10.8H13' fill='none' stroke='black' stroke-linecap='square' stroke-width='1.9'/%3E%3C/svg%3E");
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sticky-note.is-collapsed {
+	box-shadow: 10px 10px 18px rgb(0 0 0 / 0.16);
+	min-height: 14px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="sticky-note-discard"] {
+	--pdk-dialog-danger-button-bg: rgb(255 69 58 / 0.16);
+	--pdk-dialog-danger-button-border: rgb(255 69 58 / 0.08);
+	--pdk-dialog-danger-button-ink: #ff453a;
+	--pdk-dialog-cancel-button-bg: rgb(255 255 255 / 0.12);
+	--pdk-dialog-cancel-button-border: rgb(255 255 255 / 0.08);
+	--pdk-dialog-cancel-button-ink: var(--pdk-dialog-ink);
+	background: var(--pdk-dialog-bg);
+	border-color: var(--pdk-dialog-border);
+	border-radius: 30px;
+	box-shadow: var(--pdk-dialog-shadow);
+	color: var(--pdk-dialog-ink);
+	gap: 12px;
+	max-width: min(300px, calc(100% - 32px));
+	padding: 24px 18px 16px;
+	width: 260px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="sticky-note-discard"] .pdk-shell-dialog-icon {
+	background: rgb(246 246 246);
+	border-radius: 15px;
+	color: rgb(230 195 24);
+	height: 52px;
+	justify-self: start;
+	margin-bottom: 6px;
+	width: 52px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="sticky-note-discard"] .pdk-shell-dialog-icon .dashicons {
+	font-size: 30px;
+	height: 30px;
+	width: 30px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="sticky-note-discard"] .pdk-shell-dialog-title {
+	font-family: var(--pdk-font-ui);
+	font-size: 14px;
+	font-weight: var(--pdk-weight-bold);
+	line-height: 1.22;
+	text-align: left;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="sticky-note-discard"] .pdk-shell-dialog-message {
+	color: var(--pdk-dialog-ink);
+	font-size: 14px;
+	font-weight: var(--pdk-weight-regular);
+	line-height: 1.22;
+	text-align: left;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="sticky-note-discard"] .pdk-shell-choice-dialog-actions {
+	gap: 7px;
+	margin-top: 0;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="sticky-note-discard"] .pdk-shell-choice-dialog-button {
+	border-radius: 999px;
+	font-size: 14px;
+	font-weight: var(--pdk-weight-medium);
+	min-height: 32px;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"]:is(

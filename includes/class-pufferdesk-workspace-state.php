@@ -567,16 +567,44 @@ final class PufferDesk_Workspace_State {
 				continue;
 			}
 
+			$raw_note_state = isset( $note['state'] ) && is_array( $note['state'] ) ? $note['state'] : array();
+			$note_state     = $this->sanitize_rect_state(
+				$raw_note_state,
+				array(
+					'min_width'  => 180,
+					'min_height' => 140,
+					'z_index'    => true,
+				)
+			);
+			if ( isset( $raw_note_state['expandedHeight'] ) ) {
+				$expanded_height = $this->sanitize_number( $raw_note_state['expandedHeight'], 140, 5000 );
+				if ( null !== $expanded_height ) {
+					$note_state['expandedHeight'] = $expanded_height;
+				}
+			}
+			foreach (
+				array(
+					'restoreLeft'   => array( 0, 5000 ),
+					'restoreTop'    => array( 0, 5000 ),
+					'restoreWidth'  => array( 180, 5000 ),
+					'restoreHeight' => array( 140, 5000 ),
+				) as $restore_key => $limits
+			) {
+				if ( ! isset( $raw_note_state[ $restore_key ] ) ) {
+					continue;
+				}
+
+				$restore_value = $this->sanitize_number( $raw_note_state[ $restore_key ], $limits[0], $limits[1] );
+				if ( null !== $restore_value ) {
+					$note_state[ $restore_key ] = $restore_value;
+				}
+			}
+			$note_state['collapsed']  = ! empty( $raw_note_state['collapsed'] );
+			$note_state['fullscreen'] = ! empty( $raw_note_state['fullscreen'] );
+
 			$sanitized[] = array(
 				'id'    => $id,
-				'state' => $this->sanitize_rect_state(
-					isset( $note['state'] ) && is_array( $note['state'] ) ? $note['state'] : array(),
-					array(
-						'min_width'  => 180,
-						'min_height' => 140,
-						'z_index'    => true,
-					)
-				),
+				'state' => $note_state,
 			);
 			$seen[ $id ] = true;
 

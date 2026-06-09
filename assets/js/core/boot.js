@@ -114,9 +114,11 @@
 			},
 			storageKey: config.storageKey || ''
 		});
+		const dialogs = window.PufferDesk.shell.createShellDialogs(shell);
 		const documentStore = window.PufferDesk.documents.createDocumentStore(config);
 		const stickyNoteManager = window.PufferDesk.desktop.createStickyNoteManager(shell, {
 			config,
+			dialogs,
 			documentStore,
 			storageKey: config.storageKey || ''
 		});
@@ -126,7 +128,6 @@
 		if (typeof launcher.setFolderProvider === 'function') {
 			launcher.setFolderProvider(folderManager);
 		}
-		const dialogs = window.PufferDesk.shell.createShellDialogs(shell);
 		const commands = window.PufferDesk.shell.createCommandRegistry(shell, {
 			config,
 			dialogs,

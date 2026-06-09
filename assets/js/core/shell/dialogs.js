@@ -368,6 +368,100 @@
 			});
 		}
 
+		function choose(options = {}) {
+			closeActiveDialog();
+
+			return new Promise((resolve) => {
+				const title = options.title || '';
+				const message = options.message || '';
+				const actions = Array.isArray(options.actions) && options.actions.length
+					? options.actions
+					: [
+						{ id: 'cancel', label: 'Cancel', variant: 'cancel' }
+					];
+				const titleId = `pdk-shell-dialog-title-${Date.now()}`;
+				const messageId = `pdk-shell-dialog-message-${Date.now()}`;
+
+				const layer = document.createElement('div');
+				layer.className = 'pdk-shell-dialog-layer';
+
+				const dialog = document.createElement('div');
+				dialog.className = 'pdk-shell-dialog pdk-shell-choice-dialog';
+				applyDialogMetadata(layer, dialog, options, 'choice');
+				dialog.setAttribute('role', 'dialog');
+				dialog.setAttribute('aria-modal', 'true');
+				dialog.setAttribute('aria-labelledby', titleId);
+				dialog.setAttribute('aria-describedby', messageId);
+
+				if (options.icon) {
+					dialog.appendChild(createDialogIcon(options.icon));
+				}
+
+				const copy = document.createElement('div');
+				copy.className = 'pdk-shell-dialog-copy pdk-shell-choice-dialog-copy';
+
+				const titleElement = document.createElement('h2');
+				titleElement.className = 'pdk-shell-dialog-title';
+				titleElement.id = titleId;
+				titleElement.textContent = title;
+				copy.appendChild(titleElement);
+
+				const messageElement = document.createElement('p');
+				messageElement.className = 'pdk-shell-dialog-message';
+				messageElement.id = messageId;
+				messageElement.textContent = message;
+				messageElement.hidden = !message;
+				copy.appendChild(messageElement);
+
+				dialog.appendChild(copy);
+
+				const actionList = document.createElement('div');
+				actionList.className = 'pdk-shell-dialog-actions pdk-shell-choice-dialog-actions';
+				let initialFocusButton = null;
+
+				function finish(actionId) {
+					layer.removeEventListener('keydown', onKeyDown);
+					closeActiveDialog();
+					resolve(actionId);
+				}
+
+				function onKeyDown(event) {
+					if (event.key === 'Escape') {
+						event.preventDefault();
+						finish(options.cancelAction || 'cancel');
+					}
+				}
+
+				actions.forEach((action) => {
+					const actionId = action && action.id ? String(action.id) : '';
+					const label = action && action.label ? String(action.label) : actionId;
+					const variant = action && action.variant ? normalizeClassToken(action.variant, '') : '';
+					const button = createButton(label, `pdk-shell-dialog-button pdk-shell-choice-dialog-button${variant ? ` pdk-shell-dialog-button-${variant}` : ''}`);
+
+					button.addEventListener('click', () => finish(actionId));
+					actionList.appendChild(button);
+
+					if (!initialFocusButton || action.default === true) {
+						initialFocusButton = button;
+					}
+				});
+
+				layer.addEventListener('keydown', onKeyDown);
+				dialog.appendChild(actionList);
+				bindDialogDrag(layer, dialog);
+				layer.appendChild(dialog);
+				shell.appendChild(layer);
+				activeDialog = layer;
+
+				window.requestAnimationFrame(() => {
+					layer.classList.add('is-visible');
+					if (initialFocusButton) {
+						initialFocusButton.focus({ preventScroll: true });
+					}
+				});
+			});
+		}
+
 		function confirmActionDialog(options = {}, settings = {}) {
 			closeActiveDialog();
 
@@ -615,6 +709,7 @@
 		}
 
 		return {
+			choose,
 			confirm,
 			confirmActionDialog,
 			confirmTimedAction,
