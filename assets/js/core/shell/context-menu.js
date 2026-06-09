@@ -154,6 +154,120 @@
 			];
 		}
 
+		function getRedmondDesktopViewItems() {
+			return [
+				disabledItem(getLabel('large_icons', 'Large icons'), {
+					icon: 'dashicons-screenoptions',
+					id: 'desktop-view-large-icons'
+				}),
+				disabledItem(getLabel('medium_icons', 'Medium icons'), {
+					icon: 'dashicons-screenoptions',
+					id: 'desktop-view-medium-icons'
+				}),
+				disabledItem(getLabel('small_icons', 'Small icons'), {
+					icon: 'dashicons-screenoptions',
+					id: 'desktop-view-small-icons'
+				}),
+				separator(),
+				sortByItem(getLabel('sort_snap_to_grid', 'Snap to Grid'), 'snap-to-grid')
+			];
+		}
+
+		function getRedmondDesktopSortByItems() {
+			return [
+				sortByItem(getLabel('sort_name', 'Name'), 'name'),
+				sortByItem(getLabel('sort_size', 'Size'), 'size'),
+				sortByItem(getLabel('sort_kind', 'Kind'), 'kind'),
+				sortByItem(getLabel('sort_date_modified', 'Date Modified'), 'date-modified')
+			];
+		}
+
+		function getRedmondDesktopMenu() {
+			return {
+				groups: [
+					{
+						id: 'primary',
+						items: [
+							{
+								icon: 'dashicons-grid-view',
+								id: 'desktop-view',
+								items: getRedmondDesktopViewItems(),
+								label: getLabel('view', 'View')
+							},
+							{
+								icon: 'dashicons-sort',
+								id: 'desktop-sort-by',
+								items: getRedmondDesktopSortByItems(),
+								label: getLabel('sort_by_sentence', 'Sort by')
+							},
+							commandItem(getLabel('refresh', 'Refresh'), 'desktop.refresh', {
+								icon: 'dashicons-update',
+								id: 'desktop-refresh'
+							})
+						]
+					},
+					{
+						id: 'create',
+						items: [
+							{
+								icon: 'dashicons-plus-alt2',
+								id: 'desktop-new',
+								items: [
+									commandItem(getLabel('folder', 'Folder'), 'folder.create', {
+										icon: 'dashicons-category',
+										id: 'desktop-new-folder'
+									})
+								],
+								label: getLabel('new', 'New')
+							}
+						]
+					},
+					{
+						id: 'display',
+						items: [
+							commandItem(getLabel('explore_background', 'Explore background'), 'settings.open-panel', {
+								icon: 'dashicons-format-image',
+								id: 'desktop-explore-background',
+								panel: 'wallpaper'
+							}),
+							disabledItem(getLabel('next_background', 'Next background'), {
+								icon: 'dashicons-format-gallery',
+								id: 'desktop-next-background'
+							}),
+							commandItem(getLabel('display_settings', 'Display settings'), 'settings.open-panel', {
+								icon: 'dashicons-desktop',
+								id: 'desktop-display-settings',
+								panel: 'desktop-dock'
+							}),
+							commandItem(getLabel('personalize', 'Personalize'), 'settings.open-panel', {
+								icon: 'dashicons-edit',
+								id: 'desktop-personalize',
+								panel: 'appearance'
+							})
+						]
+					},
+					{
+						id: 'system',
+						items: [
+							disabledItem(getLabel('open_in_terminal', 'Open in Terminal'), {
+								icon: 'dashicons-editor-code',
+								id: 'desktop-open-terminal'
+							})
+						]
+					},
+					{
+						id: 'legacy',
+						items: [
+							disabledItem(getLabel('show_more_options', 'Show more options'), {
+								icon: 'dashicons-external',
+								id: 'desktop-show-more-options'
+							})
+						]
+					}
+				]
+			};
+		}
+
 		function getFolderToolbarDisplayMode(detail = {}) {
 			const mode = detail.windowElement && detail.windowElement.dataset
 				? detail.windowElement.dataset.pdkFolderToolbarDisplay
@@ -507,37 +621,43 @@
 			return normalizeMenu(provider(detail), detail);
 		}
 
-		registerProvider('desktop', () => ({
-			groups: [
-				{
-					id: 'primary',
-					items: [
-						commandItem(getLabel('new_folder', 'New Folder'), 'folder.create', {
-							icon: 'dashicons-category'
-						}),
-						{
-							icon: 'dashicons-sort',
-							id: 'sort-by',
-							items: getSortByItems(),
-							label: getLabel('sort_by', 'Sort By')
-						},
-						separator(),
-						commandItem(getLabel('change_wallpaper', 'Change Wallpaper...'), 'settings.open-panel', {
-							icon: 'dashicons-format-image',
-							panel: 'wallpaper'
-						}),
-						commandItem(getLabel('system_settings', 'System Settings...'), 'open-app', {
-							icon: 'dashicons-admin-customizer',
-							target: 'os-settings'
-						}),
-						separator(),
-						commandItem(getLabel('reset_layout', 'Reset Layout'), 'session.reset-layout', {
-							icon: 'dashicons-update'
-						})
-					]
-				}
-			]
-		}));
+		registerProvider('desktop', () => {
+			if (isRedmondFamily()) {
+				return getRedmondDesktopMenu();
+			}
+
+			return {
+				groups: [
+					{
+						id: 'primary',
+						items: [
+							commandItem(getLabel('new_folder', 'New Folder'), 'folder.create', {
+								icon: 'dashicons-category'
+							}),
+							{
+								icon: 'dashicons-sort',
+								id: 'sort-by',
+								items: getSortByItems(),
+								label: getLabel('sort_by', 'Sort By')
+							},
+							separator(),
+							commandItem(getLabel('change_wallpaper', 'Change Wallpaper...'), 'settings.open-panel', {
+								icon: 'dashicons-format-image',
+								panel: 'wallpaper'
+							}),
+							commandItem(getLabel('system_settings', 'System Settings...'), 'open-app', {
+								icon: 'dashicons-admin-customizer',
+								target: 'os-settings'
+							}),
+							separator(),
+							commandItem(getLabel('reset_layout', 'Reset Layout'), 'session.reset-layout', {
+								icon: 'dashicons-update'
+							})
+						]
+					}
+				]
+			};
+		});
 
 		registerProvider('app', (detail) => ({
 			groups: [

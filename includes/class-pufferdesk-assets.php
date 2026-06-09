@@ -846,7 +846,7 @@ final class PufferDesk_Assets {
 			);
 		}
 
-		return array(
+		$labels = array(
 			'status'       => array(
 				'saving'                 => __( 'Saving...', 'pufferdesk-admin-desktop' ),
 				'removing'               => __( 'Removing...', 'pufferdesk-admin-desktop' ),
@@ -1136,6 +1136,51 @@ final class PufferDesk_Assets {
 				'eraseDescription'   => __( 'Reset PufferDesk preferences, wallpaper, apps, windows, widgets, and layout for this account.', 'pufferdesk-admin-desktop' ),
 			),
 		);
+
+		$theme_settings = isset( $theme['settings'] ) && is_array( $theme['settings'] ) ? $theme['settings'] : array();
+		$theme_labels   = isset( $theme_settings['labels'] ) && is_array( $theme_settings['labels'] ) ? $theme_settings['labels'] : array();
+
+		return $this->merge_settings_labels( $labels, $theme_labels );
+	}
+
+	/**
+	 * Merge theme-provided Settings labels into localized defaults.
+	 *
+	 * Numeric arrays are replaced so ordered option and sidebar item lists remain intentional.
+	 *
+	 * @param array<string,mixed> $defaults Default labels.
+	 * @param array<string,mixed> $overrides Theme label overrides.
+	 * @return array<string,mixed>
+	 */
+	private function merge_settings_labels( $defaults, $overrides ) {
+		if ( empty( $overrides ) || ! is_array( $overrides ) ) {
+			return $defaults;
+		}
+
+		foreach ( $overrides as $key => $value ) {
+			if ( is_array( $value ) && isset( $defaults[ $key ] ) && is_array( $defaults[ $key ] ) && ! $this->is_list_array( $value ) && ! $this->is_list_array( $defaults[ $key ] ) ) {
+				$defaults[ $key ] = $this->merge_settings_labels( $defaults[ $key ], $value );
+				continue;
+			}
+
+			$defaults[ $key ] = $value;
+		}
+
+		return $defaults;
+	}
+
+	/**
+	 * Determine whether an array uses sequential numeric keys.
+	 *
+	 * @param array<mixed> $value Array to inspect.
+	 * @return bool
+	 */
+	private function is_list_array( $value ) {
+		if ( array() === $value ) {
+			return true;
+		}
+
+		return array_keys( $value ) === range( 0, count( $value ) - 1 );
 	}
 
 	/**
@@ -1518,6 +1563,7 @@ final class PufferDesk_Assets {
 				'folder'                  => __( 'Folder', 'pufferdesk-admin-desktop' ),
 				'folder_suffix'           => __( 'Folder', 'pufferdesk-admin-desktop' ),
 				'untitled_folder'         => __( 'untitled folder', 'pufferdesk-admin-desktop' ),
+				'new'                     => __( 'New', 'pufferdesk-admin-desktop' ),
 				'new_folder'              => __( 'New Folder', 'pufferdesk-admin-desktop' ),
 				'get_info'                => __( 'Get Info', 'pufferdesk-admin-desktop' ),
 				'cancel'                  => __( 'Cancel', 'pufferdesk-admin-desktop' ),
@@ -1564,6 +1610,7 @@ final class PufferDesk_Assets {
 				'paste'                   => __( 'Paste', 'pufferdesk-admin-desktop' ),
 				'select_all'              => __( 'Select All', 'pufferdesk-admin-desktop' ),
 				'sort_by'                 => __( 'Sort By', 'pufferdesk-admin-desktop' ),
+				'sort_by_sentence'        => __( 'Sort by', 'pufferdesk-admin-desktop' ),
 				'sort_name'               => __( 'Name', 'pufferdesk-admin-desktop' ),
 				'sort_kind'               => __( 'Kind', 'pufferdesk-admin-desktop' ),
 				'sort_snap_to_grid'       => __( 'Snap to Grid', 'pufferdesk-admin-desktop' ),
@@ -1593,6 +1640,10 @@ final class PufferDesk_Assets {
 				'reset_layout'            => __( 'Reset Layout', 'pufferdesk-admin-desktop' ),
 				'refresh'                 => __( 'Refresh', 'pufferdesk-admin-desktop' ),
 				'change_wallpaper'        => __( 'Change Wallpaper...', 'pufferdesk-admin-desktop' ),
+				'explore_background'      => __( 'Explore background', 'pufferdesk-admin-desktop' ),
+				'next_background'         => __( 'Next background', 'pufferdesk-admin-desktop' ),
+				'display_settings'        => __( 'Display settings', 'pufferdesk-admin-desktop' ),
+				'personalize'             => __( 'Personalize', 'pufferdesk-admin-desktop' ),
 				'back'                    => __( 'Back', 'pufferdesk-admin-desktop' ),
 				'forward'                 => __( 'Forward', 'pufferdesk-admin-desktop' ),
 					'reload'                  => __( 'Reload', 'pufferdesk-admin-desktop' ),

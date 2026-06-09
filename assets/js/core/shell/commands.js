@@ -584,6 +584,23 @@
 			window.location.reload();
 		}
 
+		function refreshDesktop() {
+			if (appSurfaceManager && typeof appSurfaceManager.render === 'function') {
+				appSurfaceManager.render(config.appLocations || {});
+				return;
+			}
+
+			if (folderManager && typeof folderManager.syncDesktopAppVisibility === 'function') {
+				folderManager.syncDesktopAppVisibility();
+			}
+			if (folderManager && typeof folderManager.syncTrashSurfaceState === 'function') {
+				folderManager.syncTrashSurfaceState();
+			}
+			if (desktopIconManager && typeof desktopIconManager.rebind === 'function') {
+				desktopIconManager.rebind();
+			}
+		}
+
 		async function confirmAction(actionConfig) {
 			if (dialogs && typeof dialogs.confirmTimedAction === 'function') {
 				return dialogs.confirmTimedAction(actionConfig);
@@ -764,6 +781,15 @@
 			},
 			run(payload, detail) {
 				launcher.refreshFolderWindow(getFolderIdFromPayload(payload, detail));
+			}
+		});
+
+		register('desktop.refresh', {
+			isEnabled() {
+				return Boolean(appSurfaceManager || folderManager || desktopIconManager);
+			},
+			run() {
+				refreshDesktop();
 			}
 		});
 

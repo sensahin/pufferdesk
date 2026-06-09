@@ -322,6 +322,91 @@ final class PufferDesk_Theme_Registry {
 					'settings' => 'windows-settings',
 					'folder'   => 'file-explorer',
 				),
+				'settings'       => array(
+					'labels' => array(
+						'appTitle'     => __( 'Settings', 'pufferdesk-admin-desktop' ),
+						'sidebar'      => array(
+							'searchPlaceholder' => __( 'Find a setting', 'pufferdesk-admin-desktop' ),
+							'searchLabel'       => __( 'Find a setting', 'pufferdesk-admin-desktop' ),
+							'items'             => array(
+								array(
+									'id'    => 'general',
+									'label' => __( 'Home', 'pufferdesk-admin-desktop' ),
+									'icon'  => 'dashicons-admin-home',
+									'tone'  => 'orange',
+								),
+								array(
+									'id'    => 'desktop-dock',
+									'label' => __( 'System', 'pufferdesk-admin-desktop' ),
+									'icon'  => 'dashicons-desktop',
+									'tone'  => 'cyan',
+								),
+								array(
+									'id'    => 'appearance',
+									'label' => __( 'Personalization', 'pufferdesk-admin-desktop' ),
+									'icon'  => 'dashicons-admin-appearance',
+									'tone'  => 'orange',
+								),
+								array(
+									'id'    => 'apps',
+									'label' => __( 'Apps', 'pufferdesk-admin-desktop' ),
+									'icon'  => 'dashicons-grid-view',
+									'tone'  => 'blue',
+								),
+								array(
+									'id'    => 'profile',
+									'label' => __( 'Accounts', 'pufferdesk-admin-desktop' ),
+									'icon'  => 'dashicons-admin-users',
+									'tone'  => 'green',
+								),
+								array(
+									'id'    => 'wallpaper',
+									'label' => __( 'Background', 'pufferdesk-admin-desktop' ),
+									'icon'  => 'dashicons-format-image',
+									'tone'  => 'blue',
+								),
+								array(
+									'id'    => 'widgets',
+									'label' => __( 'Widgets', 'pufferdesk-admin-desktop' ),
+									'icon'  => 'dashicons-screenoptions',
+									'tone'  => 'purple',
+								),
+								array(
+									'id'    => 'workspace',
+									'label' => __( 'Workspace', 'pufferdesk-admin-desktop' ),
+									'icon'  => 'dashicons-layout',
+									'tone'  => 'indigo',
+								),
+								array(
+									'id'    => 'system',
+									'label' => __( 'Recovery', 'pufferdesk-admin-desktop' ),
+									'icon'  => 'dashicons-admin-tools',
+									'tone'  => 'gray',
+								),
+							),
+						),
+						'profile'      => array(
+							'sectionLabel' => __( 'Accounts', 'pufferdesk-admin-desktop' ),
+						),
+						'generalPanel' => array(
+							'title'       => __( 'Home', 'pufferdesk-admin-desktop' ),
+							'description' => '',
+						),
+						'appearance'   => array(
+							'title'         => __( 'Personalization', 'pufferdesk-admin-desktop' ),
+							'themeHeading'  => __( 'Themes', 'pufferdesk-admin-desktop' ),
+							'materialLabel' => __( 'Transparency effects', 'pufferdesk-admin-desktop' ),
+						),
+						'desktopDock'  => array(
+							'headings' => array(
+								'dock'    => __( 'Taskbar', 'pufferdesk-admin-desktop' ),
+								'apps'    => __( 'Installed apps', 'pufferdesk-admin-desktop' ),
+								'desktop' => __( 'Desktop', 'pufferdesk-admin-desktop' ),
+								'widgets' => __( 'Widgets', 'pufferdesk-admin-desktop' ),
+							),
+						),
+					),
+				),
 				'window_chrome'  => array(
 					'controls' => array(
 						'placement' => 'right',
@@ -450,6 +535,7 @@ final class PufferDesk_Theme_Registry {
 				'typography'    => $resolved['typography'],
 				'shell'         => $resolved['shell'],
 				'surfaces'      => $resolved['surfaces'],
+				'settings'      => $resolved['settings'],
 				'window_chrome' => $resolved['window_chrome'],
 				'internal'      => ! empty( $resolved['internal'] ),
 			);
@@ -494,6 +580,7 @@ final class PufferDesk_Theme_Registry {
 				'typography'     => $this->normalize_typography_config( isset( $theme['typography'] ) ? $theme['typography'] : array() ),
 				'shell'          => $this->normalize_shell_config( isset( $theme['shell'] ) ? $theme['shell'] : array() ),
 				'surfaces'       => $this->normalize_surface_config( isset( $theme['surfaces'] ) ? $theme['surfaces'] : array() ),
+				'settings'       => $this->normalize_settings_config( isset( $theme['settings'] ) ? $theme['settings'] : array() ),
 				'window_chrome'  => $this->normalize_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() ),
 				'abstract'       => ! empty( $theme['abstract'] ),
 				'internal'       => ! empty( $theme['internal'] ),
@@ -523,6 +610,7 @@ final class PufferDesk_Theme_Registry {
 			$theme['typography']       = $this->complete_typography_config( $theme['typography'] );
 			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
 			$theme['surfaces']         = $this->complete_surface_config( $theme['surfaces'] );
+			$theme['settings']         = $this->complete_settings_config( $theme['settings'] );
 			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
 			return $theme;
 		}
@@ -535,6 +623,7 @@ final class PufferDesk_Theme_Registry {
 			$theme['typography']       = $this->complete_typography_config( $theme['typography'] );
 			$theme['shell']            = $this->complete_shell_config( $theme['shell'] );
 			$theme['surfaces']         = $this->complete_surface_config( $theme['surfaces'] );
+			$theme['settings']         = $this->complete_settings_config( $theme['settings'] );
 			$theme['window_chrome']    = $this->complete_window_chrome_config( $theme['window_chrome'] );
 			return $theme;
 		}
@@ -547,6 +636,7 @@ final class PufferDesk_Theme_Registry {
 		$theme['typography']       = $this->complete_typography_config( $this->merge_theme_config( $parent['typography'], $theme['typography'] ) );
 		$theme['shell']            = $this->complete_shell_config( $this->merge_theme_config( $parent['shell'], $theme['shell'] ) );
 		$theme['surfaces']         = $this->complete_surface_config( $this->merge_theme_config( $parent['surfaces'], $theme['surfaces'] ) );
+		$theme['settings']         = $this->complete_settings_config( $this->merge_theme_config( $parent['settings'], $theme['settings'] ) );
 		$theme['window_chrome']    = $this->complete_window_chrome_config( $this->merge_theme_config( $parent['window_chrome'], $theme['window_chrome'] ) );
 		$theme['stylesheet_stack']  = array_values( array_unique( array_merge( $parent['stylesheet_stack'], $theme['stylesheets'] ) ) );
 		$theme['ancestors']         = array_merge( $parent['ancestors'], array( $parent['id'] ) );
@@ -1108,6 +1198,56 @@ final class PufferDesk_Theme_Registry {
 	}
 
 	/**
+	 * Normalize native settings app theme metadata.
+	 *
+	 * @param mixed $settings Raw settings metadata.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_settings_config( $settings ) {
+		if ( ! is_array( $settings ) ) {
+			return array();
+		}
+
+		$normalized = array();
+		if ( isset( $settings['labels'] ) && is_array( $settings['labels'] ) ) {
+			$normalized['labels'] = $this->normalize_label_config( $settings['labels'] );
+		}
+
+		return $normalized;
+	}
+
+	/**
+	 * Normalize nested label config while preserving camelCase keys used by JS.
+	 *
+	 * @param mixed $config Raw label config.
+	 * @return mixed
+	 */
+	private function normalize_label_config( $config ) {
+		if ( is_scalar( $config ) ) {
+			return sanitize_text_field( (string) $config );
+		}
+
+		if ( ! is_array( $config ) ) {
+			return null;
+		}
+
+		$normalized = array();
+		foreach ( $config as $key => $value ) {
+			$normalized_key = is_int( $key ) ? $key : preg_replace( '/[^A-Za-z0-9_-]/', '', (string) $key );
+			if ( '' === (string) $normalized_key ) {
+				continue;
+			}
+
+			$normalized_value = $this->normalize_label_config( $value );
+			if ( null !== $normalized_value && '' !== $normalized_value ) {
+				$normalized[ $normalized_key ] = $normalized_value;
+			}
+		}
+
+		return $normalized;
+	}
+
+	/**
 	 * Normalize a theme window chrome contract.
 	 *
 	 * @param mixed $window_chrome Raw window chrome config.
@@ -1223,6 +1363,16 @@ final class PufferDesk_Theme_Registry {
 			$this->get_default_surface_config(),
 			is_array( $surfaces ) ? $surfaces : array()
 		);
+	}
+
+	/**
+	 * Apply defaults to a settings metadata config.
+	 *
+	 * @param mixed $settings Settings metadata config.
+	 * @return array<string,mixed>
+	 */
+	private function complete_settings_config( $settings ) {
+		return is_array( $settings ) ? $settings : array();
 	}
 
 	/**

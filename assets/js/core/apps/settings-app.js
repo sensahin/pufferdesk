@@ -133,6 +133,32 @@
 			}
 		}
 
+		function goBackInSettingsHistory() {
+			const previousPanel = panelHistory.pop();
+			if (!previousPanel) {
+				updateHistoryControls();
+				return;
+			}
+
+			panelForwardHistory.push(activePanel);
+			showSettingsPanel(previousPanel, {
+				clearForward: false
+			});
+		}
+
+		function goForwardInSettingsHistory() {
+			const nextPanel = panelForwardHistory.pop();
+			if (!nextPanel) {
+				updateHistoryControls();
+				return;
+			}
+
+			showSettingsPanel(nextPanel, {
+				clearForward: false,
+				pushHistory: true
+			});
+		}
+
 		function showSettingsPanel(panelId, options = {}) {
 			const panel = (settingsRoot || document).querySelector(`[data-pdk-settings-panel="${panelId}"]`);
 			if (!panel) {
@@ -1615,6 +1641,21 @@
 			return sidebar;
 		}
 
+		function createWindowsTitlebarBackButton() {
+			const button = document.createElement('button');
+
+			button.type = 'button';
+			button.className = 'pdk-settings-titlebar-back';
+			button.disabled = true;
+			button.dataset.pdkNoDrag = '';
+			button.setAttribute('aria-label', t('history.back', 'Back'));
+			button.appendChild(dom.createElement('span', 'pdk-settings-titlebar-back-chevron'));
+			button.addEventListener('click', goBackInSettingsHistory);
+			backButton = button;
+
+			return button;
+		}
+
 		function createPaneHeader(title) {
 			const header = dom.createElement('header', 'pdk-settings-pane-header');
 			const history = dom.createElement('div', 'pdk-settings-history');
@@ -1632,26 +1673,10 @@
 					button.appendChild(dom.createElement('span', 'pdk-settings-history-chevron'));
 					if (direction === 'back') {
 						backButton = button;
-						button.addEventListener('click', () => {
-							const previousPanel = panelHistory.pop();
-							if (previousPanel) {
-								panelForwardHistory.push(activePanel);
-								showSettingsPanel(previousPanel, {
-									clearForward: false
-								});
-							}
-						});
+						button.addEventListener('click', goBackInSettingsHistory);
 					} else {
 						forwardButton = button;
-						button.addEventListener('click', () => {
-							const nextPanel = panelForwardHistory.pop();
-							if (nextPanel) {
-								showSettingsPanel(nextPanel, {
-									clearForward: false,
-									pushHistory: true
-								});
-							}
-						});
+						button.addEventListener('click', goForwardInSettingsHistory);
 					}
 					history.appendChild(button);
 				});
@@ -1757,6 +1782,9 @@
 		main.appendChild(createPaneHeader(t('generalPanel.title', 'General')));
 		main.appendChild(pane);
 		content.appendChild(createSettingsSidebar());
+		if (isWindowsSettingsLayout) {
+			content.appendChild(createWindowsTitlebarBackButton());
+		}
 		content.appendChild(main);
 		syncAppearanceControls();
 		syncDesktopDockControls();
@@ -1782,15 +1810,19 @@
 		window.PufferDesk.apps.registerNativeAppRenderer('settings', ({ config }) => {
 			const layout = getSettingsLayout(config);
 			const isWindowsLayout = layout === 'windows-settings';
+			const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
+			const labels = settingsConfig.labels && typeof settingsConfig.labels === 'object' ? settingsConfig.labels : {};
+			const appTitle = typeof labels.appTitle === 'string' && labels.appTitle ? labels.appTitle : 'Settings';
 
 			return {
 				bodyClass: `pdk-window-body pdk-settings-body${isWindowsLayout ? ' pdk-settings-windows-body' : ''}`,
 				contextMenu: false,
 				content: window.PufferDesk.apps.createSettingsApp({ config }),
-				height: isWindowsLayout ? '650px' : '680px',
+				height: isWindowsLayout ? '760px' : '680px',
 				resizeMode: isWindowsLayout ? 'both' : 'vertical',
 				surfaceLayout: layout,
-				width: isWindowsLayout ? '920px' : '725px'
+				titlebarLabel: isWindowsLayout ? appTitle : '',
+				width: isWindowsLayout ? '1024px' : '725px'
 			};
 		});
 	}
