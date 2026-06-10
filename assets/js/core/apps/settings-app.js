@@ -1637,6 +1637,7 @@
 				getThemeOptionLabel,
 				getUserProfile,
 				getWallpaperGroup,
+				mutations,
 				saveTheme,
 				settingsLabels,
 				status,
@@ -1650,6 +1651,7 @@
 			pane.appendChild(settingsPanels.createAppearancePanel(panelContext));
 			pane.appendChild(settingsPanels.createDesktopDockPanel(panelContext));
 			pane.appendChild(settingsPanels.createMenuBarPanel(panelContext));
+			pane.appendChild(settingsPanels.createNotificationsPanel(panelContext));
 			pane.appendChild(settingsPanels.createWallpaperPanel(panelContext));
 			pane.appendChild(settingsPanels.createWidgetsPanel(panelContext));
 			pane.appendChild(settingsPanels.createAppsPanel(panelContext));

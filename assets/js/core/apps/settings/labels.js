@@ -147,6 +147,41 @@
 				]
 			}
 		},
+		notifications: {
+			description: 'Choose which WordPress and PufferDesk events appear in Notification Center.',
+			headings: {
+				behavior: 'Behavior',
+				sources: 'Sources'
+			},
+			historyOptions: [
+				{ value: '7', label: '7 days' },
+				{ value: '30', label: '30 days' },
+				{ value: '90', label: '90 days' }
+			],
+			rows: {
+				enabled: 'Enable notifications',
+				historyDays: 'Keep history',
+				playSound: 'Play sound',
+				quietMode: 'Quiet mode',
+				quietModeDescription: 'Keep notifications in Notification Center without showing banners.',
+				severity: 'Show',
+				showBadges: 'Show notification badges',
+				showToasts: 'Show notification banners'
+			},
+			severityOptions: [
+				{ value: 'all', label: 'All notifications' },
+				{ value: 'warnings', label: 'Warnings and critical alerts' },
+				{ value: 'critical', label: 'Critical alerts only' }
+			],
+			sourceLabels: {
+				apps: 'Apps and plugins',
+				comments: 'Comments',
+				pufferdesk: 'PufferDesk system',
+				site_health: 'Site Health',
+				wordpress_updates: 'WordPress updates'
+			},
+			title: 'Notifications'
+		},
 		profile: {
 			defaultName: 'Admin',
 			defaultRole: 'WordPress User',
@@ -166,6 +201,7 @@
 				{ id: 'appearance', label: 'Appearance', icon: 'dashicons-admin-appearance', tone: 'blue' },
 				{ id: 'desktop-dock', label: 'Desktop & Dock', icon: 'dashicons-desktop', tone: 'indigo' },
 				{ id: 'menu-bar', label: 'Menu Bar', icon: 'dashicons-menu-alt3', tone: 'gray' },
+				{ id: 'notifications', label: 'Notifications', icon: 'dashicons-bell', tone: 'blue' },
 				{ id: 'wallpaper', label: 'Wallpaper', icon: 'dashicons-format-image', tone: 'cyan' },
 				{ id: 'widgets', label: 'Widgets', icon: 'dashicons-screenoptions', tone: 'green' },
 				{ id: 'apps', label: 'Apps', icon: 'dashicons-grid-view', tone: 'purple' },
@@ -187,6 +223,8 @@
 			loginItemsSaved: 'Login items saved.',
 			mediaUnavailable: 'Media Library is not available for this user.',
 			menuBarSaveError: 'Menu Bar could not be saved.',
+			notificationsSaveError: 'Notifications could not be saved.',
+			notificationsSaved: 'Notifications saved.',
 			photoRemoveError: 'Photo could not be removed.',
 			photoRemoved: 'Photo removed.',
 			removing: 'Removing...',

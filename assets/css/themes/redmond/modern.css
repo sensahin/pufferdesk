@@ -168,6 +168,30 @@
 	--pdk-redmond-settings-titlebar-back-disabled: var(--pdk-settings-titlebar-back-disabled);
 	--pdk-folder-icon-filter: none;
 	--pdk-folder-icon-opacity: 1;
+	--pdk-notification-button-size: 32px;
+	--pdk-notification-button-radius: 4px;
+	--pdk-notification-button-hover-bg: var(--pdk-redmond-taskbar-hover-bg);
+	--pdk-notification-button-hover-ink: var(--pdk-menu-ink);
+	--pdk-notification-center-bg: rgb(248 248 248 / 0.96);
+	--pdk-notification-center-border: rgb(198 198 198);
+	--pdk-notification-center-bottom: calc(var(--pdk-dock-item-size, 48px) + 10px);
+	--pdk-notification-center-filter: blur(18px) saturate(130%);
+	--pdk-notification-center-radius: 8px;
+	--pdk-notification-center-shadow: 0 24px 70px rgb(0 0 0 / 0.24);
+	--pdk-notification-center-width: 410px;
+	--pdk-notification-control-hover-bg: rgb(232 232 232);
+	--pdk-notification-divider: rgb(218 218 218);
+	--pdk-notification-item-bg: rgb(255 255 255 / 0.9);
+	--pdk-notification-item-border: rgb(218 218 218);
+	--pdk-notification-item-radius: 4px;
+	--pdk-notification-item-unread-bg: rgb(243 248 255);
+	--pdk-notification-list-gap: 8px;
+	--pdk-notification-toast-bg: rgb(248 248 248 / 0.96);
+	--pdk-notification-toast-border: rgb(198 198 198);
+	--pdk-notification-toast-bottom: calc(var(--pdk-dock-item-size, 48px) + 14px);
+	--pdk-notification-toast-filter: blur(18px) saturate(130%);
+	--pdk-notification-toast-radius: 8px;
+	--pdk-notification-toast-shadow: 0 18px 46px rgb(0 0 0 / 0.22);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] {
@@ -221,6 +245,19 @@
 	--pdk-redmond-sticky-app-search-bg: rgb(66 66 66);
 	--pdk-redmond-sticky-app-search-ink: rgb(238 238 238);
 	--pdk-redmond-sticky-app-search-placeholder: rgb(238 238 238 / 0.62);
+	--pdk-notification-center-bg: rgb(32 32 32 / 0.96);
+	--pdk-notification-center-border: rgb(68 68 68);
+	--pdk-notification-center-ink: rgb(244 244 244);
+	--pdk-notification-control-hover-bg: rgb(56 56 56);
+	--pdk-notification-divider: rgb(58 58 58);
+	--pdk-notification-item-bg: rgb(42 42 42 / 0.92);
+	--pdk-notification-item-border: rgb(64 64 64);
+	--pdk-notification-item-unread-bg: rgb(48 54 64);
+	--pdk-notification-message-ink: rgb(220 220 220);
+	--pdk-notification-muted: rgb(220 220 220 / 0.62);
+	--pdk-notification-toast-bg: rgb(32 32 32 / 0.96);
+	--pdk-notification-toast-border: rgb(68 68 68);
+	--pdk-notification-toast-ink: rgb(244 244 244);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note {

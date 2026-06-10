@@ -186,4 +186,22 @@ if ( $pufferdesk_shell_style ) {
 		)
 	);
 	?>
+	<section class="pdk-notification-center" data-pdk-notification-center hidden aria-label="<?php esc_attr_e( 'Notification Center', 'pufferdesk-admin-desktop' ); ?>">
+		<header class="pdk-notification-center-header">
+			<h2><?php esc_html_e( 'Notification Center', 'pufferdesk-admin-desktop' ); ?></h2>
+			<div class="pdk-notification-center-actions">
+				<button type="button" class="pdk-notification-center-refresh" data-pdk-notification-refresh aria-label="<?php esc_attr_e( 'Refresh notifications', 'pufferdesk-admin-desktop' ); ?>">
+					<span class="dashicons dashicons-update" aria-hidden="true"></span>
+				</button>
+				<button type="button" class="pdk-notification-center-close" data-pdk-notification-close aria-label="<?php esc_attr_e( 'Close notifications', 'pufferdesk-admin-desktop' ); ?>">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+		</header>
+		<div class="pdk-notification-center-toolbar">
+			<button type="button" data-pdk-notification-mark-all-read><?php esc_html_e( 'Mark All as Read', 'pufferdesk-admin-desktop' ); ?></button>
+		</div>
+		<div class="pdk-notification-list" data-pdk-notification-list></div>
+	</section>
+	<div class="pdk-notification-toasts" data-pdk-notification-toasts aria-live="polite" aria-atomic="false"></div>
 </div>

@@ -213,6 +213,16 @@
 					if (window.console && typeof window.console.error === 'function') {
 						window.console.error('PufferDesk command failed.', error);
 					}
+					if (window.PufferDesk.notificationStore && typeof window.PufferDesk.notificationStore.notify === 'function') {
+						window.PufferDesk.notificationStore.notify({
+							message: error && error.message ? error.message : 'The command could not be completed.',
+							source: 'pufferdesk',
+							sourceLabel: 'PufferDesk',
+							title: 'PufferDesk command failed.',
+							toast: true,
+							type: 'error'
+						});
+					}
 				});
 			}
 			return true;

@@ -73,6 +73,9 @@ PHP services in `includes/`:
 - `class-pufferdesk-workspace-state.php`: per-user/per-site/per-theme workspace layout persistence and sanitization.
 - `class-pufferdesk-shell-context.php`: shared resolved shell state for templates and runtime config.
 - `class-pufferdesk-runtime-config.php`: browser runtime payload, menu labels, settings labels, and system actions.
+- `class-pufferdesk-notification-normalizer.php`: canonical notification descriptor normalization.
+- `class-pufferdesk-notification-registry.php`: notification providers, user read/dismiss state, source/severity filtering, and client config.
+- `class-pufferdesk-notification-controller.php`: AJAX notification refresh, read, dismiss, and mark-all-read actions.
 - `class-pufferdesk-settings-registry.php`: settings domain metadata, AJAX actions, defaults, reset domains, and panel ownership.
 - `class-pufferdesk-asset-manifest.php`: source/dist asset manifest reader for enqueue order.
 - `class-pufferdesk-assets.php`: CSS/JS registration, enqueueing, and admin chrome classes.
@@ -98,6 +101,7 @@ CSS:
 - `assets/css/core/shell.css`: global shell variables, menu bar, shared primitives.
 - `assets/css/core/context-menu.css`: right-click context menu positioning on top of shared menu primitives.
 - `assets/css/core/tooltips.css`: shared tooltip primitive, placement, visibility, and transition behavior.
+- `assets/css/core/notifications.css`: shared notification button, center, list, item, and toast layout.
 - `assets/css/core/desktop.css`: desktop and desktop icons.
 - `assets/css/core/widgets.css`: desktop widgets.
 - `assets/css/core/windows.css`: reusable window chrome.
@@ -126,6 +130,7 @@ JavaScript:
 - `assets/js/core/preferences/`: appearance, wallpaper, launcher, and menu bar preference appliers.
 - `assets/js/core/windows/`: windows, titlebar actions, shared resize handles, window factory, window state serialization.
 - `assets/js/core/widgets/`: widget binding, live updates, widget layout persistence.
+- `assets/js/core/notifications/`: notification store, toast presenter, notification center binding, read/dismiss state, and system error notifications.
 - `assets/js/core/apps/`: app launcher, reusable app surfaces such as about windows, and native apps.
 - `assets/js/core/apps/app-badges.js`: shared browser app badge normalization, ARIA labels, and badge element rendering.
 - `assets/js/core/apps/app-preferences.js`: shared app location and login-item normalization, optimistic persistence, rollback, and endpoint actions.
@@ -166,6 +171,13 @@ Apps:
 - Keep the System Settings Apps panel aligned with app location and login-item preferences. It must use `assets/js/core/apps/app-preferences.js`, the existing app preference endpoints, and fixed launcher metadata.
 - The fixed PufferDesk mark opens the system menu. Do not wire it directly to an app; system-menu items belong in the `menu.system` runtime definition.
 - Keep app IDs stable. Layout/session behavior depends on stable IDs.
+
+Notifications:
+
+- Use `PufferDesk_Notification_Registry` plus the `pufferdesk_notifications` filter for server-provided notifications. Providers should return normalized descriptors with stable `id`, `source`, `type`, `title`, optional `message`, `timestamp`, `priority`, `capability`, `actions`, `persistence`, `icon`, and `toast`.
+- Browser code should use `window.PufferDesk.desktopApi.notifications` or `window.PufferDesk.notificationStore` for transient runtime notifications, read/dismiss state, and refresh behavior. Do not create one-off toast implementations.
+- Notification settings live in the `notifications` settings domain and `PufferDesk_User_Preferences::META_NOTIFICATIONS`. Source toggles, severity, badges, toasts, and quiet mode should flow through this domain.
+- Core CSS owns notification structure in `assets/css/core/notifications.css`; theme CSS owns visual variables for the notification button, center, items, and toasts.
 
 Menus:
 
@@ -266,6 +278,7 @@ Settings:
 
 - Settings domains are described by `PufferDesk_Settings_Registry`. Keep domain IDs, AJAX action names, user meta keys, and reset domain IDs stable.
 - Existing preference handlers may keep their current payload shape, but new settings domains should declare capability, default, reset behavior, sanitizer owner, and panel ownership in the registry before adding UI.
+- The `notifications` domain owns notification source toggles, severity, toast/badge visibility, quiet mode, sound preference, and history retention preference.
 - Use the `pufferdesk_settings_domains` filter only to add or describe compatible domains; do not use it to mutate existing core contracts in a way that breaks saved preferences.
 
 ## WordPress Coding Standards

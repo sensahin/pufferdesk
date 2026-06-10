@@ -141,6 +141,12 @@ if ( $pufferdesk_show_search ) {
 	<span class="pdk-dock-end-anchor" data-pdk-launcher-end-anchor aria-hidden="true"></span>
 	<?php if ( $pufferdesk_show_status ) : ?>
 		<div class="pdk-taskbar-status" aria-label="<?php esc_attr_e( 'Status', 'pufferdesk-admin-desktop' ); ?>">
+			<button type="button" class="pdk-notification-button pdk-taskbar-notification-button" data-pdk-notification-toggle aria-label="<?php esc_attr_e( 'Open Notifications', 'pufferdesk-admin-desktop' ); ?>">
+				<svg class="pdk-notification-button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+					<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+					<path d="M13.73 21a2 2 0 0 1-3.46 0" />
+				</svg>
+			</button>
 			<span class="pdk-taskbar-clock" data-pdk-clock><?php echo esc_html( date_i18n( 'D M j H:i' ) ); ?></span>
 		</div>
 	<?php endif; ?>

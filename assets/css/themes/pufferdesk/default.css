@@ -190,6 +190,33 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] {
+	--pdk-notification-button-hover-bg: rgba(255, 255, 255, 0.32);
+	--pdk-notification-center-bg: var(--pdk-material-popover-bg);
+	--pdk-notification-center-border: var(--pdk-material-popover-border);
+	--pdk-notification-center-filter: var(--pdk-material-popover-filter);
+	--pdk-notification-center-radius: 22px;
+	--pdk-notification-center-shadow: var(--pdk-material-popover-shadow);
+	--pdk-notification-center-width: 390px;
+	--pdk-notification-item-bg: rgba(255, 255, 255, 0.34);
+	--pdk-notification-item-border: rgba(255, 255, 255, 0.36);
+	--pdk-notification-item-radius: 16px;
+	--pdk-notification-item-unread-bg: rgba(255, 255, 255, 0.5);
+	--pdk-notification-toast-bg: var(--pdk-material-popover-bg);
+	--pdk-notification-toast-border: var(--pdk-material-popover-border);
+	--pdk-notification-toast-filter: var(--pdk-material-popover-filter);
+	--pdk-notification-toast-radius: 18px;
+	--pdk-notification-toast-shadow: var(--pdk-material-popover-shadow);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] {
+	--pdk-notification-button-hover-bg: rgba(255, 255, 255, 0.14);
+	--pdk-notification-item-bg: rgba(255, 255, 255, 0.08);
+	--pdk-notification-item-border: rgba(255, 255, 255, 0.12);
+	--pdk-notification-item-unread-bg: rgba(255, 255, 255, 0.13);
+	--pdk-notification-muted: rgba(255, 255, 255, 0.62);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] {
 	--pdk-sticky-note-bg: rgb(252 244 167);
 	--pdk-sticky-note-body-bg: transparent;
 	--pdk-sticky-note-border: #1f1f1f;

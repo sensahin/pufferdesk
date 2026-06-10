@@ -125,6 +125,33 @@ final class PufferDesk_Settings_Registry {
 					'recent_count'    => 10,
 				),
 			),
+			'notifications'     => array(
+				'id'           => 'notifications',
+				'label'        => 'Notifications',
+				'panel'        => 'notifications',
+				'capability'   => self::CAPABILITY,
+				'ajax_action'  => 'pufferdesk_save_notifications',
+				'handler'      => 'save_notifications',
+				'preference_key' => PufferDesk_User_Preferences::META_NOTIFICATIONS,
+				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_NOTIFICATIONS,
+				'sanitizer'    => 'PufferDesk_User_Preferences::set_notifications',
+				'default'      => array(
+					'enabled'      => true,
+					'show_badges'  => true,
+					'show_toasts'  => true,
+					'quiet_mode'   => false,
+					'play_sound'   => false,
+					'history_days' => 30,
+					'severity'     => 'all',
+					'sources'      => array(
+						'wordpress_updates' => true,
+						'comments'          => true,
+						'site_health'       => true,
+						'pufferdesk'        => true,
+						'apps'              => true,
+					),
+				),
+			),
 			'theme'             => array(
 				'id'           => 'theme',
 				'label'        => 'Theme',
@@ -259,6 +286,8 @@ final class PufferDesk_Settings_Registry {
 				return __( 'Trash', 'pufferdesk-admin-desktop' );
 			case 'menu_bar':
 				return __( 'Menu Bar', 'pufferdesk-admin-desktop' );
+			case 'notifications':
+				return __( 'Notifications', 'pufferdesk-admin-desktop' );
 			case 'theme':
 				return __( 'Theme', 'pufferdesk-admin-desktop' );
 			case 'wallpaper':

@@ -19,6 +19,7 @@ final class PufferDesk_User_Preferences {
 	const META_DESKTOP_TRASH = 'pufferdesk_desktop_trash';
 	const META_ENABLED    = 'pufferdesk_enabled';
 	const META_MENU_BAR   = 'pufferdesk_menu_bar';
+	const META_NOTIFICATIONS = 'pufferdesk_notifications';
 	const META_THEME      = 'pufferdesk_theme';
 	const META_WALLPAPER  = 'pufferdesk_wallpaper';
 	const META_WALLPAPER_UPLOADS = 'pufferdesk_wallpaper_uploads';
@@ -30,6 +31,7 @@ final class PufferDesk_User_Preferences {
 	const RESET_DOMAIN_DESKTOP_FOLDERS = 'desktop_folders';
 	const RESET_DOMAIN_DESKTOP_TRASH = 'desktop_trash';
 	const RESET_DOMAIN_MENU_BAR = 'menu_bar';
+	const RESET_DOMAIN_NOTIFICATIONS = 'notifications';
 	const RESET_DOMAIN_THEME = 'theme';
 	const RESET_DOMAIN_WALLPAPER = 'wallpaper';
 	const RESET_DOMAIN_WALLPAPER_UPLOADS = 'wallpaper_uploads';
@@ -107,6 +109,35 @@ final class PufferDesk_User_Preferences {
 		'show_background' => false,
 		'recent_count'    => 10,
 	);
+
+	/**
+	 * Default notification preferences.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private $default_notifications = array(
+		'enabled'      => true,
+		'show_badges'  => true,
+		'show_toasts'  => true,
+		'quiet_mode'   => false,
+		'play_sound'   => false,
+		'history_days' => 30,
+		'severity'     => 'all',
+		'sources'      => array(
+			'wordpress_updates' => true,
+			'comments'          => true,
+			'site_health'       => true,
+			'pufferdesk'        => true,
+			'apps'              => true,
+		),
+	);
+
+	/**
+	 * Allowed notification severity filters.
+	 *
+	 * @var array<int,string>
+	 */
+	private $notification_severity_options = array( 'all', 'warnings', 'critical' );
 
 	/**
 	 * Allowed Menu Bar preference values.
@@ -476,6 +507,35 @@ final class PufferDesk_User_Preferences {
 	}
 
 	/**
+	 * Get the user's notification preferences.
+	 *
+	 * @param int $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function get_notifications( $user_id = 0 ) {
+		$user_id       = $user_id ? (int) $user_id : get_current_user_id();
+		$notifications = get_user_meta( $user_id, self::META_NOTIFICATIONS, true );
+
+		return $this->sanitize_notifications( is_array( $notifications ) ? $notifications : array() );
+	}
+
+	/**
+	 * Save the user's notification preferences.
+	 *
+	 * @param array<string,mixed> $notifications Notification preference data.
+	 * @param int                 $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function set_notifications( $notifications, $user_id = 0 ) {
+		$user_id       = $user_id ? (int) $user_id : get_current_user_id();
+		$notifications = $this->sanitize_notifications( is_array( $notifications ) ? $notifications : array() );
+
+		update_user_meta( $user_id, self::META_NOTIFICATIONS, $notifications );
+
+		return $notifications;
+	}
+
+	/**
 	 * Get the user's wallpaper preference.
 	 *
 	 * @param int $user_id Optional user ID.
@@ -667,6 +727,7 @@ final class PufferDesk_User_Preferences {
 			self::RESET_DOMAIN_DESKTOP_FOLDERS,
 			self::RESET_DOMAIN_DESKTOP_TRASH,
 			self::RESET_DOMAIN_MENU_BAR,
+			self::RESET_DOMAIN_NOTIFICATIONS,
 			self::RESET_DOMAIN_THEME,
 			self::RESET_DOMAIN_WALLPAPER,
 			self::RESET_DOMAIN_WALLPAPER_UPLOADS,
@@ -730,6 +791,42 @@ final class PufferDesk_User_Preferences {
 		foreach ( $sanitized as $key => $value ) {
 			if ( is_bool( $value ) && array_key_exists( $key, $desktop_dock ) ) {
 				$sanitized[ $key ] = $this->sanitize_boolean( $desktop_dock[ $key ] );
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize notification preferences.
+	 *
+	 * @param array<string,mixed> $notifications Raw notification preferences.
+	 * @return array<string,mixed>
+	 */
+	public function sanitize_notifications( $notifications ) {
+		$sanitized = $this->default_notifications;
+
+		foreach ( array( 'enabled', 'show_badges', 'show_toasts', 'quiet_mode', 'play_sound' ) as $key ) {
+			if ( array_key_exists( $key, $notifications ) ) {
+				$sanitized[ $key ] = $this->sanitize_boolean( $notifications[ $key ] );
+			}
+		}
+
+		if ( array_key_exists( 'history_days', $notifications ) ) {
+			$sanitized['history_days'] = $this->sanitize_range( $notifications['history_days'], 1, 90, $sanitized['history_days'] );
+		}
+
+		if ( array_key_exists( 'severity', $notifications ) ) {
+			$severity = sanitize_key( (string) $notifications['severity'] );
+			if ( in_array( $severity, $this->notification_severity_options, true ) ) {
+				$sanitized['severity'] = $severity;
+			}
+		}
+
+		$sources = isset( $notifications['sources'] ) && is_array( $notifications['sources'] ) ? $notifications['sources'] : array();
+		foreach ( $sanitized['sources'] as $source => $enabled ) {
+			if ( array_key_exists( $source, $sources ) ) {
+				$sanitized['sources'][ $source ] = $this->sanitize_boolean( $sources[ $source ] );
 			}
 		}
 
@@ -1194,6 +1291,7 @@ final class PufferDesk_User_Preferences {
 			self::RESET_DOMAIN_DESKTOP_FOLDERS   => self::META_DESKTOP_FOLDERS,
 			self::RESET_DOMAIN_DESKTOP_TRASH     => self::META_DESKTOP_TRASH,
 			self::RESET_DOMAIN_MENU_BAR          => self::META_MENU_BAR,
+			self::RESET_DOMAIN_NOTIFICATIONS     => self::META_NOTIFICATIONS,
 			self::RESET_DOMAIN_THEME             => self::META_THEME,
 			self::RESET_DOMAIN_WALLPAPER         => self::META_WALLPAPER,
 			self::RESET_DOMAIN_WALLPAPER_UPLOADS => self::META_WALLPAPER_UPLOADS,

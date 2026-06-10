@@ -274,6 +274,40 @@ final class PufferDesk_Settings_Controller {
 	}
 
 	/**
+	 * Save the current user's Notifications settings.
+	 */
+	public function save_notifications() {
+		$this->require_domain_access( 'notifications', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
+		$raw_sources = isset( $_POST['sources'] ) && ! is_array( $_POST['sources'] )
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
+			? sanitize_textarea_field( wp_unslash( $_POST['sources'] ) )
+			: '{}';
+		$sources = is_string( $raw_sources ) ? json_decode( $raw_sources, true ) : array();
+
+		$notifications = $this->preferences->set_notifications(
+			array(
+				'enabled'      => $this->read_post_value( 'enabled' ),
+				'show_badges'  => $this->read_post_value( 'show_badges' ),
+				'show_toasts'  => $this->read_post_value( 'show_toasts' ),
+				'quiet_mode'   => $this->read_post_value( 'quiet_mode' ),
+				'play_sound'   => $this->read_post_value( 'play_sound' ),
+				'history_days' => $this->read_post_value( 'history_days' ),
+				'severity'     => $this->read_post_value( 'severity' ),
+				'sources'      => is_array( $sources ) ? $sources : array(),
+			)
+		);
+
+		wp_send_json_success(
+			array(
+				'message'       => __( 'Notifications saved.', 'pufferdesk-admin-desktop' ),
+				'notifications' => $notifications,
+			)
+		);
+	}
+
+	/**
 	 * Save the current user's selected theme.
 	 */
 	public function save_theme() {

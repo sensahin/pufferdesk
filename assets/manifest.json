@@ -25,6 +25,10 @@
 			"path": "assets/css/core/tooltips.css"
 		},
 		{
+			"handle": "pufferdesk-core-notifications",
+			"path": "assets/css/core/notifications.css"
+		},
+		{
 			"handle": "pufferdesk-core-desktop",
 			"path": "assets/css/core/desktop.css"
 		},
@@ -99,6 +103,21 @@
 			"handle": "pufferdesk-api-client",
 			"path": "assets/js/core/services/api-client.js",
 			"deps": ["pufferdesk-config"]
+		},
+		{
+			"handle": "pufferdesk-notification-store",
+			"path": "assets/js/core/notifications/notification-store.js",
+			"deps": ["pufferdesk-config", "pufferdesk-api-client", "pufferdesk-event-bus"]
+		},
+		{
+			"handle": "pufferdesk-notification-toasts",
+			"path": "assets/js/core/notifications/toast-service.js",
+			"deps": ["pufferdesk-dom", "pufferdesk-event-bus", "pufferdesk-notification-store"]
+		},
+		{
+			"handle": "pufferdesk-notification-center",
+			"path": "assets/js/core/notifications/notification-center.js",
+			"deps": ["pufferdesk-dom", "pufferdesk-notification-store"]
 		},
 		{
 			"handle": "pufferdesk-virtual-filesystem",
@@ -291,6 +310,11 @@
 			"deps": ["pufferdesk-settings-labels", "pufferdesk-settings-ui"]
 		},
 		{
+			"handle": "pufferdesk-settings-panel-notifications",
+			"path": "assets/js/core/apps/settings/panel-notifications.js",
+			"deps": ["pufferdesk-settings-labels", "pufferdesk-settings-ui", "pufferdesk-settings-mutations", "pufferdesk-notification-store"]
+		},
+		{
 			"handle": "pufferdesk-settings-panel-wallpaper",
 			"path": "assets/js/core/apps/settings/panel-wallpaper.js",
 			"deps": ["pufferdesk-settings-labels", "pufferdesk-settings-ui"]
@@ -318,7 +342,7 @@
 		{
 			"handle": "pufferdesk-settings-app",
 			"path": "assets/js/core/apps/settings-app.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-api-client", "pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-app-surfaces", "pufferdesk-app-preferences", "pufferdesk-native-apps", "pufferdesk-settings-labels", "pufferdesk-settings-ui", "pufferdesk-settings-mutations", "pufferdesk-settings-panel-general", "pufferdesk-settings-panel-profile", "pufferdesk-settings-panel-appearance", "pufferdesk-settings-panel-desktop-dock", "pufferdesk-settings-panel-menu-bar", "pufferdesk-settings-panel-wallpaper", "pufferdesk-settings-panel-widgets", "pufferdesk-settings-panel-apps", "pufferdesk-settings-panel-workspace", "pufferdesk-settings-panel-system"]
+			"deps": ["pufferdesk-dom", "pufferdesk-api-client", "pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-app-surfaces", "pufferdesk-app-preferences", "pufferdesk-native-apps", "pufferdesk-settings-labels", "pufferdesk-settings-ui", "pufferdesk-settings-mutations", "pufferdesk-settings-panel-general", "pufferdesk-settings-panel-profile", "pufferdesk-settings-panel-appearance", "pufferdesk-settings-panel-desktop-dock", "pufferdesk-settings-panel-menu-bar", "pufferdesk-settings-panel-notifications", "pufferdesk-settings-panel-wallpaper", "pufferdesk-settings-panel-widgets", "pufferdesk-settings-panel-apps", "pufferdesk-settings-panel-workspace", "pufferdesk-settings-panel-system"]
 		},
 		{
 			"handle": "pufferdesk-text-editor",
@@ -418,7 +442,7 @@
 		{
 			"handle": "pufferdesk-boot",
 			"path": "assets/js/core/boot.js",
-			"deps": ["pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-reopen-policy", "pufferdesk-documents-service", "pufferdesk-window-manager", "pufferdesk-widget-manager", "pufferdesk-desktop-icons", "pufferdesk-folder-manager", "pufferdesk-sticky-notes", "pufferdesk-desktop-api", "pufferdesk-app-launcher", "pufferdesk-search", "pufferdesk-shell-dialogs", "pufferdesk-menu", "pufferdesk-context-menu", "pufferdesk-shortcuts", "pufferdesk-clock"]
+			"deps": ["pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-reopen-policy", "pufferdesk-documents-service", "pufferdesk-notification-store", "pufferdesk-notification-toasts", "pufferdesk-notification-center", "pufferdesk-window-manager", "pufferdesk-widget-manager", "pufferdesk-desktop-icons", "pufferdesk-folder-manager", "pufferdesk-sticky-notes", "pufferdesk-desktop-api", "pufferdesk-app-launcher", "pufferdesk-search", "pufferdesk-shell-dialogs", "pufferdesk-menu", "pufferdesk-context-menu", "pufferdesk-shortcuts", "pufferdesk-clock"]
 		}
 	]
 }

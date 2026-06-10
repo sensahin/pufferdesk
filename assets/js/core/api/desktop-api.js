@@ -27,6 +27,7 @@
 		const commandRegistry = context.commandRegistry || null;
 		const events = context.events || window.PufferDesk.events || null;
 		const nativeApps = context.nativeApps || window.PufferDesk.apps || {};
+		const notificationStore = context.notificationStore || window.PufferDesk.notificationStore || null;
 
 		function emit(name, detail = {}) {
 			if (events && typeof events.emit === 'function') {
@@ -144,6 +145,38 @@
 					return nativeApps && typeof nativeApps.registerNativeAppRenderer === 'function'
 						? nativeApps.registerNativeAppRenderer(nativeId, renderer)
 						: false;
+				}
+			},
+			notifications: {
+				dismiss(idOrIds) {
+					return notificationStore && typeof notificationStore.dismiss === 'function'
+						? notificationStore.dismiss(idOrIds)
+						: Promise.resolve(null);
+				},
+				getItems() {
+					return notificationStore && typeof notificationStore.getItems === 'function'
+						? notificationStore.getItems()
+						: [];
+				},
+				getUnreadCount() {
+					return notificationStore && typeof notificationStore.getUnreadCount === 'function'
+						? notificationStore.getUnreadCount()
+						: 0;
+				},
+				markRead(idOrIds) {
+					return notificationStore && typeof notificationStore.markRead === 'function'
+						? notificationStore.markRead(idOrIds)
+						: Promise.resolve(null);
+				},
+				notify(notification = {}) {
+					return notificationStore && typeof notificationStore.notify === 'function'
+						? notificationStore.notify(notification)
+						: null;
+				},
+				refresh() {
+					return notificationStore && typeof notificationStore.refresh === 'function'
+						? notificationStore.refresh()
+						: Promise.resolve(null);
 				}
 			},
 			windows: {

@@ -68,6 +68,13 @@ final class PufferDesk_Plugin {
 	private $document_controller;
 
 	/**
+	 * Notification controller.
+	 *
+	 * @var PufferDesk_Notification_Controller
+	 */
+	private $notification_controller;
+
+	/**
 	 * Boot and return the singleton.
 	 *
 	 * @return PufferDesk_Plugin
@@ -93,6 +100,10 @@ final class PufferDesk_Plugin {
 		$workspace_state    = new PufferDesk_Workspace_State();
 		$virtual_filesystem = new PufferDesk_Virtual_Filesystem();
 		$document_service   = new PufferDesk_Document_Service( $virtual_filesystem );
+		$notification_registry = new PufferDesk_Notification_Registry(
+			$preferences,
+			new PufferDesk_Notification_Normalizer()
+		);
 		$asset_manifest     = new PufferDesk_Asset_Manifest();
 		$settings_registry  = new PufferDesk_Settings_Registry();
 		$this->router       = new PufferDesk_Router( $preferences );
@@ -109,7 +120,8 @@ final class PufferDesk_Plugin {
 			$this->router,
 			$theme_registry,
 			$settings_registry,
-			$virtual_filesystem
+			$virtual_filesystem,
+			$notification_registry
 		);
 		$renderer       = new PufferDesk_Shell_Renderer(
 			$shell_context
@@ -141,6 +153,7 @@ final class PufferDesk_Plugin {
 		);
 		$this->document_post_type = new PufferDesk_Document_Post_Type();
 		$this->document_controller = new PufferDesk_Document_Controller( $document_service );
+		$this->notification_controller = new PufferDesk_Notification_Controller( $notification_registry );
 	}
 
 	/**
@@ -157,5 +170,6 @@ final class PufferDesk_Plugin {
 		$this->settings_controller->hooks();
 		$this->workspace_controller->hooks();
 		$this->document_controller->hooks();
+		$this->notification_controller->hooks();
 	}
 }

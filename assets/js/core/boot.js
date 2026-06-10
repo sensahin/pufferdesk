@@ -22,6 +22,10 @@
 			!window.PufferDesk.desktop.createDesktopIconManager ||
 			!window.PufferDesk.desktop.createFolderManager ||
 			!window.PufferDesk.desktop.createStickyNoteManager ||
+			!window.PufferDesk.notifications ||
+			!window.PufferDesk.notifications.createStore ||
+			!window.PufferDesk.notifications.createToastService ||
+			!window.PufferDesk.notifications.createCenter ||
 			!window.PufferDesk.apps ||
 			!window.PufferDesk.menuBar ||
 			!window.PufferDesk.shell ||
@@ -62,6 +66,8 @@
 			window.PufferDesk.menuBar.apply(shell, config.menuBar || {});
 			window.PufferDesk.menuBar.bindAutoHide(shell);
 		}
+		const notificationStore = window.PufferDesk.notifications.createStore(config);
+		window.PufferDesk.notificationStore = notificationStore;
 
 		const reopenPolicy = window.PufferDesk.session.createReopenPolicy(config.storageKey || '');
 		const skipWindowRestore = reopenPolicy.consumeSkipWindowRestoreOnce();
@@ -165,9 +171,15 @@
 			config,
 			events: window.PufferDesk.events,
 			nativeApps: window.PufferDesk.apps,
+			notificationStore,
 			shell,
 			windowManager: manager
 		});
+		const notificationToasts = window.PufferDesk.notifications.createToastService(shell, notificationStore, config);
+		const notificationCenter = window.PufferDesk.notifications.createCenter(shell, notificationStore, config);
+		if (typeof notificationStore.bindSystemNotifications === 'function') {
+			notificationStore.bindSystemNotifications();
+		}
 
 		menuController.bind();
 		contextMenuController.bind();
@@ -214,11 +226,14 @@
 		window.PufferDesk.shortcutController = shortcutController;
 		window.PufferDesk.menuController = menuController;
 		window.PufferDesk.menuCommands = commands;
+		window.PufferDesk.notificationCenter = notificationCenter;
+		window.PufferDesk.notificationToasts = notificationToasts;
 		window.PufferDesk.desktop.api = desktopApi;
 		window.PufferDesk.desktopApi = desktopApi;
 		window.PufferDesk.events.emit('desktop:ready', {
 			api: desktopApi,
 			config,
+			notificationStore,
 			shell,
 			stickyNoteManager
 		});

@@ -40,18 +40,29 @@ final class PufferDesk_Runtime_Config {
 	private $virtual_filesystem;
 
 	/**
+	 * Notification registry.
+	 *
+	 * @var PufferDesk_Notification_Registry
+	 */
+	private $notification_registry;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param PufferDesk_Router            $router Request router.
 	 * @param PufferDesk_Theme_Registry    $theme_registry Theme registry.
 	 * @param PufferDesk_Settings_Registry $settings_registry Settings registry.
 	 * @param PufferDesk_Virtual_Filesystem|null $virtual_filesystem Virtual filesystem service.
+	 * @param PufferDesk_Notification_Registry|null $notification_registry Notification registry.
 	 */
-	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry, $virtual_filesystem = null ) {
+	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry, $virtual_filesystem = null, $notification_registry = null ) {
 		$this->router             = $router;
 		$this->theme_registry     = $theme_registry;
 		$this->settings_registry  = $settings_registry;
 		$this->virtual_filesystem = $virtual_filesystem instanceof PufferDesk_Virtual_Filesystem ? $virtual_filesystem : new PufferDesk_Virtual_Filesystem();
+		$this->notification_registry = $notification_registry instanceof PufferDesk_Notification_Registry
+			? $notification_registry
+			: new PufferDesk_Notification_Registry( new PufferDesk_User_Preferences(), new PufferDesk_Notification_Normalizer() );
 	}
 
 	/**
@@ -81,6 +92,7 @@ final class PufferDesk_Runtime_Config {
 			'documents'      => $this->get_documents_config(),
 			'logoutUrl'      => $this->get_logout_url(),
 			'menuBar'        => isset( $context['menu_bar'] ) && is_array( $context['menu_bar'] ) ? $context['menu_bar'] : array(),
+			'notifications'  => $this->notification_registry->get_client_config(),
 			'settings'       => $this->get_settings_config( $theme ),
 			'shellCapabilities' => $this->get_shell_capabilities_config( $theme ),
 			'shellChrome'    => isset( $theme['shell'] ) ? $theme['shell'] : array(),
@@ -601,6 +613,8 @@ final class PufferDesk_Runtime_Config {
 					__( '%s could not be saved.', 'pufferdesk-admin-desktop' ),
 					$menu_bar_label
 				),
+				'notificationsSaveError' => __( 'Notifications could not be saved.', 'pufferdesk-admin-desktop' ),
+				'notificationsSaved'     => __( 'Notifications saved.', 'pufferdesk-admin-desktop' ),
 				'wallpaperSaveError'     => __( 'Wallpaper could not be saved.', 'pufferdesk-admin-desktop' ),
 				'wallpaperSaved'         => __( 'Wallpaper saved.', 'pufferdesk-admin-desktop' ),
 				'photoRemoveError'       => __( 'Photo could not be removed.', 'pufferdesk-admin-desktop' ),
@@ -644,6 +658,12 @@ final class PufferDesk_Runtime_Config {
 						'icon'  => 'dashicons-menu-alt3',
 						'tone'  => 'gray',
 						'visible' => ! empty( $capabilities['menuBar']['enabled'] ),
+					),
+					array(
+						'id'    => 'notifications',
+						'label' => __( 'Notifications', 'pufferdesk-admin-desktop' ),
+						'icon'  => 'dashicons-bell',
+						'tone'  => 'blue',
 					),
 					array(
 						'id'    => 'wallpaper',
@@ -813,6 +833,41 @@ final class PufferDesk_Runtime_Config {
 						array( 'value' => '30', 'label' => '30' ),
 						array( 'value' => '50', 'label' => '50' ),
 					),
+				),
+			),
+			'notifications' => array(
+				'title'       => __( 'Notifications', 'pufferdesk-admin-desktop' ),
+				'description' => __( 'Choose which WordPress and PufferDesk events appear in Notification Center.', 'pufferdesk-admin-desktop' ),
+				'headings'    => array(
+					'behavior' => __( 'Behavior', 'pufferdesk-admin-desktop' ),
+					'sources'  => __( 'Sources', 'pufferdesk-admin-desktop' ),
+				),
+				'rows'        => array(
+					'enabled'      => __( 'Enable notifications', 'pufferdesk-admin-desktop' ),
+					'showBadges'   => __( 'Show notification badges', 'pufferdesk-admin-desktop' ),
+					'showToasts'   => __( 'Show notification banners', 'pufferdesk-admin-desktop' ),
+					'quietMode'    => __( 'Quiet mode', 'pufferdesk-admin-desktop' ),
+					'quietModeDescription' => __( 'Keep notifications in Notification Center without showing banners.', 'pufferdesk-admin-desktop' ),
+					'playSound'    => __( 'Play sound', 'pufferdesk-admin-desktop' ),
+					'historyDays'  => __( 'Keep history', 'pufferdesk-admin-desktop' ),
+					'severity'     => __( 'Show', 'pufferdesk-admin-desktop' ),
+				),
+				'sourceLabels' => array(
+					'wordpress_updates' => __( 'WordPress updates', 'pufferdesk-admin-desktop' ),
+					'comments'          => __( 'Comments', 'pufferdesk-admin-desktop' ),
+					'site_health'       => __( 'Site Health', 'pufferdesk-admin-desktop' ),
+					'pufferdesk'        => __( 'PufferDesk system', 'pufferdesk-admin-desktop' ),
+					'apps'              => __( 'Apps and plugins', 'pufferdesk-admin-desktop' ),
+				),
+				'severityOptions' => array(
+					array( 'value' => 'all', 'label' => __( 'All notifications', 'pufferdesk-admin-desktop' ) ),
+					array( 'value' => 'warnings', 'label' => __( 'Warnings and critical alerts', 'pufferdesk-admin-desktop' ) ),
+					array( 'value' => 'critical', 'label' => __( 'Critical alerts only', 'pufferdesk-admin-desktop' ) ),
+				),
+				'historyOptions' => array(
+					array( 'value' => '7', 'label' => __( '7 days', 'pufferdesk-admin-desktop' ) ),
+					array( 'value' => '30', 'label' => __( '30 days', 'pufferdesk-admin-desktop' ) ),
+					array( 'value' => '90', 'label' => __( '90 days', 'pufferdesk-admin-desktop' ) ),
 				),
 			),
 			'wallpaper'    => array(
