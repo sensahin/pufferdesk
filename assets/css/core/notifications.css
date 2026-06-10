@@ -27,6 +27,10 @@
 	width: var(--pdk-notification-button-size, 28px);
 }
 
+.pdk-notification-button[hidden] {
+	display: none;
+}
+
 .pdk-notification-button:hover,
 .pdk-notification-button:focus,
 .pdk-notification-button.is-active {

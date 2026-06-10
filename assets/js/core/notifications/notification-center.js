@@ -152,13 +152,19 @@
 		function updateBadges(snapshot) {
 			const count = snapshot.unreadCount || 0;
 			const preferences = snapshot.preferences || {};
+			const notificationsEnabled = preferences.enabled !== false;
+
+			if (!notificationsEnabled && open) {
+				close();
+			}
 
 			toggles.forEach((button) => {
 				let badge = button.querySelector('.pdk-notification-button-badge');
-				button.classList.toggle('has-unread', count > 0);
+				button.hidden = !notificationsEnabled;
+				button.classList.toggle('has-unread', notificationsEnabled && count > 0);
 				button.setAttribute('aria-label', count > 0 ? `${t('open', 'Open Notifications')}, ${count}` : t('open', 'Open Notifications'));
 
-				if (!preferences.show_badges || count <= 0) {
+				if (!notificationsEnabled || !preferences.show_badges || count <= 0) {
 					if (badge) {
 						badge.remove();
 					}
@@ -196,6 +202,11 @@
 		}
 
 		function openPanel() {
+			const preferences = store.getPreferences ? store.getPreferences() : {};
+			if (preferences && preferences.enabled === false) {
+				return;
+			}
+
 			open = true;
 			panel.hidden = false;
 			panel.classList.add('is-open');

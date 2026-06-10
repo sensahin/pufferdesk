@@ -39,8 +39,63 @@
 		const sourcesSection = createSection('', 'pdk-settings-list pdk-settings-notifications-list');
 		const notificationConfig = ctx.config.notifications && typeof ctx.config.notifications === 'object' ? ctx.config.notifications : {};
 		let currentPreferences = normalizePreferences(notificationConfig.preferences || {});
+		const dependentControls = [];
+		const toggleControls = Object.create(null);
+		const sourceControls = Object.create(null);
+		const selectControls = Object.create(null);
 
 		panel.dataset.pdkSettingsPanel = 'notifications';
+
+		function isNotificationsEnabled() {
+			return currentPreferences.enabled !== false;
+		}
+
+		function setDisabledState(control, disabled) {
+			if (!control) {
+				return;
+			}
+
+			if ('disabled' in control) {
+				control.disabled = disabled;
+			}
+			control.classList.toggle('is-disabled', disabled);
+			control.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+		}
+
+		function registerDependentControl(row, controls) {
+			dependentControls.push({
+				row,
+				controls: Array.isArray(controls) ? controls : [controls]
+			});
+
+			return row;
+		}
+
+		function syncDependentControls() {
+			const disabled = !isNotificationsEnabled();
+
+			dependentControls.forEach((entry) => {
+				entry.row.classList.toggle('is-disabled', disabled);
+				entry.row.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+				entry.controls.forEach((control) => setDisabledState(control, disabled));
+			});
+		}
+
+		function syncControlStates() {
+			Object.keys(toggleControls).forEach((key) => {
+				toggleControls[key].setAttribute('aria-pressed', currentPreferences[key] ? 'true' : 'false');
+			});
+			Object.keys(sourceControls).forEach((source) => {
+				sourceControls[source].setAttribute(
+					'aria-pressed',
+					currentPreferences.sources && currentPreferences.sources[source] === false ? 'false' : 'true'
+				);
+			});
+			Object.keys(selectControls).forEach((key) => {
+				selectControls[key].value = String(currentPreferences[key]);
+			});
+			syncDependentControls();
+		}
 
 		function syncRuntimePreferences() {
 			if (window.PufferDesk.notificationStore && typeof window.PufferDesk.notificationStore.setPreferences === 'function') {
@@ -57,6 +112,7 @@
 			onSuccess(data) {
 				currentPreferences = normalizePreferences(data.notifications || currentPreferences);
 				syncRuntimePreferences();
+				syncControlStates();
 
 				return data.message || t('status.notificationsSaved', 'Notifications saved.');
 			},
@@ -86,9 +142,16 @@
 			button.setAttribute('aria-label', ariaLabel);
 			button.setAttribute('aria-pressed', currentPreferences[key] ? 'true' : 'false');
 			button.appendChild(dom.createElement('span', 'pdk-settings-toggle-knob'));
+			toggleControls[key] = button;
 			button.addEventListener('click', () => {
+				if (button.disabled) {
+					return;
+				}
 				currentPreferences[key] = !currentPreferences[key];
 				button.setAttribute('aria-pressed', currentPreferences[key] ? 'true' : 'false');
+				if (key === 'enabled') {
+					syncDependentControls();
+				}
 				save();
 			});
 
@@ -104,7 +167,11 @@
 			button.setAttribute('aria-label', t(`notifications.sourceLabels.${source}`, source));
 			button.setAttribute('aria-pressed', sources[source] !== false ? 'true' : 'false');
 			button.appendChild(dom.createElement('span', 'pdk-settings-toggle-knob'));
+			sourceControls[source] = button;
 			button.addEventListener('click', () => {
+				if (button.disabled) {
+					return;
+				}
 				currentPreferences.sources = Object.assign({}, currentPreferences.sources || {}, {
 					[source]: currentPreferences.sources && currentPreferences.sources[source] === false
 				});
@@ -128,40 +195,55 @@
 			return row;
 		}
 
+		function createToggleRow(key, labelText, description = '', dependent = true) {
+			const control = createToggle(key, labelText);
+			const row = createRow(labelText, control, description);
+
+			return dependent ? registerDependentControl(row, control) : row;
+		}
+
 		function createSelectRow(key, labelText, optionsPath) {
 			const { select, wrap } = createInlineSelect({
 				options: ctx.settingsLabels.getOptions(optionsPath),
 				value: String(currentPreferences[key]),
 				onChange: (value, control) => {
+					if (control.disabled) {
+						return;
+					}
 					currentPreferences[key] = key === 'history_days' ? Number.parseInt(value, 10) || 30 : value;
 					control.blur();
 					save();
 				}
 			});
+			const row = createRow(labelText, wrap);
 
-			return createRow(labelText, wrap);
+			selectControls[key] = select;
+
+			return registerDependentControl(row, [select, wrap]);
 		}
 
-		behaviorSection.appendChild(createRow(
+		behaviorSection.appendChild(createToggleRow(
+			'enabled',
 			t('notifications.rows.enabled', 'Enable notifications'),
-			createToggle('enabled', t('notifications.rows.enabled', 'Enable notifications'))
+			'',
+			false
 		));
-		behaviorSection.appendChild(createRow(
-			t('notifications.rows.showBadges', 'Show notification badges'),
-			createToggle('show_badges', t('notifications.rows.showBadges', 'Show notification badges'))
+		behaviorSection.appendChild(createToggleRow(
+			'show_badges',
+			t('notifications.rows.showBadges', 'Show notification badges')
 		));
-		behaviorSection.appendChild(createRow(
-			t('notifications.rows.showToasts', 'Show notification banners'),
-			createToggle('show_toasts', t('notifications.rows.showToasts', 'Show notification banners'))
+		behaviorSection.appendChild(createToggleRow(
+			'show_toasts',
+			t('notifications.rows.showToasts', 'Show notification banners')
 		));
-		behaviorSection.appendChild(createRow(
+		behaviorSection.appendChild(createToggleRow(
+			'quiet_mode',
 			t('notifications.rows.quietMode', 'Quiet mode'),
-			createToggle('quiet_mode', t('notifications.rows.quietMode', 'Quiet mode')),
 			t('notifications.rows.quietModeDescription', 'Keep notifications in Notification Center without showing banners.')
 		));
-		behaviorSection.appendChild(createRow(
-			t('notifications.rows.playSound', 'Play sound'),
-			createToggle('play_sound', t('notifications.rows.playSound', 'Play sound'))
+		behaviorSection.appendChild(createToggleRow(
+			'play_sound',
+			t('notifications.rows.playSound', 'Play sound')
 		));
 		behaviorSection.appendChild(createSelectRow(
 			'severity',
@@ -175,10 +257,12 @@
 		));
 
 		sourceOrder.forEach((source) => {
-			sourcesSection.appendChild(createRow(
+			const control = createSourceToggle(source);
+
+			sourcesSection.appendChild(registerDependentControl(createRow(
 				t(`notifications.sourceLabels.${source}`, source),
-				createSourceToggle(source)
-			));
+				control
+			), control));
 		});
 
 		panel.appendChild(createSectionHeading(t('notifications.title', 'Notifications')));
@@ -187,6 +271,8 @@
 		panel.appendChild(behaviorSection);
 		panel.appendChild(createSectionHeading(t('notifications.headings.sources', 'Sources')));
 		panel.appendChild(sourcesSection);
+
+		syncControlStates();
 
 		return panel;
 	};

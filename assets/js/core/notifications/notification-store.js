@@ -190,9 +190,18 @@
 		const events = window.PufferDesk.events || null;
 		const listeners = new Set();
 		let preferences = normalizePreferences(notificationConfig.preferences || {});
-		let items = sortNotifications((Array.isArray(notificationConfig.items) ? notificationConfig.items : [])
+		let allItems = sortNotifications((Array.isArray(notificationConfig.items) ? notificationConfig.items : [])
 			.map(normalizeNotification)
-			.filter((notification) => canDisplay(notification, preferences)));
+			.filter(Boolean));
+		let items = getVisibleItems();
+
+		function getVisibleItems() {
+			return sortNotifications(allItems.filter((notification) => canDisplay(notification, preferences)));
+		}
+
+		function syncVisibleItems() {
+			items = getVisibleItems();
+		}
 
 		function emitChange(extra = {}) {
 			const snapshot = getSnapshot();
@@ -236,9 +245,10 @@
 				preferences = normalizePreferences(nextConfig.preferences);
 			}
 
-			items = sortNotifications((Array.isArray(nextConfig.items) ? nextConfig.items : [])
+			allItems = sortNotifications((Array.isArray(nextConfig.items) ? nextConfig.items : [])
 				.map(normalizeNotification)
-				.filter((notification) => canDisplay(notification, preferences)));
+				.filter(Boolean));
+			syncVisibleItems();
 			emitChange({ reason: 'server' });
 		}
 
@@ -297,13 +307,14 @@
 				return null;
 			}
 
-			const existingIndex = items.findIndex((item) => item.id === normalized.id);
+			const existingIndex = allItems.findIndex((item) => item.id === normalized.id);
 			if (existingIndex >= 0) {
-				items[existingIndex] = Object.assign({}, items[existingIndex], normalized);
+				allItems[existingIndex] = Object.assign({}, allItems[existingIndex], normalized);
 			} else {
-				items.unshift(normalized);
+				allItems.unshift(normalized);
 			}
-			items = sortNotifications(items);
+			allItems = sortNotifications(allItems);
+			syncVisibleItems();
 			emitChange({
 				notification: normalized,
 				reason: options.reason || 'notify'
@@ -319,7 +330,8 @@
 				return Promise.resolve(null);
 			}
 
-			items = items.map((item) => ids.includes(item.id) ? Object.assign({}, item, { read: true }) : item);
+			allItems = allItems.map((item) => ids.includes(item.id) ? Object.assign({}, item, { read: true }) : item);
+			syncVisibleItems();
 			emitChange({ reason: 'mark-read' });
 
 			return post(actions.markRead, {
@@ -328,7 +340,8 @@
 		}
 
 		function markAllRead() {
-			items = items.map((item) => Object.assign({}, item, { read: true }));
+			allItems = allItems.map((item) => items.some((visibleItem) => visibleItem.id === item.id) ? Object.assign({}, item, { read: true }) : item);
+			syncVisibleItems();
 			emitChange({ reason: 'mark-all-read' });
 
 			return post(actions.markAllRead);
@@ -340,7 +353,8 @@
 				return Promise.resolve(null);
 			}
 
-			items = items.filter((item) => !ids.includes(item.id));
+			allItems = allItems.filter((item) => !ids.includes(item.id));
+			syncVisibleItems();
 			emitChange({ reason: 'dismiss' });
 
 			return post(actions.dismiss, {
@@ -354,7 +368,7 @@
 
 		function setPreferences(nextPreferences = {}) {
 			preferences = normalizePreferences(nextPreferences);
-			items = sortNotifications(items.filter((notification) => canDisplay(notification, preferences)));
+			syncVisibleItems();
 			emitChange({ reason: 'preferences' });
 		}
 

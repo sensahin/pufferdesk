@@ -705,6 +705,15 @@ button.pdk-settings-profile-hero-avatar:focus .pdk-settings-profile-hero-edit {
 	border-top: 1px solid var(--pdk-card-border);
 }
 
+.pdk-settings-notification-row.is-disabled {
+	opacity: 0.52;
+}
+
+.pdk-settings-notification-row.is-disabled .pdk-settings-toggle,
+.pdk-settings-notification-row.is-disabled .pdk-settings-inline-select {
+	pointer-events: none;
+}
+
 .pdk-settings-label-stack {
 	align-self: start;
 	display: grid;
