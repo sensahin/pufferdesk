@@ -15,6 +15,7 @@
 		const refreshButton = panel ? panel.querySelector('[data-pdk-notification-refresh]') : null;
 		const closeButton = panel ? panel.querySelector('[data-pdk-notification-close]') : null;
 		let open = false;
+		let refreshing = false;
 
 		if (!shell || !store || !dom || !panel || !list) {
 			return {
@@ -233,7 +234,23 @@
 
 		if (refreshButton) {
 			refreshButton.setAttribute('aria-label', t('refresh', 'Refresh'));
-			refreshButton.addEventListener('click', () => store.refresh());
+			refreshButton.addEventListener('click', () => {
+				if (refreshing || typeof store.refresh !== 'function') {
+					return;
+				}
+
+				refreshing = true;
+				refreshButton.classList.add('is-refreshing');
+				refreshButton.disabled = true;
+				refreshButton.setAttribute('aria-busy', 'true');
+
+				Promise.resolve(store.refresh()).finally(() => {
+					refreshing = false;
+					refreshButton.classList.remove('is-refreshing');
+					refreshButton.disabled = false;
+					refreshButton.removeAttribute('aria-busy');
+				});
+			});
 		}
 
 		if (closeButton) {

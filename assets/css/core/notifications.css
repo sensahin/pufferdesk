@@ -45,6 +45,7 @@
 	align-items: center;
 	background: var(--pdk-notification-badge-bg, var(--pdk-app-badge-bg));
 	border-radius: 999px;
+	box-sizing: border-box;
 	color: var(--pdk-notification-badge-ink, var(--pdk-app-badge-ink));
 	display: inline-flex;
 	font-size: var(--pdk-notification-badge-font-size, 9px);
@@ -53,7 +54,7 @@
 	justify-content: center;
 	line-height: 1;
 	min-width: var(--pdk-notification-badge-size, 14px);
-	padding: 0 4px;
+	padding: var(--pdk-notification-badge-padding, 0 4px);
 	position: absolute;
 	right: var(--pdk-notification-badge-right, -4px);
 	top: var(--pdk-notification-badge-top, -4px);
@@ -97,6 +98,7 @@
 }
 
 .pdk-notification-center-header h2 {
+	color: inherit;
 	font-size: var(--pdk-notification-title-size, var(--pdk-text-section-title));
 	line-height: var(--pdk-line-height-tight);
 	margin: 0;
@@ -133,6 +135,23 @@
 .pdk-notification-center-actions button:focus {
 	background: var(--pdk-notification-control-hover-bg, var(--pdk-control-bg-hover));
 	outline: none;
+}
+
+.pdk-notification-center-refresh.is-refreshing .dashicons {
+	animation: pdk-notification-refresh-spin 720ms linear infinite;
+	transform-origin: center;
+}
+
+@keyframes pdk-notification-refresh-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pdk-notification-center-refresh.is-refreshing .dashicons {
+		animation-duration: 1.8s;
+	}
 }
 
 .pdk-notification-center-toolbar {

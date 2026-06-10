@@ -141,20 +141,25 @@
 	--pdk-notification-center-border: #7f8d99;
 	--pdk-notification-center-bottom: calc(var(--pdk-dock-item-size, 48px) + 10px);
 	--pdk-notification-center-filter: none;
+	--pdk-notification-center-ink: #17202a;
 	--pdk-notification-center-radius: 7px;
 	--pdk-notification-center-shadow: 0 18px 46px rgb(9 14 20 / 0.34);
 	--pdk-notification-center-width: 390px;
+	--pdk-notification-action-ink: #147d72;
 	--pdk-notification-control-hover-bg: #dce9e7;
 	--pdk-notification-divider: #c9d0d6;
 	--pdk-notification-item-bg: #fff;
 	--pdk-notification-item-border: #d5dbe1;
 	--pdk-notification-item-radius: 6px;
 	--pdk-notification-item-unread-bg: #eef8f6;
+	--pdk-notification-message-ink: #24313d;
+	--pdk-notification-muted: #65717c;
 	--pdk-notification-action-radius: 5px;
 	--pdk-notification-toast-bg: #f7f9fa;
 	--pdk-notification-toast-border: #7f8d99;
 	--pdk-notification-toast-bottom: calc(var(--pdk-dock-item-size, 48px) + 14px);
 	--pdk-notification-toast-filter: none;
+	--pdk-notification-toast-ink: #17202a;
 	--pdk-notification-toast-radius: 7px;
 	--pdk-notification-toast-shadow: 0 14px 36px rgb(9 14 20 / 0.32);
 }
@@ -395,6 +400,7 @@
 	--pdk-settings-card-border: #445462;
 	--pdk-settings-sidebar-bg: linear-gradient(180deg, #2b3949, #202b38);
 	--pdk-settings-sidebar-border: #445462;
+	--pdk-notification-action-ink: #8fe7d9;
 	--pdk-notification-center-bg: #243242;
 	--pdk-notification-center-border: #536476;
 	--pdk-notification-center-ink: #eef4f7;

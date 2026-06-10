@@ -176,9 +176,11 @@
 	--pdk-notification-center-border: rgb(198 198 198);
 	--pdk-notification-center-bottom: calc(var(--pdk-dock-item-size, 48px) + 10px);
 	--pdk-notification-center-filter: blur(18px) saturate(130%);
+	--pdk-notification-center-ink: rgb(32 32 32);
 	--pdk-notification-center-radius: 8px;
 	--pdk-notification-center-shadow: 0 24px 70px rgb(0 0 0 / 0.24);
 	--pdk-notification-center-width: 410px;
+	--pdk-notification-action-ink: rgb(0 95 184);
 	--pdk-notification-control-hover-bg: rgb(232 232 232);
 	--pdk-notification-divider: rgb(218 218 218);
 	--pdk-notification-item-bg: rgb(255 255 255 / 0.9);
@@ -186,10 +188,13 @@
 	--pdk-notification-item-radius: 4px;
 	--pdk-notification-item-unread-bg: rgb(243 248 255);
 	--pdk-notification-list-gap: 8px;
+	--pdk-notification-message-ink: rgb(45 45 45);
+	--pdk-notification-muted: rgb(92 92 92);
 	--pdk-notification-toast-bg: rgb(248 248 248 / 0.96);
 	--pdk-notification-toast-border: rgb(198 198 198);
 	--pdk-notification-toast-bottom: calc(var(--pdk-dock-item-size, 48px) + 14px);
 	--pdk-notification-toast-filter: blur(18px) saturate(130%);
+	--pdk-notification-toast-ink: rgb(32 32 32);
 	--pdk-notification-toast-radius: 8px;
 	--pdk-notification-toast-shadow: 0 18px 46px rgb(0 0 0 / 0.22);
 }
@@ -245,6 +250,7 @@
 	--pdk-redmond-sticky-app-search-bg: rgb(66 66 66);
 	--pdk-redmond-sticky-app-search-ink: rgb(238 238 238);
 	--pdk-redmond-sticky-app-search-placeholder: rgb(238 238 238 / 0.62);
+	--pdk-notification-action-ink: rgb(153 205 255);
 	--pdk-notification-center-bg: rgb(32 32 32 / 0.96);
 	--pdk-notification-center-border: rgb(68 68 68);
 	--pdk-notification-center-ink: rgb(244 244 244);

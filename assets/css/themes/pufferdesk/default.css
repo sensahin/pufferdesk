@@ -83,8 +83,8 @@
 	--pdk-menu-shadow: var(--pdk-material-bar-shadow);
 	--pdk-menu-active-bg: var(--pdk-accent-active-strong);
 	--pdk-menu-selection-active-bg: var(--pdk-accent-active-strong);
-	--pdk-menu-bar-height: 28px;
-	--pdk-menu-bar-half-height: 14px;
+	--pdk-menu-bar-height: 30px;
+	--pdk-menu-bar-half-height: 15px;
 	--pdk-control-bg: var(--pdk-material-control-bg);
 	--pdk-control-bg-hover: var(--pdk-material-control-hover-bg);
 	--pdk-desktop-bg:
@@ -190,10 +190,18 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] {
+	--pdk-notification-badge-font-size: 7px;
+	--pdk-notification-badge-padding: 0 2px;
+	--pdk-notification-badge-right: -1px;
+	--pdk-notification-badge-size: 10px;
+	--pdk-notification-badge-top: 0;
 	--pdk-notification-button-hover-bg: rgba(255, 255, 255, 0.32);
+	--pdk-notification-button-icon-size: 18px;
+	--pdk-notification-button-size: 24px;
 	--pdk-notification-center-bg: var(--pdk-material-popover-bg);
 	--pdk-notification-center-border: var(--pdk-material-popover-border);
 	--pdk-notification-center-filter: var(--pdk-material-popover-filter);
+	--pdk-notification-center-ink: rgba(20, 24, 28, 0.92);
 	--pdk-notification-center-radius: 22px;
 	--pdk-notification-center-shadow: var(--pdk-material-popover-shadow);
 	--pdk-notification-center-width: 390px;
@@ -201,19 +209,38 @@
 	--pdk-notification-item-border: rgba(255, 255, 255, 0.36);
 	--pdk-notification-item-radius: 16px;
 	--pdk-notification-item-unread-bg: rgba(255, 255, 255, 0.5);
+	--pdk-notification-message-ink: rgba(20, 24, 28, 0.86);
+	--pdk-notification-muted: rgba(60, 60, 67, 0.64);
 	--pdk-notification-toast-bg: var(--pdk-material-popover-bg);
 	--pdk-notification-toast-border: var(--pdk-material-popover-border);
 	--pdk-notification-toast-filter: var(--pdk-material-popover-filter);
+	--pdk-notification-toast-ink: rgba(20, 24, 28, 0.92);
 	--pdk-notification-toast-radius: 18px;
 	--pdk-notification-toast-shadow: var(--pdk-material-popover-shadow);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] {
 	--pdk-notification-button-hover-bg: rgba(255, 255, 255, 0.14);
+	--pdk-notification-action-ink: rgba(226, 235, 255, 0.88);
+	--pdk-notification-center-ink: rgba(246, 248, 252, 0.96);
+	--pdk-notification-control-hover-bg: rgba(255, 255, 255, 0.12);
+	--pdk-notification-divider: rgba(255, 255, 255, 0.12);
 	--pdk-notification-item-bg: rgba(255, 255, 255, 0.08);
 	--pdk-notification-item-border: rgba(255, 255, 255, 0.12);
 	--pdk-notification-item-unread-bg: rgba(255, 255, 255, 0.13);
+	--pdk-notification-message-ink: rgba(246, 248, 252, 0.9);
 	--pdk-notification-muted: rgba(255, 255, 255, 0.62);
+	--pdk-notification-toast-ink: rgba(246, 248, 252, 0.96);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-notification-center-toolbar button:not(:disabled):hover,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-notification-center-toolbar button:not(:disabled):focus {
+	background: transparent;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-notification-action:hover,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-notification-action:focus {
+	background: var(--pdk-notification-action-bg, var(--pdk-accent));
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] {
@@ -425,7 +452,7 @@
 	color: var(--pdk-menu-ink);
 	gap: 8px;
 	grid-template-columns: auto minmax(0, 1fr) auto auto;
-	height: 28px;
+	height: var(--pdk-menu-bar-height);
 	left: 0;
 	padding: 0 12px;
 	position: absolute;
