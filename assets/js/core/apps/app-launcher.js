@@ -41,7 +41,7 @@
 			? window.PufferDesk.session.createSessionStore(config.storageKey)
 			: null;
 		const recentsFolderId = 'recents';
-		const defaultFinderFavoriteIds = ['documents', 'notes'];
+		const defaultFinderFavoriteIds = ['documents', 'notes', 'stickies'];
 		const folderData = window.PufferDesk.apps.createFolderDataProvider
 			? window.PufferDesk.apps.createFolderDataProvider({
 				appMap,
@@ -2879,7 +2879,7 @@
 			nav.appendChild(createFinderSidebarSection(
 				'locations',
 				getMenuLabel('locations', 'Locations'),
-				['home', trashFolderId].map((locationId) => getFolder(locationId)).filter(Boolean).map((folder) => createFinderSidebarItem({
+				['home', 'desktop', trashFolderId].map((locationId) => getFolder(locationId)).filter(Boolean).map((folder) => createFinderSidebarItem({
 					active: folder.id === folderId,
 					context: 'folder',
 					dropTarget: 'folder',

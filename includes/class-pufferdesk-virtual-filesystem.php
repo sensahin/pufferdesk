@@ -47,7 +47,7 @@ final class PufferDesk_Virtual_Filesystem {
 				$labels['desktop'],
 				$paths[ self::FOLDER_DESKTOP ],
 				self::FOLDER_HOME,
-				$this->theme_icon( 'desktop.svg', 'dashicons-desktop' ),
+				$this->theme_icon( 'folder.svg', 'dashicons-category' ),
 				'desktop'
 			),
 			$this->create_folder(
@@ -71,7 +71,7 @@ final class PufferDesk_Virtual_Filesystem {
 				$labels['stickies'],
 				$paths[ self::FOLDER_STICKIES ],
 				self::FOLDER_HOME,
-				$this->theme_icon( 'sticky-notes.svg', 'dashicons-sticky' ),
+				$this->theme_icon( 'folder.svg', 'dashicons-category' ),
 				'stickies'
 			),
 			$this->create_folder(
