@@ -1024,6 +1024,14 @@
 			return bar;
 		}
 
+		function createFolderEmptyState() {
+			const empty = dom.createElement('p', 'pdk-folder-empty-state pdk-explorer-empty-state', getMenuLabel('folder_empty', 'This folder is empty.'));
+
+			empty.setAttribute('role', 'status');
+
+			return empty;
+		}
+
 		function createFolderToolbarIcon(action) {
 			const icon = dom.createElement('span', `pdk-finder-toolbar-icon pdk-finder-toolbar-icon-${action.id}`);
 
@@ -1949,7 +1957,6 @@
 			const trashItems = isTrash ? getTrashItems() : [];
 			const removable = isUserFolder(folderId);
 			const main = dom.createElement('main', 'pdk-settings-main pdk-finder-main pdk-explorer-main');
-			const subbar = isTrash ? createTrashSubbar() : null;
 			const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane pdk-explorer-pane');
 
 			pane.dataset.pdkExplorerViewMode = getExplorerViewMode(win);
@@ -1962,11 +1969,12 @@
 				pane.appendChild(createFolderItemGrid(folderId, win, {
 					removable
 				}));
+			} else if (!isTrash) {
+				pane.appendChild(createFolderEmptyState());
 			}
 
 			main.dataset.pdkFolderId = folder && folder.id ? folder.id : folderId;
 			main.append(...[
-				subbar,
 				pane,
 				createExplorerStatusBar(folderId, win)
 			].filter(Boolean));

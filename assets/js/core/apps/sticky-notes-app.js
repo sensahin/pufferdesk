@@ -20,16 +20,61 @@
 		return button;
 	}
 
+	function createNewButton(label, text) {
+		const button = createButton('pdk-sticky-notes-app-new', label, '');
+		const symbol = document.createElement('span');
+		const buttonLabel = document.createElement('span');
+
+		symbol.className = 'pdk-sticky-notes-app-new-symbol';
+		symbol.textContent = '+';
+		buttonLabel.className = 'pdk-sticky-notes-app-new-label';
+		buttonLabel.textContent = text;
+		button.append(symbol, buttonLabel);
+
+		return button;
+	}
+
+	function toPlainText(content) {
+		const container = document.createElement('div');
+
+		container.innerHTML = String(content || '');
+
+		return (container.textContent || container.innerText || '').replace(/\s+/g, ' ').trim();
+	}
+
+	function formatTime(value) {
+		const date = value ? new Date(value) : null;
+
+		if (!date || Number.isNaN(date.getTime())) {
+			return '';
+		}
+
+		return new Intl.DateTimeFormat([], {
+			hour: 'numeric',
+			minute: '2-digit'
+		}).format(date);
+	}
+
+	function normalizeNoteColor(color) {
+		return window.PufferDesk.documents && typeof window.PufferDesk.documents.normalizeStickyNoteColor === 'function'
+			? window.PufferDesk.documents.normalizeStickyNoteColor(color)
+			: 'yellow';
+	}
+
 	window.PufferDesk.apps.createStickyNotesApp = function createStickyNotesApp(context = {}) {
 		const config = context.config || (window.PufferDesk.config ? window.PufferDesk.config.get() : {});
 		const labels = getLabels(config);
 		const root = document.createElement('div');
 		const toolbar = document.createElement('div');
+		const heading = document.createElement('h2');
+		const search = document.createElement('label');
+		const searchInput = document.createElement('input');
 		const list = document.createElement('div');
 		const status = document.createElement('div');
-		const newButton = createButton('pdk-sticky-notes-app-new', 'New Sticky Note', 'New Note');
 		const manager = window.PufferDesk.stickyNoteManager || null;
 		const documentStore = context.documentStore || (window.PufferDesk.documents ? window.PufferDesk.documents.createDocumentStore(config) : null);
+		const newButton = createNewButton(getLabel('newStickyNote', 'New Sticky Note'), getLabel('newNote', 'New Note'));
+		let currentNotes = [];
 
 		function getLabel(key, fallback) {
 			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
@@ -37,6 +82,66 @@
 
 		function getStickyKind() {
 			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note';
+		}
+
+		function noteMatchesQuery(note, query) {
+			if (!query) {
+				return true;
+			}
+
+			const haystack = [
+				note && note.title ? note.title : '',
+				note && note.content ? toPlainText(note.content) : ''
+			].join(' ').toLowerCase();
+
+			return haystack.includes(query);
+		}
+
+		function renderNoteItem(note) {
+			const item = document.createElement('article');
+			const openButton = document.createElement('button');
+			const preview = document.createElement('span');
+			const time = document.createElement('span');
+			const actions = document.createElement('div');
+			const showButton = createButton('pdk-sticky-notes-app-button', getLabel('show', 'Show'), getLabel('show', 'Show'));
+			const deleteButton = createButton('pdk-sticky-notes-app-button', getLabel('delete', 'Delete'), getLabel('delete', 'Delete'));
+			const previewText = toPlainText(note.content) || getLabel('stickyPlaceholder', 'Take a note...');
+			const modifiedTime = formatTime(note.modified || note.created);
+
+			item.className = 'pdk-sticky-notes-app-item';
+			item.dataset.pdkStickyColor = normalizeNoteColor(note.color);
+			openButton.className = 'pdk-sticky-notes-app-preview';
+			openButton.type = 'button';
+			openButton.setAttribute('aria-label', previewText);
+			preview.className = 'pdk-sticky-notes-app-title';
+			preview.textContent = previewText;
+			time.className = 'pdk-sticky-notes-app-time';
+			time.textContent = modifiedTime;
+			actions.className = 'pdk-sticky-notes-app-actions';
+			actions.append(showButton, deleteButton);
+			openButton.append(preview, time);
+			item.append(openButton, actions);
+
+			function showNote() {
+				if (manager && typeof manager.showNote === 'function') {
+					manager.showNote(note.id);
+				}
+			}
+
+			openButton.addEventListener('click', showNote);
+			showButton.addEventListener('click', showNote);
+			deleteButton.addEventListener('click', () => {
+				if (window.confirm && !window.confirm(getLabel('deleteStickyNote', 'Delete this note?'))) {
+					return;
+				}
+				const request = manager && typeof manager.deleteNote === 'function'
+					? manager.deleteNote(note.id)
+					: documentStore.remove(note.id);
+
+				Promise.resolve(request).then(refresh);
+			});
+
+			return item;
 		}
 
 		function setStatus(message, tone = '') {
@@ -57,46 +162,21 @@
 		}
 
 		function renderList(notes) {
+			const query = searchInput.value.trim().toLowerCase();
+			const filteredNotes = notes.filter((note) => noteMatchesQuery(note, query));
+
 			list.replaceChildren();
 
-			if (!notes.length) {
+			if (!filteredNotes.length) {
 				const empty = document.createElement('p');
 				empty.className = 'pdk-sticky-notes-app-empty';
-				empty.textContent = getLabel('noStickyNotes', 'No sticky notes');
+				empty.textContent = notes.length ? getLabel('noSearchResults', 'No matching notes') : getLabel('noStickyNotes', 'No sticky notes');
 				list.appendChild(empty);
 				return;
 			}
 
-			notes.forEach((note) => {
-				const item = document.createElement('div');
-				const title = document.createElement('span');
-				const actions = document.createElement('div');
-				const showButton = createButton('pdk-sticky-notes-app-button', getLabel('show', 'Show'), getLabel('show', 'Show'));
-				const deleteButton = createButton('pdk-sticky-notes-app-button', getLabel('delete', 'Delete'), getLabel('delete', 'Delete'));
-
-				item.className = 'pdk-sticky-notes-app-item';
-				title.className = 'pdk-sticky-notes-app-title';
-				title.textContent = note.title || getLabel('stickyNote', 'Sticky Note');
-				actions.className = 'pdk-sticky-notes-app-actions';
-				actions.append(showButton, deleteButton);
-				item.append(title, actions);
-				list.appendChild(item);
-
-				showButton.addEventListener('click', () => {
-					if (manager && typeof manager.showNote === 'function') {
-						manager.showNote(note.id);
-					}
-				});
-				deleteButton.addEventListener('click', () => {
-					if (window.confirm && !window.confirm(getLabel('deleteStickyNote', 'Delete this note?'))) {
-						return;
-					}
-					const request = manager && typeof manager.deleteNote === 'function'
-						? manager.deleteNote(note.id)
-						: documentStore.remove(note.id);
-
-					Promise.resolve(request).then(refresh);
-				});
+			filteredNotes.forEach((note) => {
+				list.appendChild(renderNoteItem(note));
 			});
 		}
 
@@ -106,7 +186,8 @@
 			const restore = manager && typeof manager.restore === 'function' ? manager.restore() : Promise.resolve([]);
 
 			return Promise.resolve(restore).then(getNotes).then((notes) => {
-				renderList(notes);
+				currentNotes = notes;
+				renderList(currentNotes);
 				setStatus('');
 				return notes;
 			}).catch((error) => {
@@ -117,10 +198,18 @@
 
 		root.className = 'pdk-sticky-notes-app';
 		toolbar.className = 'pdk-sticky-notes-app-toolbar';
+		heading.className = 'pdk-sticky-notes-app-heading';
+		heading.textContent = getLabel('stickyNotes', 'Sticky Notes');
+		search.className = 'pdk-sticky-notes-app-search';
+		searchInput.className = 'pdk-sticky-notes-app-search-input';
+		searchInput.type = 'search';
+		searchInput.placeholder = getLabel('searchPlaceholder', 'Search...');
+		searchInput.setAttribute('aria-label', getLabel('search', 'Search'));
+		search.appendChild(searchInput);
 		list.className = 'pdk-sticky-notes-app-list';
 		status.className = 'pdk-sticky-notes-app-status';
 		toolbar.appendChild(newButton);
-		root.append(toolbar, list, status);
+		root.append(toolbar, heading, search, list, status);
 
 		newButton.addEventListener('click', () => {
 			const request = manager && typeof manager.createStickyNote === 'function'
@@ -133,6 +222,7 @@
 
 			Promise.resolve(request).then(refresh);
 		});
+		searchInput.addEventListener('input', () => renderList(currentNotes));
 
 		refresh();
 
@@ -142,16 +232,19 @@
 	if (typeof window.PufferDesk.apps.registerNativeAppRenderer === 'function') {
 		window.PufferDesk.apps.registerNativeAppRenderer('sticky-notes', ({ config }) => {
 			const labels = getLabels(config);
+			const theme = config && config.theme && typeof config.theme === 'object' ? config.theme : {};
+			const user = config && config.user && typeof config.user === 'object' ? config.user : {};
+			const isRedmond = theme.family === 'redmond' || theme.id === 'redmond/modern' || user.themeId === 'redmond/modern';
 			const title = typeof labels.stickyNotes === 'string' && labels.stickyNotes ? labels.stickyNotes : 'Sticky Notes';
 
 			return {
 				bodyClass: 'pdk-window-body pdk-sticky-notes-app-body',
 				content: window.PufferDesk.apps.createStickyNotesApp({ config }),
-				height: '420px',
+				height: isRedmond ? '565px' : '420px',
 				resizeMode: 'vertical',
 				title,
 				titlebarLabel: title,
-				width: '360px'
+				width: isRedmond ? '554px' : '360px'
 			};
 		});
 	}

@@ -34,8 +34,16 @@
 		const stickyNotesAppId = 'sticky-notes';
 		const noteMap = new Map();
 		let layer = null;
+		let openOptionsMenu = null;
 		let restorePromise = null;
 		let highestZ = 40;
+
+		function isRedmondTheme() {
+			const theme = config.theme && typeof config.theme === 'object' ? config.theme : {};
+			const user = config.user && typeof config.user === 'object' ? config.user : {};
+
+			return theme.family === 'redmond' || theme.id === 'redmond/modern' || user.themeId === 'redmond/modern';
+		}
 
 		function getStickyKind() {
 			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note';
@@ -100,11 +108,13 @@
 		}
 
 		function getDefaultState(index = 0, overrides = {}) {
+			const redmond = isRedmondTheme();
+
 			return {
-				height: toNumber(overrides.height, 285),
+				height: toNumber(overrides.height, redmond ? 254 : 285),
 				left: toNumber(overrides.left, 110 + (index % 5) * 34),
 				top: toNumber(overrides.top, 76 + (index % 5) * 34),
-				width: toNumber(overrides.width, 360),
+				width: toNumber(overrides.width, redmond ? 305 : 360),
 				zIndex: toNumber(overrides.zIndex, highestZ + 1)
 			};
 		}
@@ -255,6 +265,185 @@
 			return button;
 		}
 
+		function getFormatToolbarMarkup() {
+			return '<span>B</span><span>I</span><span>U</span><span>ab</span><span class="dashicons dashicons-editor-ul"></span><span class="dashicons dashicons-format-image"></span>';
+		}
+
+		function getStickyNoteColors() {
+			return window.PufferDesk.documents && Array.isArray(window.PufferDesk.documents.stickyNoteColors)
+				? window.PufferDesk.documents.stickyNoteColors
+				: [ 'yellow' ];
+		}
+
+		function normalizeNoteColor(color) {
+			return window.PufferDesk.documents && typeof window.PufferDesk.documents.normalizeStickyNoteColor === 'function'
+				? window.PufferDesk.documents.normalizeStickyNoteColor(color)
+				: 'yellow';
+		}
+
+		function applyNoteColor(entry, color) {
+			if (!entry || !entry.element) {
+				return;
+			}
+
+			entry.element.dataset.pdkStickyColor = normalizeNoteColor(color);
+		}
+
+		function updateNoteColor(entry, color) {
+			const nextColor = normalizeNoteColor(color);
+
+			if (!entry || !entry.document) {
+				return Promise.resolve(false);
+			}
+
+			applyNoteColor(entry, nextColor);
+			entry.document.color = nextColor;
+
+			if (!documentStore || typeof documentStore.update !== 'function') {
+				return Promise.resolve(false);
+			}
+
+			return documentStore.update(entry.document.id, {
+				color: nextColor
+			}).then((documentData) => {
+				entry.document = Object.assign({}, documentData, {
+					content: entry.content ? entry.content.value : documentData.content
+				});
+				applyNoteColor(entry, documentData.color);
+				return true;
+			}).catch(() => false);
+		}
+
+		function closeNoteOptionsMenu() {
+			if (!openOptionsMenu) {
+				return;
+			}
+
+			if (typeof openOptionsMenu.cleanup === 'function') {
+				openOptionsMenu.cleanup();
+			}
+
+			if (openOptionsMenu.element) {
+				openOptionsMenu.element.remove();
+			}
+
+			openOptionsMenu = null;
+		}
+
+		function openNotesListApp() {
+			const desktopApi = window.PufferDesk.desktopApi || (window.PufferDesk.desktop && window.PufferDesk.desktop.api) || null;
+
+			if (desktopApi && desktopApi.apps && typeof desktopApi.apps.open === 'function') {
+				desktopApi.apps.open(stickyNotesAppId);
+				return true;
+			}
+
+			return false;
+		}
+
+		function createOptionsMenuItem(className, label) {
+			const button = document.createElement('button');
+			const icon = document.createElement('span');
+			const text = document.createElement('span');
+
+			button.className = `pdk-sticky-note-options-item ${className}`;
+			button.type = 'button';
+			button.setAttribute('role', 'menuitem');
+			icon.className = 'pdk-sticky-note-options-icon';
+			text.className = 'pdk-sticky-note-options-label';
+			text.textContent = label;
+			button.append(icon, text);
+
+			return button;
+		}
+
+		function createColorPalette(entry) {
+			const palette = document.createElement('div');
+			const colors = getStickyNoteColors();
+			const currentColor = normalizeNoteColor(entry && entry.document ? entry.document.color : '');
+
+			palette.className = 'pdk-sticky-note-options-palette';
+
+			colors.forEach((color) => {
+				const button = document.createElement('button');
+				button.className = `pdk-sticky-note-options-swatch is-${color}`;
+				button.type = 'button';
+				button.dataset.pdkStickyColor = color;
+				button.setAttribute('aria-label', color);
+				button.setAttribute('aria-pressed', color === currentColor ? 'true' : 'false');
+				button.addEventListener('click', () => {
+					palette.querySelectorAll('.pdk-sticky-note-options-swatch').forEach((swatch) => {
+						swatch.setAttribute('aria-pressed', swatch === button ? 'true' : 'false');
+					});
+					updateNoteColor(entry, color);
+				});
+				palette.appendChild(button);
+			});
+
+			return palette;
+		}
+
+		function toggleNoteOptionsMenu(entry, trigger) {
+			if (!entry || !entry.element) {
+				return;
+			}
+
+			if (openOptionsMenu && openOptionsMenu.trigger === trigger) {
+				closeNoteOptionsMenu();
+				return;
+			}
+
+			closeNoteOptionsMenu();
+
+			const menu = document.createElement('div');
+			const notesListButton = createOptionsMenuItem('is-notes-list', getLabel('notesList', 'Notes list'));
+			const deleteButton = createOptionsMenuItem('is-delete-note', getLabel('deleteNote', 'Delete Note'));
+			const divider = document.createElement('div');
+			const formatToolbar = document.createElement('div');
+
+			menu.className = 'pdk-sticky-note-options';
+			menu.setAttribute('role', 'menu');
+			divider.className = 'pdk-sticky-note-options-divider';
+			formatToolbar.className = 'pdk-sticky-note-options-toolbar';
+			formatToolbar.setAttribute('aria-hidden', 'true');
+			formatToolbar.innerHTML = getFormatToolbarMarkup();
+			menu.append(createColorPalette(entry), notesListButton, deleteButton, divider, formatToolbar);
+			entry.element.appendChild(menu);
+
+			function onPointerDown(event) {
+				if (menu.contains(event.target) || (trigger && trigger.contains(event.target))) {
+					return;
+				}
+
+				closeNoteOptionsMenu();
+			}
+
+			function onKeyDown(event) {
+				if (event.key === 'Escape') {
+					closeNoteOptionsMenu();
+				}
+			}
+
+			notesListButton.addEventListener('click', () => {
+				closeNoteOptionsMenu();
+				openNotesListApp();
+			});
+			deleteButton.addEventListener('click', () => {
+				closeNoteOptionsMenu();
+				confirmDiscardNote(entry);
+			});
+			document.addEventListener('pointerdown', onPointerDown, true);
+			document.addEventListener('keydown', onKeyDown, true);
+			openOptionsMenu = {
+				cleanup() {
+					document.removeEventListener('pointerdown', onPointerDown, true);
+					document.removeEventListener('keydown', onKeyDown, true);
+				},
+				element: menu,
+				trigger
+			};
+		}
+
 		function updateDocument(entry) {
 			if (!documentStore || !entry || !entry.document || !entry.content) {
 				return Promise.resolve(false);
@@ -315,6 +504,7 @@
 			const entry = noteMap.get(Number.parseInt(documentId, 10));
 			const removeElement = () => {
 				if (entry) {
+					closeNoteOptionsMenu();
 					entry.element.remove();
 					noteMap.delete(entry.document.id);
 					saveLayout();
@@ -515,6 +705,7 @@
 				const existing = noteMap.get(documentId);
 				existing.document = documentData;
 				existing.content.value = documentData.content || '';
+				applyNoteColor(existing, documentData.color);
 				applyState(existing.element, normalizeState(state, noteMap.size));
 				syncRunningState();
 				return existing.element;
@@ -542,6 +733,7 @@
 			noteElement.dataset.pdkContext = 'sticky-note';
 			noteElement.dataset.pdkContextId = String(documentId);
 			noteElement.setAttribute('aria-label', documentData.title || getLabel('stickyNote', 'Sticky Note'));
+			applyNoteColor(entry, documentData.color);
 			dragHandle.className = 'pdk-sticky-note-chrome';
 			dragHandle.dataset.pdkStickyNoteDragHandle = '1';
 			actionGroup.className = 'pdk-sticky-note-actions';
@@ -550,7 +742,7 @@
 			content.value = documentData.content || '';
 			toolbar.className = 'pdk-sticky-note-toolbar';
 			toolbar.setAttribute('aria-hidden', 'true');
-			toolbar.innerHTML = '<span>B</span><span>I</span><span>U</span><span>ab</span><span class="dashicons dashicons-editor-ul"></span><span class="dashicons dashicons-format-image"></span>';
+			toolbar.innerHTML = getFormatToolbarMarkup();
 
 			actionGroup.append(menuButton, fullscreenButton, collapseButton, closeButton);
 			dragHandle.append(createButton, discardButton, actionGroup);
@@ -577,13 +769,7 @@
 			fullscreenButton.addEventListener('click', () => setFullscreen(entry, !noteElement.classList.contains('is-fullscreen')));
 			collapseButton.addEventListener('click', () => setCollapsed(entry, !noteElement.classList.contains('is-collapsed')));
 			closeButton.addEventListener('click', () => hideNote(documentId));
-			menuButton.addEventListener('click', () => {
-				if (window.confirm && !window.confirm(getLabel('deleteStickyNote', 'Delete this note?'))) {
-					return;
-				}
-
-				deleteNote(documentId);
-			});
+			menuButton.addEventListener('click', () => toggleNoteOptionsMenu(entry, menuButton));
 
 			return noteElement;
 		}

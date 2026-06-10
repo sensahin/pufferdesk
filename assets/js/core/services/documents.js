@@ -4,10 +4,18 @@
 	window.PufferDesk = window.PufferDesk || {};
 	window.PufferDesk.documents = window.PufferDesk.documents || {};
 
+	const stickyNoteColors = [ 'yellow', 'green', 'pink', 'purple', 'blue', 'gray', 'dark' ];
+
 	function getConfig(config) {
 		return config && typeof config === 'object'
 			? config
 			: (window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function' ? window.PufferDesk.config.get() : {});
+	}
+
+	function normalizeStickyNoteColor(color) {
+		const value = typeof color === 'string' ? color.trim().toLowerCase() : '';
+
+		return stickyNoteColors.includes(value) ? value : 'yellow';
 	}
 
 	function normalizeDocument(document) {
@@ -172,4 +180,7 @@
 			update
 		};
 	};
+
+	window.PufferDesk.documents.stickyNoteColors = stickyNoteColors.slice();
+	window.PufferDesk.documents.normalizeStickyNoteColor = normalizeStickyNoteColor;
 })();
