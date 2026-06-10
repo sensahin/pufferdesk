@@ -299,7 +299,7 @@ final class PufferDesk_Document_Service {
 	}
 
 	/**
-	 * Get and lazily migrate the parent virtual path.
+	 * Get and persist the normalized parent virtual path.
 	 *
 	 * @param WP_Post $post Document post.
 	 * @param string  $kind Document kind.

@@ -586,7 +586,6 @@
 			const iconHeight = icon.offsetHeight || 94;
 			const topInset = getGridMetric(overrides, 'topInset', '--pdk-desktop-icon-grid-top-inset', 24);
 			const leftInset = getGridMetric(overrides, 'leftInset', '--pdk-desktop-icon-grid-left-inset', 24);
-			const legacyRightInset = getGridMetric(overrides, 'rightInset', '--pdk-desktop-icon-grid-right-inset', 24);
 			const columnGap = getGridMetric(overrides, 'columnGap', '--pdk-desktop-icon-grid-column-gap', 10);
 			const rowGap = getGridMetric(overrides, 'rowGap', '--pdk-desktop-icon-grid-row-gap', 14);
 			const rowStep = iconHeight + rowGap;
@@ -600,21 +599,17 @@
 				iconWidth,
 				layer,
 				leftInset,
-				legacyRightInset,
 				rowStep,
 				rows,
 				topInset
 			};
 		}
 
-		function getGridPosition(icon, row, column, origin = 'left', metricsOverrides = {}) {
+		function getGridPosition(icon, row, column, metricsOverrides = {}) {
 			const metrics = getGridMetrics(icon, metricsOverrides);
 			const maxLeft = metrics.layer ? metrics.layer.clientWidth - metrics.iconWidth : 0;
 			const maxTop = metrics.layer ? metrics.layer.clientHeight - metrics.iconHeight : 0;
-			const layerWidth = metrics.layer ? metrics.layer.clientWidth : 0;
-			const left = origin === 'right'
-				? layerWidth - metrics.legacyRightInset - metrics.iconWidth - column * metrics.columnStep
-				: metrics.leftInset + column * metrics.columnStep;
+			const left = metrics.leftInset + column * metrics.columnStep;
 			const top = metrics.topInset + row * metrics.rowStep;
 
 			return {
@@ -623,40 +618,12 @@
 			};
 		}
 
-		function getDefaultState(icon, index, origin = 'left', metricsOverrides = {}) {
+		function getDefaultState(icon, index, metricsOverrides = {}) {
 			const metrics = getGridMetrics(icon, metricsOverrides);
 			const row = index % metrics.rows;
 			const column = Math.floor(index / metrics.rows);
 
-			return getGridPosition(icon, row, column, origin, metricsOverrides);
-		}
-
-		function isDefaultPosition(state, defaults) {
-			const left = Number.parseFloat(state && state.left);
-			const top = Number.parseFloat(state && state.top);
-
-			if (!Number.isFinite(left) || !Number.isFinite(top)) {
-				return false;
-			}
-
-			return Math.abs(left - defaults.left) <= 2 && Math.abs(top - defaults.top) <= 2;
-		}
-
-		function shouldMigrateLegacyDefaultPosition(icon, item, index) {
-			if (!item || !item.state || typeof item.state !== 'object') {
-				return false;
-			}
-
-			const legacyMetrics = {
-				columnGap: 10,
-				leftInset: 24,
-				rightInset: 24,
-				rowGap: 14,
-				topInset: 24
-			};
-
-			return isDefaultPosition(item.state, getDefaultState(icon, index, 'right', legacyMetrics))
-				|| isDefaultPosition(item.state, getDefaultState(icon, index, 'left', legacyMetrics));
+			return getGridPosition(icon, row, column, metricsOverrides);
 		}
 
 		function getNearestCell(icon, state) {
@@ -1362,28 +1329,20 @@
 
 			const stored = getStoredIconMap();
 			restoreInProgress = true;
-			let migratedDefaultPosition = false;
 
 			icons.forEach((icon, index) => {
 				const id = getIconKey(icon);
 				const item = id ? stored.get(id) : null;
-				const migrateLegacyPosition = shouldMigrateLegacyDefaultPosition(icon, item, index);
-				const state = migrateLegacyPosition ? null : (item ? item.state : null);
+				const state = item ? item.state : null;
 
 				if (item && typeof item.label === 'string' && item.label.trim()) {
 					setIconLabelOverride(icon, item.label);
-				}
-				if (migrateLegacyPosition) {
-					migratedDefaultPosition = true;
 				}
 				applyIconState(icon, state, index);
 			});
 
 			restoreInProgress = false;
 			arrangeIcons(currentSortMode, false);
-			if (migratedDefaultPosition) {
-				scheduleSave();
-			}
 		}
 
 		function rebind() {

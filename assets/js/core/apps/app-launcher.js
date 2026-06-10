@@ -2135,99 +2135,17 @@
 			return actions;
 		}
 
-		function createFolderToolbarOverflowButton() {
-			const button = document.createElement('button');
-			const icon = dom.createElement('span', 'pdk-finder-toolbar-icon pdk-finder-toolbar-icon-overflow');
-
-			button.type = 'button';
-			button.className = 'pdk-finder-toolbar-button pdk-finder-toolbar-overflow-button';
-			button.dataset.pdkNoDrag = '';
-			button.setAttribute('aria-label', 'More Toolbar Items');
-			icon.append(
-				dom.createElement('span', 'pdk-finder-toolbar-overflow-chevron'),
-				dom.createElement('span', 'pdk-finder-toolbar-overflow-chevron')
-			);
-			button.appendChild(icon);
-
-			return button;
-		}
-
-		function createFolderToolbarOverflowMenuItem(action, folderId, win) {
-			const item = document.createElement('button');
-			const label = dom.createElement('span', 'pdk-finder-toolbar-overflow-menu-label', action.label);
-
-			item.type = 'button';
-			item.className = 'pdk-finder-toolbar-overflow-menu-item';
-			item.dataset.pdkNoDrag = '';
-			item.dataset.pdkToolbarAction = action.id;
-			item.setAttribute('role', 'menuitem');
-			if (hasExplorerCommandMenu(action)) {
-				item.setAttribute('aria-haspopup', 'menu');
-				item.setAttribute('aria-expanded', 'false');
-			}
-			item.append(createFolderToolbarIcon(action), label);
-			syncFolderToolbarButtonState(item, action, folderId, win);
-			item.addEventListener('click', (event) => {
-				event.preventDefault();
-				event.stopPropagation();
-				activateFolderToolbarAction(action, folderId, win, item);
-			});
-
-			return item;
-		}
-
-		function setFolderToolbarOverflowMenu(actions, hiddenIds, folderId, win) {
-			const menu = actions ? actions.querySelector('.pdk-finder-toolbar-overflow-menu') : null;
-			const hiddenSet = new Set(hiddenIds);
-			if (!menu) {
-				return;
-			}
-
-			menu.replaceChildren();
-			getFolderToolbarActions(folderId)
-				.filter((action) => hiddenSet.has(action.id))
-				.forEach((action) => {
-					menu.appendChild(createFolderToolbarOverflowMenuItem(action, folderId, win));
-				});
-		}
-
 		function createFolderToolbarActions(folderId, win) {
 			const actions = dom.createElement('div', 'pdk-finder-toolbar-actions');
-				const overflow = dom.createElement('div', 'pdk-finder-toolbar-overflow');
-				const overflowButton = createFolderToolbarOverflowButton();
-				const overflowMenu = dom.createElement('div', 'pdk-finder-toolbar-overflow-menu');
-				const toolbarActions = getFolderToolbarActions(folderId);
+			const toolbarActions = getFolderToolbarActions(folderId);
 
-				actions.dataset.pdkNoDrag = '';
-				overflow.hidden = true;
-				overflowMenu.hidden = true;
-			overflowMenu.setAttribute('role', 'menu');
-			overflowButton.addEventListener('click', (event) => {
-				event.preventDefault();
-				event.stopPropagation();
-				const willOpen = overflowMenu.hidden;
-				overflowMenu.hidden = !willOpen;
-				overflowButton.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-				if (willOpen) {
-					window.setTimeout(() => {
-						document.addEventListener('pointerdown', () => {
-							overflowMenu.hidden = true;
-							overflowButton.setAttribute('aria-expanded', 'false');
-						}, { once: true });
-					}, 0);
-				}
+			actions.dataset.pdkNoDrag = '';
+			toolbarActions.forEach((action) => {
+				actions.appendChild(createFolderToolbarButton(action, folderId, win));
 			});
-			overflowButton.setAttribute('aria-expanded', 'false');
-			overflow.append(overflowButton, overflowMenu);
 
-				toolbarActions
-					.forEach((action) => {
-						actions.appendChild(createFolderToolbarButton(action, folderId, win));
-					});
-				actions.appendChild(overflow);
-
-				return actions;
-			}
+			return actions;
+		}
 
 		function syncFolderToolbarActionStates(win) {
 			const folderId = win && win.dataset ? win.dataset.pdkFolderWindow : '';
@@ -2246,128 +2164,20 @@
 			});
 		}
 
-		function syncFolderToolbarOverflow(win) {
-			const toolbar = win ? win.querySelector('.pdk-finder-toolbar') : null;
-			const title = win ? win.querySelector('.pdk-finder-title') : null;
-			const actions = win ? win.querySelector('.pdk-finder-toolbar-actions') : null;
-			const overflow = actions ? actions.querySelector('.pdk-finder-toolbar-overflow') : null;
-			const overflowMenu = overflow ? overflow.querySelector('.pdk-finder-toolbar-overflow-menu') : null;
-			const buttons = actions
-				? Array.from(actions.querySelectorAll('[data-pdk-toolbar-action]'))
-				: [];
-				const hideOrder = ['new-folder', 'delete', 'group', 'view'];
-			const hiddenIds = [];
-
-			function readPixels(value, fallback = 0) {
-				const parsed = Number.parseFloat(value);
-
-				return Number.isFinite(parsed) ? parsed : fallback;
-			}
-
-			function getVisibleToolbarItems() {
-				return actions
-					? Array.from(actions.children).filter((item) => {
-						return !item.hidden && (
-							item.classList.contains('pdk-finder-toolbar-button')
-							|| item.classList.contains('pdk-finder-toolbar-overflow')
-						);
-					})
-					: [];
-			}
-
-			function toolbarItemsFit() {
-				const toolbarRect = toolbar ? toolbar.getBoundingClientRect() : null;
-				const toolbarStyles = toolbar ? window.getComputedStyle(toolbar) : null;
-				const titleRect = title ? title.getBoundingClientRect() : null;
-				const items = getVisibleToolbarItems();
-				const firstItem = items[0] || null;
-				const lastItem = items[items.length - 1] || null;
-				const rightEdge = toolbarRect && toolbarStyles
-					? toolbarRect.right - readPixels(toolbarStyles.paddingRight)
-					: 0;
-				const minTitleGap = toolbarStyles
-					? readPixels(toolbarStyles.gap, 38)
-					: 38;
-				const rightFits = !lastItem || lastItem.getBoundingClientRect().right <= rightEdge + 1;
-				const gapFits = !titleRect || !firstItem || firstItem.getBoundingClientRect().left - titleRect.right >= minTitleGap - 1;
-
-				return rightFits && gapFits;
-			}
-
-			if (!toolbar || !actions || !overflow || !buttons.length) {
+		function bindFolderToolbarActionStates(win) {
+			if (!win) {
 				return;
 			}
 
-			buttons.forEach((button) => {
-				button.hidden = false;
-			});
-			overflow.hidden = true;
-			if (overflowMenu) {
-				overflowMenu.hidden = true;
+			if (win.pdkFolderToolbarActionStateHandler) {
+				win.removeEventListener('pufferDesk:folder-selection-change', win.pdkFolderToolbarActionStateHandler);
 			}
 
-			if (toolbarItemsFit()) {
-				setFolderToolbarOverflowMenu(actions, hiddenIds, win.dataset.pdkFolderWindow || '', win);
-				return;
-			}
-
-			overflow.hidden = false;
-			hideOrder.some((actionId) => {
-				const button = actions.querySelector(`[data-pdk-toolbar-action="${actionId}"]`);
-				if (!button || button.hidden) {
-					return false;
-				}
-
-				button.hidden = true;
-				hiddenIds.push(actionId);
-
-				return toolbarItemsFit();
-			});
-
-			if (!hiddenIds.length) {
-				overflow.hidden = true;
-			}
-
-			setFolderToolbarOverflowMenu(actions, hiddenIds, win.dataset.pdkFolderWindow || '', win);
-		}
-
-		function bindFolderToolbarOverflow(win) {
-			const toolbar = win ? win.querySelector('.pdk-finder-toolbar') : null;
-			if (!toolbar) {
-				return;
-			}
-
-			if (win.pdkFolderToolbarResizeObserver && typeof win.pdkFolderToolbarResizeObserver.disconnect === 'function') {
-				win.pdkFolderToolbarResizeObserver.disconnect();
-			}
-
-			const sync = () => {
-				window.requestAnimationFrame(() => {
-					syncFolderToolbarActionStates(win);
-					syncFolderToolbarOverflow(win);
-				});
+			win.pdkFolderToolbarActionStateHandler = () => {
+				window.requestAnimationFrame(() => syncFolderToolbarActionStates(win));
 			};
-
-			if (win.pdkFolderToolbarDisplayHandler) {
-				win.removeEventListener('pufferDesk:folder-toolbar-display-change', win.pdkFolderToolbarDisplayHandler);
-			}
-
-			win.pdkFolderToolbarDisplayHandler = sync;
-			win.addEventListener('pufferDesk:folder-toolbar-display-change', win.pdkFolderToolbarDisplayHandler);
-
-			if (win.pdkFolderSelectionHandler) {
-				win.removeEventListener('pufferDesk:folder-selection-change', win.pdkFolderSelectionHandler);
-			}
-			win.pdkFolderSelectionHandler = sync;
-			win.addEventListener('pufferDesk:folder-selection-change', win.pdkFolderSelectionHandler);
-
-			sync();
-
-			if (typeof window.ResizeObserver === 'function') {
-				win.pdkFolderToolbarResizeObserver = new window.ResizeObserver(sync);
-				win.pdkFolderToolbarResizeObserver.observe(toolbar);
-				win.pdkFolderToolbarResizeObserver.observe(win);
-			}
+			win.addEventListener('pufferDesk:folder-selection-change', win.pdkFolderToolbarActionStateHandler);
+			syncFolderToolbarActionStates(win);
 		}
 
 		function getFolderTabTitle(tab) {
@@ -3291,7 +3101,7 @@
 				manager.makeDraggable(win);
 			}
 			bindExplorerCommandBar(win);
-			bindFolderToolbarOverflow(win);
+			bindFolderToolbarActionStates(win);
 
 			if (options.touch !== false) {
 				const provider = getFolderProvider();

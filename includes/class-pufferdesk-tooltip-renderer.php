@@ -31,10 +31,6 @@ final class PufferDesk_Tooltip_Renderer {
 			$attrs['data-pdk-tooltip-surface'] = $surface;
 		}
 
-		if ( ! empty( $options['dock_compat'] ) || 'dock' === $surface ) {
-			$attrs['data-pdk-dock-tooltip'] = $label;
-		}
-
 		$output = '';
 		foreach ( $attrs as $name => $value ) {
 			$output .= sprintf( ' %s="%s"', esc_attr( $name ), esc_attr( $value ) );

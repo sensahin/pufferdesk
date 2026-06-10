@@ -214,15 +214,10 @@
 
 			const bounds = getStickyBounds(noteElement);
 			const nextLeft = clamp(toNumber(noteElement.style.left, noteElement.offsetLeft || bounds.minLeft), bounds.minLeft, bounds.maxLeft);
-			const rawTop = toNumber(noteElement.style.top, noteElement.offsetTop || bounds.minTop);
-			const migratedTop = noteElement.dataset.pdkStickyTopSnap === '1'
-				? migrateLegacyDefaultTop(rawTop, getNoteIndex(noteElement))
-				: rawTop;
-			const nextTop = clamp(migratedTop, bounds.minTop, bounds.maxTop);
+			const nextTop = clamp(toNumber(noteElement.style.top, noteElement.offsetTop || bounds.minTop), bounds.minTop, bounds.maxTop);
 
 			noteElement.style.left = `${Math.round(nextLeft)}px`;
 			noteElement.style.top = `${Math.round(nextTop)}px`;
-			noteElement.dataset.pdkStickyTopSnap = '0';
 		}
 
 		function ensureLayer() {
@@ -253,61 +248,15 @@
 				? savedNotes.find((note) => Number.parseInt(note.id, 10) === Number.parseInt(documentId, 10))
 				: null;
 
-			return match && match.state && typeof match.state === 'object'
-				? Object.assign({}, match.state, {
-					_pdkFromSavedLayout: true
-				})
-				: {};
+			return match && match.state && typeof match.state === 'object' ? Object.assign({}, match.state) : {};
 		}
 
 		function getDefaultLeft(index = 0) {
 			return 110 + (index % 5) * 34;
 		}
 
-		function getLegacyDefaultTop(index = 0) {
-			return 76 + (index % 5) * 34;
-		}
-
-		function getPreviousSafeDefaultTop(index = 0) {
-			return getMenuBarHeight() + Math.max(8, getCssPixelValue('--pdk-window-safe-edge', 8)) + (index % 5) * 34;
-		}
-
-		function getWindowSafeDefaultTop(index = 0) {
-			return getMenuBarHeight() + Math.max(0, getCssPixelValue('--pdk-window-safe-edge', 8)) + (index % 5) * 34;
-		}
-
-		function getDesktopIconLayerDefaultTop(index = 0) {
-			return getCssPixelValue('--pdk-desktop-icon-layer-top', getMenuBarHeight() + 8) + (index % 5) * 34;
-		}
-
 		function getDefaultTop(index = 0) {
 			return (isRedmondTheme() ? 76 : getStickySafeArea().top) + (index % 5) * 34;
-		}
-
-		function isNearTop(value, target, tolerance = 2) {
-			return Math.abs(value - target) <= tolerance;
-		}
-
-		function migrateLegacyDefaultTop(top, index = 0) {
-			if (isRedmondTheme()) {
-				return top;
-			}
-
-			if (isNearTop(top, getLegacyDefaultTop(index))) {
-				return getDefaultTop(index);
-			}
-
-			if (
-				[
-					getPreviousSafeDefaultTop(index),
-					getWindowSafeDefaultTop(index),
-					getDesktopIconLayerDefaultTop(index)
-				].some((candidate) => isNearTop(top, candidate, 12))
-			) {
-				return getDefaultTop(index);
-			}
-
-			return top;
 		}
 
 		function getDefaultState(index = 0, overrides = {}) {
@@ -336,19 +285,14 @@
 			const maxLeft = Math.max(safeArea.left, desktopRect.width - width - safeArea.right);
 			const maxTop = Math.max(safeArea.top, desktopRect.height - height - safeArea.bottom);
 			const zIndex = toNumber(state.zIndex, defaults.zIndex);
-			const top = state._pdkFromSavedLayout
-				? migrateLegacyDefaultTop(toNumber(state.top, defaults.top), index)
-				: toNumber(state.top, defaults.top);
-			const restoreTop = state._pdkFromSavedLayout
-				? migrateLegacyDefaultTop(toNumber(state.restoreTop, toNumber(restoreState.top, defaults.top)), index)
-				: toNumber(state.restoreTop, toNumber(restoreState.top, defaults.top));
+			const top = toNumber(state.top, defaults.top);
+			const restoreTop = toNumber(state.restoreTop, toNumber(restoreState.top, defaults.top));
 
 			highestZ = Math.max(highestZ, zIndex);
 
 			return {
 				collapsed,
 				expandedHeight,
-				fromSavedLayout: Boolean(state._pdkFromSavedLayout),
 				fullscreen: !collapsed && Boolean(state.fullscreen),
 				height,
 				hidden: Boolean(state.hidden),
@@ -392,7 +336,6 @@
 			noteElement.dataset.pdkRestoreTop = `${toNumber(state.restoreTop, state.top)}px`;
 			noteElement.dataset.pdkRestoreWidth = `${toNumber(state.restoreWidth, state.width)}px`;
 			noteElement.dataset.pdkRestoreHeight = `${toNumber(state.restoreHeight, state.expandedHeight || state.height || 285)}px`;
-			noteElement.dataset.pdkStickyTopSnap = state.fromSavedLayout ? '1' : '0';
 			noteElement.style.left = `${nextLeft}px`;
 			noteElement.style.top = `${nextTop}px`;
 			noteElement.style.width = `${nextWidth}px`;
@@ -990,7 +933,6 @@
 
 				event.preventDefault();
 				bringToFront(noteElement);
-				noteElement.dataset.pdkStickyTopSnap = '0';
 				dragState = {
 					clientX: event.clientX,
 					clientY: event.clientY,

@@ -20,6 +20,7 @@ Always:
 - Treat PufferDesk as the bundled product identity. Polish it with familiar desktop patterns, but do not add a redundant platform clone as a second bundled theme.
 - Preserve Classic Admin as a reliable fallback.
 - Preserve per-user preferences and per-user/per-theme layout behavior.
+- Treat unreleased/internal refactors as clean breaks unless an actual shipped user-state contract exists. When there are no real users depending on an old internal filename, option, DOM attribute, layout value, or module path, update the single source of truth and remove the old path instead of adding compatibility aliases.
 - Use WordPress-safe PHP: capability checks, nonces for state changes, sanitization on input, escaping on output.
 - Keep readable source assets in `assets/css/` and `assets/js/`; regenerate `assets/dist/` for release assets.
 - Update docs when architecture, build behavior, public filters, or extension contracts change.
@@ -30,6 +31,7 @@ Never:
 
 - Do not turn this into a pile of duplicate one-off files.
 - Do not leave dead leftover code, unused obsolete modules, stale comments, or unreferenced assets.
+- Do not add backward-compatibility shims, legacy aliases, duplicate files, migration branches, or fallback lookup paths for pre-release/internal changes. Add compatibility code only when preserving a real shipped public contract or existing user data that cannot be safely normalized at the source.
 - Do not bypass registries for apps, widgets, or themes unless there is a strong architectural reason.
 - Do not mix theme-specific styling into core CSS.
 - Do not put core behavior into theme files.

@@ -29,6 +29,8 @@ PufferDesk intentionally wraps existing WordPress admin screens instead of repla
 
 The bundled PufferDesk family uses original plugin CSS and release-safe media. Visual polish may use familiar desktop conventions, but the product identity, assets, and naming must remain PufferDesk. Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
 
+Pre-release internal refactors should be clean breaks. If an old internal icon filename, option, DOM attribute, layout value, module path, or helper has not shipped as a public contract with real user state depending on it, replace the single source of truth and remove the old path. Do not add compatibility aliases, legacy lookup paths, duplicate assets, or migration branches for unreleased/internal changes. Compatibility code belongs only to real shipped public contracts or existing user data that cannot be safely normalized at the source.
+
 The foundation separates shell behavior from OS appearance:
 
 - `includes/` owns routing, preferences, shared path normalization, virtual filesystem paths, app/widget/theme registries, app badge rendering, theme token CSS-variable rendering, shared shell context, runtime config, asset manifests/enqueueing, controllers, widget layout attributes, and rendering.

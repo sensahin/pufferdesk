@@ -264,7 +264,7 @@
 						]
 					},
 					{
-						id: 'legacy',
+						id: 'more-options',
 						items: [
 							disabledItem(getLabel('show_more_options', 'Show more options'), {
 								icon: 'dashicons-external',

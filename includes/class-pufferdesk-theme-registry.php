@@ -1266,7 +1266,7 @@ final class PufferDesk_Theme_Registry {
 	 * Complete a mode token config.
 	 *
 	 * Mode tokens are also additive so dark/light CSS can keep local overrides
-	 * until a surface has been intentionally migrated.
+	 * until a surface is intentionally moved to token metadata.
 	 *
 	 * @param mixed $tokens Mode token config.
 	 * @return array<string,array<string,array<string,string>>>

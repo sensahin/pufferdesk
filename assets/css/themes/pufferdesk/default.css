@@ -733,8 +733,7 @@
 	background: var(--pdk-menu-selection-active-bg);
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel),
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-finder-toolbar-overflow-menu {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) {
 	display: grid;
 	max-width: calc(100vw - 16px);
 	min-width: 0;
@@ -760,10 +759,6 @@
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-icon,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-icon {
 	grid-template-columns: 16px max-content auto;
-}
-
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-finder-toolbar-overflow-menu-item {
-	grid-template-columns: 24px max-content;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-context-menu[data-pdk-context-menu="dock-app"] {
@@ -1601,10 +1596,7 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button:not(:disabled):hover .pdk-finder-toolbar-icon,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button:not(:disabled):focus-visible .pdk-finder-toolbar-icon,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button.is-menu-open .pdk-finder-toolbar-icon,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-overflow-button:hover .pdk-finder-toolbar-icon,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-overflow-button:focus-visible .pdk-finder-toolbar-icon,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-overflow-button[aria-expanded="true"] .pdk-finder-toolbar-icon {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button.is-menu-open .pdk-finder-toolbar-icon {
 	background: var(--pdk-material-control-hover-bg);
 	border-color: var(--pdk-material-control-border);
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 0 0 1px rgba(60, 60, 67, 0.08);
