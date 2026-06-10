@@ -1,0 +1,68 @@
+.pdk-tooltip-trigger {
+	position: relative;
+}
+
+.pdk-tooltip {
+	-webkit-backdrop-filter: var(--pdk-tooltip-backdrop-filter, blur(26px) saturate(170%));
+	backdrop-filter: var(--pdk-tooltip-backdrop-filter, blur(26px) saturate(170%));
+	background: var(--pdk-tooltip-bg, var(--pdk-dock-tooltip-bg, rgba(38, 48, 72, 0.9)));
+	border: var(--pdk-tooltip-border-width, 0) solid var(--pdk-tooltip-border-color, var(--pdk-dock-tooltip-border, transparent));
+	border-radius: var(--pdk-tooltip-radius, 999px);
+	bottom: var(--pdk-tooltip-bottom, calc(100% + 10px));
+	box-shadow: var(--pdk-tooltip-shadow, var(--pdk-dock-tooltip-shadow, none));
+	color: var(--pdk-tooltip-color, var(--pdk-dock-tooltip-color, rgba(255, 255, 255, 0.94)));
+	font-family: var(--pdk-tooltip-font-family, var(--pdk-font-ui));
+	font-size: var(--pdk-tooltip-font-size, var(--pdk-text-control));
+	font-weight: var(--pdk-tooltip-font-weight, var(--pdk-weight-regular));
+	left: var(--pdk-tooltip-left, 50%);
+	letter-spacing: var(--pdk-letter-spacing-default);
+	line-height: var(--pdk-tooltip-line-height, 1);
+	min-height: var(--pdk-tooltip-min-height, 30px);
+	opacity: 0;
+	padding: var(--pdk-tooltip-padding, 7px 14px);
+	pointer-events: none;
+	position: absolute;
+	right: var(--pdk-tooltip-right, auto);
+	top: var(--pdk-tooltip-top, auto);
+	transform: var(--pdk-tooltip-transform-hidden, translateX(-50%) translateY(6px));
+	transition: opacity var(--pdk-tooltip-duration, 120ms) ease, transform var(--pdk-tooltip-duration, 120ms) ease, visibility 0s linear var(--pdk-tooltip-duration, 120ms);
+	visibility: hidden;
+	white-space: nowrap;
+	z-index: var(--pdk-tooltip-z, 8);
+}
+
+.pdk-tooltip::after {
+	background: var(--pdk-tooltip-arrow-bg, var(--pdk-tooltip-bg, var(--pdk-dock-tooltip-bg, rgba(38, 48, 72, 0.9))));
+	border: 0;
+	bottom: var(--pdk-tooltip-arrow-bottom, -9px);
+	clip-path: var(--pdk-tooltip-arrow-clip-path, polygon(50% 100%, 0 0, 100% 0));
+	content: "";
+	display: var(--pdk-tooltip-arrow-display, block);
+	height: var(--pdk-tooltip-arrow-height, 10px);
+	left: var(--pdk-tooltip-arrow-left, 50%);
+	position: absolute;
+	right: var(--pdk-tooltip-arrow-right, auto);
+	top: var(--pdk-tooltip-arrow-top, auto);
+	transform: var(--pdk-tooltip-arrow-transform, translateX(-50%));
+	width: var(--pdk-tooltip-arrow-width, 18px);
+	z-index: 0;
+}
+
+.pdk-tooltip-trigger:hover > .pdk-tooltip,
+.pdk-tooltip-trigger:focus > .pdk-tooltip,
+.pdk-tooltip-trigger:focus-within > .pdk-tooltip {
+	opacity: 1;
+	transform: var(--pdk-tooltip-transform-visible, translateX(-50%) translateY(0));
+	transition-delay: var(--pdk-tooltip-delay, 110ms), var(--pdk-tooltip-delay, 110ms), 0s;
+	visibility: visible;
+}
+
+.pdk-tooltip-trigger.is-tooltip-dismissed > .pdk-tooltip,
+.pdk-tooltip-trigger.is-context-menu-active > .pdk-tooltip,
+.pdk-tooltip-trigger.is-dock-pressing > .pdk-tooltip,
+.pdk-tooltip-trigger.is-dock-reordering > .pdk-tooltip,
+.pdk-tooltip-suppressed > .pdk-tooltip {
+	opacity: 0;
+	transition-delay: 0s;
+	visibility: hidden;
+}

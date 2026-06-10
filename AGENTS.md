@@ -80,6 +80,7 @@ PHP services in `includes/`:
 - `class-pufferdesk-settings-controller.php`: AJAX settings persistence.
 - `class-pufferdesk-workspace-controller.php`: AJAX workspace layout load/save/reset actions.
 - `class-pufferdesk-icon-renderer.php`: icon descriptor normalization and rendering.
+- `class-pufferdesk-tooltip-renderer.php`: shared static tooltip trigger attributes and tooltip span rendering.
 
 Templates in `templates/`:
 
@@ -96,6 +97,7 @@ CSS:
 - `assets/css/core/admin-chrome.css`: WordPress admin chrome suppression.
 - `assets/css/core/shell.css`: global shell variables, menu bar, shared primitives.
 - `assets/css/core/context-menu.css`: right-click context menu positioning on top of shared menu primitives.
+- `assets/css/core/tooltips.css`: shared tooltip primitive, placement, visibility, and transition behavior.
 - `assets/css/core/desktop.css`: desktop and desktop icons.
 - `assets/css/core/widgets.css`: desktop widgets.
 - `assets/css/core/windows.css`: reusable window chrome.
@@ -116,7 +118,8 @@ JavaScript:
 - `assets/js/core/config.js`: runtime payload accessor.
 - `assets/js/core/dom.js`: shared DOM helpers.
 - `assets/js/core/events/`: internal event bus.
-- `assets/js/core/services/`: browser storage and AJAX clients.
+- `assets/js/core/services/`: browser storage, AJAX clients, tooltip helpers, virtual filesystem helpers, native document requests, geometry helpers, and debounced tasks.
+- `assets/js/core/services/tooltips.js`: shared browser tooltip creation and trigger attribute helper.
 - `assets/js/core/services/geometry.js`: shared numeric/CSS geometry helpers.
 - `assets/js/core/services/debounced-task.js`: shared debounced task scheduling for delayed state saves and mutations.
 - `assets/js/core/session/`: shared workspace session sections.

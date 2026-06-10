@@ -42,6 +42,7 @@ The foundation separates shell behavior from OS appearance:
   - `admin-chrome.css` for WordPress admin chrome suppression.
   - `shell.css` for global shell variables, menu bar, and shared primitives.
   - `context-menu.css` for right-click menu positioning on top of shared menu primitives.
+  - `tooltips.css` for shared tooltip placement, visibility, transition, and theme-variable hooks.
   - `desktop.css` for desktop surfaces and desktop icons.
   - `widgets.css` for desktop widget layout and shared widget chrome.
   - `windows.css` for reusable window chrome.
@@ -59,7 +60,7 @@ The foundation separates shell behavior from OS appearance:
   - `config.js` exposes the WordPress-provided runtime payload.
   - `dom.js` owns shared DOM helpers.
   - `events/` owns the internal event bus used for decoupled shell/module notifications.
-  - `services/` owns browser storage, AJAX clients, virtual filesystem helpers, native document requests, geometry helpers, and debounced task scheduling.
+  - `services/` owns browser storage, AJAX clients, tooltip helpers, virtual filesystem helpers, native document requests, geometry helpers, and debounced task scheduling.
   - `preferences/` owns shell preference appliers such as appearance, wallpaper, launcher, and menu bar state.
   - `session/` owns per-user, per-theme workspace session sections, with WordPress user meta as durable state and browser storage as cache/fallback.
   - `windows/` owns window creation, drag/focus behavior, and window state serialization.

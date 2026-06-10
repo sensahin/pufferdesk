@@ -98,6 +98,7 @@
 
 	window.PufferDesk.apps.createAppSurfaceManager = function createAppSurfaceManager(shell, config = {}, options = {}) {
 		const dom = window.PufferDesk.dom;
+		const tooltips = window.PufferDesk.tooltips || null;
 		const appBadges = window.PufferDesk.apps.badges || {
 			createElement() {
 				return null;
@@ -243,17 +244,15 @@
 		function createDockAppButton(app, options = {}) {
 			const button = document.createElement('button');
 			const label = getAppLabel(app);
-			const tooltip = dom.createElement('span', 'pdk-dock-tooltip', label);
 			const screenReaderText = dom.createElement('span', 'screen-reader-text', label);
 			const badge = appBadges.createElement(app);
 			const fixed = options.fixed === true || isFixedDockApp(app);
 
 			button.type = 'button';
-			button.className = fixed ? 'pdk-dock-item pdk-dock-fixed-item' : 'pdk-dock-item';
+			button.className = fixed ? 'pdk-dock-item pdk-tooltip-trigger pdk-dock-fixed-item' : 'pdk-dock-item pdk-tooltip-trigger';
 			button.dataset.pdkContext = 'dock-app';
 			button.dataset.pdkContextId = app.id;
 			button.dataset.pdkContextLabel = label;
-			button.dataset.pdkDockTooltip = label;
 			button.dataset.pdkOpenApp = app.id;
 			if (fixed) {
 				button.dataset.pdkDockFixed = app.dock && app.dock.placement ? app.dock.placement : 'end';
@@ -264,8 +263,10 @@
 			if (badge) {
 				button.appendChild(badge);
 			}
-			tooltip.setAttribute('aria-hidden', 'true');
-			button.append(tooltip, screenReaderText);
+			if (tooltips && typeof tooltips.attach === 'function') {
+				tooltips.attach(button, label, { surface: 'dock' });
+			}
+			button.appendChild(screenReaderText);
 
 			return button;
 		}

@@ -3,6 +3,8 @@
 
 	window.PufferDesk = window.PufferDesk || {};
 
+	const tooltips = window.PufferDesk.tooltips || null;
+
 	const commands = [
 		{
 			command: 'bold',
@@ -299,6 +301,12 @@
 		content.className = definition.icon ? `pdk-rich-text-command-icon ${definition.icon}` : 'pdk-rich-text-command-label';
 		content.textContent = definition.icon ? '' : definition.text;
 		button.appendChild(content);
+		if (tooltips && typeof tooltips.attach === 'function') {
+			tooltips.attach(button, label, {
+				className: 'pdk-rich-text-tooltip',
+				surface: 'rich-text'
+			});
+		}
 
 		return button;
 	}

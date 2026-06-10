@@ -348,6 +348,27 @@
 	background: rgb(0 0 0 / 0.08);
 }
 
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-tooltip,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar .pdk-rich-text-tooltip {
+	--pdk-tooltip-arrow-display: none;
+	--pdk-tooltip-backdrop-filter: none;
+	--pdk-tooltip-bg: #ffffe1;
+	--pdk-tooltip-border-color: #767676;
+	--pdk-tooltip-border-width: 1px;
+	--pdk-tooltip-bottom: calc(100% + 6px);
+	--pdk-tooltip-color: #111;
+	--pdk-tooltip-delay: 420ms;
+	--pdk-tooltip-font-size: 12px;
+	--pdk-tooltip-line-height: 1.2;
+	--pdk-tooltip-min-height: 0;
+	--pdk-tooltip-padding: 3px 7px;
+	--pdk-tooltip-radius: 0;
+	--pdk-tooltip-shadow: 1px 1px 2px rgb(0 0 0 / 0.22);
+	--pdk-tooltip-transform-hidden: translateX(-50%) translateY(2px);
+	--pdk-tooltip-transform-visible: translateX(-50%) translateY(0);
+	--pdk-tooltip-z: 30;
+}
+
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options {
 	background: var(--pdk-redmond-sticky-menu-bg);
 	box-shadow: 0 12px 28px rgb(0 0 0 / 0.28);

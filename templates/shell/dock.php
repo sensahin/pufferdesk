@@ -64,11 +64,11 @@ $pufferdesk_render_dock_app = static function ( $pufferdesk_app, $theme, $puffer
 	?>
 	<button
 		type="button"
-		class="pdk-dock-item<?php echo $pufferdesk_fixed ? ' pdk-dock-fixed-item' : ''; ?>"
+		class="pdk-dock-item pdk-tooltip-trigger<?php echo $pufferdesk_fixed ? ' pdk-dock-fixed-item' : ''; ?>"
 		data-pdk-context="dock-app"
 		data-pdk-context-id="<?php echo esc_attr( $pufferdesk_app['id'] ); ?>"
 		data-pdk-context-label="<?php echo esc_attr( $pufferdesk_app_label ); ?>"
-		data-pdk-dock-tooltip="<?php echo esc_attr( $pufferdesk_app_label ); ?>"
+		<?php echo PufferDesk_Tooltip_Renderer::get_trigger_attributes( $pufferdesk_app_label, array( 'surface' => 'dock' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 		<?php if ( $pufferdesk_fixed ) : ?>
 			data-pdk-dock-fixed="end"
 		<?php endif; ?>
@@ -78,7 +78,7 @@ $pufferdesk_render_dock_app = static function ( $pufferdesk_app, $theme, $puffer
 	>
 		<?php PufferDesk_Icon_Renderer::render( $pufferdesk_app['icon'], $theme ); ?>
 		<?php PufferDesk_App_Badge_Renderer::render( $pufferdesk_app_badge ); ?>
-		<span class="pdk-dock-tooltip" aria-hidden="true"><?php echo esc_html( $pufferdesk_app_label ); ?></span>
+		<?php PufferDesk_Tooltip_Renderer::render( $pufferdesk_app_label, array( 'surface' => 'dock' ) ); ?>
 		<span class="screen-reader-text"><?php echo esc_html( $pufferdesk_app_label ); ?></span>
 	</button>
 	<?php

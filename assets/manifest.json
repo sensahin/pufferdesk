@@ -21,6 +21,10 @@
 			"path": "assets/css/core/context-menu.css"
 		},
 		{
+			"handle": "pufferdesk-core-tooltips",
+			"path": "assets/css/core/tooltips.css"
+		},
+		{
 			"handle": "pufferdesk-core-desktop",
 			"path": "assets/css/core/desktop.css"
 		},
@@ -77,6 +81,11 @@
 			"deps": ["pufferdesk-config"]
 		},
 		{
+			"handle": "pufferdesk-tooltips",
+			"path": "assets/js/core/services/tooltips.js",
+			"deps": []
+		},
+		{
 			"handle": "pufferdesk-event-bus",
 			"path": "assets/js/core/events/event-bus.js",
 			"deps": []
@@ -104,7 +113,7 @@
 		{
 			"handle": "pufferdesk-rich-text",
 			"path": "assets/js/core/services/rich-text.js",
-			"deps": []
+			"deps": ["pufferdesk-tooltips"]
 		},
 		{
 			"handle": "pufferdesk-geometry",
@@ -164,7 +173,7 @@
 		{
 			"handle": "pufferdesk-window-dock",
 			"path": "assets/js/core/windows/window-dock.js",
-			"deps": ["pufferdesk-dom"]
+			"deps": ["pufferdesk-dom", "pufferdesk-tooltips"]
 		},
 		{
 			"handle": "pufferdesk-window-interactions",
@@ -214,7 +223,7 @@
 		{
 			"handle": "pufferdesk-app-surfaces",
 			"path": "assets/js/core/apps/app-surfaces.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-app-badges"]
+			"deps": ["pufferdesk-dom", "pufferdesk-tooltips", "pufferdesk-app-badges"]
 		},
 		{
 			"handle": "pufferdesk-app-preferences",

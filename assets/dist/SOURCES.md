@@ -7,6 +7,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/css/core/shell.css
 - assets/css/core/dialogs.css
 - assets/css/core/context-menu.css
+- assets/css/core/tooltips.css
 - assets/css/core/desktop.css
 - assets/css/core/widgets.css
 - assets/css/core/windows.css
@@ -27,6 +28,7 @@ Generated release assets are minified for performance. Readable source files rem
 ## JavaScript
 - assets/js/core/config.js
 - assets/js/core/dom.js
+- assets/js/core/services/tooltips.js
 - assets/js/core/events/event-bus.js
 - assets/js/core/services/storage.js
 - assets/js/core/services/api-client.js

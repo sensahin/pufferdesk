@@ -99,56 +99,15 @@
 }
 
 .pdk-dock-tooltip {
-	-webkit-backdrop-filter: blur(26px) saturate(170%);
-	backdrop-filter: blur(26px) saturate(170%);
-	background: var(--pdk-dock-tooltip-bg);
-	border: 0;
-	border-radius: 999px;
-	box-shadow: var(--pdk-dock-tooltip-shadow);
-	color: var(--pdk-dock-tooltip-color);
-	font-family: var(--pdk-font-ui);
-	font-size: var(--pdk-text-control);
-	font-weight: var(--pdk-weight-regular);
-	left: 50%;
-	letter-spacing: var(--pdk-letter-spacing-default);
-	line-height: 1;
-	min-height: 30px;
-	opacity: 0;
-	padding: 7px 14px;
-	pointer-events: none;
-	position: absolute;
-	top: -60px;
-	transform: translateX(-50%) translateY(6px);
-	transition: opacity 120ms ease, transform 120ms ease, visibility 0s linear 120ms;
-	visibility: hidden;
-	white-space: nowrap;
-	z-index: 8;
-}
-
-.pdk-dock-tooltip::after {
-	background: var(--pdk-dock-tooltip-bg);
-	border: 0;
-	bottom: -9px;
-	clip-path: polygon(50% 100%, 0 0, 100% 0);
-	content: "";
-	height: 10px;
-	left: 50%;
-	position: absolute;
-	transform: translateX(-50%);
-	width: 18px;
-	z-index: 0;
-}
-
-.pdk-dock-item:hover > .pdk-dock-tooltip,
-.pdk-dock-item:focus > .pdk-dock-tooltip,
-.pdk-dock-item:focus-within > .pdk-dock-tooltip,
-.pdk-dock-window-item:hover > .pdk-dock-tooltip,
-.pdk-dock-window-item:focus > .pdk-dock-tooltip,
-.pdk-dock-window-item:focus-within > .pdk-dock-tooltip {
-	opacity: 1;
-	transform: translateX(-50%) translateY(0);
-	transition-delay: 110ms, 110ms, 0s;
-	visibility: visible;
+	--pdk-tooltip-bg: var(--pdk-dock-tooltip-bg);
+	--pdk-tooltip-border-color: var(--pdk-dock-tooltip-border);
+	--pdk-tooltip-color: var(--pdk-dock-tooltip-color);
+	--pdk-tooltip-shadow: var(--pdk-dock-tooltip-shadow);
+	--pdk-tooltip-top: -60px;
+	--pdk-tooltip-bottom: auto;
+	--pdk-tooltip-left: 50%;
+	--pdk-tooltip-transform-hidden: translateX(-50%) translateY(6px);
+	--pdk-tooltip-transform-visible: translateX(-50%) translateY(0);
 }
 
 .pdk-dock-minimized-windows {
@@ -172,10 +131,6 @@
 .pdk-dock-window-item:focus-within {
 	outline: none;
 	transform: translateY(calc(-1 * var(--pdk-dock-hover-lift, 3px))) scale(var(--pdk-dock-hover-scale, 1));
-}
-
-.pdk-dock-window-item .pdk-dock-tooltip {
-	top: -60px;
 }
 
 .pdk-shell[data-pdk-dock-show-indicators="0"] .pdk-dock-item.is-running::after {
@@ -224,29 +179,20 @@
 }
 
 .pdk-shell[data-pdk-dock-position="left"] .pdk-dock-tooltip {
-	left: calc(100% + 14px);
-	top: 50%;
-	transform: translateY(-50%) translateX(-6px);
+	--pdk-tooltip-left: calc(100% + 14px);
+	--pdk-tooltip-top: 50%;
+	--pdk-tooltip-transform-hidden: translateY(-50%) translateX(-6px);
+	--pdk-tooltip-transform-visible: translateY(-50%) translateX(0);
 }
 
 .pdk-shell[data-pdk-dock-position="left"] .pdk-dock-tooltip::after {
-	border: 0;
-	bottom: auto;
-	clip-path: polygon(0 50%, 100% 0, 100% 100%);
-	height: 18px;
-	left: -6px;
-	top: 50%;
-	transform: translateY(-50%);
-	width: 10px;
-}
-
-.pdk-shell[data-pdk-dock-position="left"] .pdk-dock-item:hover > .pdk-dock-tooltip,
-.pdk-shell[data-pdk-dock-position="left"] .pdk-dock-item:focus > .pdk-dock-tooltip,
-.pdk-shell[data-pdk-dock-position="left"] .pdk-dock-item:focus-within > .pdk-dock-tooltip,
-.pdk-shell[data-pdk-dock-position="left"] .pdk-dock-window-item:hover > .pdk-dock-tooltip,
-.pdk-shell[data-pdk-dock-position="left"] .pdk-dock-window-item:focus > .pdk-dock-tooltip,
-.pdk-shell[data-pdk-dock-position="left"] .pdk-dock-window-item:focus-within > .pdk-dock-tooltip {
-	transform: translateY(-50%) translateX(0);
+	--pdk-tooltip-arrow-bottom: auto;
+	--pdk-tooltip-arrow-clip-path: polygon(0 50%, 100% 0, 100% 100%);
+	--pdk-tooltip-arrow-height: 18px;
+	--pdk-tooltip-arrow-left: -6px;
+	--pdk-tooltip-arrow-top: 50%;
+	--pdk-tooltip-arrow-transform: translateY(-50%);
+	--pdk-tooltip-arrow-width: 10px;
 }
 
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-item:hover,
@@ -260,38 +206,22 @@
 }
 
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-tooltip {
-	left: auto;
-	right: calc(100% + 14px);
-	top: 50%;
-	transform: translateY(-50%) translateX(6px);
+	--pdk-tooltip-left: auto;
+	--pdk-tooltip-right: calc(100% + 14px);
+	--pdk-tooltip-top: 50%;
+	--pdk-tooltip-transform-hidden: translateY(-50%) translateX(6px);
+	--pdk-tooltip-transform-visible: translateY(-50%) translateX(0);
 }
 
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-tooltip::after {
-	border: 0;
-	bottom: auto;
-	clip-path: polygon(100% 50%, 0 0, 0 100%);
-	height: 18px;
-	left: auto;
-	right: -6px;
-	top: 50%;
-	transform: translateY(-50%);
-	width: 10px;
-}
-
-.pdk-shell[data-pdk-dock-position="right"] .pdk-dock-item:hover > .pdk-dock-tooltip,
-.pdk-shell[data-pdk-dock-position="right"] .pdk-dock-item:focus > .pdk-dock-tooltip,
-.pdk-shell[data-pdk-dock-position="right"] .pdk-dock-item:focus-within > .pdk-dock-tooltip,
-.pdk-shell[data-pdk-dock-position="right"] .pdk-dock-window-item:hover > .pdk-dock-tooltip,
-.pdk-shell[data-pdk-dock-position="right"] .pdk-dock-window-item:focus > .pdk-dock-tooltip,
-.pdk-shell[data-pdk-dock-position="right"] .pdk-dock-window-item:focus-within > .pdk-dock-tooltip {
-	transform: translateY(-50%) translateX(0);
-}
-
-.pdk-dock-item.is-tooltip-dismissed > .pdk-dock-tooltip,
-.pdk-dock-window-item.is-tooltip-dismissed > .pdk-dock-tooltip {
-	opacity: 0;
-	transition-delay: 0s;
-	visibility: hidden;
+	--pdk-tooltip-arrow-bottom: auto;
+	--pdk-tooltip-arrow-clip-path: polygon(100% 50%, 0 0, 0 100%);
+	--pdk-tooltip-arrow-height: 18px;
+	--pdk-tooltip-arrow-left: auto;
+	--pdk-tooltip-arrow-right: -6px;
+	--pdk-tooltip-arrow-top: 50%;
+	--pdk-tooltip-arrow-transform: translateY(-50%);
+	--pdk-tooltip-arrow-width: 10px;
 }
 
 .pdk-dock-item.is-context-menu-active,
@@ -311,13 +241,6 @@
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-item.is-context-menu-active,
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-item.is-dock-pressing {
 	transform: translateX(-1px) scale(0.94);
-}
-
-.pdk-dock-item.is-context-menu-active > .pdk-dock-tooltip,
-.pdk-dock-item.is-dock-pressing > .pdk-dock-tooltip {
-	opacity: 0;
-	transition-delay: 0s;
-	visibility: hidden;
 }
 
 .pdk-dock.is-reordering .pdk-dock-item:not(.pdk-dock-drag-proxy) {
@@ -477,7 +400,7 @@
 }
 
 .pdk-shell[data-pdk-shell-launcher="taskbar"] .pdk-dock-tooltip {
-	top: -44px;
+	--pdk-tooltip-top: -44px;
 }
 
 .pdk-taskbar-start {
