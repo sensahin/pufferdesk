@@ -120,7 +120,12 @@ final class PufferDesk_Workspace_State {
 			'desktopSort'  => array(
 				'mode' => 'none',
 			),
-			'recentItems'  => array(),
+			'folderSidebar' => array(
+				'collapsed'          => array(),
+				'favoriteIds'        => array(),
+				'removedFavoriteIds' => array(),
+			),
+			'recentItems'   => array(),
 		);
 	}
 
@@ -145,7 +150,8 @@ final class PufferDesk_Workspace_State {
 			'stickyNotes'  => $this->sanitize_sticky_notes( isset( $state['stickyNotes'] ) ? $state['stickyNotes'] : array() ),
 			'desktopIcons' => $this->sanitize_desktop_icons( isset( $state['desktopIcons'] ) ? $state['desktopIcons'] : array(), $apps, $folders ),
 			'desktopSort'  => $this->sanitize_desktop_sort( isset( $state['desktopSort'] ) ? $state['desktopSort'] : array() ),
-			'recentItems'  => $this->sanitize_recent_items( isset( $state['recentItems'] ) ? $state['recentItems'] : array(), $apps, $folders ),
+			'folderSidebar' => $this->sanitize_folder_sidebar( isset( $state['folderSidebar'] ) ? $state['folderSidebar'] : array(), $folders ),
+			'recentItems'   => $this->sanitize_recent_items( isset( $state['recentItems'] ) ? $state['recentItems'] : array(), $apps, $folders ),
 		);
 	}
 
@@ -688,6 +694,62 @@ final class PufferDesk_Workspace_State {
 
 		return array(
 			'mode' => in_array( $mode, $allowed, true ) ? $mode : 'none',
+		);
+	}
+
+	/**
+	 * Sanitize Finder-style folder sidebar state.
+	 *
+	 * @param mixed                          $sidebar Raw sidebar state.
+	 * @param array<int,array<string,mixed>> $folders Available folders.
+	 * @return array<string,mixed>
+	 */
+	private function sanitize_folder_sidebar( $sidebar, $folders ) {
+		$available_folders = $this->get_available_ids( $folders );
+		$state             = is_array( $sidebar ) ? $sidebar : array();
+		$collapsed         = array();
+		$favorite_ids      = array();
+		$removed_ids       = array();
+		$seen_favorites    = array();
+		$seen_removed      = array();
+
+		foreach ( isset( $state['collapsed'] ) && is_array( $state['collapsed'] ) ? $state['collapsed'] : array() as $section => $value ) {
+			$section = sanitize_key( (string) $section );
+			if ( in_array( $section, array( 'favorites', 'locations' ), true ) ) {
+				$collapsed[ $section ] = (bool) $value;
+			}
+		}
+
+		foreach ( isset( $state['favoriteIds'] ) && is_array( $state['favoriteIds'] ) ? $state['favoriteIds'] : array() as $folder_id ) {
+			$folder_id = sanitize_key( (string) $folder_id );
+			if ( ! $this->is_allowed_folder_id( $folder_id, $available_folders ) || isset( $seen_favorites[ $folder_id ] ) ) {
+				continue;
+			}
+
+			$favorite_ids[]                 = $folder_id;
+			$seen_favorites[ $folder_id ] = true;
+			if ( count( $favorite_ids ) >= 50 ) {
+				break;
+			}
+		}
+
+		foreach ( isset( $state['removedFavoriteIds'] ) && is_array( $state['removedFavoriteIds'] ) ? $state['removedFavoriteIds'] : array() as $folder_id ) {
+			$folder_id = sanitize_key( (string) $folder_id );
+			if ( ! $this->is_allowed_folder_id( $folder_id, $available_folders ) || isset( $seen_removed[ $folder_id ] ) ) {
+				continue;
+			}
+
+			$removed_ids[]              = $folder_id;
+			$seen_removed[ $folder_id ] = true;
+			if ( count( $removed_ids ) >= 50 ) {
+				break;
+			}
+		}
+
+		return array(
+			'collapsed'          => $collapsed,
+			'favoriteIds'        => $favorite_ids,
+			'removedFavoriteIds' => $removed_ids,
 		);
 	}
 

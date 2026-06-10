@@ -1052,6 +1052,26 @@
 			}
 		});
 
+		register('folder.sidebar-remove', {
+			isEnabled(payload, detail) {
+				const folderId = getFolderIdFromPayload(payload, detail);
+
+				return Boolean(
+					launcher
+					&& typeof launcher.removeFolderSidebarFavorite === 'function'
+					&& folderId
+					&& detail
+					&& detail.type === 'folder-sidebar-item'
+					&& detail.targetElement
+					&& detail.targetElement.dataset
+					&& detail.targetElement.dataset.pdkFolderSidebarRemovable === '1'
+				);
+			},
+			run(payload, detail) {
+				return launcher.removeFolderSidebarFavorite(getFolderIdFromPayload(payload, detail));
+			}
+		});
+
 		register('folder.delete-selected', {
 			isEnabled(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);

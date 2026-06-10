@@ -15,8 +15,20 @@
 			return true;
 		}
 
+		function list(count) {
+			if (!window.PufferDesk.menuBar || typeof window.PufferDesk.menuBar.getRecentItems !== 'function') {
+				return [];
+			}
+
+			const items = window.PufferDesk.menuBar.getRecentItems(config);
+			const limit = Number.parseInt(count, 10);
+
+			return Number.isFinite(limit) && limit >= 0 ? items.slice(0, limit) : items;
+		}
+
 		return {
-			add
+			add,
+			list
 		};
 	};
 })();

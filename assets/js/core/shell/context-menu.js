@@ -795,6 +795,19 @@
 				}
 			]
 		}));
+		registerProvider('folder-sidebar-item', (detail) => ({
+			groups: [
+				{
+					id: 'primary',
+					items: [
+						commandItem(getLabel('remove_from_sidebar', 'Remove from Sidebar'), 'folder.sidebar-remove', {
+							icon: 'dashicons-no-alt',
+							target: detail.id
+						})
+					]
+				}
+			]
+		}));
 		registerProvider('desktop-folder', (detail) => providers.get('folder')(detail));
 		registerProvider('folder-tab', (detail) => {
 			const tabDetails = getFolderTabDetails(detail);

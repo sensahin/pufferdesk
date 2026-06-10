@@ -33,7 +33,15 @@
 			: null;
 		const recentItems = window.PufferDesk.apps.createRecentItemsController
 			? window.PufferDesk.apps.createRecentItemsController(config)
-			: { add() { return false; } };
+			: {
+				add() { return false; },
+				list() { return []; }
+			};
+		const sessionStore = config.storageKey && window.PufferDesk.session && typeof window.PufferDesk.session.createSessionStore === 'function'
+			? window.PufferDesk.session.createSessionStore(config.storageKey)
+			: null;
+		const recentsFolderId = 'recents';
+		const defaultFinderFavoriteIds = ['documents', 'notes'];
 		const folderData = window.PufferDesk.apps.createFolderDataProvider
 			? window.PufferDesk.apps.createFolderDataProvider({
 				appMap,
@@ -137,6 +145,22 @@
 			return folderData ? folderData.isTrashFolderId(folderId) : folderId === trashFolderId;
 		}
 
+		function isRecentsFolderId(folderId) {
+			return folderId === recentsFolderId;
+		}
+
+		function getRecentsFolder() {
+			return {
+				icon: { type: 'theme', name: 'clock.svg', fallback: 'dashicons-clock' },
+				id: recentsFolderId,
+				kind: 'system',
+				label: getMenuLabel('recents', 'Recents'),
+				special: 'recents',
+				user: false,
+				virtual: true
+			};
+		}
+
 		function getTrashFolder() {
 			if (folderData) {
 				return folderData.getTrashFolder();
@@ -153,6 +177,10 @@
 		}
 
 		function getFolder(folderId) {
+			if (isRecentsFolderId(folderId)) {
+				return getRecentsFolder();
+			}
+
 			return folderData ? folderData.getFolder(folderId) : (isTrashFolderId(folderId) ? getTrashFolder() : null);
 		}
 
@@ -170,6 +198,56 @@
 
 		function getFolderDocuments(folderId) {
 			return folderData && typeof folderData.getFolderDocuments === 'function' ? folderData.getFolderDocuments(folderId) : [];
+		}
+
+		function getRecentDisplayItems(count = 50) {
+			return typeof recentItems.list === 'function' ? recentItems.list(count).map((item) => {
+				const type = item && typeof item.type === 'string' ? item.type : '';
+				const target = item && typeof item.target === 'string' ? item.target : item && typeof item.id === 'string' ? item.id : '';
+
+				if (type === 'app') {
+					const app = appMap.get(target);
+					return app ? {
+						app,
+						command: item.command || 'open-app',
+						icon: app.icon || item.icon || 'dashicons-admin-generic',
+						id: app.id,
+						label: app.label || item.label || app.id,
+						target: app.id,
+						title: app.label || item.title || item.label,
+						type: 'app'
+					} : null;
+				}
+
+				if (type === 'folder') {
+					const folder = getFolder(target);
+					return folder ? {
+						command: item.command || 'open-folder',
+						folder,
+						icon: folder.icon || item.icon || 'dashicons-category',
+						id: folder.id,
+						label: folder.label || item.label || getMenuLabel('folder', 'Folder'),
+						target: folder.id,
+						title: folder.label || item.title || item.label,
+						type: 'folder'
+					} : null;
+				}
+
+				if (type === 'document' && item && (item.url || item.target)) {
+					return {
+						command: item.command || 'open-url',
+						icon: item.icon || 'dashicons-media-document',
+						id: item.id,
+						label: item.label || item.title || getMenuLabel('document', 'Document'),
+						target: item.target || item.url,
+						title: item.title || item.label || getMenuLabel('document', 'Document'),
+						type: 'document',
+						url: item.url || ''
+					};
+				}
+
+				return null;
+			}).filter(Boolean) : [];
 		}
 
 		function getTrashItems() {
@@ -233,6 +311,141 @@
 				title: app.label,
 				type: 'app'
 			});
+		}
+
+		function normalizeFolderId(value) {
+			return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 120);
+		}
+
+		function getFolderSidebarState() {
+			const raw = sessionStore && typeof sessionStore.getSection === 'function'
+				? sessionStore.getSection('folderSidebar', {})
+				: {};
+			const state = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+
+			return {
+				collapsed: state.collapsed && typeof state.collapsed === 'object' && !Array.isArray(state.collapsed) ? state.collapsed : {},
+				favoriteIds: Array.isArray(state.favoriteIds) ? state.favoriteIds.map(normalizeFolderId).filter(Boolean) : [],
+				removedFavoriteIds: Array.isArray(state.removedFavoriteIds) ? state.removedFavoriteIds.map(normalizeFolderId).filter(Boolean) : []
+			};
+		}
+
+		function saveFolderSidebarState(state) {
+			if (!sessionStore || typeof sessionStore.saveSection !== 'function') {
+				return false;
+			}
+
+			sessionStore.saveSection('folderSidebar', {
+				collapsed: state && state.collapsed && typeof state.collapsed === 'object' ? state.collapsed : {},
+				favoriteIds: Array.isArray(state && state.favoriteIds) ? state.favoriteIds : [],
+				removedFavoriteIds: Array.isArray(state && state.removedFavoriteIds) ? state.removedFavoriteIds : []
+			});
+
+			return true;
+		}
+
+		function getDefaultFinderFavorites() {
+			return defaultFinderFavoriteIds.filter((folderId) => Boolean(getFolder(folderId)));
+		}
+
+		function getFinderFavoriteIds() {
+			const state = getFolderSidebarState();
+			const removed = new Set(state.removedFavoriteIds);
+			const seen = new Set();
+			const ids = [];
+
+			getDefaultFinderFavorites().concat(state.favoriteIds).forEach((folderId) => {
+				if (!folderId || removed.has(folderId) || seen.has(folderId) || !getFolder(folderId) || isTrashFolderId(folderId) || isRecentsFolderId(folderId)) {
+					return;
+				}
+
+				seen.add(folderId);
+				ids.push(folderId);
+			});
+
+			return ids;
+		}
+
+		function refreshOpenFolderSidebars() {
+			Array.from(shell.querySelectorAll('.pdk-window[data-pdk-window-kind="folder"]:not(.is-closed)')).forEach((win) => {
+				const folderId = win && win.dataset ? win.dataset.pdkFolderWindow || '' : '';
+				if (folderId) {
+					renderFolderWindow(win, folderId, {
+						replaceHistory: true,
+						touch: false
+					});
+				}
+			});
+		}
+
+		function setFinderSidebarSectionCollapsed(sectionId, collapsed) {
+			if (!['favorites', 'locations'].includes(sectionId)) {
+				return false;
+			}
+
+			const state = getFolderSidebarState();
+			state.collapsed = Object.assign({}, state.collapsed, {
+				[sectionId]: Boolean(collapsed)
+			});
+			saveFolderSidebarState(state);
+			refreshOpenFolderSidebars();
+
+			return true;
+		}
+
+		function addFolderSidebarFavorite(folderId) {
+			const normalized = normalizeFolderId(folderId);
+			const folder = getFolder(normalized);
+			const state = getFolderSidebarState();
+			const defaults = new Set(getDefaultFinderFavorites());
+
+			if (!folder || isTrashFolderId(normalized) || isRecentsFolderId(normalized)) {
+				return false;
+			}
+
+			state.removedFavoriteIds = state.removedFavoriteIds.filter((id) => id !== normalized);
+			if (!defaults.has(normalized) && !state.favoriteIds.includes(normalized)) {
+				state.favoriteIds.push(normalized);
+			}
+			saveFolderSidebarState(state);
+			refreshOpenFolderSidebars();
+
+			return true;
+		}
+
+		function removeFolderSidebarFavorite(folderId) {
+			const normalized = normalizeFolderId(folderId);
+			const state = getFolderSidebarState();
+			const visibleFavoriteIds = new Set(getFinderFavoriteIds());
+			let changed = false;
+
+			if (!normalized) {
+				return false;
+			}
+
+			const nextFavorites = state.favoriteIds.filter((id) => id !== normalized);
+			if (nextFavorites.length !== state.favoriteIds.length) {
+				state.favoriteIds = nextFavorites;
+				changed = true;
+			}
+
+			if (!state.removedFavoriteIds.includes(normalized)) {
+				state.removedFavoriteIds.push(normalized);
+				changed = true;
+			}
+
+			if (!changed && visibleFavoriteIds.has(normalized)) {
+				changed = true;
+			}
+
+			if (!changed) {
+				return false;
+			}
+
+			saveFolderSidebarState(state);
+			refreshOpenFolderSidebars();
+
+			return true;
 		}
 
 		function openApp(appId, openOptions = {}) {
@@ -493,12 +706,20 @@
 		}
 
 		function getFolderDisplayItems(folderId, win = null) {
+			if (isRecentsFolderId(folderId)) {
+				return getRecentDisplayItems();
+			}
+
 			return folderRenderer && typeof folderRenderer.getDisplayItems === 'function'
 				? folderRenderer.getDisplayItems(folderId, win)
 				: [];
 		}
 
 		function createFolderItemGrid(folderId, win = null, options = {}) {
+			if (isRecentsFolderId(folderId)) {
+				return createRecentItemGrid(folderId);
+			}
+
 			return folderRenderer && typeof folderRenderer.createItemGrid === 'function'
 				? folderRenderer.createItemGrid(folderId, win, options)
 				: document.createElement('div');
@@ -531,6 +752,88 @@
 
 				launcherRenderer.clearSelection(pane);
 			});
+		}
+
+		function selectRecentItem(button, event) {
+			if (!button || !launcherRenderer || typeof launcherRenderer.selectItem !== 'function') {
+				return;
+			}
+
+			launcherRenderer.selectItem(button, {
+				additive: Boolean(event && (event.metaKey || event.ctrlKey || event.shiftKey))
+			});
+		}
+
+		function openRecentDisplayItem(item) {
+			if (!item) {
+				return null;
+			}
+
+			if (item.type === 'app' && item.target) {
+				return openApp(item.target);
+			}
+
+			if (item.type === 'folder' && item.target) {
+				return openFolder(item.target, {
+					recordRecent: false
+				});
+			}
+
+			if (item.type === 'document' && (item.url || item.target)) {
+				return openUrl(item.url || item.target, item.title || item.label, item.icon);
+			}
+
+			return null;
+		}
+
+		function createRecentItemButton(item) {
+			const button = document.createElement('button');
+			const label = item && item.label ? item.label : getMenuLabel('recent_item', 'Recent Item');
+			const appIcon = document.createElement('span');
+			const itemLabel = document.createElement('span');
+
+			button.type = 'button';
+			button.className = 'pdk-app-launcher pdk-recent-launcher';
+			button.dataset.pdkContext = item && item.type === 'folder' ? 'folder' : item && item.type === 'app' ? 'app' : 'document';
+			button.dataset.pdkContextId = item && item.target ? item.target : item && item.id ? item.id : '';
+			button.dataset.pdkContextLabel = label;
+			button.dataset.pdkRecentItem = item && item.id ? item.id : '';
+			button.setAttribute('aria-label', label);
+			button.setAttribute('aria-pressed', 'false');
+			button.setAttribute('aria-selected', 'false');
+
+			appIcon.className = 'pdk-app-icon';
+			appIcon.appendChild(dom.createIcon(item && item.icon ? item.icon : 'dashicons-admin-generic'));
+			itemLabel.className = 'pdk-app-launcher-label';
+			itemLabel.textContent = label;
+
+			button.append(appIcon, itemLabel);
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				selectRecentItem(button, event);
+			});
+			button.addEventListener('dblclick', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				openRecentDisplayItem(item);
+			});
+			button.addEventListener('contextmenu', () => {
+				selectRecentItem(button);
+			});
+
+			return button;
+		}
+
+		function createRecentItemGrid() {
+			const grid = document.createElement('div');
+
+			grid.className = 'pdk-app-grid pdk-finder-grid pdk-recent-grid';
+			getRecentDisplayItems().forEach((item) => {
+				grid.appendChild(createRecentItemButton(item));
+			});
+
+			return grid;
 		}
 
 		let activeFolderItemDropTarget = null;
@@ -655,6 +958,35 @@
 			return element.dataset.pdkOpenFolder || element.dataset.pdkContextId || '';
 		}
 
+		function getFolderSidebarDropTargetFromElement(element) {
+			const target = element && typeof element.closest === 'function'
+				? element.closest('[data-pdk-folder-sidebar-drop-kind]')
+				: null;
+			const dropKind = target && target.dataset ? target.dataset.pdkFolderSidebarDropKind || '' : '';
+
+			if (!target || !dropKind) {
+				return null;
+			}
+
+			if (dropKind === 'favorites') {
+				return {
+					element: target,
+					id: 'favorites',
+					kind: 'sidebar-favorites'
+				};
+			}
+
+			if (dropKind === 'folder') {
+				return {
+					element: target,
+					id: getFolderDropIdFromElement(target),
+					kind: 'folder'
+				};
+			}
+
+			return null;
+		}
+
 		function canDropFolderItem(dragDetail, dropTarget) {
 			const provider = getFolderProvider();
 
@@ -670,6 +1002,16 @@
 				return Boolean(
 					typeof provider.canMoveFolderToParent === 'function'
 					&& provider.canMoveFolderToParent(dragDetail.id, 'desktop')
+				);
+			}
+
+			if (dropTarget.kind === 'sidebar-favorites') {
+				return Boolean(
+					dragDetail.kind === 'folder'
+					&& dragDetail.id
+					&& getFolder(dragDetail.id)
+					&& !isTrashFolderId(dragDetail.id)
+					&& !isRecentsFolderId(dragDetail.id)
 				);
 			}
 
@@ -699,6 +1041,7 @@
 			const folderElement = element && typeof element.closest === 'function'
 				? element.closest('.pdk-folder-launcher, [data-pdk-desktop-icon-kind="folder"]')
 				: null;
+			const sidebarTarget = getFolderSidebarDropTargetFromElement(element);
 			const pane = element && typeof element.closest === 'function'
 				? element.closest('.pdk-finder-pane')
 				: null;
@@ -708,6 +1051,10 @@
 
 			if (!element) {
 				return null;
+			}
+
+			if (sidebarTarget && sidebarTarget.element !== dragDetail.item) {
+				return canDropFolderItem(dragDetail, sidebarTarget) ? sidebarTarget : null;
 			}
 
 			if (folderElement && folderElement !== dragDetail.item) {
@@ -779,6 +1126,8 @@
 						point
 					});
 				}
+			} else if (dropTarget.kind === 'sidebar-favorites') {
+				changed = dragDetail.kind === 'folder' ? addFolderSidebarFavorite(dragDetail.id) : false;
 			} else if (dropTarget.kind === 'folder') {
 				if (dragDetail.kind === 'app' && typeof provider.addAppToFolder === 'function') {
 					changed = provider.addAppToFolder(dragDetail.id, dropTarget.id);
@@ -2481,6 +2830,76 @@
 			return icon;
 		}
 
+		function createFinderSidebarItem(options = {}) {
+			const button = document.createElement('button');
+			const label = options.label || 'Folder';
+			const folderId = options.id || '';
+
+			button.type = 'button';
+			button.className = `pdk-settings-sidebar-item pdk-finder-sidebar-item${options.active ? ' is-active' : ''}`;
+			button.dataset.pdkContext = options.context || 'folder';
+			button.dataset.pdkContextId = folderId;
+			button.dataset.pdkContextLabel = label;
+			button.dataset.pdkFolderSidebarItem = '1';
+			button.dataset.pdkFolderSidebarSection = options.section || '';
+			if (options.removable) {
+				button.dataset.pdkFolderSidebarRemovable = '1';
+			}
+			if (options.dropTarget === 'folder') {
+				button.dataset.pdkFolderSidebarDropKind = 'folder';
+				button.dataset.pdkFolderSidebarTarget = 'folder';
+				button.dataset.pdkOpenFolder = folderId;
+			}
+			if (options.active) {
+				button.setAttribute('aria-current', 'page');
+			}
+			button.appendChild(createFolderSidebarIcon({
+				icon: options.icon || 'dashicons-category'
+			}));
+			button.appendChild(dom.createElement('span', 'pdk-settings-sidebar-label', label));
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				if (typeof options.onClick === 'function') {
+					options.onClick();
+				}
+			});
+
+			return button;
+		}
+
+		function createFinderSidebarSection(sectionId, label, items = [], options = {}) {
+			const state = getFolderSidebarState();
+			const collapsed = Boolean(state.collapsed[sectionId]);
+			const section = dom.createElement('section', `pdk-finder-sidebar-section pdk-finder-sidebar-section-${sectionId}${collapsed ? ' is-collapsed' : ''}`);
+			const header = document.createElement('button');
+			const body = dom.createElement('div', 'pdk-finder-sidebar-section-body');
+
+			section.dataset.pdkFolderSidebarSection = sectionId;
+			if (options.dropKind) {
+				section.dataset.pdkFolderSidebarDropKind = options.dropKind;
+			}
+			header.type = 'button';
+			header.className = 'pdk-finder-sidebar-section-header';
+			header.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+			header.append(
+				dom.createElement('span', 'pdk-finder-sidebar-section-title', label),
+				dom.createElement('span', 'pdk-finder-sidebar-section-expander')
+			);
+			header.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				setFinderSidebarSectionCollapsed(sectionId, !collapsed);
+			});
+			if (collapsed) {
+				body.hidden = true;
+			}
+			items.forEach((item) => body.appendChild(item));
+			section.append(header, body);
+
+			return section;
+		}
+
 		function createExplorerSidebarIcon(iconName) {
 			const icon = dom.createElement('span', 'pdk-settings-sidebar-icon pdk-finder-sidebar-icon pdk-explorer-sidebar-icon');
 			icon.appendChild(dom.createIcon(iconName || 'dashicons-category'));
@@ -2547,9 +2966,6 @@
 			if (!isExplorer) {
 				sidebar.appendChild(dragZone);
 			}
-			if (!isExplorer) {
-				sidebar.appendChild(dom.createElement('div', 'pdk-finder-sidebar-heading', 'Folders'));
-			}
 
 			if (isExplorer) {
 				const primaryGroup = dom.createElement('div', 'pdk-settings-sidebar-group pdk-explorer-sidebar-group pdk-explorer-sidebar-group-primary');
@@ -2606,28 +3022,68 @@
 				return sidebar;
 			}
 
-			getFolders().forEach((folder) => {
-				const button = document.createElement('button');
-				button.type = 'button';
-				button.className = 'pdk-settings-sidebar-item pdk-finder-sidebar-item';
-				button.dataset.pdkContext = 'folder';
-				button.dataset.pdkContextId = folder.id;
-				button.dataset.pdkContextLabel = folder.label || 'Folder';
-				button.appendChild(createFolderSidebarIcon(folder));
-				button.appendChild(dom.createElement('span', 'pdk-settings-sidebar-label', folder.label || 'Folder'));
-				if (folder.id === folderId) {
-					button.classList.add('is-active');
-					button.setAttribute('aria-current', 'page');
-				}
-				button.addEventListener('click', (event) => {
-					event.preventDefault();
-					event.stopPropagation();
-					if (win && folder.id !== folderId) {
-						renderFolderWindow(win, folder.id);
+			const primarySection = dom.createElement('div', 'pdk-finder-sidebar-section pdk-finder-sidebar-section-primary');
+
+			primarySection.appendChild(createFinderSidebarItem({
+				active: isRecentsFolderId(folderId),
+				context: 'folder',
+				icon: { type: 'theme', name: 'clock.svg', fallback: 'dashicons-clock' },
+				id: recentsFolderId,
+				label: getMenuLabel('recents', 'Recents'),
+				section: 'recents',
+				onClick() {
+					if (win && !isRecentsFolderId(folderId)) {
+						renderFolderWindow(win, recentsFolderId);
 					}
-				});
-				nav.appendChild(button);
-			});
+				}
+			}));
+			nav.appendChild(primarySection);
+
+			nav.appendChild(createFinderSidebarSection(
+				'favorites',
+				getMenuLabel('favorites', 'Favorites'),
+				getFinderFavoriteIds().map((favoriteId) => {
+					const folder = getFolder(favoriteId);
+
+					return createFinderSidebarItem({
+						active: folder && folder.id === folderId,
+						context: 'folder-sidebar-item',
+						dropTarget: 'folder',
+						icon: folder && folder.icon ? folder.icon : 'dashicons-category',
+						id: folder ? folder.id : favoriteId,
+						label: folder && folder.label ? folder.label : getMenuLabel('folder', 'Folder'),
+						removable: true,
+						section: 'favorites',
+						onClick() {
+							if (win && folder && folder.id !== folderId) {
+								renderFolderWindow(win, folder.id);
+							}
+						}
+					});
+				}),
+				{
+					dropKind: 'favorites'
+				}
+			));
+
+			nav.appendChild(createFinderSidebarSection(
+				'locations',
+				getMenuLabel('locations', 'Locations'),
+				['home', trashFolderId].map((locationId) => getFolder(locationId)).filter(Boolean).map((folder) => createFinderSidebarItem({
+					active: folder.id === folderId,
+					context: 'folder',
+					dropTarget: 'folder',
+					icon: folder.icon || (folder.id === trashFolderId ? 'dashicons-trash' : 'dashicons-admin-home'),
+					id: folder.id,
+					label: folder.label || 'Folder',
+					section: 'locations',
+					onClick() {
+						if (win && folder.id !== folderId) {
+							renderFolderWindow(win, folder.id);
+						}
+					}
+				}))
+			));
 
 			sidebar.appendChild(nav);
 
@@ -2901,7 +3357,7 @@
 				touch: options.touch
 			});
 			focusFolderWindow(targetWindow, options);
-			if (options.recordRecent !== false) {
+			if (options.recordRecent !== false && !isRecentsFolderId(folderId)) {
 				recordFolderOpen(folderId, folder);
 			}
 
@@ -2971,7 +3427,7 @@
 					tabs: Array.isArray(options.tabs) ? options.tabs : null,
 					touch: options.touch
 				});
-				if (options.recordRecent !== false) {
+				if (options.recordRecent !== false && !isRecentsFolderId(folderId)) {
 					recordFolderOpen(folderId, folder);
 				}
 			}
@@ -3192,8 +3648,12 @@
 		}
 
 		shell.addEventListener('pufferDesk:trash-change', refreshTrashWindows);
+		window.addEventListener('pufferDesk:recent-items-change', () => {
+			refreshFolderWindow(recentsFolderId);
+		});
 
 		return {
+			addFolderSidebarFavorite,
 			bindShellClicks,
 			closeFolderInfoWindow,
 				closeFolderTab,
@@ -3220,6 +3680,7 @@
 				openUrl,
 				refreshFolderInfoWindow,
 				refreshFolderWindow,
+				removeFolderSidebarFavorite,
 				setFolderSortMode(folderId, mode, options = {}) {
 					const win = options.windowElement || getFolderWindow(folderId);
 					return setExplorerSortMode(win, mode);

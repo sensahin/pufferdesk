@@ -258,6 +258,24 @@
 				};
 			}
 
+			if (targetIcon.dataset.pdkFolderSidebarDropKind === 'favorites') {
+				return {
+					id: 'favorites',
+					kind: 'folder-sidebar-favorites',
+					key: 'folder-sidebar:favorites'
+				};
+			}
+
+			if (targetIcon.dataset.pdkFolderSidebarDropKind === 'folder') {
+				const folderId = targetIcon.dataset.pdkOpenFolder || targetIcon.dataset.pdkContextId || '';
+
+				return {
+					id: folderId,
+					kind: 'folder',
+					key: folderId ? `folder:${folderId}` : ''
+				};
+			}
+
 			if (targetIcon.classList && targetIcon.classList.contains('pdk-finder-pane')) {
 				const win = targetIcon.closest('.pdk-window[data-pdk-window-kind="folder"]');
 				const folderId = win && win.dataset ? win.dataset.pdkFolderWindow || '' : '';
@@ -303,7 +321,7 @@
 				return false;
 			}
 
-			if (targetIcon.hidden || getDropTargetDetail(targetIcon).kind !== 'folder') {
+			if (targetIcon.hidden || !['folder', 'folder-sidebar-favorites'].includes(getDropTargetDetail(targetIcon).kind)) {
 				return false;
 			}
 
@@ -540,9 +558,16 @@
 			const nextFolderItemTarget = element && typeof element.closest === 'function'
 				? element.closest('.pdk-folder-launcher')
 				: null;
+			const nextSidebarTarget = element && typeof element.closest === 'function'
+				? element.closest('[data-pdk-folder-sidebar-drop-kind]')
+				: null;
 			const nextPaneTarget = element && typeof element.closest === 'function'
 				? element.closest('.pdk-finder-pane')
 				: null;
+
+			if (nextSidebarTarget && canDropOnFolder(sourceIcon, nextSidebarTarget)) {
+				return nextSidebarTarget;
+			}
 
 			if (nextFolderItemTarget && canDropOnFolder(sourceIcon, nextFolderItemTarget)) {
 				return nextFolderItemTarget;

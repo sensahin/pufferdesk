@@ -63,7 +63,7 @@ The foundation separates shell behavior from OS appearance:
   - `events/` owns the internal event bus used for decoupled shell/module notifications.
   - `services/` owns browser storage, AJAX clients, tooltip helpers, semantic sound playback, virtual filesystem helpers, native document requests, geometry helpers, and debounced task scheduling.
   - `preferences/` owns shell preference appliers such as appearance, wallpaper, launcher, and menu bar state.
-  - `session/` owns per-user, per-theme workspace session sections, with WordPress user meta as durable state and browser storage as cache/fallback.
+  - `session/` owns per-user, per-theme workspace session sections such as windows, widgets, desktop icons, recent items, and folder sidebar state, with WordPress user meta as durable state and browser storage as cache/fallback.
   - `windows/` owns window creation, shared titlebar actions, drag/focus behavior, and window state serialization.
   - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
   - `notifications/` owns the notification store, center binding, toast presentation, read/dismiss state, and runtime system notifications.

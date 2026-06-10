@@ -40,6 +40,11 @@
 				desktopSort: {
 					mode: 'none'
 				},
+				folderSidebar: {
+					collapsed: {},
+					favoriteIds: [],
+					removedFavoriteIds: []
+				},
 				recentItems: []
 			};
 		}
@@ -77,6 +82,7 @@
 				stickyNotes: Array.isArray(session.stickyNotes) ? session.stickyNotes : [],
 				desktopIcons: Array.isArray(session.desktopIcons) ? session.desktopIcons : [],
 				desktopSort: isObject(session.desktopSort) ? session.desktopSort : defaults.desktopSort,
+				folderSidebar: isObject(session.folderSidebar) ? session.folderSidebar : defaults.folderSidebar,
 				recentItems: Array.isArray(session.recentItems) ? session.recentItems : []
 			});
 		}

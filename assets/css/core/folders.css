@@ -89,6 +89,81 @@
 	user-select: none;
 }
 
+.pdk-finder-sidebar-section {
+	display: grid;
+	gap: 2px;
+	min-width: 0;
+}
+
+.pdk-finder-sidebar-section-body {
+	display: grid;
+	gap: 2px;
+	min-width: 0;
+}
+
+.pdk-finder-sidebar-section-body[hidden] {
+	display: none;
+}
+
+.pdk-finder-sidebar-section-header {
+	align-items: center;
+	appearance: none;
+	background: transparent;
+	border: 0;
+	color: var(--pdk-muted);
+	cursor: default;
+	display: grid;
+	font: inherit;
+	grid-template-columns: minmax(0, 1fr) 14px;
+	min-height: 20px;
+	padding: 0 8px;
+	text-align: left;
+	user-select: none;
+	width: 100%;
+	-webkit-user-select: none;
+}
+
+.pdk-finder-sidebar-section-header:focus {
+	outline: none;
+}
+
+.pdk-finder-sidebar-section-title {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pdk-finder-sidebar-section-expander {
+	display: block;
+	height: 14px;
+	opacity: 0;
+	position: relative;
+	width: 14px;
+}
+
+.pdk-finder-sidebar-section.is-collapsed .pdk-finder-sidebar-section-expander,
+.pdk-finder-sidebar-section-header:hover .pdk-finder-sidebar-section-expander,
+.pdk-finder-sidebar-section-header:focus-visible .pdk-finder-sidebar-section-expander {
+	opacity: 1;
+}
+
+.pdk-finder-sidebar-section-expander::before {
+	border-bottom: 1.5px solid currentColor;
+	border-right: 1.5px solid currentColor;
+	content: "";
+	height: 5px;
+	left: 4px;
+	position: absolute;
+	top: 3px;
+	transform: rotate(45deg);
+	width: 5px;
+}
+
+.pdk-finder-sidebar-section.is-collapsed .pdk-finder-sidebar-section-expander::before {
+	left: 3px;
+	transform: rotate(-45deg);
+}
+
 .pdk-finder-sidebar-icon .pdk-icon-image,
 .pdk-finder-sidebar-icon .dashicons {
 	display: block;

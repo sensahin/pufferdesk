@@ -98,6 +98,7 @@
 			storageKey: config.storageKey || ''
 		});
 		let folderManager = null;
+		let launcher = null;
 		const desktopIconManager = window.PufferDesk.desktop.createDesktopIconManager(shell, {
 			canRenameIcon(detail) {
 				return Boolean(
@@ -110,6 +111,16 @@
 				);
 			},
 			canDropOnFolder(detail) {
+				if (
+					detail
+					&& detail.targetKind === 'folder-sidebar-favorites'
+					&& detail.sourceKind === 'folder'
+					&& launcher
+					&& typeof launcher.addFolderSidebarFavorite === 'function'
+				) {
+					return true;
+				}
+
 				return Boolean(
 					folderManager
 					&& detail.targetKind === 'folder'
@@ -129,6 +140,13 @@
 			},
 			onDropOnFolder(detail) {
 				if (!folderManager || !detail) {
+					return;
+				}
+
+				if (detail.sourceKind === 'folder' && detail.targetKind === 'folder-sidebar-favorites') {
+					if (launcher && typeof launcher.addFolderSidebarFavorite === 'function') {
+						launcher.addFolderSidebarFavorite(detail.sourceId);
+					}
 					return;
 				}
 
@@ -166,7 +184,7 @@
 			storageKey: config.storageKey || ''
 		});
 		window.PufferDesk.stickyNoteManager = stickyNoteManager;
-		const launcher = window.PufferDesk.apps.createAppLauncher(shell, manager, config);
+		launcher = window.PufferDesk.apps.createAppLauncher(shell, manager, config);
 		folderManager = window.PufferDesk.desktop.createFolderManager(shell, launcher, config);
 		if (typeof launcher.setFolderProvider === 'function') {
 			launcher.setFolderProvider(folderManager);
