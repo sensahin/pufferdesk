@@ -18,7 +18,6 @@
 	overflow: hidden;
 	pointer-events: auto;
 	position: absolute;
-	resize: both;
 	touch-action: none;
 }
 
@@ -32,7 +31,6 @@
 
 .pdk-sticky-note.is-collapsed {
 	min-height: var(--pdk-sticky-note-header-height, 38px);
-	resize: none;
 }
 
 .pdk-sticky-note.is-collapsed .pdk-sticky-note-content,

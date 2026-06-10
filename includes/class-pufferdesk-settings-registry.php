@@ -22,7 +22,7 @@ final class PufferDesk_Settings_Registry {
 		$domains = array(
 			'appearance'        => array(
 				'id'           => 'appearance',
-				'label'        => __( 'Appearance', 'pufferdesk-admin-desktop' ),
+				'label'        => 'Appearance',
 				'panel'        => 'appearance',
 				'capability'   => self::CAPABILITY,
 				'ajax_action'  => 'pufferdesk_save_appearance',
@@ -39,7 +39,7 @@ final class PufferDesk_Settings_Registry {
 			),
 			'desktop_dock'      => array(
 				'id'           => 'desktop_dock',
-				'label'        => __( 'Desktop & Dock', 'pufferdesk-admin-desktop' ),
+				'label'        => 'Desktop & Dock',
 				'panel'        => 'desktop-dock',
 				'capability'   => self::CAPABILITY,
 				'ajax_action'  => 'pufferdesk_save_desktop_dock',
@@ -63,7 +63,7 @@ final class PufferDesk_Settings_Registry {
 			),
 			'app_locations'     => array(
 				'id'           => 'app_locations',
-				'label'        => __( 'App Locations', 'pufferdesk-admin-desktop' ),
+				'label'        => 'App Locations',
 				'panel'        => 'apps',
 				'capability'   => self::CAPABILITY,
 				'ajax_action'  => 'pufferdesk_save_app_locations',
@@ -75,7 +75,7 @@ final class PufferDesk_Settings_Registry {
 			),
 			'app_login_items'   => array(
 				'id'           => 'app_login_items',
-				'label'        => __( 'Login Items', 'pufferdesk-admin-desktop' ),
+				'label'        => 'Login Items',
 				'panel'        => 'apps',
 				'capability'   => self::CAPABILITY,
 				'ajax_action'  => 'pufferdesk_save_app_login_items',
@@ -87,7 +87,7 @@ final class PufferDesk_Settings_Registry {
 			),
 			'desktop_folders'   => array(
 				'id'           => 'desktop_folders',
-				'label'        => __( 'Desktop Folders', 'pufferdesk-admin-desktop' ),
+				'label'        => 'Desktop Folders',
 				'panel'        => 'apps',
 				'capability'   => self::CAPABILITY,
 				'ajax_action'  => 'pufferdesk_save_desktop_folders',
@@ -99,7 +99,7 @@ final class PufferDesk_Settings_Registry {
 			),
 			'desktop_trash'     => array(
 				'id'           => 'desktop_trash',
-				'label'        => __( 'Trash', 'pufferdesk-admin-desktop' ),
+				'label'        => 'Trash',
 				'panel'        => 'apps',
 				'capability'   => self::CAPABILITY,
 				'ajax_action'  => 'pufferdesk_save_desktop_trash',
@@ -111,7 +111,7 @@ final class PufferDesk_Settings_Registry {
 			),
 			'menu_bar'          => array(
 				'id'           => 'menu_bar',
-				'label'        => __( 'Menu Bar', 'pufferdesk-admin-desktop' ),
+				'label'        => 'Menu Bar',
 				'panel'        => 'menu-bar',
 				'capability'   => self::CAPABILITY,
 				'ajax_action'  => 'pufferdesk_save_menu_bar',
@@ -127,7 +127,7 @@ final class PufferDesk_Settings_Registry {
 			),
 			'theme'             => array(
 				'id'           => 'theme',
-				'label'        => __( 'Theme', 'pufferdesk-admin-desktop' ),
+				'label'        => 'Theme',
 				'panel'        => 'appearance',
 				'capability'   => self::CAPABILITY,
 				'ajax_action'  => 'pufferdesk_save_theme',
@@ -139,7 +139,7 @@ final class PufferDesk_Settings_Registry {
 			),
 			'wallpaper'         => array(
 				'id'           => 'wallpaper',
-				'label'        => __( 'Wallpaper', 'pufferdesk-admin-desktop' ),
+				'label'        => 'Wallpaper',
 				'panel'        => 'wallpaper',
 				'capability'   => self::CAPABILITY,
 				'ajax_action'  => 'pufferdesk_save_wallpaper',
@@ -157,7 +157,7 @@ final class PufferDesk_Settings_Registry {
 			),
 			'wallpaper_uploads' => array(
 				'id'           => 'wallpaper_uploads',
-				'label'        => __( 'Wallpaper Uploads', 'pufferdesk-admin-desktop' ),
+				'label'        => 'Wallpaper Uploads',
 				'panel'        => 'wallpaper',
 				'capability'   => self::CAPABILITY,
 				'ajax_action'  => 'pufferdesk_remove_wallpaper_upload',
@@ -169,7 +169,7 @@ final class PufferDesk_Settings_Registry {
 			),
 			'reset'             => array(
 				'id'          => 'reset',
-				'label'       => __( 'Reset', 'pufferdesk-admin-desktop' ),
+				'label'       => 'Reset',
 				'panel'       => 'workspace',
 				'capability'  => self::CAPABILITY,
 				'ajax_action' => 'pufferdesk_reset',
@@ -234,6 +234,45 @@ final class PufferDesk_Settings_Registry {
 	}
 
 	/**
+	 * Localized label for a core settings domain.
+	 *
+	 * Domain contracts are read during plugin bootstrap to register AJAX hooks,
+	 * so translations are intentionally delayed until client metadata is built.
+	 *
+	 * @param string $domain_id Domain ID.
+	 * @param string $fallback  Fallback label.
+	 * @return string
+	 */
+	private function get_client_domain_label( $domain_id, $fallback ) {
+		switch ( $domain_id ) {
+			case 'appearance':
+				return __( 'Appearance', 'pufferdesk-admin-desktop' );
+			case 'desktop_dock':
+				return __( 'Desktop & Dock', 'pufferdesk-admin-desktop' );
+			case 'app_locations':
+				return __( 'App Locations', 'pufferdesk-admin-desktop' );
+			case 'app_login_items':
+				return __( 'Login Items', 'pufferdesk-admin-desktop' );
+			case 'desktop_folders':
+				return __( 'Desktop Folders', 'pufferdesk-admin-desktop' );
+			case 'desktop_trash':
+				return __( 'Trash', 'pufferdesk-admin-desktop' );
+			case 'menu_bar':
+				return __( 'Menu Bar', 'pufferdesk-admin-desktop' );
+			case 'theme':
+				return __( 'Theme', 'pufferdesk-admin-desktop' );
+			case 'wallpaper':
+				return __( 'Wallpaper', 'pufferdesk-admin-desktop' );
+			case 'wallpaper_uploads':
+				return __( 'Wallpaper Uploads', 'pufferdesk-admin-desktop' );
+			case 'reset':
+				return __( 'Reset', 'pufferdesk-admin-desktop' );
+			default:
+				return $fallback;
+		}
+	}
+
+	/**
 	 * Client-safe settings domain metadata.
 	 *
 	 * @return array<int,array<string,mixed>>
@@ -246,9 +285,12 @@ final class PufferDesk_Settings_Registry {
 				continue;
 			}
 
+			$domain_id = sanitize_key( $domain['id'] );
+			$label     = isset( $domain['label'] ) ? sanitize_text_field( $domain['label'] ) : $domain_id;
+
 			$domains[] = array(
-				'id'          => sanitize_key( $domain['id'] ),
-				'label'       => isset( $domain['label'] ) ? sanitize_text_field( $domain['label'] ) : sanitize_key( $domain['id'] ),
+				'id'          => $domain_id,
+				'label'       => $this->get_client_domain_label( $domain_id, $label ),
 				'panel'       => isset( $domain['panel'] ) ? sanitize_key( $domain['panel'] ) : '',
 				'capability'  => isset( $domain['capability'] ) ? sanitize_key( $domain['capability'] ) : self::CAPABILITY,
 				'action'      => isset( $domain['ajax_action'] ) ? sanitize_key( $domain['ajax_action'] ) : '',

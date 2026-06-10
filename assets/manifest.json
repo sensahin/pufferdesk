@@ -171,6 +171,11 @@
 			"deps": []
 		},
 		{
+			"handle": "pufferdesk-resize-handles",
+			"path": "assets/js/core/windows/resize-handles.js",
+			"deps": ["pufferdesk-geometry"]
+		},
+		{
 			"handle": "pufferdesk-window-state",
 			"path": "assets/js/core/windows/window-state.js",
 			"deps": ["pufferdesk-geometry", "pufferdesk-window-layout"]
@@ -183,7 +188,7 @@
 		{
 			"handle": "pufferdesk-window-interactions",
 			"path": "assets/js/core/windows/window-interactions.js",
-			"deps": ["pufferdesk-geometry", "pufferdesk-window-layout", "pufferdesk-titlebar-actions"]
+			"deps": ["pufferdesk-geometry", "pufferdesk-window-layout", "pufferdesk-titlebar-actions", "pufferdesk-resize-handles"]
 		},
 		{
 			"handle": "pufferdesk-window-manager",
@@ -208,7 +213,7 @@
 		{
 			"handle": "pufferdesk-sticky-notes",
 			"path": "assets/js/core/desktop/sticky-notes.js",
-			"deps": ["pufferdesk-documents-service", "pufferdesk-rich-text", "pufferdesk-geometry", "pufferdesk-debounced-task", "pufferdesk-session-store", "pufferdesk-titlebar-actions", "pufferdesk-app-surfaces"]
+			"deps": ["pufferdesk-documents-service", "pufferdesk-rich-text", "pufferdesk-geometry", "pufferdesk-debounced-task", "pufferdesk-session-store", "pufferdesk-titlebar-actions", "pufferdesk-resize-handles", "pufferdesk-app-surfaces"]
 		},
 		{
 			"handle": "pufferdesk-about-window",

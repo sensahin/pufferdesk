@@ -55,6 +55,10 @@
 		}
 
 		function getTargetWindow(detail = activeDetail) {
+			if (detail && detail.windowless === true) {
+				return null;
+			}
+
 			if (detail && detail.windowElement && detail.windowElement.classList && detail.windowElement.classList.contains('pdk-window')) {
 				return detail.windowElement;
 			}

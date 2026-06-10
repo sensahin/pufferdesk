@@ -46,6 +46,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/windows/window-factory.js
 - assets/js/core/windows/window-layout.js
 - assets/js/core/windows/titlebar-actions.js
+- assets/js/core/windows/resize-handles.js
 - assets/js/core/windows/window-state.js
 - assets/js/core/windows/window-dock.js
 - assets/js/core/windows/window-interactions.js

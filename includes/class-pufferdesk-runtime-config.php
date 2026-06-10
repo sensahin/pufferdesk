@@ -168,7 +168,7 @@ final class PufferDesk_Runtime_Config {
 				'deleteStickyNote' => __( 'Delete this note?', 'pufferdesk-admin-desktop' ),
 				'deleted'          => __( 'Deleted', 'pufferdesk-admin-desktop' ),
 				'discardNote'      => __( 'Discard Note', 'pufferdesk-admin-desktop' ),
-				'discardNoteMessage' => __( 'Are you sure you want to discard this Stickies note?', 'pufferdesk-admin-desktop' ),
+				'discardNoteMessage' => __( 'Are you sure you want to discard this sticky note?', 'pufferdesk-admin-desktop' ),
 				'discardNoteTitle' => __( "If you don't save this note, its contents will be lost.", 'pufferdesk-admin-desktop' ),
 				'documentServiceUnavailable' => __( 'Document service unavailable.', 'pufferdesk-admin-desktop' ),
 				'formatting'       => __( 'Formatting', 'pufferdesk-admin-desktop' ),

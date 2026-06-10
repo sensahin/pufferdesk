@@ -135,7 +135,9 @@
 }
 
 .pdk-window.is-resizing,
-.pdk-window.is-resizing * {
+.pdk-window.is-resizing *,
+.pdk-sticky-note.is-resizing,
+.pdk-sticky-note.is-resizing * {
 	user-select: none;
 }
 
@@ -143,6 +145,7 @@
 	pointer-events: none;
 }
 
+.pdk-resize-handle,
 .pdk-window-resize-handle {
 	background: transparent;
 	display: block;
@@ -151,6 +154,8 @@
 	z-index: 5;
 }
 
+.pdk-resize-handle-n,
+.pdk-resize-handle-s,
 .pdk-window-resize-handle-n,
 .pdk-window-resize-handle-s {
 	cursor: ns-resize;
@@ -159,14 +164,18 @@
 	right: 16px;
 }
 
+.pdk-resize-handle-n,
 .pdk-window-resize-handle-n {
 	top: 0;
 }
 
+.pdk-resize-handle-s,
 .pdk-window-resize-handle-s {
 	bottom: 0;
 }
 
+.pdk-resize-handle-e,
+.pdk-resize-handle-w,
 .pdk-window-resize-handle-e,
 .pdk-window-resize-handle-w {
 	bottom: 16px;
@@ -175,14 +184,20 @@
 	width: 7px;
 }
 
+.pdk-resize-handle-e,
 .pdk-window-resize-handle-e {
 	right: 0;
 }
 
+.pdk-resize-handle-w,
 .pdk-window-resize-handle-w {
 	left: 0;
 }
 
+.pdk-resize-handle-ne,
+.pdk-resize-handle-nw,
+.pdk-resize-handle-se,
+.pdk-resize-handle-sw,
 .pdk-window-resize-handle-ne,
 .pdk-window-resize-handle-nw,
 .pdk-window-resize-handle-se,
@@ -191,37 +206,51 @@
 	width: 10px;
 }
 
+.pdk-resize-handle-ne,
+.pdk-resize-handle-sw,
 .pdk-window-resize-handle-ne,
 .pdk-window-resize-handle-sw {
 	cursor: nesw-resize;
 }
 
+.pdk-resize-handle-nw,
+.pdk-resize-handle-se,
 .pdk-window-resize-handle-nw,
 .pdk-window-resize-handle-se {
 	cursor: nwse-resize;
 }
 
+.pdk-resize-handle-ne,
+.pdk-resize-handle-nw,
 .pdk-window-resize-handle-ne,
 .pdk-window-resize-handle-nw {
 	top: 0;
 }
 
+.pdk-resize-handle-se,
+.pdk-resize-handle-sw,
 .pdk-window-resize-handle-se,
 .pdk-window-resize-handle-sw {
 	bottom: 0;
 }
 
+.pdk-resize-handle-ne,
+.pdk-resize-handle-se,
 .pdk-window-resize-handle-ne,
 .pdk-window-resize-handle-se {
 	right: 0;
 }
 
+.pdk-resize-handle-nw,
+.pdk-resize-handle-sw,
 .pdk-window-resize-handle-nw,
 .pdk-window-resize-handle-sw {
 	left: 0;
 }
 
-.pdk-window.is-maximized .pdk-window-resize-handle {
+.pdk-window.is-maximized .pdk-window-resize-handle,
+.pdk-sticky-note.is-collapsed .pdk-resize-handle,
+.pdk-sticky-note.is-fullscreen .pdk-resize-handle {
 	display: none;
 }
 

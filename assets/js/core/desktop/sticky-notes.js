@@ -35,6 +35,30 @@
 		const titlebarActions = window.PufferDesk.windows && window.PufferDesk.windows.titlebarActions
 			? window.PufferDesk.windows.titlebarActions
 			: null;
+		const stickyResizeHandles = window.PufferDesk.windows && typeof window.PufferDesk.windows.createResizeHandleController === 'function'
+			? window.PufferDesk.windows.createResizeHandleController({
+				container: desktop,
+				focusElement: bringToFront,
+				isResizeDisabled: (noteElement) => noteElement.hidden
+					|| noteElement.classList.contains('is-collapsed')
+					|| noteElement.classList.contains('is-fullscreen'),
+				onResizeStart: closeNoteOptionsMenu,
+				onResizeEnd(noteElement, detail = {}) {
+					if (!detail.changed) {
+						return;
+					}
+
+					noteElement.dataset.pdkExpandedHeight = String(Math.max(140, Math.round(noteElement.offsetHeight || 0)));
+					saveLayout();
+				},
+				syncSafeArea: () => ({
+					bottom: 8,
+					left: 8,
+					right: 8,
+					top: 8
+				})
+			})
+			: null;
 		const stickyNotesAppId = 'sticky-notes';
 		const noteMap = new Map();
 		let layer = null;
@@ -51,6 +75,35 @@
 
 		function getStickyKind() {
 			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note';
+		}
+
+		function getStickyNotesApp() {
+			const apps = Array.isArray(config.apps) ? config.apps : [];
+
+			return apps.find((app) => app && app.id === stickyNotesAppId) || null;
+		}
+
+		function getStickyNotesAppLabel() {
+			const app = getStickyNotesApp();
+
+			return app && typeof app.label === 'string' && app.label ? app.label : getLabel('stickyNotes', 'Sticky Notes');
+		}
+
+		function dispatchActiveStickyNoteChange(entry) {
+			const app = getStickyNotesApp();
+
+			shell.dispatchEvent(new window.CustomEvent('pufferDesk:active-window-change', {
+				detail: {
+					appId: stickyNotesAppId,
+					documentId: entry && entry.document ? entry.document.id : '',
+					id: stickyNotesAppId,
+					kind: 'app',
+					menu: app && app.menu ? app.menu : null,
+					stickyNoteElement: entry && entry.element ? entry.element : null,
+					title: getStickyNotesAppLabel(),
+					windowless: true
+				}
+			}));
 		}
 
 		function getDialogs() {
@@ -256,6 +309,10 @@
 		function bringToFront(noteElement) {
 			highestZ += 1;
 			noteElement.style.zIndex = String(highestZ);
+			const entry = Array.from(noteMap.values()).find((item) => item && item.element === noteElement);
+			if (entry) {
+				dispatchActiveStickyNoteChange(entry);
+			}
 			saveLayout();
 		}
 
@@ -669,7 +726,7 @@
 				],
 				cancelAction: 'cancel',
 				icon: 'dashicons-sticky',
-				message: getLabel('discardNoteMessage', 'Are you sure you want to discard this Stickies note?'),
+				message: getLabel('discardNoteMessage', 'Are you sure you want to discard this sticky note?'),
 				style: 'floating',
 				title: getLabel('discardNoteTitle', "If you don't save this note, its contents will be lost."),
 				variant: 'sticky-note-discard'
@@ -848,6 +905,7 @@
 			noteElement.dataset.pdkContext = 'sticky-note';
 			noteElement.dataset.pdkContextMenuDisabled = '1';
 			noteElement.dataset.pdkContextId = String(documentId);
+			noteElement.dataset.pdkResizeMode = 'both';
 			noteElement.setAttribute('aria-label', documentData.title || getLabel('stickyNote', 'Sticky Note'));
 			applyNoteColor(entry, documentData.color);
 			dragHandle.className = 'pdk-sticky-note-chrome';
@@ -863,6 +921,9 @@
 
 			applyState(noteElement, normalizeState(state, noteMap.size - 1));
 			bindDrag(noteElement, dragHandle, entry);
+			if (stickyResizeHandles) {
+				stickyResizeHandles.ensureResizeHandles(noteElement);
+			}
 			entry.formatCleanup = bindFormatToolbar(toolbar, entry);
 			bindResizePersistence(noteElement);
 			syncRunningState();

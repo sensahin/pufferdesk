@@ -319,7 +319,7 @@ final class PufferDesk_Virtual_Filesystem {
 			'desktop'    => __( 'Desktop', 'pufferdesk-admin-desktop' ),
 			'documents'  => __( 'Documents', 'pufferdesk-admin-desktop' ),
 			'notes'      => __( 'Notes', 'pufferdesk-admin-desktop' ),
-			'stickies'   => $is_redmond ? __( 'Sticky Notes', 'pufferdesk-admin-desktop' ) : __( 'Stickies', 'pufferdesk-admin-desktop' ),
+			'stickies'   => __( 'Sticky Notes', 'pufferdesk-admin-desktop' ),
 			'trash'      => $trash,
 			'thisPc'     => __( 'This PC', 'pufferdesk-admin-desktop' ),
 			'localDisk'  => __( 'Local Disk', 'pufferdesk-admin-desktop' ),

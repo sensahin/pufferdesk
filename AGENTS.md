@@ -124,7 +124,7 @@ JavaScript:
 - `assets/js/core/services/debounced-task.js`: shared debounced task scheduling for delayed state saves and mutations.
 - `assets/js/core/session/`: shared workspace session sections.
 - `assets/js/core/preferences/`: appearance, wallpaper, launcher, and menu bar preference appliers.
-- `assets/js/core/windows/`: windows, titlebar actions, window factory, window state serialization.
+- `assets/js/core/windows/`: windows, titlebar actions, shared resize handles, window factory, window state serialization.
 - `assets/js/core/widgets/`: widget binding, live updates, widget layout persistence.
 - `assets/js/core/apps/`: app launcher, reusable app surfaces such as about windows, and native apps.
 - `assets/js/core/apps/app-badges.js`: shared browser app badge normalization, ARIA labels, and badge element rendering.
