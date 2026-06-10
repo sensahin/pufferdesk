@@ -98,6 +98,10 @@
 	--pdk-accent-rgb: 36 88 202;
 	--pdk-accent-ink: #fff;
 	--pdk-desktop-icon-label-gap: 12px;
+	--pdk-desktop-icon-grid-left-inset: 0px;
+	--pdk-desktop-icon-grid-right-inset: 0px;
+	--pdk-desktop-icon-grid-top-inset: 0px;
+	--pdk-desktop-icon-layer-top: calc(var(--pdk-menu-bar-height) + 8px);
 	--pdk-desktop-label-line-width: 18ch;
 	--pdk-desktop-icon-selection-bg: var(--pdk-accent-active);
 	--pdk-desktop-icon-selection-icon-bg: rgba(60, 60, 67, 0.14);
@@ -430,6 +434,7 @@
 	--pdk-sticky-note-radius: 0;
 	--pdk-sticky-note-shadow: 18px 18px 26px rgb(0 0 0 / 0.18);
 	--pdk-sticky-note-symbol: rgb(168 145 0 / 0.54);
+	--pdk-sticky-note-safe-top-offset: -2px;
 	--pdk-sticky-note-toolbar-display: none;
 	--pdk-sticky-note-toolbar-height: 0px;
 }
@@ -797,6 +802,15 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop {
 	height: 100%;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop-apps,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop-folders {
+	inset: var(--pdk-desktop-icon-layer-top) auto 112px 24px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop-icon-layer.is-managed {
+	inset: var(--pdk-desktop-icon-layer-top) 24px 112px 24px;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop::before {

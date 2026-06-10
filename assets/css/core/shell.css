@@ -97,6 +97,11 @@
 	--pdk-control-bg: var(--pdk-material-control-bg);
 	--pdk-control-bg-hover: var(--pdk-material-control-hover-bg);
 	--pdk-desktop-bg: #f0f0f1;
+	--pdk-desktop-icon-grid-column-gap: 10px;
+	--pdk-desktop-icon-grid-left-inset: 24px;
+	--pdk-desktop-icon-grid-right-inset: 24px;
+	--pdk-desktop-icon-grid-row-gap: 14px;
+	--pdk-desktop-icon-grid-top-inset: 24px;
 	--pdk-wallpaper-image: none;
 	--pdk-wallpaper-position: center center;
 	--pdk-wallpaper-repeat: no-repeat;

@@ -55,6 +55,18 @@
 			return desktop ? Array.from(desktop.querySelectorAll('[data-pdk-desktop-icon]')) : [];
 		}
 
+		function getCssPixelValue(name, fallback) {
+			return geometry && typeof geometry.readCssPixel === 'function'
+				? geometry.readCssPixel(shell, name, fallback)
+				: fallback;
+		}
+
+		function getGridMetric(overrides, key, cssName, fallback) {
+			const overrideValue = overrides ? Number.parseFloat(overrides[key]) : Number.NaN;
+
+			return Number.isFinite(overrideValue) ? overrideValue : getCssPixelValue(cssName, fallback);
+		}
+
 		function getVisibleIcons() {
 			return getIcons().filter((icon) => !icon.hidden);
 		}
@@ -475,15 +487,15 @@
 			}) || null;
 		}
 
-		function getGridMetrics(icon) {
+		function getGridMetrics(icon, overrides = {}) {
 			const layer = getIconLayer(icon);
 			const iconWidth = icon.offsetWidth || 74;
 			const iconHeight = icon.offsetHeight || 94;
-			const topInset = 24;
-			const leftInset = 24;
-			const legacyRightInset = 24;
-			const columnGap = 10;
-			const rowGap = 14;
+			const topInset = getGridMetric(overrides, 'topInset', '--pdk-desktop-icon-grid-top-inset', 24);
+			const leftInset = getGridMetric(overrides, 'leftInset', '--pdk-desktop-icon-grid-left-inset', 24);
+			const legacyRightInset = getGridMetric(overrides, 'rightInset', '--pdk-desktop-icon-grid-right-inset', 24);
+			const columnGap = getGridMetric(overrides, 'columnGap', '--pdk-desktop-icon-grid-column-gap', 10);
+			const rowGap = getGridMetric(overrides, 'rowGap', '--pdk-desktop-icon-grid-row-gap', 14);
 			const rowStep = iconHeight + rowGap;
 			const columnStep = iconWidth + columnGap;
 			const availableHeight = Math.max(rowStep, (layer ? layer.clientHeight : 0) - topInset);
@@ -502,8 +514,8 @@
 			};
 		}
 
-		function getGridPosition(icon, row, column, origin = 'left') {
-			const metrics = getGridMetrics(icon);
+		function getGridPosition(icon, row, column, origin = 'left', metricsOverrides = {}) {
+			const metrics = getGridMetrics(icon, metricsOverrides);
 			const maxLeft = metrics.layer ? metrics.layer.clientWidth - metrics.iconWidth : 0;
 			const maxTop = metrics.layer ? metrics.layer.clientHeight - metrics.iconHeight : 0;
 			const layerWidth = metrics.layer ? metrics.layer.clientWidth : 0;
@@ -518,12 +530,12 @@
 			};
 		}
 
-		function getDefaultState(icon, index, origin = 'left') {
-			const metrics = getGridMetrics(icon);
+		function getDefaultState(icon, index, origin = 'left', metricsOverrides = {}) {
+			const metrics = getGridMetrics(icon, metricsOverrides);
 			const row = index % metrics.rows;
 			const column = Math.floor(index / metrics.rows);
 
-			return getGridPosition(icon, row, column, origin);
+			return getGridPosition(icon, row, column, origin, metricsOverrides);
 		}
 
 		function isDefaultPosition(state, defaults) {
@@ -542,7 +554,16 @@
 				return false;
 			}
 
-			return isDefaultPosition(item.state, getDefaultState(icon, index, 'right'));
+			const legacyMetrics = {
+				columnGap: 10,
+				leftInset: 24,
+				rightInset: 24,
+				rowGap: 14,
+				topInset: 24
+			};
+
+			return isDefaultPosition(item.state, getDefaultState(icon, index, 'right', legacyMetrics))
+				|| isDefaultPosition(item.state, getDefaultState(icon, index, 'left', legacyMetrics));
 		}
 
 		function getNearestCell(icon, state) {
