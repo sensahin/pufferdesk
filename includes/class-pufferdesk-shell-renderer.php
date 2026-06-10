@@ -49,18 +49,19 @@ final class PufferDesk_Shell_Renderer {
 		$this->render_template(
 			'shell/shell.php',
 			array(
-				'appearance'      => isset( $context['appearance'] ) ? $context['appearance'] : array(),
-				'apps'            => isset( $context['apps'] ) ? $context['apps'] : array(),
-				'desktop_apps'    => isset( $context['desktop_apps'] ) ? $context['desktop_apps'] : array(),
-				'desktop_dock'    => isset( $context['desktop_dock'] ) ? $context['desktop_dock'] : array(),
-				'dock_apps'       => isset( $context['dock_apps'] ) ? $context['dock_apps'] : array(),
-				'menu_bar'        => isset( $context['menu_bar'] ) ? $context['menu_bar'] : array(),
-				'widgets'         => isset( $context['widgets'] ) ? $context['widgets'] : array(),
-				'folders'         => isset( $context['folders'] ) ? $context['folders'] : array(),
-				'site_name'       => get_bloginfo( 'name' ),
-				'theme'           => $theme,
-				'wallpaper'       => isset( $context['wallpaper'] ) ? $context['wallpaper'] : array(),
-				'workspace_state' => isset( $context['workspace_state'] ) ? $context['workspace_state'] : array(),
+				'appearance'           => isset( $context['appearance'] ) ? $context['appearance'] : array(),
+				'apps'                 => isset( $context['apps'] ) ? $context['apps'] : array(),
+				'desktop_apps'         => isset( $context['desktop_apps'] ) ? $context['desktop_apps'] : array(),
+				'desktop_dock'         => isset( $context['desktop_dock'] ) ? $context['desktop_dock'] : array(),
+				'desktop_icon_folders' => isset( $context['desktop_icon_folders'] ) ? $context['desktop_icon_folders'] : array(),
+				'dock_apps'            => isset( $context['dock_apps'] ) ? $context['dock_apps'] : array(),
+				'menu_bar'             => isset( $context['menu_bar'] ) ? $context['menu_bar'] : array(),
+				'widgets'              => isset( $context['widgets'] ) ? $context['widgets'] : array(),
+				'folders'              => isset( $context['folders'] ) ? $context['folders'] : array(),
+				'site_name'            => get_bloginfo( 'name' ),
+				'theme'                => $theme,
+				'wallpaper'            => isset( $context['wallpaper'] ) ? $context['wallpaper'] : array(),
+				'workspace_state'      => isset( $context['workspace_state'] ) ? $context['workspace_state'] : array(),
 			)
 		);
 	}

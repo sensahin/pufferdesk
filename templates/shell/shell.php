@@ -15,6 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * @var array<string,mixed>             $menu_bar
  * @var array<int,array<string,string>> $apps
  * @var array<int,array<string,string>> $desktop_apps
+ * @var array<int,array<string,string>> $desktop_icon_folders
  * @var array<int,array<string,string>> $dock_apps
  * @var array<int,array<string,mixed>>  $widgets
  * @var array<int,array<string,string>> $folders
@@ -178,7 +179,7 @@ if ( $pufferdesk_shell_style ) {
 			'desktop_apps'    => isset( $desktop_apps ) && is_array( $desktop_apps ) ? $desktop_apps : array(),
 			'dock_apps'       => isset( $dock_apps ) && is_array( $dock_apps ) ? $dock_apps : $apps,
 			'widgets'         => $widgets,
-			'folders'         => $folders,
+			'folders'         => isset( $desktop_icon_folders ) && is_array( $desktop_icon_folders ) ? $desktop_icon_folders : $folders,
 			'theme'           => $theme,
 			'shell'           => $pufferdesk_theme_shell,
 			'workspace_state' => isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array(),

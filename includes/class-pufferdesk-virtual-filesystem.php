@@ -90,6 +90,32 @@ final class PufferDesk_Virtual_Filesystem {
 	}
 
 	/**
+	 * Return the system folders that should be shown as default desktop icons.
+	 *
+	 * Finder/Explorer surfaces still receive every system folder. This method
+	 * owns only the desktop icon policy so sidebar navigation and virtual paths
+	 * do not fork from the canonical filesystem schema.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @param int                 $user_id Optional user ID.
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function get_desktop_system_folders( $theme = array(), $user_id = 0 ) {
+		$folder_ids = $this->get_desktop_system_folder_ids( $theme );
+		$folders    = $this->get_system_folders( $theme, $user_id );
+		$allowed    = array_fill_keys( $folder_ids, true );
+
+		return array_values(
+			array_filter(
+				$folders,
+				static function ( $folder ) use ( $allowed ) {
+					return is_array( $folder ) && isset( $folder['id'] ) && isset( $allowed[ $folder['id'] ] );
+				}
+			)
+		);
+	}
+
+	/**
 	 * Runtime schema for browser services.
 	 *
 	 * @param array<string,mixed> $theme Current theme.
@@ -281,13 +307,15 @@ final class PufferDesk_Virtual_Filesystem {
 	 * @return array<string,string>
 	 */
 	private function get_labels( $theme, $user_id ) {
-		$user       = get_user_by( 'id', $user_id );
-		$user_label = $user && $user->display_name ? $user->display_name : ( $user && $user->user_login ? $user->user_login : __( 'User', 'pufferdesk-admin-desktop' ) );
-		$trash      = $this->get_theme_menu_label( $theme, 'trash', __( 'Trash', 'pufferdesk-admin-desktop' ) );
-		$is_redmond = $this->is_redmond_theme( $theme );
+		$user           = get_user_by( 'id', $user_id );
+		$user_label     = $user && $user->display_name ? $user->display_name : ( $user && $user->user_login ? $user->user_login : __( 'User', 'pufferdesk-admin-desktop' ) );
+		$trash          = $this->get_theme_menu_label( $theme, 'trash', __( 'Trash', 'pufferdesk-admin-desktop' ) );
+		$is_redmond     = $this->is_redmond_theme( $theme );
+		$home_label     = $is_redmond ? __( 'This PC', 'pufferdesk-admin-desktop' ) : sanitize_text_field( $user_label );
+		$root_label     = $is_redmond ? __( 'This PC', 'pufferdesk-admin-desktop' ) : sanitize_text_field( $user_label );
 
 		return array(
-			'home'       => sanitize_text_field( $user_label ),
+			'home'       => $home_label,
 			'desktop'    => __( 'Desktop', 'pufferdesk-admin-desktop' ),
 			'documents'  => __( 'Documents', 'pufferdesk-admin-desktop' ),
 			'notes'      => __( 'Notes', 'pufferdesk-admin-desktop' ),
@@ -296,7 +324,7 @@ final class PufferDesk_Virtual_Filesystem {
 			'thisPc'     => __( 'This PC', 'pufferdesk-admin-desktop' ),
 			'localDisk'  => __( 'Local Disk', 'pufferdesk-admin-desktop' ),
 			'users'      => __( 'Users', 'pufferdesk-admin-desktop' ),
-			'root'       => $is_redmond ? __( 'This PC', 'pufferdesk-admin-desktop' ) : sanitize_text_field( $user_label ),
+			'root'       => $root_label,
 		);
 	}
 
@@ -310,12 +338,16 @@ final class PufferDesk_Virtual_Filesystem {
 	 */
 	private function get_breadcrumbs( $folder_id, $theme, $labels ) {
 		if ( $this->is_redmond_theme( $theme ) ) {
+			if ( self::FOLDER_HOME === $folder_id ) {
+				return array( $labels['thisPc'] );
+			}
+
 			if ( self::FOLDER_TRASH === $folder_id ) {
 				return array( $labels['thisPc'], $labels['trash'] );
 			}
 
-			$crumbs = array( $labels['thisPc'], $labels['localDisk'], $labels['users'], $labels['home'] );
-			if ( self::FOLDER_HOME !== $folder_id && isset( $labels[ $folder_id ] ) ) {
+			$crumbs = array( $labels['thisPc'], $labels['localDisk'] );
+			if ( isset( $labels[ $folder_id ] ) ) {
 				$crumbs[] = $labels[ $folder_id ];
 			}
 
@@ -348,6 +380,37 @@ final class PufferDesk_Virtual_Filesystem {
 	}
 
 	/**
+	 * Theme-aware default desktop system folder IDs.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @return array<int,string>
+	 */
+	private function get_desktop_system_folder_ids( $theme ) {
+		if ( $this->is_pufferdesk_theme( $theme ) ) {
+			return array(
+				self::FOLDER_DOCUMENTS,
+				self::FOLDER_NOTES,
+			);
+		}
+
+		if ( $this->is_redmond_theme( $theme ) ) {
+			return array(
+				self::FOLDER_HOME,
+				self::FOLDER_DOCUMENTS,
+				self::FOLDER_NOTES,
+			);
+		}
+
+		return array(
+			self::FOLDER_HOME,
+			self::FOLDER_DESKTOP,
+			self::FOLDER_DOCUMENTS,
+			self::FOLDER_NOTES,
+			self::FOLDER_STICKIES,
+		);
+	}
+
+	/**
 	 * Read a theme menu label.
 	 *
 	 * @param array<string,mixed> $theme Current theme.
@@ -371,5 +434,17 @@ final class PufferDesk_Virtual_Filesystem {
 		$family = isset( $theme['family'] ) ? sanitize_key( (string) $theme['family'] ) : '';
 
 		return 'redmond' === $family;
+	}
+
+	/**
+	 * Whether the active theme uses the bundled PufferDesk filesystem desktop.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @return bool
+	 */
+	private function is_pufferdesk_theme( $theme ) {
+		$family = isset( $theme['family'] ) ? sanitize_key( (string) $theme['family'] ) : '';
+
+		return 'pufferdesk' === $family;
 	}
 }
