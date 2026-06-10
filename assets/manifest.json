@@ -102,6 +102,11 @@
 			"deps": ["pufferdesk-config", "pufferdesk-api-client", "pufferdesk-virtual-filesystem"]
 		},
 		{
+			"handle": "pufferdesk-rich-text",
+			"path": "assets/js/core/services/rich-text.js",
+			"deps": []
+		},
+		{
 			"handle": "pufferdesk-geometry",
 			"path": "assets/js/core/services/geometry.js",
 			"deps": []
@@ -189,7 +194,7 @@
 		{
 			"handle": "pufferdesk-sticky-notes",
 			"path": "assets/js/core/desktop/sticky-notes.js",
-			"deps": ["pufferdesk-documents-service", "pufferdesk-geometry", "pufferdesk-debounced-task", "pufferdesk-session-store", "pufferdesk-app-surfaces"]
+			"deps": ["pufferdesk-documents-service", "pufferdesk-rich-text", "pufferdesk-geometry", "pufferdesk-debounced-task", "pufferdesk-session-store", "pufferdesk-app-surfaces"]
 		},
 		{
 			"handle": "pufferdesk-about-window",

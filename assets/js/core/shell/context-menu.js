@@ -955,6 +955,37 @@
 				: null;
 		}
 
+		function isWindowRootContextTarget(target) {
+			return Boolean(
+				target
+				&& target.classList
+				&& target.classList.contains('pdk-window')
+				&& target.dataset
+				&& target.dataset.pdkContext === 'window'
+			);
+		}
+
+		function isWindowTitlebarEvent(eventTarget, win) {
+			const titlebar = eventTarget && typeof eventTarget.closest === 'function'
+				? eventTarget.closest('.pdk-window-titlebar')
+				: null;
+
+			return Boolean(titlebar && win && titlebar.closest('.pdk-window') === win);
+		}
+
+		function shouldSuppressNativeContextMenu(eventTarget) {
+			const explicit = eventTarget && typeof eventTarget.closest === 'function'
+				? eventTarget.closest('[data-pdk-context]')
+				: null;
+
+			return Boolean(
+				explicit
+				&& shell.contains(explicit)
+				&& isWindowRootContextTarget(explicit)
+				&& !isWindowTitlebarEvent(eventTarget, explicit)
+			);
+		}
+
 		function getTargetDetail(target) {
 			const type = target.dataset.pdkContext || 'desktop';
 			const id = target.dataset.pdkContextId || target.dataset.pdkOpenApp || target.dataset.pdkOpenFolder || target.dataset.pdkWidget || '';
@@ -1005,6 +1036,10 @@
 
 			const explicit = eventTarget.closest('[data-pdk-context]');
 			if (explicit && shell.contains(explicit)) {
+				if (isWindowRootContextTarget(explicit) && !isWindowTitlebarEvent(eventTarget, explicit)) {
+					return null;
+				}
+
 				return explicit;
 			}
 
@@ -1172,6 +1207,10 @@
 			const target = resolveTarget(event.target);
 			if (!target) {
 				closeMenu();
+				if (shouldSuppressNativeContextMenu(event.target)) {
+					event.preventDefault();
+					event.stopPropagation();
+				}
 				return false;
 			}
 

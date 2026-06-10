@@ -31,6 +31,7 @@
 		const runningState = window.PufferDesk.apps && window.PufferDesk.apps.runningState
 			? window.PufferDesk.apps.runningState
 			: null;
+		const richText = window.PufferDesk.richText || null;
 		const stickyNotesAppId = 'sticky-notes';
 		const noteMap = new Map();
 		let layer = null;
@@ -269,6 +270,61 @@
 			return '<span>B</span><span>I</span><span>U</span><span>ab</span><span class="dashicons dashicons-editor-ul"></span><span class="dashicons dashicons-format-image"></span>';
 		}
 
+		function createNoteContent(documentData) {
+			if (richText && typeof richText.createEditor === 'function') {
+				return richText.createEditor({
+					className: 'pdk-sticky-note-content',
+					html: documentData.content || '',
+					label: documentData.title || getLabel('stickyNote', 'Sticky Note'),
+					placeholder: getLabel('stickyPlaceholder', 'Take a note...')
+				});
+			}
+
+			const content = document.createElement('textarea');
+			content.className = 'pdk-sticky-note-content';
+			content.placeholder = getLabel('stickyPlaceholder', 'Take a note...');
+			content.value = documentData.content || '';
+
+			return content;
+		}
+
+		function editorHasContent(editor) {
+			if (richText && typeof richText.hasContent === 'function') {
+				return richText.hasContent(editor);
+			}
+
+			return Boolean(editor && String(editor.value || '').trim());
+		}
+
+		function createFormatToolbar(className) {
+			const toolbar = richText && typeof richText.createToolbar === 'function'
+				? richText.createToolbar({
+					className,
+					labels
+				})
+				: document.createElement('div');
+
+			if (!toolbar.classList.contains(className)) {
+				toolbar.classList.add(className);
+			}
+			toolbar.setAttribute('aria-label', getLabel('formatting', 'Formatting'));
+			if (!richText || typeof richText.createToolbar !== 'function') {
+				toolbar.innerHTML = getFormatToolbarMarkup();
+			}
+
+			return toolbar;
+		}
+
+		function bindFormatToolbar(toolbar, entry) {
+			if (!richText || typeof richText.bindToolbar !== 'function' || !toolbar || !entry || !entry.content) {
+				return () => {};
+			}
+
+			return richText.bindToolbar(toolbar, entry.content, {
+				labels
+			});
+		}
+
 		function getStickyNoteColors() {
 			return window.PufferDesk.documents && Array.isArray(window.PufferDesk.documents.stickyNoteColors)
 				? window.PufferDesk.documents.stickyNoteColors
@@ -399,14 +455,12 @@
 			const notesListButton = createOptionsMenuItem('is-notes-list', getLabel('notesList', 'Notes list'));
 			const deleteButton = createOptionsMenuItem('is-delete-note', getLabel('deleteNote', 'Delete Note'));
 			const divider = document.createElement('div');
-			const formatToolbar = document.createElement('div');
+			const formatToolbar = createFormatToolbar('pdk-sticky-note-options-toolbar');
+			const formatCleanup = bindFormatToolbar(formatToolbar, entry);
 
 			menu.className = 'pdk-sticky-note-options';
 			menu.setAttribute('role', 'menu');
 			divider.className = 'pdk-sticky-note-options-divider';
-			formatToolbar.className = 'pdk-sticky-note-options-toolbar';
-			formatToolbar.setAttribute('aria-hidden', 'true');
-			formatToolbar.innerHTML = getFormatToolbarMarkup();
 			menu.append(createColorPalette(entry), notesListButton, deleteButton, divider, formatToolbar);
 			entry.element.appendChild(menu);
 
@@ -436,6 +490,7 @@
 			document.addEventListener('keydown', onKeyDown, true);
 			openOptionsMenu = {
 				cleanup() {
+					formatCleanup();
 					document.removeEventListener('pointerdown', onPointerDown, true);
 					document.removeEventListener('keydown', onKeyDown, true);
 				},
@@ -505,6 +560,9 @@
 			const removeElement = () => {
 				if (entry) {
 					closeNoteOptionsMenu();
+					if (typeof entry.formatCleanup === 'function') {
+						entry.formatCleanup();
+					}
 					entry.element.remove();
 					noteMap.delete(entry.document.id);
 					saveLayout();
@@ -571,8 +629,11 @@
 		}
 
 		function confirmDiscardNote(entry) {
-			const content = entry && entry.content ? String(entry.content.value || '') : '';
-			if (!content.trim()) {
+			if (!entry || !entry.document) {
+				return Promise.resolve(false);
+			}
+
+			if (!entry.content || !editorHasContent(entry.content)) {
 				return deleteNote(entry.document.id);
 			}
 
@@ -714,12 +775,13 @@
 			const noteElement = document.createElement('article');
 			const dragHandle = document.createElement('div');
 			const actionGroup = document.createElement('div');
-			const content = document.createElement('textarea');
-			const toolbar = document.createElement('div');
+			const content = createNoteContent(documentData);
+			const toolbar = createFormatToolbar('pdk-sticky-note-toolbar');
 			const entry = {
 				content,
 				document: documentData,
 				element: noteElement,
+				formatCleanup: null,
 				saveTask: null
 			};
 			const createButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-new', getLabel('newStickyNote', 'New Sticky Note'), '+');
@@ -731,18 +793,13 @@
 
 			noteElement.className = 'pdk-sticky-note';
 			noteElement.dataset.pdkContext = 'sticky-note';
+			noteElement.dataset.pdkContextMenuDisabled = '1';
 			noteElement.dataset.pdkContextId = String(documentId);
 			noteElement.setAttribute('aria-label', documentData.title || getLabel('stickyNote', 'Sticky Note'));
 			applyNoteColor(entry, documentData.color);
 			dragHandle.className = 'pdk-sticky-note-chrome';
 			dragHandle.dataset.pdkStickyNoteDragHandle = '1';
 			actionGroup.className = 'pdk-sticky-note-actions';
-			content.className = 'pdk-sticky-note-content';
-			content.placeholder = getLabel('stickyPlaceholder', 'Take a note...');
-			content.value = documentData.content || '';
-			toolbar.className = 'pdk-sticky-note-toolbar';
-			toolbar.setAttribute('aria-hidden', 'true');
-			toolbar.innerHTML = getFormatToolbarMarkup();
 
 			actionGroup.append(menuButton, fullscreenButton, collapseButton, closeButton);
 			dragHandle.append(createButton, discardButton, actionGroup);
@@ -753,6 +810,7 @@
 
 			applyState(noteElement, normalizeState(state, noteMap.size - 1));
 			bindDrag(noteElement, dragHandle);
+			entry.formatCleanup = bindFormatToolbar(toolbar, entry);
 			bindResizePersistence(noteElement);
 			syncRunningState();
 
