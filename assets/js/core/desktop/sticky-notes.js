@@ -151,16 +151,46 @@
 			return Math.ceil(menuBar.getBoundingClientRect().height);
 		}
 
+		function getStickySafeTop(edge) {
+			const absoluteTop = getCssPixelValue('--pdk-sticky-note-safe-top', Number.NaN);
+			const desktopObjectTop = getCssPixelValue('--pdk-desktop-object-layer-top', Number.NaN);
+
+			if (Number.isFinite(absoluteTop)) {
+				return Math.max(0, absoluteTop);
+			}
+
+			if (Number.isFinite(desktopObjectTop)) {
+				return Math.max(0, desktopObjectTop);
+			}
+
+			const topOffset = getCssPixelValue('--pdk-sticky-note-safe-top-offset', edge);
+
+			return Math.max(0, getMenuBarHeight() + topOffset);
+		}
+
 		function getStickySafeArea() {
 			const edge = Math.max(0, getCssPixelValue('--pdk-window-safe-edge', 8));
-			const topOffset = getCssPixelValue('--pdk-sticky-note-safe-top-offset', edge);
 
 			return {
 				bottom: edge,
 				left: edge,
 				right: edge,
-				top: Math.max(0, getMenuBarHeight() + topOffset)
+				top: getStickySafeTop(edge)
 			};
+		}
+
+		function getNoteIndex(noteElement) {
+			let index = 0;
+
+			for (const entry of noteMap.values()) {
+				if (entry && entry.element === noteElement) {
+					return index;
+				}
+
+				index += 1;
+			}
+
+			return 0;
 		}
 
 		function getStickyBounds(noteElement) {
@@ -184,10 +214,15 @@
 
 			const bounds = getStickyBounds(noteElement);
 			const nextLeft = clamp(toNumber(noteElement.style.left, noteElement.offsetLeft || bounds.minLeft), bounds.minLeft, bounds.maxLeft);
-			const nextTop = clamp(toNumber(noteElement.style.top, noteElement.offsetTop || bounds.minTop), bounds.minTop, bounds.maxTop);
+			const rawTop = toNumber(noteElement.style.top, noteElement.offsetTop || bounds.minTop);
+			const migratedTop = noteElement.dataset.pdkStickyTopSnap === '1'
+				? migrateLegacyDefaultTop(rawTop, getNoteIndex(noteElement))
+				: rawTop;
+			const nextTop = clamp(migratedTop, bounds.minTop, bounds.maxTop);
 
 			noteElement.style.left = `${Math.round(nextLeft)}px`;
 			noteElement.style.top = `${Math.round(nextTop)}px`;
+			noteElement.dataset.pdkStickyTopSnap = '0';
 		}
 
 		function ensureLayer() {
@@ -249,20 +284,30 @@
 			return (isRedmondTheme() ? 76 : getStickySafeArea().top) + (index % 5) * 34;
 		}
 
+		function isNearTop(value, target, tolerance = 2) {
+			return Math.abs(value - target) <= tolerance;
+		}
+
 		function migrateLegacyDefaultTop(top, index = 0) {
-			if (
-				isRedmondTheme()
-				|| (
-					Math.abs(top - getLegacyDefaultTop(index)) > 2
-					&& Math.abs(top - getPreviousSafeDefaultTop(index)) > 2
-					&& Math.abs(top - getWindowSafeDefaultTop(index)) > 2
-					&& Math.abs(top - getDesktopIconLayerDefaultTop(index)) > 2
-				)
-			) {
+			if (isRedmondTheme()) {
 				return top;
 			}
 
-			return getDefaultTop(index);
+			if (isNearTop(top, getLegacyDefaultTop(index))) {
+				return getDefaultTop(index);
+			}
+
+			if (
+				[
+					getPreviousSafeDefaultTop(index),
+					getWindowSafeDefaultTop(index),
+					getDesktopIconLayerDefaultTop(index)
+				].some((candidate) => isNearTop(top, candidate, 12))
+			) {
+				return getDefaultTop(index);
+			}
+
+			return top;
 		}
 
 		function getDefaultState(index = 0, overrides = {}) {
@@ -303,6 +348,7 @@
 			return {
 				collapsed,
 				expandedHeight,
+				fromSavedLayout: Boolean(state._pdkFromSavedLayout),
 				fullscreen: !collapsed && Boolean(state.fullscreen),
 				height,
 				hidden: Boolean(state.hidden),
@@ -346,6 +392,7 @@
 			noteElement.dataset.pdkRestoreTop = `${toNumber(state.restoreTop, state.top)}px`;
 			noteElement.dataset.pdkRestoreWidth = `${toNumber(state.restoreWidth, state.width)}px`;
 			noteElement.dataset.pdkRestoreHeight = `${toNumber(state.restoreHeight, state.expandedHeight || state.height || 285)}px`;
+			noteElement.dataset.pdkStickyTopSnap = state.fromSavedLayout ? '1' : '0';
 			noteElement.style.left = `${nextLeft}px`;
 			noteElement.style.top = `${nextTop}px`;
 			noteElement.style.width = `${nextWidth}px`;
@@ -943,6 +990,7 @@
 
 				event.preventDefault();
 				bringToFront(noteElement);
+				noteElement.dataset.pdkStickyTopSnap = '0';
 				dragState = {
 					clientX: event.clientX,
 					clientY: event.clientY,

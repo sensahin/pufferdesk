@@ -12,22 +12,72 @@
 		const openFolder = typeof options.openFolder === 'function' ? options.openFolder : () => null;
 		const renderFolderWindow = typeof options.renderFolderWindow === 'function' ? options.renderFolderWindow : () => false;
 
-		function selectItem(button) {
+		function emitSelectionChange(grid) {
+			const win = grid && typeof grid.closest === 'function' ? grid.closest('.pdk-window') : null;
+
+			if (win) {
+				win.dispatchEvent(new window.CustomEvent('pufferDesk:folder-selection-change', {
+					detail: {
+						selectedItems: Array.from(grid.querySelectorAll('.pdk-app-launcher.is-selected, .pdk-finder-trash-item.is-selected'))
+					}
+				}));
+			}
+		}
+
+		function setItemSelected(button, selected) {
+			if (!button) {
+				return;
+			}
+
+			button.classList.toggle('is-selected', selected);
+			button.setAttribute('aria-selected', selected ? 'true' : 'false');
+			button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+		}
+
+		function selectItem(button, options = {}) {
 			const grid = button ? button.closest('.pdk-finder-grid') : null;
+			const additive = Boolean(options.additive);
 
 			if (grid) {
-				grid.querySelectorAll('.pdk-app-launcher.is-selected, .pdk-finder-trash-item.is-selected').forEach((item) => {
-					item.classList.remove('is-selected');
-					item.setAttribute('aria-selected', 'false');
-					item.setAttribute('aria-pressed', 'false');
-				});
+				if (additive && button) {
+					setItemSelected(button, !button.classList.contains('is-selected'));
+				} else {
+					grid.querySelectorAll('.pdk-app-launcher.is-selected, .pdk-finder-trash-item.is-selected').forEach((item) => {
+						setItemSelected(item, false);
+					});
+					setItemSelected(button, true);
+				}
+				emitSelectionChange(grid);
+				return;
 			}
 
-			if (button) {
-				button.classList.add('is-selected');
-				button.setAttribute('aria-selected', 'true');
-				button.setAttribute('aria-pressed', 'true');
+			setItemSelected(button, true);
+		}
+
+		function clearSelection(root) {
+			const grid = root && root.classList && root.classList.contains('pdk-finder-grid')
+				? root
+				: (root && typeof root.querySelector === 'function' ? root.querySelector('.pdk-finder-grid') : null);
+			const selectedItems = grid
+				? Array.from(grid.querySelectorAll('.pdk-app-launcher.is-selected, .pdk-finder-trash-item.is-selected'))
+				: [];
+
+			if (!selectedItems.length) {
+				return false;
 			}
+
+			selectedItems.forEach((item) => {
+				setItemSelected(item, false);
+			});
+			emitSelectionChange(grid);
+
+			return true;
+		}
+
+		function getSelectionOptions(event) {
+			return {
+				additive: Boolean(event && (event.metaKey || event.ctrlKey || event.shiftKey))
+			};
 		}
 
 		function createAppButton(app, folderId = '', removable = false) {
@@ -38,7 +88,10 @@
 			button.dataset.pdkContextId = app.id;
 			button.dataset.pdkContextLabel = app.label;
 			if (folderId) {
+				button.dataset.pdkDraggableFolderItem = '1';
 				button.dataset.pdkFolderId = folderId;
+				button.dataset.pdkFolderItemId = app.id;
+				button.dataset.pdkFolderItemKind = 'app';
 			}
 
 			const appIcon = document.createElement('span');
@@ -50,7 +103,26 @@
 			label.textContent = app.label;
 
 			button.append(appIcon, label);
-			button.addEventListener('click', () => openApp(app.id));
+			button.addEventListener('click', (event) => {
+				if (folderId) {
+					event.preventDefault();
+					event.stopPropagation();
+					selectItem(button, getSelectionOptions(event));
+					return;
+				}
+
+				openApp(app.id);
+			});
+			if (folderId) {
+				button.addEventListener('dblclick', (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+					openApp(app.id);
+				});
+				button.addEventListener('contextmenu', () => {
+					selectItem(button);
+				});
+			}
 
 			return button;
 		}
@@ -64,6 +136,9 @@
 			button.dataset.pdkContext = 'folder';
 			button.dataset.pdkContextId = folder.id;
 			button.dataset.pdkContextLabel = label;
+			button.dataset.pdkDraggableFolderItem = '1';
+			button.dataset.pdkFolderItemId = folder.id;
+			button.dataset.pdkFolderItemKind = 'folder';
 			button.dataset.pdkOpenFolder = folder.id;
 			if (parentFolderId) {
 				button.dataset.pdkFolderId = parentFolderId;
@@ -84,7 +159,7 @@
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
-				selectItem(button);
+				selectItem(button, getSelectionOptions(event));
 			});
 			button.addEventListener('dblclick', (event) => {
 				event.preventDefault();
@@ -111,6 +186,7 @@
 			button.dataset.pdkContext = 'document';
 			button.dataset.pdkContextId = item.id || '';
 			button.dataset.pdkContextLabel = label;
+			button.dataset.pdkDocumentId = item.document && item.document.id ? String(item.document.id) : String(item.id || '').replace(/^document-/, '');
 			if (folderId) {
 				button.dataset.pdkFolderId = folderId;
 			}
@@ -130,7 +206,7 @@
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
-				selectItem(button);
+				selectItem(button, getSelectionOptions(event));
 			});
 			button.addEventListener('dblclick', (event) => {
 				event.preventDefault();
@@ -170,7 +246,7 @@
 			button.append(appIcon, itemLabel);
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
-				selectItem(button);
+				selectItem(button, getSelectionOptions(event));
 			});
 			button.addEventListener('contextmenu', (event) => {
 				event.preventDefault();
@@ -181,6 +257,7 @@
 		}
 
 		return {
+			clearSelection,
 			createAppButton,
 			createDocumentButton,
 			createFolderButton,

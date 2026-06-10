@@ -91,6 +91,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/apps/recent-items.js
 - assets/js/core/apps/folder-data.js
 - assets/js/core/apps/folder-window-state.js
+- assets/js/core/apps/folder-view-modes.js
 - assets/js/core/apps/app-window-options.js
 - assets/js/core/apps/native-app-opener.js
 - assets/js/core/apps/launcher-renderer.js

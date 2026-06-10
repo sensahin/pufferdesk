@@ -249,9 +249,42 @@
 			};
 		}
 
+		function getDropTargetDetail(targetIcon) {
+			if (!targetIcon || !targetIcon.dataset) {
+				return {
+					id: '',
+					kind: '',
+					key: ''
+				};
+			}
+
+			if (targetIcon.classList && targetIcon.classList.contains('pdk-finder-pane')) {
+				const win = targetIcon.closest('.pdk-window[data-pdk-window-kind="folder"]');
+				const folderId = win && win.dataset ? win.dataset.pdkFolderWindow || '' : '';
+
+				return {
+					id: folderId,
+					kind: 'folder',
+					key: folderId ? `folder:${folderId}` : ''
+				};
+			}
+
+			if (targetIcon.classList && targetIcon.classList.contains('pdk-folder-launcher')) {
+				const folderId = targetIcon.dataset.pdkOpenFolder || targetIcon.dataset.pdkContextId || '';
+
+				return {
+					id: folderId,
+					kind: 'folder',
+					key: folderId ? `folder:${folderId}` : ''
+				};
+			}
+
+			return getIconDetail(targetIcon);
+		}
+
 		function getDropDetail(sourceIcon, targetIcon) {
 			const source = getIconDetail(sourceIcon);
-			const target = getIconDetail(targetIcon);
+			const target = getDropTargetDetail(targetIcon);
 
 			return {
 				sourceIcon,
@@ -270,7 +303,7 @@
 				return false;
 			}
 
-			if (targetIcon.hidden || targetIcon.dataset.pdkDesktopIconKind !== 'folder') {
+			if (targetIcon.hidden || getDropTargetDetail(targetIcon).kind !== 'folder') {
 				return false;
 			}
 
@@ -476,7 +509,7 @@
 		}
 
 		function getFolderDropTarget(sourceIcon, clientX, clientY) {
-			return getIcons().find((targetIcon) => {
+			const desktopFolderTarget = getIcons().find((targetIcon) => {
 				if (!canDropOnFolder(sourceIcon, targetIcon)) {
 					return false;
 				}
@@ -484,7 +517,42 @@
 				const rect = targetIcon.getBoundingClientRect();
 
 				return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
-			}) || null;
+			});
+			let element = null;
+
+			if (desktopFolderTarget) {
+				return desktopFolderTarget;
+			}
+
+			if (typeof document.elementFromPoint === 'function') {
+				const draggingIcons = getIcons().filter((icon) => icon.classList.contains('is-dragging'));
+				const previousPointerEvents = draggingIcons.map((icon) => icon.style.pointerEvents);
+
+				draggingIcons.forEach((icon) => {
+					icon.style.pointerEvents = 'none';
+				});
+				element = document.elementFromPoint(clientX, clientY);
+				draggingIcons.forEach((icon, index) => {
+					icon.style.pointerEvents = previousPointerEvents[index] || '';
+				});
+			}
+
+			const nextFolderItemTarget = element && typeof element.closest === 'function'
+				? element.closest('.pdk-folder-launcher')
+				: null;
+			const nextPaneTarget = element && typeof element.closest === 'function'
+				? element.closest('.pdk-finder-pane')
+				: null;
+
+			if (nextFolderItemTarget && canDropOnFolder(sourceIcon, nextFolderItemTarget)) {
+				return nextFolderItemTarget;
+			}
+
+			if (nextPaneTarget && canDropOnFolder(sourceIcon, nextPaneTarget)) {
+				return nextPaneTarget;
+			}
+
+			return null;
 		}
 
 		function getGridMetrics(icon, overrides = {}) {
@@ -866,6 +934,34 @@
 			if (selection) {
 				selection.removeAllRanges();
 				selection.addRange(range);
+			}
+
+			return true;
+		}
+
+		function positionIcon(kind, id, pointOrPosition = null) {
+			const icon = findIconForRename({
+				id,
+				kind
+			});
+			const position = pointOrPosition && Number.isFinite(pointOrPosition.left) && Number.isFinite(pointOrPosition.top)
+				? pointOrPosition
+				: getPointPosition(pointOrPosition, icon);
+			const layer = icon ? getIconLayer(icon) : null;
+			const maxLeft = layer ? layer.clientWidth - icon.offsetWidth : 0;
+			const maxTop = layer ? layer.clientHeight - icon.offsetHeight : 0;
+
+			if (!icon || icon.hidden || !position) {
+				return false;
+			}
+
+			icon.style.left = `${clamp(position.left, 0, maxLeft)}px`;
+			icon.style.top = `${clamp(position.top, 0, maxTop)}px`;
+
+			if (currentSortMode === 'none') {
+				saveSession();
+			} else {
+				arrangeIcons(currentSortMode);
 			}
 
 			return true;
@@ -1254,6 +1350,7 @@
 			getSortMode() {
 				return currentSortMode;
 			},
+			positionIcon,
 			rebind,
 			restoreSession,
 			saveSession,

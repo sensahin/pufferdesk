@@ -938,6 +938,91 @@
 			return true;
 		}
 
+		function positionDesktopIcon(kind, id, pointOrPosition = null) {
+			const desktopIconManager = window.PufferDesk.desktopIconManager || null;
+
+			return Boolean(
+				desktopIconManager
+				&& typeof desktopIconManager.positionIcon === 'function'
+				&& desktopIconManager.positionIcon(kind, id, pointOrPosition)
+			);
+		}
+
+		function moveAppToDesktop(appId, options = {}) {
+			const changedFolderIds = removeAppFromFolders(appId);
+
+			if (!changedFolderIds.length) {
+				return false;
+			}
+
+			syncDesktopAppVisibility();
+			refreshFolderWindows(changedFolderIds);
+			refreshDesktopIcons();
+			positionDesktopIcon('app', appId, options.point || options.position || null);
+			scheduleSave();
+
+			return true;
+		}
+
+		function canMoveFolderToParent(folderId, parentId = 'desktop') {
+			const folder = getUserFolder(folderId);
+			const nextParentId = normalizeParentId(parentId);
+			let currentParentId = nextParentId;
+
+			if (!folder || nextParentId === folder.id) {
+				return false;
+			}
+
+			if (nextParentId !== 'desktop' && !getFolder(nextParentId)) {
+				return false;
+			}
+
+			while (currentParentId && currentParentId !== 'desktop') {
+				if (currentParentId === folder.id) {
+					return false;
+				}
+
+				const currentParent = getUserFolder(currentParentId);
+				if (!currentParent) {
+					break;
+				}
+
+				currentParentId = getFolderParentId(currentParent);
+			}
+
+			return true;
+		}
+
+		function moveFolderToParent(folderId, parentId = 'desktop', options = {}) {
+			const folder = getUserFolder(folderId);
+			const previousParentId = folder ? getFolderParentId(folder) : '';
+			const nextParentId = normalizeParentId(parentId);
+
+			if (!folder || !canMoveFolderToParent(folderId, nextParentId)) {
+				return false;
+			}
+
+			if (previousParentId === nextParentId) {
+				if (nextParentId === 'desktop') {
+					positionDesktopIcon('folder', folder.id, options.point || options.position || null);
+				}
+				return false;
+			}
+
+			folder.parentId = nextParentId;
+			markFolderModified(folder);
+			renderUserFolders();
+			syncDesktopAppVisibility();
+			refreshDesktopIcons();
+			if (nextParentId === 'desktop') {
+				positionDesktopIcon('folder', folder.id, options.point || options.position || null);
+			}
+			refreshFolderWindows([previousParentId, nextParentId, folder.id]);
+			scheduleSave();
+
+			return true;
+		}
+
 		function setFolderComment(folderId, comment) {
 			const folder = getUserFolder(folderId);
 			if (!folder) {
@@ -1102,8 +1187,11 @@
 			getTrashItems,
 			getUserFolderForApp,
 			hasApp,
+			canMoveFolderToParent,
 			isUserFolder,
 			moveFolderToTrash,
+			moveAppToDesktop,
+			moveFolderToParent,
 			removeAppFromFolder,
 			renameFolder,
 			restoreTrashItem,

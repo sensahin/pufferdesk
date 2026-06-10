@@ -12,7 +12,8 @@
 		const appMap = new Map(apps.map((app) => [app.id, app]));
 		const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
 		const explorerSortModes = new Set(['none', 'name', 'kind']);
-		const explorerViewModes = new Set(['extra-large-icons', 'large-icons', 'medium-icons', 'small-icons', 'list', 'details', 'tiles', 'content']);
+		const fallbackExplorerViewModes = new Set(['extra-large-icons', 'large-icons', 'medium-icons', 'small-icons', 'list', 'details', 'tiles', 'content']);
+		const folderViewModes = window.PufferDesk.apps.folderViewModes || null;
 		const trashFolderId = 'trash';
 		let folderProvider = null;
 		let explorerCommandMenu = null;
@@ -103,6 +104,12 @@
 
 		function getFolderLayout() {
 			return getThemeSurface('folder', 'finder');
+		}
+
+		function getFolderViewLayout(win = null) {
+			return win && win.dataset && win.dataset.pdkFolderLayout === 'file-explorer'
+				? 'file-explorer'
+				: getFolderLayout();
 		}
 
 		function isFileExplorerLayout() {
@@ -433,30 +440,42 @@
 			return normalized;
 		}
 
-		function normalizeExplorerViewMode(mode) {
-			return explorerViewModes.has(mode) ? mode : 'large-icons';
+		function normalizeExplorerViewMode(mode, layout = getFolderLayout()) {
+			if (folderViewModes && typeof folderViewModes.normalize === 'function') {
+				return folderViewModes.normalize(mode, layout);
+			}
+
+			if (layout === 'file-explorer') {
+				return fallbackExplorerViewModes.has(mode) ? mode : 'large-icons';
+			}
+
+			return mode === 'list' ? 'list' : 'icons';
 		}
 
 		function getExplorerViewMode(win) {
-			return normalizeExplorerViewMode(win && win.dataset ? win.dataset.pdkExplorerViewMode : '');
+			const mode = win && win.dataset ? (win.dataset.pdkFolderViewMode || win.dataset.pdkExplorerViewMode || '') : '';
+
+			return normalizeExplorerViewMode(mode, getFolderViewLayout(win));
 		}
 
 		function setExplorerViewMode(win, mode) {
-			const normalized = normalizeExplorerViewMode(mode);
-			const pane = win ? win.querySelector('.pdk-explorer-pane') : null;
+			const normalized = normalizeExplorerViewMode(mode, getFolderViewLayout(win));
+			const pane = win ? win.querySelector('.pdk-finder-pane') : null;
 			const statusbar = win ? win.querySelector('.pdk-explorer-statusbar') : null;
 
 			if (win && win.dataset) {
+				win.dataset.pdkFolderViewMode = normalized;
 				win.dataset.pdkExplorerViewMode = normalized;
 			}
 
 			if (pane) {
+				pane.dataset.pdkFolderViewMode = normalized;
 				pane.dataset.pdkExplorerViewMode = normalized;
 			}
 
 			if (statusbar) {
-				statusbar.querySelectorAll('[data-pdk-explorer-view-mode]').forEach((button) => {
-					const active = button.dataset.pdkExplorerViewMode === normalized;
+				statusbar.querySelectorAll('[data-pdk-folder-view-mode], [data-pdk-explorer-view-mode]').forEach((button) => {
+					const active = (button.dataset.pdkFolderViewMode || button.dataset.pdkExplorerViewMode) === normalized;
 					button.classList.toggle('is-active', active);
 					button.setAttribute('aria-pressed', active ? 'true' : 'false');
 				});
@@ -483,6 +502,303 @@
 			return folderRenderer && typeof folderRenderer.createItemGrid === 'function'
 				? folderRenderer.createItemGrid(folderId, win, options)
 				: document.createElement('div');
+		}
+
+		function bindFolderPaneSelectionClear(pane) {
+			if (!pane || !launcherRenderer || typeof launcherRenderer.clearSelection !== 'function') {
+				return;
+			}
+
+			pane.addEventListener('click', (event) => {
+				const target = event.target;
+				const interactiveSelector = [
+					'.pdk-app-launcher',
+					'.pdk-finder-trash-item',
+					'button',
+					'a',
+					'input',
+					'textarea',
+					'select',
+					'[contenteditable="true"]'
+				].join(', ');
+				const interactive = target && typeof target.closest === 'function'
+					? target.closest(interactiveSelector)
+					: null;
+
+				if (interactive && pane.contains(interactive)) {
+					return;
+				}
+
+				launcherRenderer.clearSelection(pane);
+			});
+		}
+
+		let activeFolderItemDropTarget = null;
+
+		function clearFolderItemDropTarget() {
+			if (activeFolderItemDropTarget) {
+				activeFolderItemDropTarget.classList.remove('is-drop-target');
+				activeFolderItemDropTarget = null;
+			}
+		}
+
+		function setFolderItemDropTarget(target) {
+			if (activeFolderItemDropTarget === target) {
+				return;
+			}
+
+			clearFolderItemDropTarget();
+			activeFolderItemDropTarget = target || null;
+			if (activeFolderItemDropTarget) {
+				activeFolderItemDropTarget.classList.add('is-drop-target');
+			}
+		}
+
+		function getFolderDragDetail(item, sourceFolderId) {
+			const kind = item && item.dataset ? item.dataset.pdkFolderItemKind || '' : '';
+			const id = item && item.dataset ? item.dataset.pdkFolderItemId || item.dataset.pdkContextId || item.dataset.pdkOpenFolder || '' : '';
+
+			if (!id || !['app', 'folder'].includes(kind)) {
+				return null;
+			}
+
+			return {
+				id,
+				item,
+				kind,
+				sourceFolderId
+			};
+		}
+
+		function getFolderDropIdFromElement(element) {
+			if (!element || !element.dataset) {
+				return '';
+			}
+
+			return element.dataset.pdkOpenFolder || element.dataset.pdkContextId || '';
+		}
+
+		function canDropFolderItem(dragDetail, dropTarget) {
+			const provider = getFolderProvider();
+
+			if (!dragDetail || !dropTarget || !provider) {
+				return false;
+			}
+
+			if (dropTarget.kind === 'desktop') {
+				if (dragDetail.kind === 'app') {
+					return Boolean(typeof provider.moveAppToDesktop === 'function');
+				}
+
+				return Boolean(
+					typeof provider.canMoveFolderToParent === 'function'
+					&& provider.canMoveFolderToParent(dragDetail.id, 'desktop')
+				);
+			}
+
+			if (dropTarget.kind !== 'folder' || !dropTarget.id || isTrashFolderId(dropTarget.id)) {
+				return false;
+			}
+
+			if (dragDetail.kind === 'app') {
+				return Boolean(
+					dropTarget.id !== dragDetail.sourceFolderId
+					&& typeof provider.addAppToFolder === 'function'
+					&& typeof provider.isUserFolder === 'function'
+					&& provider.isUserFolder(dropTarget.id)
+				);
+			}
+
+			return Boolean(
+				typeof provider.canMoveFolderToParent === 'function'
+				&& provider.canMoveFolderToParent(dragDetail.id, dropTarget.id)
+			);
+		}
+
+		function getFolderItemDropTarget(dragDetail, clientX, clientY) {
+			const element = typeof document.elementFromPoint === 'function'
+				? document.elementFromPoint(clientX, clientY)
+				: null;
+			const folderElement = element && typeof element.closest === 'function'
+				? element.closest('.pdk-folder-launcher, [data-pdk-desktop-icon-kind="folder"]')
+				: null;
+			const pane = element && typeof element.closest === 'function'
+				? element.closest('.pdk-finder-pane')
+				: null;
+			const desktop = element && typeof element.closest === 'function'
+				? element.closest('.pdk-desktop')
+				: null;
+
+			if (!element) {
+				return null;
+			}
+
+			if (folderElement && folderElement !== dragDetail.item) {
+				const id = getFolderDropIdFromElement(folderElement);
+				const target = {
+					element: folderElement,
+					id,
+					kind: 'folder'
+				};
+
+				return canDropFolderItem(dragDetail, target) ? target : null;
+			}
+
+			if (pane && !pane.contains(dragDetail.item)) {
+				const win = pane.closest('.pdk-window[data-pdk-window-kind="folder"]');
+				const id = win && win.dataset ? win.dataset.pdkFolderWindow || '' : '';
+				const target = {
+					element: pane,
+					id,
+					kind: 'folder'
+				};
+
+				return canDropFolderItem(dragDetail, target) ? target : null;
+			}
+
+			if (desktop && !element.closest('.pdk-window')) {
+				const target = {
+					element: desktop,
+					id: 'desktop',
+					kind: 'desktop'
+				};
+
+				return canDropFolderItem(dragDetail, target) ? target : null;
+			}
+
+			return null;
+		}
+
+		function dropFolderItem(dragDetail, dropTarget, point) {
+			const provider = getFolderProvider();
+			let changed = false;
+
+			if (!provider || !dragDetail || !dropTarget) {
+				return false;
+			}
+
+			if (dropTarget.kind === 'desktop') {
+				if (dragDetail.kind === 'app' && typeof provider.moveAppToDesktop === 'function') {
+					changed = provider.moveAppToDesktop(dragDetail.id, {
+						point
+					});
+				}
+
+				if (dragDetail.kind === 'folder' && typeof provider.moveFolderToParent === 'function') {
+					changed = provider.moveFolderToParent(dragDetail.id, 'desktop', {
+						point
+					});
+				}
+			} else if (dropTarget.kind === 'folder') {
+				if (dragDetail.kind === 'app' && typeof provider.addAppToFolder === 'function') {
+					changed = provider.addAppToFolder(dragDetail.id, dropTarget.id);
+				}
+
+				if (dragDetail.kind === 'folder' && typeof provider.moveFolderToParent === 'function') {
+					changed = provider.moveFolderToParent(dragDetail.id, dropTarget.id);
+				}
+			}
+
+			if (changed) {
+				[
+					dragDetail.sourceFolderId,
+					dropTarget.kind === 'folder' ? dropTarget.id : '',
+					dragDetail.kind === 'folder' ? dragDetail.id : ''
+				].filter(Boolean).forEach((folderId) => {
+					refreshFolderWindow(folderId);
+					refreshFolderInfoWindow(folderId);
+				});
+			}
+
+			return changed;
+		}
+
+		function bindFolderPaneItemDrag(pane, folderId) {
+			if (!pane || pane.dataset.pdkFolderItemDragBound === '1') {
+				return;
+			}
+
+			pane.dataset.pdkFolderItemDragBound = '1';
+			pane.addEventListener('click', (event) => {
+				const item = event.target && typeof event.target.closest === 'function'
+					? event.target.closest('[data-pdk-draggable-folder-item="1"]')
+					: null;
+
+				if (item && item.dataset.pdkSuppressFolderItemClick === '1') {
+					event.preventDefault();
+					event.stopPropagation();
+					delete item.dataset.pdkSuppressFolderItemClick;
+				}
+			}, true);
+			pane.addEventListener('pointerdown', (event) => {
+				const item = event.target && typeof event.target.closest === 'function'
+					? event.target.closest('[data-pdk-draggable-folder-item="1"]')
+					: null;
+				const dragDetail = getFolderDragDetail(item, folderId);
+				const startX = event.clientX;
+				const startY = event.clientY;
+				let moved = false;
+				let currentDropTarget = null;
+
+				if (
+					event.button !== 0
+					|| event.ctrlKey
+					|| event.metaKey
+					|| event.shiftKey
+					|| !item
+					|| !pane.contains(item)
+					|| !dragDetail
+				) {
+					return;
+				}
+
+				if (typeof item.setPointerCapture === 'function') {
+					item.setPointerCapture(event.pointerId);
+				}
+
+				const move = (moveEvent) => {
+					const deltaX = moveEvent.clientX - startX;
+					const deltaY = moveEvent.clientY - startY;
+
+					if (!moved && Math.abs(deltaX) + Math.abs(deltaY) < 4) {
+						return;
+					}
+
+					moved = true;
+					moveEvent.preventDefault();
+					item.classList.add('is-dragging');
+					currentDropTarget = getFolderItemDropTarget(dragDetail, moveEvent.clientX, moveEvent.clientY);
+					setFolderItemDropTarget(currentDropTarget ? currentDropTarget.element : null);
+				};
+
+				const up = (upEvent) => {
+					window.removeEventListener('pointermove', move);
+					window.removeEventListener('pointerup', up);
+					window.removeEventListener('pointercancel', up);
+					item.classList.remove('is-dragging');
+					clearFolderItemDropTarget();
+
+					if (typeof item.releasePointerCapture === 'function' && item.hasPointerCapture(upEvent.pointerId)) {
+						item.releasePointerCapture(upEvent.pointerId);
+					}
+
+					if (moved) {
+						const dropTarget = currentDropTarget || getFolderItemDropTarget(dragDetail, upEvent.clientX, upEvent.clientY);
+						if (dropTarget) {
+							dropFolderItem(dragDetail, dropTarget, {
+								clientX: upEvent.clientX,
+								clientY: upEvent.clientY
+							});
+						}
+
+						item.dataset.pdkSuppressFolderItemClick = '1';
+					}
+				};
+
+				window.addEventListener('pointermove', move);
+				window.addEventListener('pointerup', up);
+				window.addEventListener('pointercancel', up);
+			});
 		}
 
 		function setExplorerSortMode(win, mode) {
@@ -667,32 +983,61 @@
 			}, options));
 		}
 
-		function getExplorerCommandMenuItems(action, folderId, win) {
-			const sortMode = getExplorerSortMode(win);
-			const viewMode = getExplorerViewMode(win);
+		function getFolderViewModeOptions(layout) {
+			if (folderViewModes && typeof folderViewModes.getOptions === 'function') {
+				return folderViewModes.getOptions(layout);
+			}
 
-			if (action.id === 'sort') {
+			if (layout === 'file-explorer') {
 				return [
-					explorerChoiceItem(getMenuLabel('sort_none', 'None'), 'folder.set-sort-mode', 'none', sortMode, folderId),
-					explorerMenuSeparator(),
-					explorerChoiceItem(getMenuLabel('sort_name', 'Name'), 'folder.set-sort-mode', 'name', sortMode, folderId),
-					explorerChoiceItem(getMenuLabel('sort_kind', 'Kind'), 'folder.set-sort-mode', 'kind', sortMode, folderId),
-					disabledExplorerMenuItem(getMenuLabel('sort_date_modified', 'Date Modified')),
-					disabledExplorerMenuItem(getMenuLabel('sort_size', 'Size'))
+					{ fallback: 'Extra large icons', group: 'icons', key: 'extra_large_icons', mode: 'extra-large-icons' },
+					{ fallback: 'Large icons', group: 'icons', key: 'large_icons', mode: 'large-icons' },
+					{ fallback: 'Medium icons', group: 'icons', key: 'medium_icons', mode: 'medium-icons' },
+					{ fallback: 'Small icons', group: 'icons', key: 'small_icons', mode: 'small-icons' },
+					{ fallback: 'List', group: 'list', key: 'list_view_short', mode: 'list' },
+					{ fallback: 'Details', group: 'list', key: 'details_view_short', mode: 'details' },
+					{ fallback: 'Tiles', group: 'list', key: 'tiles_view', mode: 'tiles' },
+					{ fallback: 'Content', group: 'list', key: 'content_view', mode: 'content' }
 				];
 			}
 
-			if (action.id === 'view') {
-				return [
-					explorerChoiceItem(getMenuLabel('extra_large_icons', 'Extra large icons'), 'folder.set-view-mode', 'extra-large-icons', viewMode, folderId),
-					explorerChoiceItem(getMenuLabel('large_icons', 'Large icons'), 'folder.set-view-mode', 'large-icons', viewMode, folderId),
-					explorerChoiceItem(getMenuLabel('medium_icons', 'Medium icons'), 'folder.set-view-mode', 'medium-icons', viewMode, folderId),
-					explorerChoiceItem(getMenuLabel('small_icons', 'Small icons'), 'folder.set-view-mode', 'small-icons', viewMode, folderId),
-					explorerMenuSeparator(),
-					explorerChoiceItem(getMenuLabel('list_view_short', 'List'), 'folder.set-view-mode', 'list', viewMode, folderId),
-					explorerChoiceItem(getMenuLabel('details_view_short', 'Details'), 'folder.set-view-mode', 'details', viewMode, folderId),
-					explorerChoiceItem(getMenuLabel('tiles_view', 'Tiles'), 'folder.set-view-mode', 'tiles', viewMode, folderId),
-					explorerChoiceItem(getMenuLabel('content_view', 'Content'), 'folder.set-view-mode', 'content', viewMode, folderId),
+			return [
+				{ fallback: 'as Icons', group: 'view', key: 'as_icons', mode: 'icons' },
+				{ fallback: 'as List', group: 'view', key: 'as_list', mode: 'list' }
+			];
+		}
+
+		function getFolderViewModeLabel(option) {
+			if (folderViewModes && typeof folderViewModes.getLabel === 'function') {
+				return folderViewModes.getLabel(option, getMenuLabel);
+			}
+
+			return getMenuLabel(option.key, option.fallback);
+		}
+
+		function getFolderViewModeMenuItems(folderId, win) {
+			const layout = getFolderViewLayout(win);
+			const viewMode = getExplorerViewMode(win);
+			const items = [];
+			let previousGroup = '';
+
+			getFolderViewModeOptions(layout).forEach((option) => {
+				if (previousGroup && previousGroup !== option.group) {
+					items.push(explorerMenuSeparator());
+				}
+
+				items.push(explorerChoiceItem(
+					getFolderViewModeLabel(option),
+					'folder.set-view-mode',
+					option.mode,
+					viewMode,
+					folderId
+				));
+				previousGroup = option.group;
+			});
+
+			if (layout === 'file-explorer') {
+				items.push(
 					explorerMenuSeparator(),
 					explorerMenuItem(getMenuLabel('details_pane', 'Details pane'), '', {
 						icon: ''
@@ -707,7 +1052,28 @@
 							disabledExplorerMenuItem(getMenuLabel('show_view_options', 'View options'))
 						]
 					})
+				);
+			}
+
+			return items;
+		}
+
+		function getExplorerCommandMenuItems(action, folderId, win) {
+			const sortMode = getExplorerSortMode(win);
+
+				if (action.id === 'sort' || action.id === 'group') {
+					return [
+						explorerChoiceItem(getMenuLabel('sort_none', 'None'), 'folder.set-sort-mode', 'none', sortMode, folderId),
+						explorerMenuSeparator(),
+					explorerChoiceItem(getMenuLabel('sort_name', 'Name'), 'folder.set-sort-mode', 'name', sortMode, folderId),
+					explorerChoiceItem(getMenuLabel('sort_kind', 'Kind'), 'folder.set-sort-mode', 'kind', sortMode, folderId),
+					disabledExplorerMenuItem(getMenuLabel('sort_date_modified', 'Date Modified')),
+					disabledExplorerMenuItem(getMenuLabel('sort_size', 'Size'))
 				];
+			}
+
+			if (action.id === 'view') {
+				return getFolderViewModeMenuItems(folderId, win);
 			}
 
 			if (action.id === 'more') {
@@ -737,11 +1103,11 @@
 			}
 
 			return [];
-		}
+			}
 
-		function hasExplorerCommandMenu(action) {
-			return Boolean(action && ['sort', 'view', 'more'].includes(action.id));
-		}
+			function hasExplorerCommandMenu(action) {
+				return Boolean(action && ['sort', 'group', 'view', 'more'].includes(action.id));
+			}
 
 		function closeExplorerCommandMenu() {
 			if (typeof explorerCommandMenuCleanup === 'function') {
@@ -768,12 +1134,27 @@
 
 			const shellRect = shell.getBoundingClientRect();
 			const buttonRect = button.getBoundingClientRect();
+			const placement = button.dataset ? button.dataset.pdkExplorerMenuPlacement || '' : '';
+			const icon = button.classList && button.classList.contains('pdk-finder-toolbar-button')
+				? button.querySelector('.pdk-finder-toolbar-icon')
+				: null;
+			const anchorRect = icon && typeof icon.getBoundingClientRect === 'function'
+				? icon.getBoundingClientRect()
+				: buttonRect;
 			const minLeft = 8;
 			const minTop = 8;
 			const maxLeft = Math.max(minLeft, shell.clientWidth - explorerCommandMenu.offsetWidth - 8);
 			const maxTop = Math.max(minTop, shell.clientHeight - explorerCommandMenu.offsetHeight - 8);
-			const left = geometry.clamp(Math.round(buttonRect.left - shellRect.left), minLeft, maxLeft);
-			const top = geometry.clamp(Math.round(buttonRect.bottom - shellRect.top + 4), minTop, maxTop);
+			const left = geometry.clamp(Math.round(anchorRect.left - shellRect.left), minLeft, maxLeft);
+			let top = buttonRect.bottom - shellRect.top + 4;
+
+			if (placement === 'icon-top') {
+				top = anchorRect.top - shellRect.top;
+			} else if (placement === 'icon-bottom') {
+				top = anchorRect.bottom - shellRect.top + 2;
+			}
+
+			top = geometry.clamp(Math.round(top), minTop, maxTop);
 
 			explorerCommandMenu.style.left = `${left}px`;
 			explorerCommandMenu.style.top = `${top}px`;
@@ -999,11 +1380,13 @@
 			bar.dataset.pdkNoDrag = '';
 			listButton.type = 'button';
 			listButton.className = 'pdk-explorer-status-view-button pdk-explorer-status-view-button-list';
+			listButton.dataset.pdkFolderViewMode = 'list';
 			listButton.dataset.pdkExplorerViewMode = 'list';
 			listButton.setAttribute('aria-label', getMenuLabel('list_view', 'List view'));
 			listButton.appendChild(dom.createElement('span', 'pdk-explorer-status-view-icon'));
 			detailButton.type = 'button';
 			detailButton.className = 'pdk-explorer-status-view-button pdk-explorer-status-view-button-details';
+			detailButton.dataset.pdkFolderViewMode = 'details';
 			detailButton.dataset.pdkExplorerViewMode = 'details';
 			detailButton.setAttribute('aria-label', getMenuLabel('details_view', 'Details view'));
 			detailButton.appendChild(dom.createElement('span', 'pdk-explorer-status-view-icon'));
@@ -1032,6 +1415,131 @@
 			return empty;
 		}
 
+		function parseDocumentId(value) {
+			const raw = String(value || '');
+			const direct = Number.parseInt(raw, 10);
+			const match = raw.match(/(\d+)$/);
+
+			if (Number.isFinite(direct) && direct > 0) {
+				return direct;
+			}
+
+			return match ? Number.parseInt(match[1], 10) || 0 : 0;
+		}
+
+		function getSelectedFolderItemElements(folderId, win = null) {
+			const targetWindow = win || getFolderWindow(folderId);
+			const grid = targetWindow ? targetWindow.querySelector('.pdk-finder-pane .pdk-finder-grid') : null;
+			const currentFolderId = targetWindow && targetWindow.dataset ? targetWindow.dataset.pdkFolderWindow || folderId : folderId;
+
+			if (!grid || !currentFolderId) {
+				return [];
+			}
+
+			return Array.from(grid.querySelectorAll('.pdk-app-launcher.is-selected, .pdk-finder-trash-item.is-selected'))
+				.filter((item) => {
+					const itemFolderId = item.dataset.pdkFolderId || currentFolderId;
+
+					return itemFolderId === currentFolderId;
+				});
+		}
+
+		function getSelectedFolderItems(folderId, win = null) {
+			const targetWindow = win || getFolderWindow(folderId);
+			const currentFolderId = targetWindow && targetWindow.dataset ? targetWindow.dataset.pdkFolderWindow || folderId : folderId;
+
+			return getSelectedFolderItemElements(currentFolderId, targetWindow)
+				.map((item) => {
+					const context = item.dataset.pdkContext || '';
+					const id = item.dataset.pdkContextId || '';
+
+					if (context === 'folder') {
+						return {
+							id,
+							parentFolderId: currentFolderId,
+							type: 'folder'
+						};
+					}
+
+					if (context === 'folder-app') {
+						return {
+							id,
+							parentFolderId: item.dataset.pdkFolderId || currentFolderId,
+							type: 'app'
+						};
+					}
+
+					if (context === 'document') {
+						return {
+							id: parseDocumentId(item.dataset.pdkDocumentId || id),
+							parentFolderId: item.dataset.pdkFolderId || currentFolderId,
+							type: 'document'
+						};
+					}
+
+					return null;
+				})
+				.filter(Boolean);
+		}
+
+		function canDeleteSelectedFolderItem(item) {
+			if (!item || !item.id) {
+				return false;
+			}
+
+			if (item.type === 'folder') {
+				return Boolean(getFolderProvider() && isUserFolder(item.id));
+			}
+
+			if (item.type === 'app') {
+				return Boolean(getFolderProvider() && item.parentFolderId && isUserFolder(item.parentFolderId));
+			}
+
+			if (item.type === 'document') {
+				return Boolean(documentStore && typeof documentStore.remove === 'function' && item.id > 0);
+			}
+
+			return false;
+		}
+
+		function hasSelectedFolderItems(folderId, options = {}) {
+			return getSelectedFolderItems(folderId, options.windowElement || null).some(canDeleteSelectedFolderItem);
+		}
+
+		function deleteSelectedFolderItems(folderId, options = {}) {
+			const win = options.windowElement || getFolderWindow(folderId);
+			const provider = getFolderProvider();
+			const selectedItems = getSelectedFolderItems(folderId, win).filter(canDeleteSelectedFolderItem);
+			const documentDeletes = [];
+			let changed = false;
+
+			if (!selectedItems.length) {
+				return Promise.resolve(false);
+			}
+
+			selectedItems.forEach((item) => {
+				if (item.type === 'folder' && provider && typeof provider.moveFolderToTrash === 'function') {
+					changed = provider.moveFolderToTrash(item.id) || changed;
+				} else if (item.type === 'app' && provider && typeof provider.removeAppFromFolder === 'function') {
+					changed = provider.removeAppFromFolder(item.id, item.parentFolderId) || changed;
+				} else if (item.type === 'document' && documentStore && typeof documentStore.remove === 'function') {
+					documentDeletes.push(documentStore.remove(item.id).then((deleted) => {
+						changed = Boolean(deleted) || changed;
+					}));
+				}
+			});
+
+			return Promise.all(documentDeletes).then(() => {
+				const activeFolderId = win && win.dataset ? win.dataset.pdkFolderWindow || folderId : folderId;
+
+				if (activeFolderId) {
+					refreshFolderWindow(activeFolderId);
+				}
+
+				return changed;
+			});
+		}
+
 		function createFolderToolbarIcon(action) {
 			const icon = dom.createElement('span', `pdk-finder-toolbar-icon pdk-finder-toolbar-icon-${action.id}`);
 
@@ -1043,44 +1551,87 @@
 				icon.appendChild(dom.createElement('span', `pdk-finder-toolbar-badge pdk-finder-toolbar-badge-${action.badge}`));
 			}
 
-			if (action.disclosure) {
+			if (action.disclosure === 'vertical') {
+				const disclosure = dom.createElement('span', 'pdk-finder-toolbar-disclosure-pair');
+				disclosure.append(
+					dom.createElement('span', 'pdk-finder-toolbar-disclosure-caret pdk-finder-toolbar-disclosure-caret-up'),
+					dom.createElement('span', 'pdk-finder-toolbar-disclosure-caret pdk-finder-toolbar-disclosure-caret-down')
+				);
+				icon.appendChild(disclosure);
+			} else if (action.disclosure) {
 				icon.appendChild(dom.createElement('span', 'pdk-finder-toolbar-disclosure'));
 			}
 
 			return icon;
 		}
 
-		function createFolderToolbarButton(action) {
+		function activateFolderToolbarAction(action, folderId, win, button) {
+			if (!canRunExplorerCommand(action, folderId, win)) {
+				return false;
+			}
+
+			if (hasExplorerCommandMenu(action)) {
+				return openExplorerCommandMenu(action, folderId, win, button);
+			}
+
+			return runExplorerCommand(action, folderId, win);
+		}
+
+		function syncFolderToolbarButtonState(button, action, folderId, win) {
+			const canRun = canRunExplorerCommand(action, folderId, win);
+
+			button.disabled = !canRun;
+			button.setAttribute('aria-disabled', canRun ? 'false' : 'true');
+		}
+
+		function createFolderToolbarButton(action, folderId, win) {
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = `pdk-finder-toolbar-button pdk-finder-toolbar-button-${action.id}`;
 			button.tabIndex = -1;
 			button.dataset.pdkNoDrag = '';
 			button.dataset.pdkToolbarAction = action.id;
-			button.setAttribute('aria-disabled', 'true');
+			if (action.menuPlacement) {
+				button.dataset.pdkExplorerMenuPlacement = action.menuPlacement;
+			}
 			button.setAttribute('aria-label', action.label);
+			if (hasExplorerCommandMenu(action)) {
+				button.setAttribute('aria-haspopup', 'menu');
+				button.setAttribute('aria-expanded', 'false');
+			}
 			button.appendChild(createFolderToolbarIcon(action));
 			button.appendChild(dom.createElement('span', 'pdk-finder-toolbar-label', action.label));
+			syncFolderToolbarButtonState(button, action, folderId, win);
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
+				activateFolderToolbarAction(action, folderId, win, button);
+			});
+			button.addEventListener('keydown', (event) => {
+				if (!hasExplorerCommandMenu(action) || !['ArrowDown', 'Enter', ' '].includes(event.key)) {
+					return;
+				}
+
+				event.preventDefault();
+				activateFolderToolbarAction(action, folderId, win, button);
 			});
 
 			return button;
 		}
 
-		function getFolderToolbarActions() {
-			return [
-				{ id: 'view', label: 'View', icon: 'dashicons-grid-view', disclosure: true },
-				{ id: 'group', label: 'Group', icon: 'dashicons-list-view', disclosure: true },
-				{ id: 'share', label: 'Share', icon: 'dashicons-share' },
-				{ id: 'tags', label: 'Edit Tags', icon: 'dashicons-tag' },
-				{ id: 'delete', label: 'Delete', icon: 'dashicons-trash' },
-				{ id: 'info', label: 'Get Info', icon: 'dashicons-info-outline' },
-				{ id: 'new-folder', label: 'New Folder', icon: 'dashicons-category', badge: 'plus' },
-				{ id: 'action', label: 'Action', icon: 'dashicons-ellipsis' },
-				{ id: 'search', label: 'Search', icon: 'dashicons-search' }
+		function getFolderToolbarActions(folderId = '') {
+			const canCreateFolder = folderId && !isTrashFolderId(folderId);
+			const actions = [
+				{ id: 'view', label: 'View', icon: 'dashicons-grid-view', disclosure: 'vertical', menuPlacement: 'icon-top' },
+				{ id: 'group', label: 'Group', icon: 'dashicons-list-view', disclosure: true, menuPlacement: 'icon-bottom' },
+				{ id: 'delete', label: 'Delete', icon: 'dashicons-trash', command: 'folder.delete-selected' }
 			];
+
+			if (canCreateFolder) {
+				actions.push({ id: 'new-folder', label: 'New Folder', icon: 'dashicons-category', badge: 'plus', command: 'folder.create' });
+			}
+
+			return actions;
 		}
 
 		function createFolderToolbarOverflowButton() {
@@ -1100,18 +1651,31 @@
 			return button;
 		}
 
-		function createFolderToolbarOverflowMenuItem(action) {
-			const item = dom.createElement('div', 'pdk-finder-toolbar-overflow-menu-item');
+		function createFolderToolbarOverflowMenuItem(action, folderId, win) {
+			const item = document.createElement('button');
 			const label = dom.createElement('span', 'pdk-finder-toolbar-overflow-menu-label', action.label);
 
+			item.type = 'button';
+			item.className = 'pdk-finder-toolbar-overflow-menu-item';
+			item.dataset.pdkNoDrag = '';
+			item.dataset.pdkToolbarAction = action.id;
 			item.setAttribute('role', 'menuitem');
-			item.setAttribute('aria-disabled', 'true');
+			if (hasExplorerCommandMenu(action)) {
+				item.setAttribute('aria-haspopup', 'menu');
+				item.setAttribute('aria-expanded', 'false');
+			}
 			item.append(createFolderToolbarIcon(action), label);
+			syncFolderToolbarButtonState(item, action, folderId, win);
+			item.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				activateFolderToolbarAction(action, folderId, win, item);
+			});
 
 			return item;
 		}
 
-		function setFolderToolbarOverflowMenu(actions, hiddenIds) {
+		function setFolderToolbarOverflowMenu(actions, hiddenIds, folderId, win) {
 			const menu = actions ? actions.querySelector('.pdk-finder-toolbar-overflow-menu') : null;
 			const hiddenSet = new Set(hiddenIds);
 			if (!menu) {
@@ -1119,24 +1683,23 @@
 			}
 
 			menu.replaceChildren();
-			getFolderToolbarActions()
+			getFolderToolbarActions(folderId)
 				.filter((action) => hiddenSet.has(action.id))
 				.forEach((action) => {
-					menu.appendChild(createFolderToolbarOverflowMenuItem(action));
+					menu.appendChild(createFolderToolbarOverflowMenuItem(action, folderId, win));
 				});
 		}
 
-		function createFolderToolbarActions() {
+		function createFolderToolbarActions(folderId, win) {
 			const actions = dom.createElement('div', 'pdk-finder-toolbar-actions');
-			const overflow = dom.createElement('div', 'pdk-finder-toolbar-overflow');
-			const overflowButton = createFolderToolbarOverflowButton();
-			const overflowMenu = dom.createElement('div', 'pdk-finder-toolbar-overflow-menu');
-			const toolbarActions = getFolderToolbarActions();
-			const searchAction = toolbarActions.find((action) => action.id === 'search');
+				const overflow = dom.createElement('div', 'pdk-finder-toolbar-overflow');
+				const overflowButton = createFolderToolbarOverflowButton();
+				const overflowMenu = dom.createElement('div', 'pdk-finder-toolbar-overflow-menu');
+				const toolbarActions = getFolderToolbarActions(folderId);
 
-			actions.dataset.pdkNoDrag = '';
-			overflow.hidden = true;
-			overflowMenu.hidden = true;
+				actions.dataset.pdkNoDrag = '';
+				overflow.hidden = true;
+				overflowMenu.hidden = true;
 			overflowMenu.setAttribute('role', 'menu');
 			overflowButton.addEventListener('click', (event) => {
 				event.preventDefault();
@@ -1156,17 +1719,30 @@
 			overflowButton.setAttribute('aria-expanded', 'false');
 			overflow.append(overflowButton, overflowMenu);
 
-			toolbarActions
-				.filter((action) => action.id !== 'search')
-				.forEach((action) => {
-					actions.appendChild(createFolderToolbarButton(action));
-				});
-			actions.appendChild(overflow);
-			if (searchAction) {
-				actions.appendChild(createFolderToolbarButton(searchAction));
+				toolbarActions
+					.forEach((action) => {
+						actions.appendChild(createFolderToolbarButton(action, folderId, win));
+					});
+				actions.appendChild(overflow);
+
+				return actions;
 			}
 
-			return actions;
+		function syncFolderToolbarActionStates(win) {
+			const folderId = win && win.dataset ? win.dataset.pdkFolderWindow : '';
+			const actions = new Map(getFolderToolbarActions(folderId).map((action) => [action.id, action]));
+
+			if (!win || !folderId) {
+				return;
+			}
+
+			win.querySelectorAll('.pdk-finder-toolbar-actions [data-pdk-toolbar-action]').forEach((button) => {
+				const action = actions.get(button.dataset.pdkToolbarAction);
+
+				if (action) {
+					syncFolderToolbarButtonState(button, action, folderId, win);
+				}
+			});
 		}
 
 		function syncFolderToolbarOverflow(win) {
@@ -1178,7 +1754,7 @@
 			const buttons = actions
 				? Array.from(actions.querySelectorAll('[data-pdk-toolbar-action]'))
 				: [];
-			const hideOrder = ['action', 'new-folder', 'info', 'delete', 'tags', 'share', 'group', 'view'];
+				const hideOrder = ['new-folder', 'delete', 'group', 'view'];
 			const hiddenIds = [];
 
 			function readPixels(value, fallback = 0) {
@@ -1230,7 +1806,7 @@
 			}
 
 			if (toolbarItemsFit()) {
-				setFolderToolbarOverflowMenu(actions, hiddenIds);
+				setFolderToolbarOverflowMenu(actions, hiddenIds, win.dataset.pdkFolderWindow || '', win);
 				return;
 			}
 
@@ -1251,7 +1827,7 @@
 				overflow.hidden = true;
 			}
 
-			setFolderToolbarOverflowMenu(actions, hiddenIds);
+			setFolderToolbarOverflowMenu(actions, hiddenIds, win.dataset.pdkFolderWindow || '', win);
 		}
 
 		function bindFolderToolbarOverflow(win) {
@@ -1265,7 +1841,10 @@
 			}
 
 			const sync = () => {
-				window.requestAnimationFrame(() => syncFolderToolbarOverflow(win));
+				window.requestAnimationFrame(() => {
+					syncFolderToolbarActionStates(win);
+					syncFolderToolbarOverflow(win);
+				});
 			};
 
 			if (win.pdkFolderToolbarDisplayHandler) {
@@ -1274,6 +1853,12 @@
 
 			win.pdkFolderToolbarDisplayHandler = sync;
 			win.addEventListener('pufferDesk:folder-toolbar-display-change', win.pdkFolderToolbarDisplayHandler);
+
+			if (win.pdkFolderSelectionHandler) {
+				win.removeEventListener('pufferDesk:folder-selection-change', win.pdkFolderSelectionHandler);
+			}
+			win.pdkFolderSelectionHandler = sync;
+			win.addEventListener('pufferDesk:folder-selection-change', win.pdkFolderSelectionHandler);
 
 			sync();
 
@@ -1914,18 +2499,21 @@
 			const subbar = isTrash ? createTrashSubbar() : null;
 			const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane');
 
+			bindFolderPaneSelectionClear(pane);
+			bindFolderPaneItemDrag(pane, folderId);
 			header.dataset.pdkContext = 'folder-toolbar';
 			header.dataset.pdkContextId = folderId;
 			header.dataset.pdkContextLabel = 'Folder Toolbar';
 			header.dataset.pdkDragHandle = '';
 			header.dataset.pdkFolderId = folderId;
 			header.dataset.pdkFolderToolbarDisplay = toolbarDisplayMode;
+			pane.dataset.pdkFolderViewMode = getExplorerViewMode(win);
 			history.dataset.pdkNoDrag = '';
 			history.appendChild(createFolderHistoryButton('back', win));
 			history.appendChild(createFolderHistoryButton('forward', win));
 			historyGroup.append(history, dom.createElement('span', 'pdk-finder-toolbar-caption', 'Back/Forward'));
 			leading.append(historyGroup, title);
-			header.append(leading, createFolderToolbarActions());
+			header.append(leading, createFolderToolbarActions(folderId, win));
 
 			if (isTrash) {
 				if (trashItems.length) {
@@ -1959,6 +2547,9 @@
 			const main = dom.createElement('main', 'pdk-settings-main pdk-finder-main pdk-explorer-main');
 			const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane pdk-explorer-pane');
 
+			bindFolderPaneSelectionClear(pane);
+			bindFolderPaneItemDrag(pane, folderId);
+			pane.dataset.pdkFolderViewMode = getExplorerViewMode(win);
 			pane.dataset.pdkExplorerViewMode = getExplorerViewMode(win);
 
 			if (isTrash && trashItems.length) {
@@ -2079,6 +2670,7 @@
 			syncExplorerTitlebarTabControls(win, folderId);
 			win.pdkSerializeFolderTabs = () => serializeFolderTabs(win);
 			win.dataset.pdkFolderLayout = getFolderLayout();
+			win.dataset.pdkFolderViewMode = getExplorerViewMode(win);
 			win.dataset.pdkExplorerViewMode = getExplorerViewMode(win);
 			win.dataset.pdkExplorerSortMode = getExplorerSortMode(win);
 			body.dataset.pdkFolderLayout = getFolderLayout();
@@ -2086,9 +2678,7 @@
 			body.classList.toggle('pdk-finder-body', !isFileExplorerLayout());
 			setFolderToolbarDisplayMode(win, getFolderToolbarDisplayMode(win));
 			body.replaceChildren(createFolderContent(folderId, win));
-			if (isFileExplorerLayout()) {
-				setExplorerViewMode(win, getExplorerViewMode(win));
-			}
+			setExplorerViewMode(win, getExplorerViewMode(win));
 			if (manager && typeof manager.makeDraggable === 'function') {
 				manager.makeDraggable(win);
 			}
@@ -2453,13 +3043,15 @@
 		return {
 			bindShellClicks,
 			closeFolderInfoWindow,
-			closeFolderTab,
-			closeFolderTabsToRight,
-			closeFolderWindow,
-			closeOtherFolderTabs,
-			duplicateFolderTab,
-			getWindowOptions,
-			openAbout,
+				closeFolderTab,
+				closeFolderTabsToRight,
+				closeFolderWindow,
+				closeOtherFolderTabs,
+				deleteSelectedFolderItems,
+				duplicateFolderTab,
+				getWindowOptions,
+				hasSelectedFolderItems,
+				openAbout,
 			openApp,
 			openFolder,
 			openFolderWindow(folderId, options = {}) {

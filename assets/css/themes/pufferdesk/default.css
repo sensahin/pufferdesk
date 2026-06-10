@@ -102,6 +102,7 @@
 	--pdk-desktop-icon-grid-right-inset: 0px;
 	--pdk-desktop-icon-grid-top-inset: 0px;
 	--pdk-desktop-icon-layer-top: calc(var(--pdk-menu-bar-height) + 8px);
+	--pdk-desktop-object-layer-top: 28px;
 	--pdk-desktop-label-line-width: 18ch;
 	--pdk-desktop-icon-selection-bg: var(--pdk-accent-active);
 	--pdk-desktop-icon-selection-icon-bg: rgba(60, 60, 67, 0.14);
@@ -728,6 +729,57 @@
 	background: var(--pdk-menu-selection-active-bg);
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel),
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-finder-toolbar-overflow-menu {
+	display: grid;
+	max-width: calc(100vw - 16px);
+	min-width: 0;
+	width: max-content;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item {
+	grid-template-columns: max-content auto;
+	width: 100%;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-icon,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-icon {
+	grid-template-columns: 16px max-content auto;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-finder-toolbar-overflow-menu-item {
+	grid-template-columns: 24px max-content;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-context-menu[data-pdk-context-menu="dock-app"] {
+	border-radius: var(--pdk-menu-popover-radius);
+	padding: 6px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-item {
+	border-radius: 6px;
+	font-size: var(--pdk-text-menu);
+	grid-template-columns: max-content auto;
+	height: 25px;
+	padding: 0 10px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-item-shortcut {
+	font-size: var(--pdk-text-caption);
+	min-width: 30px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-item-label {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-separator {
+	margin: 5px 10px;
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search {
 	backdrop-filter: none;
 	background: transparent;
@@ -825,7 +877,7 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-widget-layer {
-	inset: 28px 0 0;
+	inset: var(--pdk-desktop-object-layer-top) 0 0;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window {
@@ -947,8 +999,41 @@
 	transform: none;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:hover,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:focus,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-grid {
+	grid-template-columns: minmax(240px, 1fr);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher {
+	align-items: center;
+	border-radius: 6px;
+	flex-direction: row;
+	gap: 10px;
+	justify-content: flex-start;
+	min-height: 34px;
+	padding: 4px 8px;
+	text-align: left;
+	width: 100%;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher .pdk-app-icon {
+	height: 24px;
+	width: 24px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher .pdk-app-icon .pdk-icon-image,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher .pdk-app-icon .dashicons {
+	height: 24px;
+	width: 24px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher-label {
+	display: block;
+	max-height: none;
+	max-width: none;
+	white-space: nowrap;
+	width: auto;
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-selected,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher[aria-selected="true"],
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-context-menu-active {
@@ -981,8 +1066,6 @@
 	z-index: 1;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:hover .pdk-app-icon::before,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:focus .pdk-app-icon::before,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-selected .pdk-app-icon::before,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher[aria-selected="true"] .pdk-app-icon::before,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-context-menu-active .pdk-app-icon::before {
@@ -1308,6 +1391,7 @@
 	--pdk-settings-main-edge: 8px;
 	--pdk-settings-sidebar-gap: 4px;
 	--pdk-settings-sidebar-inset: 10px;
+	--pdk-settings-sidebar-width: 194px;
 	-webkit-backdrop-filter: none;
 	backdrop-filter: none;
 	background: var(--pdk-settings-window-bg, var(--pdk-panel));
@@ -1336,7 +1420,11 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-window-titlebar {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
 	background: transparent;
+	border-bottom: 0;
+	box-shadow: none;
 	left: var(--pdk-settings-sidebar-inset);
 	min-height: 44px;
 	padding-left: 12px;
@@ -1345,7 +1433,11 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-window-titlebar {
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
 	background: transparent;
+	border-bottom: 0;
+	box-shadow: none;
 	left: var(--pdk-settings-sidebar-inset);
 	min-height: 44px;
 	padding-left: 12px;
@@ -1450,10 +1542,23 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar {
-	border-bottom-color: var(--pdk-finder-divider);
-	padding-bottom: 4px;
+	border-bottom: 0;
+	min-height: 70px;
+	padding-bottom: 2px;
 	padding-left: var(--pdk-settings-main-edge);
 	padding-top: var(--pdk-settings-sidebar-inset);
+	position: relative;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar::after {
+	background: var(--pdk-finder-divider);
+	bottom: 0;
+	content: "";
+	height: 1px;
+	left: calc(var(--pdk-settings-sidebar-gap, 4px) * -1);
+	pointer-events: none;
+	position: absolute;
+	right: 0;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-tabs {
@@ -1471,6 +1576,49 @@
 	backdrop-filter: var(--pdk-material-control-filter);
 	background: var(--pdk-material-control-bg);
 	border-color: var(--pdk-material-control-border);
+	transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-icon-view,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-icon-group,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-icon-new-folder {
+	border-radius: 999px;
+	width: 44px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button:not(:disabled):hover .pdk-finder-toolbar-icon,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button:not(:disabled):focus-visible .pdk-finder-toolbar-icon,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button.is-menu-open .pdk-finder-toolbar-icon,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-overflow-button:hover .pdk-finder-toolbar-icon,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-overflow-button:focus-visible .pdk-finder-toolbar-icon,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-overflow-button[aria-expanded="true"] .pdk-finder-toolbar-icon {
+	background: var(--pdk-material-control-hover-bg);
+	border-color: var(--pdk-material-control-border);
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 0 0 1px rgba(60, 60, 67, 0.08);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button:not(:disabled),
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button[aria-disabled="false"] {
+	color: var(--pdk-ink);
+	opacity: 0.88;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button:not(:disabled) .pdk-finder-toolbar-label,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button[aria-disabled="false"] .pdk-finder-toolbar-label {
+	color: var(--pdk-ink);
+	opacity: 0.8;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button-delete:disabled,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button-delete[aria-disabled="true"] {
+	color: var(--pdk-muted);
+	opacity: 0.46;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button-delete:disabled .pdk-finder-toolbar-label,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button-delete[aria-disabled="true"] .pdk-finder-toolbar-label {
+	color: var(--pdk-muted);
+	opacity: 1;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-tab-add {

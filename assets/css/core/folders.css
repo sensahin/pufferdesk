@@ -283,15 +283,26 @@
 
 .pdk-finder-toolbar-overflow-menu-item {
 	align-items: center;
+	appearance: none;
+	background: transparent;
+	border: 0;
 	border-radius: 7px;
 	color: var(--pdk-muted);
+	cursor: default;
 	display: grid;
+	font-family: inherit;
 	font-size: var(--pdk-settings-text-label);
 	font-weight: var(--pdk-weight-semibold);
 	gap: 9px;
 	grid-template-columns: 24px minmax(0, 1fr);
 	min-height: 28px;
 	padding: 3px 8px;
+	text-align: left;
+	width: 100%;
+}
+
+.pdk-finder-toolbar-overflow-menu-item:disabled {
+	opacity: 0.68;
 }
 
 .pdk-finder-toolbar-overflow-menu-item .pdk-finder-toolbar-icon {
@@ -320,6 +331,31 @@
 	margin-left: 1px;
 	transform: translateX(1px) rotate(45deg);
 	width: 6px;
+}
+
+.pdk-finder-toolbar-disclosure-pair {
+	align-content: center;
+	display: grid;
+	gap: 2px;
+	justify-items: center;
+	margin-left: 1px;
+	transform: translateX(1px);
+	width: 7px;
+}
+
+.pdk-finder-toolbar-disclosure-caret {
+	border-left: 3px solid transparent;
+	border-right: 3px solid transparent;
+	height: 0;
+	width: 0;
+}
+
+.pdk-finder-toolbar-disclosure-caret-up {
+	border-bottom: 4px solid currentColor;
+}
+
+.pdk-finder-toolbar-disclosure-caret-down {
+	border-top: 4px solid currentColor;
 }
 
 .pdk-finder-toolbar-badge-plus {
@@ -585,6 +621,10 @@
 	padding: 24px 20px 22px;
 }
 
+.pdk-finder-pane.is-drop-target {
+	box-shadow: inset 0 0 0 2px var(--pdk-accent-medium, var(--pdk-accent));
+}
+
 .pdk-folder-body .pdk-app-grid {
 	align-content: start;
 	grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
@@ -593,6 +633,45 @@
 
 .pdk-folder-body .pdk-app-launcher {
 	min-height: 84px;
+}
+
+.pdk-folder-body .pdk-app-launcher.is-dragging {
+	opacity: 0.58;
+}
+
+.pdk-folder-body .pdk-app-launcher.is-drop-target {
+	outline: 2px solid var(--pdk-accent-medium, var(--pdk-accent));
+	outline-offset: 2px;
+}
+
+.pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-grid {
+	display: grid;
+	gap: 2px;
+	grid-template-columns: minmax(220px, 1fr);
+}
+
+.pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher {
+	align-items: center;
+	flex-direction: row;
+	gap: 10px;
+	justify-content: flex-start;
+	min-height: 34px;
+	padding: 4px 8px;
+	text-align: left;
+	width: 100%;
+}
+
+.pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-icon {
+	flex: 0 0 auto;
+	height: 24px;
+	width: 28px;
+}
+
+.pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher > span:last-child {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .pdk-folder-body .pdk-finder-trash-grid {

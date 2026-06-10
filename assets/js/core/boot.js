@@ -112,14 +112,32 @@
 			canDropOnFolder(detail) {
 				return Boolean(
 					folderManager
-					&& detail.sourceKind === 'app'
 					&& detail.targetKind === 'folder'
-					&& typeof folderManager.isUserFolder === 'function'
-					&& folderManager.isUserFolder(detail.targetId)
+					&& (
+						(
+							detail.sourceKind === 'app'
+							&& typeof folderManager.isUserFolder === 'function'
+							&& folderManager.isUserFolder(detail.targetId)
+						)
+						|| (
+							detail.sourceKind === 'folder'
+							&& typeof folderManager.canMoveFolderToParent === 'function'
+							&& folderManager.canMoveFolderToParent(detail.sourceId, detail.targetId)
+						)
+					)
 				);
 			},
 			onDropOnFolder(detail) {
-				if (folderManager && typeof folderManager.addAppToFolder === 'function') {
+				if (!folderManager || !detail) {
+					return;
+				}
+
+				if (detail.sourceKind === 'folder' && typeof folderManager.moveFolderToParent === 'function') {
+					folderManager.moveFolderToParent(detail.sourceId, detail.targetId);
+					return;
+				}
+
+				if (detail.sourceKind === 'app' && typeof folderManager.addAppToFolder === 'function') {
 					folderManager.addAppToFolder(detail.sourceId, detail.targetId);
 				}
 			},

@@ -394,6 +394,11 @@
 			"deps": []
 		},
 		{
+			"handle": "pufferdesk-folder-view-modes",
+			"path": "assets/js/core/apps/folder-view-modes.js",
+			"deps": []
+		},
+		{
 			"handle": "pufferdesk-app-window-options",
 			"path": "assets/js/core/apps/app-window-options.js",
 			"deps": ["pufferdesk-native-apps"]
@@ -416,7 +421,7 @@
 		{
 			"handle": "pufferdesk-app-launcher",
 			"path": "assets/js/core/apps/app-launcher.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-geometry", "pufferdesk-documents-service", "pufferdesk-virtual-filesystem", "pufferdesk-about-window", "pufferdesk-site-about-window", "pufferdesk-native-apps", "pufferdesk-settings-app", "pufferdesk-text-editor", "pufferdesk-sticky-notes-app", "pufferdesk-recent-items", "pufferdesk-folder-data", "pufferdesk-folder-window-state", "pufferdesk-app-window-options", "pufferdesk-native-app-opener", "pufferdesk-launcher-renderer", "pufferdesk-folder-renderer"]
+			"deps": ["pufferdesk-dom", "pufferdesk-geometry", "pufferdesk-documents-service", "pufferdesk-virtual-filesystem", "pufferdesk-about-window", "pufferdesk-site-about-window", "pufferdesk-native-apps", "pufferdesk-settings-app", "pufferdesk-text-editor", "pufferdesk-sticky-notes-app", "pufferdesk-recent-items", "pufferdesk-folder-data", "pufferdesk-folder-window-state", "pufferdesk-folder-view-modes", "pufferdesk-app-window-options", "pufferdesk-native-app-opener", "pufferdesk-launcher-renderer", "pufferdesk-folder-renderer"]
 		},
 		{
 			"handle": "pufferdesk-search",
@@ -431,7 +436,7 @@
 		{
 			"handle": "pufferdesk-menu-commands",
 			"path": "assets/js/core/shell/commands.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-app-surfaces", "pufferdesk-app-preferences"]
+			"deps": ["pufferdesk-dom", "pufferdesk-app-surfaces", "pufferdesk-app-preferences", "pufferdesk-folder-view-modes"]
 		},
 		{
 			"handle": "pufferdesk-menu-schema",

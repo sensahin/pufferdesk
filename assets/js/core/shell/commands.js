@@ -37,7 +37,10 @@
 			const commands = new Map();
 			const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
 			const folderExplorerSortModes = new Set(['none', 'name', 'kind']);
-			const folderExplorerViewModes = new Set(['extra-large-icons', 'large-icons', 'medium-icons', 'small-icons', 'list', 'details', 'tiles', 'content']);
+			const fallbackFolderViewModes = new Set(['icons', 'extra-large-icons', 'large-icons', 'medium-icons', 'small-icons', 'list', 'details', 'tiles', 'content']);
+			const folderViewModes = window.PufferDesk.apps && window.PufferDesk.apps.folderViewModes
+				? window.PufferDesk.apps.folderViewModes
+				: null;
 			let activeDetail = { kind: 'desktop' };
 
 		function getLabel(key, fallback) {
@@ -124,7 +127,11 @@
 		}
 
 		function normalizeFolderExplorerViewMode(mode) {
-			return folderExplorerViewModes.has(mode) ? mode : '';
+			if (folderViewModes && typeof folderViewModes.isKnown === 'function') {
+				return folderViewModes.isKnown(mode) ? mode : '';
+			}
+
+			return fallbackFolderViewModes.has(mode) ? mode : '';
 		}
 
 		function getFolderToolbarWindow(detail = activeDetail) {
@@ -290,6 +297,10 @@
 		function getFolderCreateParentId(payload = {}, detail = {}) {
 			if (payload.parentId) {
 				return payload.parentId;
+			}
+
+			if (payload.target) {
+				return payload.target;
 			}
 
 			if (detail && detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.pdkWindowKind === 'folder') {
@@ -1038,6 +1049,26 @@
 			},
 			run(payload, detail) {
 				folderManager.removeAppFromFolder(payload.target || getFolderAppTargetFromDetail(detail), payload.folderId || (detail && detail.folderId) || '');
+			}
+		});
+
+		register('folder.delete-selected', {
+			isEnabled(payload, detail) {
+				const folderId = getFolderIdFromPayload(payload, detail);
+
+				return Boolean(
+					launcher
+					&& typeof launcher.hasSelectedFolderItems === 'function'
+					&& folderId
+					&& launcher.hasSelectedFolderItems(folderId, {
+						windowElement: detail && detail.windowElement ? detail.windowElement : null
+					})
+				);
+			},
+			run(payload, detail) {
+				return launcher.deleteSelectedFolderItems(getFolderIdFromPayload(payload, detail), {
+					windowElement: detail && detail.windowElement ? detail.windowElement : null
+				});
 			}
 		});
 
