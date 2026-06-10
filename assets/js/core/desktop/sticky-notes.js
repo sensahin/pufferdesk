@@ -241,6 +241,10 @@
 			return getMenuBarHeight() + Math.max(0, getCssPixelValue('--pdk-window-safe-edge', 8)) + (index % 5) * 34;
 		}
 
+		function getDesktopIconLayerDefaultTop(index = 0) {
+			return getCssPixelValue('--pdk-desktop-icon-layer-top', getMenuBarHeight() + 8) + (index % 5) * 34;
+		}
+
 		function getDefaultTop(index = 0) {
 			return (isRedmondTheme() ? 76 : getStickySafeArea().top) + (index % 5) * 34;
 		}
@@ -252,6 +256,7 @@
 					Math.abs(top - getLegacyDefaultTop(index)) > 2
 					&& Math.abs(top - getPreviousSafeDefaultTop(index)) > 2
 					&& Math.abs(top - getWindowSafeDefaultTop(index)) > 2
+					&& Math.abs(top - getDesktopIconLayerDefaultTop(index)) > 2
 				)
 			) {
 				return top;
