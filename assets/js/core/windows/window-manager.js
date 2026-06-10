@@ -60,7 +60,6 @@
 			emitWindowStateChanged,
 			focusWindow,
 			layout,
-			minimizeWindow,
 			scheduleSave,
 			toggleMaximizeWindow
 		});

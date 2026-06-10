@@ -10,22 +10,44 @@
 		const desktop = options.desktop || shell.querySelector('.pdk-desktop');
 		const layout = options.layout;
 		const focusWindow = typeof options.focusWindow === 'function' ? options.focusWindow : () => null;
-		const minimizeWindow = typeof options.minimizeWindow === 'function' ? options.minimizeWindow : () => null;
 		const toggleMaximizeWindow = typeof options.toggleMaximizeWindow === 'function'
 			? options.toggleMaximizeWindow
 			: () => null;
+		const titlebarActions = window.PufferDesk.windows.titlebarActions || null;
 		const emitWindowStateChanged = typeof options.emitWindowStateChanged === 'function'
 			? options.emitWindowStateChanged
 			: () => null;
 		const scheduleSave = typeof options.scheduleSave === 'function' ? options.scheduleSave : () => null;
 		const resizeDirections = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 
-		function isDragExcludedTarget(target) {
+		function isDragExcludedTarget(target, root = null) {
+			if (titlebarActions && typeof titlebarActions.isInteractiveTarget === 'function') {
+				return titlebarActions.isInteractiveTarget(target, root);
+			}
+
 			return Boolean(
 				target
 				&& typeof target.closest === 'function'
-				&& target.closest('button, input, select, textarea, a, [contenteditable="true"], [data-pdk-no-drag]')
+				&& target.closest('button, input, select, textarea, a, [contenteditable="true"], [data-pdk-no-drag], [data-pdk-titlebar-dblclick-exclude]')
 			);
+		}
+
+		function bindTitlebarDoubleClick(handle, win) {
+			const callback = () => toggleMaximizeWindow(win);
+
+			if (titlebarActions && typeof titlebarActions.bindDoubleClick === 'function') {
+				titlebarActions.bindDoubleClick(handle, callback);
+				return;
+			}
+
+			handle.addEventListener('dblclick', (event) => {
+				if (isDragExcludedTarget(event.target, handle)) {
+					return;
+				}
+
+				event.preventDefault();
+				callback();
+			});
 		}
 
 		function makeDraggable(win) {
@@ -42,21 +64,10 @@
 
 				handle.dataset.pdkDragBound = '1';
 
-				handle.addEventListener('dblclick', (event) => {
-					if (isDragExcludedTarget(event.target)) {
-						return;
-					}
-
-					const action = shell.dataset.pdkTitlebarDoubleClick || 'zoom';
-					if (action === 'minimize') {
-						minimizeWindow(win);
-					} else if (action === 'zoom') {
-						toggleMaximizeWindow(win);
-					}
-				});
+				bindTitlebarDoubleClick(handle, win);
 
 				handle.addEventListener('pointerdown', (event) => {
-					if (event.button !== 0 || isDragExcludedTarget(event.target) || win.classList.contains('is-maximized')) {
+					if (event.button !== 0 || isDragExcludedTarget(event.target, handle) || win.classList.contains('is-maximized')) {
 						return;
 					}
 

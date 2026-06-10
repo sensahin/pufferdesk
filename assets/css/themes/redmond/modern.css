@@ -95,9 +95,14 @@
 	--pdk-dock-icon-size: 24px;
 	--pdk-dock-item-size: 48px;
 	--pdk-dock-tile-size: 28px;
-	--pdk-dock-tooltip-bg: rgb(255 255 255 / 0.94);
-	--pdk-dock-tooltip-color: #1f1f1f;
-	--pdk-dock-tooltip-shadow: 0 10px 26px rgb(31 41 55 / 0.18);
+	--pdk-redmond-tooltip-bg: #f2f2f2;
+	--pdk-redmond-tooltip-border: #c8c8c8;
+	--pdk-redmond-tooltip-ink: #1f1f1f;
+	--pdk-redmond-tooltip-shadow: none;
+	--pdk-dock-tooltip-bg: var(--pdk-redmond-tooltip-bg);
+	--pdk-dock-tooltip-border: var(--pdk-redmond-tooltip-border);
+	--pdk-dock-tooltip-color: var(--pdk-redmond-tooltip-ink);
+	--pdk-dock-tooltip-shadow: var(--pdk-redmond-tooltip-shadow);
 	--pdk-running-indicator: #2563eb;
 	--pdk-redmond-taskbar-bg: rgb(243 243 243);
 	--pdk-redmond-taskbar-border: rgb(218 218 218);
@@ -288,14 +293,12 @@
 	color: #fff;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar {
 	gap: 18px;
 	padding: 0 13px;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar .pdk-rich-text-command {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command {
 	align-items: center;
 	display: inline-flex;
 	font-size: 16px;
@@ -306,39 +309,31 @@
 	width: 20px;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command:first-child,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar .pdk-rich-text-command:first-child {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command:first-child {
 	font-weight: var(--pdk-weight-semibold);
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command:nth-child(2),
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar .pdk-rich-text-command:nth-child(2) {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command:nth-child(2) {
 	font-style: italic;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command:nth-child(3),
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar .pdk-rich-text-command:nth-child(3) {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command:nth-child(3) {
 	text-decoration: underline;
 	text-underline-offset: 3px;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command:nth-child(4),
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar .pdk-rich-text-command:nth-child(4) {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command:nth-child(4) {
 	text-decoration: line-through;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command-icon,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar .pdk-rich-text-command-icon {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command-icon {
 	font-size: 16px;
 	line-height: 1;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command:not(:disabled):hover,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command:focus-visible,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command.is-active,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar .pdk-rich-text-command:not(:disabled):hover,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar .pdk-rich-text-command:focus-visible,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar .pdk-rich-text-command.is-active {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-command.is-active {
 	background: rgb(255 255 255 / 0.08);
 }
 
@@ -348,22 +343,24 @@
 	background: rgb(0 0 0 / 0.08);
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-tooltip,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar .pdk-rich-text-tooltip {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-tooltip {
 	--pdk-tooltip-arrow-display: none;
 	--pdk-tooltip-backdrop-filter: none;
-	--pdk-tooltip-bg: #ffffe1;
-	--pdk-tooltip-border-color: #767676;
+	--pdk-tooltip-bg: var(--pdk-redmond-tooltip-bg);
+	--pdk-tooltip-border-color: var(--pdk-redmond-tooltip-border);
 	--pdk-tooltip-border-width: 1px;
-	--pdk-tooltip-bottom: calc(100% + 6px);
-	--pdk-tooltip-color: #111;
-	--pdk-tooltip-delay: 420ms;
+	--pdk-tooltip-color: var(--pdk-redmond-tooltip-ink);
+	--pdk-tooltip-delay: 400ms;
 	--pdk-tooltip-font-size: 12px;
 	--pdk-tooltip-line-height: 1.2;
-	--pdk-tooltip-min-height: 0;
-	--pdk-tooltip-padding: 3px 7px;
+	--pdk-tooltip-min-height: 28px;
+	--pdk-tooltip-padding: 6px 9px;
 	--pdk-tooltip-radius: 0;
-	--pdk-tooltip-shadow: 1px 1px 2px rgb(0 0 0 / 0.22);
+	--pdk-tooltip-shadow: var(--pdk-redmond-tooltip-shadow);
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-toolbar .pdk-rich-text-tooltip {
+	--pdk-tooltip-bottom: calc(100% + 17px);
 	--pdk-tooltip-transform-hidden: translateX(-50%) translateY(2px);
 	--pdk-tooltip-transform-visible: translateX(-50%) translateY(0);
 	--pdk-tooltip-z: 30;
@@ -441,6 +438,7 @@
 	--pdk-sticky-note-bg: rgb(227 248 221);
 	--pdk-sticky-note-body-bg: rgb(227 248 221);
 	--pdk-sticky-note-header-bg: rgb(96 184 83);
+	--pdk-sticky-note-toolbar-bg: rgb(227 248 221);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note[data-pdk-sticky-color="pink"],
@@ -449,6 +447,7 @@
 	--pdk-sticky-note-bg: rgb(255 224 243);
 	--pdk-sticky-note-body-bg: rgb(255 224 243);
 	--pdk-sticky-note-header-bg: rgb(218 117 183);
+	--pdk-sticky-note-toolbar-bg: rgb(255 224 243);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note[data-pdk-sticky-color="purple"],
@@ -457,6 +456,7 @@
 	--pdk-sticky-note-bg: rgb(237 222 252);
 	--pdk-sticky-note-body-bg: rgb(237 222 252);
 	--pdk-sticky-note-header-bg: rgb(165 116 204);
+	--pdk-sticky-note-toolbar-bg: rgb(237 222 252);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note[data-pdk-sticky-color="blue"],
@@ -465,6 +465,7 @@
 	--pdk-sticky-note-bg: rgb(218 244 255);
 	--pdk-sticky-note-body-bg: rgb(218 244 255);
 	--pdk-sticky-note-header-bg: rgb(87 181 217);
+	--pdk-sticky-note-toolbar-bg: rgb(218 244 255);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note[data-pdk-sticky-color="gray"],
@@ -473,6 +474,7 @@
 	--pdk-sticky-note-bg: rgb(232 232 232);
 	--pdk-sticky-note-body-bg: rgb(232 232 232);
 	--pdk-sticky-note-header-bg: rgb(158 158 158);
+	--pdk-sticky-note-toolbar-bg: rgb(232 232 232);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note[data-pdk-sticky-color="dark"],
@@ -565,20 +567,6 @@
 	position: absolute;
 	top: 4px;
 	width: 10px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-divider {
-	border-top: 1px solid var(--pdk-redmond-sticky-menu-divider);
-	margin-top: 2px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-toolbar {
-	align-items: center;
-	background: var(--pdk-redmond-sticky-menu-bg);
-	border-top: 1px solid var(--pdk-redmond-sticky-menu-divider);
-	color: var(--pdk-redmond-sticky-menu-muted);
-	display: flex;
-	min-height: 40px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-notes-app-body {
@@ -4141,8 +4129,14 @@
 	--pdk-card-border: #3a3a3a;
 	--pdk-tile-bg: rgb(48 48 48 / 0.7);
 	--pdk-tile-border: rgb(255 255 255 / 0.12);
-	--pdk-dock-tooltip-bg: rgb(45 45 45 / 0.96);
-	--pdk-dock-tooltip-color: #f2f2f2;
+	--pdk-redmond-tooltip-bg: #202020;
+	--pdk-redmond-tooltip-border: #111;
+	--pdk-redmond-tooltip-ink: #fff;
+	--pdk-redmond-tooltip-shadow: none;
+	--pdk-dock-tooltip-bg: var(--pdk-redmond-tooltip-bg);
+	--pdk-dock-tooltip-border: var(--pdk-redmond-tooltip-border);
+	--pdk-dock-tooltip-color: var(--pdk-redmond-tooltip-ink);
+	--pdk-dock-tooltip-shadow: var(--pdk-redmond-tooltip-shadow);
 	--pdk-running-indicator: #57a7ff;
 	--pdk-redmond-taskbar-bg: rgb(32 32 32);
 	--pdk-redmond-taskbar-border: rgb(50 50 50);

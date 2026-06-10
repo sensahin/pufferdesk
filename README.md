@@ -63,7 +63,7 @@ The foundation separates shell behavior from OS appearance:
   - `services/` owns browser storage, AJAX clients, tooltip helpers, virtual filesystem helpers, native document requests, geometry helpers, and debounced task scheduling.
   - `preferences/` owns shell preference appliers such as appearance, wallpaper, launcher, and menu bar state.
   - `session/` owns per-user, per-theme workspace session sections, with WordPress user meta as durable state and browser storage as cache/fallback.
-  - `windows/` owns window creation, drag/focus behavior, and window state serialization.
+  - `windows/` owns window creation, shared titlebar actions, drag/focus behavior, and window state serialization.
   - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
   - `desktop/` owns desktop icon layout plus user-created folder rendering, sticky note desktop objects, and membership behavior.
   - `apps/` owns app launching, native app renderer registration, native app content such as System Settings, Sticky Notes, Text Editor, and extracted helpers for app badges, app preferences, app window options, native app opening, launcher rendering, folder rendering/data/window state, and recent items.

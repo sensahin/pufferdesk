@@ -32,6 +32,9 @@
 			? window.PufferDesk.apps.runningState
 			: null;
 		const richText = window.PufferDesk.richText || null;
+		const titlebarActions = window.PufferDesk.windows && window.PufferDesk.windows.titlebarActions
+			? window.PufferDesk.windows.titlebarActions
+			: null;
 		const stickyNotesAppId = 'sticky-notes';
 		const noteMap = new Map();
 		let layer = null;
@@ -454,14 +457,10 @@
 			const menu = document.createElement('div');
 			const notesListButton = createOptionsMenuItem('is-notes-list', getLabel('notesList', 'Notes list'));
 			const deleteButton = createOptionsMenuItem('is-delete-note', getLabel('deleteNote', 'Delete Note'));
-			const divider = document.createElement('div');
-			const formatToolbar = createFormatToolbar('pdk-sticky-note-options-toolbar');
-			const formatCleanup = bindFormatToolbar(formatToolbar, entry);
 
 			menu.className = 'pdk-sticky-note-options';
 			menu.setAttribute('role', 'menu');
-			divider.className = 'pdk-sticky-note-options-divider';
-			menu.append(createColorPalette(entry), notesListButton, deleteButton, divider, formatToolbar);
+			menu.append(createColorPalette(entry), notesListButton, deleteButton);
 			entry.element.appendChild(menu);
 
 			function onPointerDown(event) {
@@ -490,7 +489,6 @@
 			document.addEventListener('keydown', onKeyDown, true);
 			openOptionsMenu = {
 				cleanup() {
-					formatCleanup();
 					document.removeEventListener('pointerdown', onPointerDown, true);
 					document.removeEventListener('keydown', onKeyDown, true);
 				},
@@ -688,19 +686,70 @@
 			});
 		}
 
-		function bindDrag(noteElement, dragHandle) {
+		function isChromeInteractiveTarget(target, root = null) {
+			if (titlebarActions && typeof titlebarActions.isInteractiveTarget === 'function') {
+				return titlebarActions.isInteractiveTarget(target, root);
+			}
+
+			return Boolean(
+				target
+				&& typeof target.closest === 'function'
+				&& target.closest('button, input, select, textarea, a, [contenteditable="true"], [data-pdk-no-drag], [data-pdk-titlebar-dblclick-exclude]')
+			);
+		}
+
+		function bindNoteTitlebarDoubleClick(entry, dragHandle) {
+			const callback = () => {
+				if (!entry || !entry.element) {
+					return;
+				}
+
+				closeNoteOptionsMenu();
+				setFullscreen(entry, !entry.element.classList.contains('is-fullscreen'));
+			};
+
+			if (titlebarActions && typeof titlebarActions.bindDoubleClick === 'function') {
+				titlebarActions.bindDoubleClick(dragHandle, callback);
+				return;
+			}
+
+			dragHandle.addEventListener('dblclick', (event) => {
+				if (isChromeInteractiveTarget(event.target, dragHandle)) {
+					return;
+				}
+
+				event.preventDefault();
+				callback();
+			});
+		}
+
+		function bindDrag(noteElement, dragHandle, entry) {
 			let dragState = null;
+			const dragThreshold = 3;
+
+			bindNoteTitlebarDoubleClick(entry, dragHandle);
 
 			function onPointerMove(event) {
 				if (!dragState) {
 					return;
 				}
 
+				const deltaX = event.clientX - dragState.clientX;
+				const deltaY = event.clientY - dragState.clientY;
+				if (!dragState.started) {
+					if (Math.abs(deltaX) < dragThreshold && Math.abs(deltaY) < dragThreshold) {
+						return;
+					}
+
+					dragState.started = true;
+					noteElement.classList.add('is-dragging');
+				}
+
 				const desktopRect = desktop.getBoundingClientRect();
 				const width = noteElement.offsetWidth;
 				const height = noteElement.offsetHeight;
-				const nextLeft = clamp(dragState.left + event.clientX - dragState.clientX, 8, Math.max(8, desktopRect.width - width - 8));
-				const nextTop = clamp(dragState.top + event.clientY - dragState.clientY, 8, Math.max(8, desktopRect.height - height - 8));
+				const nextLeft = clamp(dragState.left + deltaX, 8, Math.max(8, desktopRect.width - width - 8));
+				const nextTop = clamp(dragState.top + deltaY, 8, Math.max(8, desktopRect.height - height - 8));
 
 				noteElement.style.left = `${Math.round(nextLeft)}px`;
 				noteElement.style.top = `${Math.round(nextTop)}px`;
@@ -711,27 +760,31 @@
 					return;
 				}
 
+				const didDrag = dragState.started;
 				dragState = null;
 				noteElement.classList.remove('is-dragging');
-				saveLayout();
+				if (didDrag) {
+					saveLayout();
+				}
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
 				window.removeEventListener('pointercancel', onPointerUp);
 			}
 
 			dragHandle.addEventListener('pointerdown', (event) => {
-				if (event.button !== 0 || !desktop || event.target.closest('button')) {
+				if (event.button !== 0 || !desktop || isChromeInteractiveTarget(event.target, dragHandle)) {
 					return;
 				}
 
+				event.preventDefault();
 				bringToFront(noteElement);
 				dragState = {
 					clientX: event.clientX,
 					clientY: event.clientY,
 					left: noteElement.offsetLeft,
+					started: false,
 					top: noteElement.offsetTop
 				};
-				noteElement.classList.add('is-dragging');
 				dragHandle.setPointerCapture(event.pointerId);
 				window.addEventListener('pointermove', onPointerMove);
 				window.addEventListener('pointerup', onPointerUp);
@@ -809,7 +862,7 @@
 			entry.saveTask = createSaveTask(entry);
 
 			applyState(noteElement, normalizeState(state, noteMap.size - 1));
-			bindDrag(noteElement, dragHandle);
+			bindDrag(noteElement, dragHandle, entry);
 			entry.formatCleanup = bindFormatToolbar(toolbar, entry);
 			bindResizePersistence(noteElement);
 			syncRunningState();
