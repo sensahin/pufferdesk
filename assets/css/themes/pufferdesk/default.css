@@ -103,10 +103,12 @@
 	--pdk-desktop-icon-grid-top-inset: 0px;
 	--pdk-desktop-icon-layer-top: calc(var(--pdk-menu-bar-height) + 8px);
 	--pdk-desktop-object-layer-top: 28px;
+	--pdk-desktop-icon-selection-surface-overhang: 2px;
+	--pdk-desktop-icon-selection-top-bleed: 7px;
 	--pdk-desktop-label-line-width: 18ch;
 	--pdk-desktop-icon-selection-bg: var(--pdk-accent-active);
 	--pdk-desktop-icon-selection-icon-bg: rgba(60, 60, 67, 0.14);
-	--pdk-desktop-icon-selection-icon-inset: -7px -10px -7px;
+	--pdk-desktop-icon-selection-icon-inset: calc(var(--pdk-desktop-icon-selection-top-bleed) * -1) -10px -7px;
 	--pdk-desktop-icon-selection-icon-radius: 10px;
 	--pdk-desktop-icon-selection-ink: var(--pdk-accent-ink);
 	--pdk-desktop-marquee-bg: rgb(var(--pdk-accent-rgb) / 0.16);
@@ -641,6 +643,8 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-menu-bar-background="1"] {
+	--pdk-desktop-icon-layer-top: calc(var(--pdk-menu-bar-height) + var(--pdk-window-safe-edge) + var(--pdk-desktop-icon-selection-top-bleed) + var(--pdk-desktop-icon-selection-surface-overhang));
+	--pdk-desktop-object-layer-top: calc(var(--pdk-menu-bar-height) + var(--pdk-window-safe-edge));
 	--pdk-liquid-glass-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.18));
 	--pdk-liquid-glass-bar-border: rgba(255, 255, 255, 0.18);
 	--pdk-liquid-glass-bar-filter: blur(28px) saturate(190%) brightness(1.04);
@@ -703,7 +707,7 @@
 	text-shadow: var(--pdk-menu-text-shadow);
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-items button:focus,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-items button:focus-visible,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-items button.is-active {
 	-webkit-backdrop-filter: var(--pdk-material-control-filter);
 	backdrop-filter: var(--pdk-material-control-filter);
@@ -712,7 +716,7 @@
 	text-shadow: none;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-items button:hover:not(:focus):not(.is-active) {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-items button:hover:not(:focus-visible):not(.is-active) {
 	-webkit-backdrop-filter: none;
 	backdrop-filter: none;
 	background: transparent;
@@ -730,12 +734,21 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel),
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-finder-toolbar-overflow-menu {
 	display: grid;
 	max-width: calc(100vw - 16px);
 	min-width: 0;
 	width: max-content;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover {
+	max-width: calc(100vw - 16px);
+	min-width: 0;
+	width: max-content;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu.is-open > .pdk-menu-submenu-popover {
+	display: grid;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item,

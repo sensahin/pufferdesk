@@ -21,12 +21,12 @@
 		});
 
 		function getRelativeRect(widget) {
-			const desktopRect = desktop.getBoundingClientRect();
+			const layerRect = layer ? layer.getBoundingClientRect() : desktop.getBoundingClientRect();
 			const rect = widget.getBoundingClientRect();
 
 			return {
-				left: Math.round(rect.left - desktopRect.left),
-				top: Math.round(rect.top - desktopRect.top),
+				left: Math.round(rect.left - layerRect.left),
+				top: Math.round(rect.top - layerRect.top),
 				width: Math.round(rect.width),
 				height: Math.round(rect.height)
 			};
@@ -42,12 +42,12 @@
 			let defaultLeft = left;
 			let defaultTop = top;
 
-			if (defaultLeft === null && right !== null && desktop) {
-				defaultLeft = desktop.clientWidth - width - right;
+			if (defaultLeft === null && right !== null && layer) {
+				defaultLeft = layer.clientWidth - width - right;
 			}
 
-			if (defaultTop === null && bottom !== null && desktop) {
-				defaultTop = desktop.clientHeight - height - bottom;
+			if (defaultTop === null && bottom !== null && layer) {
+				defaultTop = layer.clientHeight - height - bottom;
 			}
 
 			return {
@@ -73,8 +73,8 @@
 		function applyWidgetState(widget, state) {
 			const defaults = getWidgetDefaults(widget);
 			const next = Object.assign({}, defaults, state && typeof state === 'object' ? state : {});
-			const maxLeft = desktop ? desktop.clientWidth - next.width : next.left;
-			const maxTop = desktop ? desktop.clientHeight - next.height - 84 : next.top;
+			const maxLeft = layer ? layer.clientWidth - next.width : next.left;
+			const maxTop = layer ? layer.clientHeight - next.height - 84 : next.top;
 
 			widget.style.left = `${clamp(next.left, 0, maxLeft)}px`;
 			widget.style.top = `${clamp(next.top, 0, maxTop)}px`;
@@ -86,7 +86,7 @@
 		function makeDraggable(widget) {
 			const handle = widget.querySelector('[data-pdk-widget-drag-handle]');
 
-			if (!handle || !desktop) {
+			if (!handle || !desktop || !layer) {
 				return;
 			}
 
@@ -97,12 +97,12 @@
 
 				event.preventDefault();
 
-				const desktopRect = desktop.getBoundingClientRect();
+				const layerRect = layer.getBoundingClientRect();
 				const rect = widget.getBoundingClientRect();
 				const startX = event.clientX;
 				const startY = event.clientY;
-				const startLeft = rect.left - desktopRect.left;
-				const startTop = rect.top - desktopRect.top;
+				const startLeft = rect.left - layerRect.left;
+				const startTop = rect.top - layerRect.top;
 
 				widget.classList.add('is-dragging');
 				widget.style.left = `${startLeft}px`;
@@ -112,8 +112,8 @@
 				const move = (moveEvent) => {
 					const nextLeft = startLeft + moveEvent.clientX - startX;
 					const nextTop = startTop + moveEvent.clientY - startY;
-					const maxLeft = desktop.clientWidth - widget.offsetWidth;
-					const maxTop = desktop.clientHeight - widget.offsetHeight - 84;
+					const maxLeft = layer.clientWidth - widget.offsetWidth;
+					const maxTop = layer.clientHeight - widget.offsetHeight - 84;
 
 					widget.style.left = `${clamp(nextLeft, 0, maxLeft)}px`;
 					widget.style.top = `${clamp(nextTop, 0, maxTop)}px`;

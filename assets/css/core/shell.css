@@ -415,7 +415,7 @@
 }
 
 .pdk-menu-items button:hover,
-.pdk-menu-items button:focus,
+.pdk-menu-items button:focus-visible,
 .pdk-menu-items button.is-active {
 	-webkit-backdrop-filter: var(--pdk-material-control-filter);
 	backdrop-filter: var(--pdk-material-control-filter);
