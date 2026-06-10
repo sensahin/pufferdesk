@@ -29,6 +29,10 @@
 			"path": "assets/css/core/notifications.css"
 		},
 		{
+			"handle": "pufferdesk-core-sound-status",
+			"path": "assets/css/core/sound-status.css"
+		},
+		{
 			"handle": "pufferdesk-core-desktop",
 			"path": "assets/css/core/desktop.css"
 		},
@@ -95,6 +99,11 @@
 			"deps": []
 		},
 		{
+			"handle": "pufferdesk-transient-surfaces",
+			"path": "assets/js/core/shell/transient-surfaces.js",
+			"deps": ["pufferdesk-event-bus"]
+		},
+		{
 			"handle": "pufferdesk-storage",
 			"path": "assets/js/core/services/storage.js",
 			"deps": ["pufferdesk-config"]
@@ -102,6 +111,11 @@
 		{
 			"handle": "pufferdesk-api-client",
 			"path": "assets/js/core/services/api-client.js",
+			"deps": ["pufferdesk-config"]
+		},
+		{
+			"handle": "pufferdesk-sound-manager",
+			"path": "assets/js/core/services/sound-manager.js",
 			"deps": ["pufferdesk-config"]
 		},
 		{
@@ -117,7 +131,12 @@
 		{
 			"handle": "pufferdesk-notification-center",
 			"path": "assets/js/core/notifications/notification-center.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-notification-store"]
+			"deps": ["pufferdesk-dom", "pufferdesk-notification-store", "pufferdesk-transient-surfaces"]
+		},
+		{
+			"handle": "pufferdesk-sound-status",
+			"path": "assets/js/core/shell/sound-status.js",
+			"deps": ["pufferdesk-dom", "pufferdesk-api-client", "pufferdesk-event-bus", "pufferdesk-debounced-task", "pufferdesk-sound-manager", "pufferdesk-transient-surfaces"]
 		},
 		{
 			"handle": "pufferdesk-virtual-filesystem",
@@ -315,6 +334,11 @@
 			"deps": ["pufferdesk-settings-labels", "pufferdesk-settings-ui", "pufferdesk-settings-mutations", "pufferdesk-notification-store"]
 		},
 		{
+			"handle": "pufferdesk-settings-panel-sounds",
+			"path": "assets/js/core/apps/settings/panel-sounds.js",
+			"deps": ["pufferdesk-settings-labels", "pufferdesk-settings-ui", "pufferdesk-settings-mutations", "pufferdesk-sound-manager"]
+		},
+		{
 			"handle": "pufferdesk-settings-panel-wallpaper",
 			"path": "assets/js/core/apps/settings/panel-wallpaper.js",
 			"deps": ["pufferdesk-settings-labels", "pufferdesk-settings-ui"]
@@ -342,7 +366,7 @@
 		{
 			"handle": "pufferdesk-settings-app",
 			"path": "assets/js/core/apps/settings-app.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-api-client", "pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-app-surfaces", "pufferdesk-app-preferences", "pufferdesk-native-apps", "pufferdesk-settings-labels", "pufferdesk-settings-ui", "pufferdesk-settings-mutations", "pufferdesk-settings-panel-general", "pufferdesk-settings-panel-profile", "pufferdesk-settings-panel-appearance", "pufferdesk-settings-panel-desktop-dock", "pufferdesk-settings-panel-menu-bar", "pufferdesk-settings-panel-notifications", "pufferdesk-settings-panel-wallpaper", "pufferdesk-settings-panel-widgets", "pufferdesk-settings-panel-apps", "pufferdesk-settings-panel-workspace", "pufferdesk-settings-panel-system"]
+			"deps": ["pufferdesk-dom", "pufferdesk-api-client", "pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-app-surfaces", "pufferdesk-app-preferences", "pufferdesk-native-apps", "pufferdesk-settings-labels", "pufferdesk-settings-ui", "pufferdesk-settings-mutations", "pufferdesk-settings-panel-general", "pufferdesk-settings-panel-profile", "pufferdesk-settings-panel-appearance", "pufferdesk-settings-panel-desktop-dock", "pufferdesk-settings-panel-menu-bar", "pufferdesk-settings-panel-notifications", "pufferdesk-settings-panel-sounds", "pufferdesk-settings-panel-wallpaper", "pufferdesk-settings-panel-widgets", "pufferdesk-settings-panel-apps", "pufferdesk-settings-panel-workspace", "pufferdesk-settings-panel-system"]
 		},
 		{
 			"handle": "pufferdesk-text-editor",
@@ -397,7 +421,7 @@
 		{
 			"handle": "pufferdesk-search",
 			"path": "assets/js/core/shell/search.js",
-			"deps": ["pufferdesk-config"]
+			"deps": ["pufferdesk-config", "pufferdesk-transient-surfaces"]
 		},
 		{
 			"handle": "pufferdesk-shell-dialogs",
@@ -422,7 +446,7 @@
 		{
 			"handle": "pufferdesk-menu",
 			"path": "assets/js/core/shell/menu.js",
-			"deps": ["pufferdesk-config", "pufferdesk-geometry", "pufferdesk-menu-commands", "pufferdesk-menu-schema", "pufferdesk-menu-renderer"]
+			"deps": ["pufferdesk-config", "pufferdesk-geometry", "pufferdesk-menu-commands", "pufferdesk-menu-schema", "pufferdesk-menu-renderer", "pufferdesk-transient-surfaces"]
 		},
 		{
 			"handle": "pufferdesk-context-menu",
@@ -442,7 +466,7 @@
 		{
 			"handle": "pufferdesk-boot",
 			"path": "assets/js/core/boot.js",
-			"deps": ["pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-reopen-policy", "pufferdesk-documents-service", "pufferdesk-notification-store", "pufferdesk-notification-toasts", "pufferdesk-notification-center", "pufferdesk-window-manager", "pufferdesk-widget-manager", "pufferdesk-desktop-icons", "pufferdesk-folder-manager", "pufferdesk-sticky-notes", "pufferdesk-desktop-api", "pufferdesk-app-launcher", "pufferdesk-search", "pufferdesk-shell-dialogs", "pufferdesk-menu", "pufferdesk-context-menu", "pufferdesk-shortcuts", "pufferdesk-clock"]
+			"deps": ["pufferdesk-appearance", "pufferdesk-desktop-dock", "pufferdesk-menu-bar-state", "pufferdesk-wallpaper", "pufferdesk-reopen-policy", "pufferdesk-documents-service", "pufferdesk-sound-manager", "pufferdesk-notification-store", "pufferdesk-notification-toasts", "pufferdesk-notification-center", "pufferdesk-sound-status", "pufferdesk-window-manager", "pufferdesk-widget-manager", "pufferdesk-desktop-icons", "pufferdesk-folder-manager", "pufferdesk-sticky-notes", "pufferdesk-desktop-api", "pufferdesk-app-launcher", "pufferdesk-search", "pufferdesk-shell-dialogs", "pufferdesk-menu", "pufferdesk-context-menu", "pufferdesk-shortcuts", "pufferdesk-clock"]
 		}
 	]
 }

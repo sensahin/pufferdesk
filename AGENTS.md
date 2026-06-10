@@ -76,6 +76,7 @@ PHP services in `includes/`:
 - `class-pufferdesk-notification-normalizer.php`: canonical notification descriptor normalization.
 - `class-pufferdesk-notification-registry.php`: notification providers, per-user retained history, user read/dismiss state, source/severity filtering, and client config.
 - `class-pufferdesk-notification-controller.php`: AJAX notification refresh, read, dismiss, and mark-all-read actions.
+- `class-pufferdesk-sound-registry.php`: semantic sound event registry, default release-safe sound assets, notification event mapping, and Settings preview event metadata.
 - `class-pufferdesk-settings-registry.php`: settings domain metadata, AJAX actions, defaults, reset domains, and panel ownership.
 - `class-pufferdesk-asset-manifest.php`: source/dist asset manifest reader for enqueue order.
 - `class-pufferdesk-assets.php`: CSS/JS registration, enqueueing, and admin chrome classes.
@@ -122,8 +123,9 @@ JavaScript:
 - `assets/js/core/config.js`: runtime payload accessor.
 - `assets/js/core/dom.js`: shared DOM helpers.
 - `assets/js/core/events/`: internal event bus.
-- `assets/js/core/services/`: browser storage, AJAX clients, tooltip helpers, virtual filesystem helpers, native document requests, geometry helpers, and debounced tasks.
+- `assets/js/core/services/`: browser storage, AJAX clients, tooltip helpers, semantic sound playback, virtual filesystem helpers, native document requests, geometry helpers, and debounced tasks.
 - `assets/js/core/services/tooltips.js`: shared browser tooltip creation and trigger attribute helper.
+- `assets/js/core/services/sound-manager.js`: shared browser sound manager for semantic shell events such as notification alerts.
 - `assets/js/core/services/geometry.js`: shared numeric/CSS geometry helpers.
 - `assets/js/core/services/debounced-task.js`: shared debounced task scheduling for delayed state saves and mutations.
 - `assets/js/core/session/`: shared workspace session sections.
@@ -151,6 +153,7 @@ Media:
 - `assets/media/themes/{family}/{version}/icons/`
 - `assets/media/themes/{family}/{version}/cursors/`
 - `assets/media/shared/icons/`
+- `assets/media/shared/sounds/`
 
 ## Extension Contracts
 
@@ -177,6 +180,7 @@ Notifications:
 - Use `PufferDesk_Notification_Registry` plus the `pufferdesk_notifications` filter for server-provided notifications. Providers should return normalized descriptors with stable `id`, `source`, `type`, `title`, optional `message`, `timestamp`, `priority`, `capability`, `actions`, `persistence`, `icon`, and `toast`. Provider-backed notifications with `user` or `site` persistence are retained per user and pruned by the saved notification history window.
 - Browser code should use `window.PufferDesk.desktopApi.notifications` or `window.PufferDesk.notificationStore` for transient runtime notifications, read/dismiss state, and refresh behavior. Do not create one-off toast implementations.
 - Notification settings live in the `notifications` settings domain and `PufferDesk_User_Preferences::META_NOTIFICATIONS`. Source toggles, severity, badges, toasts, and quiet mode should flow through this domain.
+- Notification sounds must use `PufferDesk_Sound_Registry`, `window.PufferDesk.sound`, or `window.PufferDesk.desktopApi.sounds` and runtime `sounds.events` descriptors. Add new semantic sound events through the `pufferdesk_sound_events` filter instead of hard-coding event maps in JavaScript. `sounds.eventIds` owns stable client aliases, `sounds.eventList` owns Settings preview rows, and `sounds.notificationEvents` owns notification type to sound event mapping. Shared shell dialogs, Trash empty success, command failures, and runtime app errors should resolve aliases through the shared sound event helper and play through the Desktop API sound facade. Global sound enable and output volume live in the `sounds` settings domain, while the notification `play_sound` preference remains notification-specific. Do not instantiate ad hoc `Audio` objects in notification, app, or theme modules.
 - Core CSS owns notification structure in `assets/css/core/notifications.css`; theme CSS owns visual variables for the notification button, center, items, and toasts.
 
 Menus:
@@ -221,10 +225,11 @@ Themes:
 - Use theme `app_labels` and `menu.labels` for family-specific app/menu vocabulary such as Trash versus Recycle Bin. Keep app IDs and command IDs stable.
 - Use theme shell labels for family-specific minimize animation option labels when a theme should not expose another OS family's vocabulary. Keep stored option values stable.
 - Shell metadata is executable, not decorative. `top_bar`, `launcher`, `system_menu`, `app_menu`, and `status_area` must match rendered shell surfaces and settings capability visibility.
+- Use theme `sounds` metadata for OS-family sound packs. Supported fields include `enabled`, `rateLimitMs`, and `events.{event_id}` descriptors with local `path`/`file`/`src`, `volume`, and optional `playbackRate`; playback must stay in the shared sound manager.
 - Use theme `typography` metadata for font stacks, type scale, line heights, weights, and neutral letter spacing. Typography normalizes into shell CSS variables; do not hard-code family-specific fonts or type sizes into component CSS when a token exists.
 - Use theme `tokens` metadata for shared colors, material/glass effects, spacing, radii, borders, and shadows. Explicit tokens normalize into shell CSS variables before first paint; do not fill missing tokens from generic defaults because emitted inline variables override concrete theme CSS such as dark-mode colors and family-specific window radii. Use `mode_tokens.light` and `mode_tokens.dark` for appearance-dependent surface values such as context menus, Settings panels/sidebar chrome, reusable window chrome, and Explorer/Finder rows or toolbars; mode tokens emit as scoped CSS rules so material and accessibility overrides can still win through specificity. Core CSS can keep fallback values, but new reusable visual constants should flow through the token contract when future theme families may need to change them. Derived accent values such as soft, medium, active, active gradient, focus ring, and highlight should flow from `--pdk-accent-rgb` and alpha tokens instead of being repeated in every accent variant. Current shared radius tokens include `window`, `window_maximized`, and `menu_popover`.
 - Do not bundle Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform font files. Use system font stacks or original/licensed font assets only.
-- Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `wallpapers`, `icon_pack`, and `cursor_pack`; they normalize to local `assets/media/` descriptors with `path` and `url`.
+- Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `wallpapers`, `icon_pack`, `cursor_pack`, and `sounds`; they normalize to local `assets/media/` descriptors with `path` and `url`.
 - Bundled themes should use `media.wallpapers.default` to choose their starting wallpaper from the shared wallpaper catalog. Do not give bundled themes separate wallpaper option lists unless the product intentionally needs a private theme pack.
 - External theme packs may still use `wallpapers` for theme-managed wallpaper collections. The canonical shape is `array( 'default' => 'wallpaper-id', 'items' => array( array( 'id' => 'wallpaper-id', 'label' => 'Wallpaper Label', 'path' => 'themes/{family}/{version}/wallpapers/file.jpg' ) ) )`.
 - Use `PufferDesk_Wallpaper_Registry` for the shared bundled wallpaper catalog, color backgrounds, theme image wallpapers, upload validation, and `--pdk-wallpaper-*` CSS-variable resolution. Do not read wallpaper URLs directly from templates or app JS.
@@ -278,7 +283,8 @@ Settings:
 
 - Settings domains are described by `PufferDesk_Settings_Registry`. Keep domain IDs, AJAX action names, user meta keys, and reset domain IDs stable.
 - Existing preference handlers may keep their current payload shape, but new settings domains should declare capability, default, reset behavior, sanitizer owner, and panel ownership in the registry before adding UI.
-- The `notifications` domain owns notification source toggles, severity, toast/badge visibility, quiet mode, sound preference, and history retention preference.
+- The `notifications` domain owns notification source toggles, severity, toast/badge visibility, quiet mode, notification-specific sound preference, and history retention preference.
+- The `sounds` domain owns global system sound enable and output volume. Keep semantic sound playback in `assets/js/core/services/sound-manager.js`.
 - Use the `pufferdesk_settings_domains` filter only to add or describe compatible domains; do not use it to mutate existing core contracts in a way that breaks saved preferences.
 
 ## WordPress Coding Standards

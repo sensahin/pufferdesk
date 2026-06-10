@@ -202,6 +202,7 @@
 				{ id: 'desktop-dock', label: 'Desktop & Dock', icon: 'dashicons-desktop', tone: 'indigo' },
 				{ id: 'menu-bar', label: 'Menu Bar', icon: 'dashicons-menu-alt3', tone: 'gray' },
 				{ id: 'notifications', label: 'Notifications', icon: 'dashicons-bell', tone: 'blue' },
+				{ id: 'sounds', label: 'Sound', icon: 'dashicons-format-audio', tone: 'green' },
 				{ id: 'wallpaper', label: 'Wallpaper', icon: 'dashicons-format-image', tone: 'cyan' },
 				{ id: 'widgets', label: 'Widgets', icon: 'dashicons-screenoptions', tone: 'green' },
 				{ id: 'apps', label: 'Apps', icon: 'dashicons-grid-view', tone: 'purple' },
@@ -229,11 +230,36 @@
 			photoRemoved: 'Photo removed.',
 			removing: 'Removing...',
 			saving: 'Saving...',
+			soundsSaveError: 'Sound could not be saved.',
+			soundsSaved: 'Sound saved.',
 			themeSaveError: 'Theme could not be saved.',
 			themeSaved: 'Theme saved.',
 			themeSwitching: 'Switching theme...',
 			wallpaperSaveError: 'Wallpaper could not be saved.',
 			wallpaperSaved: 'Wallpaper saved.'
+		},
+		sounds: {
+			description: 'Control system sound effects used by PufferDesk.',
+			headings: {
+				behavior: 'Behavior',
+				output: 'Output'
+			},
+			ranges: {
+				high: 'High',
+				low: 'Low'
+			},
+			rows: {
+				enabled: 'Enable system sounds',
+				volume: 'Output volume'
+			},
+			status: {
+				buttonLabel: 'Sound',
+				mutedLabel: 'Sound muted',
+				settings: 'Sound Settings',
+				title: 'Sound',
+				volumeValue: 'Volume %d%'
+			},
+			title: 'Sound'
 		},
 		wallpaper: {
 			addPhotoLabel: 'Add Photo...',

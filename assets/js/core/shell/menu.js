@@ -15,6 +15,7 @@
 		const schema = window.PufferDesk.shell.createMenuSchema(labels);
 		const commands = context.commands || window.PufferDesk.shell.createCommandRegistry(shell, context);
 		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands);
+		const transientSurfaces = window.PufferDesk.shell.transientSurfaces || null;
 		const desktopIconManager = context.desktopIconManager || null;
 		const launcher = context.launcher || null;
 		const standardGroupIds = ['app', 'file', 'edit', 'view', 'go', 'window', 'help'];
@@ -987,6 +988,12 @@
 
 			closePopover();
 
+			if (transientSurfaces && typeof transientSurfaces.announce === 'function') {
+				transientSurfaces.announce('menu', {
+					groupId: group.id
+				});
+			}
+
 			activeButton = button;
 			openGroupId = group.id;
 			activeButton.classList.add('is-active');
@@ -1168,6 +1175,9 @@
 				}
 			});
 			window.addEventListener('resize', closePopover);
+			if (transientSurfaces && typeof transientSurfaces.closeOnOther === 'function') {
+				transientSurfaces.closeOnOther('menu', closePopover);
+			}
 		}
 
 		function getMenuDefinition() {

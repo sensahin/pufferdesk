@@ -20,6 +20,7 @@ final class PufferDesk_User_Preferences {
 	const META_ENABLED    = 'pufferdesk_enabled';
 	const META_MENU_BAR   = 'pufferdesk_menu_bar';
 	const META_NOTIFICATIONS = 'pufferdesk_notifications';
+	const META_SOUNDS     = 'pufferdesk_sounds';
 	const META_THEME      = 'pufferdesk_theme';
 	const META_WALLPAPER  = 'pufferdesk_wallpaper';
 	const META_WALLPAPER_UPLOADS = 'pufferdesk_wallpaper_uploads';
@@ -32,6 +33,7 @@ final class PufferDesk_User_Preferences {
 	const RESET_DOMAIN_DESKTOP_TRASH = 'desktop_trash';
 	const RESET_DOMAIN_MENU_BAR = 'menu_bar';
 	const RESET_DOMAIN_NOTIFICATIONS = 'notifications';
+	const RESET_DOMAIN_SOUNDS = 'sounds';
 	const RESET_DOMAIN_THEME = 'theme';
 	const RESET_DOMAIN_WALLPAPER = 'wallpaper';
 	const RESET_DOMAIN_WALLPAPER_UPLOADS = 'wallpaper_uploads';
@@ -130,6 +132,16 @@ final class PufferDesk_User_Preferences {
 			'pufferdesk'        => true,
 			'apps'              => true,
 		),
+	);
+
+	/**
+	 * Default sound preferences.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private $default_sounds = array(
+		'enabled' => true,
+		'volume'  => 70,
 	);
 
 	/**
@@ -536,6 +548,35 @@ final class PufferDesk_User_Preferences {
 	}
 
 	/**
+	 * Get the user's sound preferences.
+	 *
+	 * @param int $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function get_sounds( $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$sounds  = get_user_meta( $user_id, self::META_SOUNDS, true );
+
+		return $this->sanitize_sounds( is_array( $sounds ) ? $sounds : array() );
+	}
+
+	/**
+	 * Save the user's sound preferences.
+	 *
+	 * @param array<string,mixed> $sounds Sound preference data.
+	 * @param int                 $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function set_sounds( $sounds, $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$sounds  = $this->sanitize_sounds( is_array( $sounds ) ? $sounds : array() );
+
+		update_user_meta( $user_id, self::META_SOUNDS, $sounds );
+
+		return $sounds;
+	}
+
+	/**
 	 * Get the user's wallpaper preference.
 	 *
 	 * @param int $user_id Optional user ID.
@@ -728,6 +769,7 @@ final class PufferDesk_User_Preferences {
 			self::RESET_DOMAIN_DESKTOP_TRASH,
 			self::RESET_DOMAIN_MENU_BAR,
 			self::RESET_DOMAIN_NOTIFICATIONS,
+			self::RESET_DOMAIN_SOUNDS,
 			self::RESET_DOMAIN_THEME,
 			self::RESET_DOMAIN_WALLPAPER,
 			self::RESET_DOMAIN_WALLPAPER_UPLOADS,
@@ -828,6 +870,26 @@ final class PufferDesk_User_Preferences {
 			if ( array_key_exists( $source, $sources ) ) {
 				$sanitized['sources'][ $source ] = $this->sanitize_boolean( $sources[ $source ] );
 			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize sound preferences.
+	 *
+	 * @param array<string,mixed> $sounds Raw sound preferences.
+	 * @return array<string,mixed>
+	 */
+	public function sanitize_sounds( $sounds ) {
+		$sanitized = $this->default_sounds;
+
+		if ( array_key_exists( 'enabled', $sounds ) ) {
+			$sanitized['enabled'] = $this->sanitize_boolean( $sounds['enabled'] );
+		}
+
+		if ( array_key_exists( 'volume', $sounds ) ) {
+			$sanitized['volume'] = $this->sanitize_range( $sounds['volume'], 0, 100, $sanitized['volume'] );
 		}
 
 		return $sanitized;
@@ -1292,6 +1354,7 @@ final class PufferDesk_User_Preferences {
 			self::RESET_DOMAIN_DESKTOP_TRASH     => self::META_DESKTOP_TRASH,
 			self::RESET_DOMAIN_MENU_BAR          => self::META_MENU_BAR,
 			self::RESET_DOMAIN_NOTIFICATIONS     => self::META_NOTIFICATIONS,
+			self::RESET_DOMAIN_SOUNDS            => self::META_SOUNDS,
 			self::RESET_DOMAIN_THEME             => self::META_THEME,
 			self::RESET_DOMAIN_WALLPAPER         => self::META_WALLPAPER,
 			self::RESET_DOMAIN_WALLPAPER_UPLOADS => self::META_WALLPAPER_UPLOADS,

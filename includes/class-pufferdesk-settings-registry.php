@@ -152,6 +152,21 @@ final class PufferDesk_Settings_Registry {
 					),
 				),
 			),
+			'sounds'            => array(
+				'id'           => 'sounds',
+				'label'        => 'Sound',
+				'panel'        => 'sounds',
+				'capability'   => self::CAPABILITY,
+				'ajax_action'  => 'pufferdesk_save_sounds',
+				'handler'      => 'save_sounds',
+				'preference_key' => PufferDesk_User_Preferences::META_SOUNDS,
+				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_SOUNDS,
+				'sanitizer'    => 'PufferDesk_User_Preferences::set_sounds',
+				'default'      => array(
+					'enabled' => true,
+					'volume'  => 70,
+				),
+			),
 			'theme'             => array(
 				'id'           => 'theme',
 				'label'        => 'Theme',
@@ -288,6 +303,8 @@ final class PufferDesk_Settings_Registry {
 				return __( 'Menu Bar', 'pufferdesk-admin-desktop' );
 			case 'notifications':
 				return __( 'Notifications', 'pufferdesk-admin-desktop' );
+			case 'sounds':
+				return __( 'Sound', 'pufferdesk-admin-desktop' );
 			case 'theme':
 				return __( 'Theme', 'pufferdesk-admin-desktop' );
 			case 'wallpaper':

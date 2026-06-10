@@ -308,6 +308,27 @@ final class PufferDesk_Settings_Controller {
 	}
 
 	/**
+	 * Save the current user's Sound settings.
+	 */
+	public function save_sounds() {
+		$this->require_domain_access( 'sounds', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+
+		$sounds = $this->preferences->set_sounds(
+			array(
+				'enabled' => $this->read_post_value( 'enabled' ),
+				'volume'  => $this->read_post_value( 'volume' ),
+			)
+		);
+
+		wp_send_json_success(
+			array(
+				'message' => __( 'Sound saved.', 'pufferdesk-admin-desktop' ),
+				'sounds'  => $sounds,
+			)
+		);
+	}
+
+	/**
 	 * Save the current user's selected theme.
 	 */
 	public function save_theme() {

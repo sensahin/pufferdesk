@@ -364,6 +364,12 @@
 	order: 2;
 }
 
+.pdk-shell[data-pdk-shell-launcher="taskbar"] .pdk-dock-end-anchor {
+	display: block;
+	flex: 1 0 var(--pdk-taskbar-status-reserved-width, 132px);
+	min-width: var(--pdk-taskbar-status-reserved-width, 132px);
+}
+
 .pdk-shell[data-pdk-shell-launcher="taskbar"] .pdk-taskbar-status {
 	order: 3;
 }
@@ -444,5 +450,6 @@
 	margin-left: auto;
 	min-height: calc(var(--pdk-dock-item-size, 48px) - 8px);
 	padding: 0 8px;
+	z-index: 2;
 	white-space: nowrap;
 }

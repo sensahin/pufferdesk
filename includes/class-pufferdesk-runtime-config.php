@@ -33,6 +33,13 @@ final class PufferDesk_Runtime_Config {
 	private $settings_registry;
 
 	/**
+	 * User preferences.
+	 *
+	 * @var PufferDesk_User_Preferences
+	 */
+	private $preferences;
+
+	/**
 	 * Virtual filesystem service.
 	 *
 	 * @var PufferDesk_Virtual_Filesystem
@@ -47,22 +54,33 @@ final class PufferDesk_Runtime_Config {
 	private $notification_registry;
 
 	/**
+	 * Sound event registry.
+	 *
+	 * @var PufferDesk_Sound_Registry
+	 */
+	private $sound_registry;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param PufferDesk_Router            $router Request router.
 	 * @param PufferDesk_Theme_Registry    $theme_registry Theme registry.
 	 * @param PufferDesk_Settings_Registry $settings_registry Settings registry.
-	 * @param PufferDesk_Virtual_Filesystem|null $virtual_filesystem Virtual filesystem service.
+	 * @param PufferDesk_Virtual_Filesystem|null  $virtual_filesystem Virtual filesystem service.
 	 * @param PufferDesk_Notification_Registry|null $notification_registry Notification registry.
+	 * @param PufferDesk_User_Preferences|null    $preferences User preferences.
+	 * @param PufferDesk_Sound_Registry|null      $sound_registry Sound event registry.
 	 */
-	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry, $virtual_filesystem = null, $notification_registry = null ) {
+	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry, $virtual_filesystem = null, $notification_registry = null, $preferences = null, $sound_registry = null ) {
 		$this->router             = $router;
 		$this->theme_registry     = $theme_registry;
 		$this->settings_registry  = $settings_registry;
+		$this->preferences        = $preferences instanceof PufferDesk_User_Preferences ? $preferences : new PufferDesk_User_Preferences();
 		$this->virtual_filesystem = $virtual_filesystem instanceof PufferDesk_Virtual_Filesystem ? $virtual_filesystem : new PufferDesk_Virtual_Filesystem();
 		$this->notification_registry = $notification_registry instanceof PufferDesk_Notification_Registry
 			? $notification_registry
 			: new PufferDesk_Notification_Registry( new PufferDesk_User_Preferences(), new PufferDesk_Notification_Normalizer() );
+		$this->sound_registry = $sound_registry instanceof PufferDesk_Sound_Registry ? $sound_registry : new PufferDesk_Sound_Registry();
 	}
 
 	/**
@@ -91,6 +109,9 @@ final class PufferDesk_Runtime_Config {
 			'dialogs'        => isset( $theme['dialogs'] ) && is_array( $theme['dialogs'] ) ? $theme['dialogs'] : array(),
 			'documents'      => $this->get_documents_config(),
 			'logoutUrl'      => $this->get_logout_url(),
+			'media'          => array(
+				'sharedIconsUrl' => esc_url_raw( PUFFERDESK_URL . 'assets/media/shared/icons/' ),
+			),
 			'menuBar'        => isset( $context['menu_bar'] ) && is_array( $context['menu_bar'] ) ? $context['menu_bar'] : array(),
 			'notifications'  => $this->notification_registry->get_client_config(),
 			'settings'       => $this->get_settings_config( $theme ),
@@ -99,6 +120,7 @@ final class PufferDesk_Runtime_Config {
 			'shellUrl'       => $this->router->get_shell_url(),
 			'siteInfo'       => $this->get_site_info_config(),
 			'siteName'       => get_bloginfo( 'name' ),
+			'sounds'         => $this->get_sounds_config( $theme ),
 			'system'         => $this->get_system_config( $theme ),
 			'themes'         => $this->theme_registry->get_selectable_themes(),
 			'virtualFilesystem' => $this->virtual_filesystem->get_runtime_config( $theme ),
@@ -214,6 +236,16 @@ final class PufferDesk_Runtime_Config {
 				'untitledDocument' => __( 'Untitled Document', 'pufferdesk-admin-desktop' ),
 			),
 		);
+	}
+
+	/**
+	 * Shared shell sound event map.
+	 *
+	 * @param array<string,mixed> $theme Resolved theme metadata.
+	 * @return array<string,mixed>
+	 */
+	private function get_sounds_config( $theme ) {
+		return $this->sound_registry->get_client_config( $theme, $this->preferences );
 	}
 
 	/**
@@ -615,6 +647,8 @@ final class PufferDesk_Runtime_Config {
 				),
 				'notificationsSaveError' => __( 'Notifications could not be saved.', 'pufferdesk-admin-desktop' ),
 				'notificationsSaved'     => __( 'Notifications saved.', 'pufferdesk-admin-desktop' ),
+				'soundsSaveError'        => __( 'Sound could not be saved.', 'pufferdesk-admin-desktop' ),
+				'soundsSaved'            => __( 'Sound saved.', 'pufferdesk-admin-desktop' ),
 				'wallpaperSaveError'     => __( 'Wallpaper could not be saved.', 'pufferdesk-admin-desktop' ),
 				'wallpaperSaved'         => __( 'Wallpaper saved.', 'pufferdesk-admin-desktop' ),
 				'photoRemoveError'       => __( 'Photo could not be removed.', 'pufferdesk-admin-desktop' ),
@@ -664,6 +698,12 @@ final class PufferDesk_Runtime_Config {
 						'label' => __( 'Notifications', 'pufferdesk-admin-desktop' ),
 						'icon'  => 'dashicons-bell',
 						'tone'  => 'blue',
+					),
+					array(
+						'id'    => 'sounds',
+						'label' => __( 'Sound', 'pufferdesk-admin-desktop' ),
+						'icon'  => 'dashicons-format-audio',
+						'tone'  => 'green',
 					),
 					array(
 						'id'    => 'wallpaper',
@@ -868,6 +908,29 @@ final class PufferDesk_Runtime_Config {
 					array( 'value' => '7', 'label' => __( '7 days', 'pufferdesk-admin-desktop' ) ),
 					array( 'value' => '30', 'label' => __( '30 days', 'pufferdesk-admin-desktop' ) ),
 					array( 'value' => '90', 'label' => __( '90 days', 'pufferdesk-admin-desktop' ) ),
+				),
+			),
+			'sounds'        => array(
+				'title'       => __( 'Sound', 'pufferdesk-admin-desktop' ),
+				'description' => __( 'Control system sound effects used by PufferDesk.', 'pufferdesk-admin-desktop' ),
+				'headings'    => array(
+					'behavior' => __( 'Behavior', 'pufferdesk-admin-desktop' ),
+					'output'   => __( 'Output', 'pufferdesk-admin-desktop' ),
+				),
+				'rows'        => array(
+					'enabled' => __( 'Enable system sounds', 'pufferdesk-admin-desktop' ),
+					'volume'  => __( 'Output volume', 'pufferdesk-admin-desktop' ),
+				),
+				'ranges'      => array(
+					'low'  => __( 'Low', 'pufferdesk-admin-desktop' ),
+					'high' => __( 'High', 'pufferdesk-admin-desktop' ),
+				),
+				'status'      => array(
+					'title'          => __( 'Sound', 'pufferdesk-admin-desktop' ),
+					'buttonLabel'    => __( 'Sound', 'pufferdesk-admin-desktop' ),
+					'mutedLabel'     => __( 'Sound muted', 'pufferdesk-admin-desktop' ),
+					'settings'       => __( 'Sound Settings', 'pufferdesk-admin-desktop' ),
+					'volumeValue'    => __( 'Volume %d%', 'pufferdesk-admin-desktop' ),
 				),
 			),
 			'wallpaper'    => array(
@@ -1536,6 +1599,10 @@ final class PufferDesk_Runtime_Config {
 				'window_close'            => $window_control_labels['close'],
 				'window_minimize'         => $window_control_labels['minimize'],
 				'window_maximize'         => $window_control_labels['maximize'],
+				'sound'                   => __( 'Sound', 'pufferdesk-admin-desktop' ),
+				'sound_mute'              => __( 'Mute', 'pufferdesk-admin-desktop' ),
+				'sound_unmute'            => __( 'Unmute', 'pufferdesk-admin-desktop' ),
+				'sound_settings'          => __( 'Sound Settings', 'pufferdesk-admin-desktop' ),
 			),
 		);
 

@@ -26,6 +26,8 @@
 			!window.PufferDesk.notifications.createStore ||
 			!window.PufferDesk.notifications.createToastService ||
 			!window.PufferDesk.notifications.createCenter ||
+			!window.PufferDesk.services ||
+			!window.PufferDesk.services.createSoundManager ||
 			!window.PufferDesk.apps ||
 			!window.PufferDesk.menuBar ||
 			!window.PufferDesk.shell ||
@@ -35,6 +37,7 @@
 			!window.PufferDesk.shell.createMenuItemRenderer ||
 			!window.PufferDesk.shell.createMenuController ||
 			!window.PufferDesk.shell.createContextMenuController ||
+			!window.PufferDesk.shell.createSoundStatus ||
 			!window.PufferDesk.shell.createShortcutController ||
 			!window.PufferDesk.api ||
 			!window.PufferDesk.api.createDesktopApi ||
@@ -68,6 +71,22 @@
 		}
 		const notificationStore = window.PufferDesk.notifications.createStore(config);
 		window.PufferDesk.notificationStore = notificationStore;
+		const soundManager = window.PufferDesk.services.createSoundManager(config);
+		window.PufferDesk.sound = soundManager;
+		window.PufferDesk.events.on('notifications:received', (event) => {
+			const detail = event && event.detail ? event.detail : {};
+			const snapshot = notificationStore && typeof notificationStore.getSnapshot === 'function'
+				? notificationStore.getSnapshot()
+				: {};
+
+			if (detail.notification && detail.notification.sound === false) {
+				return;
+			}
+
+			if (soundManager && typeof soundManager.playNotification === 'function') {
+				soundManager.playNotification(detail.notification || {}, detail.preferences || snapshot.preferences || {});
+			}
+		});
 
 		const reopenPolicy = window.PufferDesk.session.createReopenPolicy(config.storageKey || '');
 		const skipWindowRestore = reopenPolicy.consumeSkipWindowRestoreOnce();
@@ -173,10 +192,17 @@
 			nativeApps: window.PufferDesk.apps,
 			notificationStore,
 			shell,
+			soundManager,
 			windowManager: manager
 		});
 		const notificationToasts = window.PufferDesk.notifications.createToastService(shell, notificationStore, config);
 		const notificationCenter = window.PufferDesk.notifications.createCenter(shell, notificationStore, config);
+		const soundStatus = window.PufferDesk.shell.createSoundStatus(shell, config, {
+			desktopApi,
+			events: window.PufferDesk.events,
+			soundManager
+		});
+		window.PufferDesk.soundStatus = soundStatus;
 		if (typeof notificationStore.bindSystemNotifications === 'function') {
 			notificationStore.bindSystemNotifications();
 		}
@@ -184,6 +210,7 @@
 		menuController.bind();
 		contextMenuController.bind();
 		shortcutController.bind();
+		soundStatus.bind();
 		folderManager.restoreSession();
 		desktopIconManager.bindExistingIcons();
 		desktopIconManager.restoreSession();
@@ -228,6 +255,7 @@
 		window.PufferDesk.menuCommands = commands;
 		window.PufferDesk.notificationCenter = notificationCenter;
 		window.PufferDesk.notificationToasts = notificationToasts;
+		window.PufferDesk.soundStatus = soundStatus;
 		window.PufferDesk.desktop.api = desktopApi;
 		window.PufferDesk.desktopApi = desktopApi;
 		window.PufferDesk.events.emit('desktop:ready', {
@@ -235,6 +263,7 @@
 			config,
 			notificationStore,
 			shell,
+			soundManager,
 			stickyNoteManager
 		});
 	}

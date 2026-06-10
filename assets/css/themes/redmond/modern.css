@@ -172,6 +172,22 @@
 	--pdk-notification-button-radius: 4px;
 	--pdk-notification-button-hover-bg: var(--pdk-redmond-taskbar-hover-bg);
 	--pdk-notification-button-hover-ink: var(--pdk-menu-ink);
+	--pdk-taskbar-status-reserved-width: 205px;
+	--pdk-sound-status-button-size: 32px;
+	--pdk-sound-status-button-radius: 4px;
+	--pdk-sound-status-button-hover-bg: var(--pdk-redmond-taskbar-hover-bg);
+	--pdk-sound-status-button-hover-ink: var(--pdk-menu-ink);
+	--pdk-sound-status-icon-size: 17px;
+	--pdk-sound-flyout-bg: rgb(248 248 248 / 0.96);
+	--pdk-sound-flyout-border: rgb(198 198 198);
+	--pdk-sound-flyout-filter: blur(18px) saturate(130%);
+	--pdk-sound-flyout-ink: rgb(32 32 32);
+	--pdk-sound-flyout-radius: 8px;
+	--pdk-sound-flyout-shadow: 0 24px 70px rgb(0 0 0 / 0.24);
+	--pdk-sound-control-bg: rgb(255 255 255 / 0.9);
+	--pdk-sound-control-border: rgb(198 198 198);
+	--pdk-sound-control-hover-bg: rgb(232 232 232);
+	--pdk-sound-control-radius: 4px;
 	--pdk-notification-center-bg: rgb(248 248 248 / 0.96);
 	--pdk-notification-center-border: rgb(198 198 198);
 	--pdk-notification-center-bottom: calc(var(--pdk-dock-item-size, 48px) + 10px);
@@ -251,6 +267,13 @@
 	--pdk-redmond-sticky-app-search-ink: rgb(238 238 238);
 	--pdk-redmond-sticky-app-search-placeholder: rgb(238 238 238 / 0.62);
 	--pdk-notification-action-ink: rgb(153 205 255);
+	--pdk-sound-flyout-bg: rgb(32 32 32 / 0.96);
+	--pdk-sound-flyout-border: rgb(68 68 68);
+	--pdk-sound-flyout-ink: rgb(244 244 244);
+	--pdk-sound-control-bg: rgb(42 42 42 / 0.92);
+	--pdk-sound-control-border: rgb(64 64 64);
+	--pdk-sound-control-hover-bg: rgb(56 56 56);
+	--pdk-sound-volume-value-ink: rgb(220 220 220 / 0.62);
 	--pdk-notification-center-bg: rgb(32 32 32 / 0.96);
 	--pdk-notification-center-border: rgb(68 68 68);
 	--pdk-notification-center-ink: rgb(244 244 244);
@@ -1122,12 +1145,16 @@
 	height: 40px;
 	line-height: 1.15;
 	margin-left: 0;
-	min-width: 108px;
+	min-width: 142px;
 	padding: 0;
 	position: absolute;
 	right: 10px;
 	text-align: center;
 	top: 3px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sound-status-button {
+	height: 40px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-clock {

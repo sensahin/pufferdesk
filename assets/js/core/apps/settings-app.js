@@ -105,6 +105,8 @@
 		const createSectionHeading = settingsUI.createSectionHeading;
 		const createButton = settingsUI.createButton;
 		const createInlineSelect = settingsUI.createInlineSelect;
+		const createRangeField = settingsUI.createRangeField;
+		const updateRangeFill = settingsUI.updateRangeFill;
 		const mutations = window.PufferDesk.apps.settings.createMutations({ api, t });
 		const saveAppearanceMutation = mutations.createDebounced({
 			action: 'pufferdesk_save_appearance',
@@ -801,12 +803,7 @@
 		}
 
 		function updateDesktopDockRangeFill(input) {
-			const min = Number.parseFloat(input.min) || 0;
-			const max = Number.parseFloat(input.max) || 100;
-			const value = Number.parseFloat(input.value) || min;
-			const ratio = max > min ? (value - min) / (max - min) : 0;
-
-			input.style.setProperty('--pdk-range-fill', `${Math.max(0, Math.min(100, ratio * 100))}%`);
+			updateRangeFill(input);
 		}
 
 		function saveWallpaper(payload, status, fallbackWallpaper = null) {
@@ -954,33 +951,24 @@
 		}
 
 		function createDesktopDockRange(key, labelText, options, status) {
-			const field = dom.createElement('label', 'pdk-settings-range-field');
-			const label = dom.createElement('span', 'pdk-settings-range-title', labelText);
-			const input = document.createElement('input');
-			const legend = dom.createElement('span', 'pdk-settings-range-legend');
-
-			input.type = 'range';
-			input.min = String(options.min);
-			input.max = String(options.max);
-			input.step = String(options.step || 1);
-			input.value = String(currentDesktopDock[key]);
-			updateDesktopDockRangeFill(input);
-			input.addEventListener('input', () => {
-				updateDesktopDockRangeFill(input);
-				updateDesktopDock(key, Number.parseInt(input.value, 10), status);
+			const range = createRangeField({
+				label: labelText,
+				labels: options.labels || [],
+				max: options.max,
+				min: options.min,
+				onInput: (value) => {
+					updateDesktopDock(key, value, status);
+				},
+				step: options.step || 1,
+				value: currentDesktopDock[key]
 			});
-			(options.labels || []).forEach((text) => {
-				legend.appendChild(dom.createElement('span', '', text));
-			});
-
-			field.append(label, input, legend);
 			desktopDockControls.push({
-				input,
+				input: range.input,
 				key,
 				type: 'range'
 			});
 
-			return field;
+			return range.field;
 		}
 
 		function createDesktopDockSelect(key, status) {
@@ -1623,6 +1611,7 @@
 				createOptionGroup,
 				createPhotoWallpaperGroup,
 				createProfileActionRow,
+				createRangeField,
 				createSection,
 				createSectionHeading,
 				createSettingsActionRow,
@@ -1642,7 +1631,8 @@
 				settingsLabels,
 				status,
 				t,
-				themes
+				themes,
+				updateRangeFill
 			};
 
 			pane.appendChild(settingsPanels.createGeneralPanel(panelContext));
@@ -1652,6 +1642,7 @@
 			pane.appendChild(settingsPanels.createDesktopDockPanel(panelContext));
 			pane.appendChild(settingsPanels.createMenuBarPanel(panelContext));
 			pane.appendChild(settingsPanels.createNotificationsPanel(panelContext));
+			pane.appendChild(settingsPanels.createSoundsPanel(panelContext));
 			pane.appendChild(settingsPanels.createWallpaperPanel(panelContext));
 			pane.appendChild(settingsPanels.createWidgetsPanel(panelContext));
 			pane.appendChild(settingsPanels.createAppsPanel(panelContext));

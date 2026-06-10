@@ -42,6 +42,48 @@
 			return button;
 		}
 
+		function updateRangeFill(input) {
+			const min = Number.parseFloat(input.min) || 0;
+			const max = Number.parseFloat(input.max) || 100;
+			const value = Number.parseFloat(input.value) || min;
+			const ratio = max > min ? (value - min) / (max - min) : 0;
+
+			input.style.setProperty('--pdk-range-fill', `${Math.max(0, Math.min(100, ratio * 100))}%`);
+		}
+
+		function createRangeField(options = {}) {
+			const field = dom.createElement('label', `pdk-settings-range-field ${options.className || ''}`.trim());
+			const label = dom.createElement('span', 'pdk-settings-range-title', options.label || '');
+			const input = document.createElement('input');
+			const legend = dom.createElement('span', 'pdk-settings-range-legend');
+			const value = Object.prototype.hasOwnProperty.call(options, 'value') ? options.value : options.min || 0;
+
+			input.type = 'range';
+			input.min = String(Object.prototype.hasOwnProperty.call(options, 'min') ? options.min : 0);
+			input.max = String(Object.prototype.hasOwnProperty.call(options, 'max') ? options.max : 100);
+			input.step = String(options.step || 1);
+			input.value = String(value);
+			input.disabled = options.disabled === true;
+			updateRangeFill(input);
+			input.addEventListener('input', () => {
+				updateRangeFill(input);
+				if (typeof options.onInput === 'function') {
+					options.onInput(Number.parseInt(input.value, 10), input);
+				}
+			});
+			(Array.isArray(options.labels) ? options.labels : []).forEach((text) => {
+				legend.appendChild(dom.createElement('span', '', text));
+			});
+
+			field.append(label, input, legend);
+
+			return {
+				field,
+				input,
+				legend
+			};
+		}
+
 		function createInlineSelect(options = {}) {
 			const wrap = dom.createElement('span', `pdk-settings-inline-select ${options.className || ''}`.trim());
 			const select = document.createElement('select');
@@ -135,11 +177,13 @@
 			createActionRow,
 			createButton,
 			createInlineSelect,
+			createRangeField,
 			createRowIcon,
 			createSection,
 			createSectionHeading,
 			createSettingsRow,
-			createSummaryHero
+			createSummaryHero,
+			updateRangeFill
 		};
 	};
 })();

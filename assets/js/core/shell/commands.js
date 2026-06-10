@@ -54,6 +54,32 @@
 			return getLabel(key, fallback);
 		}
 
+		function playSoundEvent(key, fallback) {
+			const soundEvents = window.PufferDesk.services && window.PufferDesk.services.soundEvents
+				? window.PufferDesk.services.soundEvents
+				: null;
+
+			return soundEvents && typeof soundEvents.play === 'function'
+				? soundEvents.play(key, fallback)
+				: false;
+		}
+
+		function notifyCommandError(error) {
+			playSoundEvent('appError', 'app.error');
+
+			if (window.PufferDesk.notificationStore && typeof window.PufferDesk.notificationStore.notify === 'function') {
+				window.PufferDesk.notificationStore.notify({
+					message: error && error.message ? error.message : 'The command could not be completed.',
+					sound: false,
+					source: 'pufferdesk',
+					sourceLabel: 'PufferDesk',
+					title: 'PufferDesk command failed.',
+					toast: true,
+					type: 'error'
+				});
+			}
+		}
+
 		function getTargetWindow(detail = activeDetail) {
 			if (detail && detail.windowless === true) {
 				return null;
@@ -207,22 +233,24 @@
 			}
 
 			const command = commands.get(item.command);
-			const result = command.run(getPayload(item), detail);
+			let result = null;
+
+			try {
+				result = command.run(getPayload(item), detail);
+			} catch (error) {
+				if (window.console && typeof window.console.error === 'function') {
+					window.console.error('PufferDesk command failed.', error);
+				}
+				notifyCommandError(error);
+				return true;
+			}
+
 			if (result && typeof result.catch === 'function') {
 				result.catch((error) => {
 					if (window.console && typeof window.console.error === 'function') {
 						window.console.error('PufferDesk command failed.', error);
 					}
-					if (window.PufferDesk.notificationStore && typeof window.PufferDesk.notificationStore.notify === 'function') {
-						window.PufferDesk.notificationStore.notify({
-							message: error && error.message ? error.message : 'The command could not be completed.',
-							source: 'pufferdesk',
-							sourceLabel: 'PufferDesk',
-							title: 'PufferDesk command failed.',
-							toast: true,
-							type: 'error'
-						});
-					}
+					notifyCommandError(error);
 				});
 			}
 			return true;
@@ -362,6 +390,7 @@
 					confirmLabel: 'Erase',
 					message: 'This will reset PufferDesk settings, wallpaper, dock, windows, and layout for this WordPress account. WordPress site content will not be affected.',
 					overlayMessage: 'Erasing PufferDesk settings...',
+					soundEventKey: 'dialogDestructive',
 					title: 'Erase All Content and Settings?'
 				},
 				emptyTrash: {
@@ -369,6 +398,7 @@
 					confirmLabel: 'Empty Trash',
 					icon: 'dashicons-trash',
 					message: 'This permanently deletes all trashed PufferDesk folder records. Apps and plugins are not deleted.',
+					soundEventKey: 'dialogDestructive',
 					title: 'Empty Trash?'
 				},
 				restart: {
@@ -455,6 +485,7 @@
 				message: isSystemDeleteDialog
 					? ''
 					: getLabel('move_folder_to_trash_message', 'Only this PufferDesk folder will be moved. Apps and plugins inside it stay installed and available.'),
+				soundEventKey: isSystemDeleteDialog ? 'dialogDestructive' : 'dialogWarning',
 				title: isSystemDeleteDialog ? confirmationTitle : fallbackTitle,
 				variant,
 				windowTitle: getLabel('move_folder_to_trash_window_title', '')
@@ -944,6 +975,7 @@
 						cancelLabel: getLabel('cancel', 'Cancel'),
 						confirmLabel: getLabel('delete', 'Delete'),
 						message: getLabel('delete_immediately_message', 'This permanently deletes the PufferDesk folder record. Apps and plugins are not deleted.'),
+						soundEventKey: 'dialogDestructive',
 						title: getLabel('delete_immediately_title', 'Delete Immediately?')
 					})
 					: window.confirm(getLabel('delete_immediately_fallback_message', 'Delete this PufferDesk folder record immediately?'));
@@ -977,7 +1009,10 @@
 				}
 
 				if (confirmed) {
-					folderManager.emptyTrash();
+					const emptied = folderManager.emptyTrash();
+					if (emptied) {
+						playSoundEvent('trashEmpty', 'trash.empty');
+					}
 				}
 			}
 		});
@@ -1099,6 +1134,15 @@
 			},
 			run(payload) {
 				launcher.openSettingsPanel(payload.panel);
+			}
+		});
+
+		register('sound.toggle-mute', {
+			isEnabled() {
+				return Boolean(window.PufferDesk.soundStatus && typeof window.PufferDesk.soundStatus.toggleMute === 'function');
+			},
+			run() {
+				window.PufferDesk.soundStatus.toggleMute();
 			}
 		});
 

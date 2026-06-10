@@ -1,0 +1,112 @@
+.pdk-sound-status-slot {
+	display: inline-flex;
+	flex: 0 0 auto;
+}
+
+.pdk-sound-status-button {
+	align-items: center;
+	appearance: none;
+	background: var(--pdk-sound-status-button-bg, transparent);
+	border: var(--pdk-sound-status-button-border, 0);
+	border-radius: var(--pdk-sound-status-button-radius, var(--pdk-notification-button-radius, 999px));
+	color: var(--pdk-sound-status-button-ink, var(--pdk-notification-button-ink, var(--pdk-menu-ink)));
+	cursor: default;
+	display: inline-flex;
+	flex: 0 0 auto;
+	height: var(--pdk-sound-status-button-size, var(--pdk-notification-button-size, 28px));
+	justify-content: center;
+	padding: 0;
+	position: relative;
+	width: var(--pdk-sound-status-button-size, var(--pdk-notification-button-size, 28px));
+}
+
+.pdk-sound-status-button:hover,
+.pdk-sound-status-button:focus,
+.pdk-sound-status-button.is-active {
+	background: var(--pdk-sound-status-button-hover-bg, var(--pdk-notification-button-hover-bg, var(--pdk-menu-selection-bg)));
+	color: var(--pdk-sound-status-button-hover-ink, var(--pdk-notification-button-hover-ink, var(--pdk-menu-ink)));
+	outline: none;
+}
+
+.pdk-sound-status-button[data-pdk-sound-state="muted"] {
+	color: var(--pdk-sound-status-muted-ink, var(--pdk-muted));
+}
+
+.pdk-sound-status-icon {
+	-webkit-mask: var(--pdk-sound-status-icon-url) center / contain no-repeat;
+	background: currentColor;
+	display: block;
+	height: var(--pdk-sound-status-icon-size, 17px);
+	mask: var(--pdk-sound-status-icon-url) center / contain no-repeat;
+	width: var(--pdk-sound-status-icon-size, 17px);
+}
+
+.pdk-sound-flyout {
+	-webkit-backdrop-filter: var(--pdk-sound-flyout-filter, var(--pdk-menu-popover-filter));
+	backdrop-filter: var(--pdk-sound-flyout-filter, var(--pdk-menu-popover-filter));
+	background: var(--pdk-sound-flyout-bg, var(--pdk-menu-popover-bg));
+	border: 1px solid var(--pdk-sound-flyout-border, var(--pdk-menu-popover-border));
+	border-radius: var(--pdk-sound-flyout-radius, var(--pdk-menu-popover-radius));
+	box-shadow: var(--pdk-sound-flyout-shadow, var(--pdk-menu-popover-shadow));
+	color: var(--pdk-sound-flyout-ink, var(--pdk-menu-popover-ink));
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: 248px;
+	padding: 14px;
+	position: absolute;
+	width: min(var(--pdk-sound-flyout-width, 268px), calc(100% - 24px));
+	z-index: var(--pdk-layer-menu-popover);
+}
+
+.pdk-sound-flyout[hidden] {
+	display: none;
+}
+
+.pdk-sound-flyout-title {
+	color: inherit;
+	font-size: var(--pdk-sound-flyout-title-size, var(--pdk-text-section-title));
+	line-height: var(--pdk-line-height-tight);
+	margin: 0;
+}
+
+.pdk-sound-settings-button {
+	appearance: none;
+	background: var(--pdk-sound-control-bg, var(--pdk-control-bg));
+	border: 1px solid var(--pdk-sound-control-border, var(--pdk-control-border));
+	border-radius: var(--pdk-sound-control-radius, var(--pdk-control-radius, 8px));
+	color: var(--pdk-sound-control-ink, inherit);
+	cursor: default;
+	font: inherit;
+	min-height: 32px;
+	padding: 6px 12px;
+	text-align: center;
+}
+
+.pdk-sound-settings-button:hover,
+.pdk-sound-settings-button:focus {
+	background: var(--pdk-sound-control-hover-bg, var(--pdk-control-bg-hover));
+	outline: none;
+}
+
+.pdk-sound-volume-row {
+	display: grid;
+	gap: 8px;
+	grid-template-columns: 1fr auto;
+}
+
+.pdk-sound-volume-label,
+.pdk-sound-volume-value {
+	font-size: var(--pdk-sound-volume-label-size, var(--pdk-text-caption));
+}
+
+.pdk-sound-volume-value {
+	color: var(--pdk-sound-volume-value-ink, var(--pdk-muted));
+	font-variant-numeric: tabular-nums;
+}
+
+.pdk-sound-volume-slider {
+	accent-color: var(--pdk-sound-slider-accent, var(--pdk-accent));
+	grid-column: 1 / -1;
+	width: 100%;
+}

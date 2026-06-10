@@ -131,6 +131,7 @@
 			persistence: typeof notification.persistence === 'string' && notification.persistence ? notification.persistence : 'session',
 			priority,
 			read: Boolean(notification.read),
+			sound: notification.sound !== false,
 			source,
 			sourceLabel: typeof notification.sourceLabel === 'string'
 				? notification.sourceLabel
@@ -222,6 +223,15 @@
 			listeners.forEach((listener) => listener(snapshot, extra));
 			if (events && typeof events.emit === 'function') {
 				events.emit('notifications:changed', Object.assign({ notifications: snapshot }, extra));
+			}
+		}
+
+		function emitReceived(notification) {
+			if (events && typeof events.emit === 'function') {
+				events.emit('notifications:received', {
+					notification,
+					preferences: getSnapshot().preferences
+				});
 			}
 		}
 
@@ -332,6 +342,7 @@
 				notification: normalized,
 				reason: options.reason || 'notify'
 			});
+			emitReceived(normalized);
 			emitToast(normalized);
 
 			return normalized;
@@ -394,14 +405,26 @@
 			return () => listeners.delete(listener);
 		}
 
+		function playAppErrorSound() {
+			const soundEvents = window.PufferDesk.services && window.PufferDesk.services.soundEvents
+				? window.PufferDesk.services.soundEvents
+				: null;
+
+			return soundEvents && typeof soundEvents.play === 'function'
+				? soundEvents.play('appError', 'app.error')
+				: false;
+		}
+
 		function bindSystemNotifications() {
 			window.addEventListener('error', (event) => {
 				if (!event || !event.message) {
 					return;
 				}
 
+				playAppErrorSound();
 				notify({
 					message: event.filename ? `${event.filename}:${event.lineno || 0}` : '',
+					sound: false,
 					source: 'pufferdesk',
 					sourceLabel: 'PufferDesk',
 					title: event.message,
@@ -414,8 +437,10 @@
 				const reason = event && event.reason ? event.reason : null;
 				const message = reason && reason.message ? reason.message : String(reason || 'Unexpected runtime error.');
 
+				playAppErrorSound();
 				notify({
 					message,
+					sound: false,
 					source: 'pufferdesk',
 					sourceLabel: 'PufferDesk',
 					title: 'A PufferDesk action failed.',

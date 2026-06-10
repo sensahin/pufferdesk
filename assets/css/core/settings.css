@@ -705,12 +705,16 @@ button.pdk-settings-profile-hero-avatar:focus .pdk-settings-profile-hero-edit {
 	border-top: 1px solid var(--pdk-card-border);
 }
 
-.pdk-settings-notification-row.is-disabled {
+.pdk-settings-notification-row.is-disabled,
+.pdk-settings-sound-row.is-disabled,
+.pdk-settings-sound-slider-row.is-disabled {
 	opacity: 0.52;
 }
 
 .pdk-settings-notification-row.is-disabled .pdk-settings-toggle,
-.pdk-settings-notification-row.is-disabled .pdk-settings-inline-select {
+.pdk-settings-notification-row.is-disabled .pdk-settings-inline-select,
+.pdk-settings-sound-row.is-disabled .pdk-settings-button,
+.pdk-settings-sound-slider-row.is-disabled .pdk-settings-range-field {
 	pointer-events: none;
 }
 
@@ -1092,15 +1096,21 @@ button.pdk-settings-profile-hero-avatar:focus .pdk-settings-profile-hero-edit {
 }
 
 .pdk-settings-desktop-dock-slider-section,
+.pdk-settings-sound-slider-section,
 .pdk-settings-desktop-dock-list {
 	padding: 0;
 }
 
-.pdk-settings-desktop-dock-slider-row {
+.pdk-settings-desktop-dock-slider-row,
+.pdk-settings-sound-slider-row {
 	display: grid;
 	gap: 32px;
 	grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
 	padding: 14px 20px 16px;
+}
+
+.pdk-settings-sound-slider-row {
+	grid-template-columns: minmax(0, 1fr);
 }
 
 .pdk-settings-range-field {

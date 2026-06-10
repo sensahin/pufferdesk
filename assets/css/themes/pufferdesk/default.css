@@ -198,6 +198,20 @@
 	--pdk-notification-button-hover-bg: rgba(255, 255, 255, 0.32);
 	--pdk-notification-button-icon-size: 18px;
 	--pdk-notification-button-size: 24px;
+	--pdk-sound-status-button-hover-bg: var(--pdk-notification-button-hover-bg);
+	--pdk-sound-status-button-icon-size: 18px;
+	--pdk-sound-status-button-size: 24px;
+	--pdk-sound-status-icon-size: 18px;
+	--pdk-sound-flyout-bg: var(--pdk-material-popover-bg);
+	--pdk-sound-flyout-border: var(--pdk-material-popover-border);
+	--pdk-sound-flyout-filter: var(--pdk-material-popover-filter);
+	--pdk-sound-flyout-ink: rgba(20, 24, 28, 0.92);
+	--pdk-sound-flyout-radius: 18px;
+	--pdk-sound-flyout-shadow: var(--pdk-material-popover-shadow);
+	--pdk-sound-slider-fill-bg: #0a84ff;
+	--pdk-sound-slider-track-bg: rgba(60, 60, 67, 0.32);
+	--pdk-sound-slider-thumb-bg: rgba(246, 246, 248, 0.96);
+	--pdk-sound-slider-thumb-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
 	--pdk-notification-center-bg: var(--pdk-material-popover-bg);
 	--pdk-notification-center-border: var(--pdk-material-popover-border);
 	--pdk-notification-center-filter: var(--pdk-material-popover-filter);
@@ -221,6 +235,11 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] {
 	--pdk-notification-button-hover-bg: rgba(255, 255, 255, 0.14);
+	--pdk-sound-status-button-hover-bg: var(--pdk-notification-button-hover-bg);
+	--pdk-sound-flyout-ink: rgba(246, 248, 252, 0.96);
+	--pdk-sound-control-hover-bg: rgba(255, 255, 255, 0.12);
+	--pdk-sound-slider-track-bg: rgba(255, 255, 255, 0.22);
+	--pdk-sound-slider-thumb-bg: rgba(242, 244, 248, 0.96);
 	--pdk-notification-action-ink: rgba(226, 235, 255, 0.88);
 	--pdk-notification-center-ink: rgba(246, 248, 252, 0.96);
 	--pdk-notification-control-hover-bg: rgba(255, 255, 255, 0.12);
@@ -231,6 +250,160 @@
 	--pdk-notification-message-ink: rgba(246, 248, 252, 0.9);
 	--pdk-notification-muted: rgba(255, 255, 255, 0.62);
 	--pdk-notification-toast-ink: rgba(246, 248, 252, 0.96);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-flyout {
+	gap: 8px;
+	isolation: isolate;
+	min-width: 292px;
+	overflow: hidden;
+	padding: 10px 8px 6px;
+	width: min(var(--pdk-sound-flyout-width, 292px), calc(100% - 24px));
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-flyout::before {
+	background: var(--pdk-menu-popover-sheen);
+	border-radius: inherit;
+	content: "";
+	inset: 0;
+	opacity: var(--pdk-menu-popover-sheen-opacity);
+	pointer-events: none;
+	position: absolute;
+	z-index: 0;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-flyout-title,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-row,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-settings-button {
+	position: relative;
+	z-index: 1;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-flyout-title {
+	font-size: var(--pdk-text-menu);
+	font-weight: var(--pdk-weight-semibold);
+	line-height: var(--pdk-line-height-tight);
+	padding: 0 8px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-row {
+	align-items: center;
+	display: grid;
+	gap: 8px;
+	grid-template-columns: 14px minmax(0, 1fr) 18px;
+	padding: 0 8px 5px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-row::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-row::after {
+	-webkit-mask: var(--pdk-sound-volume-icon-url) center / contain no-repeat;
+	background: currentColor;
+	content: "";
+	display: block;
+	height: 16px;
+	mask: var(--pdk-sound-volume-icon-url) center / contain no-repeat;
+	opacity: 0.66;
+	width: 16px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-row::before {
+	height: 13px;
+	opacity: 0.56;
+	width: 13px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-label,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-value {
+	display: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-slider {
+	appearance: none;
+	background: transparent;
+	grid-column: 2;
+	height: 18px;
+	min-width: 0;
+	width: 100%;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-slider:focus {
+	outline: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-slider::-webkit-slider-runnable-track {
+	background:
+		linear-gradient(90deg, var(--pdk-sound-slider-fill-bg), var(--pdk-sound-slider-fill-bg)) 0 50% / var(--pdk-sound-volume-fill, 0%) 4px no-repeat,
+		var(--pdk-sound-slider-track-bg);
+	border: 0;
+	border-radius: 999px;
+	height: 4px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-slider::-webkit-slider-thumb {
+	appearance: none;
+	background: var(--pdk-sound-slider-thumb-bg);
+	border: 0;
+	border-radius: 999px;
+	box-shadow: var(--pdk-sound-slider-thumb-shadow);
+	height: 16px;
+	margin-top: -6px;
+	width: 16px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-slider::-moz-range-track {
+	background: var(--pdk-sound-slider-track-bg);
+	border: 0;
+	border-radius: 999px;
+	height: 4px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-slider::-moz-range-progress {
+	background: var(--pdk-sound-slider-fill-bg);
+	border: 0;
+	border-radius: 999px;
+	height: 4px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-volume-slider::-moz-range-thumb {
+	background: var(--pdk-sound-slider-thumb-bg);
+	border: 0;
+	border-radius: 999px;
+	box-shadow: var(--pdk-sound-slider-thumb-shadow);
+	height: 16px;
+	width: 16px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-settings-button {
+	background: transparent;
+	border: 0;
+	border-radius: 6px;
+	color: inherit;
+	font-size: var(--pdk-text-menu);
+	line-height: var(--pdk-line-height-tight);
+	margin: 6px 0 0;
+	min-height: 25px;
+	padding: 0 10px;
+	text-align: left;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-settings-button::before {
+	background: var(--pdk-menu-popover-separator);
+	content: "";
+	height: 1px;
+	left: 2px;
+	position: absolute;
+	right: 2px;
+	top: -6px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-settings-button::after {
+	content: "...";
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-settings-button:hover,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-settings-button:focus {
+	background: var(--pdk-sound-control-hover-bg, var(--pdk-control-bg-hover));
+	color: inherit;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-notification-center-toolbar button:not(:disabled):hover,
@@ -615,6 +788,10 @@
 	color: var(--pdk-menu-ink);
 	font-size: var(--pdk-text-caption);
 	font-weight: var(--pdk-weight-medium);
+	text-shadow: var(--pdk-menu-text-shadow);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-sound-status-button {
 	text-shadow: var(--pdk-menu-text-shadow);
 }
 

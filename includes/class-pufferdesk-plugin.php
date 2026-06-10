@@ -104,6 +104,7 @@ final class PufferDesk_Plugin {
 			$preferences,
 			new PufferDesk_Notification_Normalizer()
 		);
+		$sound_registry     = new PufferDesk_Sound_Registry();
 		$asset_manifest     = new PufferDesk_Asset_Manifest();
 		$settings_registry  = new PufferDesk_Settings_Registry();
 		$this->router       = new PufferDesk_Router( $preferences );
@@ -121,7 +122,9 @@ final class PufferDesk_Plugin {
 			$theme_registry,
 			$settings_registry,
 			$virtual_filesystem,
-			$notification_registry
+			$notification_registry,
+			$preferences,
+			$sound_registry
 		);
 		$renderer       = new PufferDesk_Shell_Renderer(
 			$shell_context

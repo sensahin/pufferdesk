@@ -14,6 +14,9 @@
 		const markAllButton = panel ? panel.querySelector('[data-pdk-notification-mark-all-read]') : null;
 		const refreshButton = panel ? panel.querySelector('[data-pdk-notification-refresh]') : null;
 		const closeButton = panel ? panel.querySelector('[data-pdk-notification-close]') : null;
+		const transientSurfaces = window.PufferDesk.shell && window.PufferDesk.shell.transientSurfaces
+			? window.PufferDesk.shell.transientSurfaces
+			: null;
 		let open = false;
 		let refreshing = false;
 
@@ -207,6 +210,10 @@
 				return;
 			}
 
+			if (transientSurfaces && typeof transientSurfaces.announce === 'function') {
+				transientSurfaces.announce('notifications');
+			}
+
 			open = true;
 			panel.hidden = false;
 			panel.classList.add('is-open');
@@ -281,6 +288,13 @@
 
 			close();
 		});
+		if (transientSurfaces && typeof transientSurfaces.closeOnOther === 'function') {
+			transientSurfaces.closeOnOther('notifications', () => {
+				if (open) {
+					close();
+				}
+			});
+		}
 
 		store.onChange(render);
 		render();

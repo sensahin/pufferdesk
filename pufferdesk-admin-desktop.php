@@ -45,6 +45,7 @@ require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-document-controller.php
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-notification-normalizer.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-notification-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-notification-controller.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-sound-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-asset-manifest.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-shell-context.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-settings-registry.php';
