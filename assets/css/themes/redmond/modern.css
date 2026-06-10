@@ -1123,14 +1123,22 @@
 	line-height: 1.15;
 	margin-left: 0;
 	min-width: 108px;
-	padding: 0 8px;
+	padding: 0;
 	position: absolute;
 	right: 10px;
 	text-align: center;
 	top: 3px;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-status:hover {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-clock {
+	align-items: center;
+	border-radius: 4px;
+	display: inline-flex;
+	height: 40px;
+	padding: 0 8px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-taskbar-clock:hover {
 	background: var(--pdk-redmond-taskbar-hover-bg);
 }
 
@@ -4277,7 +4285,7 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-taskbar-start:hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-taskbar-start:focus,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-taskbar-start.is-active,
-.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-taskbar-status:hover,
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-taskbar-clock:hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item:hover,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item:focus,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item.is-running {
