@@ -530,12 +530,27 @@ button.pdk-settings-profile-hero-avatar:focus .pdk-settings-profile-hero-edit {
 }
 
 .pdk-settings-history {
-	--pdk-settings-history-separator: var(--pdk-divider-soft, var(--pdk-line));
+	--pdk-settings-history-separator: var(--pdk-divider, var(--pdk-line));
 	background: var(--pdk-control-bg);
 	border: 1px solid var(--pdk-card-border);
 	border-radius: 19px;
 	display: inline-flex;
 	overflow: hidden;
+	position: relative;
+}
+
+.pdk-settings-history::after {
+	background: var(--pdk-settings-history-separator);
+	content: "";
+	height: 22px;
+	left: 50%;
+	opacity: 0.9;
+	pointer-events: none;
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 1px;
+	z-index: 2;
 }
 
 .pdk-settings-history-button {
@@ -590,19 +605,6 @@ button.pdk-settings-profile-hero-avatar:focus .pdk-settings-profile-hero-edit {
 
 .pdk-settings-history-button + .pdk-settings-history-button {
 	border-left: 0;
-}
-
-.pdk-settings-history-button + .pdk-settings-history-button::after {
-	background: var(--pdk-settings-history-separator);
-	content: "";
-	height: 22px;
-	left: 0;
-	opacity: 0.9;
-	position: absolute;
-	top: 50%;
-	transform: translate(-0.5px, -50%);
-	width: 1px;
-	z-index: 1;
 }
 
 .pdk-settings-history-button:disabled {
