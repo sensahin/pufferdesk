@@ -6,6 +6,7 @@
 	--pdk-settings-text-heading: var(--pdk-theme-settings-text-heading, 13.5px);
 	--pdk-settings-text-title: var(--pdk-theme-settings-text-title, 16px);
 	--pdk-finder-toolbar-gap: 38px;
+	--pdk-finder-toolbar-control-row-height: 38px;
 	--pdk-finder-toolbar-icon-size: 34px;
 	--pdk-finder-divider: var(--pdk-line);
 	--pdk-finder-tabbar-bg: var(--pdk-panel);
@@ -213,6 +214,7 @@
 	display: grid;
 	flex: 0 0 auto;
 	gap: 5px;
+	grid-template-rows: var(--pdk-finder-toolbar-control-row-height) auto;
 	justify-items: center;
 }
 
@@ -221,10 +223,12 @@
 	-webkit-user-select: none;
 	color: var(--pdk-muted);
 	cursor: default;
+	font-family: inherit;
 	font-size: var(--pdk-settings-text-body);
 	font-weight: var(--pdk-weight-semibold);
 	letter-spacing: var(--pdk-letter-spacing-default);
 	line-height: 1.05;
+	text-align: center;
 	user-select: none;
 	white-space: nowrap;
 }
@@ -261,6 +265,7 @@
 	display: grid;
 	font-family: inherit;
 	gap: 5px;
+	grid-template-rows: var(--pdk-finder-toolbar-control-row-height) auto;
 	justify-items: center;
 	line-height: 1;
 	min-width: 48px;

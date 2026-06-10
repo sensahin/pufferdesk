@@ -1608,22 +1608,10 @@
 	opacity: 0.88;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button:not(:disabled) .pdk-finder-toolbar-label,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button[aria-disabled="false"] .pdk-finder-toolbar-label {
-	color: var(--pdk-ink);
-	opacity: 0.8;
-}
-
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button-delete:disabled,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button-delete[aria-disabled="true"] {
 	color: var(--pdk-muted);
 	opacity: 0.46;
-}
-
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button-delete:disabled .pdk-finder-toolbar-label,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button-delete[aria-disabled="true"] .pdk-finder-toolbar-label {
-	color: var(--pdk-muted);
-	opacity: 1;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-tab-add {
