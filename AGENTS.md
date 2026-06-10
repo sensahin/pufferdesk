@@ -74,7 +74,7 @@ PHP services in `includes/`:
 - `class-pufferdesk-shell-context.php`: shared resolved shell state for templates and runtime config.
 - `class-pufferdesk-runtime-config.php`: browser runtime payload, menu labels, settings labels, and system actions.
 - `class-pufferdesk-notification-normalizer.php`: canonical notification descriptor normalization.
-- `class-pufferdesk-notification-registry.php`: notification providers, user read/dismiss state, source/severity filtering, and client config.
+- `class-pufferdesk-notification-registry.php`: notification providers, per-user retained history, user read/dismiss state, source/severity filtering, and client config.
 - `class-pufferdesk-notification-controller.php`: AJAX notification refresh, read, dismiss, and mark-all-read actions.
 - `class-pufferdesk-settings-registry.php`: settings domain metadata, AJAX actions, defaults, reset domains, and panel ownership.
 - `class-pufferdesk-asset-manifest.php`: source/dist asset manifest reader for enqueue order.
@@ -174,7 +174,7 @@ Apps:
 
 Notifications:
 
-- Use `PufferDesk_Notification_Registry` plus the `pufferdesk_notifications` filter for server-provided notifications. Providers should return normalized descriptors with stable `id`, `source`, `type`, `title`, optional `message`, `timestamp`, `priority`, `capability`, `actions`, `persistence`, `icon`, and `toast`.
+- Use `PufferDesk_Notification_Registry` plus the `pufferdesk_notifications` filter for server-provided notifications. Providers should return normalized descriptors with stable `id`, `source`, `type`, `title`, optional `message`, `timestamp`, `priority`, `capability`, `actions`, `persistence`, `icon`, and `toast`. Provider-backed notifications with `user` or `site` persistence are retained per user and pruned by the saved notification history window.
 - Browser code should use `window.PufferDesk.desktopApi.notifications` or `window.PufferDesk.notificationStore` for transient runtime notifications, read/dismiss state, and refresh behavior. Do not create one-off toast implementations.
 - Notification settings live in the `notifications` settings domain and `PufferDesk_User_Preferences::META_NOTIFICATIONS`. Source toggles, severity, badges, toasts, and quiet mode should flow through this domain.
 - Core CSS owns notification structure in `assets/css/core/notifications.css`; theme CSS owns visual variables for the notification button, center, items, and toasts.

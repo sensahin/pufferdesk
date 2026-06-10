@@ -15,7 +15,9 @@ final class PufferDesk_Notification_Registry {
 	const ACTION_MARK_READ     = 'pufferdesk_mark_notification_read';
 	const ACTION_MARK_ALL_READ = 'pufferdesk_mark_all_notifications_read';
 	const ACTION_DISMISS       = 'pufferdesk_dismiss_notification';
+	const META_HISTORY         = 'pufferdesk_notification_history';
 	const META_STATE           = 'pufferdesk_notification_state';
+	const HISTORY_LIMIT        = 300;
 	const STATE_LIMIT          = 300;
 
 	/**
@@ -86,6 +88,33 @@ final class PufferDesk_Notification_Registry {
 	public function get_notifications( $preferences = null ) {
 		$preferences = is_array( $preferences ) ? $preferences : $this->preferences->get_notifications();
 		$state       = $this->get_state();
+
+		if ( empty( $preferences['enabled'] ) ) {
+			return array();
+		}
+
+		$history = $this->sync_history( $this->get_provider_notifications( $state, $preferences ), $preferences, $state );
+		$notifications = array();
+		foreach ( $history as $notification ) {
+			$notification = $this->apply_state_to_notification( $notification, $state );
+			if ( ! $this->can_show_notification( $notification, $preferences ) ) {
+				continue;
+			}
+
+			$notifications[] = $notification;
+		}
+
+		return $this->sort_notifications( $notifications );
+	}
+
+	/**
+	 * Get current provider notifications before user visibility filters.
+	 *
+	 * @param array<string,mixed> $state       Read/dismissed state.
+	 * @param array<string,mixed> $preferences Notification preferences.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function get_provider_notifications( $state, $preferences ) {
 		$raw         = array_merge(
 			$this->get_update_notifications(),
 			$this->get_comment_notifications(),
@@ -107,13 +136,23 @@ final class PufferDesk_Notification_Registry {
 		$notifications = array();
 		foreach ( is_array( $raw ) ? $raw : array() as $notification ) {
 			$normalized = $this->normalizer->normalize( is_array( $notification ) ? $notification : array(), $state );
-			if ( empty( $normalized ) || ! $this->can_show_notification( $normalized, $preferences ) ) {
+			if ( empty( $normalized ) || ! $this->can_receive_notification( $normalized ) ) {
 				continue;
 			}
 
 			$notifications[] = $normalized;
 		}
 
+		return $notifications;
+	}
+
+	/**
+	 * Sort notifications for the client.
+	 *
+	 * @param array<int,array<string,mixed>> $notifications Notifications.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function sort_notifications( $notifications ) {
 		usort(
 			$notifications,
 			function ( $a, $b ) {
@@ -135,6 +174,203 @@ final class PufferDesk_Notification_Registry {
 		);
 
 		return $notifications;
+	}
+
+	/**
+	 * Merge current providers into persisted per-user history.
+	 *
+	 * @param array<int,array<string,mixed>> $current     Current provider notifications.
+	 * @param array<string,mixed>            $preferences Notification preferences.
+	 * @param array<string,mixed>            $state       Read/dismissed state.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function sync_history( $current, $preferences, $state ) {
+		$history = $this->get_history( $state );
+		$by_id   = array();
+
+		foreach ( $history as $notification ) {
+			if ( empty( $notification['id'] ) ) {
+				continue;
+			}
+			$by_id[ (string) $notification['id'] ] = $notification;
+		}
+
+		foreach ( $current as $notification ) {
+			if ( ! $this->should_persist_notification( $notification ) || empty( $notification['id'] ) ) {
+				continue;
+			}
+
+			$id      = (string) $notification['id'];
+			$by_id[ $id ] = $this->merge_history_notification(
+				isset( $by_id[ $id ] ) ? $by_id[ $id ] : array(),
+				$notification
+			);
+		}
+
+		$history = $this->prune_history( array_values( $by_id ), $preferences );
+		$this->set_history( $history );
+
+		return $history;
+	}
+
+	/**
+	 * Current per-user notification history.
+	 *
+	 * @param array<string,mixed> $state Read/dismissed state.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function get_history( $state ) {
+		$stored = get_user_meta( get_current_user_id(), self::META_HISTORY, true );
+		$stored = is_array( $stored ) ? $stored : array();
+		$history = array();
+
+		foreach ( $stored as $notification ) {
+			$normalized = $this->normalizer->normalize( is_array( $notification ) ? $notification : array(), $state );
+			if ( empty( $normalized ) || ! $this->can_receive_notification( $normalized ) ) {
+				continue;
+			}
+
+			$history[] = $normalized;
+		}
+
+		return $history;
+	}
+
+	/**
+	 * Persist per-user notification history.
+	 *
+	 * @param array<int,array<string,mixed>> $history Notification history.
+	 */
+	private function set_history( $history ) {
+		$records = array();
+
+		foreach ( $this->prune_history( $history, $this->preferences->get_notifications() ) as $notification ) {
+			$record = $this->prepare_history_record( $notification );
+			if ( empty( $record ) ) {
+				continue;
+			}
+
+			$records[] = $record;
+		}
+
+		if ( empty( $records ) ) {
+			delete_user_meta( get_current_user_id(), self::META_HISTORY );
+			return;
+		}
+
+		update_user_meta( get_current_user_id(), self::META_HISTORY, $records );
+	}
+
+	/**
+	 * Prepare a normalized notification for history storage.
+	 *
+	 * @param array<string,mixed> $notification Notification.
+	 * @return array<string,mixed>
+	 */
+	private function prepare_history_record( $notification ) {
+		$record = $this->normalizer->normalize( is_array( $notification ) ? $notification : array(), array() );
+		if ( empty( $record ) ) {
+			return array();
+		}
+
+		unset( $record['read'], $record['dismissed'] );
+
+		return $record;
+	}
+
+	/**
+	 * Merge a current notification into an existing history record.
+	 *
+	 * @param array<string,mixed> $existing Existing history notification.
+	 * @param array<string,mixed> $current  Current provider notification.
+	 * @return array<string,mixed>
+	 */
+	private function merge_history_notification( $existing, $current ) {
+		$merged = $current;
+
+		if ( ! empty( $existing['timestamp'] ) ) {
+			$merged['timestamp'] = (int) $existing['timestamp'];
+		}
+
+		$merged['lastSeen'] = time();
+
+		return $merged;
+	}
+
+	/**
+	 * Prune notification history by retention preference and maximum size.
+	 *
+	 * @param array<int,array<string,mixed>> $history     Notification history.
+	 * @param array<string,mixed>            $preferences Notification preferences.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function prune_history( $history, $preferences ) {
+		$cutoff = time() - ( $this->get_history_days( $preferences ) * DAY_IN_SECONDS );
+		$history = array_values(
+			array_filter(
+				$history,
+				function ( $notification ) use ( $cutoff ) {
+					return $this->get_last_seen( $notification ) >= $cutoff;
+				}
+			)
+		);
+
+		usort(
+			$history,
+			function ( $a, $b ) {
+				return $this->get_last_seen( $b ) - $this->get_last_seen( $a );
+			}
+		);
+
+		return array_slice( $history, 0, self::HISTORY_LIMIT );
+	}
+
+	/**
+	 * Retention days from preferences.
+	 *
+	 * @param array<string,mixed> $preferences Notification preferences.
+	 * @return int
+	 */
+	private function get_history_days( $preferences ) {
+		$days = isset( $preferences['history_days'] ) ? absint( $preferences['history_days'] ) : 30;
+
+		return max( 1, min( 90, $days ) );
+	}
+
+	/**
+	 * Last-seen timestamp for retention pruning.
+	 *
+	 * @param array<string,mixed> $notification Notification.
+	 * @return int
+	 */
+	private function get_last_seen( $notification ) {
+		if ( isset( $notification['lastSeen'] ) ) {
+			return max( 0, (int) $notification['lastSeen'] );
+		}
+
+		if ( isset( $notification['last_seen'] ) ) {
+			return max( 0, (int) $notification['last_seen'] );
+		}
+
+		return isset( $notification['timestamp'] ) ? max( 0, (int) $notification['timestamp'] ) : 0;
+	}
+
+	/**
+	 * Apply current read/dismiss state to a notification record.
+	 *
+	 * @param array<string,mixed> $notification Notification.
+	 * @param array<string,mixed> $state        Read/dismissed state.
+	 * @return array<string,mixed>
+	 */
+	private function apply_state_to_notification( $notification, $state ) {
+		$read_ids      = isset( $state['read'] ) && is_array( $state['read'] ) ? array_map( 'sanitize_key', $state['read'] ) : array();
+		$dismissed_ids = isset( $state['dismissed'] ) && is_array( $state['dismissed'] ) ? array_map( 'sanitize_key', $state['dismissed'] ) : array();
+		$id            = isset( $notification['id'] ) ? sanitize_key( (string) $notification['id'] ) : '';
+
+		$notification['read']      = '' !== $id && in_array( $id, $read_ids, true );
+		$notification['dismissed'] = '' !== $id && in_array( $id, $dismissed_ids, true );
+
+		return $notification;
 	}
 
 	/**
@@ -230,8 +466,7 @@ final class PufferDesk_Notification_Registry {
 			return false;
 		}
 
-		$capability = ! empty( $notification['capability'] ) ? sanitize_key( (string) $notification['capability'] ) : 'read';
-		if ( ! current_user_can( $capability ) ) {
+		if ( ! $this->can_receive_notification( $notification ) ) {
 			return false;
 		}
 
@@ -252,6 +487,30 @@ final class PufferDesk_Notification_Registry {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Whether the current user can receive a notification at all.
+	 *
+	 * @param array<string,mixed> $notification Normalized notification.
+	 * @return bool
+	 */
+	private function can_receive_notification( $notification ) {
+		$capability = ! empty( $notification['capability'] ) ? sanitize_key( (string) $notification['capability'] ) : 'read';
+
+		return current_user_can( $capability );
+	}
+
+	/**
+	 * Whether a notification belongs in retained history.
+	 *
+	 * @param array<string,mixed> $notification Normalized notification.
+	 * @return bool
+	 */
+	private function should_persist_notification( $notification ) {
+		$persistence = ! empty( $notification['persistence'] ) ? sanitize_key( (string) $notification['persistence'] ) : 'user';
+
+		return in_array( $persistence, array( 'user', 'site' ), true );
 	}
 
 	/**

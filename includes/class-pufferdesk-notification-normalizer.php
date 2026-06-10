@@ -70,17 +70,30 @@ final class PufferDesk_Notification_Normalizer {
 		}
 
 		$timestamp = isset( $notification['timestamp'] ) ? $this->normalize_timestamp( $notification['timestamp'] ) : time();
+		$last_seen = $timestamp;
+		if ( isset( $notification['last_seen'] ) ) {
+			$last_seen = $this->normalize_timestamp( $notification['last_seen'] );
+		} elseif ( isset( $notification['lastSeen'] ) ) {
+			$last_seen = $this->normalize_timestamp( $notification['lastSeen'] );
+		}
 		$read_ids  = isset( $state['read'] ) && is_array( $state['read'] ) ? array_map( 'sanitize_key', $state['read'] ) : array();
 		$dismissed_ids = isset( $state['dismissed'] ) && is_array( $state['dismissed'] ) ? array_map( 'sanitize_key', $state['dismissed'] ) : array();
+		$source_label  = '';
+		if ( ! empty( $notification['source_label'] ) ) {
+			$source_label = sanitize_text_field( (string) $notification['source_label'] );
+		} elseif ( ! empty( $notification['sourceLabel'] ) ) {
+			$source_label = sanitize_text_field( (string) $notification['sourceLabel'] );
+		}
 
 		return array(
 			'id'          => $id,
 			'source'      => $source,
-			'sourceLabel' => ! empty( $notification['source_label'] ) ? sanitize_text_field( (string) $notification['source_label'] ) : $this->get_source_label( $source ),
+			'sourceLabel' => '' !== $source_label ? $source_label : $this->get_source_label( $source ),
 			'type'        => $type,
 			'title'       => $title,
 			'message'     => $message,
 			'timestamp'   => $timestamp,
+			'lastSeen'    => $last_seen,
 			'read'        => in_array( $id, $read_ids, true ) || ! empty( $notification['read'] ),
 			'dismissed'   => in_array( $id, $dismissed_ids, true ) || ! empty( $notification['dismissed'] ),
 			'priority'    => $priority,

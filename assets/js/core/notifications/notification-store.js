@@ -113,6 +113,8 @@
 			: (type === 'error' ? 'critical' : type === 'warning' ? 'high' : 'normal');
 		const id = sanitizeId(notification.id) || uniqueId(source, title, message);
 		const timestamp = Number.parseInt(notification.timestamp, 10);
+		const normalizedTimestamp = Number.isFinite(timestamp) && timestamp > 0 ? timestamp : Math.floor(Date.now() / 1000);
+		const lastSeen = Number.parseInt(notification.lastSeen || notification.last_seen || normalizedTimestamp, 10);
 
 		if (!title && !message) {
 			return null;
@@ -124,6 +126,7 @@
 			dismissed: Boolean(notification.dismissed),
 			icon: typeof notification.icon === 'string' && notification.icon ? notification.icon : (type === 'error' ? 'dashicons-warning' : 'dashicons-bell'),
 			id,
+			lastSeen: Number.isFinite(lastSeen) && lastSeen > 0 ? lastSeen : normalizedTimestamp,
 			message,
 			persistence: typeof notification.persistence === 'string' && notification.persistence ? notification.persistence : 'session',
 			priority,
@@ -132,7 +135,7 @@
 			sourceLabel: typeof notification.sourceLabel === 'string'
 				? notification.sourceLabel
 				: (typeof notification.source_label === 'string' ? notification.source_label : source),
-			timestamp: Number.isFinite(timestamp) && timestamp > 0 ? timestamp : Math.floor(Date.now() / 1000),
+			timestamp: normalizedTimestamp,
 			title,
 			toast: Boolean(notification.toast),
 			type
@@ -157,6 +160,15 @@
 		return true;
 	}
 
+	function passesHistory(notification, preferences) {
+		const historyDays = Number.parseInt(preferences.history_days, 10);
+		const retentionDays = Number.isFinite(historyDays) ? Math.max(1, Math.min(90, historyDays)) : 30;
+		const cutoff = Math.floor(Date.now() / 1000) - (retentionDays * 86400);
+		const lastSeen = Number.parseInt(notification.lastSeen || notification.timestamp, 10);
+
+		return Number.isFinite(lastSeen) && lastSeen >= cutoff;
+	}
+
 	function canDisplay(notification, preferences) {
 		return Boolean(
 			preferences.enabled
@@ -164,6 +176,7 @@
 			&& !notification.dismissed
 			&& sourceIsEnabled(notification, preferences)
 			&& passesSeverity(notification, preferences)
+			&& passesHistory(notification, preferences)
 		);
 	}
 
