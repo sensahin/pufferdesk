@@ -17,6 +17,7 @@
 	--pdk-finder-tab-active-border: var(--pdk-card-border);
 	--pdk-finder-tab-ink: var(--pdk-ink);
 	--pdk-finder-tab-muted: var(--pdk-muted);
+	--pdk-finder-tab-radius: 999px;
 	--pdk-finder-tab-close-bg: rgba(60, 60, 67, 0.16);
 	--pdk-finder-tab-close-hover-bg: rgba(60, 60, 67, 0.24);
 	--pdk-finder-tab-add-bg: var(--pdk-control-bg);
@@ -433,7 +434,7 @@
 	align-items: center;
 	background: var(--pdk-finder-tab-bg);
 	border: 1px solid transparent;
-	border-radius: 8px;
+	border-radius: var(--pdk-finder-tab-radius);
 	box-sizing: border-box;
 	color: var(--pdk-finder-tab-muted);
 	display: grid;
