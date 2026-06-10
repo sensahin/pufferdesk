@@ -1,12 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Folder">
 	<defs>
-		<linearGradient id="g" x1="18" x2="108" y1="24" y2="108" gradientUnits="userSpaceOnUse">
-			<stop offset="0" stop-color="#8fe4ff"/>
-			<stop offset=".55" stop-color="#3ea9e6"/>
-			<stop offset="1" stop-color="#2268b2"/>
+		<linearGradient id="pdk-folder-tab" x1="21" x2="91" y1="29" y2="65" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#93d8f5"/>
+			<stop offset="1" stop-color="#5eb7df"/>
+		</linearGradient>
+		<linearGradient id="pdk-folder-body" x1="18" x2="110" y1="49" y2="111" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#8fd2ee"/>
+			<stop offset=".5" stop-color="#78bfe9"/>
+			<stop offset="1" stop-color="#55aede"/>
+		</linearGradient>
+		<linearGradient id="pdk-folder-shine" x1="22" x2="99" y1="48" y2="71" gradientUnits="userSpaceOnUse">
+			<stop offset="0" stop-color="#ffffff" stop-opacity=".72"/>
+			<stop offset="1" stop-color="#ffffff" stop-opacity=".2"/>
 		</linearGradient>
 	</defs>
-	<path fill="#bdeeff" d="M18 38a10 10 0 0 1 10-10h28l10 11h36a10 10 0 0 1 10 10v8H18z"/>
-	<rect x="14" y="45" width="100" height="72" rx="13" fill="url(#g)"/>
-	<path fill="#fff" fill-opacity=".42" d="M25 55h78a7 7 0 0 1 7 7v8H18v-8a7 7 0 0 1 7-7z"/>
+	<path fill="#1d2f3e" fill-opacity=".2" d="M19 39h35c4.1 0 6.3 1.4 9.2 4.2l6.7 6.4H107c7.1 0 10.7 3.7 10.7 10.9v45.4c0 7.2-3.6 10.9-10.7 10.9H21c-7.1 0-10.7-3.7-10.7-10.9V49.8C10.3 42.6 13.2 39 19 39Z"/>
+	<path fill="url(#pdk-folder-tab)" d="M19.5 31.7h34.1c4 0 6.1 1.4 9 4.1l6.8 6.4h37.7c7.1 0 10.7 3.7 10.7 10.9v9.2H10.2V42.5c0-7.2 3.1-10.8 9.3-10.8Z"/>
+	<path fill="url(#pdk-folder-body)" d="M20.9 46.5h86.2c7.1 0 10.7 3.7 10.7 10.9v46.5c0 7.2-3.6 10.9-10.7 10.9H20.9c-7.1 0-10.7-3.7-10.7-10.9V57.4c0-7.2 3.6-10.9 10.7-10.9Z"/>
+	<path fill="url(#pdk-folder-shine)" d="M21.3 49.5h85.4c4.6 0 7.3 2.4 7.3 7v4.8H14v-4.8c0-4.6 2.7-7 7.3-7Z"/>
+	<path fill="#2c6f93" fill-opacity=".34" d="M14 61.2h100v1.8H14z"/>
+	<path fill="#ffffff" fill-opacity=".32" d="M18.8 34.8h33.7c3.1 0 4.5.9 6.6 2.9l6.8 6.5h41c4.1 0 6.4 1.7 7.3 5.3-1.6-1.8-3.9-2.7-7.1-2.7H68.2l-7-6.6c-2.3-2.2-4.1-3.3-7.8-3.3H19.2c-3.1 0-4.8 1.7-5.3 4.9.1-4.6 1.6-7 4.9-7Z"/>
 </svg>

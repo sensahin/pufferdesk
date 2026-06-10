@@ -55,7 +55,7 @@ final class PufferDesk_Virtual_Filesystem {
 				$labels['documents'],
 				$paths[ self::FOLDER_DOCUMENTS ],
 				self::FOLDER_HOME,
-				$this->theme_icon( 'documents.svg', 'dashicons-media-document' ),
+				$this->theme_icon( 'folder.svg', 'dashicons-media-document' ),
 				'documents'
 			),
 			$this->create_folder(
@@ -63,7 +63,7 @@ final class PufferDesk_Virtual_Filesystem {
 				$labels['notes'],
 				$paths[ self::FOLDER_NOTES ],
 				self::FOLDER_HOME,
-				$this->theme_icon( 'notes.svg', 'dashicons-edit-page' ),
+				$this->theme_icon( 'folder.svg', 'dashicons-edit-page' ),
 				'notes'
 			),
 			$this->create_folder(
