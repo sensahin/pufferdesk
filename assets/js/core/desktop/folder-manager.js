@@ -790,12 +790,13 @@
 				removeTrashItemByFolderId(folder.id);
 				trashItems.unshift(normalizeTrashItem(trashItem));
 				trashItems = trashItems.filter(Boolean).slice(0, 100);
-				reparentChildFolders(folder.id, previousParent);
+				const reparentedFolderIds = reparentChildFolders(folder.id, previousParent);
 				userFolders.splice(index, 1);
 			renderUserFolders();
 			syncDesktopAppVisibility();
 			refreshDesktopIcons();
 			saveDesktopIconSession();
+			refreshFolderWindows([previousParent].concat(reparentedFolderIds));
 			closeFolderSurfaces(folderId);
 			scheduleSave();
 			scheduleTrashSave();
@@ -867,12 +868,14 @@
 					return false;
 				}
 
-				reparentChildFolders(folderId, getFolderParentId(userFolders[index]));
+				const previousParent = getFolderParentId(userFolders[index]);
+				const reparentedFolderIds = reparentChildFolders(folderId, previousParent);
 				userFolders.splice(index, 1);
 			renderUserFolders();
 			syncDesktopAppVisibility();
 			refreshDesktopIcons();
 			saveDesktopIconSession();
+			refreshFolderWindows([previousParent].concat(reparentedFolderIds));
 			closeFolderSurfaces(folderId);
 			scheduleSave();
 

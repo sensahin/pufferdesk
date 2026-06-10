@@ -939,19 +939,55 @@
 			return true;
 		}
 
+		function getPointPosition(point, icon) {
+			if (!point || !icon) {
+				return null;
+			}
+
+			const layer = getIconLayer(icon);
+			const clientX = Number.isFinite(point.clientX)
+				? point.clientX
+				: Number.isFinite(point.x)
+					? point.x
+					: null;
+			const clientY = Number.isFinite(point.clientY)
+				? point.clientY
+				: Number.isFinite(point.y)
+					? point.y
+					: null;
+
+			if (!layer || !Number.isFinite(clientX) || !Number.isFinite(clientY)) {
+				return null;
+			}
+
+			const layerRect = layer.getBoundingClientRect();
+			const iconWidth = icon.offsetWidth || 74;
+			const iconHeight = icon.offsetHeight || 94;
+
+			return {
+				left: Math.round(clientX - layerRect.left - (iconWidth / 2)),
+				top: Math.round(clientY - layerRect.top - (iconHeight / 2))
+			};
+		}
+
 		function positionIcon(kind, id, pointOrPosition = null) {
 			const icon = findIconForRename({
 				id,
 				kind
 			});
+
+			if (!icon || icon.hidden) {
+				return false;
+			}
+
 			const position = pointOrPosition && Number.isFinite(pointOrPosition.left) && Number.isFinite(pointOrPosition.top)
 				? pointOrPosition
 				: getPointPosition(pointOrPosition, icon);
-			const layer = icon ? getIconLayer(icon) : null;
+			const layer = getIconLayer(icon);
 			const maxLeft = layer ? layer.clientWidth - icon.offsetWidth : 0;
 			const maxTop = layer ? layer.clientHeight - icon.offsetHeight : 0;
 
-			if (!icon || icon.hidden || !position) {
+			if (!layer || !position) {
 				return false;
 			}
 
@@ -996,10 +1032,27 @@
 		}
 
 		function setDragItemsDragging(items, dragging) {
+			const layers = new Set();
+
 			items.forEach((item) => {
+				if (item.layer) {
+					layers.add(item.layer);
+				}
+
 				item.icon.classList.toggle('is-dragging', dragging);
 				if (dragging) {
 					item.icon.style.zIndex = String(++dragZIndex);
+				}
+			});
+
+			layers.forEach((layer) => {
+				if (dragging) {
+					layer.classList.add('is-drag-source-layer');
+					return;
+				}
+
+				if (!layer.querySelector('.pdk-desktop-icon.is-dragging')) {
+					layer.classList.remove('is-drag-source-layer');
 				}
 			});
 		}

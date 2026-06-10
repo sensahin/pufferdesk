@@ -70,6 +70,10 @@
 	position: absolute;
 }
 
+.pdk-desktop-icon-layer.is-drag-source-layer {
+	z-index: calc(var(--pdk-layer-menu) - 1);
+}
+
 .pdk-desktop-icon {
 	align-items: center;
 	align-content: start;

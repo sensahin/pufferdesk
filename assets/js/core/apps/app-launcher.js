@@ -554,6 +554,83 @@
 			}
 		}
 
+		function parseDragProxyNumber(value, fallback) {
+			const parsed = Number.parseFloat(value);
+
+			return Number.isFinite(parsed) ? parsed : fallback;
+		}
+
+		function moveFolderItemDragProxy(proxy, clientX, clientY) {
+			if (!proxy || !Number.isFinite(clientX) || !Number.isFinite(clientY)) {
+				return;
+			}
+
+			const offsetX = parseDragProxyNumber(proxy.dataset.pdkDragOffsetX, (proxy.offsetWidth || 0) / 2);
+			const offsetY = parseDragProxyNumber(proxy.dataset.pdkDragOffsetY, (proxy.offsetHeight || 0) / 2);
+
+			proxy.style.left = `${Math.round(clientX - offsetX)}px`;
+			proxy.style.top = `${Math.round(clientY - offsetY)}px`;
+		}
+
+		function createFolderItemDragProxy(item, clientX, clientY) {
+			const rect = item.getBoundingClientRect();
+			const sourcePane = item.closest('.pdk-finder-pane');
+			const proxy = item.cloneNode(true);
+
+			proxy.removeAttribute('id');
+			proxy.querySelectorAll('[id]').forEach((element) => element.removeAttribute('id'));
+			proxy.classList.remove('is-context-menu-active', 'is-dragging', 'is-drop-target', 'is-selected');
+			proxy.classList.add('pdk-folder-drag-proxy');
+			proxy.setAttribute('aria-hidden', 'true');
+			proxy.setAttribute('tabindex', '-1');
+			proxy.removeAttribute('aria-selected');
+			proxy.dataset.pdkDragOffsetX = String(clientX - rect.left);
+			proxy.dataset.pdkDragOffsetY = String(clientY - rect.top);
+			proxy.style.height = `${Math.max(1, Math.round(rect.height))}px`;
+			proxy.style.width = `${Math.max(1, Math.round(rect.width))}px`;
+
+			if (sourcePane && sourcePane.dataset && sourcePane.dataset.pdkFolderViewMode) {
+				proxy.dataset.pdkFolderViewMode = sourcePane.dataset.pdkFolderViewMode;
+			}
+
+			(shell || document.body).appendChild(proxy);
+			moveFolderItemDragProxy(proxy, clientX, clientY);
+
+			return proxy;
+		}
+
+		function removeFolderItemDragProxy(proxy) {
+			if (proxy && proxy.parentNode) {
+				proxy.parentNode.removeChild(proxy);
+			}
+		}
+
+		function disableNativeFolderItemDrag(item) {
+			if (!item) {
+				return;
+			}
+
+			item.draggable = false;
+			item.querySelectorAll('a, img').forEach((element) => {
+				element.draggable = false;
+			});
+		}
+
+		function isPointInsideElement(element, clientX, clientY) {
+			if (!element || !Number.isFinite(clientX) || !Number.isFinite(clientY)) {
+				return false;
+			}
+
+			const rect = element.getBoundingClientRect();
+
+			return clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom;
+		}
+
+		function isPointOverVisibleWindow(clientX, clientY) {
+			return Array.from(shell.querySelectorAll('.pdk-window:not(.is-closed):not(.is-hidden)'))
+				.some((win) => isPointInsideElement(win, clientX, clientY));
+		}
+
 		function getFolderDragDetail(item, sourceFolderId) {
 			const kind = item && item.dataset ? item.dataset.pdkFolderItemKind || '' : '';
 			const id = item && item.dataset ? item.dataset.pdkFolderItemId || item.dataset.pdkContextId || item.dataset.pdkOpenFolder || '' : '';
@@ -666,6 +743,19 @@
 				return canDropFolderItem(dragDetail, target) ? target : null;
 			}
 
+			if (!desktop && shell) {
+				const desktopElement = shell.querySelector('.pdk-desktop');
+				const target = {
+					element: desktopElement,
+					id: 'desktop',
+					kind: 'desktop'
+				};
+
+				if (desktopElement && isPointInsideElement(desktopElement, clientX, clientY) && !isPointOverVisibleWindow(clientX, clientY)) {
+					return canDropFolderItem(dragDetail, target) ? target : null;
+				}
+			}
+
 			return null;
 		}
 
@@ -730,6 +820,17 @@
 					delete item.dataset.pdkSuppressFolderItemClick;
 				}
 			}, true);
+			pane.addEventListener('dragstart', (event) => {
+				const item = event.target && typeof event.target.closest === 'function'
+					? event.target.closest('[data-pdk-draggable-folder-item="1"]')
+					: null;
+
+				if (!item || !pane.contains(item)) {
+					return;
+				}
+
+				event.preventDefault();
+			}, true);
 			pane.addEventListener('pointerdown', (event) => {
 				const item = event.target && typeof event.target.closest === 'function'
 					? event.target.closest('[data-pdk-draggable-folder-item="1"]')
@@ -739,6 +840,7 @@
 				const startY = event.clientY;
 				let moved = false;
 				let currentDropTarget = null;
+				let dragProxy = null;
 
 				if (
 					event.button !== 0
@@ -751,6 +853,9 @@
 				) {
 					return;
 				}
+
+				event.preventDefault();
+				disableNativeFolderItemDrag(item);
 
 				if (typeof item.setPointerCapture === 'function') {
 					item.setPointerCapture(event.pointerId);
@@ -766,38 +871,47 @@
 
 					moved = true;
 					moveEvent.preventDefault();
+					if (!dragProxy) {
+						dragProxy = createFolderItemDragProxy(item, startX, startY);
+					}
+					moveFolderItemDragProxy(dragProxy, moveEvent.clientX, moveEvent.clientY);
 					item.classList.add('is-dragging');
 					currentDropTarget = getFolderItemDropTarget(dragDetail, moveEvent.clientX, moveEvent.clientY);
 					setFolderItemDropTarget(currentDropTarget ? currentDropTarget.element : null);
 				};
 
-				const up = (upEvent) => {
+				const finish = (upEvent, commitDrop) => {
 					window.removeEventListener('pointermove', move);
 					window.removeEventListener('pointerup', up);
-					window.removeEventListener('pointercancel', up);
+					window.removeEventListener('pointercancel', cancel);
 					item.classList.remove('is-dragging');
+					removeFolderItemDragProxy(dragProxy);
 					clearFolderItemDropTarget();
 
 					if (typeof item.releasePointerCapture === 'function' && item.hasPointerCapture(upEvent.pointerId)) {
 						item.releasePointerCapture(upEvent.pointerId);
 					}
 
-					if (moved) {
-						const dropTarget = currentDropTarget || getFolderItemDropTarget(dragDetail, upEvent.clientX, upEvent.clientY);
+					if (moved && commitDrop) {
+						const clientX = Number.isFinite(upEvent.clientX) ? upEvent.clientX : startX;
+						const clientY = Number.isFinite(upEvent.clientY) ? upEvent.clientY : startY;
+						const dropTarget = currentDropTarget || getFolderItemDropTarget(dragDetail, clientX, clientY);
 						if (dropTarget) {
 							dropFolderItem(dragDetail, dropTarget, {
-								clientX: upEvent.clientX,
-								clientY: upEvent.clientY
+								clientX,
+								clientY
 							});
 						}
 
 						item.dataset.pdkSuppressFolderItemClick = '1';
 					}
 				};
+				const up = (upEvent) => finish(upEvent, true);
+				const cancel = (cancelEvent) => finish(cancelEvent, false);
 
 				window.addEventListener('pointermove', move);
 				window.addEventListener('pointerup', up);
-				window.addEventListener('pointercancel', up);
+				window.addEventListener('pointercancel', cancel);
 			});
 		}
 
@@ -1232,6 +1346,7 @@
 
 			button.type = 'button';
 			button.className = `pdk-explorer-command-button pdk-explorer-command-button-${action.id}`;
+			button.dataset.pdkExplorerCommand = action.id;
 			button.dataset.pdkNoDrag = '';
 			button.disabled = !canRun;
 			button.setAttribute('aria-label', action.label);
@@ -1272,8 +1387,6 @@
 		}
 
 		function getExplorerCommandGroups(folderId) {
-			const currentFolderActionsEnabled = isUserFolder(folderId);
-
 			return [
 				[
 					{ id: 'new', label: 'New', icon: 'dashicons-plus-alt2', command: 'folder.create', disclosure: true }
@@ -1282,9 +1395,9 @@
 					{ id: 'cut', label: 'Cut', icon: 'dashicons-admin-page', showLabel: false },
 					{ id: 'copy', label: 'Copy', icon: 'dashicons-clipboard', showLabel: false },
 					{ id: 'paste', label: 'Paste', icon: 'dashicons-admin-page', showLabel: false },
-					{ id: 'rename', label: 'Rename', icon: 'dashicons-edit', command: currentFolderActionsEnabled ? 'folder.rename' : '', showLabel: false },
+					{ id: 'rename', label: 'Rename', icon: 'dashicons-edit', command: isUserFolder(folderId) ? 'folder.rename' : '', showLabel: false },
 					{ id: 'share', label: 'Share', icon: 'dashicons-share', showLabel: false },
-					{ id: 'delete', label: 'Delete', icon: 'dashicons-trash', command: currentFolderActionsEnabled ? 'folder.delete' : '', showLabel: false }
+					{ id: 'delete', label: 'Delete', icon: 'dashicons-trash', command: 'folder.delete-selected', showLabel: false }
 				],
 				[
 					{ id: 'sort', label: 'Sort', icon: 'dashicons-sort', disclosure: true },
@@ -1313,6 +1426,45 @@
 			});
 
 			return bar;
+		}
+
+		function getExplorerCommandActions(folderId) {
+			return getExplorerCommandGroups(folderId).flat();
+		}
+
+		function syncExplorerCommandBarActionStates(win) {
+			const folderId = win && win.dataset ? win.dataset.pdkFolderWindow : '';
+			const actions = new Map(getExplorerCommandActions(folderId).map((action) => [action.id, action]));
+
+			if (!win || !folderId) {
+				return;
+			}
+
+			win.querySelectorAll('.pdk-explorer-commandbar [data-pdk-explorer-command]').forEach((button) => {
+				const action = actions.get(button.dataset.pdkExplorerCommand);
+
+				if (!action) {
+					return;
+				}
+
+				button.disabled = !canRunExplorerCommand(action, folderId, win);
+			});
+		}
+
+		function bindExplorerCommandBar(win) {
+			if (!win) {
+				return;
+			}
+
+			if (win.pdkExplorerCommandSelectionHandler) {
+				win.removeEventListener('pufferDesk:folder-selection-change', win.pdkExplorerCommandSelectionHandler);
+			}
+
+			win.pdkExplorerCommandSelectionHandler = () => {
+				window.requestAnimationFrame(() => syncExplorerCommandBarActionStates(win));
+			};
+			win.addEventListener('pufferDesk:folder-selection-change', win.pdkExplorerCommandSelectionHandler);
+			syncExplorerCommandBarActionStates(win);
 		}
 
 		function createExplorerAddressBar(folderId, win) {
@@ -2682,6 +2834,7 @@
 			if (manager && typeof manager.makeDraggable === 'function') {
 				manager.makeDraggable(win);
 			}
+			bindExplorerCommandBar(win);
 			bindFolderToolbarOverflow(win);
 
 			if (options.touch !== false) {

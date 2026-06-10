@@ -639,6 +639,40 @@
 	opacity: 0.58;
 }
 
+.pdk-folder-drag-proxy {
+	box-sizing: border-box;
+	filter: drop-shadow(0 14px 24px rgb(0 0 0 / 28%));
+	margin: 0;
+	opacity: 0.94;
+	pointer-events: none !important;
+	position: fixed;
+	z-index: calc(var(--pdk-layer-overlay) + 1);
+}
+
+.pdk-folder-drag-proxy[data-pdk-folder-view-mode="list"] {
+	align-items: center;
+	flex-direction: row;
+	gap: 10px;
+	justify-content: flex-start;
+	min-height: 34px;
+	padding: 4px 8px;
+	text-align: left;
+	width: auto;
+}
+
+.pdk-folder-drag-proxy[data-pdk-folder-view-mode="list"] .pdk-app-icon {
+	flex: 0 0 auto;
+	height: 24px;
+	width: 28px;
+}
+
+.pdk-folder-drag-proxy[data-pdk-folder-view-mode="list"] > span:last-child {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 .pdk-folder-body .pdk-app-launcher.is-drop-target {
 	outline: 2px solid var(--pdk-accent-medium, var(--pdk-accent));
 	outline-offset: 2px;
