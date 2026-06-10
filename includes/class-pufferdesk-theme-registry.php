@@ -309,6 +309,12 @@ final class PufferDesk_Theme_Registry {
 									'tone'  => 'cyan',
 								),
 								array(
+									'id'    => 'notifications',
+									'label' => __( 'Notifications', 'pufferdesk-admin-desktop' ),
+									'icon'  => 'dashicons-bell',
+									'tone'  => 'blue',
+								),
+								array(
 									'id'    => 'appearance',
 									'label' => __( 'Personalization', 'pufferdesk-admin-desktop' ),
 									'icon'  => 'dashicons-admin-appearance',
