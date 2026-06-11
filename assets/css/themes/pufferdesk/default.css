@@ -195,7 +195,17 @@
 	--pdk-clock-widget-time: rgba(20, 24, 28, 0.94);
 	--pdk-clock-widget-date: rgba(60, 60, 67, 0.62);
 	--pdk-text-widget-clock: 36px;
+	--pdk-traffic-close: #ff5f57;
+	--pdk-traffic-close-symbol: #9b1b22;
 	--pdk-traffic-disabled: rgba(0, 0, 0, 0.16);
+	--pdk-traffic-gap: 8px;
+	--pdk-traffic-minimize: #ffbd2e;
+	--pdk-traffic-minimize-symbol: #8a5f00;
+	--pdk-traffic-size: 14px;
+	--pdk-traffic-symbol-stroke: 1.9px;
+	--pdk-traffic-symbol-width: 7.6px;
+	--pdk-traffic-zoom: #28c840;
+	--pdk-traffic-zoom-symbol: #0b6f2a;
 	--pdk-weight-widget-clock: var(--pdk-weight-medium);
 }
 
@@ -936,46 +946,82 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window-controls {
-	gap: 10px;
+	gap: var(--pdk-traffic-gap, 8px);
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window-control {
-	background-clip: padding-box;
-	box-shadow:
-		0 0 0 0.5px rgba(0, 0, 0, 0.22),
-		0 1px 1px rgba(0, 0, 0, 0.16);
-	height: 15px;
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control {
+	background-clip: border-box;
+	box-shadow: none;
+	height: var(--pdk-traffic-size, 12px);
 	opacity: 1;
-	width: 15px;
+	width: var(--pdk-traffic-size, 12px);
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window-control::before,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window-control::after {
-	background: rgba(50, 50, 50, 0.76);
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control:focus-visible {
+	box-shadow: 0 0 0 3px var(--pdk-focus-ring, rgba(0, 122, 255, 0.28));
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window-control-close::before,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window-control-close::after,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window-control-minimize::before {
-	height: 2px;
-	width: 8px;
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-close {
+	background: var(--pdk-traffic-close, #ff5f57);
+	color: var(--pdk-traffic-close-symbol, #9b1b22);
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window-control-maximize::before,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window-control-maximize::after {
-	background: rgba(0, 83, 36, 0.76);
-	border-radius: 0;
-	height: 8px;
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-minimize {
+	background: var(--pdk-traffic-minimize, #ffbd2e);
+	color: var(--pdk-traffic-minimize-symbol, #8a5f00);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-maximize {
+	background: var(--pdk-traffic-zoom, #28c840);
+	color: var(--pdk-traffic-zoom-symbol, #0b6f2a);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control::after {
+	background: currentColor;
+	left: 50%;
+	top: 50%;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-close::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-close::after,
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-minimize::before {
+	border-radius: 999px;
+	height: var(--pdk-traffic-symbol-stroke, 1.7px);
+	width: var(--pdk-traffic-symbol-width, 6.8px);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-close::before {
+	transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-close::after {
+	transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-minimize::before {
 	transform: translate(-50%, -50%);
-	width: 8px;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window-control-maximize::before {
-	clip-path: polygon(0 0, 66% 0, 0 66%);
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-minimize::after {
+	display: none;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window-control-maximize::after {
-	clip-path: polygon(100% 34%, 100% 100%, 34% 100%);
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-maximize::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-maximize::after {
+	border-radius: 0;
+	height: 6.4px;
+	width: 6.4px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-maximize::before {
+	clip-path: polygon(0 0, 100% 0, 0 100%);
+	transform: translate(-58%, -58%);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] :is(.pdk-window[data-pdk-window-controls-style="traffic"], .pdk-window-titlebar[data-pdk-window-controls-style="traffic"]) .pdk-window-control-maximize::after {
+	clip-path: polygon(100% 0, 100% 100%, 0 100%);
+	transform: translate(-42%, -42%);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-app-launcher {
@@ -1125,6 +1171,22 @@
 	margin-inline: -3px;
 	padding-inline: 3px;
 	text-shadow: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-renaming .pdk-app-launcher-label {
+	background: var(--pdk-desktop-rename-bg, transparent);
+	box-shadow: var(--pdk-desktop-rename-shadow, 0 1px 4px rgba(0, 0, 0, 0.22));
+	color: var(--pdk-desktop-rename-ink, var(--pdk-ink));
+	display: block;
+	margin-inline: 0;
+	max-height: 86px;
+	max-width: min(256px, calc(100vw - 48px));
+	min-width: var(--pdk-folder-label-line-width, 15ch);
+	outline: 1px solid var(--pdk-desktop-rename-border, rgba(0, 0, 0, 0.18));
+	padding: 0 3px;
+	white-space: normal;
+	width: max-content;
+	word-break: break-word;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-widget {

@@ -856,6 +856,7 @@
 
 			const originalLabel = getIconCurrentLabel(icon) || getIconDefaultLabel(icon);
 			let finished = false;
+			let blurRefocusTimer = 0;
 			const renameMetrics = (() => {
 				const iconRect = icon.getBoundingClientRect();
 				const labelRect = label.getBoundingClientRect();
@@ -880,10 +881,12 @@
 			}
 
 			function cleanup() {
+				window.clearTimeout(blurRefocusTimer);
 				label.removeEventListener('blur', onBlur);
 				label.removeEventListener('keydown', onKeyDown);
 				label.removeEventListener('click', stopEditingEvent);
 				label.removeEventListener('pointerdown', stopEditingEvent);
+				document.removeEventListener('pointerdown', onDocumentPointerDown, true);
 				label.removeAttribute('contenteditable');
 				label.removeAttribute('spellcheck');
 				delete label.dataset.pdkInlineRename;
@@ -916,6 +919,28 @@
 			}
 
 			function onBlur() {
+				window.clearTimeout(blurRefocusTimer);
+				blurRefocusTimer = window.setTimeout(() => {
+					blurRefocusTimer = 0;
+					if (finished) {
+						return;
+					}
+					if (!icon.isConnected || !label.isConnected) {
+						finish(true);
+						return;
+					}
+					if (document.activeElement === label || label.contains(document.activeElement)) {
+						return;
+					}
+					label.focus({ preventScroll: true });
+				}, 0);
+			}
+
+			function onDocumentPointerDown(event) {
+				if (finished || (event.target && label.contains(event.target))) {
+					return;
+				}
+
 				finish(true);
 			}
 
@@ -926,6 +951,8 @@
 				} else if (event.key === 'Escape') {
 					event.preventDefault();
 					finish(false);
+				} else if (event.key === 'Tab') {
+					finish(true);
 				}
 			}
 
@@ -943,6 +970,7 @@
 			label.addEventListener('keydown', onKeyDown);
 			label.addEventListener('click', stopEditingEvent);
 			label.addEventListener('pointerdown', stopEditingEvent);
+			document.addEventListener('pointerdown', onDocumentPointerDown, true);
 			label.focus({ preventScroll: true });
 
 			const selection = window.getSelection();

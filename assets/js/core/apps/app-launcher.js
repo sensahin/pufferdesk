@@ -114,7 +114,8 @@
 				openApp,
 				openDocument,
 				openFolder,
-				renderFolderWindow
+				renderFolderWindow,
+				startFolderRename: startInlineRenameFolderItem
 			})
 			: null;
 		const folderRenderer = window.PufferDesk.apps.createFolderRenderer
@@ -826,6 +827,216 @@
 				}
 
 				launcherRenderer.clearSelection(pane);
+			});
+		}
+
+		function isTextEditingTarget(target) {
+			return Boolean(target && typeof target.closest === 'function' && target.closest('input, textarea, select, [contenteditable="true"], [contenteditable="plaintext-only"], [role="textbox"]'));
+		}
+
+		function findFolderItemRenameButton(folderId, options = {}) {
+			const explicit = options.buttonElement || options.targetElement || null;
+			const explicitButton = explicit && typeof explicit.closest === 'function'
+				? explicit.closest('.pdk-folder-launcher')
+				: explicit;
+			if (
+				explicitButton
+				&& explicitButton.matches
+				&& explicitButton.matches(`.pdk-folder-launcher[data-pdk-context-id="${dom.escapeAttribute(folderId)}"]`)
+			) {
+				return explicitButton;
+			}
+
+			const root = options.windowElement && options.windowElement.querySelector
+				? options.windowElement
+				: shell;
+
+			return root && root.querySelector
+				? root.querySelector(`.pdk-folder-launcher[data-pdk-context-id="${dom.escapeAttribute(folderId)}"]`)
+				: null;
+		}
+
+		function startInlineRenameFolderItem(folderId, options = {}) {
+			const provider = getFolderProvider();
+			const button = findFolderItemRenameButton(folderId, options);
+			const win = options.windowElement || (button && button.closest ? button.closest('.pdk-window') : null);
+			const label = button ? button.querySelector('.pdk-app-launcher-label') : null;
+			const folder = getFolder(folderId);
+
+			if (
+				!provider
+				|| typeof provider.renameFolder !== 'function'
+				|| typeof provider.isUserFolder !== 'function'
+				|| !provider.isUserFolder(folderId)
+				|| !button
+				|| !win
+				|| !label
+				|| button.dataset.pdkInlineRename === '1'
+				|| label.dataset.pdkInlineRename === '1'
+			) {
+				return false;
+			}
+
+			const originalLabel = (dom.getFullLabel && dom.getFullLabel(label))
+				|| button.dataset.pdkContextLabel
+				|| (folder && folder.label ? folder.label : getMenuLabel('folder'));
+			let finished = false;
+			let blurRefocusTimer = 0;
+
+			function cleanup() {
+				window.clearTimeout(blurRefocusTimer);
+				label.removeEventListener('blur', onBlur);
+				label.removeEventListener('keydown', onKeyDown);
+				label.removeEventListener('click', stopEditingEvent);
+				label.removeEventListener('pointerdown', stopEditingEvent);
+				document.removeEventListener('pointerdown', onDocumentPointerDown, true);
+				label.removeAttribute('contenteditable');
+				label.removeAttribute('spellcheck');
+				delete button.dataset.pdkInlineRename;
+				delete label.dataset.pdkInlineRename;
+				button.classList.remove('is-renaming');
+			}
+
+			function restoreLabel(text) {
+				if (dom.setTruncatedLabelText) {
+					dom.setTruncatedLabelText(label, text);
+				} else {
+					label.textContent = text;
+				}
+				button.dataset.pdkContextLabel = text;
+				button.setAttribute('aria-label', text);
+			}
+
+			function finish(commit) {
+				if (finished) {
+					return;
+				}
+
+				finished = true;
+				const nextLabel = String(label.textContent || '').trim();
+				cleanup();
+
+				if (commit) {
+					const renamed = provider.renameFolder(folderId, nextLabel || originalLabel);
+					const renamedLabel = renamed && renamed.label ? renamed.label : nextLabel || originalLabel;
+					if (button.isConnected && label.isConnected) {
+						restoreLabel(renamedLabel);
+					}
+					if (win && win.dataset && win.dataset.pdkFolderWindow) {
+						refreshFolderWindow(win.dataset.pdkFolderWindow);
+					}
+				} else if (button.isConnected && label.isConnected) {
+					restoreLabel(originalLabel);
+				}
+			}
+
+			function stopEditingEvent(event) {
+				event.stopPropagation();
+			}
+
+			function onBlur() {
+				window.clearTimeout(blurRefocusTimer);
+				blurRefocusTimer = window.setTimeout(() => {
+					blurRefocusTimer = 0;
+					if (finished) {
+						return;
+					}
+					if (!button.isConnected || !label.isConnected) {
+						finish(true);
+						return;
+					}
+					if (document.activeElement === label || label.contains(document.activeElement)) {
+						return;
+					}
+					label.focus({ preventScroll: true });
+				}, 0);
+			}
+
+			function onDocumentPointerDown(event) {
+				if (finished || (event.target && label.contains(event.target))) {
+					return;
+				}
+
+				finish(true);
+			}
+
+			function onKeyDown(event) {
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					finish(true);
+				} else if (event.key === 'Escape') {
+					event.preventDefault();
+					finish(false);
+				} else if (event.key === 'Tab') {
+					finish(true);
+				}
+			}
+
+			if (launcherRenderer && typeof launcherRenderer.selectItem === 'function') {
+				launcherRenderer.selectItem(button);
+			}
+			button.classList.add('is-renaming');
+			button.dataset.pdkInlineRename = '1';
+			label.dataset.pdkInlineRename = '1';
+			if (dom.setEditableLabelText) {
+				dom.setEditableLabelText(label, originalLabel);
+			} else {
+				label.textContent = originalLabel;
+			}
+			label.setAttribute('contenteditable', 'plaintext-only');
+			label.setAttribute('spellcheck', 'false');
+			label.addEventListener('blur', onBlur);
+			label.addEventListener('keydown', onKeyDown);
+			label.addEventListener('click', stopEditingEvent);
+			label.addEventListener('pointerdown', stopEditingEvent);
+			document.addEventListener('pointerdown', onDocumentPointerDown, true);
+			label.focus({ preventScroll: true });
+
+			const selection = window.getSelection();
+			const range = document.createRange();
+			range.selectNodeContents(label);
+			if (selection) {
+				selection.removeAllRanges();
+				selection.addRange(range);
+			}
+
+			return true;
+		}
+
+		function bindFolderPaneKeyboard(pane, folderId, win) {
+			if (!pane || pane.dataset.pdkFolderKeyboardBound === '1') {
+				return;
+			}
+
+			pane.dataset.pdkFolderKeyboardBound = '1';
+			pane.addEventListener('keydown', (event) => {
+				if (
+					event.defaultPrevented
+					|| event.key !== 'Enter'
+					|| event.altKey
+					|| event.ctrlKey
+					|| event.metaKey
+					|| event.shiftKey
+					|| isTextEditingTarget(event.target)
+				) {
+					return;
+				}
+
+				const button = event.target && typeof event.target.closest === 'function'
+					? event.target.closest('.pdk-folder-launcher')
+					: null;
+				if (!button || !pane.contains(button) || !button.classList.contains('is-selected')) {
+					return;
+				}
+
+				if (startInlineRenameFolderItem(button.dataset.pdkContextId || button.dataset.pdkOpenFolder || '', {
+					buttonElement: button,
+					parentFolderId: folderId,
+					windowElement: win
+				})) {
+					event.preventDefault();
+					event.stopPropagation();
+				}
 			});
 		}
 
@@ -2997,6 +3208,7 @@
 
 			applyFolderPaneContext(pane, folderId, folder);
 			bindFolderPaneSelectionClear(pane);
+			bindFolderPaneKeyboard(pane, folderId, win);
 			bindFolderPaneItemDrag(pane, folderId);
 			header.dataset.pdkContext = contextTargets.FOLDER_TOOLBAR || 'folder-toolbar';
 			header.dataset.pdkContextId = folderId;
@@ -3046,6 +3258,7 @@
 
 			applyFolderPaneContext(pane, folderId, folder);
 			bindFolderPaneSelectionClear(pane);
+			bindFolderPaneKeyboard(pane, folderId, win);
 			bindFolderPaneItemDrag(pane, folderId);
 			pane.dataset.pdkFolderViewMode = getExplorerViewMode(win);
 			pane.dataset.pdkExplorerViewMode = getExplorerViewMode(win);
@@ -3597,6 +3810,7 @@
 				setFolderProvider(provider) {
 					folderProvider = provider && typeof provider === 'object' ? provider : null;
 				},
+				startInlineRenameFolderItem,
 			runSearch
 		};
 	};

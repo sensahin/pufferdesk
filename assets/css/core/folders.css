@@ -709,6 +709,16 @@
 	display: none;
 }
 
+.pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher.is-renaming > .pdk-truncated-label {
+	max-width: min(256px, calc(100vw - 48px));
+	white-space: normal;
+	width: max-content;
+}
+
+.pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher.is-renaming > .pdk-truncated-label::before {
+	content: none;
+}
+
 .pdk-folder-body .pdk-finder-trash-grid {
 	grid-template-columns: repeat(auto-fill, minmax(74px, 92px));
 	gap: 22px 20px;

@@ -11,6 +11,7 @@
 		const openDocument = typeof options.openDocument === 'function' ? options.openDocument : () => null;
 		const openFolder = typeof options.openFolder === 'function' ? options.openFolder : () => null;
 		const renderFolderWindow = typeof options.renderFolderWindow === 'function' ? options.renderFolderWindow : () => false;
+		const startFolderRename = typeof options.startFolderRename === 'function' ? options.startFolderRename : () => false;
 		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 		const contextTargets = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
 			? window.PufferDesk.shell.contextMenuConstants.targets || {}
@@ -173,6 +174,29 @@
 					renderFolderWindow(win, folder.id);
 				} else {
 					openFolder(folder.id);
+				}
+			});
+			button.addEventListener('keydown', (event) => {
+				if (
+					event.defaultPrevented
+					|| event.key !== 'Enter'
+					|| event.altKey
+					|| event.ctrlKey
+					|| event.metaKey
+					|| event.shiftKey
+					|| button.dataset.pdkInlineRename === '1'
+					|| !button.classList.contains('is-selected')
+				) {
+					return;
+				}
+
+				if (startFolderRename(folder.id, {
+					buttonElement: button,
+					parentFolderId,
+					windowElement: win
+				})) {
+					event.preventDefault();
+					event.stopPropagation();
 				}
 			});
 			button.addEventListener('contextmenu', () => {

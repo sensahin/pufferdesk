@@ -312,3 +312,19 @@
 .pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher > .pdk-truncated-label > .pdk-truncated-label-line {
 	display: none;
 }
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher.is-renaming > .pdk-truncated-label,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher.is-renaming > .pdk-truncated-label,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher.is-renaming > .pdk-truncated-label,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher.is-renaming > .pdk-truncated-label {
+	max-width: min(256px, calc(100vw - 48px));
+	white-space: normal;
+	width: max-content;
+}
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher.is-renaming > .pdk-truncated-label::before,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher.is-renaming > .pdk-truncated-label::before,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher.is-renaming > .pdk-truncated-label::before,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher.is-renaming > .pdk-truncated-label::before {
+	content: none;
+}

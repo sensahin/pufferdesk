@@ -983,6 +983,22 @@
 			},
 			run(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
+				const folderItemTarget = detail && detail.targetElement && typeof detail.targetElement.closest === 'function'
+					? detail.targetElement.closest('.pdk-folder-launcher')
+					: null;
+				if (
+					folderItemTarget
+					&& launcher
+					&& typeof launcher.startInlineRenameFolderItem === 'function'
+					&& launcher.startInlineRenameFolderItem(folderId, {
+						parentFolderId: detail && detail.folderId ? detail.folderId : '',
+						targetElement: folderItemTarget,
+						windowElement: getTargetWindow(detail)
+					})
+				) {
+					return;
+				}
+
 				folderManager.startInlineRename(folderId);
 			}
 		});
