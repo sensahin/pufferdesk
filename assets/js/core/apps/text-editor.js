@@ -20,7 +20,64 @@
 		return button;
 	}
 
+	function getEditorRootFromDetail(detail = {}) {
+		const target = detail.eventTarget || null;
+
+		if (target && typeof target.closest === 'function') {
+			const targetRoot = target.closest('.pdk-document-editor');
+			if (targetRoot) {
+				return targetRoot;
+			}
+		}
+
+		if (detail.windowElement && typeof detail.windowElement.querySelector === 'function') {
+			return detail.windowElement.querySelector('.pdk-document-editor');
+		}
+
+		const activeElement = document.activeElement;
+		return activeElement && typeof activeElement.closest === 'function'
+			? activeElement.closest('.pdk-document-editor')
+			: null;
+	}
+
+	function registerTextEditorCommands() {
+		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
+		const commands = window.PufferDesk.menuCommands || null;
+
+		if (!commandIds.DOCUMENT_SAVE || !commands || typeof commands.register !== 'function') {
+			return false;
+		}
+
+		commands.register(commandIds.DOCUMENT_SAVE, {
+			isEnabled(payload, detail) {
+				const root = getEditorRootFromDetail(detail);
+
+				return Boolean(root && root.pufferDeskTextEditor && typeof root.pufferDeskTextEditor.save === 'function');
+			},
+			run(payload, detail) {
+				const root = getEditorRootFromDetail(detail);
+
+				if (root && root.pufferDeskTextEditor && typeof root.pufferDeskTextEditor.save === 'function') {
+					return root.pufferDeskTextEditor.save();
+				}
+
+				return false;
+			}
+		});
+
+		return true;
+	}
+
+	if (!registerTextEditorCommands() && window.PufferDesk.events && typeof window.PufferDesk.events.on === 'function') {
+		const eventNames = window.PufferDesk.events.names || {};
+		if (eventNames.DESKTOP_READY) {
+			window.PufferDesk.events.on(eventNames.DESKTOP_READY, registerTextEditorCommands);
+		}
+	}
+
 	window.PufferDesk.apps.createTextEditorApp = function createTextEditorApp(context = {}) {
+		registerTextEditorCommands();
+
 		const config = context.config || (window.PufferDesk.config ? window.PufferDesk.config.get() : {});
 		const labels = getLabels(config);
 		const documentStore = context.documentStore || (window.PufferDesk.documents ? window.PufferDesk.documents.createDocumentStore(config) : null);
@@ -207,6 +264,9 @@
 		}
 
 		root.className = 'pdk-document-editor';
+		root.pufferDeskTextEditor = {
+			save: saveDocument
+		};
 		sidebar.className = 'pdk-document-editor-sidebar';
 		list.className = 'pdk-document-editor-list';
 		main.className = 'pdk-document-editor-main';
@@ -232,15 +292,6 @@
 		});
 		saveButton.addEventListener('click', saveDocument);
 		deleteButton.addEventListener('click', deleteCurrentDocument);
-		root.addEventListener('keydown', (event) => {
-			const isSaveShortcut = (event.metaKey || event.ctrlKey) && String(event.key || '').toLowerCase() === 's';
-			if (!isSaveShortcut) {
-				return;
-			}
-
-			event.preventDefault();
-			saveDocument();
-		});
 
 		loadDocuments();
 

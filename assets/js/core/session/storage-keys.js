@@ -44,6 +44,11 @@
 
 			return `${base}${getValue('reopenSkipSuffix')}`;
 		},
+		getShortcutCustomKey(storageKey) {
+			const base = storageKey || getValue('reopenFallbackBase');
+
+			return `${base}${getValue('shortcutCustomSuffix')}`;
+		},
 		getWallpaperMenuContrastKey(preferenceKey, currentUrl = '') {
 			return `${getValue('wallpaperMenuContrastPrefix')}${preferenceKey || ''}${getValue('workspaceStorageSeparator')}${currentUrl || ''}`;
 		},

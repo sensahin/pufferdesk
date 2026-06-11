@@ -15,6 +15,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/css/core/windows.css
 - assets/css/core/documents.css
 - assets/css/core/apps.css
+- assets/css/core/shortcuts.css
 - assets/css/core/folders.css
 - assets/css/core/about.css
 - assets/css/core/settings.css
@@ -115,6 +116,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/apps/app-launcher.js
 - assets/js/core/shell/search.js
 - assets/js/core/shell/dialogs.js
+- assets/js/core/apps/keyboard-shortcuts.js
 - assets/js/core/shell/commands.js
 - assets/js/core/shell/menu-schema.js
 - assets/js/core/shell/menu-renderer.js

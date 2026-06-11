@@ -133,6 +133,10 @@
 				: '';
 		}
 
+		function getSearchInput() {
+			return shell.querySelector('[data-pdk-search]');
+		}
+
 		function getTargetWindow(detail = activeDetail) {
 			if (detail && detail.windowless === true) {
 				return null;
@@ -1244,6 +1248,38 @@
 			}
 		});
 
+		register(commandIds.HELP_KEYBOARD_SHORTCUTS, {
+			isEnabled() {
+				return Boolean(
+					manager
+					&& typeof manager.createWindow === 'function'
+					&& window.PufferDesk.apps
+					&& typeof window.PufferDesk.apps.createKeyboardShortcutsApp === 'function'
+				);
+			},
+			run() {
+				const title = getLabel('keyboard_shortcuts', 'Keyboard Shortcuts');
+				const modalWidth = Math.max(480, Math.min(640, window.innerWidth - 280));
+				const modalHeight = Math.max(420, Math.min(500, window.innerHeight - 220));
+
+				manager.createWindow({
+					appId: 'keyboard-shortcuts',
+					bodyClass: 'pdk-window-body pdk-keyboard-shortcuts-body',
+					centered: true,
+					contextMenu: false,
+					content: window.PufferDesk.apps.createKeyboardShortcutsApp({ config }),
+					height: `${Math.round(modalHeight)}px`,
+					icon: 'dashicons-keyboard',
+					persist: false,
+					resizeMode: 'both',
+					title,
+					titlebarLabel: title,
+					width: `${Math.round(modalWidth)}px`,
+					windowKind: 'help'
+				});
+			}
+		});
+
 		register(commandIds.SETTINGS_OPEN_PANEL, {
 			isEnabled(payload) {
 				return Boolean(launcher && typeof launcher.openSettingsPanel === 'function' && payload.panel);
@@ -1355,6 +1391,22 @@
 				return logOut({
 					target: payload.target || payload.url || config.logoutUrl
 				}, 'lock');
+			}
+		});
+
+		register(commandIds.SHELL_FOCUS_SEARCH, {
+			isEnabled() {
+				return Boolean(getSearchInput());
+			},
+			run() {
+				const input = getSearchInput();
+
+				if (input) {
+					input.focus();
+					if (typeof input.select === 'function') {
+						input.select();
+					}
+				}
 			}
 		});
 

@@ -158,6 +158,12 @@
 			return typeof menuLabels[key] === 'string' && menuLabels[key] ? menuLabels[key] : (fallback || key);
 		}
 
+		function shortcut(combo, shortcutOptions = {}) {
+			return Object.assign({
+				combo
+			}, shortcutOptions);
+		}
+
 		function getInfoPanelLabels() {
 			const infoPanel = config.infoPanel && typeof config.infoPanel === 'object' ? config.infoPanel : {};
 
@@ -1799,7 +1805,7 @@
 					explorerMenuSeparator(),
 					explorerMenuItem(getMenuLabel('properties'), commandIds.FOLDER_GET_INFO, {
 						icon: 'dashicons-info-outline',
-						shortcut: 'Alt+Enter',
+						shortcut: shortcut('secondary+enter'),
 						target: folderId
 					}),
 					disabledExplorerMenuItem(getMenuLabel('show_more_options'), {

@@ -53,6 +53,10 @@
 			"path": "assets/css/core/apps.css"
 		},
 		{
+			"handle": "pufferdesk-core-shortcuts",
+			"path": "assets/css/core/shortcuts.css"
+		},
+		{
 			"handle": "pufferdesk-core-folders",
 			"path": "assets/css/core/folders.css"
 		},
@@ -860,11 +864,17 @@
 			]
 		},
 		{
+			"handle": "pufferdesk-keyboard-shortcuts-app",
+			"path": "assets/js/core/apps/keyboard-shortcuts.js",
+			"deps": []
+		},
+		{
 			"handle": "pufferdesk-menu-commands",
 			"path": "assets/js/core/shell/commands.js",
 			"deps": [
 				"pufferdesk-config",
 				"pufferdesk-dom",
+				"pufferdesk-keyboard-shortcuts-app",
 				"pufferdesk-app-ids",
 				"pufferdesk-command-ids",
 				"pufferdesk-event-names",
@@ -973,6 +983,9 @@
 			"path": "assets/js/core/shell/shortcuts.js",
 			"deps": [
 				"pufferdesk-event-names",
+				"pufferdesk-app-ids",
+				"pufferdesk-context-menu-constants",
+				"pufferdesk-storage-keys",
 				"pufferdesk-menu-commands",
 				"pufferdesk-menu"
 			]

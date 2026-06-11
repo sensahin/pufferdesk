@@ -22,6 +22,7 @@ final class PufferDesk_Command_Ids {
 	const DESKTOP_SORT_ICONS            = 'desktop.sort-icons';
 	const DOCUMENT_NEW_STICKY_NOTE      = 'document.new-sticky-note';
 	const DOCUMENT_OPEN                 = 'document.open';
+	const DOCUMENT_SAVE                 = 'document.save';
 	const FOLDER_ADD_APP                = 'folder.add-app';
 	const FOLDER_CREATE                 = 'folder.create';
 	const FOLDER_DELETE                 = 'folder.delete';
@@ -38,6 +39,7 @@ final class PufferDesk_Command_Ids {
 	const FOLDER_TAB_CLOSE_RIGHT        = 'folder-tab.close-right';
 	const FOLDER_TAB_DUPLICATE          = 'folder-tab.duplicate';
 	const FOLDER_TOOLBAR_DISPLAY        = 'folder.toolbar-display';
+	const HELP_KEYBOARD_SHORTCUTS       = 'help.keyboard-shortcuts';
 	const NAVIGATE_URL                  = 'navigate-url';
 	const NOOP                          = 'noop';
 	const OPEN_ABOUT                    = 'open-about';
@@ -52,6 +54,7 @@ final class PufferDesk_Command_Ids {
 	const SESSION_RESET_LAYOUT          = 'session.reset-layout';
 	const SETTINGS_OPEN_PANEL           = 'settings.open-panel';
 	const SHELL_LOCK                    = 'shell.lock';
+	const SHELL_FOCUS_SEARCH            = 'shell.focus-search';
 	const SHELL_RESTART                 = 'shell.restart';
 	const SHELL_SHUTDOWN                = 'shell.shutdown';
 	const SHELL_SLEEP                   = 'shell.sleep';

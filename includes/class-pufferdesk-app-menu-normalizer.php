@@ -124,13 +124,11 @@ final class PufferDesk_App_Menu_Normalizer {
 							'label'    => __( 'Hide System Settings', 'pufferdesk-admin-desktop' ),
 							'command'  => PufferDesk_Command_Ids::WINDOW_HIDE,
 							'icon'     => 'dashicons-hidden',
-							'shortcut' => '⌘H',
 						),
 						array(
 							'label'    => __( 'Hide Others', 'pufferdesk-admin-desktop' ),
 							'command'  => PufferDesk_Command_Ids::WINDOW_HIDE_OTHERS,
 							'icon'     => 'dashicons-excerpt-view',
-							'shortcut' => '⌥⌘H',
 						),
 						array(
 							'label'   => __( 'Show All', 'pufferdesk-admin-desktop' ),
@@ -142,7 +140,6 @@ final class PufferDesk_App_Menu_Normalizer {
 							'label'    => __( 'Quit System Settings', 'pufferdesk-admin-desktop' ),
 							'command'  => PufferDesk_Command_Ids::WINDOW_CLOSE,
 							'icon'     => 'dashicons-dismiss',
-							'shortcut' => '⌘Q',
 						),
 					),
 				),
@@ -389,8 +386,14 @@ final class PufferDesk_App_Menu_Normalizer {
 			$normalized['keyLabel'] = sanitize_text_field( $shortcut['keyLabel'] );
 		}
 
+		foreach ( array( 'combo', 'macCombo', 'winCombo', 'linuxCombo' ) as $combo_key ) {
+			if ( ! empty( $shortcut[ $combo_key ] ) && is_string( $shortcut[ $combo_key ] ) ) {
+				$normalized[ $combo_key ] = sanitize_text_field( $shortcut[ $combo_key ] );
+			}
+		}
+
 		if ( ! empty( $shortcut['modifiers'] ) && is_array( $shortcut['modifiers'] ) ) {
-			$allowed_modifiers = array( 'alt', 'ctrl', 'meta', 'shift' );
+			$allowed_modifiers = array( 'alt', 'ctrl', 'meta', 'primary', 'secondary', 'shift' );
 			$modifiers         = array();
 
 			foreach ( $shortcut['modifiers'] as $modifier ) {
@@ -405,6 +408,42 @@ final class PufferDesk_App_Menu_Normalizer {
 			}
 		}
 
+		if ( ! empty( $shortcut['keys'] ) && is_array( $shortcut['keys'] ) ) {
+			$keys = array();
+
+			foreach ( $shortcut['keys'] as $key ) {
+				if ( is_scalar( $key ) ) {
+					$key = sanitize_text_field( (string) $key );
+					if ( '' !== $key ) {
+						$keys[] = $key;
+					}
+				}
+			}
+
+			if ( ! empty( $keys ) ) {
+				$normalized['keys'] = $keys;
+			}
+		}
+
+		if ( ! empty( $shortcut['context'] ) && is_string( $shortcut['context'] ) ) {
+			$normalized['context'] = sanitize_key( $shortcut['context'] );
+		}
+
+		if ( ! empty( $shortcut['contexts'] ) && is_array( $shortcut['contexts'] ) ) {
+			$contexts = array();
+
+			foreach ( $shortcut['contexts'] as $context ) {
+				$context = sanitize_key( (string) $context );
+				if ( '' !== $context && ! in_array( $context, $contexts, true ) ) {
+					$contexts[] = $context;
+				}
+			}
+
+			if ( ! empty( $contexts ) ) {
+				$normalized['contexts'] = $contexts;
+			}
+		}
+
 		if ( ! empty( $shortcut['allowInTextFields'] ) ) {
 			$normalized['allowInTextFields'] = true;
 		}
@@ -413,7 +452,15 @@ final class PufferDesk_App_Menu_Normalizer {
 			$normalized['preventDefault'] = false;
 		}
 
-		return empty( $normalized['label'] ) && empty( $normalized['key'] ) ? '' : $normalized;
+		if ( ! empty( $shortcut['allowReserved'] ) ) {
+			$normalized['allowReserved'] = true;
+		}
+
+		if ( ! empty( $shortcut['reservedReason'] ) && is_string( $shortcut['reservedReason'] ) ) {
+			$normalized['reservedReason'] = sanitize_text_field( $shortcut['reservedReason'] );
+		}
+
+		return empty( $normalized['label'] ) && empty( $normalized['key'] ) && empty( $normalized['combo'] ) && empty( $normalized['keys'] ) ? '' : $normalized;
 	}
 
 	/**
@@ -444,12 +491,10 @@ final class PufferDesk_App_Menu_Normalizer {
 							$app_label
 						),
 						'command'  => PufferDesk_Command_Ids::WINDOW_HIDE,
-						'shortcut' => '⌘H',
 					),
 					array(
 						'label'    => __( 'Hide Others', 'pufferdesk-admin-desktop' ),
 						'command'  => PufferDesk_Command_Ids::WINDOW_HIDE_OTHERS,
-						'shortcut' => '⌥⌘H',
 					),
 					array(
 						'label'   => __( 'Show All', 'pufferdesk-admin-desktop' ),
@@ -463,7 +508,6 @@ final class PufferDesk_App_Menu_Normalizer {
 							$app_label
 						),
 						'command'  => PufferDesk_Command_Ids::WINDOW_CLOSE,
-						'shortcut' => '⌘Q',
 					),
 				),
 			),
@@ -489,7 +533,12 @@ final class PufferDesk_App_Menu_Normalizer {
 					array(
 						'label'    => __( 'Minimize', 'pufferdesk-admin-desktop' ),
 						'command'  => PufferDesk_Command_Ids::WINDOW_MINIMIZE,
-						'shortcut' => '⌘M',
+						'shortcut' => array(
+							'allowReserved'  => true,
+							'combo'          => 'primary+m',
+							'contexts'       => array( 'window' ),
+							'reservedReason' => __( 'Scoped to PufferDesk windows.', 'pufferdesk-admin-desktop' ),
+						),
 					),
 					array(
 						'label'   => __( 'Zoom', 'pufferdesk-admin-desktop' ),
@@ -498,7 +547,10 @@ final class PufferDesk_App_Menu_Normalizer {
 					array(
 						'label'    => __( 'Close', 'pufferdesk-admin-desktop' ),
 						'command'  => PufferDesk_Command_Ids::WINDOW_CLOSE,
-						'shortcut' => '⌘W',
+						'shortcut' => array(
+							'combo'    => 'primary+w',
+							'contexts' => array( 'window' ),
+						),
 					),
 				),
 			),

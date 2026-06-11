@@ -248,6 +248,9 @@
 		});
 		const shortcutController = window.PufferDesk.shell.createShortcutController(shell, {
 			commands,
+			config,
+			desktopIconManager,
+			manager,
 			menuController
 		});
 		const desktopApi = window.PufferDesk.api.createDesktopApi({

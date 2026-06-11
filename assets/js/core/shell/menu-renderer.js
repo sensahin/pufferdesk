@@ -35,6 +35,10 @@
 		}
 
 		function getShortcutLabel(shortcut) {
+			if (window.PufferDesk.shell && typeof window.PufferDesk.shell.formatShortcutLabel === 'function') {
+				return window.PufferDesk.shell.formatShortcutLabel(shortcut);
+			}
+
 			if (typeof shortcut === 'string') {
 				return shortcut;
 			}

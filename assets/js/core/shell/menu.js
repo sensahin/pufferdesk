@@ -128,6 +128,12 @@
 			return { type: 'separator' };
 		}
 
+		function shortcut(combo, options = {}) {
+			return Object.assign({
+				combo
+			}, options);
+		}
+
 		function getLabel(key, fallback) {
 			return typeof labels[key] === 'string' && labels[key] ? labels[key] : (fallback || key);
 		}
@@ -200,14 +206,18 @@
 			if (!isWindowDetail(detail) || isFolderWindowDetail(detail)) {
 				items.push(commandItem(getLabel('new_folder'), commandIds.FOLDER_CREATE, {
 					icon: 'dashicons-category',
-					shortcut: '⇧⌘N'
+					shortcut: shortcut('primary+secondary+n', {
+						contexts: ['desktop', 'folder']
+					})
 				}));
 			}
 
 			if (folderId) {
 				items.push(commandItem(getLabel('get_info'), commandIds.FOLDER_GET_INFO, {
 					icon: 'dashicons-info-outline',
-					shortcut: '⌘I',
+					shortcut: shortcut('secondary+enter', {
+						contexts: ['folder']
+					}),
 					target: folderId
 				}));
 			}
@@ -226,7 +236,9 @@
 
 				items.push(commandItem(getLabel('close_window'), commandIds.WINDOW_CLOSE, {
 					icon: 'dashicons-dismiss',
-					shortcut: '⌘W'
+					shortcut: shortcut('primary+w', {
+						contexts: ['window']
+					})
 				}));
 			}
 
@@ -242,20 +254,26 @@
 
 		function getEditItems() {
 			return [
-				{ disabled: true, label: getLabel('undo'), shortcut: '⌘Z' },
-				{ disabled: true, label: getLabel('redo'), shortcut: '⇧⌘Z' },
+				{ disabled: true, label: getLabel('undo'), shortcut: shortcut('primary+z') },
+				{ disabled: true, label: getLabel('redo'), shortcut: shortcut('primary+shift+z') },
 				separator(),
 				commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
-					shortcut: '⌘X'
+					shortcut: shortcut('primary+x', {
+						contexts: ['desktop', 'folder']
+					})
 				}),
 				commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
-					shortcut: '⌘C'
+					shortcut: shortcut('primary+c', {
+						contexts: ['desktop', 'folder']
+					})
 				}),
 				commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
-					shortcut: '⌘V'
+					shortcut: shortcut('primary+v', {
+						contexts: ['desktop', 'folder']
+					})
 				}),
 				separator(),
-				{ disabled: true, label: getLabel('select_all'), shortcut: '⌘A' }
+				{ disabled: true, label: getLabel('select_all'), shortcut: shortcut('primary+a') }
 			];
 		}
 
@@ -311,8 +329,7 @@
 
 			return [
 				commandItem(getLabel('reload_page'), commandIds.WINDOW_RELOAD, {
-					icon: 'dashicons-update',
-					shortcut: '⌘R'
+					icon: 'dashicons-update'
 				}),
 				separator(),
 				commandItem(getLabel('zoom'), commandIds.WINDOW_TOGGLE_MAXIMIZE, {
@@ -355,12 +372,10 @@
 			if (isWindowDetail(detail) && !isFolderDetail(detail)) {
 				items.push(
 					commandItem(getLabel('back'), commandIds.WINDOW_HISTORY_BACK, {
-						icon: 'dashicons-arrow-left-alt2',
-						shortcut: '⌘['
+						icon: 'dashicons-arrow-left-alt2'
 					}),
 					commandItem(getLabel('forward'), commandIds.WINDOW_HISTORY_FORWARD, {
-						icon: 'dashicons-arrow-right-alt2',
-						shortcut: '⌘]'
+						icon: 'dashicons-arrow-right-alt2'
 					}),
 					separator()
 				);
@@ -393,14 +408,20 @@
 					? [
 						commandItem(getLabel('window_minimize'), commandIds.WINDOW_MINIMIZE, {
 							icon: 'dashicons-minus',
-							shortcut: '⌘M'
+							shortcut: shortcut('primary+m', {
+								allowReserved: true,
+								contexts: ['window'],
+								reservedReason: 'Scoped to PufferDesk windows.'
+							})
 						}),
 						commandItem(getLabel('zoom'), commandIds.WINDOW_TOGGLE_MAXIMIZE, {
 							icon: 'dashicons-fullscreen-alt'
 						}),
 						commandItem(getLabel('window_close'), commandIds.WINDOW_CLOSE, {
 							icon: 'dashicons-dismiss',
-							shortcut: '⌘W'
+							shortcut: shortcut('primary+w', {
+								contexts: ['window']
+							})
 						})
 					]
 					: [
@@ -423,6 +444,10 @@
 				commandItem(getLabel('about_this_site'), commandIds.OPEN_SITE_ABOUT, {
 					icon: 'dashicons-info-outline'
 				}),
+				commandItem(getLabel('keyboard_shortcuts', 'Keyboard Shortcuts'), commandIds.HELP_KEYBOARD_SHORTCUTS, {
+					icon: 'dashicons-keyboard'
+				}),
+				separator(),
 				commandItem(getLabel('wordpress_documentation'), commandIds.OPEN_EXTERNAL_URL, {
 					icon: 'dashicons-editor-help',
 					url: 'https://wordpress.org/documentation/'
@@ -1225,6 +1250,9 @@
 			bind,
 			closePopover,
 			commands,
+			getActiveDetail() {
+				return Object.assign({}, activeDetail || { kind: 'desktop' });
+			},
 			getMenuDefinition,
 			render
 		};

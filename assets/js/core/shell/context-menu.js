@@ -42,6 +42,12 @@
 			}, options);
 		}
 
+		function shortcut(combo, options = {}) {
+			return Object.assign({
+				combo
+			}, options);
+		}
+
 		function getLabel(key, fallback) {
 			return typeof labels[key] === 'string' && labels[key] ? labels[key] : (fallback || key);
 		}
@@ -84,14 +90,14 @@
 					hideWhenUnavailable: true,
 					icon: 'dashicons-admin-page',
 					id: 'cut',
-					shortcut: options.shortcutLabels === false ? '' : '⌘X'
+					shortcut: options.shortcutLabels === false ? '' : shortcut('primary+x')
 				}));
 			}
 			if (includeCopy) {
 				items.push(commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
 					icon: 'dashicons-clipboard',
 					id: 'copy',
-					shortcut: options.shortcutLabels === false ? '' : '⌘C'
+					shortcut: options.shortcutLabels === false ? '' : shortcut('primary+c')
 				}));
 			}
 			if (includePaste) {
@@ -99,7 +105,7 @@
 					hideWhenUnavailable: true,
 					icon: 'dashicons-admin-page',
 					id: 'paste',
-					shortcut: options.shortcutLabels === false ? '' : '⌘V'
+					shortcut: options.shortcutLabels === false ? '' : shortcut('primary+v')
 				}));
 			}
 
@@ -273,7 +279,7 @@
 								hideWhenUnavailable: true,
 								icon: 'dashicons-admin-page',
 								id: 'desktop-paste',
-								shortcut: '⌘V'
+								shortcut: shortcut('primary+v')
 							}),
 							separator(),
 							{
@@ -405,7 +411,7 @@
 			return folderMenuOptions
 				? folderMenuOptions.getFolderContentItems(folderId, {
 					infoLabel: isFileExplorerSurface() ? getLabel('properties') : getLabel('get_info'),
-					infoShortcut: isFileExplorerSurface() ? 'Alt+Enter' : '',
+					infoShortcut: isFileExplorerSurface() ? shortcut('secondary+enter') : '',
 					layout,
 					sortByLabel: isRedmondFamily() ? getLabel('sort_by_sentence') : getLabel('sort_by'),
 					sortMode: getFolderContentSortMode(detail),
@@ -523,7 +529,7 @@
 				commandItem(getLabel('properties'), commandIds.FOLDER_GET_INFO, {
 					icon: 'dashicons-admin-tools',
 					id: 'recycle-bin-properties',
-					shortcut: 'Alt+Enter',
+					shortcut: shortcut('secondary+enter'),
 					target: appIds.TRASH
 				}),
 				separator(),
@@ -687,7 +693,7 @@
 						hideWhenUnavailable: true,
 						icon: 'dashicons-admin-page',
 						id: 'paste',
-						shortcut: '⌘V'
+						shortcut: shortcut('primary+v')
 					}),
 					separator()
 				);
@@ -721,7 +727,7 @@
 					commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
 						icon: 'dashicons-clipboard',
 						id: 'copy',
-						shortcut: '⌘C'
+						shortcut: shortcut('primary+c')
 					})
 				);
 
@@ -730,7 +736,7 @@
 						hideWhenUnavailable: true,
 						icon: 'dashicons-admin-page',
 						id: 'cut',
-						shortcut: '⌘X'
+						shortcut: shortcut('primary+x')
 					}));
 				}
 
@@ -817,7 +823,7 @@
 			items.push(
 				commandItem(useExplorerMenu ? getLabel('properties') : getLabel('get_info'), commandIds.FOLDER_GET_INFO, {
 					icon: 'dashicons-info-outline',
-					shortcut: useExplorerMenu ? 'Alt+Enter' : '',
+					shortcut: useExplorerMenu ? shortcut('secondary+enter') : '',
 					target: folder.id
 				})
 			);
@@ -1030,7 +1036,7 @@
 								hideWhenUnavailable: true,
 								icon: 'dashicons-admin-page',
 								id: 'desktop-paste',
-								shortcut: '⌘V'
+								shortcut: shortcut('primary+v')
 							}),
 							separator(),
 							commandItem(getLabel('refresh'), commandIds.DESKTOP_REFRESH, {
@@ -1216,7 +1222,9 @@
 						items: [
 							commandItem(getLabel('close_tab'), commandIds.FOLDER_TAB_CLOSE, Object.assign({
 								icon: 'dashicons-no-alt',
-								shortcut: 'Ctrl+W'
+								shortcut: shortcut('primary+w', {
+									contexts: ['folder-tab']
+								})
 							}, payload)),
 							commandItem(getLabel('close_other_tabs'), commandIds.FOLDER_TAB_CLOSE_OTHERS, Object.assign({
 								disabled: tabDetails.tabCount <= 1
@@ -1286,7 +1294,9 @@
 								separator(),
 								commandItem(getLabel('window_close'), commandIds.WINDOW_CLOSE, {
 									icon: 'dashicons-no-alt',
-									shortcut: 'Alt+F4'
+									shortcut: shortcut('secondary+f4', {
+										contexts: ['window']
+									})
 								})
 							]
 						}

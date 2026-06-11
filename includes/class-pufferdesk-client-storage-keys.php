@@ -17,6 +17,7 @@ final class PufferDesk_Client_Storage_Keys {
 	const WORKSPACE_BROADCAST_PREFIX   = 'pufferDesk:workspace:';
 	const REOPEN_FALLBACK_BASE         = 'pufferdesk-admin-desktop';
 	const REOPEN_SKIP_SUFFIX           = ':skip-window-restore-once';
+	const SHORTCUT_CUSTOM_SUFFIX       = ':shortcuts:custom';
 	const WALLPAPER_MENU_CONTRAST_PREFIX = 'pufferDesk:wallpaper-menu-contrast:';
 
 	/**
@@ -45,6 +46,7 @@ final class PufferDesk_Client_Storage_Keys {
 			'workspaceBroadcastPrefix'    => self::WORKSPACE_BROADCAST_PREFIX,
 			'reopenFallbackBase'          => self::REOPEN_FALLBACK_BASE,
 			'reopenSkipSuffix'            => self::REOPEN_SKIP_SUFFIX,
+			'shortcutCustomSuffix'        => self::SHORTCUT_CUSTOM_SUFFIX,
 			'wallpaperMenuContrastPrefix' => self::WALLPAPER_MENU_CONTRAST_PREFIX,
 		);
 	}

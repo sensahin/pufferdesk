@@ -49,15 +49,28 @@
 
 			const normalized = {
 				allowInTextFields: shortcut.allowInTextFields === true,
+				allowReserved: shortcut.allowReserved === true,
+				combo: typeof shortcut.combo === 'string' ? shortcut.combo : '',
+				context: typeof shortcut.context === 'string' ? shortcut.context : '',
+				contexts: Array.isArray(shortcut.contexts)
+					? shortcut.contexts.filter((context) => typeof context === 'string')
+					: [],
 				key: typeof shortcut.key === 'string' ? shortcut.key : '',
 				label: typeof shortcut.label === 'string' ? shortcut.label : '',
+				linuxCombo: typeof shortcut.linuxCombo === 'string' ? shortcut.linuxCombo : '',
+				macCombo: typeof shortcut.macCombo === 'string' ? shortcut.macCombo : '',
 				modifiers: Array.isArray(shortcut.modifiers)
 					? shortcut.modifiers.filter((modifier) => typeof modifier === 'string')
 					: [],
-				preventDefault: shortcut.preventDefault !== false
+				keys: Array.isArray(shortcut.keys)
+					? shortcut.keys.filter((key) => typeof key === 'string')
+					: [],
+				preventDefault: shortcut.preventDefault !== false,
+				reservedReason: typeof shortcut.reservedReason === 'string' ? shortcut.reservedReason : '',
+				winCombo: typeof shortcut.winCombo === 'string' ? shortcut.winCombo : ''
 			};
 
-			return normalized.key || normalized.label ? normalized : '';
+			return normalized.key || normalized.label || normalized.combo || normalized.keys.length ? normalized : '';
 		}
 
 		function normalizeCommandItem(item) {
