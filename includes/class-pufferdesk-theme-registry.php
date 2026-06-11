@@ -445,8 +445,8 @@ final class PufferDesk_Theme_Registry {
 					'sheen_opacity'    => '0.56',
 				),
 				'settings_surface' => array(
-					'window_bg'                  => 'transparent',
-					'body_bg'                    => 'transparent',
+					'window_bg'                  => 'rgb(248, 250, 252)',
+					'body_bg'                    => 'rgb(248, 250, 252)',
 					'main_bg'                    => 'rgb(255, 255, 255)',
 					'card_bg'                    => 'rgb(247, 247, 247)',
 					'card_border'                => 'var(--pdk-divider-soft)',
@@ -517,8 +517,8 @@ final class PufferDesk_Theme_Registry {
 					'sheen_opacity'    => '0.42',
 				),
 				'settings_surface' => array(
-					'window_bg'                  => 'transparent',
-					'body_bg'                    => 'transparent',
+					'window_bg'                  => 'rgb(30, 30, 30)',
+					'body_bg'                    => 'rgb(30, 30, 30)',
 					'main_bg'                    => 'rgb(30, 30, 30)',
 					'card_bg'                    => 'rgb(37, 37, 37)',
 					'card_border'                => 'var(--pdk-divider-soft)',

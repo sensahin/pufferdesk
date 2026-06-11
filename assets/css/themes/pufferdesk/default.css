@@ -1399,13 +1399,22 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-body {
-	background: var(--pdk-settings-body-bg, var(--pdk-panel));
+	background: var(--pdk-settings-body-bg, var(--pdk-settings-window-bg, var(--pdk-panel)));
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-window-body,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-window-body,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-folder-body,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-folder-content {
+	background: var(--pdk-settings-window-bg, var(--pdk-settings-main-bg, var(--pdk-panel)));
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] {
 	--pdk-settings-main-edge: 8px;
-	--pdk-settings-sidebar-gap: 4px;
+	--pdk-settings-sidebar-gap: 0px;
 	--pdk-settings-sidebar-inset: 10px;
+	--pdk-settings-sidebar-panel-radius: 18px;
 	-webkit-backdrop-filter: none;
 	backdrop-filter: none;
 	background: var(--pdk-settings-window-bg, var(--pdk-panel));
@@ -1417,8 +1426,9 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] {
 	--pdk-settings-main-edge: 8px;
-	--pdk-settings-sidebar-gap: 4px;
+	--pdk-settings-sidebar-gap: 0px;
 	--pdk-settings-sidebar-inset: 10px;
+	--pdk-settings-sidebar-panel-radius: 16px;
 	--pdk-settings-sidebar-width: 176px;
 	-webkit-backdrop-filter: none;
 	backdrop-filter: none;
@@ -1428,7 +1438,6 @@
 	min-width: 640px;
 }
 
-/* Keep the glass sidebar out of transform animation so backdrop sampling is ready before reveal. */
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"].is-opening,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"].is-opening {
 	animation: pdk-pufferdesk-settings-window-open 160ms ease-out both;
@@ -1500,47 +1509,25 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-sidebar {
-	-webkit-backdrop-filter: var(--pdk-settings-sidebar-filter, blur(8px) saturate(70%) brightness(1.02) contrast(0.94));
-	backdrop-filter: var(--pdk-settings-sidebar-filter, blur(8px) saturate(70%) brightness(1.02) contrast(0.94));
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
 	background: var(--pdk-settings-sidebar-bg, rgba(246, 248, 251, 0.94));
 	border: 1px solid var(--pdk-settings-sidebar-border, var(--pdk-divider));
-	border-radius: var(--pdk-settings-sidebar-panel-radius, 22px);
-	box-shadow:
-		var(--pdk-settings-sidebar-shadow, none),
-		0 0 0 9999px var(--pdk-settings-main-bg, var(--pdk-panel));
-	isolation: isolate;
-	margin: var(--pdk-settings-sidebar-inset) var(--pdk-settings-sidebar-gap) var(--pdk-settings-sidebar-inset) var(--pdk-settings-sidebar-inset);
+	border-radius: var(--pdk-settings-sidebar-panel-radius, 18px);
+	box-shadow: none;
+	isolation: auto;
+	margin: var(--pdk-settings-sidebar-inset) 0 var(--pdk-settings-sidebar-inset) var(--pdk-settings-sidebar-inset);
 	overflow-x: hidden;
 	position: relative;
-	z-index: 0;
+	z-index: 1;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-sidebar::before {
-	-webkit-mask-image: var(--pdk-settings-sidebar-reflection-mask, none);
-	background: var(--pdk-wallpaper-image);
-	background-attachment: fixed;
-	background-position: var(--pdk-wallpaper-position);
-	background-repeat: var(--pdk-wallpaper-repeat);
-	background-size: var(--pdk-wallpaper-size);
-	border-radius: inherit;
-	content: "";
-	filter: var(--pdk-settings-sidebar-reflection-filter, none);
-	inset: 0;
-	mask-image: var(--pdk-settings-sidebar-reflection-mask, none);
-	opacity: var(--pdk-settings-sidebar-reflection-opacity, 0);
-	pointer-events: none;
-	position: absolute;
-	z-index: 0;
+	display: none;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-sidebar::after {
-	background: var(--pdk-settings-sidebar-gloss, none);
-	border-radius: inherit;
-	content: "";
-	inset: 0;
-	pointer-events: none;
-	position: absolute;
-	z-index: 0;
+	display: none;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-settings-sidebar > *:not(.pdk-split-sidebar-drag-zone) {
@@ -1585,7 +1572,7 @@
 	bottom: 0;
 	content: "";
 	height: 1px;
-	left: calc((var(--pdk-settings-main-edge, 8px) + var(--pdk-settings-sidebar-gap, 4px)) * -1);
+	left: 0;
 	pointer-events: none;
 	position: absolute;
 	right: 0;
@@ -1923,7 +1910,7 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] .pdk-settings-body {
-	background: var(--pdk-settings-body-bg, var(--pdk-panel));
+	background: var(--pdk-settings-body-bg, var(--pdk-settings-window-bg, var(--pdk-panel)));
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-app-window="os-settings"] {
@@ -1935,12 +1922,12 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] .pdk-settings-sidebar {
-	background: var(--pdk-settings-sidebar-bg);
-	border-color: var(--pdk-settings-sidebar-border);
+	background: var(--pdk-settings-sidebar-bg, rgba(27, 27, 27, 0.98));
+	border-color: var(--pdk-settings-sidebar-border, var(--pdk-divider));
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] .pdk-settings-main {
-	background: var(--pdk-settings-main-bg);
+	background: var(--pdk-settings-main-bg, var(--pdk-panel));
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] .pdk-settings-search-field,
