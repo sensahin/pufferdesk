@@ -397,7 +397,7 @@
 			const icon = dom.createElement('span', 'pdk-app-icon');
 			icon.appendChild(dom.createIcon(folder.icon || getDefaultFolderIcon()));
 
-			const label = dom.createElement('span', 'pdk-desktop-app-label', folder.label);
+			const label = dom.createTruncatedLabel('pdk-desktop-app-label', folder.label);
 
 			button.append(icon, label);
 
@@ -1205,7 +1205,11 @@
 				if (commit) {
 					renameFolder(folderId, nextLabel || originalLabel);
 				} else {
-					label.textContent = originalLabel;
+					if (dom.setTruncatedLabelText) {
+						dom.setTruncatedLabelText(label, originalLabel);
+					} else {
+						label.textContent = originalLabel;
+					}
 				}
 			}
 
@@ -1230,6 +1234,11 @@
 			icon.classList.add('is-renaming');
 			icon.dataset.pdkSuppressClick = '1';
 			label.dataset.pdkInlineRename = '1';
+			if (dom.setEditableLabelText) {
+				dom.setEditableLabelText(label, originalLabel);
+			} else {
+				label.textContent = originalLabel;
+			}
 			label.setAttribute('contenteditable', 'plaintext-only');
 			label.setAttribute('spellcheck', 'false');
 			label.addEventListener('blur', onBlur);

@@ -29,6 +29,18 @@
 	transform: translateY(-1px);
 }
 
+.pdk-app-launcher-label {
+	box-sizing: border-box;
+	display: grid;
+	justify-items: center;
+	line-height: var(--pdk-line-height-caption);
+	max-height: calc(2.4em + 2px);
+	max-width: var(--pdk-folder-label-line-width, 15ch);
+	min-width: 0;
+	overflow: hidden;
+	width: max-content;
+}
+
 .pdk-app-icon {
 	border-radius: 16px;
 	height: 46px;

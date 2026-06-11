@@ -107,9 +107,7 @@
 			appIcon.className = 'pdk-app-icon';
 			appIcon.appendChild(dom.createIcon(app.icon));
 
-			const label = document.createElement('span');
-			label.className = 'pdk-app-launcher-label';
-			label.textContent = app.label;
+			const label = dom.createTruncatedLabel('pdk-app-launcher-label', app.label);
 
 			button.append(appIcon, label);
 			button.addEventListener('click', (event) => {
@@ -160,9 +158,7 @@
 			appIcon.className = 'pdk-app-icon';
 			appIcon.appendChild(dom.createIcon(folder.icon || 'dashicons-category'));
 
-			const itemLabel = document.createElement('span');
-			itemLabel.className = 'pdk-app-launcher-label';
-			itemLabel.textContent = label;
+			const itemLabel = dom.createTruncatedLabel('pdk-app-launcher-label', label);
 
 			button.append(appIcon, itemLabel);
 			button.addEventListener('click', (event) => {
@@ -207,9 +203,7 @@
 			appIcon.className = 'pdk-app-icon';
 			appIcon.appendChild(dom.createIcon(item.icon || 'dashicons-media-document'));
 
-			const itemLabel = document.createElement('span');
-			itemLabel.className = 'pdk-app-launcher-label';
-			itemLabel.textContent = label;
+			const itemLabel = dom.createTruncatedLabel('pdk-app-launcher-label', label);
 
 			button.append(appIcon, itemLabel);
 			button.addEventListener('click', (event) => {
@@ -248,9 +242,7 @@
 			appIcon.className = 'pdk-app-icon';
 			appIcon.appendChild(dom.createIcon(icon));
 
-			const itemLabel = document.createElement('span');
-			itemLabel.className = 'pdk-desktop-app-label';
-			itemLabel.textContent = label;
+			const itemLabel = dom.createTruncatedLabel('pdk-desktop-app-label', label);
 
 			button.append(appIcon, itemLabel);
 			button.addEventListener('click', (event) => {

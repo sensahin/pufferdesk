@@ -74,7 +74,7 @@
 		}
 
 		function getClipboardItems(options = {}) {
-			const includeCut = options.includeCut !== false;
+			const includeCut = options.includeCut !== false && showsCutMenuItems();
 			const includeCopy = options.includeCopy !== false;
 			const includePaste = options.includePaste !== false;
 			const items = [];
@@ -176,6 +176,10 @@
 
 		function isRedmondFamily() {
 			return themeFamily === 'redmond';
+		}
+
+		function showsCutMenuItems() {
+			return themeFamily !== 'pufferdesk';
 		}
 
 		function getDesktopSortMode() {
@@ -718,14 +722,17 @@
 						icon: 'dashicons-clipboard',
 						id: 'copy',
 						shortcut: '⌘C'
-					}),
-					commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
+					})
+				);
+
+				if (showsCutMenuItems()) {
+					items.push(commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
 						hideWhenUnavailable: true,
 						icon: 'dashicons-admin-page',
 						id: 'cut',
 						shortcut: '⌘X'
-					})
-				);
+					}));
+				}
 
 				return items;
 			}
@@ -1013,6 +1020,12 @@
 					{
 						id: 'primary',
 						items: [
+							commandItem(getLabel('new_folder'), commandIds.FOLDER_CREATE, {
+								icon: 'dashicons-category'
+							}),
+							commandItem(getLabel('new_sticky_note'), commandIds.DOCUMENT_NEW_STICKY_NOTE, {
+								icon: 'dashicons-sticky'
+							}),
 							commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
 								hideWhenUnavailable: true,
 								icon: 'dashicons-admin-page',
@@ -1020,22 +1033,17 @@
 								shortcut: '⌘V'
 							}),
 							separator(),
-							commandItem(getLabel('new_folder'), commandIds.FOLDER_CREATE, {
-								icon: 'dashicons-category'
+							commandItem(getLabel('refresh'), commandIds.DESKTOP_REFRESH, {
+								icon: 'dashicons-update',
+								id: 'desktop-refresh'
 							}),
-							commandItem(getLabel('new_sticky_note'), commandIds.DOCUMENT_NEW_STICKY_NOTE, {
-								icon: 'dashicons-sticky'
-							}),
+							separator(),
 							{
 								icon: 'dashicons-sort',
 								id: 'sort-by',
 								items: getSortByItems(),
 								label: getLabel('sort_by')
 							},
-							commandItem(getLabel('refresh'), commandIds.DESKTOP_REFRESH, {
-								icon: 'dashicons-update',
-								id: 'desktop-refresh'
-							}),
 							separator(),
 							commandItem(getLabel('change_wallpaper'), commandIds.SETTINGS_OPEN_PANEL, {
 								icon: 'dashicons-format-image',
@@ -1125,29 +1133,46 @@
 				}
 			]
 		}));
-		registerProvider(targets.FOLDER_CONTENT, (detail) => ({
-			groups: [
-				{
-					id: 'primary',
-					items: getClipboardItems({
-						includeCopy: false,
-						includeCut: false
-					}).concat(
-						commandItem(getLabel('refresh'), commandIds.FOLDER_REFRESH, {
-							icon: 'dashicons-update',
-							id: 'folder-content-refresh',
-							payload: {
-								folderId: getFolderContentFolderId(detail),
-								target: getFolderContentFolderId(detail)
-							},
-							target: getFolderContentFolderId(detail)
-						}),
-						separator(),
-						getFolderContentMenuItems(detail)
-					)
-				}
-			]
-		}));
+		registerProvider(targets.FOLDER_CONTENT, (detail) => {
+			const folderId = getFolderContentFolderId(detail);
+			const contentItems = getFolderContentMenuItems(detail);
+			const refreshItem = commandItem(getLabel('refresh'), commandIds.FOLDER_REFRESH, {
+				icon: 'dashicons-update',
+				id: 'folder-content-refresh',
+				payload: {
+					folderId,
+					target: folderId
+				},
+				target: folderId
+			});
+			const pasteItems = getClipboardItems({
+				includeCopy: false,
+				includeCut: false
+			});
+			const items = isFileExplorerSurface()
+				? pasteItems.concat(refreshItem, separator(), contentItems)
+				: [
+					contentItems[0],
+					...pasteItems,
+					separator(),
+					contentItems[1],
+					separator(),
+					refreshItem,
+					separator(),
+					contentItems[2],
+					contentItems[3],
+					separator()
+				];
+
+			return {
+				groups: [
+					{
+						id: 'primary',
+						items
+					}
+				]
+			};
+		});
 		registerProvider(targets.DOCUMENT, (detail) => ({
 			groups: [
 				getClipboardGroup(),
@@ -1219,21 +1244,6 @@
 
 		registerProvider(targets.FOLDER_TOOLBAR, (detail) => ({
 			groups: [
-				getClipboardGroup(),
-				{
-					id: 'primary',
-					items: [
-						commandItem(getLabel('refresh'), commandIds.FOLDER_REFRESH, {
-							icon: 'dashicons-update',
-							id: 'folder-toolbar-refresh',
-							payload: {
-								folderId: getFolderContentFolderId(detail),
-								target: getFolderContentFolderId(detail)
-							},
-							target: getFolderContentFolderId(detail)
-						})
-					]
-				},
 				{
 					id: 'display',
 					items: [

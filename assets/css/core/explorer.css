@@ -287,3 +287,28 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 }
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher > .pdk-truncated-label,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher > .pdk-truncated-label,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher > .pdk-truncated-label,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher > .pdk-truncated-label {
+	display: block;
+	max-height: none;
+	max-width: none;
+	text-align: left;
+	width: auto;
+}
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher > .pdk-truncated-label::before,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher > .pdk-truncated-label::before,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher > .pdk-truncated-label::before,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher > .pdk-truncated-label::before {
+	content: attr(data-pdk-label-full);
+}
+
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher > .pdk-truncated-label > .pdk-truncated-label-line,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher > .pdk-truncated-label > .pdk-truncated-label-line,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher > .pdk-truncated-label > .pdk-truncated-label-line,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher > .pdk-truncated-label > .pdk-truncated-label-line {
+	display: none;
+}

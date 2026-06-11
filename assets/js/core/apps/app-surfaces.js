@@ -303,7 +303,7 @@
 			const label = labelOverride || defaultLabel;
 			const badgeInfo = appBadges.normalize(app);
 			const badge = appBadges.createElement(badgeInfo);
-			const labelElement = dom.createElement('span', 'pdk-desktop-app-label', label);
+			const labelElement = dom.createTruncatedLabel('pdk-desktop-app-label', label);
 
 			button.type = 'button';
 			button.className = 'pdk-desktop-icon pdk-desktop-app';

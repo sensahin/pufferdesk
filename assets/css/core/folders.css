@@ -693,6 +693,22 @@
 	white-space: nowrap;
 }
 
+.pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher > .pdk-truncated-label {
+	display: block;
+	max-height: none;
+	max-width: none;
+	text-align: left;
+	width: auto;
+}
+
+.pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher > .pdk-truncated-label::before {
+	content: attr(data-pdk-label-full);
+}
+
+.pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher > .pdk-truncated-label > .pdk-truncated-label-line {
+	display: none;
+}
+
 .pdk-folder-body .pdk-finder-trash-grid {
 	grid-template-columns: repeat(auto-fill, minmax(74px, 92px));
 	gap: 22px 20px;

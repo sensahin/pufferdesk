@@ -49,6 +49,7 @@
 		const themeSurfaces = config.theme && config.theme.surfaces && typeof config.theme.surfaces === 'object'
 			? config.theme.surfaces
 			: {};
+		const themeFamily = config.theme && typeof config.theme.family === 'string' ? config.theme.family : '';
 		const documentStore = window.PufferDesk.documents && typeof window.PufferDesk.documents.createDocumentStore === 'function'
 			? window.PufferDesk.documents.createDocumentStore(config)
 			: null;
@@ -146,6 +147,10 @@
 
 		function isFileExplorerLayout() {
 			return getFolderLayout() === 'file-explorer';
+		}
+
+		function showsCutFolderActions() {
+			return themeFamily !== 'pufferdesk';
 		}
 
 		function getMenuLabel(key, fallback) {
@@ -860,7 +865,7 @@
 			const button = document.createElement('button');
 			const label = item && item.label ? item.label : getMenuLabel('recent_item');
 			const appIcon = document.createElement('span');
-			const itemLabel = document.createElement('span');
+			const itemLabel = dom.createTruncatedLabel('pdk-app-launcher-label', label);
 
 			button.type = 'button';
 			button.className = 'pdk-app-launcher pdk-recent-launcher';
@@ -878,8 +883,6 @@
 
 			appIcon.className = 'pdk-app-icon';
 			appIcon.appendChild(dom.createIcon(item && item.icon ? item.icon : defaultDashicon));
-			itemLabel.className = 'pdk-app-launcher-label';
-			itemLabel.textContent = label;
 
 			button.append(appIcon, itemLabel);
 			button.addEventListener('click', (event) => {
@@ -2148,12 +2151,15 @@
 			const actions = [
 				{ id: 'view', label: getMenuLabel('view'), icon: 'dashicons-grid-view', disclosure: 'vertical', menuPlacement: 'icon-top' },
 				{ id: 'group', label: getMenuLabel('group'), icon: 'dashicons-list-view', disclosure: true, menuPlacement: 'icon-bottom' },
-				{ id: 'cut', label: getMenuLabel('cut'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_CUT },
 				{ id: 'copy', label: getMenuLabel('copy'), icon: 'dashicons-clipboard', command: commandIds.CLIPBOARD_COPY },
 				{ id: 'paste', label: getMenuLabel('paste'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_PASTE },
 				{ id: 'delete', label: getMenuLabel('delete'), icon: 'dashicons-trash', command: commandIds.FOLDER_DELETE_SELECTED },
 				{ id: 'get-info', label: getMenuLabel('get_info'), icon: 'dashicons-info-outline', command: commandIds.FOLDER_GET_INFO }
 			];
+
+			if (showsCutFolderActions()) {
+				actions.splice(2, 0, { id: 'cut', label: getMenuLabel('cut'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_CUT });
+			}
 
 			if (canCreateFolder) {
 				actions.push({ id: 'new-folder', label: getMenuLabel('new_folder'), icon: 'dashicons-category', badge: 'plus', command: commandIds.FOLDER_CREATE });

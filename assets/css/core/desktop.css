@@ -186,23 +186,35 @@
 }
 
 .pdk-desktop-app-label {
-	display: -webkit-box;
+	box-sizing: border-box;
+	display: grid;
 	font-size: var(--pdk-text-caption);
 	font-weight: var(--pdk-weight-medium);
+	justify-items: center;
 	line-height: var(--pdk-line-height-caption);
-	max-height: 2.4em;
-	max-width: var(--pdk-desktop-label-line-width, 18ch);
+	max-height: calc(2.4em + 2px);
+	max-width: var(--pdk-desktop-label-line-width, 15ch);
 	overflow: hidden;
 	position: relative;
-	text-overflow: ellipsis;
 	white-space: normal;
 	width: max-content;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
-	line-clamp: 2;
-	overflow-wrap: anywhere;
 	word-break: normal;
 	z-index: 1;
+}
+
+.pdk-truncated-label-line {
+	box-sizing: border-box;
+	display: block;
+	max-width: 100%;
+	min-width: 0;
+	overflow: hidden;
+	padding-inline: 1px;
+	text-overflow: clip;
+	white-space: nowrap;
+}
+
+.pdk-truncated-label-line-2 {
+	text-overflow: ellipsis;
 }
 
 .pdk-desktop-icon.is-selected .pdk-desktop-app-label {

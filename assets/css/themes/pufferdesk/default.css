@@ -106,7 +106,7 @@
 	--pdk-desktop-object-layer-top: 28px;
 	--pdk-desktop-icon-selection-surface-overhang: 2px;
 	--pdk-desktop-icon-selection-top-bleed: 7px;
-	--pdk-desktop-label-line-width: 18ch;
+	--pdk-desktop-label-line-width: 15ch;
 	--pdk-desktop-icon-selection-bg: var(--pdk-accent-active);
 	--pdk-desktop-icon-selection-icon-bg: rgba(60, 60, 67, 0.14);
 	--pdk-desktop-icon-selection-icon-inset: calc(var(--pdk-desktop-icon-selection-top-bleed) * -1) -10px -7px;
@@ -1106,18 +1106,15 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher-label {
 	border-radius: 4px;
-	display: -webkit-box;
+	box-sizing: border-box;
+	display: grid;
+	justify-items: center;
 	line-height: var(--pdk-line-height-caption);
-	max-height: 2.4em;
-	max-width: 18ch;
+	max-height: calc(2.4em + 2px);
+	max-width: var(--pdk-folder-label-line-width, 15ch);
 	overflow: hidden;
-	text-overflow: ellipsis;
 	white-space: normal;
 	width: max-content;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
-	line-clamp: 2;
-	overflow-wrap: anywhere;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-selected .pdk-app-launcher-label,

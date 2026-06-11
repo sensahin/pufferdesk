@@ -162,7 +162,7 @@
 		function getIconCurrentLabel(icon) {
 			const label = getIconLabelElement(icon);
 
-			return String(label ? label.textContent : '').trim();
+			return String(label && dom.getFullLabel ? dom.getFullLabel(label) : label ? label.textContent : '').trim();
 		}
 
 		function setIconLabelOverride(icon, label) {
@@ -174,7 +174,11 @@
 				return false;
 			}
 
-			labelElement.textContent = nextLabel;
+			if (dom.setTruncatedLabelText) {
+				dom.setTruncatedLabelText(labelElement, nextLabel);
+			} else {
+				labelElement.textContent = nextLabel;
+			}
 			icon.dataset.pdkContextLabel = nextLabel;
 			icon.setAttribute('aria-label', nextLabel);
 
@@ -928,6 +932,11 @@
 			icon.classList.add('is-renaming');
 			icon.dataset.pdkSuppressClick = '1';
 			label.dataset.pdkInlineRename = '1';
+			if (dom.setEditableLabelText) {
+				dom.setEditableLabelText(label, originalLabel);
+			} else {
+				label.textContent = originalLabel;
+			}
 			label.setAttribute('contenteditable', 'plaintext-only');
 			label.setAttribute('spellcheck', 'false');
 			label.addEventListener('blur', onBlur);
@@ -1352,7 +1361,13 @@
 		function bindExistingIcons() {
 			bindDesktopSelection();
 			markLayersManaged();
-			getIcons().forEach(makeDraggable);
+			getIcons().forEach((icon) => {
+				const label = getIconLabelElement(icon);
+				if (label && dom.setTruncatedLabelText && label.dataset.pdkInlineRename !== '1') {
+					dom.setTruncatedLabelText(label, getIconCurrentLabel(icon));
+				}
+				makeDraggable(icon);
+			});
 		}
 
 		function bindDesktopSelection() {
