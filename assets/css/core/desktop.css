@@ -58,7 +58,7 @@
 	justify-content: start;
 	pointer-events: none;
 	position: absolute;
-	z-index: 9;
+	z-index: auto;
 }
 
 .pdk-desktop-icon-layer.is-managed {
@@ -68,10 +68,6 @@
 
 .pdk-desktop-icon-layer.is-managed .pdk-desktop-icon {
 	position: absolute;
-}
-
-.pdk-desktop-icon-layer.is-drag-source-layer {
-	z-index: calc(var(--pdk-layer-menu) - 1);
 }
 
 .pdk-desktop-icon {

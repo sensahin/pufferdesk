@@ -4,7 +4,7 @@
 	window.PufferDesk = window.PufferDesk || {};
 	window.PufferDesk.apps = window.PufferDesk.apps || {};
 
-	window.PufferDesk.apps.createAppLauncher = function createAppLauncher(shell, manager, config = {}) {
+	window.PufferDesk.apps.createAppLauncher = function createAppLauncher(shell, manager, config = {}, options = {}) {
 		const dom = window.PufferDesk.dom;
 		const geometry = window.PufferDesk.geometry;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
@@ -14,6 +14,7 @@
 		const explorerSortModes = new Set(['none', 'name', 'kind']);
 		const fallbackExplorerViewModes = new Set(['extra-large-icons', 'large-icons', 'medium-icons', 'small-icons', 'list', 'details', 'tiles', 'content']);
 		const folderViewModes = window.PufferDesk.apps.folderViewModes || null;
+		const dragDropManager = options.dragDropManager || window.PufferDesk.dragDropManager || null;
 		const folderMenuOptions = window.PufferDesk.apps.createFolderMenuOptions
 			? window.PufferDesk.apps.createFolderMenuOptions({
 				getMenuLabel
@@ -991,51 +992,56 @@
 			return null;
 		}
 
-		function canDropFolderItem(dragDetail, dropTarget) {
-			const provider = getFolderProvider();
-
-			if (!dragDetail || !dropTarget || !provider) {
-				return false;
+		function getFolderMoveTargetContainerId(dropTarget) {
+			if (!dropTarget) {
+				return '';
 			}
 
 			if (dropTarget.kind === 'desktop') {
-				if (dragDetail.kind === 'app') {
-					return Boolean(typeof provider.moveAppToDesktop === 'function');
-				}
-
-				return Boolean(
-					typeof provider.canMoveFolderToParent === 'function'
-					&& provider.canMoveFolderToParent(dragDetail.id, 'desktop')
-				);
+				return 'desktop';
 			}
 
 			if (dropTarget.kind === 'sidebar-favorites') {
-				return Boolean(
-					dragDetail.kind === 'folder'
-					&& dragDetail.id
-					&& getFolder(dragDetail.id)
-					&& !isTrashFolderId(dragDetail.id)
-					&& !isRecentsFolderId(dragDetail.id)
-				);
+				return 'folder-sidebar:favorites';
 			}
 
-			if (dropTarget.kind !== 'folder' || !dropTarget.id || isTrashFolderId(dropTarget.id)) {
+			if (dropTarget.kind === 'folder') {
+				return `folder:${dropTarget.id || ''}`;
+			}
+
+			return '';
+		}
+
+		function getFolderMoveRequest(dragDetail, dropTarget, point = null) {
+			const sourceFolderId = dragDetail && dragDetail.sourceFolderId ? dragDetail.sourceFolderId : '';
+
+			return {
+				fromContainerId: sourceFolderId ? `folder:${sourceFolderId}` : '',
+				item: {
+					id: dragDetail && dragDetail.id ? dragDetail.id : '',
+					metadata: {
+						source: 'folder-item',
+						sourceFolderId
+					},
+					sourceContainerId: sourceFolderId ? `folder:${sourceFolderId}` : '',
+					type: dragDetail && dragDetail.kind ? dragDetail.kind : ''
+				},
+				position: point,
+				reason: 'drag-drop',
+				toContainerId: getFolderMoveTargetContainerId(dropTarget)
+			};
+		}
+
+		function canDropFolderItem(dragDetail, dropTarget) {
+			if (!dragDropManager || typeof dragDropManager.validateDrop !== 'function') {
 				return false;
 			}
 
-			if (dragDetail.kind === 'app') {
-				return Boolean(
-					dropTarget.id !== dragDetail.sourceFolderId
-					&& typeof provider.addAppToFolder === 'function'
-					&& typeof provider.isUserFolder === 'function'
-					&& provider.isUserFolder(dropTarget.id)
-				);
-			}
+			const validation = dragDropManager.validateDrop(getFolderMoveRequest(dragDetail, dropTarget), {
+				emit: false
+			});
 
-			return Boolean(
-				typeof provider.canMoveFolderToParent === 'function'
-				&& provider.canMoveFolderToParent(dragDetail.id, dropTarget.id)
-			);
+			return Boolean(validation && validation.valid);
 		}
 
 		function getFolderItemDropTarget(dragDetail, clientX, clientY) {
@@ -1111,49 +1117,13 @@
 		}
 
 		function dropFolderItem(dragDetail, dropTarget, point) {
-			const provider = getFolderProvider();
-			let changed = false;
-
-			if (!provider || !dragDetail || !dropTarget) {
+			if (!dragDropManager || typeof dragDropManager.completeDrop !== 'function') {
 				return false;
 			}
 
-			if (dropTarget.kind === 'desktop') {
-				if (dragDetail.kind === 'app' && typeof provider.moveAppToDesktop === 'function') {
-					changed = provider.moveAppToDesktop(dragDetail.id, {
-						point
-					});
-				}
+			const result = dragDropManager.completeDrop(getFolderMoveRequest(dragDetail, dropTarget, point));
 
-				if (dragDetail.kind === 'folder' && typeof provider.moveFolderToParent === 'function') {
-					changed = provider.moveFolderToParent(dragDetail.id, 'desktop', {
-						point
-					});
-				}
-			} else if (dropTarget.kind === 'sidebar-favorites') {
-				changed = dragDetail.kind === 'folder' ? addFolderSidebarFavorite(dragDetail.id) : false;
-			} else if (dropTarget.kind === 'folder') {
-				if (dragDetail.kind === 'app' && typeof provider.addAppToFolder === 'function') {
-					changed = provider.addAppToFolder(dragDetail.id, dropTarget.id);
-				}
-
-				if (dragDetail.kind === 'folder' && typeof provider.moveFolderToParent === 'function') {
-					changed = provider.moveFolderToParent(dragDetail.id, dropTarget.id);
-				}
-			}
-
-			if (changed) {
-				[
-					dragDetail.sourceFolderId,
-					dropTarget.kind === 'folder' ? dropTarget.id : '',
-					dragDetail.kind === 'folder' ? dragDetail.id : ''
-				].filter(Boolean).forEach((folderId) => {
-					refreshFolderWindow(folderId);
-					refreshFolderInfoWindow(folderId);
-				});
-			}
-
-			return changed;
+			return Boolean(result && result.success);
 		}
 
 		function bindFolderPaneItemDrag(pane, folderId) {
@@ -1194,6 +1164,7 @@
 				let moved = false;
 				let currentDropTarget = null;
 				let dragProxy = null;
+				let platformDragStarted = false;
 
 				if (
 					event.button !== 0
@@ -1227,10 +1198,27 @@
 					if (!dragProxy) {
 						dragProxy = createFolderItemDragProxy(item, startX, startY);
 					}
+					if (!platformDragStarted && dragDropManager && typeof dragDropManager.startDragFromElement === 'function') {
+						dragDropManager.startDragFromElement(item, {
+							folderId,
+							source: 'folder-item'
+						});
+						platformDragStarted = true;
+					}
 					moveFolderItemDragProxy(dragProxy, moveEvent.clientX, moveEvent.clientY);
 					item.classList.add('is-dragging');
 					currentDropTarget = getFolderItemDropTarget(dragDetail, moveEvent.clientX, moveEvent.clientY);
 					setFolderItemDropTarget(currentDropTarget ? currentDropTarget.element : null);
+					if (platformDragStarted && dragDropManager) {
+						if (currentDropTarget && typeof dragDropManager.hover === 'function') {
+							dragDropManager.hover(getFolderMoveRequest(dragDetail, currentDropTarget, {
+								clientX: moveEvent.clientX,
+								clientY: moveEvent.clientY
+							}));
+						} else if (typeof dragDropManager.leave === 'function') {
+							dragDropManager.leave();
+						}
+					}
 				};
 
 				const finish = (upEvent, commitDrop) => {
@@ -1254,6 +1242,8 @@
 								clientX,
 								clientY
 							});
+						} else if (platformDragStarted && dragDropManager && typeof dragDropManager.cancel === 'function') {
+							dragDropManager.cancel('no-drop-target');
 						}
 
 						item.dataset.pdkSuppressFolderItemClick = '1';

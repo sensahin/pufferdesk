@@ -22,6 +22,13 @@
 			!window.PufferDesk.desktop.createDesktopIconManager ||
 			!window.PufferDesk.desktop.createFolderManager ||
 			!window.PufferDesk.desktop.createStickyNoteManager ||
+			!window.PufferDesk.dragDrop ||
+			!window.PufferDesk.dragDrop.createDragDropManager ||
+			!window.PufferDesk.dragDrop.createDraggableRegistry ||
+			!window.PufferDesk.dragDrop.createDropTargetRegistry ||
+			!window.PufferDesk.dragDrop.createMoveService ||
+			!window.PufferDesk.dragDrop.createMoveStateStore ||
+			!window.PufferDesk.dragDrop.createMoveValidator ||
 			!window.PufferDesk.notifications ||
 			!window.PufferDesk.notifications.createStore ||
 			!window.PufferDesk.notifications.createToastService ||
@@ -99,7 +106,42 @@
 		});
 		let folderManager = null;
 		let launcher = null;
-		const desktopIconManager = window.PufferDesk.desktop.createDesktopIconManager(shell, {
+		let desktopIconManager = null;
+		const moveStateStore = window.PufferDesk.dragDrop.createMoveStateStore(shell, {
+			config,
+			getDesktopIconManager: () => desktopIconManager,
+			getFolderManager: () => folderManager,
+			getLauncher: () => launcher
+		});
+		const dropTargetRegistry = window.PufferDesk.dragDrop.createDropTargetRegistry({
+			events: window.PufferDesk.events
+		});
+		dropTargetRegistry.registerResolver((containerId) => moveStateStore.getContainer(containerId));
+		const draggableRegistry = window.PufferDesk.dragDrop.createDraggableRegistry({
+			events: window.PufferDesk.events
+		});
+		const moveValidator = window.PufferDesk.dragDrop.createMoveValidator({
+			dropTargets: dropTargetRegistry,
+			stateStore: moveStateStore
+		});
+		const moveService = window.PufferDesk.dragDrop.createMoveService({
+			events: window.PufferDesk.events,
+			stateStore: moveStateStore,
+			validator: moveValidator
+		});
+		const dragDropManager = window.PufferDesk.dragDrop.createDragDropManager({
+			draggables: draggableRegistry,
+			events: window.PufferDesk.events,
+			moveService,
+			stateStore: moveStateStore
+		});
+		['desktop', 'folder-sidebar:favorites', 'dock', 'trash'].forEach((containerId) => {
+			const container = moveStateStore.getContainer(containerId);
+			if (container) {
+				dropTargetRegistry.register(container);
+			}
+		});
+		desktopIconManager = window.PufferDesk.desktop.createDesktopIconManager(shell, {
 			canRenameIcon(detail) {
 				return Boolean(
 					config
@@ -111,53 +153,15 @@
 				);
 			},
 			canDropOnFolder(detail) {
-				if (
-					detail
-					&& detail.targetKind === 'folder-sidebar-favorites'
-					&& detail.sourceKind === 'folder'
-					&& launcher
-					&& typeof launcher.addFolderSidebarFavorite === 'function'
-				) {
-					return true;
-				}
-
-				return Boolean(
-					folderManager
-					&& detail.targetKind === 'folder'
-					&& (
-						(
-							detail.sourceKind === 'app'
-							&& typeof folderManager.isUserFolder === 'function'
-							&& folderManager.isUserFolder(detail.targetId)
-						)
-						|| (
-							detail.sourceKind === 'folder'
-							&& typeof folderManager.canMoveFolderToParent === 'function'
-							&& folderManager.canMoveFolderToParent(detail.sourceId, detail.targetId)
-						)
-					)
-				);
+				return Boolean(dragDropManager.canDropLegacy(detail, {
+					emit: false,
+					source: 'desktop'
+				}));
 			},
 			onDropOnFolder(detail) {
-				if (!folderManager || !detail) {
-					return;
-				}
-
-				if (detail.sourceKind === 'folder' && detail.targetKind === 'folder-sidebar-favorites') {
-					if (launcher && typeof launcher.addFolderSidebarFavorite === 'function') {
-						launcher.addFolderSidebarFavorite(detail.sourceId);
-					}
-					return;
-				}
-
-				if (detail.sourceKind === 'folder' && typeof folderManager.moveFolderToParent === 'function') {
-					folderManager.moveFolderToParent(detail.sourceId, detail.targetId);
-					return;
-				}
-
-				if (detail.sourceKind === 'app' && typeof folderManager.addAppToFolder === 'function') {
-					folderManager.addAppToFolder(detail.sourceId, detail.targetId);
-				}
+				dragDropManager.dropLegacy(detail, {
+					source: 'desktop'
+				});
 			},
 			onRenameIcon(detail) {
 				if (
@@ -173,6 +177,7 @@
 
 				return folderManager.startInlineRename(detail.id);
 			},
+			dragDropManager,
 			storageKey: config.storageKey || ''
 		});
 		const dialogs = window.PufferDesk.shell.createShellDialogs(shell);
@@ -184,7 +189,9 @@
 			storageKey: config.storageKey || ''
 		});
 		window.PufferDesk.stickyNoteManager = stickyNoteManager;
-		launcher = window.PufferDesk.apps.createAppLauncher(shell, manager, config);
+		launcher = window.PufferDesk.apps.createAppLauncher(shell, manager, config, {
+			dragDropManager
+		});
 		folderManager = window.PufferDesk.desktop.createFolderManager(shell, launcher, config);
 		if (typeof launcher.setFolderProvider === 'function') {
 			launcher.setFolderProvider(folderManager);
@@ -281,6 +288,12 @@
 			openUrl: launcher.openUrl
 		};
 		window.PufferDesk.contextMenuController = contextMenuController;
+		window.PufferDesk.dragDrop.manager = dragDropManager;
+		window.PufferDesk.dragDrop.moveService = moveService;
+		window.PufferDesk.dragDrop.stateStore = moveStateStore;
+		window.PufferDesk.dragDrop.targets = dropTargetRegistry;
+		window.PufferDesk.dragDrop.draggables = draggableRegistry;
+		window.PufferDesk.dragDropManager = dragDropManager;
 		window.PufferDesk.desktopFolderManager = folderManager;
 		window.PufferDesk.desktopIconManager = desktopIconManager;
 		window.PufferDesk.stickyNoteManager = stickyNoteManager;
@@ -297,6 +310,7 @@
 		window.PufferDesk.events.emit('desktop:ready', {
 			api: desktopApi,
 			config,
+			dragDropManager,
 			notificationStore,
 			shell,
 			soundManager,

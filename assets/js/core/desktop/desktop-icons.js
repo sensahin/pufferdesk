@@ -12,9 +12,9 @@
 		const readNumber = geometry.readNumber;
 		const desktop = shell.querySelector('.pdk-desktop');
 		const sessionStore = window.PufferDesk.session.createSessionStore(options.storageKey || '');
+		const dragDropManager = options.dragDropManager || null;
 		let restoreInProgress = false;
 		let sessionSaveDisabled = false;
-		let dragZIndex = 20;
 		let activeDropTarget = null;
 		let currentSortMode = 'none';
 		const selectedIcons = new Set();
@@ -1023,28 +1023,58 @@
 			});
 		}
 
+		function readLayerIndex(name, fallback) {
+			const styles = shell && typeof window.getComputedStyle === 'function'
+				? window.getComputedStyle(shell)
+				: null;
+			const parsed = styles ? Number.parseFloat(styles.getPropertyValue(name)) : Number.NaN;
+
+			return Number.isFinite(parsed) ? parsed : fallback;
+		}
+
+		function readElementZIndex(element) {
+			if (!element) {
+				return 0;
+			}
+
+			const inline = Number.parseFloat(element.style.zIndex);
+			if (Number.isFinite(inline)) {
+				return inline;
+			}
+
+			const styles = typeof window.getComputedStyle === 'function'
+				? window.getComputedStyle(element)
+				: null;
+			const computed = styles ? Number.parseFloat(styles.zIndex) : Number.NaN;
+
+			return Number.isFinite(computed) ? computed : 0;
+		}
+
+		function getHighestWindowZIndex() {
+			return Array.from(shell.querySelectorAll('.pdk-window'))
+				.reduce((highest, win) => Math.max(highest, readElementZIndex(win)), 0);
+		}
+
+		function getDragElevationZIndex() {
+			const menuLayer = readLayerIndex('--pdk-layer-menu', 10000);
+			const platformDragLayer = Math.max(1, menuLayer - 1);
+
+			return Math.max(getHighestWindowZIndex() + 1, platformDragLayer);
+		}
+
 		function setDragItemsDragging(items, dragging) {
-			const layers = new Set();
+			let dragElevation = null;
 
 			items.forEach((item) => {
-				if (item.layer) {
-					layers.add(item.layer);
-				}
-
-				item.icon.classList.toggle('is-dragging', dragging);
 				if (dragging) {
-					item.icon.style.zIndex = String(++dragZIndex);
-				}
-			});
-
-			layers.forEach((layer) => {
-				if (dragging) {
-					layer.classList.add('is-drag-source-layer');
-					return;
-				}
-
-				if (!layer.querySelector('.pdk-desktop-icon.is-dragging')) {
-					layer.classList.remove('is-drag-source-layer');
+					if (!item.icon.classList.contains('is-dragging')) {
+						dragElevation = dragElevation === null ? getDragElevationZIndex() : dragElevation;
+						item.icon.style.zIndex = String(dragElevation);
+					}
+					item.icon.classList.add('is-dragging');
+				} else {
+					item.icon.classList.remove('is-dragging');
+					item.icon.style.zIndex = '';
 				}
 			});
 		}
@@ -1217,6 +1247,7 @@
 				const startY = event.clientY;
 				const dragItems = getDragItems(icon);
 				let moved = false;
+				let platformDragStarted = false;
 
 				if (typeof icon.setPointerCapture === 'function') {
 					icon.setPointerCapture(event.pointerId);
@@ -1233,9 +1264,29 @@
 					moved = true;
 					moveEvent.preventDefault();
 					setDragItemsDragging(dragItems, true);
+					if (!platformDragStarted && dragDropManager && typeof dragDropManager.startDragFromElement === 'function') {
+						dragDropManager.startDragFromElement(icon, {
+							source: 'desktop'
+						});
+						platformDragStarted = true;
+					}
 
 					moveDragItems(dragItems, deltaX, deltaY);
-					setDropTarget(dragItems.length === 1 ? getFolderDropTarget(icon, moveEvent.clientX, moveEvent.clientY) : null);
+					const nextDropTarget = dragItems.length === 1 ? getFolderDropTarget(icon, moveEvent.clientX, moveEvent.clientY) : null;
+					setDropTarget(nextDropTarget);
+					if (platformDragStarted && dragDropManager) {
+						if (nextDropTarget && typeof dragDropManager.hoverLegacy === 'function') {
+							dragDropManager.hoverLegacy(getDropDetail(icon, nextDropTarget), {
+								position: {
+									clientX: moveEvent.clientX,
+									clientY: moveEvent.clientY
+								},
+								source: 'desktop'
+							});
+						} else if (typeof dragDropManager.leave === 'function') {
+							dragDropManager.leave();
+						}
+					}
 				};
 
 				const up = (upEvent) => {
@@ -1253,6 +1304,8 @@
 					if (moved) {
 						if (dragItems.length === 1 && dropTarget && typeof options.onDropOnFolder === 'function') {
 							options.onDropOnFolder(getDropDetail(icon, dropTarget));
+						} else if (platformDragStarted && dragDropManager && typeof dragDropManager.cancel === 'function') {
+							dragDropManager.cancel('no-drop-target');
 						}
 
 						suppressNextClick(icon);

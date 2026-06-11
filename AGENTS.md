@@ -130,6 +130,7 @@ JavaScript:
 - `assets/js/core/services/sound-manager.js`: shared browser sound manager for semantic shell events such as notification alerts.
 - `assets/js/core/services/geometry.js`: shared numeric/CSS geometry helpers.
 - `assets/js/core/services/debounced-task.js`: shared debounced task scheduling for delayed state saves and mutations.
+- `assets/js/core/drag-drop/`: central item/container models, drop target registry, move validation, move execution, and drag lifecycle manager for moving registered items between platform containers.
 - `assets/js/core/session/`: shared workspace session sections.
 - `assets/js/core/preferences/`: appearance, wallpaper, launcher, and menu bar preference appliers.
 - `assets/js/core/windows/`: windows, titlebar actions, shared resize handles, window factory, window state serialization.
@@ -201,6 +202,17 @@ Menus:
 - Dropdown rendering must stay generic and schema-driven. App-specific items belong in app `menu` definitions.
 - Do not add app-specific menu conditionals to `templates/shell/menu-bar.php` or the menu renderer. Add command-backed data to the registry/schema instead.
 - Keep command IDs stable and generic, such as `open-app`, `open-folder`, `open-folder-tab`, `open-url`, `open-about`, `open-system-about`, `open-external-url`, `navigate-url`, `shell.restart`, `shell.switch-classic`, `user.logout`, `session.reset-layout`, `folder.refresh`, `trash.restore`, `trash.delete-immediately`, `trash.empty`, `widget.hide`, `window.focus`, `window.focus-id`, `window.close`, `window.minimize`, `window.reload`, `window.history-back`, `window.history-forward`, `window.hide`, `window.hide-others`, `window.show-all`, and `window.toggle-maximize`.
+
+Drag/drop:
+
+- Treat moving registered items between desktop, folder, sidebar, Dock, Trash, and custom containers as platform behavior owned by `assets/js/core/drag-drop/`.
+- UI modules may own pointer tracking, drag previews, selection, and visual drop feedback, but must call `window.PufferDesk.dragDrop.manager` or `MoveService.moveItem()` for validation and mutation.
+- Use normalized item models with `id`, `type`, `label`, `icon`, `sourceContainerId`, `currentContainerId`, `allowedDropTargets`, and `metadata`.
+- Use normalized container IDs such as `desktop`, `folder:<id>`, `folder-sidebar:favorites`, `dock`, and `trash`.
+- Do not duplicate rules such as folder nesting, Trash handling, duplicate prevention, or system-item locking in desktop icons, folder windows, sidebars, themes, or context-menu adapters.
+- Core drag/drop emits `drag:start`, `drag:hover`, `drag:leave`, `drag:cancel`, `drop:validate`, `item:move:start`, `item:move:success`, `item:move:error`, `item:move:rollback`, `desktop:layout:changed`, and `folder:contents:changed`.
+- Keep theme involvement limited to visual feedback classes/tokens. Themes must not decide whether a move is valid or how state is persisted.
+- Update `docs/drag-drop-platform.md` when supported movable item types, containers, persistence strategies, or event contracts change.
 
 Widgets:
 

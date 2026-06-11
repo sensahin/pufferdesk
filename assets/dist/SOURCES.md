@@ -45,6 +45,13 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/services/rich-text.js
 - assets/js/core/services/geometry.js
 - assets/js/core/services/debounced-task.js
+- assets/js/core/drag-drop/item-model.js
+- assets/js/core/drag-drop/drop-target-registry.js
+- assets/js/core/drag-drop/draggable-registry.js
+- assets/js/core/drag-drop/move-state-store.js
+- assets/js/core/drag-drop/move-validator.js
+- assets/js/core/drag-drop/move-service.js
+- assets/js/core/drag-drop/drag-drop-manager.js
 - assets/js/core/session/session-store.js
 - assets/js/core/session/reopen-policy.js
 - assets/js/core/preferences/appearance.js

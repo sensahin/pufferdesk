@@ -930,6 +930,7 @@ final class PufferDesk_Runtime_Config {
 					'buttonLabel'    => __( 'Sound', 'pufferdesk-admin-desktop' ),
 					'mutedLabel'     => __( 'Sound muted', 'pufferdesk-admin-desktop' ),
 					'settings'       => __( 'Sound Settings', 'pufferdesk-admin-desktop' ),
+					/* translators: %d: Sound output volume percentage. */
 					'volumeValue'    => __( 'Volume %d%', 'pufferdesk-admin-desktop' ),
 				),
 			),
