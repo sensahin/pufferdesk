@@ -399,6 +399,11 @@
 			"deps": []
 		},
 		{
+			"handle": "pufferdesk-folder-menu-options",
+			"path": "assets/js/core/apps/folder-menu-options.js",
+			"deps": ["pufferdesk-folder-view-modes"]
+		},
+		{
 			"handle": "pufferdesk-app-window-options",
 			"path": "assets/js/core/apps/app-window-options.js",
 			"deps": ["pufferdesk-native-apps"]
@@ -421,7 +426,7 @@
 		{
 			"handle": "pufferdesk-app-launcher",
 			"path": "assets/js/core/apps/app-launcher.js",
-			"deps": ["pufferdesk-dom", "pufferdesk-geometry", "pufferdesk-documents-service", "pufferdesk-virtual-filesystem", "pufferdesk-about-window", "pufferdesk-site-about-window", "pufferdesk-native-apps", "pufferdesk-settings-app", "pufferdesk-text-editor", "pufferdesk-sticky-notes-app", "pufferdesk-recent-items", "pufferdesk-folder-data", "pufferdesk-folder-window-state", "pufferdesk-folder-view-modes", "pufferdesk-app-window-options", "pufferdesk-native-app-opener", "pufferdesk-launcher-renderer", "pufferdesk-folder-renderer"]
+			"deps": ["pufferdesk-dom", "pufferdesk-geometry", "pufferdesk-documents-service", "pufferdesk-virtual-filesystem", "pufferdesk-about-window", "pufferdesk-site-about-window", "pufferdesk-native-apps", "pufferdesk-settings-app", "pufferdesk-text-editor", "pufferdesk-sticky-notes-app", "pufferdesk-recent-items", "pufferdesk-folder-data", "pufferdesk-folder-window-state", "pufferdesk-folder-view-modes", "pufferdesk-folder-menu-options", "pufferdesk-app-window-options", "pufferdesk-native-app-opener", "pufferdesk-launcher-renderer", "pufferdesk-folder-renderer"]
 		},
 		{
 			"handle": "pufferdesk-search",
@@ -456,7 +461,7 @@
 		{
 			"handle": "pufferdesk-context-menu",
 			"path": "assets/js/core/shell/context-menu.js",
-			"deps": ["pufferdesk-config", "pufferdesk-geometry", "pufferdesk-menu-commands", "pufferdesk-menu-schema", "pufferdesk-menu-renderer"]
+			"deps": ["pufferdesk-config", "pufferdesk-geometry", "pufferdesk-menu-commands", "pufferdesk-menu-schema", "pufferdesk-menu-renderer", "pufferdesk-folder-menu-options"]
 		},
 		{
 			"handle": "pufferdesk-shortcuts",

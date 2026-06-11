@@ -11,7 +11,6 @@
 		const getTrashItems = typeof options.getTrashItems === 'function' ? options.getTrashItems : () => [];
 		const getMenuLabel = typeof options.getMenuLabel === 'function' ? options.getMenuLabel : (key, fallback) => fallback;
 		const getExplorerSortMode = typeof options.getExplorerSortMode === 'function' ? options.getExplorerSortMode : () => 'none';
-		const isFileExplorerLayout = typeof options.isFileExplorerLayout === 'function' ? options.isFileExplorerLayout : () => false;
 		const renderer = options.launcherRenderer || {};
 
 		function sortExplorerFolderItems(items, win) {
@@ -63,9 +62,7 @@
 			}, documentItem));
 			const items = folderItems.concat(appItems, documentItems);
 
-			return isFileExplorerLayout()
-				? sortExplorerFolderItems(items, win)
-				: items;
+			return sortExplorerFolderItems(items, win);
 		}
 
 		function createDisplayButton(item, folderId = '', removable = false, win = null) {

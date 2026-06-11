@@ -19,6 +19,11 @@
 			? config.theme.surfaces
 			: {};
 		const themeFamily = config.theme && typeof config.theme.family === 'string' ? config.theme.family : '';
+		const folderMenuOptions = window.PufferDesk.apps && typeof window.PufferDesk.apps.createFolderMenuOptions === 'function'
+			? window.PufferDesk.apps.createFolderMenuOptions({
+				getMenuLabel: getLabel
+			})
+			: null;
 
 		function commandItem(label, command, options = {}) {
 			return Object.assign({
@@ -282,6 +287,48 @@
 				: '';
 
 			return ['icon-text', 'icon-only', 'text-only'].includes(mode) ? mode : 'icon-text';
+		}
+
+		function getFolderContentFolderId(detail = {}) {
+			const win = detail.windowElement || null;
+
+			return detail.folderId || detail.id || (win && win.dataset ? win.dataset.pdkFolderWindow || '' : '');
+		}
+
+		function getFolderContentLayout(detail = {}) {
+			const win = detail.windowElement || null;
+			const windowLayout = win && win.dataset ? win.dataset.pdkFolderLayout || '' : '';
+
+			return windowLayout || (themeSurfaces.folder === 'file-explorer' ? 'file-explorer' : 'finder');
+		}
+
+		function getFolderContentViewMode(detail = {}) {
+			const win = detail.windowElement || null;
+
+			return win && win.dataset ? win.dataset.pdkFolderViewMode || win.dataset.pdkExplorerViewMode || '' : '';
+		}
+
+		function getFolderContentSortMode(detail = {}) {
+			const win = detail.windowElement || null;
+			const mode = win && win.dataset ? win.dataset.pdkExplorerSortMode || '' : '';
+
+			return ['name', 'kind'].includes(mode) ? mode : 'none';
+		}
+
+		function getFolderContentMenuItems(detail = {}) {
+			const folderId = getFolderContentFolderId(detail);
+			const layout = getFolderContentLayout(detail);
+
+			return folderMenuOptions
+				? folderMenuOptions.getFolderContentItems(folderId, {
+					infoLabel: isFileExplorerSurface() ? getLabel('properties', 'Properties') : getLabel('get_info', 'Get Info'),
+					infoShortcut: isFileExplorerSurface() ? 'Alt+Enter' : '',
+					layout,
+					sortByLabel: isRedmondFamily() ? getLabel('sort_by_sentence', 'Sort by') : getLabel('sort_by', 'Sort By'),
+					sortMode: getFolderContentSortMode(detail),
+					viewMode: getFolderContentViewMode(detail)
+				})
+				: [];
 		}
 
 		function folderToolbarDisplayItem(label, mode, detail = {}) {
@@ -805,6 +852,14 @@
 							target: detail.id
 						})
 					]
+				}
+			]
+		}));
+		registerProvider('folder-content', (detail) => ({
+			groups: [
+				{
+					id: 'primary',
+					items: getFolderContentMenuItems(detail)
 				}
 			]
 		}));

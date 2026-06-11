@@ -97,6 +97,7 @@
 	--pdk-accent-hue-shift: 170deg;
 	--pdk-accent-rgb: 36 88 202;
 	--pdk-accent-ink: #fff;
+	--pdk-accent-vivid: #007aff;
 	--pdk-desktop-icon-label-gap: 12px;
 	--pdk-desktop-icon-grid-left-inset: 0px;
 	--pdk-desktop-icon-grid-right-inset: 0px;
@@ -139,6 +140,8 @@
 	--pdk-icon-widget-widget-icon: var(--pdk-accent);
 	--pdk-folder-icon-filter: grayscale(1) sepia(1) saturate(4.8) hue-rotate(var(--pdk-accent-hue-shift)) brightness(0.92) contrast(0.98);
 	--pdk-folder-icon-opacity: 0.94;
+	--pdk-finder-sidebar-accent: var(--pdk-accent-vivid);
+	--pdk-finder-sidebar-selection-bg: rgba(116, 116, 128, 0.2);
 	--pdk-running-indicator: rgba(12, 18, 24, 0.88);
 	--pdk-about-window-radius: 15px;
 	--pdk-site-about-window-radius: 24px;
@@ -582,6 +585,7 @@
 	--pdk-accent-hue-shift: 225deg;
 	--pdk-accent-rgb: 155 63 176;
 	--pdk-accent-ink: #fff;
+	--pdk-accent-vivid: #af52de;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="pink"] {
@@ -589,6 +593,7 @@
 	--pdk-accent-hue-shift: 285deg;
 	--pdk-accent-rgb: 240 68 154;
 	--pdk-accent-ink: #fff;
+	--pdk-accent-vivid: #ff2d55;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="red"] {
@@ -596,6 +601,7 @@
 	--pdk-accent-hue-shift: 320deg;
 	--pdk-accent-rgb: 237 51 59;
 	--pdk-accent-ink: #fff;
+	--pdk-accent-vivid: #ff3b30;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="orange"] {
@@ -603,6 +609,7 @@
 	--pdk-accent-hue-shift: 340deg;
 	--pdk-accent-rgb: 255 122 22;
 	--pdk-accent-ink: #fff;
+	--pdk-accent-vivid: #ff9500;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="yellow"] {
@@ -610,6 +617,7 @@
 	--pdk-accent-hue-shift: 0deg;
 	--pdk-accent-rgb: 255 194 38;
 	--pdk-accent-ink: #2f2815;
+	--pdk-accent-vivid: #ffcc00;
 	--pdk-highlight-alpha: 0.2;
 }
 
@@ -618,6 +626,7 @@
 	--pdk-accent-hue-shift: 80deg;
 	--pdk-accent-rgb: 88 185 71;
 	--pdk-accent-ink: #fff;
+	--pdk-accent-vivid: #34c759;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-accent-color="graphite"] {
@@ -625,6 +634,7 @@
 	--pdk-accent-hue-shift: 0deg;
 	--pdk-accent-rgb: 142 142 147;
 	--pdk-accent-ink: #fff;
+	--pdk-accent-vivid: #8e8e93;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-bar {
@@ -792,12 +802,12 @@
 	backdrop-filter: none;
 	background: transparent;
 	border-color: transparent;
-	height: 22px;
+	height: var(--pdk-notification-button-size);
 	justify-content: center;
 	overflow: hidden;
 	padding: 0;
 	transition: background-color 140ms ease, border-color 140ms ease, width 160ms ease;
-	width: 22px;
+	width: var(--pdk-notification-button-size);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search:focus-within {
@@ -820,14 +830,24 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search .dashicons {
 	color: var(--pdk-menu-muted);
+	display: inline-flex;
 	flex: 0 0 auto;
+	font-size: var(--pdk-notification-button-icon-size);
+	height: 20px;
+	justify-content: center;
+	line-height: 20px;
 	text-shadow: var(--pdk-menu-text-shadow);
+	width: 20px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search .dashicons::before {
+	line-height: inherit;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search input {
 	color: var(--pdk-menu-ink);
 	font-size: var(--pdk-text-caption);
-	height: 22px;
+	height: var(--pdk-notification-button-size);
 	opacity: 0;
 	text-shadow: var(--pdk-menu-text-shadow);
 	transition: opacity 120ms ease;
@@ -1558,25 +1578,29 @@
 	position: relative;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar::after {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar::after,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-tabs::after,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-subbar::after {
 	background: var(--pdk-finder-divider);
 	bottom: 0;
 	content: "";
 	height: 1px;
-	left: calc(var(--pdk-settings-sidebar-gap, 4px) * -1);
+	left: calc((var(--pdk-settings-main-edge, 8px) + var(--pdk-settings-sidebar-gap, 4px)) * -1);
 	pointer-events: none;
 	position: absolute;
 	right: 0;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-tabs {
-	border-bottom-color: var(--pdk-finder-divider);
+	border-bottom: 0;
 	padding-left: var(--pdk-settings-main-edge);
+	position: relative;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-subbar {
-	border-bottom-color: var(--pdk-finder-divider);
+	border-bottom: 0;
 	padding-left: var(--pdk-settings-main-edge);
+	position: relative;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-icon {
@@ -1592,6 +1616,29 @@
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-icon-new-folder {
 	border-radius: 999px;
 	width: 44px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-icon-view,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-icon-group {
+	box-sizing: border-box;
+	gap: 4px;
+	padding: 0 8px;
+	width: 52px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-icon-view .dashicons,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-icon-group .dashicons {
+	transform: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-icon-view .pdk-finder-toolbar-disclosure-pair {
+	margin-left: 1px;
+	transform: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-icon-group .pdk-finder-toolbar-disclosure {
+	margin-left: 1px;
+	transform: translateY(-1px) rotate(45deg);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"] .pdk-finder-toolbar-button:not(:disabled):hover .pdk-finder-toolbar-icon,
@@ -1760,6 +1807,36 @@
 	--pdk-scrollbar-thumb: rgba(214, 218, 225, 0.54);
 	--pdk-scrollbar-thumb-hover: rgba(231, 234, 240, 0.68);
 	--pdk-traffic-disabled: rgba(255, 255, 255, 0.18);
+	--pdk-accent-vivid: #0a84ff;
+	--pdk-finder-sidebar-selection-bg: rgba(255, 255, 255, 0.14);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"][data-pdk-accent-color="purple"] {
+	--pdk-accent-vivid: #bf5af2;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"][data-pdk-accent-color="pink"] {
+	--pdk-accent-vivid: #ff375f;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"][data-pdk-accent-color="red"] {
+	--pdk-accent-vivid: #ff453a;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"][data-pdk-accent-color="orange"] {
+	--pdk-accent-vivid: #ff9f0a;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"][data-pdk-accent-color="yellow"] {
+	--pdk-accent-vivid: #ffd60a;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"][data-pdk-accent-color="green"] {
+	--pdk-accent-vivid: #32d74b;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"][data-pdk-accent-color="graphite"] {
+	--pdk-accent-vivid: #98989d;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-menu-contrast="dark"] {
@@ -2125,8 +2202,8 @@
 	border-radius: 7px;
 	font-size: 12.5px;
 	font-weight: var(--pdk-weight-semibold);
-	gap: 7px;
-	grid-template-columns: 18px minmax(0, 1fr);
+	gap: 8px;
+	grid-template-columns: 20px minmax(0, 1fr);
 	min-height: 26px;
 	padding: 3px 7px;
 }
@@ -2151,6 +2228,18 @@
 	color: var(--pdk-ink);
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-item[data-pdk-folder-sidebar-section="recents"].is-active,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-item[data-pdk-folder-sidebar-section="recents"].is-active:hover,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-item[data-pdk-folder-sidebar-section="recents"].is-active:focus,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-item[data-pdk-folder-sidebar-section="recents"].is-active:active,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-item[data-pdk-folder-sidebar-section="favorites"].is-active,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-item[data-pdk-folder-sidebar-section="favorites"].is-active:hover,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-item[data-pdk-folder-sidebar-section="favorites"].is-active:focus,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-item[data-pdk-folder-sidebar-section="favorites"].is-active:active {
+	background: var(--pdk-finder-sidebar-selection-bg);
+	color: var(--pdk-finder-sidebar-accent);
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-icon,
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-icon-widget-style="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-icon,
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-icon-widget-style="clear"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-icon,
@@ -2160,18 +2249,33 @@
 	border-radius: 0;
 	box-shadow: none;
 	color: currentColor;
-	height: 18px;
-	width: 18px;
+	height: 20px;
+	width: 20px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-outline-icon {
+	display: block;
+	fill: none;
+	height: 20px;
+	stroke: currentColor;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	stroke-width: 2.2;
+	width: 20px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-outline-icon-folder {
+	stroke-width: 2.1;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-icon .pdk-icon-image,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-icon .dashicons {
 	filter: none;
-	font-size: 17px;
-	height: 18px;
-	line-height: 18px;
+	font-size: 19px;
+	height: 20px;
+	line-height: 20px;
 	opacity: 0.9;
-	width: 18px;
+	width: 20px;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-sidebar-item.is-drop-target,

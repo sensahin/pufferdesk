@@ -14,6 +14,11 @@
 		const explorerSortModes = new Set(['none', 'name', 'kind']);
 		const fallbackExplorerViewModes = new Set(['extra-large-icons', 'large-icons', 'medium-icons', 'small-icons', 'list', 'details', 'tiles', 'content']);
 		const folderViewModes = window.PufferDesk.apps.folderViewModes || null;
+		const folderMenuOptions = window.PufferDesk.apps.createFolderMenuOptions
+			? window.PufferDesk.apps.createFolderMenuOptions({
+				getMenuLabel
+			})
+			: null;
 		const trashFolderId = 'trash';
 		let folderProvider = null;
 		let explorerCommandMenu = null;
@@ -99,7 +104,6 @@
 				getFolderDocuments,
 				getMenuLabel,
 				getTrashItems,
-				isFileExplorerLayout,
 				launcherRenderer
 			})
 			: null;
@@ -1434,70 +1438,15 @@
 			}));
 		}
 
-		function explorerChoiceItem(label, command, mode, activeMode, folderId, options = {}) {
-			return explorerMenuItem(label, command, Object.assign({
-				icon: mode === activeMode ? 'dashicons-yes' : '',
-				payload: {
-					folderId,
-					mode,
-					target: folderId
-				},
-				target: folderId
-			}, options));
-		}
-
-		function getFolderViewModeOptions(layout) {
-			if (folderViewModes && typeof folderViewModes.getOptions === 'function') {
-				return folderViewModes.getOptions(layout);
-			}
-
-			if (layout === 'file-explorer') {
-				return [
-					{ fallback: 'Extra large icons', group: 'icons', key: 'extra_large_icons', mode: 'extra-large-icons' },
-					{ fallback: 'Large icons', group: 'icons', key: 'large_icons', mode: 'large-icons' },
-					{ fallback: 'Medium icons', group: 'icons', key: 'medium_icons', mode: 'medium-icons' },
-					{ fallback: 'Small icons', group: 'icons', key: 'small_icons', mode: 'small-icons' },
-					{ fallback: 'List', group: 'list', key: 'list_view_short', mode: 'list' },
-					{ fallback: 'Details', group: 'list', key: 'details_view_short', mode: 'details' },
-					{ fallback: 'Tiles', group: 'list', key: 'tiles_view', mode: 'tiles' },
-					{ fallback: 'Content', group: 'list', key: 'content_view', mode: 'content' }
-				];
-			}
-
-			return [
-				{ fallback: 'as Icons', group: 'view', key: 'as_icons', mode: 'icons' },
-				{ fallback: 'as List', group: 'view', key: 'as_list', mode: 'list' }
-			];
-		}
-
-		function getFolderViewModeLabel(option) {
-			if (folderViewModes && typeof folderViewModes.getLabel === 'function') {
-				return folderViewModes.getLabel(option, getMenuLabel);
-			}
-
-			return getMenuLabel(option.key, option.fallback);
-		}
-
 		function getFolderViewModeMenuItems(folderId, win) {
 			const layout = getFolderViewLayout(win);
 			const viewMode = getExplorerViewMode(win);
-			const items = [];
-			let previousGroup = '';
-
-			getFolderViewModeOptions(layout).forEach((option) => {
-				if (previousGroup && previousGroup !== option.group) {
-					items.push(explorerMenuSeparator());
-				}
-
-				items.push(explorerChoiceItem(
-					getFolderViewModeLabel(option),
-					'folder.set-view-mode',
-					option.mode,
-					viewMode,
-					folderId
-				));
-				previousGroup = option.group;
-			});
+			const items = folderMenuOptions
+				? folderMenuOptions.getViewModeItems(folderId, {
+					activeMode: viewMode,
+					layout
+				})
+				: [];
 
 			if (layout === 'file-explorer') {
 				items.push(
@@ -1524,19 +1473,27 @@
 		function getExplorerCommandMenuItems(action, folderId, win) {
 			const sortMode = getExplorerSortMode(win);
 
-				if (action.id === 'sort' || action.id === 'group') {
-					return [
-						explorerChoiceItem(getMenuLabel('sort_none', 'None'), 'folder.set-sort-mode', 'none', sortMode, folderId),
-						explorerMenuSeparator(),
-					explorerChoiceItem(getMenuLabel('sort_name', 'Name'), 'folder.set-sort-mode', 'name', sortMode, folderId),
-					explorerChoiceItem(getMenuLabel('sort_kind', 'Kind'), 'folder.set-sort-mode', 'kind', sortMode, folderId),
-					disabledExplorerMenuItem(getMenuLabel('sort_date_modified', 'Date Modified')),
-					disabledExplorerMenuItem(getMenuLabel('sort_size', 'Size'))
-				];
+			if (action.id === 'sort' || action.id === 'group') {
+				return folderMenuOptions
+					? folderMenuOptions.getSortModeItems(folderId, {
+						activeMode: sortMode
+					})
+					: [];
 			}
 
 			if (action.id === 'view') {
 				return getFolderViewModeMenuItems(folderId, win);
+			}
+
+			if (action.id === 'action') {
+				return folderMenuOptions
+					? folderMenuOptions.getFolderContentItems(folderId, {
+						infoLabel: getMenuLabel('get_info', 'Get Info'),
+						layout: getFolderViewLayout(win),
+						sortMode,
+						viewMode: getExplorerViewMode(win)
+					})
+					: [];
 			}
 
 			if (action.id === 'more') {
@@ -1566,11 +1523,11 @@
 			}
 
 			return [];
-			}
+		}
 
-			function hasExplorerCommandMenu(action) {
-				return Boolean(action && ['sort', 'group', 'view', 'more'].includes(action.id));
-			}
+		function hasExplorerCommandMenu(action) {
+			return Boolean(action && ['action', 'sort', 'group', 'view', 'more'].includes(action.id));
+		}
 
 		function closeExplorerCommandMenu() {
 			if (typeof explorerCommandMenuCleanup === 'function') {
@@ -1916,6 +1873,17 @@
 			return empty;
 		}
 
+		function applyFolderPaneContext(pane, folderId, folder = null) {
+			if (!pane) {
+				return;
+			}
+
+			pane.dataset.pdkContext = 'folder-content';
+			pane.dataset.pdkContextId = folderId;
+			pane.dataset.pdkContextLabel = folder && folder.label ? folder.label : getMenuLabel('folder', 'Folder');
+			pane.dataset.pdkFolderId = folderId;
+		}
+
 		function parseDocumentId(value) {
 			const raw = String(value || '');
 			const direct = Number.parseInt(raw, 10);
@@ -2125,12 +2093,15 @@
 			const actions = [
 				{ id: 'view', label: 'View', icon: 'dashicons-grid-view', disclosure: 'vertical', menuPlacement: 'icon-top' },
 				{ id: 'group', label: 'Group', icon: 'dashicons-list-view', disclosure: true, menuPlacement: 'icon-bottom' },
-				{ id: 'delete', label: 'Delete', icon: 'dashicons-trash', command: 'folder.delete-selected' }
+				{ id: 'delete', label: 'Delete', icon: 'dashicons-trash', command: 'folder.delete-selected' },
+				{ id: 'get-info', label: getMenuLabel('get_info', 'Get Info'), icon: 'dashicons-info-outline', command: 'folder.get-info' }
 			];
 
 			if (canCreateFolder) {
 				actions.push({ id: 'new-folder', label: 'New Folder', icon: 'dashicons-category', badge: 'plus', command: 'folder.create' });
 			}
+
+			actions.push({ id: 'action', label: getMenuLabel('action', 'Action'), icon: 'dashicons-ellipsis', menuPlacement: 'icon-bottom' });
 
 			return actions;
 		}
@@ -2633,9 +2604,48 @@
 			return true;
 		}
 
-		function createFolderSidebarIcon(folder) {
+		function createSvgNode(tagName, attrs = {}) {
+			const node = document.createElementNS('http://www.w3.org/2000/svg', tagName);
+
+			Object.keys(attrs).forEach((name) => {
+				node.setAttribute(name, attrs[name]);
+			});
+
+			return node;
+		}
+
+		function createFinderSidebarOutlineIcon(kind) {
+			const svg = createSvgNode('svg', {
+				'aria-hidden': 'true',
+				class: `pdk-finder-sidebar-outline-icon pdk-finder-sidebar-outline-icon-${kind}`,
+				focusable: 'false',
+				viewBox: '0 0 24 24'
+			});
+
+			if (kind === 'clock') {
+				svg.append(
+					createSvgNode('circle', { cx: '12', cy: '12', r: '8' }),
+					createSvgNode('path', { d: 'M12 8v4.5l3 2' })
+				);
+				return svg;
+			}
+
+			svg.appendChild(createSvgNode('path', {
+				d: 'M3.75 7.5c0-1.24 1.01-2.25 2.25-2.25h3.1c.68 0 1.32.31 1.75.84l.68.85c.28.35.7.56 1.15.56H18c1.24 0 2.25 1.01 2.25 2.25V17c0 1.24-1.01 2.25-2.25 2.25H6c-1.24 0-2.25-1.01-2.25-2.25V7.5Z'
+			}));
+
+			return svg;
+		}
+
+		function createFolderSidebarIcon(folder, options = {}) {
 			const icon = dom.createElement('span', 'pdk-settings-sidebar-icon pdk-settings-sidebar-icon-blue pdk-finder-sidebar-icon');
-			icon.appendChild(dom.createIcon(folder && folder.icon ? folder.icon : 'dashicons-category'));
+
+			if (options.outlineIcon) {
+				icon.classList.add('pdk-finder-sidebar-icon-outline');
+				icon.appendChild(createFinderSidebarOutlineIcon(options.outlineIcon));
+			} else {
+				icon.appendChild(dom.createIcon(folder && folder.icon ? folder.icon : 'dashicons-category'));
+			}
 
 			return icon;
 		}
@@ -2665,6 +2675,8 @@
 			}
 			button.appendChild(createFolderSidebarIcon({
 				icon: options.icon || 'dashicons-category'
+			}, {
+				outlineIcon: options.outlineIcon || ''
 			}));
 			button.appendChild(dom.createElement('span', 'pdk-settings-sidebar-label', label));
 			button.addEventListener('click', (event) => {
@@ -2840,6 +2852,7 @@
 				icon: { type: 'theme', name: 'clock.svg', fallback: 'dashicons-clock' },
 				id: recentsFolderId,
 				label: getMenuLabel('recents', 'Recents'),
+				outlineIcon: 'clock',
 				section: 'recents',
 				onClick() {
 					if (win && !isRecentsFolderId(folderId)) {
@@ -2862,6 +2875,7 @@
 						icon: folder && folder.icon ? folder.icon : 'dashicons-category',
 						id: folder ? folder.id : favoriteId,
 						label: folder && folder.label ? folder.label : getMenuLabel('folder', 'Folder'),
+						outlineIcon: 'folder',
 						removable: true,
 						section: 'favorites',
 						onClick() {
@@ -2917,6 +2931,7 @@
 			const subbar = isTrash ? createTrashSubbar() : null;
 			const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane');
 
+			applyFolderPaneContext(pane, folderId, folder);
 			bindFolderPaneSelectionClear(pane);
 			bindFolderPaneItemDrag(pane, folderId);
 			header.dataset.pdkContext = 'folder-toolbar';
@@ -2965,6 +2980,7 @@
 			const main = dom.createElement('main', 'pdk-settings-main pdk-finder-main pdk-explorer-main');
 			const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane pdk-explorer-pane');
 
+			applyFolderPaneContext(pane, folderId, folder);
 			bindFolderPaneSelectionClear(pane);
 			bindFolderPaneItemDrag(pane, folderId);
 			pane.dataset.pdkFolderViewMode = getExplorerViewMode(win);

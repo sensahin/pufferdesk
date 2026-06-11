@@ -1087,7 +1087,7 @@ final class PufferDesk_User_Preferences {
 
 			$sanitized[] = array(
 				'folder'    => $folder,
-				'icon'      => PufferDesk_Icon_Renderer::normalize( isset( $item['icon'] ) ? $item['icon'] : $folder['icon'] ),
+				'icon'      => $folder['icon'],
 				'id'        => $id,
 				'label'     => $label,
 				'restore'   => $this->sanitize_desktop_trash_restore( isset( $item['restore'] ) && is_array( $item['restore'] ) ? $item['restore'] : array() ),
@@ -1186,15 +1186,7 @@ final class PufferDesk_User_Preferences {
 				),
 				'comment'      => isset( $folder['comment'] ) ? sanitize_textarea_field( (string) $folder['comment'] ) : '',
 				'createdAt'    => $this->sanitize_desktop_folder_timestamp( isset( $folder['createdAt'] ) ? $folder['createdAt'] : '', gmdate( 'c' ) ),
-				'icon'         => PufferDesk_Icon_Renderer::normalize(
-					isset( $folder['icon'] )
-						? $folder['icon']
-						: array(
-							'type'     => 'theme',
-							'name'     => 'folder.svg',
-							'fallback' => 'dashicons-category',
-						)
-				),
+				'icon'         => $this->get_desktop_folder_icon(),
 				'id'           => $id,
 					'label'        => $label,
 					'lastOpenedAt' => $this->sanitize_desktop_folder_timestamp( isset( $folder['lastOpenedAt'] ) ? $folder['lastOpenedAt'] : '', '' ),
@@ -1208,6 +1200,21 @@ final class PufferDesk_User_Preferences {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Return the standard user folder icon descriptor.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_desktop_folder_icon() {
+		return PufferDesk_Icon_Renderer::normalize(
+			array(
+				'type'     => 'theme',
+				'name'     => 'folder.svg',
+				'fallback' => 'dashicons-category',
+			)
+		);
 	}
 
 	/**

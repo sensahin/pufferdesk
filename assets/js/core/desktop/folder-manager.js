@@ -52,10 +52,7 @@
 			}
 
 		function getDefaultFolderIcon() {
-			const contentFolder = systemFolders.find((folder) => folder.id === 'content');
-			const folder = contentFolder || systemFolders[0] || null;
-
-			return folder && folder.icon ? folder.icon : defaultFolderIcon;
+			return Object.assign({}, defaultFolderIcon);
 		}
 
 		function getMenuLabel(key, fallback) {
@@ -147,7 +144,7 @@
 				appIds: normalizeAppIds(folder.appIds),
 				comment: typeof folder.comment === 'string' ? folder.comment : '',
 				createdAt: normalizeTimestamp(folder.createdAt, now),
-				icon: folder.icon || getDefaultFolderIcon(),
+				icon: getDefaultFolderIcon(),
 					id,
 					kind: 'user',
 					label: String(folder.label || '').trim() || getUntitledFolderLabel(),
@@ -198,7 +195,7 @@
 				appIds: normalizeAppIds(folder.appIds),
 				comment: folder.comment || '',
 				createdAt: folder.createdAt || '',
-					icon: folder.icon || getDefaultFolderIcon(),
+					icon: getDefaultFolderIcon(),
 					id: folder.id,
 					label: folder.label,
 					lastOpenedAt: folder.lastOpenedAt || '',
@@ -246,7 +243,7 @@
 
 			return {
 				folder: serializeFolder(folder),
-				icon: item.icon || folder.icon || getDefaultFolderIcon(),
+				icon: folder.icon,
 				id: normalizeId(item.id) || `folder-${folder.id}`,
 				label: String(item.label || folder.label || getFolderLabel()).trim() || getFolderLabel(),
 				restore: normalizeTrashRestore(item.restore),
@@ -269,15 +266,19 @@
 		}
 
 		function serializeTrash() {
-			return trashItems.map((item) => ({
-				folder: serializeFolder(item.folder),
-				icon: item.icon || item.folder.icon || getDefaultFolderIcon(),
-				id: item.id,
-				label: item.label || item.folder.label || getFolderLabel(),
-				restore: normalizeTrashRestore(item.restore),
-				trashedAt: item.trashedAt || '',
-				type: 'folder'
-			}));
+			return trashItems.map((item) => {
+				const folder = serializeFolder(item.folder);
+
+				return {
+					folder,
+					icon: folder.icon,
+					id: item.id,
+					label: item.label || folder.label || getFolderLabel(),
+					restore: normalizeTrashRestore(item.restore),
+					trashedAt: item.trashedAt || '',
+					type: 'folder'
+				};
+			});
 		}
 
 		function saveFolders() {
