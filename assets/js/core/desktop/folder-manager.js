@@ -97,13 +97,17 @@
 			return getMenuLabel(key, fallback);
 		}
 
-		function getUntitledFolderLabel() {
-			return getMenuLabel('untitled_folder');
-		}
+			function getUntitledFolderLabel() {
+				return getMenuLabel('untitled_folder');
+			}
 
-		function getFolderLabel() {
-			return getMenuLabel('folder');
-		}
+			function createUserFolderId() {
+				return `user-folder-${Date.now().toString(36)}-${idCounter += 1}`;
+			}
+
+			function getFolderLabel() {
+				return getMenuLabel('folder');
+			}
 
 		function getTrashFolder() {
 			const app = appMap.get(trashFolderId) || {};
@@ -222,9 +226,9 @@
 				});
 			}
 
-		function serializeFolder(folder) {
-			return {
-				appIds: normalizeAppIds(folder.appIds),
+			function serializeFolder(folder) {
+				return {
+					appIds: normalizeAppIds(folder.appIds),
 				appRefs: normalizeAppIds(folder.appRefs),
 				comment: folder.comment || '',
 				createdAt: folder.createdAt || '',
@@ -236,16 +240,54 @@
 					parentId: getFolderParentId(folder),
 					path: getUserFolderPath(folder.id, folder.path)
 				};
+				}
+
+			function serializeFolders() {
+				return userFolders.map(serializeFolder);
 			}
 
-		function serializeFolders() {
-			return userFolders.map(serializeFolder);
-		}
+			function normalizeTrashFolders(folders = [], rootFolderId = '') {
+				const rootId = normalizeId(rootFolderId);
+				const seen = new Set(rootId ? [rootId] : []);
+				const normalized = [];
 
-		function normalizeTrashRestore(restore = {}) {
-				const normalized = {
-					previousParent: normalizeParentId(restore.previousParent)
-				};
+				if (!Array.isArray(folders)) {
+					return normalized;
+				}
+
+				folders.forEach((rawFolder) => {
+					const folder = normalizeFolder(rawFolder);
+
+					if (!folder || !folder.id || seen.has(folder.id)) {
+						return;
+					}
+
+					seen.add(folder.id);
+					normalized.push(serializeFolder(folder));
+				});
+
+				const knownIds = new Set(rootId ? [rootId] : []);
+				normalized.forEach((folder) => {
+					knownIds.add(folder.id);
+				});
+
+				normalized.forEach((folder) => {
+					const parentId = getFolderParentId(folder);
+
+					if (!rootId) {
+						folder.parentId = parentId === folder.id ? 'desktop' : parentId;
+					} else if (parentId === folder.id || parentId === 'trash' || !knownIds.has(parentId)) {
+						folder.parentId = rootId;
+					}
+				});
+
+				return normalized.map(serializeFolder);
+			}
+
+			function normalizeTrashRestore(restore = {}) {
+					const normalized = {
+						previousParent: normalizeParentId(restore.previousParent)
+					};
 			const position = restore && restore.desktopPosition && typeof restore.desktopPosition === 'object'
 				? restore.desktopPosition
 				: null;
@@ -273,13 +315,14 @@
 			const folder = normalizeFolder(item.folder);
 			if (!folder) {
 				return null;
-			}
+				}
 
-			return {
-				folder: serializeFolder(folder),
-				icon: folder.icon,
-				id: normalizeId(item.id) || `folder-${folder.id}`,
-				label: String(item.label || folder.label || getFolderLabel()).trim() || getFolderLabel(),
+				return {
+					folder: serializeFolder(folder),
+					folders: normalizeTrashFolders(item.folders, folder.id),
+					icon: folder.icon,
+					id: normalizeId(item.id) || `folder-${folder.id}`,
+					label: String(item.label || folder.label || getFolderLabel()).trim() || getFolderLabel(),
 				restore: normalizeTrashRestore(item.restore),
 				trashedAt: normalizeTimestamp(item.trashedAt, new Date().toISOString()),
 				type: 'folder'
@@ -299,15 +342,16 @@
 			});
 		}
 
-		function serializeTrash() {
-			return trashItems.map((item) => {
-				const folder = serializeFolder(item.folder);
+			function serializeTrash() {
+				return trashItems.map((item) => {
+					const folder = serializeFolder(item.folder);
 
-				return {
-					folder,
-					icon: folder.icon,
-					id: item.id,
-					label: item.label || folder.label || getFolderLabel(),
+					return {
+						folder,
+						folders: normalizeTrashFolders(item.folders, folder.id),
+						icon: folder.icon,
+						id: item.id,
+						label: item.label || folder.label || getFolderLabel(),
 					restore: normalizeTrashRestore(item.restore),
 					trashedAt: item.trashedAt || '',
 					type: 'folder'
@@ -546,13 +590,52 @@
 			return true;
 		}
 
-		function getUserFolder(folderId) {
-			return userFolders.find((folder) => folder.id === folderId) || null;
-		}
+			function getUserFolder(folderId) {
+				return userFolders.find((folder) => folder.id === folderId) || null;
+			}
 
-		function markFolderModified(folder) {
-			if (folder) {
-				folder.modifiedAt = new Date().toISOString();
+			function getFolderDescendantIds(folderId) {
+				const rootId = normalizeId(folderId);
+				const descendants = [];
+				const queue = rootId ? [rootId] : [];
+				const seen = new Set(queue);
+				let guard = 0;
+
+				while (queue.length && guard < 1000) {
+					const parentId = queue.shift();
+
+					userFolders.forEach((folder) => {
+						if (!folder || !folder.id || seen.has(folder.id) || getFolderParentId(folder) !== parentId) {
+							return;
+						}
+
+						seen.add(folder.id);
+						descendants.push(folder.id);
+						queue.push(folder.id);
+					});
+
+					guard += 1;
+				}
+
+				return descendants;
+			}
+
+			function getFolderSubtreeIds(folderId) {
+				const rootId = normalizeId(folderId);
+
+				return rootId ? [rootId].concat(getFolderDescendantIds(rootId)) : [];
+			}
+
+			function getFolderDescendantSnapshots(folderId) {
+				return getFolderDescendantIds(folderId)
+					.map((id) => getUserFolder(id))
+					.filter(Boolean)
+					.map(serializeFolder);
+			}
+
+			function markFolderModified(folder) {
+				if (folder) {
+					folder.modifiedAt = new Date().toISOString();
 			}
 		}
 
@@ -715,12 +798,12 @@
 			});
 		}
 
-		function createFolder(label = '', appIds = [], createOptions = {}) {
-			const now = new Date().toISOString();
-			const id = `user-folder-${Date.now().toString(36)}-${idCounter += 1}`;
-				const parentId = normalizeParentId(createOptions.parentId);
-				const folder = {
-					appIds: normalizeAppIds(appIds),
+			function createFolder(label = '', appIds = [], createOptions = {}) {
+				const now = new Date().toISOString();
+				const id = createUserFolderId();
+					const parentId = normalizeParentId(createOptions.parentId);
+					const folder = {
+						appIds: normalizeAppIds(appIds),
 					appRefs: [],
 					comment: '',
 					createdAt: now,
@@ -766,82 +849,77 @@
 			return folder;
 		}
 
-		function reparentChildFolders(parentId, nextParentId = 'desktop') {
-			const normalizedParentId = normalizeParentId(parentId);
-			const normalizedNextParentId = normalizeParentId(nextParentId);
-			const changed = [];
-
-			userFolders.forEach((folder) => {
-				if (getFolderParentId(folder) !== normalizedParentId) {
-					return;
-				}
-
-				folder.parentId = normalizedNextParentId;
-				markFolderModified(folder);
-				changed.push(folder.id);
-			});
-
-			return changed;
-		}
-
-		function closeFolderSurfaces(folderId) {
-			if (launcher && typeof launcher.closeFolderWindow === 'function') {
-				launcher.closeFolderWindow(folderId);
+			function closeFolderSurfaces(folderId) {
+				if (launcher && typeof launcher.closeFolderWindow === 'function') {
+					launcher.closeFolderWindow(folderId);
 			}
 
 			if (launcher && typeof launcher.closeFolderInfoWindow === 'function') {
 				launcher.closeFolderInfoWindow(folderId);
+				}
 			}
-		}
 
-		function removeTrashItemByFolderId(folderId) {
-			const itemId = `folder-${folderId}`;
-			const index = trashItems.findIndex((item) => item.id === itemId || (item.folder && item.folder.id === folderId));
+			function removeTrashItemsByFolderIds(folderIds = []) {
+				const ids = new Set((Array.isArray(folderIds) ? folderIds : []).map(normalizeId).filter(Boolean));
 
-			if (index >= 0) {
-				trashItems.splice(index, 1);
+				if (!ids.size) {
+					return;
+				}
+
+				trashItems = trashItems.filter((item) => {
+					if (!item) {
+						return false;
+					}
+
+					if ((item.folder && ids.has(item.folder.id)) || ids.has(item.id.replace(/^folder-/, ''))) {
+						return false;
+					}
+
+					return !Array.isArray(item.folders) || !item.folders.some((folder) => folder && ids.has(folder.id));
+				});
 			}
-		}
 
-		function moveFolderToTrash(folderId) {
-			const index = userFolders.findIndex((folder) => folder.id === folderId);
-			if (index < 0) {
-				return false;
-			}
+			function moveFolderToTrash(folderId) {
+				const index = userFolders.findIndex((folder) => folder.id === folderId);
+				if (index < 0) {
+					return false;
+				}
 
 				const folder = userFolders[index];
 				const previousParent = getFolderParentId(folder);
+				const removedFolderIds = getFolderSubtreeIds(folder.id);
+				const removedFolderSet = new Set(removedFolderIds);
 				const trashedAt = new Date().toISOString();
 				const trashItem = {
-				folder: serializeFolder(folder),
-				icon: folder.icon || getDefaultFolderIcon(),
-				id: `folder-${folder.id}`,
-				label: folder.label || getFolderLabel(),
+					folder: serializeFolder(folder),
+					folders: getFolderDescendantSnapshots(folder.id),
+					icon: folder.icon || getDefaultFolderIcon(),
+					id: `folder-${folder.id}`,
+					label: folder.label || getFolderLabel(),
 					restore: {
 						desktopPosition: getFolderDesktopPosition(folder.id),
 						previousParent
 					},
-				trashedAt,
-				type: 'folder'
-			};
+					trashedAt,
+					type: 'folder'
+				};
 
-				removeTrashItemByFolderId(folder.id);
+				removeTrashItemsByFolderIds(removedFolderIds);
 				trashItems.unshift(normalizeTrashItem(trashItem));
 				trashItems = trashItems.filter(Boolean).slice(0, 100);
-				const reparentedFolderIds = reparentChildFolders(folder.id, previousParent);
-				userFolders.splice(index, 1);
-			renderUserFolders();
-			syncDesktopAppVisibility();
-			refreshDesktopIcons();
-			saveDesktopIconSession();
-			refreshFolderWindows([previousParent].concat(reparentedFolderIds));
-			closeFolderSurfaces(folderId);
-			scheduleSave();
-			scheduleTrashSave();
-			dispatchTrashChange();
+				userFolders = userFolders.filter((candidate) => !removedFolderSet.has(candidate.id));
+				renderUserFolders();
+				syncDesktopAppVisibility();
+				refreshDesktopIcons();
+				saveDesktopIconSession();
+				refreshFolderWindows([previousParent].concat(removedFolderIds));
+				removedFolderIds.forEach(closeFolderSurfaces);
+				scheduleSave();
+				scheduleTrashSave();
+				dispatchTrashChange();
 
-			return true;
-		}
+				return true;
+			}
 
 		function restoreTrashItem(trashId) {
 			const index = trashItems.findIndex((item) => item.id === trashId);
@@ -852,25 +930,55 @@
 				return null;
 			}
 
-			if (getFolder(restored.id)) {
-				restored.id = `user-folder-${Date.now().toString(36)}-${idCounter += 1}`;
-			}
+				if (getFolder(restored.id)) {
+					restored.id = createUserFolderId();
+				}
 
-			restored.label = uniqueLabel(restored.label || item.label || getFolderLabel(), restored.id);
-			markFolderModified(restored);
-			trashItems.splice(index, 1);
+				const restoredRootOriginalId = item.folder && item.folder.id ? item.folder.id : restored.id;
+				const restoredChildren = normalizeTrashFolders(item.folders, restoredRootOriginalId).map(normalizeFolder).filter(Boolean);
+				const restoredFolders = [restored].concat(restoredChildren);
+				const activeIds = new Set(userFolders.map((folder) => folder.id));
+				const assignedIds = new Set();
+				const idMap = new Map([[restoredRootOriginalId, restored.id]]);
+
+				restoredChildren.forEach((folder) => {
+					const originalId = folder.id;
+
+					if (activeIds.has(folder.id) || assignedIds.has(folder.id) || systemFolderMap.has(folder.id) || folder.id === trashFolderId) {
+						folder.id = createUserFolderId();
+					}
+
+					assignedIds.add(folder.id);
+					idMap.set(originalId, folder.id);
+				});
+
+				const restoredIds = new Set(restoredFolders.map((folder) => folder.id));
+				restored.label = uniqueLabel(restored.label || item.label || getFolderLabel(), restored.id);
 				restored.parentId = normalizeParentId(item.restore && item.restore.previousParent ? item.restore.previousParent : restored.parentId);
 				if (restored.parentId !== 'desktop' && !getFolder(restored.parentId)) {
 					restored.parentId = 'desktop';
 				}
+				markFolderModified(restored);
 				userFolders.push(restored);
-			renderUserFolders();
-			syncDesktopAppVisibility();
-			refreshDesktopIcons();
-			positionFolderIcon(restored.id, item.restore && item.restore.desktopPosition ? item.restore.desktopPosition : null);
-			scheduleSave();
-			scheduleTrashSave();
-			dispatchTrashChange();
+				restoredChildren.forEach((folder) => {
+					const parentId = idMap.get(getFolderParentId(folder)) || getFolderParentId(folder);
+
+					folder.parentId = parentId;
+					if (folder.parentId === folder.id || !restoredIds.has(folder.parentId)) {
+						folder.parentId = restored.id;
+					}
+					folder.label = uniqueLabel(folder.label || getFolderLabel(), folder.id);
+					markFolderModified(folder);
+					userFolders.push(folder);
+				});
+				trashItems.splice(index, 1);
+				renderUserFolders();
+				syncDesktopAppVisibility();
+				refreshDesktopIcons();
+				positionFolderIcon(restored.id, item.restore && item.restore.desktopPosition ? item.restore.desktopPosition : null);
+				scheduleSave();
+				scheduleTrashSave();
+				dispatchTrashChange();
 
 			return restored;
 		}
@@ -900,24 +1008,25 @@
 			return true;
 		}
 
-		function deleteFolder(folderId) {
-			const index = userFolders.findIndex((folder) => folder.id === folderId);
+			function deleteFolder(folderId) {
+				const index = userFolders.findIndex((folder) => folder.id === folderId);
 				if (index < 0) {
 					return false;
 				}
 
 				const previousParent = getFolderParentId(userFolders[index]);
-				const reparentedFolderIds = reparentChildFolders(folderId, previousParent);
-				userFolders.splice(index, 1);
-			renderUserFolders();
-			syncDesktopAppVisibility();
-			refreshDesktopIcons();
-			saveDesktopIconSession();
-			refreshFolderWindows([previousParent].concat(reparentedFolderIds));
-			closeFolderSurfaces(folderId);
-			scheduleSave();
+				const removedFolderIds = getFolderSubtreeIds(folderId);
+				const removedFolderSet = new Set(removedFolderIds);
+				userFolders = userFolders.filter((folder) => !removedFolderSet.has(folder.id));
+				renderUserFolders();
+				syncDesktopAppVisibility();
+				refreshDesktopIcons();
+				saveDesktopIconSession();
+				refreshFolderWindows([previousParent].concat(removedFolderIds));
+				removedFolderIds.forEach(closeFolderSurfaces);
+				scheduleSave();
 
-			return true;
+				return true;
 		}
 
 		function removeAppFromFolders(appId, exceptFolderId = '') {

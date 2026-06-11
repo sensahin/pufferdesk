@@ -1187,9 +1187,10 @@ final class PufferDesk_User_Preferences {
 	/**
 	 * Sanitize desktop Trash records.
 	 *
-	 * Desktop Trash currently stores PufferDesk-owned user folder snapshots only.
-	 * Apps inside those folders are registry references; they are never deleted by
-	 * Trash and missing plugin-derived references are dropped during sanitization.
+	 * Desktop Trash stores PufferDesk-owned user folder snapshots and their
+	 * descendant folder snapshots. Apps inside those folders are registry
+	 * references; they are never deleted by Trash and missing plugin-derived
+	 * references are dropped during sanitization.
 	 *
 	 * @param array<int,array<string,mixed>> $items Raw Trash records.
 	 * @param array<int,array<string,mixed>> $apps Available apps.
@@ -1227,8 +1228,15 @@ final class PufferDesk_User_Preferences {
 			$label = isset( $item['label'] ) ? sanitize_text_field( (string) $item['label'] ) : '';
 			$label = '' !== $label ? $label : $folder['label'];
 
+			$child_folders = $this->sanitize_desktop_trash_folders(
+				isset( $item['folders'] ) && is_array( $item['folders'] ) ? $item['folders'] : array(),
+				$folder['id'],
+				$apps
+			);
+
 			$sanitized[] = array(
 				'folder'    => $folder,
+				'folders'   => $child_folders,
 				'icon'      => $folder['icon'],
 				'id'        => $id,
 				'label'     => $label,
@@ -1239,6 +1247,56 @@ final class PufferDesk_User_Preferences {
 			$seen[ $id ] = true;
 
 			if ( count( $sanitized ) >= 100 ) {
+				break;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize descendant folder snapshots for one Trash record.
+	 *
+	 * @param array<int,array<string,mixed>> $folders Raw descendant folders.
+	 * @param string                         $root_id Root folder ID.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function sanitize_desktop_trash_folders( $folders, $root_id, $apps ) {
+		$root_id = sanitize_key( (string) $root_id );
+		if ( '' === $root_id ) {
+			return array();
+		}
+
+		$folders = $this->sanitize_desktop_folders( is_array( $folders ) ? $folders : array(), $apps );
+		if ( empty( $folders ) ) {
+			return array();
+		}
+
+		$ids = array(
+			$root_id => true,
+		);
+		foreach ( $folders as $folder ) {
+			if ( ! empty( $folder['id'] ) ) {
+				$ids[ $folder['id'] ] = true;
+			}
+		}
+
+		$sanitized = array();
+		foreach ( $folders as $folder ) {
+			if ( empty( $folder['id'] ) || $root_id === $folder['id'] ) {
+				continue;
+			}
+
+			$parent_id = isset( $folder['parentId'] ) ? sanitize_key( (string) $folder['parentId'] ) : $root_id;
+			if ( '' === $parent_id || 'trash' === $parent_id || $parent_id === $folder['id'] || empty( $ids[ $parent_id ] ) ) {
+				$parent_id = $root_id;
+			}
+
+			$folder['parentId'] = $parent_id;
+			$sanitized[]        = $folder;
+
+			if ( count( $sanitized ) >= 99 ) {
 				break;
 			}
 		}

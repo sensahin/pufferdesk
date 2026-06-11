@@ -1378,7 +1378,7 @@ final class PufferDesk_Runtime_Config {
 				),
 				'emptyTrash' => array(
 					'title'        => $this->get_theme_menu_label( $theme, 'empty_trash_title', __( 'Empty Trash?', 'pufferdesk-admin-desktop' ) ),
-					'message'      => __( 'This permanently deletes all trashed PufferDesk folder records. Apps and plugins are not deleted.', 'pufferdesk-admin-desktop' ),
+					'message'      => __( 'This permanently deletes all trashed PufferDesk folder records, including folder contents. Apps and plugins are not deleted.', 'pufferdesk-admin-desktop' ),
 					'confirmLabel' => $this->get_theme_menu_label( $theme, 'empty_trash', __( 'Empty Trash', 'pufferdesk-admin-desktop' ) ),
 					'cancelLabel'  => __( 'Cancel', 'pufferdesk-admin-desktop' ),
 					'icon'         => 'dashicons-trash',
@@ -1696,7 +1696,7 @@ final class PufferDesk_Runtime_Config {
 				'wordpress_admin_menu_format' => __( 'WordPress Admin Menu > %s', 'pufferdesk-admin-desktop' ),
 				'empty'                   => __( 'Empty', 'pufferdesk-admin-desktop' ),
 				'move_to_trash'           => __( 'Move to Trash', 'pufferdesk-admin-desktop' ),
-				'move_folder_to_trash_message' => __( 'Only this PufferDesk folder will be moved. Apps and plugins inside it stay installed and available.', 'pufferdesk-admin-desktop' ),
+				'move_folder_to_trash_message' => __( 'This PufferDesk folder and its contents will be moved. Apps and plugins inside it stay installed and available.', 'pufferdesk-admin-desktop' ),
 				'move_folder_to_trash_confirmation' => __( 'Are you sure you want to move this folder to Trash?', 'pufferdesk-admin-desktop' ),
 				'move_folder_to_trash_confirm_label' => __( 'Move to Trash', 'pufferdesk-admin-desktop' ),
 				'move_folder_to_trash_cancel_label' => __( 'Cancel', 'pufferdesk-admin-desktop' ),
