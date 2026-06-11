@@ -68,7 +68,10 @@ if ( ! $pufferdesk_show_status ) {
 	<?php endif; ?>
 	<?php if ( $pufferdesk_show_search ) : ?>
 		<label class="pdk-search" for="pdk-search-input">
-			<span class="dashicons dashicons-search" aria-hidden="true"></span>
+			<svg class="pdk-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+				<circle cx="11" cy="11" r="6.5" />
+				<path d="m16 16 4 4" />
+			</svg>
 			<input id="pdk-search-input" type="search" placeholder="<?php esc_attr_e( 'Search apps', 'pufferdesk-admin-desktop' ); ?>" autocomplete="off" data-pdk-search />
 		</label>
 	<?php endif; ?>

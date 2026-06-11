@@ -823,25 +823,18 @@
 	width: 180px;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search:focus-within .dashicons {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search:focus-within .pdk-search-icon {
 	color: var(--pdk-accent-ink);
 	text-shadow: none;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search .dashicons {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search-icon {
 	color: var(--pdk-menu-muted);
-	display: inline-flex;
+	display: block;
 	flex: 0 0 auto;
-	font-size: var(--pdk-notification-button-icon-size);
 	height: 20px;
-	justify-content: center;
-	line-height: 20px;
 	text-shadow: var(--pdk-menu-text-shadow);
 	width: 20px;
-}
-
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search .dashicons::before {
-	line-height: inherit;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search input {

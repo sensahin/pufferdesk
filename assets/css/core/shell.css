@@ -646,14 +646,26 @@
 	background: var(--pdk-card-bg);
 	border: 1px solid var(--pdk-card-border);
 	border-radius: 999px;
-	gap: 8px;
+	gap: 0;
+	height: var(--pdk-notification-button-size, 28px);
+	justify-content: center;
 	min-width: 0;
-	padding: 0 12px;
+	overflow: hidden;
+	padding: 0;
+	width: var(--pdk-notification-button-size, 28px);
 }
 
-.pdk-search .dashicons {
+.pdk-search:focus-within {
+	gap: 8px;
+	justify-content: flex-start;
+	padding: 0 12px;
+	width: 180px;
+}
+
+.pdk-search-icon {
 	color: var(--pdk-menu-muted);
-	font-size: 17px;
+	display: block;
+	flex: 0 0 auto;
 	height: 17px;
 	width: 17px;
 }
@@ -665,10 +677,17 @@
 	color: var(--pdk-menu-ink);
 	font-size: var(--pdk-text-body);
 	height: 34px;
+	margin: 0;
 	min-width: 0;
+	opacity: 0;
 	outline: none;
 	padding: 0;
-	width: 100%;
+	width: 0;
+}
+
+.pdk-search:focus-within input {
+	opacity: 1;
+	width: 130px;
 }
 
 .pdk-clock {

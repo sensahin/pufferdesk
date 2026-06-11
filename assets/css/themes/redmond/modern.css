@@ -1079,6 +1079,7 @@
 	border: 0;
 	color: #1f1f1f;
 	font: inherit;
+	margin: 0;
 	min-width: 0;
 	outline: none;
 	width: 100%;
@@ -1154,6 +1155,10 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sound-status-button {
+	height: 40px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sound-status-slot {
 	height: 40px;
 }
 

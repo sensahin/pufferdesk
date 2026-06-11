@@ -1,6 +1,20 @@
 .pdk-sound-status-slot {
+	align-items: center;
 	display: inline-flex;
-	flex: 0 0 auto;
+	flex: 0 0 var(--pdk-sound-status-button-size, var(--pdk-notification-button-size, 28px));
+	height: var(--pdk-sound-status-button-size, var(--pdk-notification-button-size, 28px));
+	justify-content: center;
+	width: var(--pdk-sound-status-button-size, var(--pdk-notification-button-size, 28px));
+}
+
+.pdk-sound-status-slot:empty::before {
+	-webkit-mask: var(--pdk-sound-status-icon-url, url("../../media/shared/icons/volume.svg")) center / contain no-repeat;
+	background: var(--pdk-sound-status-button-ink, var(--pdk-notification-button-ink, var(--pdk-menu-ink)));
+	content: "";
+	display: block;
+	height: var(--pdk-sound-status-icon-size, 17px);
+	mask: var(--pdk-sound-status-icon-url, url("../../media/shared/icons/volume.svg")) center / contain no-repeat;
+	width: var(--pdk-sound-status-icon-size, 17px);
 }
 
 .pdk-sound-status-button {
