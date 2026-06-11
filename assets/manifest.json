@@ -300,6 +300,18 @@
 			]
 		},
 		{
+			"handle": "pufferdesk-clipboard-service",
+			"path": "assets/js/core/services/clipboard-service.js",
+			"deps": [
+				"pufferdesk-config",
+				"pufferdesk-documents-service",
+				"pufferdesk-virtual-filesystem",
+				"pufferdesk-context-menu-constants",
+				"pufferdesk-dragdrop-models",
+				"pufferdesk-event-bus"
+			]
+		},
+		{
 			"handle": "pufferdesk-workspace-contract",
 			"path": "assets/js/core/session/workspace-contract.js",
 			"deps": [

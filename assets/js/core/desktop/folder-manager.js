@@ -17,6 +17,9 @@
 		const defaultFolderIcon = { type: 'theme', name: 'folder.svg', fallback: 'dashicons-category' };
 		const appMap = new Map(apps.map((app) => [app.id, app]));
 		const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
+		const virtualFilesystem = window.PufferDesk.virtualFilesystem && typeof window.PufferDesk.virtualFilesystem.create === 'function'
+			? window.PufferDesk.virtualFilesystem.create(config)
+			: null;
 		const contextTargets = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
 			? window.PufferDesk.shell.contextMenuConstants.targets || {}
 			: {};
@@ -54,6 +57,24 @@
 
 			function getFolderParentId(folder) {
 				return normalizeParentId(folder && folder.parentId ? folder.parentId : 'desktop');
+			}
+
+			function getDesktopFolderPath() {
+				return virtualFilesystem && typeof virtualFilesystem.getDefaultPathForKind === 'function'
+					? virtualFilesystem.getDefaultPathForKind('desktop')
+					: '';
+			}
+
+			function getUserFolderPath(folderId, path = '') {
+				const storedPath = typeof path === 'string' ? path.trim() : '';
+				const desktopPath = getDesktopFolderPath();
+				const id = normalizeId(folderId);
+
+				if (storedPath) {
+					return storedPath;
+				}
+
+				return desktopPath && id ? `${desktopPath}/${id}` : '';
 			}
 
 			function isDesktopFolder(folder) {
@@ -151,6 +172,7 @@
 
 			return {
 				appIds: normalizeAppIds(folder.appIds),
+				appRefs: normalizeAppIds(folder.appRefs),
 				comment: typeof folder.comment === 'string' ? folder.comment : '',
 				createdAt: normalizeTimestamp(folder.createdAt, now),
 				icon: getDefaultFolderIcon(),
@@ -160,6 +182,7 @@
 					lastOpenedAt: normalizeTimestamp(folder.lastOpenedAt),
 					modifiedAt: normalizeTimestamp(folder.modifiedAt, normalizeTimestamp(folder.createdAt, now)),
 					parentId: normalizeParentId(folder.parentId),
+					path: getUserFolderPath(id, folder.path),
 					user: true
 				};
 			}
@@ -202,6 +225,7 @@
 		function serializeFolder(folder) {
 			return {
 				appIds: normalizeAppIds(folder.appIds),
+				appRefs: normalizeAppIds(folder.appRefs),
 				comment: folder.comment || '',
 				createdAt: folder.createdAt || '',
 					icon: getDefaultFolderIcon(),
@@ -209,7 +233,8 @@
 					label: folder.label,
 					lastOpenedAt: folder.lastOpenedAt || '',
 					modifiedAt: folder.modifiedAt || '',
-					parentId: getFolderParentId(folder)
+					parentId: getFolderParentId(folder),
+					path: getUserFolderPath(folder.id, folder.path)
 				};
 			}
 
@@ -364,7 +389,7 @@
 			button.dataset.pdkDateCreated = folder.createdAt || '';
 			button.dataset.pdkDateLastOpened = folder.lastOpenedAt || '';
 			button.dataset.pdkDateModified = folder.modifiedAt || folder.createdAt || '';
-			button.dataset.pdkSize = String(Array.isArray(folder.appIds) ? folder.appIds.length : 0);
+			button.dataset.pdkSize = String(normalizeAppIds((folder.appIds || []).concat(folder.appRefs || [])).length);
 			button.dataset.pdkOpenFolder = folder.id;
 			button.dataset.pdkUserFolder = '1';
 			button.setAttribute('aria-label', folder.label);
@@ -577,7 +602,7 @@
 			const userFolder = getUserFolder(folderId);
 
 			if (userFolder) {
-				return userFolder.appIds
+				return normalizeAppIds((userFolder.appIds || []).concat(userFolder.appRefs || []))
 					.map((appId) => appMap.get(appId))
 					.filter(Boolean);
 			}
@@ -696,6 +721,7 @@
 				const parentId = normalizeParentId(createOptions.parentId);
 				const folder = {
 					appIds: normalizeAppIds(appIds),
+					appRefs: [],
 					comment: '',
 					createdAt: now,
 				icon: getDefaultFolderIcon(),
@@ -705,6 +731,7 @@
 					lastOpenedAt: '',
 					modifiedAt: now,
 					parentId,
+					path: getUserFolderPath(id),
 					user: true
 				};
 
@@ -917,6 +944,7 @@
 			}
 
 			const changedFolderIds = removeAppFromFolders(appId, folder.id);
+			folder.appRefs = normalizeAppIds(folder.appRefs).filter((folderAppId) => folderAppId !== appId);
 			if (!folder.appIds.includes(appId)) {
 				folder.appIds.push(appId);
 				changedFolderIds.push(folder.id);
@@ -930,6 +958,59 @@
 			return true;
 		}
 
+		function addAppReferenceToFolder(appId, folderId) {
+			const folder = getUserFolder(folderId);
+			const appIds = normalizeAppIds(folder ? folder.appIds : []);
+			const appRefs = normalizeAppIds(folder ? folder.appRefs : []);
+
+			if (!folder || !appMap.has(appId) || appIds.includes(appId) || appRefs.includes(appId)) {
+				return false;
+			}
+
+			folder.appIds = appIds;
+			folder.appRefs = appRefs.concat(appId);
+			markFolderModified(folder);
+			syncDesktopAppVisibility();
+			refreshFolderWindows([folder.id]);
+			scheduleSave();
+
+			return true;
+		}
+
+		function isAppReferenceInFolder(appId, folderId) {
+			const folder = getUserFolder(folderId);
+
+			return Boolean(folder && normalizeAppIds(folder.appRefs).includes(appId));
+		}
+
+		function moveAppReferenceToFolder(appId, sourceFolderId, targetFolderId) {
+			const sourceFolder = getUserFolder(sourceFolderId);
+			const targetFolder = getUserFolder(targetFolderId);
+			const sourceRefs = normalizeAppIds(sourceFolder ? sourceFolder.appRefs : []);
+			const targetRefs = normalizeAppIds(targetFolder ? targetFolder.appRefs : []);
+			const targetMovedApps = normalizeAppIds(targetFolder ? targetFolder.appIds : []);
+
+			if (
+				!sourceFolder
+				|| !targetFolder
+				|| sourceFolder.id === targetFolder.id
+				|| !sourceRefs.includes(appId)
+				|| targetRefs.includes(appId)
+				|| targetMovedApps.includes(appId)
+			) {
+				return false;
+			}
+
+			sourceFolder.appRefs = sourceRefs.filter((folderAppId) => folderAppId !== appId);
+			targetFolder.appRefs = targetRefs.concat(appId);
+			markFolderModified(sourceFolder);
+			markFolderModified(targetFolder);
+			refreshFolderWindows([sourceFolder.id, targetFolder.id]);
+			scheduleSave();
+
+			return true;
+		}
+
 		function removeAppFromFolder(appId, folderId) {
 			const folder = getUserFolder(folderId);
 			if (!folder) {
@@ -937,11 +1018,13 @@
 			}
 
 			const nextAppIds = folder.appIds.filter((folderAppId) => folderAppId !== appId);
-			if (nextAppIds.length === folder.appIds.length) {
+			const nextAppRefs = normalizeAppIds(folder.appRefs).filter((folderAppId) => folderAppId !== appId);
+			if (nextAppIds.length === folder.appIds.length && nextAppRefs.length === normalizeAppIds(folder.appRefs).length) {
 				return false;
 			}
 
 			folder.appIds = nextAppIds;
+			folder.appRefs = nextAppRefs;
 			markFolderModified(folder);
 			syncDesktopAppVisibility();
 			refreshFolderWindows([folder.id]);
@@ -1181,6 +1264,7 @@
 
 		return {
 			addAppToFolder,
+			addAppReferenceToFolder,
 			createFolder,
 			deleteFolder,
 			deleteTrashItem,
@@ -1201,7 +1285,9 @@
 			getUserFolderForApp,
 			hasApp,
 			canMoveFolderToParent,
+			isAppReferenceInFolder,
 			isUserFolder,
+			moveAppReferenceToFolder,
 			moveFolderToTrash,
 			moveAppToDesktop,
 			moveFolderToParent,

@@ -1326,6 +1326,10 @@ final class PufferDesk_User_Preferences {
 					isset( $folder['appIds'] ) && is_array( $folder['appIds'] ) ? $folder['appIds'] : array(),
 					$available_apps
 				),
+				'appRefs'      => $this->sanitize_desktop_folder_app_ids(
+					isset( $folder['appRefs'] ) && is_array( $folder['appRefs'] ) ? $folder['appRefs'] : array(),
+					$available_apps
+				),
 				'comment'      => isset( $folder['comment'] ) ? sanitize_textarea_field( (string) $folder['comment'] ) : '',
 				'createdAt'    => $this->sanitize_desktop_folder_timestamp( isset( $folder['createdAt'] ) ? $folder['createdAt'] : '', gmdate( 'c' ) ),
 				'icon'         => $this->get_desktop_folder_icon(),
@@ -1334,6 +1338,7 @@ final class PufferDesk_User_Preferences {
 					'lastOpenedAt' => $this->sanitize_desktop_folder_timestamp( isset( $folder['lastOpenedAt'] ) ? $folder['lastOpenedAt'] : '', '' ),
 					'modifiedAt'   => $this->sanitize_desktop_folder_timestamp( isset( $folder['modifiedAt'] ) ? $folder['modifiedAt'] : '', '' ),
 					'parentId'     => $parent_id,
+					'path'         => $this->get_desktop_folder_path( $id, isset( $folder['path'] ) ? $folder['path'] : '' ),
 				);
 
 			if ( count( $sanitized ) >= 100 ) {
@@ -1342,6 +1347,22 @@ final class PufferDesk_User_Preferences {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Return a normalized virtual path for a user-created folder.
+	 *
+	 * @param string $folder_id Folder ID.
+	 * @param mixed  $path Raw stored path.
+	 * @return string
+	 */
+	private function get_desktop_folder_path( $folder_id, $path ) {
+		$user_id  = get_current_user_id();
+		$site_id  = get_current_blog_id();
+		$fallback = 'pdk://site/' . absint( $site_id ) . '/home/' . absint( $user_id ) . '/desktop/' . sanitize_key( $folder_id );
+		$vfs      = new PufferDesk_Virtual_Filesystem();
+
+		return $vfs->normalize_path( $path, $fallback, $user_id );
 	}
 
 	/**

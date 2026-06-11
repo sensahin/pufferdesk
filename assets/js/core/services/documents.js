@@ -167,6 +167,20 @@
 			});
 		}
 
+		function duplicate(id, payload = {}) {
+			return post('duplicate', Object.assign({}, withDefaultParentPath(payload), {
+				id: String(id || '')
+			})).then((result) => {
+				const documentData = normalizeDocument(unwrapResult(result, 'document', labels), labels);
+				emitChange('duplicate', {
+					document: documentData,
+					sourceId: Number.parseInt(id, 10) || 0
+				});
+
+				return documentData;
+			});
+		}
+
 		function remove(id) {
 			return post('delete', {
 				id: String(id || '')
@@ -184,6 +198,7 @@
 
 		return {
 			create,
+			duplicate,
 			get,
 			kinds: {
 				sticky: kinds.sticky || 'sticky_note',

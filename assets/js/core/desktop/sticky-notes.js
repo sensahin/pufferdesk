@@ -716,26 +716,31 @@
 
 		function deleteNote(documentId) {
 			const entry = noteMap.get(Number.parseInt(documentId, 10));
-			const removeElement = () => {
-				if (entry) {
-					closeNoteOptionsMenu();
-					if (typeof entry.formatCleanup === 'function') {
-						entry.formatCleanup();
-					}
-					entry.element.remove();
-					noteMap.delete(entry.document.id);
-					saveLayout();
-					syncRunningState();
-				}
-
-				return true;
-			};
 
 			if (!documentStore) {
-				return Promise.resolve(removeElement());
+				return Promise.resolve(removeRenderedNote(documentId));
 			}
 
-			return documentStore.remove(documentId).then(removeElement);
+			return documentStore.remove(documentId).then(() => removeRenderedNote(documentId));
+		}
+
+		function removeRenderedNote(documentId) {
+			const entry = noteMap.get(Number.parseInt(documentId, 10));
+
+			if (!entry) {
+				return false;
+			}
+
+			closeNoteOptionsMenu();
+			if (typeof entry.formatCleanup === 'function') {
+				entry.formatCleanup();
+			}
+			entry.element.remove();
+			noteMap.delete(entry.document.id);
+			saveLayout();
+			syncRunningState();
+
+			return true;
 		}
 
 		function setCollapsed(entry, collapsed) {
@@ -1009,7 +1014,6 @@
 
 			noteElement.className = 'pdk-sticky-note';
 			noteElement.dataset.pdkContext = contextTargets.STICKY_NOTE || 'sticky-note';
-			noteElement.dataset.pdkContextMenuDisabled = '1';
 			noteElement.dataset.pdkContextId = String(documentId);
 			noteElement.dataset.pdkResizeMode = 'both';
 			noteElement.setAttribute('aria-label', documentData.title || getLabel('stickyNote'));
@@ -1017,6 +1021,8 @@
 			dragHandle.className = 'pdk-sticky-note-chrome';
 			dragHandle.dataset.pdkStickyNoteDragHandle = '1';
 			actionGroup.className = 'pdk-sticky-note-actions';
+			content.dataset.pdkContextMenuDisabled = '1';
+			content.dataset.pdkNativeContextMenu = '1';
 
 			actionGroup.append(menuButton, fullscreenButton, collapseButton, closeButton);
 			dragHandle.append(createButton, discardButton, actionGroup);
@@ -1102,12 +1108,52 @@
 			return Array.from(noteMap.values()).map((entry) => entry.document);
 		}
 
+		function getNoteSnapshot(documentId) {
+			const entry = noteMap.get(Number.parseInt(documentId, 10));
+
+			return entry
+				? {
+					document: Object.assign({}, entry.document),
+					element: entry.element,
+					state: readState(entry.element)
+				}
+				: null;
+		}
+
+		function duplicateStickyNote(documentId, options = {}) {
+			const snapshot = getNoteSnapshot(documentId);
+			const offset = Number.isFinite(options.offset) ? options.offset : 28;
+
+			if (!snapshot || !documentStore || typeof documentStore.duplicate !== 'function') {
+				return Promise.resolve(null);
+			}
+
+			return documentStore.duplicate(documentId, {
+				parentPath: options.parentPath || snapshot.document.parentPath || ''
+			}).then((documentData) => {
+				const state = Object.assign({}, snapshot.state, options.state && typeof options.state === 'object' ? options.state : {});
+
+				if (options.render !== false) {
+					state.left = toNumber(state.left, snapshot.state.left || 110) + offset;
+					state.top = toNumber(state.top, snapshot.state.top || getStickySafeArea().top) + offset;
+					renderNote(documentData, state);
+					showNote(documentData.id);
+					saveLayout();
+				}
+
+				return documentData;
+			});
+		}
+
 		return {
 			createStickyNote,
 			deleteNote,
+			duplicateStickyNote,
+			getNoteSnapshot,
 			getNotes,
 			hasOpenNotes,
 			hideNote,
+			removeRenderedNote,
 			renderNote,
 			restore,
 			showNote

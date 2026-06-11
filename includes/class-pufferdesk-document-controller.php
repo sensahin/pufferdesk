@@ -16,6 +16,7 @@ final class PufferDesk_Document_Controller {
 	const ACTION_CREATE = 'pufferdesk_create_document';
 	const ACTION_UPDATE = 'pufferdesk_update_document';
 	const ACTION_DELETE = 'pufferdesk_delete_document';
+	const ACTION_DUPLICATE = 'pufferdesk_duplicate_document';
 
 	/**
 	 * Document service.
@@ -42,6 +43,7 @@ final class PufferDesk_Document_Controller {
 		add_action( 'wp_ajax_' . self::ACTION_CREATE, array( $this, 'create_document' ) );
 		add_action( 'wp_ajax_' . self::ACTION_UPDATE, array( $this, 'update_document' ) );
 		add_action( 'wp_ajax_' . self::ACTION_DELETE, array( $this, 'delete_document' ) );
+		add_action( 'wp_ajax_' . self::ACTION_DUPLICATE, array( $this, 'duplicate_document' ) );
 	}
 
 	/**
@@ -122,6 +124,31 @@ final class PufferDesk_Document_Controller {
 
 		$document = $this->documents->update_document( $this->get_post_id(), $payload );
 
+		if ( is_wp_error( $document ) ) {
+			$this->send_error( $document );
+		}
+
+		wp_send_json_success(
+			array(
+				'document' => $document,
+			)
+		);
+	}
+
+	/**
+	 * Duplicate a document.
+	 */
+	public function duplicate_document() {
+		$this->verify_request();
+
+		$payload = array();
+		foreach ( array( 'parentPath', 'title' ) as $key ) {
+			if ( $this->has_post_string( $key ) ) {
+				$payload[ $key ] = $this->get_post_string( $key );
+			}
+		}
+
+		$document = $this->documents->duplicate_document( $this->get_post_id(), $payload );
 		if ( is_wp_error( $document ) ) {
 			$this->send_error( $document );
 		}

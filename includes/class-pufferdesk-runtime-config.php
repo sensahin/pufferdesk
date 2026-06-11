@@ -268,6 +268,7 @@ final class PufferDesk_Runtime_Config {
 			'actions'      => array(
 				'create' => PufferDesk_Document_Controller::ACTION_CREATE,
 				'delete' => PufferDesk_Document_Controller::ACTION_DELETE,
+				'duplicate' => PufferDesk_Document_Controller::ACTION_DUPLICATE,
 				'get'    => PufferDesk_Document_Controller::ACTION_GET,
 				'list'   => PufferDesk_Document_Controller::ACTION_LIST,
 				'update' => PufferDesk_Document_Controller::ACTION_UPDATE,
@@ -284,6 +285,7 @@ final class PufferDesk_Runtime_Config {
 				'bold'             => __( 'Bold', 'pufferdesk-admin-desktop' ),
 				'bulletList'       => __( 'Bullet list', 'pufferdesk-admin-desktop' ),
 				'couldNotDeleteDocument' => __( 'Could not delete document.', 'pufferdesk-admin-desktop' ),
+				'couldNotDuplicateDocument' => __( 'Could not duplicate document.', 'pufferdesk-admin-desktop' ),
 				'couldNotLoadDocuments' => __( 'Could not load documents.', 'pufferdesk-admin-desktop' ),
 				'couldNotLoadStickyNotes' => __( 'Could not load sticky notes.', 'pufferdesk-admin-desktop' ),
 				'couldNotSaveDocument' => __( 'Could not save document.', 'pufferdesk-admin-desktop' ),

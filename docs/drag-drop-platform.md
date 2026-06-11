@@ -45,7 +45,7 @@ Every movable item is normalized before validation:
 }
 ```
 
-Supported item types are currently `app` and `folder`. Documents and Trash records need their own persistence contract before becoming movable platform items.
+Supported drag/drop item types are currently `app` and `folder`. Clipboard commands can cut/copy/paste documents and sticky notes through `assets/js/core/services/clipboard-service.js` and the document service, but that does not make documents draggable platform items. Documents and Trash records still need their own drag/drop persistence contract before becoming movable through `MoveService`.
 
 ## Container model
 

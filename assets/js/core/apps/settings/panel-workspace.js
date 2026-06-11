@@ -71,6 +71,12 @@
 				: null;
 		}
 
+		function clearClipboard() {
+			if (window.PufferDesk.clipboard && typeof window.PufferDesk.clipboard.clear === 'function') {
+				window.PufferDesk.clipboard.clear();
+			}
+		}
+
 		function confirmReset(action) {
 			const options = {
 				cancelLabel: t('workspace.cancelLabel'),
@@ -99,6 +105,7 @@
 				}
 
 				status.textContent = t('workspace.resettingLabel');
+				clearClipboard();
 				skipWindowRestoreOnce();
 
 				const store = getSessionStore();
@@ -128,6 +135,7 @@
 				}
 
 				status.textContent = t('workspace.resettingLabel');
+				clearClipboard();
 				skipWindowRestoreOnce();
 				api.post(workspace.resetAction, {
 					scope: 'all',

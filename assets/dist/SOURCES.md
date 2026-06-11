@@ -57,6 +57,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/drag-drop/move-validator.js
 - assets/js/core/drag-drop/move-service.js
 - assets/js/core/drag-drop/drag-drop-manager.js
+- assets/js/core/services/clipboard-service.js
 - assets/js/core/session/workspace-contract.js
 - assets/js/core/session/storage-keys.js
 - assets/js/core/session/session-store.js

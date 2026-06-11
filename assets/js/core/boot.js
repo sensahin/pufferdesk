@@ -34,6 +34,7 @@
 			!window.PufferDesk.notifications.createToastService ||
 			!window.PufferDesk.notifications.createCenter ||
 			!window.PufferDesk.services ||
+			!window.PufferDesk.services.createClipboardService ||
 			!window.PufferDesk.services.createSoundManager ||
 			!window.PufferDesk.apps ||
 			!window.PufferDesk.menuBar ||
@@ -209,7 +210,16 @@
 		if (typeof launcher.setFolderProvider === 'function') {
 			launcher.setFolderProvider(folderManager);
 		}
+		const clipboard = window.PufferDesk.services.createClipboardService(config, {
+			desktopIconManager,
+			documentStore,
+			events: window.PufferDesk.events,
+			folderManager,
+			launcher,
+			stickyNoteManager
+		});
 		const commands = window.PufferDesk.shell.createCommandRegistry(shell, {
+			clipboard,
 			config,
 			dialogs,
 			folderManager,
@@ -301,6 +311,7 @@
 			openUrl: launcher.openUrl
 		};
 		window.PufferDesk.contextMenuController = contextMenuController;
+		window.PufferDesk.clipboard = clipboard;
 		window.PufferDesk.dragDrop.manager = dragDropManager;
 		window.PufferDesk.dragDrop.moveService = moveService;
 		window.PufferDesk.dragDrop.stateStore = moveStateStore;

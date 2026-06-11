@@ -73,6 +73,47 @@
 			}));
 		}
 
+		function getClipboardItems(options = {}) {
+			const includeCut = options.includeCut !== false;
+			const includeCopy = options.includeCopy !== false;
+			const includePaste = options.includePaste !== false;
+			const items = [];
+
+			if (includeCut) {
+				items.push(commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
+					hideWhenUnavailable: true,
+					icon: 'dashicons-admin-page',
+					id: 'cut',
+					shortcut: options.shortcutLabels === false ? '' : '⌘X'
+				}));
+			}
+			if (includeCopy) {
+				items.push(commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
+					icon: 'dashicons-clipboard',
+					id: 'copy',
+					shortcut: options.shortcutLabels === false ? '' : '⌘C'
+				}));
+			}
+			if (includePaste) {
+				items.push(commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
+					hideWhenUnavailable: true,
+					icon: 'dashicons-admin-page',
+					id: 'paste',
+					shortcut: options.shortcutLabels === false ? '' : '⌘V'
+				}));
+			}
+
+			return items;
+		}
+
+		function getClipboardGroup(options = {}) {
+			return {
+				id: options.id || 'clipboard',
+				items: getClipboardItems(options),
+				label: getLabel('clipboard')
+			};
+		}
+
 		function actionStrip(items, options = {}) {
 			return Object.assign({
 				id: 'action-strip',
@@ -224,6 +265,13 @@
 					{
 						id: 'primary',
 						items: [
+							commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
+								hideWhenUnavailable: true,
+								icon: 'dashicons-admin-page',
+								id: 'desktop-paste',
+								shortcut: '⌘V'
+							}),
+							separator(),
 							{
 								icon: 'dashicons-grid-view',
 								id: 'desktop-view',
@@ -621,17 +669,82 @@
 			const useExplorerMenu = isFileExplorerSurface();
 			const items = [];
 
+			if (!useExplorerMenu) {
+				items.push(
+					commandItem(getLabel('open'), commandIds.OPEN_FOLDER, {
+						icon: folder.icon || 'dashicons-category',
+						target: folder.id
+					}),
+					commandItem(getLabel('open_in_new_tab'), commandIds.OPEN_FOLDER_TAB, {
+						icon: 'dashicons-plus-alt2',
+						target: folder.id
+					}),
+					commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
+						hideWhenUnavailable: true,
+						icon: 'dashicons-admin-page',
+						id: 'paste',
+						shortcut: '⌘V'
+					}),
+					separator()
+				);
+
+				if (canMutateFolder) {
+					items.push(
+						commandItem(getLabel('move_to_trash'), commandIds.FOLDER_DELETE, {
+							icon: 'dashicons-trash',
+							target: folder.id
+						}),
+						separator()
+					);
+				}
+
+				items.push(
+					commandItem(getLabel('get_info'), commandIds.FOLDER_GET_INFO, {
+						icon: 'dashicons-info-outline',
+						target: folder.id
+					})
+				);
+
+				if (canMutateFolder) {
+					items.push(commandItem(getLabel('rename'), commandIds.FOLDER_RENAME, {
+						icon: 'dashicons-edit',
+						target: folder.id
+					}));
+				}
+
+				items.push(
+					separator(),
+					commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
+						icon: 'dashicons-clipboard',
+						id: 'copy',
+						shortcut: '⌘C'
+					}),
+					commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
+						hideWhenUnavailable: true,
+						icon: 'dashicons-admin-page',
+						id: 'cut',
+						shortcut: '⌘X'
+					})
+				);
+
+				return items;
+			}
+
 			if (useExplorerMenu) {
 				items.push(actionStrip([
-					commandItem(getLabel('cut'), '', {
-						disabled: true,
+					commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
+						hideWhenUnavailable: true,
 						icon: 'dashicons-admin-page',
 						id: 'cut'
 					}),
-					commandItem(getLabel('copy'), '', {
-						disabled: true,
+					commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
 						icon: 'dashicons-clipboard',
 						id: 'copy'
+					}),
+					commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
+						hideWhenUnavailable: true,
+						icon: 'dashicons-admin-page',
+						id: 'paste'
 					}),
 					commandItem(getLabel('rename'), canMutateFolder ? commandIds.FOLDER_RENAME : '', {
 						disabled: !canMutateFolder,
@@ -900,6 +1013,13 @@
 					{
 						id: 'primary',
 						items: [
+							commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
+								hideWhenUnavailable: true,
+								icon: 'dashicons-admin-page',
+								id: 'desktop-paste',
+								shortcut: '⌘V'
+							}),
+							separator(),
 							commandItem(getLabel('new_folder'), commandIds.FOLDER_CREATE, {
 								icon: 'dashicons-category'
 							}),
@@ -912,6 +1032,10 @@
 								items: getSortByItems(),
 								label: getLabel('sort_by')
 							},
+							commandItem(getLabel('refresh'), commandIds.DESKTOP_REFRESH, {
+								icon: 'dashicons-update',
+								id: 'desktop-refresh'
+							}),
 							separator(),
 							commandItem(getLabel('change_wallpaper'), commandIds.SETTINGS_OPEN_PANEL, {
 								icon: 'dashicons-format-image',
@@ -933,6 +1057,7 @@
 
 		registerProvider(itemTypes.APP, (detail) => ({
 			groups: [
+				getClipboardGroup(),
 				{
 					id: 'primary',
 					items: getAppItems(detail.app || appMap.get(detail.id), detail)
@@ -1004,12 +1129,28 @@
 			groups: [
 				{
 					id: 'primary',
-					items: getFolderContentMenuItems(detail)
+					items: getClipboardItems({
+						includeCopy: false,
+						includeCut: false
+					}).concat(
+						commandItem(getLabel('refresh'), commandIds.FOLDER_REFRESH, {
+							icon: 'dashicons-update',
+							id: 'folder-content-refresh',
+							payload: {
+								folderId: getFolderContentFolderId(detail),
+								target: getFolderContentFolderId(detail)
+							},
+							target: getFolderContentFolderId(detail)
+						}),
+						separator(),
+						getFolderContentMenuItems(detail)
+					)
 				}
 			]
 		}));
 		registerProvider(targets.DOCUMENT, (detail) => ({
 			groups: [
+				getClipboardGroup(),
 				{
 					id: 'primary',
 					items: [
@@ -1027,6 +1168,11 @@
 						})
 					]
 				}
+			]
+		}));
+		registerProvider(targets.STICKY_NOTE, () => ({
+			groups: [
+				getClipboardGroup()
 			]
 		}));
 		registerProvider(targets.DESKTOP_FOLDER, (detail) => providers.get(itemTypes.FOLDER)(detail));
@@ -1073,6 +1219,21 @@
 
 		registerProvider(targets.FOLDER_TOOLBAR, (detail) => ({
 			groups: [
+				getClipboardGroup(),
+				{
+					id: 'primary',
+					items: [
+						commandItem(getLabel('refresh'), commandIds.FOLDER_REFRESH, {
+							icon: 'dashicons-update',
+							id: 'folder-toolbar-refresh',
+							payload: {
+								folderId: getFolderContentFolderId(detail),
+								target: getFolderContentFolderId(detail)
+							},
+							target: getFolderContentFolderId(detail)
+						})
+					]
+				},
 				{
 					id: 'display',
 					items: [
@@ -1482,6 +1643,78 @@
 			return Boolean(menuDefinition.groups.some((group) => group.items.length));
 		}
 
+		function trimMenuSeparators(items = []) {
+			const trimmed = [];
+			let previousWasSeparator = true;
+
+			items.forEach((item) => {
+				if (!item) {
+					return;
+				}
+
+				if (item.type === 'separator') {
+					if (!previousWasSeparator) {
+						trimmed.push(item);
+					}
+					previousWasSeparator = true;
+					return;
+				}
+
+				trimmed.push(item);
+				previousWasSeparator = false;
+			});
+
+			while (trimmed.length && trimmed[trimmed.length - 1].type === 'separator') {
+				trimmed.pop();
+			}
+
+			return trimmed;
+		}
+
+		function filterUnavailableItems(items = [], detail = {}) {
+			return trimMenuSeparators((Array.isArray(items) ? items : []).map((item) => {
+				if (!item) {
+					return null;
+				}
+
+				if (item.type === 'separator') {
+					return item;
+				}
+
+				if (
+					item.hideWhenUnavailable
+					&& item.command
+					&& commands
+					&& typeof commands.canExecute === 'function'
+					&& !commands.canExecute(item, detail)
+				) {
+					return null;
+				}
+
+				if (Array.isArray(item.items) && item.items.length) {
+					const next = Object.assign({}, item, {
+						items: filterUnavailableItems(item.items, detail)
+					});
+
+					return next.items.length ? next : null;
+				}
+
+				return item;
+			}).filter(Boolean));
+		}
+
+		function filterUnavailableMenuItems(menuDefinition, detail = {}) {
+			const groups = menuDefinition && Array.isArray(menuDefinition.groups) ? menuDefinition.groups : [];
+
+			return {
+				groups: groups
+					.map((group) => Object.assign({}, group, {
+						items: filterUnavailableItems(group.items, detail)
+					}))
+					.filter((group) => group.items.length)
+			};
+		}
+
 		function openMenu(detail, point) {
 			try {
 				const nextDetail = Object.assign({}, detail, {
@@ -1498,7 +1731,9 @@
 				const filteredMenuDefinition = permissionResolver && typeof permissionResolver.filterMenu === 'function'
 					? permissionResolver.filterMenu(menuDefinition, nextDetail)
 					: menuDefinition;
-				if (!hasMenuItems(filteredMenuDefinition)) {
+				const visibleMenuDefinition = filterUnavailableMenuItems(filteredMenuDefinition, nextDetail);
+
+				if (!hasMenuItems(visibleMenuDefinition)) {
 					closeMenu();
 					return false;
 				}
@@ -1530,7 +1765,7 @@
 				} else {
 					popover.dataset.pdkContextMenu = activeDetail.type;
 				}
-				popover.replaceChildren(...filteredMenuDefinition.groups.flatMap((group, groupIndex) => {
+				popover.replaceChildren(...visibleMenuDefinition.groups.flatMap((group, groupIndex) => {
 					const groupItems = group.items.map((item) => itemRenderer.createItem(item, activeDetail, (executedItem, executedContext) => {
 						emit(eventNames.CONTEXT_MENU_ITEM_EXECUTE, {
 							context: executedContext,
@@ -1565,7 +1800,7 @@
 				}
 				emit(eventNames.CONTEXT_MENU_RENDER, {
 					context: activeDetail,
-					menu: filteredMenuDefinition,
+					menu: visibleMenuDefinition,
 					popover
 				});
 
@@ -1623,6 +1858,14 @@
 		}
 
 		function openFromEvent(event) {
+			const nativeContextTarget = event.target && typeof event.target.closest === 'function'
+				? event.target.closest('[data-pdk-native-context-menu="1"]')
+				: null;
+			if (nativeContextTarget && shell.contains(nativeContextTarget)) {
+				closeMenu();
+				return false;
+			}
+
 			if (resolver && typeof resolver.isContextMenuDisabled === 'function' && resolver.isContextMenuDisabled(event.target)) {
 				closeMenu();
 				event.preventDefault();

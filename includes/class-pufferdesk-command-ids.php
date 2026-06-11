@@ -14,6 +14,9 @@ final class PufferDesk_Command_Ids {
 	const APP_KEEP_IN_DOCK              = 'app.keep-in-dock';
 	const APP_REMOVE_FROM_DOCK          = 'app.remove-from-dock';
 	const APP_TOGGLE_LOGIN_ITEM         = 'app.toggle-login-item';
+	const CLIPBOARD_COPY                = 'clipboard.copy';
+	const CLIPBOARD_CUT                 = 'clipboard.cut';
+	const CLIPBOARD_PASTE               = 'clipboard.paste';
 	const DESKTOP_ICON_RENAME           = 'desktop-icon.rename';
 	const DESKTOP_REFRESH               = 'desktop.refresh';
 	const DESKTOP_SORT_ICONS            = 'desktop.sort-icons';

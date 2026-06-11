@@ -87,6 +87,47 @@ final class PufferDesk_Document_Service {
 	}
 
 	/**
+	 * Duplicate a document into a target parent path.
+	 *
+	 * @param int                 $document_id Source document post ID.
+	 * @param array<string,mixed> $args Duplicate payload.
+	 * @return array<string,mixed>|WP_Error
+	 */
+	public function duplicate_document( $document_id, $args = array() ) {
+		$post = $this->get_document_post( $document_id );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		if ( ! $this->current_user_can_edit_document( $post ) ) {
+			return $this->permission_error();
+		}
+
+		$args        = is_array( $args ) ? $args : array();
+		$kind        = $this->get_document_kind( $post );
+		$parent_path = array_key_exists( 'parentPath', $args )
+			? $this->normalize_parent_path( $args['parentPath'], $kind )
+			: $this->get_document_parent_path( $post, $kind );
+		$title       = array_key_exists( 'title', $args )
+			? $this->sanitize_title( $args['title'] )
+			: '';
+
+		if ( '' === $title ) {
+			$title = $this->get_copy_title( get_the_title( $post ) );
+		}
+
+		return $this->create_document(
+			array(
+				'color'      => get_post_meta( $post->ID, PufferDesk_Document_Post_Type::META_COLOR, true ),
+				'content'    => get_post_field( 'post_content', $post->ID, 'raw' ),
+				'kind'       => $kind,
+				'parentPath' => $parent_path,
+				'title'      => $title,
+			)
+		);
+	}
+
+	/**
 	 * Update a document.
 	 *
 	 * @param int                 $document_id Document post ID.
@@ -385,6 +426,25 @@ final class PufferDesk_Document_Service {
 		$title = '' !== $text ? $this->truncate_text( $text, 80 ) : $fallback;
 
 		return sanitize_text_field( $title );
+	}
+
+	/**
+	 * Return a copy title for duplicated documents.
+	 *
+	 * @param string $title Source title.
+	 * @return string
+	 */
+	private function get_copy_title( $title ) {
+		$title = $this->sanitize_title( $title );
+		$title = '' !== $title ? $title : __( 'Untitled Document', 'pufferdesk-admin-desktop' );
+
+		return sanitize_text_field(
+			sprintf(
+				/* translators: %s: Source document title. */
+				__( '%s copy', 'pufferdesk-admin-desktop' ),
+				$title
+			)
+		);
 	}
 
 	/**

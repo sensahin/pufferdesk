@@ -1478,15 +1478,19 @@
 
 		function runExplorerCommand(action, folderId, win) {
 			const commands = window.PufferDesk.menuCommands;
+			let executed = false;
 
 			if (!action.command || !commands || typeof commands.execute !== 'function') {
 				return false;
 			}
 
-			return commands.execute(
+			executed = commands.execute(
 				getExplorerCommandItem(action, folderId),
 				getExplorerCommandDetail(folderId, win)
 			);
+			window.requestAnimationFrame(() => syncFolderToolbarActionStates(win));
+
+			return executed;
 		}
 
 		function explorerMenuItem(label, command, options = {}) {
@@ -1749,9 +1753,9 @@
 					{ id: 'new', label: getMenuLabel('new'), icon: 'dashicons-plus-alt2', command: commandIds.FOLDER_CREATE, disclosure: true }
 				],
 				[
-					{ id: 'cut', label: getMenuLabel('cut'), icon: 'dashicons-admin-page', showLabel: false },
-					{ id: 'copy', label: getMenuLabel('copy'), icon: 'dashicons-clipboard', showLabel: false },
-					{ id: 'paste', label: getMenuLabel('paste'), icon: 'dashicons-admin-page', showLabel: false },
+					{ id: 'cut', label: getMenuLabel('cut'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_CUT, hideWhenUnavailable: true, showLabel: false },
+					{ id: 'copy', label: getMenuLabel('copy'), icon: 'dashicons-clipboard', command: commandIds.CLIPBOARD_COPY, showLabel: false },
+					{ id: 'paste', label: getMenuLabel('paste'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_PASTE, hideWhenUnavailable: true, showLabel: false },
 					{ id: 'rename', label: getMenuLabel('rename'), icon: 'dashicons-edit', command: isUserFolder(folderId) ? commandIds.FOLDER_RENAME : '', showLabel: false },
 					{ id: 'share', label: getMenuLabel('share'), icon: 'dashicons-share', showLabel: false },
 					{ id: 'delete', label: getMenuLabel('delete'), icon: 'dashicons-trash', command: commandIds.FOLDER_DELETE_SELECTED, showLabel: false }
@@ -2144,6 +2148,9 @@
 			const actions = [
 				{ id: 'view', label: getMenuLabel('view'), icon: 'dashicons-grid-view', disclosure: 'vertical', menuPlacement: 'icon-top' },
 				{ id: 'group', label: getMenuLabel('group'), icon: 'dashicons-list-view', disclosure: true, menuPlacement: 'icon-bottom' },
+				{ id: 'cut', label: getMenuLabel('cut'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_CUT },
+				{ id: 'copy', label: getMenuLabel('copy'), icon: 'dashicons-clipboard', command: commandIds.CLIPBOARD_COPY },
+				{ id: 'paste', label: getMenuLabel('paste'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_PASTE },
 				{ id: 'delete', label: getMenuLabel('delete'), icon: 'dashicons-trash', command: commandIds.FOLDER_DELETE_SELECTED },
 				{ id: 'get-info', label: getMenuLabel('get_info'), icon: 'dashicons-info-outline', command: commandIds.FOLDER_GET_INFO }
 			];
@@ -3551,6 +3558,8 @@
 				closeOtherFolderTabs,
 				deleteSelectedFolderItems,
 				duplicateFolderTab,
+				getActiveFolderWindow,
+				getSelectedFolderItems,
 				getWindowOptions,
 				hasSelectedFolderItems,
 				openAbout,

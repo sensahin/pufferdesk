@@ -90,6 +90,7 @@
 				command: typeof item.command === 'string' ? item.command : '',
 				disabled: Boolean(item.disabled),
 				enabledWhen: typeof item.enabledWhen === 'function' ? item.enabledWhen : null,
+				hideWhenUnavailable: item.hideWhenUnavailable === true,
 				icon: typeof item.icon === 'string' || (item.icon && typeof item.icon === 'object') ? item.icon : '',
 				id: typeof item.id === 'string' ? item.id : '',
 				items: normalizeCommandItems(item.items),

@@ -8,6 +8,7 @@
 		const commands = context.commands || null;
 		const menuController = context.menuController || null;
 		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
+		const commandIds = window.PufferDesk.shell && window.PufferDesk.shell.commands ? window.PufferDesk.shell.commands : {};
 		const modifierSymbols = {
 			alt: '⌥',
 			ctrl: '⌃',
@@ -167,8 +168,23 @@
 			return normalizeKey(event.key);
 		}
 
-		function hasMatchingModifiers(event, shortcut) {
+		function isClipboardCommand(command) {
+			return [commandIds.CLIPBOARD_COPY, commandIds.CLIPBOARD_CUT, commandIds.CLIPBOARD_PASTE].includes(command);
+		}
+
+		function hasMatchingModifiers(event, shortcut, item = {}) {
 			const modifiers = new Set(shortcut.modifiers);
+			const clipboardCtrlFallback = isClipboardCommand(item.command)
+				&& modifiers.size === 1
+				&& modifiers.has('meta')
+				&& event.ctrlKey
+				&& !event.metaKey
+				&& !event.altKey
+				&& !event.shiftKey;
+
+			if (clipboardCtrlFallback) {
+				return true;
+			}
 
 			return Boolean(event.altKey) === modifiers.has('alt')
 				&& Boolean(event.ctrlKey) === modifiers.has('ctrl')
@@ -232,7 +248,7 @@
 
 			return getShortcutItems().find((entry) => (
 				entry.shortcut.key === eventKey
-				&& hasMatchingModifiers(event, entry.shortcut)
+				&& hasMatchingModifiers(event, entry.shortcut, entry.item)
 				&& commands
 				&& typeof commands.canExecute === 'function'
 				&& commands.canExecute(entry.item)

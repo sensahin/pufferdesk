@@ -12,6 +12,7 @@
 		const desktopIconManager = context.desktopIconManager || null;
 		const folderManager = context.folderManager || null;
 		const stickyNoteManager = context.stickyNoteManager || null;
+		const clipboard = context.clipboard || window.PufferDesk.clipboard || null;
 		const dialogs = context.dialogs || null;
 		const reopenPolicy = context.reopenPolicy || null;
 		const config = context.config && typeof context.config === 'object' ? context.config : {};
@@ -623,6 +624,20 @@
 			return removed || Boolean(clearResult);
 		}
 
+		function clearClipboard() {
+			if (clipboard && typeof clipboard.clear === 'function') {
+				clipboard.clear();
+			}
+		}
+
+		function cleanupClipboard(options = {}) {
+			if (clipboard && typeof clipboard.cleanup === 'function') {
+				return clipboard.cleanup(options);
+			}
+
+			return Promise.resolve(false);
+		}
+
 		function reloadShell() {
 			const shellUrl = getShellUrl();
 
@@ -712,6 +727,8 @@
 			if (!confirmed) {
 				return;
 			}
+
+			clearClipboard();
 
 			if (!api || typeof api.post !== 'function') {
 				throw new Error(getSettingsLabel('status.serviceUnavailable'));
@@ -836,6 +853,9 @@
 			},
 			run(payload, detail) {
 				launcher.refreshFolderWindow(getFolderIdFromPayload(payload, detail));
+				return cleanupClipboard({
+					validate: true
+				});
 			}
 		});
 
@@ -845,6 +865,9 @@
 			},
 			run() {
 				refreshDesktop();
+				return cleanupClipboard({
+					validate: true
+				});
 			}
 		});
 
@@ -863,6 +886,33 @@
 			},
 			run(payload, detail) {
 				return launcher.openDocumentById(getDocumentIdFromPayload(payload, detail));
+			}
+		});
+
+		register(commandIds.CLIPBOARD_COPY, {
+			isEnabled(payload, detail) {
+				return Boolean(clipboard && typeof clipboard.canCopy === 'function' && clipboard.canCopy(detail));
+			},
+			run(payload, detail) {
+				return clipboard.copy(detail);
+			}
+		});
+
+		register(commandIds.CLIPBOARD_CUT, {
+			isEnabled(payload, detail) {
+				return Boolean(clipboard && typeof clipboard.canCut === 'function' && clipboard.canCut(detail));
+			},
+			run(payload, detail) {
+				return clipboard.cut(detail);
+			}
+		});
+
+		register(commandIds.CLIPBOARD_PASTE, {
+			isEnabled(payload, detail) {
+				return Boolean(clipboard && typeof clipboard.canPaste === 'function' && clipboard.canPaste(detail));
+			},
+			run(payload, detail) {
+				return clipboard.paste(detail);
 			}
 		});
 
@@ -1324,6 +1374,7 @@
 				return Boolean(config.storageKey && window.PufferDesk.session && window.PufferDesk.session.createSessionStore);
 			},
 			run() {
+				clearClipboard();
 				skipWindowRestoreOnce();
 				return clearSessionStore().finally(reloadShell);
 			}

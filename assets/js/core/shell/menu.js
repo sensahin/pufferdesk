@@ -245,9 +245,15 @@
 				{ disabled: true, label: getLabel('undo'), shortcut: '⌘Z' },
 				{ disabled: true, label: getLabel('redo'), shortcut: '⇧⌘Z' },
 				separator(),
-				{ disabled: true, label: getLabel('cut'), shortcut: '⌘X' },
-				{ disabled: true, label: getLabel('copy'), shortcut: '⌘C' },
-				{ disabled: true, label: getLabel('paste'), shortcut: '⌘V' },
+				commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
+					shortcut: '⌘X'
+				}),
+				commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
+					shortcut: '⌘C'
+				}),
+				commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
+					shortcut: '⌘V'
+				}),
 				separator(),
 				{ disabled: true, label: getLabel('select_all'), shortcut: '⌘A' }
 			];

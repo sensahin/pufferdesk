@@ -110,6 +110,14 @@
 			};
 		}
 
+		function getSelectedIconDetails() {
+			return normalizeSelectedIcons().map((icon) => Object.assign(getIconDetail(icon), {
+				context: icon.dataset.pdkContext || '',
+				iconElement: icon,
+				label: icon.dataset.pdkContextLabel || getIconCurrentLabel(icon) || getIconDefaultLabel(icon)
+			}));
+		}
+
 		function isTextEditingTarget(target) {
 			return Boolean(target && typeof target.closest === 'function' && target.closest('a, input, select, textarea, [contenteditable="true"], [contenteditable="plaintext-only"]'));
 		}
@@ -1448,6 +1456,7 @@
 			getSortMode() {
 				return currentSortMode;
 			},
+			getSelectedIconDetails,
 			positionIcon,
 			rebind,
 			restoreSession,
