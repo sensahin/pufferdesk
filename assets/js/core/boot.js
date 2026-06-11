@@ -43,6 +43,11 @@
 			!window.PufferDesk.shell.createMenuSchema ||
 			!window.PufferDesk.shell.createMenuItemRenderer ||
 			!window.PufferDesk.shell.createMenuController ||
+			!window.PufferDesk.shell.createContextResolver ||
+			!window.PufferDesk.shell.createContextMenuPermissionResolver ||
+			!window.PufferDesk.shell.createContextMenuPositioner ||
+			!window.PufferDesk.shell.createContextMenuKeyboardController ||
+			!window.PufferDesk.shell.createContextMenuThemeAdapter ||
 			!window.PufferDesk.shell.createContextMenuController ||
 			!window.PufferDesk.shell.createSoundStatus ||
 			!window.PufferDesk.shell.createShortcutController ||

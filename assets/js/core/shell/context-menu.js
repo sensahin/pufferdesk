@@ -14,6 +14,7 @@
 		const folderManager = context.folderManager || null;
 		const manager = context.manager || null;
 		const providers = new Map();
+		const extensions = new Map();
 		const menuSchema = schema || window.PufferDesk.shell.createMenuSchema();
 		const themeSurfaces = config.theme && config.theme.surfaces && typeof config.theme.surfaces === 'object'
 			? config.theme.surfaces
@@ -34,6 +35,23 @@
 
 		function getLabel(key, fallback) {
 			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
+		}
+
+		function getMenuContextKeys(detail = {}) {
+			const keys = [
+				detail.type || '',
+				detail.contextKey || ''
+			];
+
+			if (detail.area && detail.targetType) {
+				keys.push(`${detail.area}.${detail.targetType}`);
+			}
+
+			if (detail.area && detail.targetType === 'item') {
+				keys.push(`${detail.area}.item`);
+			}
+
+			return Array.from(new Set(keys.filter(Boolean)));
 		}
 
 		function separator() {
@@ -737,11 +755,39 @@
 			});
 			const groups = normalized.groups
 				.map((group) => Object.assign({}, group, {
-					items: group.items.filter((item) => item.type === 'separator' || item.type === 'action-strip' || item.command || item.label)
+					items: sortMenuItems(group.items.filter((item) => item.type === 'separator' || item.type === 'action-strip' || item.command || item.label))
 				}))
 				.filter((group) => group.items.length);
 
 			return { groups };
+		}
+
+		function sortMenuItems(items = []) {
+			const hasExplicitOrder = items.some((item) => item && Number.isFinite(item.order));
+			const normalized = items.map((item, index) => {
+				const next = item && typeof item === 'object' ? Object.assign({}, item) : item;
+				if (next && Array.isArray(next.items)) {
+					next.items = sortMenuItems(next.items);
+				}
+
+				return {
+					index,
+					item: next
+				};
+			});
+
+			if (!hasExplicitOrder) {
+				return normalized.map((entry) => entry.item);
+			}
+
+			return normalized
+				.sort((a, b) => {
+					const orderA = Number.isFinite(a.item && a.item.order) ? a.item.order : 1000 + a.index;
+					const orderB = Number.isFinite(b.item && b.item.order) ? b.item.order : 1000 + b.index;
+
+					return orderA === orderB ? a.index - b.index : orderA - orderB;
+				})
+				.map((entry) => entry.item);
 		}
 
 		function registerProvider(type, provider) {
@@ -752,13 +798,83 @@
 			providers.set(type, provider);
 		}
 
-		function getMenuForTarget(detail = {}) {
-			const provider = providers.get(detail.type);
-			if (!provider) {
+		function normalizeExtensionDefinition(definition, detail = {}, options = {}) {
+			const resolved = typeof definition === 'function' ? definition(detail) : definition;
+			if (!resolved) {
 				return { groups: [] };
 			}
 
-			return normalizeMenu(provider(detail), detail);
+			if (Array.isArray(resolved)) {
+				return normalizeMenu({
+					groups: [
+						{
+							id: options.group || 'extensions',
+							items: resolved,
+							label: options.label || getLabel('extensions', 'Extensions')
+						}
+					]
+				}, detail);
+			}
+
+			if (resolved.groups || resolved.app || resolved.file || resolved.edit || resolved.view || resolved.go || resolved.window || resolved.help || resolved.site) {
+				return normalizeMenu(resolved, detail);
+			}
+
+			return normalizeMenu({
+				groups: [
+					{
+						id: options.group || 'extensions',
+						items: [resolved],
+						label: options.label || getLabel('extensions', 'Extensions')
+					}
+				]
+			}, detail);
+		}
+
+		function register(type, definition, options = {}) {
+			if (!type || !definition) {
+				return () => {};
+			}
+
+			const entries = extensions.get(type) || [];
+			const entry = {
+				definition,
+				options
+			};
+			entries.push(entry);
+			extensions.set(type, entries);
+
+			return () => {
+				const nextEntries = (extensions.get(type) || []).filter((item) => item !== entry);
+				if (nextEntries.length) {
+					extensions.set(type, nextEntries);
+				} else {
+					extensions.delete(type);
+				}
+			};
+		}
+
+		function getExtensionMenuForTarget(detail = {}) {
+			const groups = [];
+
+			getMenuContextKeys(detail).forEach((key) => {
+				(extensions.get(key) || []).forEach((entry) => {
+					const menu = normalizeExtensionDefinition(entry.definition, detail, entry.options);
+					groups.push(...menu.groups);
+				});
+			});
+
+			return { groups };
+		}
+
+		function getMenuForTarget(detail = {}) {
+			const provider = providers.get(detail.type);
+			const baseMenu = provider ? normalizeMenu(provider(detail), detail) : { groups: [] };
+			const extensionMenu = getExtensionMenuForTarget(detail);
+
+			return {
+				groups: baseMenu.groups.concat(extensionMenu.groups)
+			};
 		}
 
 		registerProvider('desktop', () => {
@@ -824,6 +940,22 @@
 				]
 			};
 		});
+		registerProvider('dock', () => ({
+			groups: [
+				{
+					id: 'primary',
+					items: [
+						commandItem(getLabel('show_all', 'Show All'), 'window.show-all', {
+							icon: 'dashicons-visibility'
+						}),
+						commandItem(getLabel('launcher_settings', 'Dock Settings'), 'settings.open-panel', {
+							icon: 'dashicons-admin-generic',
+							panel: 'desktop-dock'
+						})
+					]
+				}
+			]
+		}));
 
 		registerProvider('sound-status', () => ({
 			groups: [
@@ -860,6 +992,27 @@
 				{
 					id: 'primary',
 					items: getFolderContentMenuItems(detail)
+				}
+			]
+		}));
+		registerProvider('document', (detail) => ({
+			groups: [
+				{
+					id: 'primary',
+					items: [
+						commandItem(getLabel('open', 'Open'), 'document.open', {
+							icon: 'dashicons-media-document',
+							target: detail.id
+						}),
+						commandItem(getLabel('delete', 'Delete'), 'folder.delete-selected', {
+							icon: 'dashicons-trash',
+							payload: {
+								folderId: detail.folderId || '',
+								target: detail.folderId || ''
+							},
+							target: detail.folderId || ''
+						})
+					]
 				}
 			]
 		}));
@@ -1015,6 +1168,7 @@
 
 		return {
 			getMenuForTarget,
+			register,
 			registerProvider
 		};
 	};
@@ -1026,6 +1180,23 @@
 		const commands = context.commands || window.PufferDesk.shell.createCommandRegistry(shell, context);
 		const registry = context.registry || window.PufferDesk.shell.createContextMenuRegistry(config, schema, context);
 		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands);
+		const resolver = context.resolver || (window.PufferDesk.shell.createContextResolver
+			? window.PufferDesk.shell.createContextResolver(shell, config, context)
+			: null);
+		const permissionResolver = context.permissionResolver || (window.PufferDesk.shell.createContextMenuPermissionResolver
+			? window.PufferDesk.shell.createContextMenuPermissionResolver(config)
+			: null);
+		const positioner = context.positioner || (window.PufferDesk.shell.createContextMenuPositioner
+			? window.PufferDesk.shell.createContextMenuPositioner(shell)
+			: null);
+		const keyboardController = context.keyboardController || (window.PufferDesk.shell.createContextMenuKeyboardController
+			? window.PufferDesk.shell.createContextMenuKeyboardController({
+				onClose: closeMenu
+			})
+			: null);
+		const themeAdapter = context.themeAdapter || (window.PufferDesk.shell.createContextMenuThemeAdapter
+			? window.PufferDesk.shell.createContextMenuThemeAdapter(shell, config)
+			: null);
 		const folderManager = context.folderManager || null;
 		const geometry = window.PufferDesk.geometry;
 		const dockLongPressDelay = 560;
@@ -1035,6 +1206,47 @@
 		let activeContextTarget = null;
 		let dockLongPress = null;
 		let activeDockPressMenu = null;
+		let keyboardCleanup = null;
+		let bound = false;
+
+		function emit(name, detail = {}) {
+			if (window.PufferDesk.events && typeof window.PufferDesk.events.emit === 'function') {
+				window.PufferDesk.events.emit(name, detail);
+			}
+		}
+
+		function setCommandContext(detail = {}) {
+			if (commands && typeof commands.setActiveDetail === 'function') {
+				commands.setActiveDetail(detail);
+			}
+		}
+
+		function setFacade() {
+			window.PufferDesk.contextMenus = Object.assign({}, window.PufferDesk.contextMenus || {}, {
+				close: closeMenu,
+				getActiveContext() {
+					return activeDetail;
+				},
+				getRegistry() {
+					return registry;
+				},
+				openForElement,
+				openMenu,
+				register(type, definition, options) {
+					return registry && typeof registry.register === 'function'
+						? registry.register(type, definition, options)
+						: () => {};
+				},
+				registerProvider(type, provider) {
+					return registry && typeof registry.registerProvider === 'function'
+						? registry.registerProvider(type, provider)
+						: undefined;
+				},
+				resolve(target) {
+					return resolver && typeof resolver.resolve === 'function' ? resolver.resolve(target) : null;
+				}
+			});
+		}
 
 		function getTrashItem(trashId) {
 			return folderManager && typeof folderManager.getTrashItem === 'function' ? folderManager.getTrashItem(trashId) : null;
@@ -1161,6 +1373,10 @@
 
 		function closeMenu() {
 			clearDockPressMenuHover();
+			if (typeof keyboardCleanup === 'function') {
+				keyboardCleanup();
+				keyboardCleanup = null;
+			}
 			if (activeContextTarget) {
 				activeContextTarget.classList.remove('is-context-menu-active');
 				activeContextTarget = null;
@@ -1173,6 +1389,7 @@
 
 			activeDetail = null;
 			activeDockPressMenu = null;
+			emit('contextmenu:close', {});
 		}
 
 		function positionDockMenu(detail = {}) {
@@ -1250,42 +1467,119 @@
 		}
 
 		function openMenu(detail, point) {
-			const nextDetail = Object.assign({}, detail, {
-				contextPoint: {
-					clientX: point.x,
-					clientY: point.y
+			try {
+				const nextDetail = Object.assign({}, detail, {
+					contextPoint: {
+						clientX: point.x,
+						clientY: point.y
+					}
+				});
+				const menuDefinition = nextDetail.menuDefinition
+					? schema.normalizeDefinition(nextDetail.menuDefinition, {
+						appLabel: nextDetail.label || 'Context Menu'
+					})
+					: registry.getMenuForTarget(nextDetail);
+				const filteredMenuDefinition = permissionResolver && typeof permissionResolver.filterMenu === 'function'
+					? permissionResolver.filterMenu(menuDefinition, nextDetail)
+					: menuDefinition;
+				if (!hasMenuItems(filteredMenuDefinition)) {
+					closeMenu();
+					return false;
 				}
-			});
-			const menuDefinition = registry.getMenuForTarget(nextDetail);
-			if (!hasMenuItems(menuDefinition)) {
+
+				closeMenu();
+				activeDetail = nextDetail;
+				setCommandContext(activeDetail);
+				emit('contextmenu:open', {
+					context: activeDetail
+				});
+				popover = document.createElement('div');
+				popover.className = 'pdk-menu-popover pdk-context-menu';
+				if (typeof activeDetail.menuClassName === 'string' && activeDetail.menuClassName) {
+					activeDetail.menuClassName.split(/\s+/).filter(Boolean).forEach((className) => {
+						popover.classList.add(className);
+					});
+				}
+				popover.setAttribute('role', 'menu');
+				popover.setAttribute('aria-label', activeDetail.label || 'Context menu');
+				if (activeDetail.menuDataset && typeof activeDetail.menuDataset === 'object') {
+					Object.keys(activeDetail.menuDataset).forEach((key) => {
+						if (typeof key === 'string' && key && activeDetail.menuDataset[key] !== undefined) {
+							popover.dataset[key] = String(activeDetail.menuDataset[key]);
+						}
+					});
+				}
+				if (themeAdapter && typeof themeAdapter.apply === 'function') {
+					themeAdapter.apply(popover, activeDetail);
+				} else {
+					popover.dataset.pdkContextMenu = activeDetail.type;
+				}
+				popover.replaceChildren(...filteredMenuDefinition.groups.flatMap((group, groupIndex) => {
+					const groupItems = group.items.map((item) => itemRenderer.createItem(item, activeDetail, (executedItem, executedContext) => {
+						emit('contextmenu:item:execute', {
+							context: executedContext,
+							item: executedItem
+						});
+						closeMenu();
+					}));
+					if (groupIndex === 0) {
+						return groupItems;
+					}
+
+					const separator = document.createElement('span');
+					separator.className = 'pdk-menu-separator';
+					separator.setAttribute('role', 'separator');
+					return [separator].concat(groupItems);
+				}));
+
+				shell.appendChild(popover);
+				activateContextTarget(activeDetail);
+				if (keyboardController && typeof keyboardController.bind === 'function') {
+					keyboardCleanup = keyboardController.bind(popover);
+				}
+				popover.addEventListener('pointerover', emitHoveredItem);
+				popover.addEventListener('focusin', emitHoveredItem);
+				if (positioner && typeof positioner.positionAtPoint === 'function') {
+					positioner.positionAtPoint(popover, point, activeDetail);
+				} else {
+					positionMenu(point.x, point.y, activeDetail);
+				}
+				if (activeDetail.autoFocusFirst && keyboardController && typeof keyboardController.focusFirst === 'function') {
+					keyboardController.focusFirst(popover);
+				}
+				emit('contextmenu:render', {
+					context: activeDetail,
+					menu: filteredMenuDefinition,
+					popover
+				});
+
+				return true;
+			} catch (error) {
+				if (window.console && typeof window.console.error === 'function') {
+					window.console.error('PufferDesk context menu failed.', error);
+				}
+				emit('contextmenu:error', {
+					context: detail || {},
+					error
+				});
 				closeMenu();
 				return false;
 			}
+		}
 
-			closeMenu();
-			activeDetail = nextDetail;
-			popover = document.createElement('div');
-			popover.className = 'pdk-menu-popover pdk-context-menu';
-			popover.dataset.pdkContextMenu = activeDetail.type;
-			popover.setAttribute('role', 'menu');
-			popover.setAttribute('aria-label', activeDetail.label || 'Context menu');
-			popover.replaceChildren(...menuDefinition.groups.flatMap((group, groupIndex) => {
-				const groupItems = group.items.map((item) => itemRenderer.createItem(item, activeDetail, closeMenu));
-				if (groupIndex === 0) {
-					return groupItems;
-				}
+		function emitHoveredItem(event) {
+			const item = event.target && typeof event.target.closest === 'function'
+				? event.target.closest('[data-pdk-menu-item]')
+				: null;
 
-				const separator = document.createElement('span');
-				separator.className = 'pdk-menu-separator';
-				separator.setAttribute('role', 'separator');
-				return [separator].concat(groupItems);
-			}));
+			if (!item || !popover || !popover.contains(item)) {
+				return;
+			}
 
-			shell.appendChild(popover);
-			activateContextTarget(activeDetail);
-			positionMenu(point.x, point.y, activeDetail);
-
-			return true;
+			emit('contextmenu:item:hover', {
+				context: activeDetail,
+				itemId: item.dataset.pdkMenuItem || ''
+			});
 		}
 
 		function openForElement(target, point = {}) {
@@ -1294,39 +1588,48 @@
 				return false;
 			}
 
-			const detail = getTargetDetail(target);
+			const detail = resolver && typeof resolver.getTargetDetail === 'function' ? resolver.getTargetDetail(target) : getTargetDetail(target);
 			if (!detail || !detail.type) {
 				closeMenu();
 				return false;
 			}
 
 			const rect = typeof target.getBoundingClientRect === 'function' ? target.getBoundingClientRect() : null;
-			return openMenu(detail, {
+			const opened = openMenu(detail, {
 				x: Number.isFinite(point.x) ? point.x : rect ? rect.left + (rect.width / 2) : 0,
 				y: Number.isFinite(point.y) ? point.y : rect ? rect.top + (rect.height / 2) : 0
 			});
+			if (opened && positioner && typeof positioner.positionAtElement === 'function') {
+				positioner.positionAtElement(popover, target, point, activeDetail);
+			}
+
+			return opened;
 		}
 
 		function openFromEvent(event) {
-			const disabled = event.target.closest('[data-pdk-context-menu-disabled="1"]');
-			if (disabled && shell.contains(disabled)) {
+			if (resolver && typeof resolver.isContextMenuDisabled === 'function' && resolver.isContextMenuDisabled(event.target)) {
 				closeMenu();
 				event.preventDefault();
 				event.stopPropagation();
 				return false;
 			}
 
-			const target = resolveTarget(event.target);
+			const target = resolver && typeof resolver.resolveTarget === 'function' ? resolver.resolveTarget(event.target) : resolveTarget(event.target);
 			if (!target) {
 				closeMenu();
-				if (shouldSuppressNativeContextMenu(event.target)) {
+				if (resolver && typeof resolver.shouldSuppressNativeContextMenu === 'function' ? resolver.shouldSuppressNativeContextMenu(event.target) : shouldSuppressNativeContextMenu(event.target)) {
 					event.preventDefault();
 					event.stopPropagation();
 				}
 				return false;
 			}
 
-			const detail = getTargetDetail(target);
+			const detail = resolver && typeof resolver.getTargetDetail === 'function' ? resolver.getTargetDetail(target) : getTargetDetail(target);
+			emit('contextmenu:resolve', {
+				context: detail,
+				event,
+				target
+			});
 			const opened = openMenu(detail, {
 				x: event.clientX,
 				y: event.clientY
@@ -1516,6 +1819,12 @@
 		}
 
 		function bind() {
+			if (bound) {
+				return;
+			}
+
+			bound = true;
+			setFacade();
 			shell.addEventListener('contextmenu', openFromEvent);
 			shell.addEventListener('pointerdown', (event) => {
 				if (event.ctrlKey && event.button === 0) {
@@ -1545,4 +1854,6 @@
 			registry
 		};
 	};
+
+	window.PufferDesk.shell.createContextMenuManager = window.PufferDesk.shell.createContextMenuController;
 })();

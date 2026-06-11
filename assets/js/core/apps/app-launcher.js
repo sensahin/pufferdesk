@@ -22,7 +22,6 @@
 			: null;
 		const trashFolderId = 'trash';
 		let folderProvider = null;
-		let explorerCommandMenu = null;
 		let explorerCommandMenuButton = null;
 		let explorerCommandMenuCleanup = null;
 		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object'
@@ -506,6 +505,16 @@
 			}
 
 			return null;
+		}
+
+		function openDocumentById(documentId) {
+			const id = Number.parseInt(documentId, 10);
+
+			if (!id || !documentStore || typeof documentStore.get !== 'function') {
+				return false;
+			}
+
+			return documentStore.get(id).then((documentData) => openDocument(documentData));
 		}
 
 		function openTrash(options = {}) {
@@ -1525,11 +1534,6 @@
 				explorerCommandMenuCleanup = null;
 			}
 
-			if (explorerCommandMenu) {
-				explorerCommandMenu.remove();
-				explorerCommandMenu = null;
-			}
-
 			if (explorerCommandMenuButton) {
 				explorerCommandMenuButton.classList.remove('is-menu-open');
 				explorerCommandMenuButton.setAttribute('aria-expanded', 'false');
@@ -1537,12 +1541,18 @@
 			}
 		}
 
-		function positionExplorerCommandMenu(button) {
-			if (!explorerCommandMenu || !button || typeof button.getBoundingClientRect !== 'function') {
+		function closeActiveExplorerCommandMenu() {
+			const contextMenus = window.PufferDesk.contextMenus || window.PufferDesk.contextMenuController || null;
+
+			if (contextMenus && typeof contextMenus.close === 'function') {
+				contextMenus.close();
 				return;
 			}
 
-			const shellRect = shell.getBoundingClientRect();
+			closeExplorerCommandMenu();
+		}
+
+		function getExplorerCommandMenuPoint(button) {
 			const buttonRect = button.getBoundingClientRect();
 			const placement = button.dataset ? button.dataset.pdkExplorerMenuPlacement || '' : '';
 			const icon = button.classList && button.classList.contains('pdk-finder-toolbar-button')
@@ -1551,87 +1561,71 @@
 			const anchorRect = icon && typeof icon.getBoundingClientRect === 'function'
 				? icon.getBoundingClientRect()
 				: buttonRect;
-			const minLeft = 8;
-			const minTop = 8;
-			const maxLeft = Math.max(minLeft, shell.clientWidth - explorerCommandMenu.offsetWidth - 8);
-			const maxTop = Math.max(minTop, shell.clientHeight - explorerCommandMenu.offsetHeight - 8);
-			const left = geometry.clamp(Math.round(anchorRect.left - shellRect.left), minLeft, maxLeft);
-			let top = buttonRect.bottom - shellRect.top + 4;
+			let y = buttonRect.bottom + 4;
 
 			if (placement === 'icon-top') {
-				top = anchorRect.top - shellRect.top;
+				y = anchorRect.top;
 			} else if (placement === 'icon-bottom') {
-				top = anchorRect.bottom - shellRect.top + 2;
+				y = anchorRect.bottom + 2;
 			}
 
-			top = geometry.clamp(Math.round(top), minTop, maxTop);
-
-			explorerCommandMenu.style.left = `${left}px`;
-			explorerCommandMenu.style.top = `${top}px`;
-		}
-
-		function bindExplorerCommandMenuClose(button) {
-			const pointerHandler = (event) => {
-				if (
-					explorerCommandMenu
-					&& !explorerCommandMenu.contains(event.target)
-					&& !button.contains(event.target)
-				) {
-					closeExplorerCommandMenu();
-				}
-			};
-			const keyHandler = (event) => {
-				if (event.key === 'Escape') {
-					event.preventDefault();
-					closeExplorerCommandMenu();
-					button.focus({ preventScroll: true });
-				}
-			};
-			const reposition = () => positionExplorerCommandMenu(button);
-
-			document.addEventListener('pointerdown', pointerHandler, true);
-			document.addEventListener('keydown', keyHandler, true);
-			window.addEventListener('resize', reposition);
-			explorerCommandMenuCleanup = () => {
-				document.removeEventListener('pointerdown', pointerHandler, true);
-				document.removeEventListener('keydown', keyHandler, true);
-				window.removeEventListener('resize', reposition);
+			return {
+				x: anchorRect.left,
+				y
 			};
 		}
 
-		function openExplorerCommandMenu(action, folderId, win, button) {
-			const commands = window.PufferDesk.menuCommands;
-			const rendererFactory = window.PufferDesk.shell && window.PufferDesk.shell.createMenuItemRenderer;
+		function openExplorerCommandMenu(action, folderId, win, button, options = {}) {
+			const contextMenus = window.PufferDesk.contextMenus || window.PufferDesk.contextMenuController || null;
 			const items = getExplorerCommandMenuItems(action, folderId, win);
 			const detail = Object.assign(getExplorerCommandDetail(folderId, win), {
-				targetElement: button
+				area: 'folder',
+				contextKey: 'folder.toolbar',
+				itemType: '',
+				menuClassName: 'pdk-explorer-command-menu',
+				menuDataset: {
+					pdkExplorerCommandMenu: action.id
+				},
+				menuDefinition: {
+					groups: [
+						{
+							id: action.id || 'toolbar-command',
+							items,
+							label: action.label
+						}
+					]
+				},
+				metadata: {
+					explorerCommandAction: action.id,
+					folderId
+				},
+				autoFocusFirst: options.autoFocusFirst === true,
+				targetElement: button,
+				targetType: 'toolbar'
 			});
-			let renderer = null;
 
-			if (!items.length || !commands || typeof rendererFactory !== 'function') {
+			if (!items.length || !contextMenus || typeof contextMenus.openMenu !== 'function') {
 				return false;
 			}
 
-			if (explorerCommandMenu && explorerCommandMenuButton === button) {
-				closeExplorerCommandMenu();
+			if (explorerCommandMenuButton === button) {
+				closeActiveExplorerCommandMenu();
 				return true;
 			}
 
-			closeExplorerCommandMenu();
-			renderer = rendererFactory(commands);
+			closeActiveExplorerCommandMenu();
 			explorerCommandMenuButton = button;
-			explorerCommandMenu = document.createElement('div');
-			explorerCommandMenu.className = 'pdk-menu-popover pdk-context-menu pdk-explorer-command-menu';
-			explorerCommandMenu.dataset.pdkContextMenu = 'folder-toolbar';
-			explorerCommandMenu.dataset.pdkExplorerCommandMenu = action.id;
-			explorerCommandMenu.setAttribute('role', 'menu');
-			explorerCommandMenu.setAttribute('aria-label', action.label);
-			explorerCommandMenu.replaceChildren(...items.map((item) => renderer.createItem(item, detail, closeExplorerCommandMenu)));
-			shell.appendChild(explorerCommandMenu);
 			button.classList.add('is-menu-open');
 			button.setAttribute('aria-expanded', 'true');
-			positionExplorerCommandMenu(button);
-			window.setTimeout(() => bindExplorerCommandMenuClose(button), 0);
+
+			if (!contextMenus.openMenu(detail, getExplorerCommandMenuPoint(button))) {
+				closeExplorerCommandMenu();
+				return false;
+			}
+
+			if (window.PufferDesk.events && typeof window.PufferDesk.events.once === 'function') {
+				explorerCommandMenuCleanup = window.PufferDesk.events.once('contextmenu:close', closeExplorerCommandMenu);
+			}
 
 			return true;
 		}
@@ -1672,11 +1666,9 @@
 				}
 
 				event.preventDefault();
-				openExplorerCommandMenu(action, folderId, win, button);
-				const firstEnabled = explorerCommandMenu ? explorerCommandMenu.querySelector('.pdk-menu-item:not(:disabled)') : null;
-				if (firstEnabled) {
-					firstEnabled.focus({ preventScroll: true });
-				}
+				openExplorerCommandMenu(action, folderId, win, button, {
+					autoFocusFirst: true
+				});
 			});
 
 			return button;
@@ -3491,6 +3483,7 @@
 			openFolderTab,
 			openFolderInfo,
 			openTrash,
+			openDocumentById,
 			openSettingsPanel,
 			openSiteAbout,
 				openUrl,

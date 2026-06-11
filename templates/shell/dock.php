@@ -94,6 +94,9 @@ if ( $pufferdesk_show_search ) {
 ?>
 <aside
 	class="<?php echo esc_attr( implode( ' ', $pufferdesk_launcher_classes ) ); ?>"
+	data-pdk-context="dock"
+	data-pdk-context-id="<?php echo esc_attr( $pufferdesk_launcher ); ?>"
+	data-pdk-context-label="<?php echo esc_attr( $pufferdesk_launcher_label ); ?>"
 	data-pdk-shell-surface="launcher"
 	data-pdk-launcher-kind="<?php echo esc_attr( $pufferdesk_launcher ); ?>"
 	aria-label="<?php echo esc_attr( $pufferdesk_launcher_label ); ?>"

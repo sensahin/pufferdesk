@@ -79,16 +79,22 @@
 			return {
 				command: typeof item.command === 'string' ? item.command : '',
 				disabled: Boolean(item.disabled),
+				enabledWhen: typeof item.enabledWhen === 'function' ? item.enabledWhen : null,
 				icon: typeof item.icon === 'string' || (item.icon && typeof item.icon === 'object') ? item.icon : '',
 				id: typeof item.id === 'string' ? item.id : '',
 				items: normalizeCommandItems(item.items),
 				label: item.label,
+				order: Number.isFinite(item.order) ? item.order : null,
 				panel: typeof item.panel === 'string' ? item.panel : '',
 				payload: item.payload && typeof item.payload === 'object' ? item.payload : {},
+				requiresFeature: typeof item.requiresFeature === 'string' || Array.isArray(item.requiresFeature) ? item.requiresFeature : '',
+				requiresPermission: typeof item.requiresPermission === 'string' || Array.isArray(item.requiresPermission) ? item.requiresPermission : '',
 				shortcut: normalizeShortcut(item.shortcut),
 				target: typeof item.target === 'string' ? item.target : '',
+				themeSupport: typeof item.themeSupport === 'string' || Array.isArray(item.themeSupport) || typeof item.themeSupport === 'function' ? item.themeSupport : '',
 				title: typeof item.title === 'string' ? item.title : '',
-				url: typeof item.url === 'string' ? item.url : ''
+				url: typeof item.url === 'string' ? item.url : '',
+				visibleWhen: typeof item.visibleWhen === 'function' ? item.visibleWhen : null
 			};
 		}
 

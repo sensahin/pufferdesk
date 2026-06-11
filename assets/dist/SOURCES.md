@@ -111,6 +111,11 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/shell/menu-schema.js
 - assets/js/core/shell/menu-renderer.js
 - assets/js/core/shell/menu.js
+- assets/js/core/shell/context-menu-resolver.js
+- assets/js/core/shell/context-menu-permissions.js
+- assets/js/core/shell/context-menu-positioner.js
+- assets/js/core/shell/context-menu-keyboard.js
+- assets/js/core/shell/context-menu-theme-adapter.js
 - assets/js/core/shell/context-menu.js
 - assets/js/core/shell/shortcuts.js
 - assets/js/core/shell/clock.js

@@ -494,9 +494,34 @@
 			"deps": ["pufferdesk-config", "pufferdesk-geometry", "pufferdesk-menu-commands", "pufferdesk-menu-schema", "pufferdesk-menu-renderer", "pufferdesk-transient-surfaces"]
 		},
 		{
+			"handle": "pufferdesk-context-menu-resolver",
+			"path": "assets/js/core/shell/context-menu-resolver.js",
+			"deps": ["pufferdesk-dom"]
+		},
+		{
+			"handle": "pufferdesk-context-menu-permissions",
+			"path": "assets/js/core/shell/context-menu-permissions.js",
+			"deps": ["pufferdesk-config"]
+		},
+		{
+			"handle": "pufferdesk-context-menu-positioner",
+			"path": "assets/js/core/shell/context-menu-positioner.js",
+			"deps": ["pufferdesk-geometry"]
+		},
+		{
+			"handle": "pufferdesk-context-menu-keyboard",
+			"path": "assets/js/core/shell/context-menu-keyboard.js",
+			"deps": []
+		},
+		{
+			"handle": "pufferdesk-context-menu-theme-adapter",
+			"path": "assets/js/core/shell/context-menu-theme-adapter.js",
+			"deps": ["pufferdesk-config"]
+		},
+		{
 			"handle": "pufferdesk-context-menu",
 			"path": "assets/js/core/shell/context-menu.js",
-			"deps": ["pufferdesk-config", "pufferdesk-geometry", "pufferdesk-menu-commands", "pufferdesk-menu-schema", "pufferdesk-menu-renderer", "pufferdesk-folder-menu-options"]
+			"deps": ["pufferdesk-config", "pufferdesk-geometry", "pufferdesk-menu-commands", "pufferdesk-menu-schema", "pufferdesk-menu-renderer", "pufferdesk-folder-menu-options", "pufferdesk-context-menu-resolver", "pufferdesk-context-menu-permissions", "pufferdesk-context-menu-positioner", "pufferdesk-context-menu-keyboard", "pufferdesk-context-menu-theme-adapter"]
 		},
 		{
 			"handle": "pufferdesk-shortcuts",

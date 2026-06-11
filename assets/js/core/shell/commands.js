@@ -294,6 +294,18 @@
 			return payload.tabId || payload.target || (detail && detail.id) || '';
 		}
 
+		function getDocumentIdFromPayload(payload = {}, detail = {}) {
+			const raw = payload.documentId || payload.target || (detail && detail.trashItemId) || (detail && detail.id) || '';
+			const direct = Number.parseInt(raw, 10);
+			const match = String(raw || '').match(/(\d+)$/);
+
+			if (Number.isFinite(direct) && direct > 0) {
+				return direct;
+			}
+
+			return match ? Number.parseInt(match[1], 10) || 0 : 0;
+		}
+
 		function getFolderCreateParentId(payload = {}, detail = {}) {
 			if (payload.parentId) {
 				return payload.parentId;
@@ -864,6 +876,15 @@
 			},
 			run(payload, detail) {
 				stickyNoteManager.createStickyNote(detail && detail.contextPoint ? detail.contextPoint : {});
+			}
+		});
+
+		register('document.open', {
+			isEnabled(payload, detail) {
+				return Boolean(launcher && typeof launcher.openDocumentById === 'function' && getDocumentIdFromPayload(payload, detail));
+			},
+			run(payload, detail) {
+				return launcher.openDocumentById(getDocumentIdFromPayload(payload, detail));
 			}
 		});
 

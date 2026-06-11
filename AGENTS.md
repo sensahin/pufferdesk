@@ -148,7 +148,7 @@ JavaScript:
 - `assets/js/core/apps/recent-items.js`: recent item persistence helper.
 - `assets/js/core/apps/settings/`: System Settings label normalization, shared UI helpers, and panel factory modules.
 - `assets/js/core/apps/settings/mutations.js`: shared Settings AJAX mutation/status helper.
-- `assets/js/core/shell/`: search, menu bar clock, command registry, top menus, context menus, global shell controls.
+- `assets/js/core/shell/`: search, menu bar clock, command registry, top menus, the central context-menu platform, global shell controls.
 
 Media:
 
@@ -193,7 +193,7 @@ Menus:
 - Menu command items should define `label` plus optional `command`, `target`, `url`, `title`, `icon`, `shortcut`, `payload`, and `disabled`.
 - `shortcut` is executable data, not decorative text. Use macOS-style strings such as `⌘W`, `⌘M`, `⌘H`, `⌥⌘H`, or a structured descriptor with `key`, `modifiers`, `label`, `allowInTextFields`, and `preventDefault`. The keyboard engine lives in `assets/js/core/shell/shortcuts.js`.
 - Commands are registered in `assets/js/core/shell/commands.js`; schema normalization is in `assets/js/core/shell/menu-schema.js`; shared menu item rendering is in `assets/js/core/shell/menu-renderer.js`; top menu rendering is in `assets/js/core/shell/menu.js`.
-- Context menus are registered and rendered through `assets/js/core/shell/context-menu.js`. Context targets should use stable `data-pdk-context` and `data-pdk-context-id` attributes rather than one-off event handlers.
+- Context menus are registered and rendered through the central platform documented in `docs/context-menu-platform.md`. Core modules include `assets/js/core/shell/context-menu.js`, `context-menu-resolver.js`, `context-menu-permissions.js`, `context-menu-positioner.js`, `context-menu-keyboard.js`, and `context-menu-theme-adapter.js`. Context targets should use stable `data-pdk-context` and `data-pdk-context-id` attributes rather than one-off event handlers.
 - Supported context target types include `desktop`, `app`, `desktop-app`, `dock-app`, `folder`, `desktop-folder`, `trash-item`, `window`, and `widget`.
 - Context menu providers should compose common command-backed items with target-specific items. Do not add right-click behavior inside dock, desktop, widget, or window modules unless it is exposing target state to the shared context menu system.
 - Before adding menu item icons, shortcuts, badges, separators, destructive styling, or other optional adornments, inspect the existing menu surface and match its established visual schema. Do not make one item visually different from peer items unless that whole menu type already uses the same affordance or the renderer contract explicitly requires it.

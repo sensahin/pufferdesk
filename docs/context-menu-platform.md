@@ -1,0 +1,109 @@
+# Context Menu Platform
+
+PufferDesk context menus are a core shell platform feature. Right-click menus and command-button dropdowns must resolve target context centrally, compose menu schema centrally, render through the shared menu renderer, and execute actions through `window.PufferDesk.menuCommands`.
+
+## Current Audit
+
+Source scan covered `assets/js/`, `assets/css/`, `templates/`, `includes/`, and existing docs for `contextmenu`, `data-pdk-context`, `pdk-context-menu`, and command-menu creation.
+
+| Area | Target Type | Current Menu Items | Implementation File | Action Handler | Theme Behavior | Risks | Platform Status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Desktop background | Background | New Folder, New Sticky Note, Sort By, wallpaper/settings/reset; Redmond View/Sort/New/Personalize variants | `assets/js/core/shell/context-menu.js` | `assets/js/core/shell/commands.js` | Theme CSS skins `data-pdk-context-menu="desktop"`; Redmond uses theme-family branch for Windows-style vocabulary | Theme-family branching still lives in provider data | Centralized |
+| Desktop app | Item/app | Open, browser tab, add/move to folder, About; Redmond Recycle Bin actions for Trash | `assets/js/core/shell/context-menu.js`, `templates/desktop/apps.php` | CommandRegistry | Theme CSS uses `desktop-app`/desktop item state | Redmond Recycle Bin menu remains core provider logic keyed by theme family | Centralized |
+| Desktop folder | Item/folder | Open, New Tab, Get Info/Properties, rename/delete for user folders | `assets/js/core/shell/context-menu.js`, `templates/desktop/folders.php` | CommandRegistry and folder manager | Finder/Explorer visual differences through theme CSS and surface metadata | Folder mutation availability depends on folder provider state | Centralized |
+| Folder background | Background | New Folder, Get Info/Properties, View, Sort By | `assets/js/core/shell/context-menu.js`, `assets/js/core/apps/folder-menu-options.js` | CommandRegistry | Finder/Explorer menu visuals through theme CSS | Empty Trash/folder panes share background context; destructive actions stay commands | Centralized |
+| Folder app | Item/app | Open, browser tab, remove/move folder membership, add/move to folder, About | `assets/js/core/shell/context-menu.js`, `assets/js/core/apps/launcher-renderer.js` | CommandRegistry | Finder/Explorer item active state via CSS | Local right-click listener only selects the item before central menu opens | Centralized |
+| Folder document | Item/document | Open, Delete selected item | `assets/js/core/shell/context-menu.js`, `assets/js/core/shell/commands.js`, `assets/js/core/apps/app-launcher.js` | `document.open`, `folder.delete-selected` | Uses shared menu skin | Delete depends on selection state; right-click selection is local and intentional | Centralized |
+| Trash item | Item/trash-item | Put Back, Delete Immediately | `assets/js/core/shell/context-menu.js`, `assets/js/core/apps/launcher-renderer.js` | CommandRegistry and folder manager | Trash item active state through theme CSS | Local listener prevents native menu and selects item; it does not build menu DOM | Centralized |
+| Folder toolbar | Toolbar/background | Toolbar display mode; Explorer command dropdowns use action-specific schemas | `assets/js/core/shell/context-menu.js`, `assets/js/core/apps/app-launcher.js` | CommandRegistry | `pdk-explorer-command-menu` class and theme CSS preserve Explorer styling | Explorer command groups are still defined in app launcher because they belong to that toolbar's command surface | Centralized rendering/positioning/closing |
+| Folder tab | Tab | Close, Close Others, Close to Right, Duplicate | `assets/js/core/shell/context-menu.js`, `assets/js/core/apps/app-launcher.js` | CommandRegistry | Redmond tab menu CSS | Availability depends on current tab strip DOM | Centralized |
+| Folder sidebar | Sidebar item | Remove from Sidebar for removable favorites | `assets/js/core/shell/context-menu.js`, `assets/js/core/apps/app-launcher.js` | CommandRegistry | Finder/Explorer sidebar CSS | Only removable favorites enable the command | Centralized |
+| Folder window/titlebar | Window titlebar | Bring to Front/Open in Browser Tab/Minimize/Close/About; Redmond Restore/Move/Size/Minimize/Maximize/Close | `assets/js/core/shell/context-menu.js`, `assets/js/core/windows/window-factory.js` | CommandRegistry and window manager | Window chrome metadata and theme CSS | Root window context suppresses native menu outside titlebar | Centralized |
+| Dock background | Background | Show All, launcher settings | `templates/shell/dock.php`, `assets/js/core/shell/context-menu.js` | CommandRegistry | Dock/taskbar CSS via theme data attributes | New platform target; menu is intentionally small | Centralized |
+| Dock item | Item/app | Open/Hide/Quit, browser tab, Dock options, About; Trash open/empty | `templates/shell/dock.php`, `assets/js/core/shell/context-menu.js` | CommandRegistry | Dock-specific skin and long-press behavior | Long press remains part of central manager because it opens the same menu | Centralized |
+| Sound status | Status item | Mute/Unmute, Sound Settings | `assets/js/core/shell/sound-status.js`, `assets/js/core/shell/context-menu.js` | CommandRegistry | Shared popover skin | None known | Centralized |
+| Widget | Item/widget | Hide Widget | `templates/widgets/*.php`, `assets/js/core/shell/context-menu.js` | CommandRegistry and widget manager | Widget target CSS only | None known | Centralized |
+| Sticky note | Widget/document object | Native browser menu disabled | `assets/js/core/desktop/sticky-notes.js` | None | Sticky note controls own document editing UI | Intentional: rich-text/content editing should not open shell menus | Disabled centrally |
+| Future custom modules | Any registered context key | Extension-provided schema | `window.PufferDesk.contextMenus.register()` | CommandRegistry | Theme adapter applies shared data attributes | Extensions must register commands separately | Supported |
+
+## Architecture
+
+The platform keeps the old boot-facing `createContextMenuController()` factory as the compatibility entry point, but the implementation is now split into focused contracts:
+
+- `assets/js/core/shell/context-menu-resolver.js`: resolves nested right-click targets into a normalized context object with `area`, `targetType`, `targetId`, `containerId`, `itemType`, `theme`, `metadata`, and legacy fields such as `type`, `id`, `app`, `folder`, and `windowElement`.
+- `assets/js/core/shell/context-menu-permissions.js`: filters declarative menu items with `visibleWhen`, `enabledWhen`, `requiresPermission`, `requiresFeature`, and `themeSupport`.
+- `assets/js/core/shell/context-menu-positioner.js`: positions menus inside shell viewport bounds, including Dock edge placement.
+- `assets/js/core/shell/context-menu-keyboard.js`: owns Arrow/Home/End/Enter/Space/Escape behavior and focus movement.
+- `assets/js/core/shell/context-menu-theme-adapter.js`: applies theme/context data attributes for CSS presentation only.
+- `assets/js/core/shell/context-menu.js`: owns the core registry, manager lifecycle, rendering through `createMenuItemRenderer()`, extension composition, event emission, Dock long-press opening, and command execution handoff.
+
+Themes may style `.pdk-context-menu`, `data-pdk-context-menu`, `data-pdk-context-key`, `data-pdk-context-area`, `data-pdk-context-target-type`, `data-pdk-context-item-type`, and theme-family attributes. Themes must not decide which actions exist or which commands run.
+
+## Extension Contract
+
+Register new menu items by context key:
+
+```js
+window.PufferDesk.contextMenus.register('folder.item', {
+	id: 'compress',
+	label: 'Compress',
+	command: 'file.compress',
+	visibleWhen: (context) => context.itemType !== 'trash-item',
+	enabledWhen: (context) => Boolean(context.targetId),
+	order: 80
+});
+```
+
+Supported keys include current target types such as `desktop.background`, `desktop.item`, `folder.background`, `folder.item`, `folder.toolbar`, `folder.tab`, `folder.sidebar`, `dock.background`, `dock.item`, `window.titlebar`, `widget.item`, and legacy `data-pdk-context` values such as `desktop-app` or `dock-app`.
+
+Extensions must register their command through `window.PufferDesk.menuCommands.register()` or the Desktop API command facade. Context menu items should not mutate app, folder, widget, or window state directly.
+
+## Event Contract
+
+The manager emits through `window.PufferDesk.events`:
+
+- `contextmenu:resolve`
+- `contextmenu:open`
+- `contextmenu:render`
+- `contextmenu:close`
+- `contextmenu:item:hover`
+- `contextmenu:item:execute`
+- `contextmenu:error`
+
+Handlers receive the normalized `context` in `event.detail.context` when relevant.
+
+## Migration Notes
+
+- Existing shell boot still calls `createContextMenuController()`.
+- `window.PufferDesk.contextMenus` exposes `register`, `registerProvider`, `openMenu`, `openForElement`, `close`, `resolve`, and `getActiveContext`.
+- The Explorer command-bar dropdown no longer creates its own `.pdk-context-menu` DOM. It passes an action-specific schema to the central manager so the manager owns rendering, positioning, keyboard behavior, outside-click close, resize/scroll close, and command execution.
+- Local `contextmenu` listeners remain only where they update selection before the central menu opens or intentionally suppress shell menus for editable sticky notes/window bodies. They do not build menus.
+- `data-pdk-context-menu-disabled="1"` remains the central opt-out marker.
+
+## Reliability Checklist
+
+- Nested elements resolve through `closest('[data-pdk-context]')`.
+- Window root contexts only open on titlebar events; non-titlebar window body right-clicks can keep native iframe/content behavior.
+- Disabled shell context targets close any active menu and suppress native context menus where appropriate.
+- Menus clamp to shell viewport edges.
+- Dock long-press opens the same central Dock item menu.
+- Outside pointer down, Escape, resize, and scroll close the active menu.
+- Manager binding is guarded against duplicate listeners.
+- Menu composition trims empty groups and duplicate separators after permission filtering.
+- Command failures remain handled by CommandRegistry; context composition/render failures emit `contextmenu:error`.
+
+## Accessibility Checklist
+
+- Menus use `role="menu"`.
+- Menu items use real `button` elements with `role="menuitem"`.
+- Separators use `role="separator"`.
+- Disabled items set `disabled` and `aria-disabled="true"`.
+- Submenus expose `aria-haspopup="menu"` and `aria-expanded`.
+- Arrow Up/Down, Home/End, Enter/Space, Escape, and Arrow Left are supported.
+- Keyboard-opened toolbar menus can focus the first enabled item without forcing focus for pointer-opened context menus.
+
+## Remaining Risks
+
+- Redmond-specific desktop and Recycle Bin item composition still branches in the core provider because it changes action vocabulary and menu structure, not only CSS. If more OS families need structural variants, move that menu data into theme metadata rather than adding more family conditionals.
+- Client-side `requiresPermission` can only evaluate permissions exposed in runtime config. Privileged mutations must continue to enforce WordPress capabilities server-side.
+- Local right-click selection listeners are intentionally retained. Removing them would regress multi-select and delete-selected flows because central menu resolution should not own selection state.
