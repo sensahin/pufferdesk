@@ -14,6 +14,8 @@ final class PufferDesk_Icon_Renderer {
 	const TYPE_DASHICON = 'dashicon';
 	const TYPE_IMAGE    = 'image';
 	const TYPE_THEME    = 'theme';
+	const APPEARANCE_BRAND      = 'brand';
+	const APPEARANCE_MONOCHROME = 'monochrome';
 	const DEFAULT_DASHICON = 'dashicons-admin-generic';
 
 	/**
@@ -37,7 +39,20 @@ final class PufferDesk_Icon_Renderer {
 	public static function client_contract() {
 		return array(
 			'defaultDashicon' => self::DEFAULT_DASHICON,
+			'appearances'     => self::get_appearance_ids(),
 			'types'           => self::get_type_ids(),
+		);
+	}
+
+	/**
+	 * Icon appearance IDs.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_appearance_ids() {
+		return array(
+			'BRAND'      => self::APPEARANCE_BRAND,
+			'MONOCHROME' => self::APPEARANCE_MONOCHROME,
 		);
 	}
 
@@ -55,9 +70,10 @@ final class PufferDesk_Icon_Renderer {
 				$url = self::get_image_url( $icon );
 				if ( '' !== $url ) {
 					return array(
-						'type' => self::TYPE_IMAGE,
-						'url'  => $url,
-						'alt'  => isset( $icon['alt'] ) ? sanitize_text_field( $icon['alt'] ) : '',
+						'type'       => self::TYPE_IMAGE,
+						'url'        => $url,
+						'alt'        => isset( $icon['alt'] ) ? sanitize_text_field( $icon['alt'] ) : '',
+						'appearance' => self::normalize_appearance( isset( $icon['appearance'] ) ? $icon['appearance'] : '' ),
 					);
 				}
 			}
@@ -66,10 +82,11 @@ final class PufferDesk_Icon_Renderer {
 				$name = isset( $icon['name'] ) ? sanitize_file_name( $icon['name'] ) : '';
 				if ( self::is_theme_icon_name( $name ) ) {
 					return array(
-						'type'     => self::TYPE_THEME,
-						'name'     => $name,
-						'fallback' => self::get_dashicon_value( isset( $icon['fallback'] ) ? $icon['fallback'] : '' ),
-						'alt'      => isset( $icon['alt'] ) ? sanitize_text_field( $icon['alt'] ) : '',
+						'type'       => self::TYPE_THEME,
+						'name'       => $name,
+						'fallback'   => self::get_dashicon_value( isset( $icon['fallback'] ) ? $icon['fallback'] : '' ),
+						'alt'        => isset( $icon['alt'] ) ? sanitize_text_field( $icon['alt'] ) : '',
+						'appearance' => self::normalize_appearance( isset( $icon['appearance'] ) ? $icon['appearance'] : '' ),
 					);
 				}
 			}
@@ -98,9 +115,19 @@ final class PufferDesk_Icon_Renderer {
 
 		if ( self::TYPE_IMAGE === $icon['type'] && ! empty( $icon['url'] ) ) {
 			$url = trim( (string) $icon['url'] );
+			if ( self::APPEARANCE_MONOCHROME === self::get_icon_appearance( $icon ) && self::is_data_image_url( $url ) ) {
+				printf(
+					'<span class="%s" style="--pdk-icon-mask-image: url(\'%s\');" aria-hidden="true"></span>',
+					esc_attr( self::get_class_names( $icon, 'pdk-icon-mask' ) ),
+					esc_attr( $url )
+				);
+				return;
+			}
+
 			if ( self::is_data_image_url( $url ) ) {
 				printf(
-					'<img class="pdk-icon-image" src="%s" alt="%s" aria-hidden="true" loading="lazy" decoding="async" />',
+					'<img class="%s" src="%s" alt="%s" aria-hidden="true" loading="lazy" decoding="async" />',
+					esc_attr( self::get_class_names( $icon, 'pdk-icon-image' ) ),
 					esc_attr( $url ),
 					esc_attr( $icon['alt'] )
 				);
@@ -109,7 +136,8 @@ final class PufferDesk_Icon_Renderer {
 
 			if ( '' !== esc_url( $url ) ) {
 				printf(
-					'<img class="pdk-icon-image" src="%s" alt="%s" aria-hidden="true" loading="lazy" decoding="async" />',
+					'<img class="%s" src="%s" alt="%s" aria-hidden="true" loading="lazy" decoding="async" />',
+					esc_attr( self::get_class_names( $icon, 'pdk-icon-image' ) ),
 					esc_url( $url ),
 					esc_attr( $icon['alt'] )
 				);
@@ -120,8 +148,8 @@ final class PufferDesk_Icon_Renderer {
 		}
 
 		printf(
-			'<span class="dashicons %s" aria-hidden="true"></span>',
-			esc_attr( $icon['value'] )
+			'<span class="%s" aria-hidden="true"></span>',
+			esc_attr( self::get_class_names( $icon, 'dashicons' ) )
 		);
 	}
 
@@ -142,9 +170,10 @@ final class PufferDesk_Icon_Renderer {
 		$url = self::get_theme_icon_url( $icon, $theme );
 		if ( '' !== $url ) {
 			return array(
-				'type' => self::TYPE_IMAGE,
-				'url'  => $url,
-				'alt'  => $icon['alt'],
+				'type'       => self::TYPE_IMAGE,
+				'url'        => $url,
+				'alt'        => $icon['alt'],
+				'appearance' => $icon['appearance'],
 			);
 		}
 
@@ -161,9 +190,54 @@ final class PufferDesk_Icon_Renderer {
 		$value = self::get_dashicon_value( $value );
 
 		return array(
-			'type'  => self::TYPE_DASHICON,
-			'value' => $value,
+			'type'       => self::TYPE_DASHICON,
+			'value'      => $value,
+			'appearance' => self::APPEARANCE_MONOCHROME,
 		);
+	}
+
+	/**
+	 * Normalize icon appearance.
+	 *
+	 * @param mixed  $appearance Raw appearance.
+	 * @param string $fallback Fallback appearance.
+	 * @return string
+	 */
+	private static function normalize_appearance( $appearance, $fallback = self::APPEARANCE_BRAND ) {
+		$appearance = sanitize_key( (string) $appearance );
+
+		return in_array( $appearance, array( self::APPEARANCE_BRAND, self::APPEARANCE_MONOCHROME ), true ) ? $appearance : $fallback;
+	}
+
+	/**
+	 * Read a normalized icon appearance.
+	 *
+	 * @param array<string,string> $icon Icon descriptor.
+	 * @return string
+	 */
+	private static function get_icon_appearance( $icon ) {
+		return self::normalize_appearance( isset( $icon['appearance'] ) ? $icon['appearance'] : '' );
+	}
+
+	/**
+	 * Build shared icon class names.
+	 *
+	 * @param array<string,string> $icon Icon descriptor.
+	 * @param string               $base_class Base class.
+	 * @return string
+	 */
+	private static function get_class_names( $icon, $base_class ) {
+		$appearance = self::get_icon_appearance( $icon );
+		$classes    = array( $base_class, 'pdk-icon' );
+
+		if ( 'dashicons' === $base_class ) {
+			$classes[] = isset( $icon['value'] ) ? $icon['value'] : self::DEFAULT_DASHICON;
+			$classes[] = 'pdk-icon-glyph';
+		}
+
+		$classes[] = self::APPEARANCE_MONOCHROME === $appearance ? 'pdk-icon-adaptive' : 'pdk-icon-brand';
+
+		return implode( ' ', array_filter( array_unique( $classes ) ) );
 	}
 
 	/**

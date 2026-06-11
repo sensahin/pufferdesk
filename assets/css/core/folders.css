@@ -167,7 +167,8 @@
 }
 
 .pdk-finder-sidebar-icon .pdk-icon-image,
-.pdk-finder-sidebar-icon .dashicons {
+.pdk-finder-sidebar-icon .dashicons,
+.pdk-finder-sidebar-icon .pdk-icon-mask {
 	display: block;
 	font-size: 13px;
 	height: 20px;
@@ -686,6 +687,11 @@
 	width: 28px;
 }
 
+.pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-icon .pdk-icon-mask {
+	height: 24px;
+	width: 24px;
+}
+
 .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher > span:last-child {
 	min-width: 0;
 	overflow: hidden;
@@ -844,7 +850,8 @@
 }
 
 .pdk-info-panel-icon .pdk-icon-image,
-.pdk-info-panel-icon .dashicons {
+.pdk-info-panel-icon .dashicons,
+.pdk-info-panel-icon .pdk-icon-mask {
 	font-size: 40px;
 	height: 40px;
 	line-height: 40px;

@@ -328,7 +328,8 @@
 }
 
 .pdk-window-titlebar-label-icon .pdk-icon-image,
-.pdk-window-titlebar-label-icon .dashicons {
+.pdk-window-titlebar-label-icon .dashicons,
+.pdk-window-titlebar-label-icon .pdk-icon-mask {
 	font-size: 18px;
 	height: 18px;
 	line-height: 18px;

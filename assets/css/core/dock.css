@@ -68,13 +68,16 @@
 }
 
 .pdk-dock-item .dashicons,
-.pdk-dock-window-item .dashicons {
+.pdk-dock-window-item .dashicons,
+.pdk-dock-item .pdk-icon-mask,
+.pdk-dock-window-item .pdk-icon-mask {
 	font-size: var(--pdk-dock-icon-size, 24px);
 	height: var(--pdk-dock-icon-size, 24px);
 	width: var(--pdk-dock-icon-size, 24px);
 }
 
-.pdk-dock-item .dashicons {
+.pdk-dock-item .dashicons,
+.pdk-dock-item .pdk-icon-mask {
 	pointer-events: none;
 	-webkit-user-drag: none;
 }

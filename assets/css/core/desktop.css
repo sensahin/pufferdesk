@@ -41,7 +41,8 @@
 	justify-content: center;
 }
 
-.pdk-app-icon .dashicons {
+.pdk-app-icon .dashicons,
+.pdk-app-icon .pdk-icon-mask {
 	font-size: 27px;
 	height: 27px;
 	width: 27px;
@@ -169,7 +170,8 @@
 	transform: translateY(-1px) scale(1.04);
 }
 
-.pdk-desktop-icon .pdk-icon-image {
+.pdk-desktop-icon .pdk-icon-image,
+.pdk-desktop-icon .pdk-icon-mask {
 	height: 40px;
 	object-fit: contain;
 	object-position: center;

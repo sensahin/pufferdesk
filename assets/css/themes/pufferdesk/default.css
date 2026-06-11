@@ -131,6 +131,7 @@
 	--pdk-icon-widget-surface-border: rgba(255, 255, 255, 0.72);
 	--pdk-icon-widget-surface-shadow: 0 8px 16px rgba(16, 34, 50, 0.12), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
 	--pdk-icon-widget-symbol: var(--pdk-accent);
+	--pdk-icon-adaptive-ink: var(--pdk-icon-widget-symbol);
 	--pdk-icon-widget-tile-bg: var(--pdk-tile-bg);
 	--pdk-icon-widget-tile-border: var(--pdk-tile-border);
 	--pdk-icon-widget-tile-color: #fff;
@@ -160,10 +161,10 @@
 	--pdk-dock-separator: rgba(50, 56, 62, 0.18);
 	--pdk-dock-shadow: 0 18px 42px rgba(8, 28, 42, 0.14), 0 1px 0 rgba(255, 255, 255, 0.58) inset, 0 -1px 0 rgba(255, 255, 255, 0.14) inset, 1px 0 0 rgba(255, 255, 255, 0.18) inset, -1px 0 0 rgba(255, 255, 255, 0.12) inset;
 	--pdk-dock-screen-edge: 18px;
-	--pdk-dock-tooltip-bg: rgba(203, 239, 247, 0.92);
-	--pdk-dock-tooltip-border: transparent;
+	--pdk-dock-tooltip-bg: rgba(246, 247, 248, 0.96);
+	--pdk-dock-tooltip-border: rgba(255, 255, 255, 0.68);
 	--pdk-dock-tooltip-color: rgba(22, 29, 34, 0.92);
-	--pdk-dock-tooltip-shadow: none;
+	--pdk-dock-tooltip-shadow: 0 8px 22px rgba(8, 24, 38, 0.14), 0 1px 0 rgba(255, 255, 255, 0.7) inset;
 	--pdk-app-badge-bg: #ff3b30;
 	--pdk-app-badge-ink: #fff;
 	--pdk-app-badge-font-size: 9.5px;
@@ -1055,6 +1056,23 @@
 	width: 52px;
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-app-icon:has(> .pdk-icon-mask) {
+	background: var(--pdk-icon-widget-surface-bg);
+	border: 1px solid var(--pdk-icon-widget-surface-border);
+	box-shadow: var(--pdk-icon-widget-surface-shadow);
+	color: var(--pdk-icon-widget-symbol);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-app-icon .pdk-icon-mask {
+	height: 30px;
+	width: 30px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop-app .pdk-app-icon .pdk-icon-mask {
+	height: 32px;
+	width: 32px;
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher {
 	-webkit-backdrop-filter: none;
 	backdrop-filter: none;
@@ -1088,7 +1106,8 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher .pdk-app-icon .pdk-icon-image,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher .pdk-app-icon .dashicons {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher .pdk-app-icon .dashicons,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher .pdk-app-icon .pdk-icon-mask {
 	height: 24px;
 	width: 24px;
 }
@@ -1285,6 +1304,11 @@
 	z-index: 1;
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-tooltip {
+	--pdk-tooltip-backdrop-filter: none;
+	--pdk-tooltip-border-width: 1px;
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item {
 	background: transparent;
@@ -1337,6 +1361,28 @@
 	opacity: var(--pdk-icon-widget-image-opacity);
 	transition: filter 120ms ease, opacity 120ms ease, transform 120ms ease;
 	width: var(--pdk-dock-tile-size, 54px);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item:has(> .pdk-icon-mask),
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item:has(> .pdk-icon-mask) {
+	background: var(--pdk-icon-widget-surface-bg);
+	border: 1px solid var(--pdk-icon-widget-surface-border);
+	box-shadow: var(--pdk-icon-widget-surface-shadow);
+	color: var(--pdk-icon-widget-symbol);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item > .pdk-icon-mask,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item > .pdk-icon-mask {
+	height: var(--pdk-dock-icon-size, 27px);
+	width: var(--pdk-dock-icon-size, 27px);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop-app .pdk-icon-image.pdk-icon-brand,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-app-launcher:not(.pdk-folder-launcher) .pdk-icon-image.pdk-icon-brand,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item .pdk-icon-image.pdk-icon-brand,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item .pdk-icon-image.pdk-icon-brand {
+	filter: none;
+	opacity: 1;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop-folder .pdk-app-icon,
@@ -1403,8 +1449,10 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item.is-context-menu-active .dashicons,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item.is-context-menu-active .pdk-icon-image,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item.is-context-menu-active .pdk-icon-mask,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item.is-dock-pressing .dashicons,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item.is-dock-pressing .pdk-icon-image {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item.is-dock-pressing .pdk-icon-image,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item.is-dock-pressing .pdk-icon-mask {
 	filter: var(--pdk-dock-pressed-icon-filter);
 	opacity: var(--pdk-dock-pressed-icon-opacity);
 	transform: translateY(1px) scale(0.96);
@@ -1823,10 +1871,10 @@
 	--pdk-dock-bottom-border: rgba(255, 255, 255, 0.08);
 	--pdk-dock-separator: rgba(255, 255, 255, 0.16);
 	--pdk-dock-shadow: 0 20px 48px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.22) inset, 0 -1px 0 rgba(255, 255, 255, 0.06) inset, 1px 0 0 rgba(255, 255, 255, 0.08) inset, -1px 0 0 rgba(255, 255, 255, 0.06) inset;
-	--pdk-dock-tooltip-bg: rgba(20, 72, 88, 0.94);
-	--pdk-dock-tooltip-border: transparent;
+	--pdk-dock-tooltip-bg: rgba(48, 49, 52, 0.96);
+	--pdk-dock-tooltip-border: rgba(255, 255, 255, 0.12);
 	--pdk-dock-tooltip-color: rgba(255, 255, 255, 0.94);
-	--pdk-dock-tooltip-shadow: none;
+	--pdk-dock-tooltip-shadow: 0 10px 26px rgba(0, 0, 0, 0.32), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
 	--pdk-dock-pressed-bg: rgba(0, 0, 0, 0.32);
 	--pdk-dock-pressed-icon-filter: brightness(0.48) saturate(0.72) contrast(0.92);
 	--pdk-dock-pressed-icon-opacity: 0.76;

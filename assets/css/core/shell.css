@@ -109,6 +109,7 @@
 	--pdk-tile-bg: var(--pdk-material-solid-bg);
 	--pdk-tile-border: var(--pdk-material-solid-border);
 	--pdk-tile-shadow: var(--pdk-material-card-shadow);
+	--pdk-icon-adaptive-ink: var(--pdk-accent);
 	--pdk-accent: #2271b1;
 	--pdk-accent-rgb: 34 113 177;
 	--pdk-accent-ink: #fff;
@@ -226,6 +227,24 @@
 	margin: 0;
 	overflow: hidden;
 	position: relative;
+}
+
+.pdk-app-icon .pdk-icon-adaptive,
+.pdk-dock-item > .pdk-icon-adaptive,
+.pdk-dock-window-item > .pdk-icon-adaptive {
+	color: var(--pdk-icon-adaptive-ink, currentColor);
+}
+
+.pdk-icon-mask {
+	-webkit-mask: var(--pdk-icon-mask-image) center / contain no-repeat;
+	background: currentColor;
+	display: inline-block;
+	flex: 0 0 auto;
+	height: 1em;
+	mask: var(--pdk-icon-mask-image) center / contain no-repeat;
+	pointer-events: none;
+	width: 1em;
+	-webkit-user-drag: none;
 }
 
 .pdk-app-launcher,

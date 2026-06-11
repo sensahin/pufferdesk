@@ -8,7 +8,10 @@
 	const contracts = runtimeConfig.contracts && typeof runtimeConfig.contracts === 'object' ? runtimeConfig.contracts : {};
 	const iconContract = contracts.icons && typeof contracts.icons === 'object' ? contracts.icons : {};
 	const iconTypes = iconContract.types && typeof iconContract.types === 'object' ? iconContract.types : {};
+	const iconAppearances = iconContract.appearances && typeof iconContract.appearances === 'object' ? iconContract.appearances : {};
 	const defaultDashicon = typeof iconContract.defaultDashicon === 'string' && iconContract.defaultDashicon ? iconContract.defaultDashicon : 'dashicons-admin-generic';
+	const iconAppearanceBrand = iconAppearances.BRAND || 'brand';
+	const iconAppearanceMonochrome = iconAppearances.MONOCHROME || 'monochrome';
 
 	function escapeAttribute(value) {
 		if (window.CSS && typeof window.CSS.escape === 'function') {
@@ -132,9 +135,30 @@
 		return element;
 	}
 
-	function createDashicon(icon) {
+	function normalizeIconAppearance(appearance, fallback = iconAppearanceBrand) {
+		return appearance === iconAppearanceMonochrome || appearance === iconAppearanceBrand ? appearance : fallback;
+	}
+
+	function createIconClassName(baseClass, descriptor = {}) {
+		const appearance = normalizeIconAppearance(descriptor.appearance, baseClass === 'dashicons' ? iconAppearanceMonochrome : iconAppearanceBrand);
+		const classes = [baseClass, 'pdk-icon'];
+
+		if (baseClass === 'dashicons') {
+			classes.push(getDashiconValue(descriptor.value || descriptor.icon));
+			classes.push('pdk-icon-glyph');
+		}
+
+		classes.push(appearance === iconAppearanceMonochrome ? 'pdk-icon-adaptive' : 'pdk-icon-brand');
+
+		return Array.from(new Set(classes.filter(Boolean))).join(' ');
+	}
+
+	function createDashicon(icon, appearance = iconAppearanceMonochrome) {
 		const dashicon = document.createElement('span');
-		dashicon.className = `dashicons ${icon || defaultDashicon}`;
+		dashicon.className = createIconClassName('dashicons', {
+			value: icon || defaultDashicon,
+			appearance: normalizeIconAppearance(appearance, iconAppearanceMonochrome)
+		});
 		dashicon.setAttribute('aria-hidden', 'true');
 
 		return dashicon;
@@ -163,6 +187,10 @@
 		return value;
 	}
 
+	function isDataImageUrl(url) {
+		return /^data:image\/(?:png|gif|jpe?g|webp|svg\+xml);base64,[a-z0-9+/=]+$/i.test(String(url || ''));
+	}
+
 	function trailingslash(value) {
 		return value.endsWith('/') ? value : `${value}/`;
 	}
@@ -172,14 +200,16 @@
 			return {
 				type: iconTypes.IMAGE || 'image',
 				url: icon.url,
-				alt: icon.alt || ''
+				alt: icon.alt || '',
+				appearance: normalizeIconAppearance(icon.appearance)
 			};
 		}
 
 		if (icon && typeof icon === 'object' && icon.type === (iconTypes.DASHICON || 'dashicon')) {
 			return {
 				type: iconTypes.DASHICON || 'dashicon',
-				value: icon.value || icon.dashicon || defaultDashicon
+				value: icon.value || icon.dashicon || defaultDashicon,
+				appearance: iconAppearanceMonochrome
 			};
 		}
 
@@ -187,34 +217,51 @@
 			const name = normalizeIconName(icon.name);
 			const fallback = getDashiconValue(icon.fallback);
 			const iconPackUrl = getThemeIconPackUrl();
+			const appearance = normalizeIconAppearance(icon.appearance);
 
 			if (name && iconPackUrl) {
 				return {
 					type: iconTypes.IMAGE || 'image',
 					url: `${trailingslash(iconPackUrl)}${encodeURIComponent(name)}`,
 					alt: icon.alt || '',
-					fallback
+					fallback,
+					appearance
 				};
 			}
 
 			return {
 				type: iconTypes.DASHICON || 'dashicon',
-				value: fallback
+				value: fallback,
+				appearance: iconAppearanceMonochrome
 			};
 		}
 
 		return {
 			type: iconTypes.DASHICON || 'dashicon',
-			value: typeof icon === 'string' && icon ? icon : defaultDashicon
+			value: typeof icon === 'string' && icon ? icon : defaultDashicon,
+			appearance: iconAppearanceMonochrome
 		};
+	}
+
+	function createMaskIcon(descriptor) {
+		const mask = document.createElement('span');
+		mask.className = createIconClassName('pdk-icon-mask', descriptor);
+		mask.style.setProperty('--pdk-icon-mask-image', `url("${descriptor.url}")`);
+		mask.setAttribute('aria-hidden', 'true');
+
+		return mask;
 	}
 
 	function createIcon(icon) {
 		const descriptor = normalizeIcon(icon);
 
 		if (descriptor.type === (iconTypes.IMAGE || 'image')) {
+			if (descriptor.appearance === iconAppearanceMonochrome && isDataImageUrl(descriptor.url)) {
+				return createMaskIcon(descriptor);
+			}
+
 			const image = document.createElement('img');
-			image.className = 'pdk-icon-image';
+			image.className = createIconClassName('pdk-icon-image', descriptor);
 			image.src = descriptor.url;
 			image.alt = descriptor.alt;
 			image.setAttribute('aria-hidden', 'true');
@@ -233,7 +280,7 @@
 			return image;
 		}
 
-		return createDashicon(descriptor.value);
+		return createDashicon(descriptor.value, descriptor.appearance);
 	}
 
 	window.PufferDesk.dom = {

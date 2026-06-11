@@ -74,7 +74,8 @@
 	width: 50px;
 }
 
-.pdk-app-icon .pdk-icon-image {
+.pdk-app-icon .pdk-icon-image,
+.pdk-app-icon .pdk-icon-mask {
 	height: 30px;
 	width: 30px;
 }

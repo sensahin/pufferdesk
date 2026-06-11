@@ -91,18 +91,20 @@ Apps and folders use structured icon descriptors internally. Dashicon strings st
 );
 
 'icon' => array(
-	'type' => 'image',
-	'src'  => 'themes/pufferdesk/default/icons/posts.svg',
+	'type'       => 'image',
+	'src'        => 'themes/pufferdesk/default/icons/posts.svg',
+	'appearance' => 'brand',
 );
 
 'icon' => array(
-	'type'     => 'theme',
-	'name'     => 'posts.svg',
-	'fallback' => 'dashicons-admin-post',
+	'type'       => 'theme',
+	'name'       => 'posts.svg',
+	'fallback'   => 'dashicons-admin-post',
+	'appearance' => 'brand',
 );
 ```
 
-Icon descriptor types and the default Dashicon fallback live in `PufferDesk_Icon_Renderer`, flow through `runtime.contracts.icons`, and are consumed by `window.PufferDesk.dom.createIcon()` and `getDefaultDashicon()`. PHP registries and browser modules should use that descriptor contract instead of repeating icon type strings or the generic fallback.
+Icon descriptor types, appearances, and the default Dashicon fallback live in `PufferDesk_Icon_Renderer`, flow through `runtime.contracts.icons`, and are consumed by `window.PufferDesk.dom.createIcon()` and `getDefaultDashicon()`. `appearance => brand` preserves full-color images, while `appearance => monochrome` lets tintable data-image glyphs render through the adaptive icon mask. PHP registries and browser modules should use that descriptor contract instead of repeating icon type strings, appearance strings, or the generic fallback.
 
 Apps are registered through `PufferDesk_App_Registry` or the `pufferdesk_apps` filter. Built-in app IDs live in `PufferDesk_App_Ids` and are exposed to browser code as `runtime.contracts.appIds`; native renderer IDs are exposed separately as `runtime.contracts.nativeAppIds`. Iframe apps provide a `url`; native apps provide `kind => native` and a stable `native` renderer ID. Descriptor groups, kinds, and window persistence values live in `PufferDesk_App_Normalizer`, flow through `runtime.contracts.appDescriptors`, and are consumed by browser helpers that open native windows or decide workspace restoration. Each app should declare the WordPress capability required for its target screen or action through `cap`; missing, empty, or non-scalar capabilities normalize to `read`, which is intended only for current-user shell features. Top-level WordPress admin menu apps inherit the capability WordPress used to show that menu item, so the dock, desktop, and launcher stay aligned with the native admin menu. Apps can opt out of workspace window restoration with `window_persistence => none`; the default `workspace` behavior restores stable app windows across shell loads. JavaScript native app windows are registered with `window.PufferDesk.apps.registerNativeAppRenderer( nativeId, renderer )`, and the renderer returns reusable window options such as `content`, `bodyClass`, `width`, `height`, and `resizeMode`. Apps may define a `badge` with `text`, optional `count`, `tone`, and `aria_label`; top-level WordPress admin menu count spans are normalized into this same badge shape for dock and desktop app icons. PHP-rendered shell surfaces use the shared app badge renderer, and browser-rendered surfaces use `apps/app-badges.js`, so Dock and desktop badge markup and accessibility labels stay aligned. App location values live in `PufferDesk_User_Preferences`, flow through `runtime.contracts.appLocations`, and are consumed by app surface/preference modules. App location and login-item state is mediated by `apps/app-preferences.js`; Settings panels and command/context-menu actions should not duplicate those endpoint flows. The app launcher stays generic and does not special-case individual native apps.
 

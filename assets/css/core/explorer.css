@@ -278,6 +278,14 @@
 	width: 28px;
 }
 
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-icon .pdk-icon-mask,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-icon .pdk-icon-mask,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-icon .pdk-icon-mask,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-icon .pdk-icon-mask {
+	height: 24px;
+	width: 24px;
+}
+
 .pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher > span:last-child,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher > span:last-child,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher > span:last-child,

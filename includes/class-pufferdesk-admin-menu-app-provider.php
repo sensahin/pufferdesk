@@ -351,10 +351,7 @@ final class PufferDesk_Admin_Menu_App_Provider {
 
 		$url = $this->get_admin_menu_image_url( $icon );
 
-		return $url ? array(
-			'type' => PufferDesk_Icon_Renderer::TYPE_IMAGE,
-			'url'  => $url,
-		) : PufferDesk_Icon_Renderer::DEFAULT_DASHICON;
+		return $url ? $this->build_admin_menu_image_icon( $url ) : PufferDesk_Icon_Renderer::DEFAULT_DASHICON;
 	}
 
 	/**
@@ -377,9 +374,22 @@ final class PufferDesk_Admin_Menu_App_Provider {
 			return null;
 		}
 
+		return $this->build_admin_menu_image_icon( $url );
+	}
+
+	/**
+	 * Build an icon descriptor for an admin menu image.
+	 *
+	 * @param string $url Normalized image URL.
+	 * @return array<string,string>
+	 */
+	private function build_admin_menu_image_icon( $url ) {
 		return array(
-			'type' => PufferDesk_Icon_Renderer::TYPE_IMAGE,
-			'url'  => $url,
+			'type'       => PufferDesk_Icon_Renderer::TYPE_IMAGE,
+			'url'        => $url,
+			'appearance' => $this->is_admin_menu_monochrome_svg_icon( $url )
+				? PufferDesk_Icon_Renderer::APPEARANCE_MONOCHROME
+				: PufferDesk_Icon_Renderer::APPEARANCE_BRAND,
 		);
 	}
 
@@ -406,6 +416,126 @@ final class PufferDesk_Admin_Menu_App_Provider {
 	 */
 	private function is_admin_menu_data_image_url( $url ) {
 		return (bool) preg_match( '#^data:image/(?:png|gif|jpe?g|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$#', $url );
+	}
+
+	/**
+	 * Check whether an admin menu SVG data URI is intended to be tinted.
+	 *
+	 * @param string $url Raw image URL.
+	 * @return bool
+	 */
+	private function is_admin_menu_monochrome_svg_icon( $url ) {
+		if ( ! preg_match( '#^data:image/svg\+xml;base64,([A-Za-z0-9+/=]+)$#', $url, $matches ) ) {
+			return false;
+		}
+
+		$svg = base64_decode( $matches[1], true );
+		if ( ! is_string( $svg ) || false === stripos( $svg, '<svg' ) ) {
+			return false;
+		}
+
+		if ( false !== stripos( $svg, 'currentColor' ) ) {
+			return true;
+		}
+
+		$colors = $this->get_svg_color_values( $svg );
+		if ( empty( $colors ) ) {
+			return true;
+		}
+
+		foreach ( $colors as $color ) {
+			if ( ! $this->is_svg_color_value_neutral( $color ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Extract color values from simple SVG attributes and style declarations.
+	 *
+	 * @param string $svg SVG markup.
+	 * @return array<int,string>
+	 */
+	private function get_svg_color_values( $svg ) {
+		$colors = array();
+
+		if ( preg_match_all( '/(?:fill|stroke|color)\s*=\s*([\'"])(.*?)\1/i', $svg, $matches ) ) {
+			$colors = array_merge( $colors, $matches[2] );
+		}
+
+		if ( preg_match_all( '/(?:fill|stroke|color)\s*:\s*([^;"\'}]+)/i', $svg, $matches ) ) {
+			$colors = array_merge( $colors, $matches[1] );
+		}
+
+		if ( preg_match_all( '/#[0-9a-f]{3,8}\b/i', $svg, $matches ) ) {
+			$colors = array_merge( $colors, $matches[0] );
+		}
+
+		$colors = array_map(
+			static function ( $color ) {
+				return strtolower( trim( (string) $color ) );
+			},
+			$colors
+		);
+
+		return array_values( array_unique( array_filter( $colors ) ) );
+	}
+
+	/**
+	 * Determine whether a simple SVG color value is neutral enough to tint.
+	 *
+	 * @param string $color SVG color value.
+	 * @return bool
+	 */
+	private function is_svg_color_value_neutral( $color ) {
+		$color = strtolower( trim( $color ) );
+		if ( '' === $color || in_array( $color, array( 'none', 'transparent', 'currentcolor', 'inherit' ), true ) ) {
+			return true;
+		}
+
+		if ( 0 === strpos( $color, 'var(' ) ) {
+			return true;
+		}
+
+		if ( in_array( $color, array( 'black', 'white', 'gray', 'grey', 'silver', 'darkgray', 'darkgrey', 'lightgray', 'lightgrey', 'dimgray', 'dimgrey' ), true ) ) {
+			return true;
+		}
+
+		if ( preg_match( '/^#([0-9a-f]{3,8})$/i', $color, $matches ) ) {
+			$hex = strtolower( $matches[1] );
+			if ( 3 === strlen( $hex ) || 4 === strlen( $hex ) ) {
+				$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+			} else {
+				$hex = substr( $hex, 0, 6 );
+			}
+
+			if ( 6 !== strlen( $hex ) ) {
+				return false;
+			}
+
+			$rgb = array(
+				hexdec( substr( $hex, 0, 2 ) ),
+				hexdec( substr( $hex, 2, 2 ) ),
+				hexdec( substr( $hex, 4, 2 ) ),
+			);
+
+			return max( $rgb ) - min( $rgb ) <= 18;
+		}
+
+		if ( preg_match( '/^rgba?\(([^)]+)\)$/i', $color, $matches ) ) {
+			$parts = array_map( 'trim', explode( ',', $matches[1] ) );
+			if ( count( $parts ) < 3 ) {
+				return false;
+			}
+
+			$rgb = array_slice( array_map( 'intval', $parts ), 0, 3 );
+
+			return max( $rgb ) - min( $rgb ) <= 18;
+		}
+
+		return false;
 	}
 
 	/**
