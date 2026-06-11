@@ -18,7 +18,20 @@
 		return stickyNoteColors.includes(value) ? value : 'yellow';
 	}
 
-	function normalizeDocument(document) {
+	function getDocumentLabels(config) {
+		const runtimeConfig = getConfig(config);
+		const documentConfig = runtimeConfig.documents && typeof runtimeConfig.documents === 'object' ? runtimeConfig.documents : {};
+
+		return documentConfig.labels && typeof documentConfig.labels === 'object' ? documentConfig.labels : {};
+	}
+
+	function getDocumentLabel(labels, key) {
+		const value = labels && typeof labels[key] === 'string' ? labels[key] : '';
+
+		return value || key;
+	}
+
+	function normalizeDocument(document, labels = getDocumentLabels()) {
 		const data = document && typeof document === 'object' ? document : {};
 		const id = Number.parseInt(data.id, 10);
 
@@ -33,18 +46,18 @@
 			modified: typeof data.modified === 'string' ? data.modified : '',
 			parentPath: typeof data.parentPath === 'string' ? data.parentPath : '',
 			path: typeof data.path === 'string' ? data.path : '',
-			title: typeof data.title === 'string' && data.title ? data.title : 'Untitled Document'
+			title: typeof data.title === 'string' && data.title ? data.title : getDocumentLabel(labels, 'untitledDocument')
 		};
 	}
 
-	function unwrapResult(result, key) {
+	function unwrapResult(result, key, labels) {
 		const data = result && result.data && typeof result.data === 'object' ? result.data : {};
 
 		if (result && result.success) {
 			return data[key];
 		}
 
-		throw new Error(data.message || 'Document service unavailable.');
+		throw new Error(data.message || getDocumentLabel(labels, 'documentServiceUnavailable'));
 	}
 
 	window.PufferDesk.documents.createDocumentStore = function createDocumentStore(config) {
@@ -52,25 +65,27 @@
 		const documentConfig = runtimeConfig.documents && typeof runtimeConfig.documents === 'object' ? runtimeConfig.documents : {};
 		const actions = documentConfig.actions && typeof documentConfig.actions === 'object' ? documentConfig.actions : {};
 		const kinds = documentConfig.kinds && typeof documentConfig.kinds === 'object' ? documentConfig.kinds : {};
+		const labels = getDocumentLabels(runtimeConfig);
 		const api = window.PufferDesk.services && window.PufferDesk.services.api ? window.PufferDesk.services.api : null;
 		const virtualFilesystem = window.PufferDesk.virtualFilesystem && typeof window.PufferDesk.virtualFilesystem.create === 'function'
 			? window.PufferDesk.virtualFilesystem.create(runtimeConfig)
 			: null;
 		const events = window.PufferDesk.events || null;
+		const eventNames = events && events.names ? events.names : {};
 
 		function post(actionKey, payload = {}) {
 			const action = actions[actionKey];
 
 			if (!api || typeof api.post !== 'function' || !action) {
-				return Promise.reject(new Error('Document service unavailable.'));
+				return Promise.reject(new Error(getDocumentLabel(labels, 'documentServiceUnavailable')));
 			}
 
 			return api.post(action, payload);
 		}
 
 		function emitChange(type, detail = {}) {
-			if (events && typeof events.emit === 'function') {
-				events.emit('documents:changed', Object.assign({ type }, detail));
+			if (events && typeof events.emit === 'function' && eventNames.DOCUMENTS_CHANGED) {
+				events.emit(eventNames.DOCUMENTS_CHANGED, Object.assign({ type }, detail));
 			}
 		}
 
@@ -118,19 +133,19 @@
 			}
 
 			return post('list', payload).then((result) => {
-				const documents = unwrapResult(result, 'documents');
+				const documents = unwrapResult(result, 'documents', labels);
 
-				return Array.isArray(documents) ? documents.map(normalizeDocument).filter((document) => document.id > 0) : [];
+				return Array.isArray(documents) ? documents.map((document) => normalizeDocument(document, labels)).filter((document) => document.id > 0) : [];
 			});
 		}
 
 		function get(id) {
-			return post('get', { id: String(id || '') }).then((result) => normalizeDocument(unwrapResult(result, 'document')));
+			return post('get', { id: String(id || '') }).then((result) => normalizeDocument(unwrapResult(result, 'document', labels), labels));
 		}
 
 		function create(payload = {}) {
 			return post('create', withDefaultParentPath(payload)).then((result) => {
-				const documentData = normalizeDocument(unwrapResult(result, 'document'));
+				const documentData = normalizeDocument(unwrapResult(result, 'document', labels), labels);
 				emitChange('create', {
 					document: documentData
 				});
@@ -143,7 +158,7 @@
 			return post('update', Object.assign({}, payload, {
 				id: String(id || '')
 			})).then((result) => {
-				const documentData = normalizeDocument(unwrapResult(result, 'document'));
+				const documentData = normalizeDocument(unwrapResult(result, 'document', labels), labels);
 				emitChange('update', {
 					document: documentData
 				});
@@ -156,7 +171,7 @@
 			return post('delete', {
 				id: String(id || '')
 			}).then((result) => {
-				const deleted = Boolean(unwrapResult(result, 'deleted'));
+				const deleted = Boolean(unwrapResult(result, 'deleted', labels));
 				if (deleted) {
 					emitChange('delete', {
 						id: Number.parseInt(id, 10) || 0

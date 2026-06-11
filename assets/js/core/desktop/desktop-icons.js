@@ -13,6 +13,14 @@
 		const desktop = shell.querySelector('.pdk-desktop');
 		const sessionStore = window.PufferDesk.session.createSessionStore(options.storageKey || '');
 		const dragDropManager = options.dragDropManager || null;
+		const workspaceSections = window.PufferDesk.session.workspace ? window.PufferDesk.session.workspace.sections || {} : {};
+		const windowKinds = window.PufferDesk.session.workspace ? window.PufferDesk.session.workspace.windowKinds || {} : {};
+		const folderWindowKind = windowKinds.FOLDER || 'folder';
+		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
+		const dragDropConstants = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.constants ? window.PufferDesk.dragDrop.constants : {};
+		const containerTypes = dragDropConstants.containerTypes || {};
+		const itemTypes = dragDropConstants.itemTypes || {};
+		const targetKinds = dragDropConstants.targetKinds || {};
 		let restoreInProgress = false;
 		let sessionSaveDisabled = false;
 		let activeDropTarget = null;
@@ -111,7 +119,7 @@
 		}
 
 		function loadSortMode() {
-			const stored = sessionStore.getSection('desktopSort', {});
+			const stored = sessionStore.getSection(workspaceSections.DESKTOP_SORT, {});
 
 			currentSortMode = normalizeSortMode(stored && typeof stored === 'object' ? stored.mode : stored);
 			return currentSortMode;
@@ -122,7 +130,7 @@
 				return;
 			}
 
-			sessionStore.saveSection('desktopSort', {
+			sessionStore.saveSection(workspaceSections.DESKTOP_SORT, {
 				mode: currentSortMode
 			});
 		}
@@ -187,10 +195,10 @@
 
 		function getKindLabel(icon) {
 			const kind = icon.dataset.pdkDesktopIconKind || 'item';
-			if (kind === 'folder') {
-				return 'folder';
+			if (kind === itemTypes.FOLDER) {
+				return itemTypes.FOLDER;
 			}
-			if (kind === 'app') {
+			if (kind === itemTypes.APP) {
 				return 'application';
 			}
 
@@ -261,29 +269,29 @@
 			if (targetIcon.dataset.pdkFolderSidebarDropKind === 'favorites') {
 				return {
 					id: 'favorites',
-					kind: 'folder-sidebar-favorites',
-					key: 'folder-sidebar:favorites'
+					kind: targetKinds.FOLDER_SIDEBAR_FAVORITES,
+					key: containerTypes.FOLDER_SIDEBAR_FAVORITES
 				};
 			}
 
-			if (targetIcon.dataset.pdkFolderSidebarDropKind === 'folder') {
+			if (targetIcon.dataset.pdkFolderSidebarDropKind === itemTypes.FOLDER) {
 				const folderId = targetIcon.dataset.pdkOpenFolder || targetIcon.dataset.pdkContextId || '';
 
 				return {
 					id: folderId,
-					kind: 'folder',
-					key: folderId ? `folder:${folderId}` : ''
+					kind: itemTypes.FOLDER,
+					key: folderId ? window.PufferDesk.dragDrop.models.createContainerId(containerTypes.FOLDER, folderId) : ''
 				};
 			}
 
 			if (targetIcon.classList && targetIcon.classList.contains('pdk-finder-pane')) {
-				const win = targetIcon.closest('.pdk-window[data-pdk-window-kind="folder"]');
+				const win = targetIcon.closest(`.pdk-window[data-pdk-window-kind="${dom.escapeAttribute(folderWindowKind)}"]`);
 				const folderId = win && win.dataset ? win.dataset.pdkFolderWindow || '' : '';
 
 				return {
 					id: folderId,
-					kind: 'folder',
-					key: folderId ? `folder:${folderId}` : ''
+					kind: itemTypes.FOLDER,
+					key: folderId ? window.PufferDesk.dragDrop.models.createContainerId(containerTypes.FOLDER, folderId) : ''
 				};
 			}
 
@@ -292,8 +300,8 @@
 
 				return {
 					id: folderId,
-					kind: 'folder',
-					key: folderId ? `folder:${folderId}` : ''
+					kind: itemTypes.FOLDER,
+					key: folderId ? window.PufferDesk.dragDrop.models.createContainerId(containerTypes.FOLDER, folderId) : ''
 				};
 			}
 
@@ -321,7 +329,7 @@
 				return false;
 			}
 
-			if (targetIcon.hidden || !['folder', 'folder-sidebar-favorites'].includes(getDropTargetDetail(targetIcon).kind)) {
+			if (targetIcon.hidden || ![itemTypes.FOLDER, targetKinds.FOLDER_SIDEBAR_FAVORITES].includes(getDropTargetDetail(targetIcon).kind)) {
 				return false;
 			}
 
@@ -746,7 +754,7 @@
 		}
 
 		function getStoredIconMap() {
-			const stored = sessionStore.getSection('desktopIcons', []);
+			const stored = sessionStore.getSection(workspaceSections.DESKTOP_ICONS, []);
 			const map = new Map();
 
 			if (!Array.isArray(stored)) {
@@ -796,7 +804,7 @@
 				return;
 			}
 
-			sessionStore.saveSection('desktopIcons', serializeIcons());
+			sessionStore.saveSection(workspaceSections.DESKTOP_ICONS, serializeIcons());
 		}
 
 		function scheduleSave() {
@@ -1266,7 +1274,7 @@
 					setDragItemsDragging(dragItems, true);
 					if (!platformDragStarted && dragDropManager && typeof dragDropManager.startDragFromElement === 'function') {
 						dragDropManager.startDragFromElement(icon, {
-							source: 'desktop'
+							source: containerTypes.DESKTOP
 						});
 						platformDragStarted = true;
 					}
@@ -1281,7 +1289,7 @@
 									clientX: moveEvent.clientX,
 									clientY: moveEvent.clientY
 								},
-								source: 'desktop'
+								source: containerTypes.DESKTOP
 							});
 						} else if (typeof dragDropManager.leave === 'function') {
 							dragDropManager.leave();
@@ -1425,7 +1433,7 @@
 		}
 
 		window.addEventListener('beforeunload', saveSession);
-		window.addEventListener('pufferDesk:workspace-state-changed', handleWorkspaceStateChanged);
+		window.addEventListener(domEventNames.WORKSPACE_STATE_CHANGED, handleWorkspaceStateChanged);
 		window.addEventListener('resize', () => {
 			clampToDesktopTask.schedule();
 		});

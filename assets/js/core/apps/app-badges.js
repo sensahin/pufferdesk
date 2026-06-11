@@ -4,7 +4,15 @@
 	window.PufferDesk = window.PufferDesk || {};
 	window.PufferDesk.apps = window.PufferDesk.apps || {};
 
-	const allowedTones = ['attention', 'neutral', 'update'];
+	const defaultTones = ['attention', 'neutral', 'update'];
+
+	function getAllowedTones() {
+		const config = window.PufferDesk.config;
+
+		return config && typeof config.getContractList === 'function'
+			? config.getContractList('appBadgeTones', defaultTones)
+			: defaultTones;
+	}
 
 	function getBadge(source) {
 		if (source && source.badge && typeof source.badge === 'object') {
@@ -27,7 +35,7 @@
 			return null;
 		}
 
-		const tone = typeof badge.tone === 'string' && allowedTones.includes(badge.tone)
+		const tone = typeof badge.tone === 'string' && getAllowedTones().includes(badge.tone)
 			? badge.tone
 			: 'attention';
 

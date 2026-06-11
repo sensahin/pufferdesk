@@ -4,7 +4,13 @@
 	window.PufferDesk = window.PufferDesk || {};
 	window.PufferDesk.dragDrop = window.PufferDesk.dragDrop || {};
 
-	const itemTypes = new Set(['app', 'folder']);
+	const constants = window.PufferDesk.dragDrop.constants || {};
+	const containerTypes = constants.containerTypes || {};
+	const containerPrefixes = constants.containerPrefixes || {};
+	const targetKinds = constants.targetKinds || {};
+	const dragReasons = constants.reasons || {};
+	const itemTypeMap = constants.itemTypes || {};
+	const itemTypes = new Set(Object.keys(itemTypeMap).map((key) => itemTypeMap[key]).filter(Boolean));
 	const scalarPositionKeys = ['clientX', 'clientY', 'left', 'top', 'index'];
 
 	function clone(value) {
@@ -43,24 +49,24 @@
 			return '';
 		}
 
-		if (id === 'desktop' || id === 'dock' || id === 'trash') {
+		if (id === containerTypes.DESKTOP || id === containerTypes.DOCK || id === containerTypes.TRASH) {
 			return id;
 		}
 
-		if (id === 'folder-sidebar-favorites' || id === 'sidebar-favorites') {
-			return 'folder-sidebar:favorites';
+		if (id === targetKinds.FOLDER_SIDEBAR_FAVORITES || id === containerTypes.SIDEBAR_FAVORITES_LEGACY) {
+			return containerTypes.FOLDER_SIDEBAR_FAVORITES;
 		}
 
-		if (id.startsWith('folder:')) {
-			const folderId = normalizeId(id.slice(7));
+		if (id.startsWith(containerPrefixes.FOLDER)) {
+			const folderId = normalizeId(id.slice(containerPrefixes.FOLDER.length));
 
-			return folderId ? `folder:${folderId}` : '';
+			return folderId ? `${containerPrefixes.FOLDER}${folderId}` : '';
 		}
 
-		if (id.startsWith('folder-sidebar:')) {
-			const sectionId = normalizeId(id.slice(15));
+		if (id.startsWith(containerPrefixes.FOLDER_SIDEBAR)) {
+			const sectionId = normalizeId(id.slice(containerPrefixes.FOLDER_SIDEBAR.length));
 
-			return sectionId ? `folder-sidebar:${sectionId}` : '';
+			return sectionId ? `${containerPrefixes.FOLDER_SIDEBAR}${sectionId}` : '';
 		}
 
 		return id;
@@ -69,7 +75,7 @@
 	function parseContainerId(value) {
 		const id = normalizeContainerId(value);
 
-		if (id === 'desktop' || id === 'dock' || id === 'trash') {
+		if (id === containerTypes.DESKTOP || id === containerTypes.DOCK || id === containerTypes.TRASH) {
 			return {
 				id,
 				targetId: id,
@@ -77,19 +83,19 @@
 			};
 		}
 
-		if (id.startsWith('folder:')) {
+		if (id.startsWith(containerPrefixes.FOLDER)) {
 			return {
 				id,
-				targetId: id.slice(7),
-				type: 'folder'
+				targetId: id.slice(containerPrefixes.FOLDER.length),
+				type: containerTypes.FOLDER
 			};
 		}
 
-		if (id.startsWith('folder-sidebar:')) {
+		if (id.startsWith(containerPrefixes.FOLDER_SIDEBAR)) {
 			return {
 				id,
-				targetId: id.slice(15),
-				type: 'folder-sidebar'
+				targetId: id.slice(containerPrefixes.FOLDER_SIDEBAR.length),
+				type: containerTypes.FOLDER_SIDEBAR
 			};
 		}
 
@@ -104,24 +110,24 @@
 		const kind = normalizeString(type);
 		const targetId = normalizeId(id);
 
-		if (kind === 'desktop') {
-			return 'desktop';
+		if (kind === containerTypes.DESKTOP) {
+			return containerTypes.DESKTOP;
 		}
 
-		if (kind === 'dock') {
-			return 'dock';
+		if (kind === containerTypes.DOCK) {
+			return containerTypes.DOCK;
 		}
 
-		if (kind === 'trash') {
-			return 'trash';
+		if (kind === containerTypes.TRASH) {
+			return containerTypes.TRASH;
 		}
 
-		if (kind === 'folder') {
-			return targetId ? `folder:${targetId}` : '';
+		if (kind === containerTypes.FOLDER) {
+			return targetId ? `${containerPrefixes.FOLDER}${targetId}` : '';
 		}
 
-		if (kind === 'folder-sidebar' || kind === 'folder-sidebar-favorites' || kind === 'sidebar-favorites') {
-			return `folder-sidebar:${targetId || 'favorites'}`;
+		if (kind === containerTypes.FOLDER_SIDEBAR || kind === targetKinds.FOLDER_SIDEBAR_FAVORITES || kind === containerTypes.SIDEBAR_FAVORITES_LEGACY) {
+			return `${containerPrefixes.FOLDER_SIDEBAR}${targetId || 'favorites'}`;
 		}
 
 		return targetId || normalizeContainerId(kind);
@@ -212,7 +218,7 @@
 			itemType: item.type,
 			metadata: Object.assign({}, clone(raw.metadata || {})),
 			position: normalizePosition(raw.position),
-			reason: normalizeString(raw.reason || 'drag-drop') || 'drag-drop',
+			reason: normalizeString(raw.reason || dragReasons.DRAG_DROP) || dragReasons.DRAG_DROP,
 			toContainerId
 		};
 	}

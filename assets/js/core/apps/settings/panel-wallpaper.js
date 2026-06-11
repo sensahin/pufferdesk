@@ -16,7 +16,7 @@
 		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel');
 		const wallpaperItems = getWallpaperGroup('wallpapers');
 		const builtInSection = createCollapsibleWallpaperSection(
-			t('wallpaper.wallpapersHeading', 'Wallpapers'),
+			t('wallpaper.wallpapersHeading'),
 			wallpaperItems,
 			status,
 			{
@@ -26,7 +26,7 @@
 			}
 		);
 		const colorSection = createCollapsibleWallpaperSection(
-			t('wallpaper.colorsHeading', 'Colors'),
+			t('wallpaper.colorsHeading'),
 			getWallpaperGroup('colors'),
 			status,
 			{

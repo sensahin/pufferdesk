@@ -11,6 +11,23 @@ defined( 'ABSPATH' ) || exit;
  * Owns built-in wallpaper/color options, upload resolution, and CSS variables.
  */
 final class PufferDesk_Wallpaper_Registry {
+	const TYPE_COLOR  = 'color';
+	const TYPE_THEME  = 'theme';
+	const TYPE_UPLOAD = 'upload';
+
+	/**
+	 * Wallpaper preference type IDs.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_type_ids() {
+		return array(
+			'COLOR'  => self::TYPE_COLOR,
+			'THEME'  => self::TYPE_THEME,
+			'UPLOAD' => self::TYPE_UPLOAD,
+		);
+	}
+
 	/**
 	 * Built-in original color backgrounds.
 	 *
@@ -157,7 +174,7 @@ final class PufferDesk_Wallpaper_Registry {
 
 		foreach ( $this->color_backgrounds as $color ) {
 			$item = array(
-				'type'          => 'color',
+				'type'          => self::TYPE_COLOR,
 				'id'            => sanitize_key( $color['id'] ),
 				'label'         => $this->get_color_label( $color['id'] ),
 				'css_value'     => $color['css_value'],
@@ -194,12 +211,12 @@ final class PufferDesk_Wallpaper_Registry {
 		);
 
 		foreach ( $this->get_available_wallpapers( $theme ) as $item ) {
-			if ( 'color' === $item['type'] ) {
+			if ( self::TYPE_COLOR === $item['type'] ) {
 				$groups['colors'][] = $item;
 				continue;
 			}
 
-			if ( 'upload' !== $item['type'] ) {
+			if ( self::TYPE_UPLOAD !== $item['type'] ) {
 				$groups['wallpapers'][] = $item;
 			}
 		}
@@ -217,7 +234,7 @@ final class PufferDesk_Wallpaper_Registry {
 	public function validate_preference( $preference, $theme ) {
 		$type = isset( $preference['type'] ) ? sanitize_key( $preference['type'] ) : '';
 
-		if ( 'upload' === $type ) {
+		if ( self::TYPE_UPLOAD === $type ) {
 			if ( ! current_user_can( 'upload_files' ) ) {
 				return new WP_Error(
 					'pufferdesk_wallpaper_upload_forbidden',
@@ -258,7 +275,7 @@ final class PufferDesk_Wallpaper_Registry {
 		$preference = is_array( $preference ) ? $preference : array();
 		$type       = isset( $preference['type'] ) ? sanitize_key( $preference['type'] ) : '';
 
-		if ( 'upload' === $type ) {
+		if ( self::TYPE_UPLOAD === $type ) {
 			$upload = $this->resolve_upload( $preference );
 			if ( $upload ) {
 				return $upload;
@@ -273,7 +290,7 @@ final class PufferDesk_Wallpaper_Registry {
 
 		if ( ! $item ) {
 			$item = array(
-				'type'      => 'color',
+				'type'      => self::TYPE_COLOR,
 				'id'        => 'none',
 				'label'     => __( 'Default', 'pufferdesk-admin-desktop' ),
 				'css_value' => 'none',
@@ -311,9 +328,9 @@ final class PufferDesk_Wallpaper_Registry {
 			$default_id = sanitize_key( $theme['media']['wallpapers']['default'] );
 		}
 
-		if ( $default_id && $this->find_item( 'theme', $default_id, $theme ) ) {
+		if ( $default_id && $this->find_item( self::TYPE_THEME, $default_id, $theme ) ) {
 			return array(
-				'type'          => 'theme',
+				'type'          => self::TYPE_THEME,
 				'id'            => $default_id,
 				'attachment_id' => 0,
 				'fit'           => 'cover',
@@ -325,7 +342,7 @@ final class PufferDesk_Wallpaper_Registry {
 		$item  = reset( $items );
 
 		return array(
-			'type'          => $item && ! empty( $item['type'] ) ? $item['type'] : 'color',
+			'type'          => $item && ! empty( $item['type'] ) ? $item['type'] : self::TYPE_COLOR,
 			'id'            => $item && ! empty( $item['id'] ) ? $item['id'] : 'aurora-mist',
 			'attachment_id' => 0,
 			'fit'           => 'cover',
@@ -356,7 +373,7 @@ final class PufferDesk_Wallpaper_Registry {
 
 		$label = get_the_title( $attachment_id );
 		$item  = array(
-			'type'          => 'upload',
+			'type'          => self::TYPE_UPLOAD,
 			'id'            => 'custom',
 			'attachment_id' => $attachment_id,
 			'label'         => $label ? sanitize_text_field( $label ) : __( 'Custom Wallpaper', 'pufferdesk-admin-desktop' ),
@@ -368,7 +385,7 @@ final class PufferDesk_Wallpaper_Registry {
 			'menu_contrast' => 'auto',
 		);
 		$preference = array(
-			'type'          => 'upload',
+			'type'          => self::TYPE_UPLOAD,
 			'id'            => '',
 			'attachment_id' => $attachment_id,
 			'fit'           => $item['fit'],
@@ -395,7 +412,7 @@ final class PufferDesk_Wallpaper_Registry {
 		foreach ( $preferences->get_wallpaper_uploads() as $attachment_id ) {
 			$resolved = $this->resolve_upload(
 				array(
-					'type'          => 'upload',
+					'type'          => self::TYPE_UPLOAD,
 					'attachment_id' => $attachment_id,
 					'fit'           => 'cover',
 					'position'      => 'center center',
@@ -537,7 +554,7 @@ final class PufferDesk_Wallpaper_Registry {
 
 		if ( empty( $items ) && ! empty( $theme['media']['wallpaper']['url'] ) ) {
 			$items[] = array(
-				'type'          => 'theme',
+				'type'          => self::TYPE_THEME,
 				'id'            => 'default',
 				'label'         => __( 'Default', 'pufferdesk-admin-desktop' ),
 				'url'           => esc_url_raw( $theme['media']['wallpaper']['url'] ),
@@ -602,7 +619,7 @@ final class PufferDesk_Wallpaper_Registry {
 		}
 
 		return array(
-			'type'          => 'theme',
+			'type'          => self::TYPE_THEME,
 			'id'            => sanitize_key( $wallpaper['id'] ),
 			'label'         => isset( $wallpaper['label'] ) ? sanitize_text_field( $wallpaper['label'] ) : sanitize_key( $wallpaper['id'] ),
 			'url'           => $url,

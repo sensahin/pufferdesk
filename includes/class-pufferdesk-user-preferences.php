@@ -24,6 +24,15 @@ final class PufferDesk_User_Preferences {
 	const META_THEME      = 'pufferdesk_theme';
 	const META_WALLPAPER  = 'pufferdesk_wallpaper';
 	const META_WALLPAPER_UPLOADS = 'pufferdesk_wallpaper_uploads';
+	const NOTIFICATION_SOURCE_WORDPRESS_UPDATES = 'wordpress_updates';
+	const NOTIFICATION_SOURCE_COMMENTS          = 'comments';
+	const NOTIFICATION_SOURCE_SITE_HEALTH       = 'site_health';
+	const NOTIFICATION_SOURCE_PUFFERDESK        = 'pufferdesk';
+	const NOTIFICATION_SOURCE_APPS              = 'apps';
+	const APP_LOCATION_DOCK    = 'dock';
+	const APP_LOCATION_DESKTOP = 'desktop';
+	const APP_LOCATION_BOTH    = 'both';
+	const APP_LOCATION_HIDDEN  = 'hidden';
 	const WALLPAPER_UPLOAD_LIMIT = 12;
 	const RESET_DOMAIN_APPEARANCE = 'appearance';
 	const RESET_DOMAIN_APP_LOGIN_ITEMS = 'app_login_items';
@@ -99,7 +108,12 @@ final class PufferDesk_User_Preferences {
 	 *
 	 * @var array<int,string>
 	 */
-	private $app_location_options = array( 'dock', 'desktop', 'both', 'hidden' );
+	private $app_location_options = array(
+		self::APP_LOCATION_DOCK,
+		self::APP_LOCATION_DESKTOP,
+		self::APP_LOCATION_BOTH,
+		self::APP_LOCATION_HIDDEN,
+	);
 
 	/**
 	 * Default Menu Bar preferences.
@@ -126,13 +140,28 @@ final class PufferDesk_User_Preferences {
 		'history_days' => 30,
 		'severity'     => 'all',
 		'sources'      => array(
-			'wordpress_updates' => true,
-			'comments'          => true,
-			'site_health'       => true,
-			'pufferdesk'        => true,
-			'apps'              => true,
+			self::NOTIFICATION_SOURCE_WORDPRESS_UPDATES => true,
+			self::NOTIFICATION_SOURCE_COMMENTS          => true,
+			self::NOTIFICATION_SOURCE_SITE_HEALTH       => true,
+			self::NOTIFICATION_SOURCE_PUFFERDESK        => true,
+			self::NOTIFICATION_SOURCE_APPS              => true,
 		),
 	);
+
+	/**
+	 * Stable notification source IDs exposed to browser config.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function notification_source_ids() {
+		return array(
+			'WORDPRESS_UPDATES' => self::NOTIFICATION_SOURCE_WORDPRESS_UPDATES,
+			'COMMENTS'          => self::NOTIFICATION_SOURCE_COMMENTS,
+			'SITE_HEALTH'       => self::NOTIFICATION_SOURCE_SITE_HEALTH,
+			'PUFFERDESK'        => self::NOTIFICATION_SOURCE_PUFFERDESK,
+			'APPS'              => self::NOTIFICATION_SOURCE_APPS,
+		);
+	}
 
 	/**
 	 * Default sound preferences.
@@ -166,12 +195,125 @@ final class PufferDesk_User_Preferences {
 	 * @var array<string,mixed>
 	 */
 	private $default_wallpaper = array(
-		'type'          => 'theme',
+		'type'          => PufferDesk_Wallpaper_Registry::TYPE_THEME,
 		'id'            => '',
 		'attachment_id' => 0,
 		'fit'           => 'cover',
 		'position'      => 'center center',
 	);
+
+	/**
+	 * Default Appearance preferences.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_default_appearance() {
+		return $this->default_appearance;
+	}
+
+	/**
+	 * Allowed Appearance preference values.
+	 *
+	 * @return array<string,array<int,string>>
+	 */
+	public function get_appearance_options() {
+		return $this->appearance_options;
+	}
+
+	/**
+	 * Default Desktop & Dock preferences.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_default_desktop_dock() {
+		return $this->default_desktop_dock;
+	}
+
+	/**
+	 * Allowed Desktop & Dock preference values.
+	 *
+	 * @return array<string,array<int,string>>
+	 */
+	public function get_desktop_dock_options() {
+		return $this->desktop_dock_options;
+	}
+
+	/**
+	 * Get stable app location values for browser contracts.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_app_location_ids() {
+		return array(
+			'DOCK'    => self::APP_LOCATION_DOCK,
+			'DESKTOP' => self::APP_LOCATION_DESKTOP,
+			'BOTH'    => self::APP_LOCATION_BOTH,
+			'HIDDEN'  => self::APP_LOCATION_HIDDEN,
+		);
+	}
+
+	/**
+	 * Allowed app location values.
+	 *
+	 * @return array<int,string>
+	 */
+	public function get_app_location_options() {
+		return $this->app_location_options;
+	}
+
+	/**
+	 * Default Menu Bar preferences.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_default_menu_bar() {
+		return $this->default_menu_bar;
+	}
+
+	/**
+	 * Allowed Menu Bar preference values.
+	 *
+	 * @return array<string,array<int,string>>
+	 */
+	public function get_menu_bar_options() {
+		return $this->menu_bar_options;
+	}
+
+	/**
+	 * Default notification preferences.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_default_notifications() {
+		return $this->default_notifications;
+	}
+
+	/**
+	 * Allowed notification severity filters.
+	 *
+	 * @return array<int,string>
+	 */
+	public function get_notification_severity_options() {
+		return $this->notification_severity_options;
+	}
+
+	/**
+	 * Default sound preferences.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_default_sounds() {
+		return $this->default_sounds;
+	}
+
+	/**
+	 * Default wallpaper preference.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_default_wallpaper() {
+		return $this->default_wallpaper;
+	}
 
 	/**
 	 * Whether the current user should enter PufferDesk by default.
@@ -464,7 +606,7 @@ final class PufferDesk_User_Preferences {
 	 */
 	public function filter_apps_for_surface( $apps, $app_locations, $surface, $theme = array() ) {
 		$surface = sanitize_key( (string) $surface );
-		if ( ! in_array( $surface, array( 'dock', 'desktop' ), true ) ) {
+		if ( ! in_array( $surface, array( self::APP_LOCATION_DOCK, self::APP_LOCATION_DESKTOP ), true ) ) {
 			return array();
 		}
 
@@ -477,13 +619,13 @@ final class PufferDesk_User_Preferences {
 					}
 
 					$id       = sanitize_key( (string) $app['id'] );
-					$location = isset( $app_locations[ $id ] ) ? $app_locations[ $id ] : 'dock';
+					$location = isset( $app_locations[ $id ] ) ? $app_locations[ $id ] : self::APP_LOCATION_DOCK;
 
 					if ( $this->is_fixed_dock_app( $app ) ) {
 						$location = $this->get_theme_fixed_app_location( $app, $theme );
 					}
 
-					return 'both' === $location || $surface === $location;
+					return self::APP_LOCATION_BOTH === $location || $surface === $location;
 				}
 			)
 		);
@@ -599,7 +741,7 @@ final class PufferDesk_User_Preferences {
 		$sanitized = $this->default_wallpaper;
 		$type      = isset( $wallpaper['type'] ) ? sanitize_key( (string) $wallpaper['type'] ) : $sanitized['type'];
 
-		if ( in_array( $type, array( 'theme', 'color', 'upload' ), true ) ) {
+		if ( in_array( $type, PufferDesk_Wallpaper_Registry::get_type_ids(), true ) ) {
 			$sanitized['type'] = $type;
 		}
 
@@ -625,11 +767,11 @@ final class PufferDesk_User_Preferences {
 			}
 		}
 
-		if ( 'upload' !== $sanitized['type'] ) {
+		if ( PufferDesk_Wallpaper_Registry::TYPE_UPLOAD !== $sanitized['type'] ) {
 			$sanitized['attachment_id'] = 0;
 		}
 
-		if ( 'upload' === $sanitized['type'] ) {
+		if ( PufferDesk_Wallpaper_Registry::TYPE_UPLOAD === $sanitized['type'] ) {
 			$sanitized['id'] = '';
 		}
 
@@ -648,7 +790,7 @@ final class PufferDesk_User_Preferences {
 		$wallpaper = $this->sanitize_wallpaper( is_array( $wallpaper ) ? $wallpaper : array() );
 
 		update_user_meta( $user_id, self::META_WALLPAPER, $wallpaper );
-		if ( 'upload' === $wallpaper['type'] && ! empty( $wallpaper['attachment_id'] ) ) {
+		if ( PufferDesk_Wallpaper_Registry::TYPE_UPLOAD === $wallpaper['type'] && ! empty( $wallpaper['attachment_id'] ) ) {
 			$this->add_wallpaper_upload( $wallpaper['attachment_id'], $user_id );
 		}
 
@@ -911,13 +1053,13 @@ final class PufferDesk_User_Preferences {
 			}
 
 			$id       = sanitize_key( (string) $app['id'] );
-			$location = isset( $app_locations[ $id ] ) ? sanitize_key( (string) $app_locations[ $id ] ) : 'dock';
+			$location = isset( $app_locations[ $id ] ) ? sanitize_key( (string) $app_locations[ $id ] ) : self::APP_LOCATION_DOCK;
 
 			if ( ! in_array( $location, $this->app_location_options, true ) ) {
-				$location = 'dock';
+				$location = self::APP_LOCATION_DOCK;
 			}
 			if ( $this->is_fixed_dock_app( $app ) ) {
-				$location = 'dock';
+				$location = self::APP_LOCATION_DOCK;
 			}
 
 			$sanitized[ $id ] = $location;
@@ -969,16 +1111,16 @@ final class PufferDesk_User_Preferences {
 	 */
 	private function get_theme_fixed_app_location( $app, $theme ) {
 		if ( empty( $app['id'] ) ) {
-			return 'dock';
+			return self::APP_LOCATION_DOCK;
 		}
 
 		$app_id    = sanitize_key( (string) $app['id'] );
 		$locations = isset( $theme['shell']['fixed_app_locations'] ) && is_array( $theme['shell']['fixed_app_locations'] )
 			? $theme['shell']['fixed_app_locations']
 			: array();
-		$location  = isset( $locations[ $app_id ] ) ? sanitize_key( (string) $locations[ $app_id ] ) : 'dock';
+		$location  = isset( $locations[ $app_id ] ) ? sanitize_key( (string) $locations[ $app_id ] ) : self::APP_LOCATION_DOCK;
 
-		return in_array( $location, $this->app_location_options, true ) ? $location : 'dock';
+		return in_array( $location, $this->app_location_options, true ) ? $location : self::APP_LOCATION_DOCK;
 	}
 
 	/**
@@ -1210,7 +1352,7 @@ final class PufferDesk_User_Preferences {
 	private function get_desktop_folder_icon() {
 		return PufferDesk_Icon_Renderer::normalize(
 			array(
-				'type'     => 'theme',
+				'type'     => PufferDesk_Icon_Renderer::TYPE_THEME,
 				'name'     => 'folder.svg',
 				'fallback' => 'dashicons-category',
 			)

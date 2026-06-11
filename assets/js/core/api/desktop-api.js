@@ -29,6 +29,7 @@
 		const nativeApps = context.nativeApps || window.PufferDesk.apps || {};
 		const notificationStore = context.notificationStore || window.PufferDesk.notificationStore || null;
 		const soundManager = context.soundManager || window.PufferDesk.sound || null;
+		const eventNames = events && events.names ? events.names : {};
 
 		function emit(name, detail = {}) {
 			if (events && typeof events.emit === 'function') {
@@ -59,7 +60,7 @@
 			}
 
 			windowManager[action](win);
-			emit(`desktop:window:${action}`, {
+			emit(eventNames.DESKTOP_WINDOW_ACTION_PREFIX ? `${eventNames.DESKTOP_WINDOW_ACTION_PREFIX}${action}` : '', {
 				windowElement: win,
 				windowId: win.dataset ? win.dataset.pdkWindowId || '' : ''
 			});
@@ -80,7 +81,7 @@
 					}
 
 					const win = appLauncher.openApp(appId, options);
-					emit('desktop:app:open', {
+					emit(eventNames.DESKTOP_APP_OPEN, {
 						appId,
 						windowElement: win || null
 					});
@@ -239,7 +240,7 @@
 					}
 
 					const win = windowManager.createWindow(options);
-					emit('desktop:window:create', {
+					emit(eventNames.DESKTOP_WINDOW_CREATE, {
 						options,
 						windowElement: win || null
 					});
@@ -296,7 +297,7 @@
 							windowManager.saveSession();
 						}
 					}
-					emit('desktop:window:move', {
+					emit(eventNames.DESKTOP_WINDOW_MOVE, {
 						position,
 						windowElement: win,
 						windowId: win.dataset ? win.dataset.pdkWindowId || '' : ''
@@ -310,7 +311,7 @@
 					}
 
 					windowManager.showAllWindows();
-					emit('desktop:window:showAll');
+					emit(eventNames.DESKTOP_WINDOW_SHOW_ALL);
 
 					return true;
 				},
@@ -320,7 +321,7 @@
 			}
 		};
 
-		emit('desktop:api:ready');
+		emit(eventNames.DESKTOP_API_READY);
 
 		return Object.freeze(api);
 	}

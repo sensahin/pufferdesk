@@ -16,9 +16,18 @@
 		const systemFolders = Array.isArray(config.folders) ? config.folders : [];
 		const defaultFolderIcon = { type: 'theme', name: 'folder.svg', fallback: 'dashicons-category' };
 		const appMap = new Map(apps.map((app) => [app.id, app]));
+		const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
+		const contextTargets = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
+			? window.PufferDesk.shell.contextMenuConstants.targets || {}
+			: {};
+		const desktopIconPrefixes = window.PufferDesk.session && window.PufferDesk.session.workspace
+			? window.PufferDesk.session.workspace.desktopIconPrefixes || {}
+			: {};
+		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
+		const getSettingAction = window.PufferDesk.config.getSettingAction.bind(window.PufferDesk.config);
 		const systemFolderMap = new Map(systemFolders.map((folder) => [folder.id, Object.assign({ kind: 'system', user: false }, folder)]));
 		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object' ? config.menu.labels : {};
-		const trashFolderId = 'trash';
+		const trashFolderId = appIds.TRASH;
 		let userFolders = [];
 		let trashItems = [];
 		let sessionSaveDisabled = false;
@@ -56,23 +65,23 @@
 		}
 
 		function getMenuLabel(key, fallback) {
-			return typeof menuLabels[key] === 'string' && menuLabels[key] ? menuLabels[key] : fallback;
+			return typeof menuLabels[key] === 'string' && menuLabels[key] ? menuLabels[key] : (fallback || key);
 		}
 
 		function formatMenuLabel(key, fallback, values = []) {
 			if (window.PufferDesk.config && typeof window.PufferDesk.config.formatFromLabels === 'function') {
-				return window.PufferDesk.config.formatFromLabels(menuLabels, key, fallback, values);
+				return window.PufferDesk.config.formatFromLabels(menuLabels, key, fallback || key, values);
 			}
 
 			return getMenuLabel(key, fallback);
 		}
 
 		function getUntitledFolderLabel() {
-			return getMenuLabel('untitled_folder', 'untitled folder');
+			return getMenuLabel('untitled_folder');
 		}
 
 		function getFolderLabel() {
-			return getMenuLabel('folder', 'Folder');
+			return getMenuLabel('folder');
 		}
 
 		function getTrashFolder() {
@@ -82,7 +91,7 @@
 				icon: app.icon || 'dashicons-trash',
 				id: trashFolderId,
 				kind: 'system',
-				label: getMenuLabel('trash', 'Trash'),
+				label: getMenuLabel('trash'),
 				special: 'trash',
 				user: false
 			};
@@ -289,7 +298,7 @@
 			const folders = serializeFolders();
 			config.desktopFolders = folders;
 
-			api.post('pufferdesk_save_desktop_folders', {
+			api.post(getSettingAction('DESKTOP_FOLDERS'), {
 				folders: JSON.stringify(folders)
 			}).then((result) => {
 				if (result && result.success && result.data && Array.isArray(result.data.desktopFolders)) {
@@ -310,7 +319,7 @@
 			const items = serializeTrash();
 			config.desktopTrash = items;
 
-			api.post('pufferdesk_save_desktop_trash', {
+			api.post(getSettingAction('DESKTOP_TRASH'), {
 				items: JSON.stringify(items)
 			}).then((result) => {
 				if (result && result.success && result.data && Array.isArray(result.data.desktopTrash)) {
@@ -335,7 +344,7 @@
 			}
 
 			layer = dom.createElement('section', 'pdk-desktop-folders pdk-desktop-icon-layer');
-			layer.setAttribute('aria-label', getMenuLabel('desktop_folders', 'Desktop folders'));
+			layer.setAttribute('aria-label', getMenuLabel('desktop_folders'));
 			desktop.insertBefore(layer, desktop.firstChild);
 
 			return layer;
@@ -345,11 +354,11 @@
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = 'pdk-desktop-icon pdk-desktop-folder';
-			button.dataset.pdkContext = 'desktop-folder';
+			button.dataset.pdkContext = contextTargets.DESKTOP_FOLDER || 'desktop-folder';
 			button.dataset.pdkContextId = folder.id;
 			button.dataset.pdkContextLabel = folder.label;
 			button.dataset.pdkDesktopIcon = '';
-			button.dataset.pdkDesktopIconId = `folder:${folder.id}`;
+			button.dataset.pdkDesktopIconId = `${desktopIconPrefixes.folder || ''}${folder.id}`;
 			button.dataset.pdkDesktopIconKind = 'folder';
 			button.dataset.pdkDateAdded = folder.createdAt || '';
 			button.dataset.pdkDateCreated = folder.createdAt || '';
@@ -422,9 +431,9 @@
 			const count = getTrashCount();
 			const label = count > 0
 				? formatMenuLabel(count === 1 ? 'trash_item_count' : 'trash_item_count_plural', count === 1 ? 'Trash, %d item' : 'Trash, %d items', [count])
-				: getMenuLabel('trash', 'Trash');
+				: getMenuLabel('trash');
 
-			shell.querySelectorAll('[data-pdk-open-app="trash"]').forEach((button) => {
+			shell.querySelectorAll(`[data-pdk-open-app="${dom.escapeAttribute(trashFolderId)}"]`).forEach((button) => {
 				const badge = button.querySelector('.pdk-trash-badge');
 
 				button.classList.toggle('is-trash-full', count > 0);
@@ -439,7 +448,7 @@
 
 		function dispatchTrashChange() {
 			syncTrashSurfaceState();
-			shell.dispatchEvent(new window.CustomEvent('pufferDesk:trash-change', {
+			shell.dispatchEvent(new window.CustomEvent(domEventNames.TRASH_CHANGE, {
 				detail: {
 					count: getTrashCount(),
 					items: getTrashItems()
@@ -597,13 +606,13 @@
 						source: 'trash',
 						url: ''
 					})),
-					kind: getMenuLabel('trash', 'Trash'),
-					label: folder.label || getMenuLabel('trash', 'Trash'),
+					kind: getMenuLabel('trash'),
+					label: folder.label || getMenuLabel('trash'),
 					lastOpenedAt: '',
 					modifiedAt: '',
-					source: getMenuLabel('pufferdesk_trash_source', 'PufferDesk Trash'),
+					source: getMenuLabel('pufferdesk_trash_source'),
 					user: false,
-					where: getMenuLabel('pufferdesk_desktop', 'PufferDesk Desktop')
+					where: getMenuLabel('pufferdesk_desktop')
 				};
 			}
 
@@ -638,10 +647,10 @@
 				label: folder.label || getFolderLabel(),
 				lastOpenedAt: userFolder ? userFolder.lastOpenedAt || '' : '',
 				modifiedAt: userFolder ? userFolder.modifiedAt || userFolder.createdAt || '' : '',
-				source: userFolder ? getMenuLabel('pufferdesk_user_folder_source', 'PufferDesk user folder') : getMenuLabel('wordpress_admin_group_source', 'WordPress admin group'),
+				source: userFolder ? getMenuLabel('pufferdesk_user_folder_source') : getMenuLabel('wordpress_admin_group_source'),
 				user: Boolean(userFolder),
 					where: userFolder && parent
-						? parent.label || getMenuLabel('pufferdesk_desktop', 'PufferDesk Desktop')
+						? parent.label || getMenuLabel('pufferdesk_desktop')
 						: formatMenuLabel('wordpress_admin_menu_format', 'WordPress Admin Menu > %s', [folder.label || getFolderLabel()])
 				};
 			}

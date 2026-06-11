@@ -58,11 +58,14 @@ final class PufferDesk_App_Badge_Renderer {
 	 */
 	private static function normalize( $badge ) {
 		$badge = is_array( $badge ) ? $badge : array();
-		$tone  = isset( $badge['tone'] ) ? sanitize_html_class( (string) $badge['tone'] ) : 'attention';
+		$tone  = isset( $badge['tone'] ) ? sanitize_html_class( (string) $badge['tone'] ) : PufferDesk_App_Badge_Normalizer::TONE_ATTENTION;
+		if ( ! in_array( $tone, PufferDesk_App_Badge_Normalizer::get_tone_ids(), true ) ) {
+			$tone = PufferDesk_App_Badge_Normalizer::TONE_ATTENTION;
+		}
 
 		return array(
 			'text'       => isset( $badge['text'] ) ? (string) $badge['text'] : '',
-			'tone'       => '' !== $tone ? $tone : 'attention',
+			'tone'       => $tone,
 			'aria_label' => isset( $badge['aria_label'] ) ? (string) $badge['aria_label'] : '',
 		);
 	}

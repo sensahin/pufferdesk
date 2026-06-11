@@ -12,6 +12,18 @@
 		const theme = config.theme && typeof config.theme === 'object' ? config.theme : {};
 		const themeId = typeof theme.id === 'string' ? theme.id : '';
 		const themeFamily = typeof theme.family === 'string' ? theme.family : '';
+		const constants = window.PufferDesk.shell.contextMenuConstants || {};
+		const targets = constants.targets || {};
+		const areas = constants.areas || {};
+		const targetTypes = constants.targetTypes || {};
+		const itemTypes = constants.itemTypes || {};
+		const contextKeys = constants.keys || {};
+		const nonItemDataTargets = constants.nonItemDataTargets || [];
+		const dragDropModels = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.models ? window.PufferDesk.dragDrop.models : null;
+		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
+			? window.PufferDesk.session.workspace.windowKinds || {}
+			: {};
+		const folderWindowKind = windowKinds.FOLDER || 'folder';
 
 		function toElement(target) {
 			if (!target) {
@@ -67,7 +79,7 @@
 				&& target.classList
 				&& target.classList.contains('pdk-window')
 				&& target.dataset
-				&& target.dataset.pdkContext === 'window'
+				&& target.dataset.pdkContext === targets.WINDOW
 			);
 		}
 
@@ -127,84 +139,84 @@
 		}
 
 		function getArea(type, target, windowElement) {
-			if (type === 'desktop' || type === 'desktop-app' || type === 'desktop-folder') {
-				return 'desktop';
+			if (type === targets.DESKTOP || type === targets.DESKTOP_APP || type === targets.DESKTOP_FOLDER) {
+				return areas.DESKTOP;
 			}
 
-			if (type === 'dock' || type === 'dock-app') {
-				return 'dock';
+			if (type === targets.DOCK || type === targets.DOCK_APP) {
+				return areas.DOCK;
 			}
 
-			if (type === 'widget' || type === 'sticky-note') {
-				return 'widget';
+			if (type === targets.WIDGET || type === targets.STICKY_NOTE) {
+				return areas.WIDGET;
 			}
 
-			if (type === 'sound-status') {
-				return 'status';
+			if (type === targets.SOUND_STATUS) {
+				return areas.STATUS;
 			}
 
-			if (type === 'window') {
-				return 'window';
+			if (type === targets.WINDOW) {
+				return areas.WINDOW;
 			}
 
-			if (type === 'trash-item') {
-				return 'trash';
+			if (type === targets.TRASH_ITEM) {
+				return areas.TRASH;
 			}
 
-			if (type.indexOf('folder') === 0 || type === 'document') {
-				return 'folder';
+			if (type.indexOf('folder') === 0 || type === targets.DOCUMENT) {
+				return areas.FOLDER;
 			}
 
-			return windowElement && windowElement.dataset && windowElement.dataset.pdkWindowKind === 'folder' ? 'folder' : type || 'desktop';
+			return windowElement && windowElement.dataset && windowElement.dataset.pdkWindowKind === folderWindowKind ? areas.FOLDER : type || areas.DESKTOP;
 		}
 
 		function getTargetType(type) {
-			if (type === 'desktop' || type === 'dock' || type === 'folder-content') {
-				return 'background';
+			if (type === targets.DESKTOP || type === targets.DOCK || type === targets.FOLDER_CONTENT) {
+				return targetTypes.BACKGROUND;
 			}
 
-			if (type === 'folder-toolbar') {
-				return 'toolbar';
+			if (type === targets.FOLDER_TOOLBAR) {
+				return targetTypes.TOOLBAR;
 			}
 
-			if (type === 'folder-tab') {
-				return 'tab';
+			if (type === targets.FOLDER_TAB) {
+				return targetTypes.TAB;
 			}
 
-			if (type === 'folder-sidebar-item') {
-				return 'sidebar';
+			if (type === targets.FOLDER_SIDEBAR) {
+				return targetTypes.SIDEBAR;
 			}
 
-			if (type === 'window') {
-				return 'titlebar';
+			if (type === targets.WINDOW) {
+				return targetTypes.TITLEBAR;
 			}
 
-			if (type === 'sound-status') {
-				return 'status';
+			if (type === targets.SOUND_STATUS) {
+				return targetTypes.STATUS;
 			}
 
-			return 'item';
+			return targetTypes.ITEM;
 		}
 
 		function getItemType(type, target, app, folder, trashItem, widget) {
-			if (type === 'desktop-app' || type === 'folder-app' || type === 'dock-app' || app) {
-				return 'app';
+			if (type === targets.DESKTOP_APP || type === targets.FOLDER_APP || type === targets.DOCK_APP || app) {
+				return itemTypes.APP;
 			}
 
-			if (type === 'desktop-folder' || type === 'folder' || folder) {
-				return 'folder';
+			if (type === targets.DESKTOP_FOLDER || type === targets.FOLDER || folder) {
+				return itemTypes.FOLDER;
 			}
 
-			if (type === 'document') {
-				return 'document';
+			if (type === targets.DOCUMENT) {
+				return itemTypes.DOCUMENT;
 			}
 
-			if (type === 'trash-item' || trashItem) {
-				return 'trash-item';
+			if (type === targets.TRASH_ITEM || trashItem) {
+				return itemTypes.TRASH_ITEM;
 			}
 
-			if (type === 'widget' || widget) {
-				return 'widget';
+			if (type === targets.WIDGET || widget) {
+				return itemTypes.WIDGET;
 			}
 
 			return '';
@@ -213,89 +225,93 @@
 		function getContainerId(type, target, area) {
 			if (target && target.dataset) {
 				if (target.dataset.pdkFolderId) {
-					return `folder:${target.dataset.pdkFolderId}`;
+					return dragDropModels && typeof dragDropModels.createContainerId === 'function'
+						? dragDropModels.createContainerId(areas.FOLDER, target.dataset.pdkFolderId)
+						: '';
 				}
 
 				if (target.dataset.pdkFolderWindow) {
-					return `folder:${target.dataset.pdkFolderWindow}`;
+					return dragDropModels && typeof dragDropModels.createContainerId === 'function'
+						? dragDropModels.createContainerId(areas.FOLDER, target.dataset.pdkFolderWindow)
+						: '';
 				}
 			}
 
-			if (type === 'desktop' || type === 'desktop-app' || type === 'desktop-folder') {
-				return 'desktop';
+			if (type === targets.DESKTOP || type === targets.DESKTOP_APP || type === targets.DESKTOP_FOLDER) {
+				return areas.DESKTOP;
 			}
 
-			if (type === 'dock' || type === 'dock-app') {
-				return 'dock';
+			if (type === targets.DOCK || type === targets.DOCK_APP) {
+				return areas.DOCK;
 			}
 
-			if (area === 'trash') {
-				return 'trash';
+			if (area === areas.TRASH) {
+				return areas.TRASH;
 			}
 
 			return area || '';
 		}
 
 		function getContextKey(area, targetType, itemType, type) {
-			if (type === 'desktop') {
-				return 'desktop.background';
+			if (type === targets.DESKTOP) {
+				return contextKeys.DESKTOP_BACKGROUND;
 			}
 
-			if (type === 'desktop-app' || type === 'desktop-folder') {
-				return 'desktop.item';
+			if (type === targets.DESKTOP_APP || type === targets.DESKTOP_FOLDER) {
+				return contextKeys.DESKTOP_ITEM;
 			}
 
-			if (type === 'dock') {
-				return 'dock.background';
+			if (type === targets.DOCK) {
+				return contextKeys.DOCK_BACKGROUND;
 			}
 
-			if (type === 'dock-app') {
-				return 'dock.item';
+			if (type === targets.DOCK_APP) {
+				return contextKeys.DOCK_ITEM;
 			}
 
-			if (type === 'folder-content') {
-				return 'folder.background';
+			if (type === targets.FOLDER_CONTENT) {
+				return contextKeys.FOLDER_BACKGROUND;
 			}
 
-			if (type === 'folder-toolbar') {
-				return 'folder.toolbar';
+			if (type === targets.FOLDER_TOOLBAR) {
+				return contextKeys.FOLDER_TOOLBAR;
 			}
 
-			if (type === 'folder-tab') {
-				return 'folder.tab';
+			if (type === targets.FOLDER_TAB) {
+				return contextKeys.FOLDER_TAB;
 			}
 
-			if (type === 'folder-sidebar-item') {
-				return 'folder.sidebar';
+			if (type === targets.FOLDER_SIDEBAR) {
+				return contextKeys.FOLDER_SIDEBAR;
 			}
 
-			if (type === 'window') {
-				return 'window.titlebar';
+			if (type === targets.WINDOW) {
+				return contextKeys.WINDOW_TITLEBAR;
 			}
 
-			if (type === 'widget' || type === 'sticky-note') {
-				return 'widget.item';
+			if (type === targets.WIDGET || type === targets.STICKY_NOTE) {
+				return contextKeys.WIDGET_ITEM;
 			}
 
-			if (type === 'trash-item') {
-				return 'trash.item';
+			if (type === targets.TRASH_ITEM) {
+				return contextKeys.TRASH_ITEM;
 			}
 
 			if (area && targetType) {
 				return `${area}.${targetType}`;
 			}
 
-			return itemType ? `${area || 'context'}.${itemType}` : type || 'desktop.background';
+			return itemType ? `${area || 'context'}.${itemType}` : type || contextKeys.DESKTOP_BACKGROUND;
 		}
 
 		function getTargetDetail(target) {
-			const type = target && target.dataset ? target.dataset.pdkContext || 'desktop' : 'desktop';
+			const type = target && target.dataset ? target.dataset.pdkContext || targets.DESKTOP : targets.DESKTOP;
 			const id = target && target.dataset ? target.dataset.pdkContextId || target.dataset.pdkOpenApp || target.dataset.pdkOpenFolder || target.dataset.pdkWidget || '' : '';
 			const windowElement = getContextWindowElement(target);
-			const resolvesItemData = !['desktop', 'dock', 'folder-content', 'folder-toolbar', 'folder-tab', 'window'].includes(type);
+			const resolvesItemData = !nonItemDataTargets.includes(type);
 			const app = resolvesItemData ? findById(apps, id) : null;
 			const folder = resolvesItemData ? getFolder(id) : null;
-			const trashItem = type === 'trash-item' && id ? getTrashItem(id) : null;
+			const trashItem = type === targets.TRASH_ITEM && id ? getTrashItem(id) : null;
 			const widget = resolvesItemData ? findById(widgets, id) : null;
 			const area = getArea(type, target, windowElement);
 			const targetType = getTargetType(type);

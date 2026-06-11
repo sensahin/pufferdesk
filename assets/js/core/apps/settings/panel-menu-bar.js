@@ -19,15 +19,15 @@
 
 		panel.dataset.pdkSettingsPanel = 'menu-bar';
 		section.appendChild(createMenuBarRow(
-			t('menuBar.rows.autoHide', 'Automatically hide and show the menu bar'),
+			t('menuBar.rows.autoHide'),
 			createMenuBarSelect('auto_hide', status)
 		));
 		section.appendChild(createMenuBarRow(
-			t('menuBar.rows.showBackground', 'Show menu bar background'),
+			t('menuBar.rows.showBackground'),
 			createMenuBarToggle('show_background', status)
 		));
 		section.appendChild(createMenuBarRow(
-			t('menuBar.rows.recentCount', 'Recent documents, applications, and servers'),
+			t('menuBar.rows.recentCount'),
 			createMenuBarSelect('recent_count', status)
 		));
 		panel.appendChild(section);

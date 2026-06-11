@@ -5,8 +5,10 @@
 	window.PufferDesk.session = window.PufferDesk.session || {};
 
 	window.PufferDesk.session.createReopenPolicy = function createReopenPolicy(storageKey) {
-		const keyBase = storageKey || 'pufferdesk-admin-desktop';
-		const skipWindowRestoreKey = `${keyBase}:skip-window-restore-once`;
+		const storageKeys = window.PufferDesk.session.storageKeys || {};
+		const skipWindowRestoreKey = typeof storageKeys.getReopenSkipKey === 'function'
+			? storageKeys.getReopenSkipKey(storageKey)
+			: storageKey;
 
 		function getSessionStorage() {
 			try {

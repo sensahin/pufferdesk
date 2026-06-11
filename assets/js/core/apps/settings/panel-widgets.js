@@ -60,7 +60,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-settings-toggle';
-			button.setAttribute('aria-label', t('widgets.showOnDesktopLabel', 'Show on desktop'));
+			button.setAttribute('aria-label', t('widgets.showOnDesktopLabel'));
 			button.appendChild(dom.createElement('span', 'pdk-settings-toggle-knob'));
 			button.addEventListener('click', () => {
 				setWidgetVisible(widget.id, !isWidgetVisible(widget.id));
@@ -79,14 +79,14 @@
 			icon.appendChild(dom.createIcon(widget.icon || 'dashicons-screenoptions'));
 			row.appendChild(icon);
 			labelStack.appendChild(dom.createElement('span', 'pdk-settings-label', widget.label || widget.id));
-			labelStack.appendChild(dom.createElement('span', 'pdk-settings-description', t('widgets.showOnDesktopLabel', 'Show on desktop')));
+			labelStack.appendChild(dom.createElement('span', 'pdk-settings-description', t('widgets.showOnDesktopLabel')));
 			row.append(labelStack, createWidgetToggle(widget));
 
 			return row;
 		}
 
 		if (!widgets.length) {
-			section.appendChild(dom.createElement('p', 'pdk-settings-description', t('widgets.emptyLabel', 'No widgets are registered for this account.')));
+			section.appendChild(dom.createElement('p', 'pdk-settings-description', t('widgets.emptyLabel')));
 		} else {
 			widgets.forEach((widget) => {
 				if (widget && widget.id) {

@@ -3,19 +3,8 @@
 
 	window.PufferDesk = window.PufferDesk || {};
 
-	const defaults = {
-		mode: 'auto',
-		window_material: 'clear',
-		accent_color: 'multicolor',
-		icon_widget_style: 'default'
-	};
-
-	const allowed = {
-		mode: ['auto', 'light', 'dark'],
-		window_material: ['clear', 'tinted'],
-		accent_color: ['multicolor', 'blue', 'purple', 'pink', 'red', 'orange', 'yellow', 'green', 'graphite'],
-		icon_widget_style: ['default', 'dark', 'clear', 'tinted']
-	};
+	const defaults = window.PufferDesk.config.getSettingDefault('appearance') || {};
+	const allowed = window.PufferDesk.config.getSettingOptions('appearance') || {};
 
 	function defineAccent(color, rgb, options = {}) {
 		const ink = options.ink || '#fff';

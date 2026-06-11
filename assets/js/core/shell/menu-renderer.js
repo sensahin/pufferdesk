@@ -6,6 +6,9 @@
 
 	window.PufferDesk.shell.createMenuItemRenderer = function createMenuItemRenderer(commands) {
 		const dom = window.PufferDesk.dom;
+		const targets = window.PufferDesk.shell.contextMenuConstants
+			? window.PufferDesk.shell.contextMenuConstants.targets || {}
+			: {};
 
 		function isIconDescriptor(icon) {
 			return icon && typeof icon === 'object';
@@ -20,7 +23,7 @@
 		}
 
 		function shouldRenderIcon(detail) {
-			return !(detail && detail.type === 'dock-app');
+			return !(detail && detail.type === targets.DOCK_APP);
 		}
 
 		function getItemDisabled(item, detail) {

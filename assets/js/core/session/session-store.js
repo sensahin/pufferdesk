@@ -12,6 +12,22 @@
 			? window.PufferDesk.config.get()
 			: {};
 		const workspace = config.workspace && typeof config.workspace === 'object' ? config.workspace : {};
+		const workspaceContract = window.PufferDesk.session.workspace || {};
+		const storageKeys = window.PufferDesk.session.storageKeys || {};
+		const workspaceSections = workspaceContract.sections || {};
+		const sectionIds = {
+			DESKTOP_ICONS: workspaceSections.DESKTOP_ICONS,
+			DESKTOP_SORT: workspaceSections.DESKTOP_SORT,
+			DOCK_APPS: workspaceSections.DOCK_APPS,
+			FOLDER_SIDEBAR: workspaceSections.FOLDER_SIDEBAR,
+			RECENT_ITEMS: workspaceSections.RECENT_ITEMS,
+			STICKY_NOTES: workspaceSections.STICKY_NOTES,
+			WIDGETS: workspaceSections.WIDGETS,
+			WINDOWS: workspaceSections.WINDOWS
+		};
+		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames
+			? window.PufferDesk.events.domNames
+			: {};
 		const api = window.PufferDesk.services && window.PufferDesk.services.api
 			? window.PufferDesk.services.api
 			: null;
@@ -29,24 +45,35 @@
 		}
 
 		function getDefaultSession() {
-			return {
+			const contractDefaults = typeof workspaceContract.getDefaultState === 'function'
+				? workspaceContract.getDefaultState()
+				: {};
+			const fallbackDefaults = {
 				version: Number.parseInt(workspace.version, 10) || 2,
 				updatedAt: 0,
-				dockApps: [],
-				windows: [],
-				widgets: [],
-				stickyNotes: [],
-				desktopIcons: [],
-				desktopSort: {
+				[sectionIds.DOCK_APPS]: [],
+				[sectionIds.WINDOWS]: [],
+				[sectionIds.WIDGETS]: [],
+				[sectionIds.STICKY_NOTES]: [],
+				[sectionIds.DESKTOP_ICONS]: [],
+				[sectionIds.DESKTOP_SORT]: {
 					mode: 'none'
 				},
-				folderSidebar: {
+				[sectionIds.FOLDER_SIDEBAR]: {
 					collapsed: {},
 					favoriteIds: [],
 					removedFavoriteIds: []
 				},
-				recentItems: []
+				[sectionIds.RECENT_ITEMS]: []
 			};
+			const defaults = Object.assign({}, fallbackDefaults, isObject(contractDefaults) ? contractDefaults : {});
+			const version = Number.parseInt(defaults.version || workspace.version, 10);
+			const updatedAt = Number.parseInt(defaults.updatedAt, 10);
+
+			defaults.version = Number.isFinite(version) ? version : fallbackDefaults.version;
+			defaults.updatedAt = Number.isFinite(updatedAt) ? Math.max(0, updatedAt) : 0;
+
+			return defaults;
 		}
 
 		function clone(value) {
@@ -76,14 +103,14 @@
 			return Object.assign(defaults, session, {
 				version: defaults.version,
 				updatedAt: getUpdatedAt(session),
-				dockApps: Array.isArray(session.dockApps) ? session.dockApps : [],
-				windows: Array.isArray(session.windows) ? session.windows : [],
-				widgets: Array.isArray(session.widgets) ? session.widgets : [],
-				stickyNotes: Array.isArray(session.stickyNotes) ? session.stickyNotes : [],
-				desktopIcons: Array.isArray(session.desktopIcons) ? session.desktopIcons : [],
-				desktopSort: isObject(session.desktopSort) ? session.desktopSort : defaults.desktopSort,
-				folderSidebar: isObject(session.folderSidebar) ? session.folderSidebar : defaults.folderSidebar,
-				recentItems: Array.isArray(session.recentItems) ? session.recentItems : []
+				[sectionIds.DESKTOP_ICONS]: Array.isArray(session[sectionIds.DESKTOP_ICONS]) ? session[sectionIds.DESKTOP_ICONS] : [],
+				[sectionIds.DESKTOP_SORT]: isObject(session[sectionIds.DESKTOP_SORT]) ? session[sectionIds.DESKTOP_SORT] : defaults[sectionIds.DESKTOP_SORT],
+				[sectionIds.DOCK_APPS]: Array.isArray(session[sectionIds.DOCK_APPS]) ? session[sectionIds.DOCK_APPS] : [],
+				[sectionIds.FOLDER_SIDEBAR]: isObject(session[sectionIds.FOLDER_SIDEBAR]) ? session[sectionIds.FOLDER_SIDEBAR] : defaults[sectionIds.FOLDER_SIDEBAR],
+				[sectionIds.RECENT_ITEMS]: Array.isArray(session[sectionIds.RECENT_ITEMS]) ? session[sectionIds.RECENT_ITEMS] : [],
+				[sectionIds.STICKY_NOTES]: Array.isArray(session[sectionIds.STICKY_NOTES]) ? session[sectionIds.STICKY_NOTES] : [],
+				[sectionIds.WIDGETS]: Array.isArray(session[sectionIds.WIDGETS]) ? session[sectionIds.WIDGETS] : [],
+				[sectionIds.WINDOWS]: Array.isArray(session[sectionIds.WINDOWS]) ? session[sectionIds.WINDOWS] : []
 			});
 		}
 
@@ -106,7 +133,7 @@
 				return;
 			}
 
-			window.dispatchEvent(new window.CustomEvent('pufferDesk:workspace-state-changed', {
+			window.dispatchEvent(new window.CustomEvent(domEventNames.WORKSPACE_STATE_CHANGED, {
 				detail: {
 					source: source || 'local',
 					state: clone(currentSession),
@@ -116,7 +143,9 @@
 		}
 
 		function getBroadcastChannelName() {
-			return `pufferDesk:workspace:${key}`;
+			return typeof storageKeys.getWorkspaceBroadcastChannel === 'function'
+				? storageKeys.getWorkspaceBroadcastChannel(key)
+				: key;
 		}
 
 		function broadcastSession(session, source) {

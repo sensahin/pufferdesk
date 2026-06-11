@@ -98,7 +98,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's Desktop & Dock settings.
 	 */
 	public function save_desktop_dock() {
-		$this->require_domain_access( 'desktop_dock', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_DESKTOP_DOCK, $this->settings_permission_message() );
 
 		$desktop_dock = $this->preferences->set_desktop_dock(
 			array(
@@ -128,7 +128,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's app placement settings.
 	 */
 	public function save_app_locations() {
-		$this->require_domain_access( 'app_locations', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_APP_LOCATIONS, $this->settings_permission_message() );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
 		$raw_locations = isset( $_POST['locations'] )
@@ -154,7 +154,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save apps that should open when PufferDesk starts.
 	 */
 	public function save_app_login_items() {
-		$this->require_domain_access( 'app_login_items', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_APP_LOGIN_ITEMS, $this->settings_permission_message() );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
 		$raw_items = isset( $_POST['items'] )
@@ -180,7 +180,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's desktop folders.
 	 */
 	public function save_desktop_folders() {
-		$this->require_domain_access( 'desktop_folders', __( 'You do not have permission to change PufferDesk folders.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_DESKTOP_FOLDERS, $this->folders_permission_message() );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The settings nonce is verified above.
 		$raw_folders = isset( $_POST['folders'] ) && ! is_array( $_POST['folders'] )
@@ -206,7 +206,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's desktop Trash.
 	 */
 	public function save_desktop_trash() {
-		$this->require_domain_access( 'desktop_trash', __( 'You do not have permission to change PufferDesk Trash.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_DESKTOP_TRASH, $this->trash_permission_message() );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The settings nonce is verified above.
 		$raw_items = isset( $_POST['items'] ) && ! is_array( $_POST['items'] )
@@ -232,7 +232,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's appearance settings.
 	 */
 	public function save_appearance() {
-		$this->require_domain_access( 'appearance', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_APPEARANCE, $this->settings_permission_message() );
 
 		$appearance = $this->preferences->set_appearance(
 			array(
@@ -255,7 +255,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's Menu Bar settings.
 	 */
 	public function save_menu_bar() {
-		$this->require_domain_access( 'menu_bar', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_MENU_BAR, $this->settings_permission_message() );
 
 		$menu_bar = $this->preferences->set_menu_bar(
 			array(
@@ -277,7 +277,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's Notifications settings.
 	 */
 	public function save_notifications() {
-		$this->require_domain_access( 'notifications', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_NOTIFICATIONS, $this->settings_permission_message() );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
 		$raw_sources = isset( $_POST['sources'] ) && ! is_array( $_POST['sources'] )
@@ -311,7 +311,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's Sound settings.
 	 */
 	public function save_sounds() {
-		$this->require_domain_access( 'sounds', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_SOUNDS, $this->settings_permission_message() );
 
 		$sounds = $this->preferences->set_sounds(
 			array(
@@ -332,7 +332,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's selected theme.
 	 */
 	public function save_theme() {
-		$this->require_domain_access( 'theme', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_THEME, $this->settings_permission_message() );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
 		$theme_id = isset( $_POST['theme_id'] )
@@ -370,7 +370,7 @@ final class PufferDesk_Settings_Controller {
 	 * Save the current user's wallpaper preference.
 	 */
 	public function save_wallpaper() {
-		$this->require_domain_access( 'wallpaper', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_WALLPAPER, $this->settings_permission_message() );
 
 		$wallpaper = $this->preferences->sanitize_wallpaper(
 			array(
@@ -407,7 +407,7 @@ final class PufferDesk_Settings_Controller {
 	 * Remove a saved uploaded wallpaper from the current user's photo list.
 	 */
 	public function remove_wallpaper_upload() {
-		$this->require_domain_access( 'wallpaper_uploads', __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_WALLPAPER_UPLOADS, $this->settings_permission_message() );
 
 		$attachment_id = absint( $this->read_post_value( 'attachment_id' ) );
 		if ( ! $attachment_id ) {
@@ -422,7 +422,7 @@ final class PufferDesk_Settings_Controller {
 		$current_wallpaper = $this->preferences->get_wallpaper();
 		$this->preferences->remove_wallpaper_upload( $attachment_id );
 		if (
-			'upload' === $current_wallpaper['type'] &&
+			PufferDesk_Wallpaper_Registry::TYPE_UPLOAD === $current_wallpaper['type'] &&
 			$attachment_id === (int) $current_wallpaper['attachment_id']
 		) {
 			$this->preferences->reset_wallpaper();
@@ -442,7 +442,7 @@ final class PufferDesk_Settings_Controller {
 	 * Reset current-user PufferDesk preference domains.
 	 */
 	public function reset_preferences() {
-		$this->require_domain_access( 'reset', __( 'You do not have permission to reset PufferDesk settings.', 'pufferdesk-admin-desktop' ) );
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_RESET, $this->reset_permission_message() );
 
 		$profile = sanitize_key( $this->read_post_value( 'profile' ) );
 		$domains = $this->preferences->get_reset_domains_for_profile( $profile );
@@ -493,6 +493,42 @@ final class PufferDesk_Settings_Controller {
 		}
 
 		check_ajax_referer( self::NONCE_ACTION, 'nonce' );
+	}
+
+	/**
+	 * Generic settings permission message.
+	 *
+	 * @return string
+	 */
+	private function settings_permission_message() {
+		return __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' );
+	}
+
+	/**
+	 * Desktop folders permission message.
+	 *
+	 * @return string
+	 */
+	private function folders_permission_message() {
+		return __( 'You do not have permission to change PufferDesk folders.', 'pufferdesk-admin-desktop' );
+	}
+
+	/**
+	 * Desktop Trash permission message.
+	 *
+	 * @return string
+	 */
+	private function trash_permission_message() {
+		return __( 'You do not have permission to change PufferDesk Trash.', 'pufferdesk-admin-desktop' );
+	}
+
+	/**
+	 * Settings reset permission message.
+	 *
+	 * @return string
+	 */
+	private function reset_permission_message() {
+		return __( 'You do not have permission to reset PufferDesk settings.', 'pufferdesk-admin-desktop' );
 	}
 
 	/**

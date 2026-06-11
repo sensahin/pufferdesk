@@ -11,6 +11,36 @@ defined( 'ABSPATH' ) || exit;
  * Normalizes app/folder icons into a future-friendly shape.
  */
 final class PufferDesk_Icon_Renderer {
+	const TYPE_DASHICON = 'dashicon';
+	const TYPE_IMAGE    = 'image';
+	const TYPE_THEME    = 'theme';
+	const DEFAULT_DASHICON = 'dashicons-admin-generic';
+
+	/**
+	 * Icon descriptor type IDs.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_type_ids() {
+		return array(
+			'DASHICON' => self::TYPE_DASHICON,
+			'IMAGE'    => self::TYPE_IMAGE,
+			'THEME'    => self::TYPE_THEME,
+		);
+	}
+
+	/**
+	 * Browser-facing icon descriptor contract.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function client_contract() {
+		return array(
+			'defaultDashicon' => self::DEFAULT_DASHICON,
+			'types'           => self::get_type_ids(),
+		);
+	}
+
 	/**
 	 * Normalize a Dashicon string or structured icon descriptor.
 	 *
@@ -19,24 +49,24 @@ final class PufferDesk_Icon_Renderer {
 	 */
 	public static function normalize( $icon ) {
 		if ( is_array( $icon ) ) {
-			$type = isset( $icon['type'] ) ? sanitize_key( $icon['type'] ) : 'dashicon';
+			$type = isset( $icon['type'] ) ? sanitize_key( $icon['type'] ) : self::TYPE_DASHICON;
 
-			if ( 'image' === $type ) {
+			if ( self::TYPE_IMAGE === $type ) {
 				$url = self::get_image_url( $icon );
 				if ( '' !== $url ) {
 					return array(
-						'type' => 'image',
+						'type' => self::TYPE_IMAGE,
 						'url'  => $url,
 						'alt'  => isset( $icon['alt'] ) ? sanitize_text_field( $icon['alt'] ) : '',
 					);
 				}
 			}
 
-			if ( 'theme' === $type ) {
+			if ( self::TYPE_THEME === $type ) {
 				$name = isset( $icon['name'] ) ? sanitize_file_name( $icon['name'] ) : '';
 				if ( self::is_theme_icon_name( $name ) ) {
 					return array(
-						'type'     => 'theme',
+						'type'     => self::TYPE_THEME,
 						'name'     => $name,
 						'fallback' => self::get_dashicon_value( isset( $icon['fallback'] ) ? $icon['fallback'] : '' ),
 						'alt'      => isset( $icon['alt'] ) ? sanitize_text_field( $icon['alt'] ) : '',
@@ -66,7 +96,7 @@ final class PufferDesk_Icon_Renderer {
 	public static function render( $icon, $theme = array() ) {
 		$icon = self::resolve( $icon, $theme );
 
-		if ( 'image' === $icon['type'] && ! empty( $icon['url'] ) ) {
+		if ( self::TYPE_IMAGE === $icon['type'] && ! empty( $icon['url'] ) ) {
 			$url = trim( (string) $icon['url'] );
 			if ( self::is_data_image_url( $url ) ) {
 				printf(
@@ -105,14 +135,14 @@ final class PufferDesk_Icon_Renderer {
 	public static function resolve( $icon, $theme = array() ) {
 		$icon = self::normalize( $icon );
 
-		if ( 'theme' !== $icon['type'] ) {
+		if ( self::TYPE_THEME !== $icon['type'] ) {
 			return $icon;
 		}
 
 		$url = self::get_theme_icon_url( $icon, $theme );
 		if ( '' !== $url ) {
 			return array(
-				'type' => 'image',
+				'type' => self::TYPE_IMAGE,
 				'url'  => $url,
 				'alt'  => $icon['alt'],
 			);
@@ -131,7 +161,7 @@ final class PufferDesk_Icon_Renderer {
 		$value = self::get_dashicon_value( $value );
 
 		return array(
-			'type'  => 'dashicon',
+			'type'  => self::TYPE_DASHICON,
 			'value' => $value,
 		);
 	}
@@ -145,7 +175,7 @@ final class PufferDesk_Icon_Renderer {
 	private static function get_dashicon_value( $value ) {
 		$value = sanitize_html_class( (string) $value );
 		if ( '' === $value ) {
-			$value = 'dashicons-admin-generic';
+			$value = self::DEFAULT_DASHICON;
 		}
 
 		return $value;

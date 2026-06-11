@@ -31,7 +31,7 @@
 			const login = dom.createElement('span', 'pdk-settings-app-login-control');
 
 			controls.appendChild(createAppLocationSelect(app, status));
-			login.appendChild(dom.createElement('span', 'pdk-settings-app-login-label', t('apps.openAtLoginLabel', 'Open at login')));
+			login.appendChild(dom.createElement('span', 'pdk-settings-app-login-label', t('apps.openAtLoginLabel')));
 			login.appendChild(createAppLoginItemToggle(app, status));
 			controls.appendChild(login);
 
@@ -50,7 +50,7 @@
 			row.appendChild(labelStack);
 
 			if (isFixedLauncherApp(app)) {
-				row.appendChild(dom.createElement('span', 'pdk-settings-row-value', t('apps.fixedPlacementLabel', 'Fixed')));
+				row.appendChild(dom.createElement('span', 'pdk-settings-row-value', t('apps.fixedPlacementLabel')));
 			} else {
 				row.appendChild(createControls(app));
 			}
@@ -59,7 +59,7 @@
 		}
 
 		if (!apps.length) {
-			section.appendChild(dom.createElement('p', 'pdk-settings-description', t('apps.emptyLabel', 'No apps are available for this account.')));
+			section.appendChild(dom.createElement('p', 'pdk-settings-description', t('apps.emptyLabel')));
 		} else {
 			apps.forEach((app) => {
 				if (app && app.id) {
@@ -68,7 +68,7 @@
 			});
 		}
 
-		panel.appendChild(createSectionHeading(t('apps.title', 'Apps')));
+		panel.appendChild(createSectionHeading(t('apps.title')));
 		panel.appendChild(section);
 
 		return panel;

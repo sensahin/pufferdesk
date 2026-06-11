@@ -5,7 +5,11 @@
 	window.PufferDesk.apps = window.PufferDesk.apps || {};
 	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
-	window.PufferDesk.apps.settings.createUI = function createUI({ dom }) {
+	window.PufferDesk.apps.settings.createUI = function createUI({ dom, labels } = {}) {
+		function getLabel(key, fallback = '') {
+			return labels && typeof labels.get === 'function' ? labels.get(key, fallback) : fallback;
+		}
+
 		function createSettingsRow(labelText, control, descriptionText = '', rowClassName = '') {
 			const row = dom.createElement('div', `pdk-settings-row ${rowClassName}`.trim());
 			const labelStack = dom.createElement('span', 'pdk-settings-label-stack');
@@ -123,9 +127,9 @@
 			const hero = dom.createElement('section', 'pdk-settings-summary-card');
 			const icon = dom.createElement('span', 'pdk-settings-summary-icon pdk-settings-sidebar-icon-gray');
 
-			icon.appendChild(dom.createDashicon(options.icon || 'dashicons-admin-generic'));
+			icon.appendChild(dom.createDashicon(options.icon));
 			hero.appendChild(icon);
-			hero.appendChild(dom.createElement('h2', '', options.title || 'General'));
+			hero.appendChild(dom.createElement('h2', '', options.title || getLabel('generalPanel.title', 'General')));
 			if (options.description) {
 				hero.appendChild(dom.createElement('p', '', options.description));
 			}
@@ -146,8 +150,8 @@
 			}
 			if (hasUrl) {
 				row.dataset.pdkOpenUrl = options.url;
-				row.dataset.pdkTitle = options.windowTitle || options.title || options.label || actions.fallbackWindowTitle || 'WordPress';
-				row.dataset.pdkIcon = options.icon || 'dashicons-admin-generic';
+				row.dataset.pdkTitle = options.windowTitle || options.title || options.label || actions.fallbackWindowTitle || getLabel('generalPanel.fallbackWindowTitle', 'WordPress');
+				row.dataset.pdkIcon = options.icon || dom.getDefaultDashicon();
 			}
 			if (hasCommand && typeof actions.executeCommand === 'function') {
 				row.addEventListener('click', () => actions.executeCommand(options.command, options));
@@ -157,8 +161,8 @@
 			}
 
 			row.className = `pdk-settings-action-row ${options.className || ''}`.trim();
-			row.appendChild(createRowIcon(options.icon || 'dashicons-admin-generic', options.tone || 'gray'));
-			text.appendChild(dom.createElement('strong', '', options.label || 'Profile'));
+			row.appendChild(createRowIcon(options.icon || dom.getDefaultDashicon(), options.tone || 'gray'));
+			text.appendChild(dom.createElement('strong', '', options.label || getLabel('profile.sectionLabel', 'Profile')));
 			if (options.description) {
 				text.appendChild(dom.createElement('span', '', options.description));
 			}

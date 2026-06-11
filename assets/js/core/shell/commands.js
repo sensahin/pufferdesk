@@ -19,6 +19,29 @@
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
 		const labels = config.menu && config.menu.labels && typeof config.menu.labels === 'object' ? config.menu.labels : {};
+		const notificationLabels = config.notifications && config.notifications.labels && typeof config.notifications.labels === 'object'
+			? config.notifications.labels
+			: {};
+		const notificationSourceIds = config.notifications && config.notifications.sourceIds && typeof config.notifications.sourceIds === 'object'
+			? config.notifications.sourceIds
+			: {};
+		const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
+		const settingsLabels = settingsConfig.labels && typeof settingsConfig.labels === 'object' ? settingsConfig.labels : {};
+		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
+		const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
+		const contextTargets = window.PufferDesk.shell.contextMenuConstants
+			? window.PufferDesk.shell.contextMenuConstants.targets || {}
+			: {};
+		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
+			? window.PufferDesk.session.workspace.windowKinds || {}
+			: {};
+		const folderWindowKind = windowKinds.FOLDER || 'folder';
+		const dragDropConstants = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.constants ? window.PufferDesk.dragDrop.constants : {};
+		const containerTypes = dragDropConstants.containerTypes || {};
+		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
+		const storageKeys = window.PufferDesk.session && window.PufferDesk.session.storageKeys
+			? window.PufferDesk.session.storageKeys
+			: {};
 		const appSurfaceManager = window.PufferDesk.apps && typeof window.PufferDesk.apps.createAppSurfaceManager === 'function'
 			? window.PufferDesk.apps.createAppSurfaceManager(shell, config, {
 				apps,
@@ -34,27 +57,27 @@
 				appSurfaceManager
 			})
 			: null;
-			const commands = new Map();
-			const folderToolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
-			const folderExplorerSortModes = new Set(['none', 'name', 'kind']);
-			const fallbackFolderViewModes = new Set(['icons', 'extra-large-icons', 'large-icons', 'medium-icons', 'small-icons', 'list', 'details', 'tiles', 'content']);
-			const folderViewModes = window.PufferDesk.apps && window.PufferDesk.apps.folderViewModes
-				? window.PufferDesk.apps.folderViewModes
-				: null;
-			let activeDetail = { kind: 'desktop' };
+		const commands = new Map();
+		const folderViewModes = window.PufferDesk.apps && window.PufferDesk.apps.folderViewModes
+			? window.PufferDesk.apps.folderViewModes
+			: null;
+		let activeDetail = { kind: contextTargets.DESKTOP || 'desktop' };
 
 		function getLabel(key, fallback) {
 			const value = labels[key];
 
-			return typeof value === 'string' && value ? value : fallback;
+			return typeof value === 'string' && value ? value : (fallback || key);
 		}
 
 		function formatLabel(key, fallback, values = []) {
+			const templateFallback = Array.isArray(fallback) ? key : fallback;
+			const templateValues = Array.isArray(fallback) ? fallback : values;
+
 			if (window.PufferDesk.config && typeof window.PufferDesk.config.formatFromLabels === 'function') {
-				return window.PufferDesk.config.formatFromLabels(labels, key, fallback, values);
+				return window.PufferDesk.config.formatFromLabels(labels, key, templateFallback || key, templateValues);
 			}
 
-			return getLabel(key, fallback);
+			return getLabel(key, templateFallback);
 		}
 
 		function playSoundEvent(key, fallback) {
@@ -72,15 +95,41 @@
 
 			if (window.PufferDesk.notificationStore && typeof window.PufferDesk.notificationStore.notify === 'function') {
 				window.PufferDesk.notificationStore.notify({
-					message: error && error.message ? error.message : 'The command could not be completed.',
+					message: error && error.message ? error.message : getNotificationLabel('commandFailedMessage'),
 					sound: false,
-					source: 'pufferdesk',
-					sourceLabel: 'PufferDesk',
-					title: 'PufferDesk command failed.',
+					source: getNotificationSourceId('PUFFERDESK'),
+					sourceLabel: getNotificationLabel('pufferdeskSource'),
+					title: getNotificationLabel('commandFailedTitle'),
 					toast: true,
 					type: 'error'
 				});
 			}
+		}
+
+		function getNotificationLabel(key) {
+			const value = notificationLabels[key];
+
+			return typeof value === 'string' && value ? value : key;
+		}
+
+		function getNotificationSourceId(key) {
+			const value = notificationSourceIds[key];
+
+			return typeof value === 'string' && value ? value : key;
+		}
+
+		function getSettingsLabel(path) {
+			const value = String(path || '').split('.').reduce((current, key) => (
+				current && Object.prototype.hasOwnProperty.call(current, key) ? current[key] : undefined
+			), settingsLabels);
+
+			return typeof value === 'string' && value ? value : path;
+		}
+
+		function getSettingsDomainAction(domainKey) {
+			return window.PufferDesk.config && typeof window.PufferDesk.config.getSettingAction === 'function'
+				? window.PufferDesk.config.getSettingAction(domainKey)
+				: '';
 		}
 
 		function getTargetWindow(detail = activeDetail) {
@@ -119,11 +168,15 @@
 		}
 
 		function normalizeFolderToolbarDisplayMode(mode) {
-			return folderToolbarDisplayModes.has(mode) ? mode : '';
+			return folderViewModes && typeof folderViewModes.normalizeToolbarDisplayMode === 'function'
+				? folderViewModes.normalizeToolbarDisplayMode(mode, '')
+				: '';
 		}
 
 		function normalizeFolderExplorerSortMode(mode) {
-			return folderExplorerSortModes.has(mode) ? mode : '';
+			return folderViewModes && typeof folderViewModes.normalizeExplorerSortMode === 'function'
+				? folderViewModes.normalizeExplorerSortMode(mode, '')
+				: '';
 		}
 
 		function normalizeFolderExplorerViewMode(mode) {
@@ -131,13 +184,13 @@
 				return folderViewModes.isKnown(mode) ? mode : '';
 			}
 
-			return fallbackFolderViewModes.has(mode) ? mode : '';
+			return '';
 		}
 
 		function getFolderToolbarWindow(detail = activeDetail) {
 			const win = getTargetWindow(detail);
 
-			if (!win || !win.dataset || win.dataset.pdkWindowKind !== 'folder') {
+			if (!win || !win.dataset || win.dataset.pdkWindowKind !== folderWindowKind) {
 				return null;
 			}
 
@@ -157,13 +210,19 @@
 		}
 
 		function removeIframeParam(url) {
+			const iframeQueryKey = window.PufferDesk.config.getRouterQueryKey('iframe');
+
 			if (!url) {
 				return '';
 			}
 
+			if (!iframeQueryKey) {
+				return url;
+			}
+
 			try {
 				const next = new URL(url, window.location.origin);
-				next.searchParams.delete('pufferdesk_iframe');
+				next.searchParams.delete(iframeQueryKey);
 				return next.toString();
 			} catch (error) {
 				return url;
@@ -246,7 +305,7 @@
 				result = command.run(getPayload(item), detail);
 			} catch (error) {
 				if (window.console && typeof window.console.error === 'function') {
-					window.console.error('PufferDesk command failed.', error);
+					window.console.error(getNotificationLabel('commandFailedTitle'), error);
 				}
 				notifyCommandError(error);
 				return true;
@@ -255,7 +314,7 @@
 			if (result && typeof result.catch === 'function') {
 				result.catch((error) => {
 					if (window.console && typeof window.console.error === 'function') {
-						window.console.error('PufferDesk command failed.', error);
+						window.console.error(getNotificationLabel('commandFailedTitle'), error);
 					}
 					notifyCommandError(error);
 				});
@@ -268,7 +327,7 @@
 		}
 
 		function refreshActiveMenu(detail = activeDetail) {
-			shell.dispatchEvent(new window.CustomEvent('pufferDesk:active-window-change', {
+			shell.dispatchEvent(new window.CustomEvent(domEventNames.ACTIVE_WINDOW_CHANGE, {
 				detail
 			}));
 		}
@@ -315,11 +374,11 @@
 				return payload.target;
 			}
 
-			if (detail && detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.pdkWindowKind === 'folder') {
+			if (detail && detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.pdkWindowKind === folderWindowKind) {
 				return detail.folderId || detail.windowElement.dataset.pdkFolderWindow || detail.id || '';
 			}
 
-			if (detail && (detail.type === 'folder-toolbar' || detail.kind === 'folder-toolbar')) {
+			if (detail && (detail.type === contextTargets.FOLDER_TOOLBAR || detail.kind === contextTargets.FOLDER_TOOLBAR)) {
 				return detail.folderId || detail.id || '';
 			}
 
@@ -336,23 +395,23 @@
 
 		function setAppDockPresence(appId, keepInDock) {
 			if (!appPreferences) {
-				return Promise.reject(new Error('Settings service unavailable.'));
+				return Promise.reject(new Error(getSettingsLabel('status.serviceUnavailable')));
 			}
 
 			return appPreferences.setDockPresence(appId, keepInDock, {
-				errorText: 'App locations could not be saved.',
-				fixedMessage: formatLabel('fixed_launcher_placement_format', 'App has a fixed %s placement.', [getLabel('launcher', 'Dock')]),
-				unavailableText: 'App unavailable.'
+				errorText: getSettingsLabel('status.appLocationsSaveError'),
+				fixedMessage: formatLabel('fixed_launcher_placement_format', [getLabel('launcher')]),
+				unavailableText: getLabel('app_unavailable')
 			});
 		}
 
 		function toggleAppLoginItem(appId) {
 			if (!appPreferences) {
-				return Promise.reject(new Error('Settings service unavailable.'));
+				return Promise.reject(new Error(getSettingsLabel('status.serviceUnavailable')));
 			}
 
 			return appPreferences.toggleLoginItem(appId, {
-				errorText: 'Login items could not be saved.'
+				errorText: getSettingsLabel('status.loginItemsSaveError')
 			});
 		}
 
@@ -362,93 +421,8 @@
 				: {};
 		}
 
-		function getActionDefaults(actionKey) {
-			const defaults = {
-				logout: {
-					cancelLabel: 'Cancel',
-					confirmLabel: 'Log Out',
-					countdownSeconds: 60,
-					icon: 'power',
-					message: 'If you do nothing, you will be logged out automatically in {seconds} seconds.',
-					overlayMessage: 'Logging out...',
-					reopenWindowsDefault: false,
-					reopenWindowsLabel: 'Reopen windows when logging back in',
-					title: 'Are you sure you want to log out?'
-				},
-				lock: {
-					cancelLabel: 'Cancel',
-					confirmLabel: 'Lock',
-					countdownSeconds: 60,
-					icon: 'power',
-					message: 'You will be signed out and returned to the WordPress login screen.',
-					overlayMessage: 'Locking PufferDesk...',
-					reopenWindowsDefault: false,
-					reopenWindowsLabel: 'Reopen windows when signing back in',
-					title: 'Lock PufferDesk?'
-				},
-				sleep: {
-					cancelLabel: 'Cancel',
-					confirmLabel: 'Sleep',
-					countdownSeconds: 60,
-					icon: 'power',
-					message: 'PufferDesk will close and Classic Admin will open.',
-					overlayMessage: 'Putting PufferDesk to sleep...',
-					reopenWindowsDefault: false,
-					reopenWindowsLabel: 'Reopen windows when returning to PufferDesk',
-					title: 'Sleep PufferDesk?'
-				},
-				shutdown: {
-					cancelLabel: 'Cancel',
-					confirmLabel: 'Shut down',
-					countdownSeconds: 60,
-					icon: 'power',
-					message: 'PufferDesk will close and Classic Admin will open.',
-					overlayMessage: 'Shutting down PufferDesk...',
-					reopenWindowsDefault: false,
-					reopenWindowsLabel: 'Reopen windows when returning to PufferDesk',
-					title: 'Shut down PufferDesk?'
-				},
-				eraseContentSettings: {
-					cancelLabel: 'Cancel',
-					confirmLabel: 'Erase',
-					message: 'This will reset PufferDesk settings, wallpaper, dock, windows, and layout for this WordPress account. WordPress site content will not be affected.',
-					overlayMessage: 'Erasing PufferDesk settings...',
-					soundEventKey: 'dialogDestructive',
-					title: 'Erase All Content and Settings?'
-				},
-				emptyTrash: {
-					cancelLabel: 'Cancel',
-					confirmLabel: 'Empty Trash',
-					icon: 'dashicons-trash',
-					message: 'This permanently deletes all trashed PufferDesk folder records. Apps and plugins are not deleted.',
-					soundEventKey: 'dialogDestructive',
-					title: 'Empty Trash?'
-				},
-				restart: {
-					cancelLabel: 'Cancel',
-					confirmLabel: 'Restart',
-					countdownSeconds: 60,
-					icon: 'power',
-					message: 'If you do nothing, PufferDesk will restart automatically in {seconds} seconds.',
-					overlayMessage: 'Restarting PufferDesk...',
-					reopenWindowsDefault: false,
-					reopenWindowsLabel: 'Reopen windows after restarting',
-					title: 'Are you sure you want to restart PufferDesk?'
-				},
-				switchClassic: {
-					cancelLabel: 'Cancel',
-					confirmLabel: 'Switch',
-					countdownSeconds: 60,
-					icon: 'dashicons-admin-site-alt3',
-					message: 'If you do nothing, Classic Admin will open automatically in {seconds} seconds.',
-					overlayMessage: 'Switching to Classic Admin...',
-					reopenWindowsDefault: false,
-					reopenWindowsLabel: 'Reopen windows when returning to PufferDesk',
-					title: 'Are you sure you want to switch to Classic Admin?'
-				}
-			};
-
-			return defaults[actionKey] || {};
+		function getActionDefaults() {
+			return {};
 		}
 
 		function getActionConfig(actionKey) {
@@ -490,14 +464,14 @@
 			const policy = getConfirmationPolicy('move_folder_to_trash');
 			const variant = policy.variant || 'move-to-trash';
 			const createdAt = formatDateTime(folder && folder.createdAt ? folder.createdAt : '');
-			const detailMeta = createdAt ? [`${getLabel('sort_date_created', 'Date Created')}: ${createdAt}`] : [];
-			const confirmationTitle = getLabel('move_folder_to_trash_confirmation', 'Are you sure you want to move this folder to Trash?');
-			const fallbackTitle = formatLabel('move_folder_to_trash_title_format', 'Move "%s" to Trash?', [folderLabel]);
+			const detailMeta = createdAt ? [`${getLabel('sort_date_created')}: ${createdAt}`] : [];
+			const confirmationTitle = getLabel('move_folder_to_trash_confirmation');
+			const fallbackTitle = formatLabel('move_folder_to_trash_title_format', [folderLabel]);
 			const isSystemDeleteDialog = variant === 'delete-folder';
 
 			return {
-				cancelLabel: getLabel('move_folder_to_trash_cancel_label', getLabel('cancel', 'Cancel')),
-				confirmLabel: getLabel('move_folder_to_trash_confirm_label', getLabel('move_to_trash', 'Move to Trash')),
+				cancelLabel: getLabel('move_folder_to_trash_cancel_label', getLabel('cancel')),
+				confirmLabel: getLabel('move_folder_to_trash_confirm_label', getLabel('move_to_trash')),
 				defaultAction: getConfirmationDefaultAction(policy),
 				icon: policy.icon || (folder && folder.icon) || 'dashicons-category',
 				item: {
@@ -507,11 +481,11 @@
 				},
 				message: isSystemDeleteDialog
 					? ''
-					: getLabel('move_folder_to_trash_message', 'Only this PufferDesk folder will be moved. Apps and plugins inside it stay installed and available.'),
+					: getLabel('move_folder_to_trash_message'),
 				soundEventKey: isSystemDeleteDialog ? 'dialogDestructive' : 'dialogWarning',
 				title: isSystemDeleteDialog ? confirmationTitle : fallbackTitle,
 				variant,
-				windowTitle: getLabel('move_folder_to_trash_window_title', '')
+				windowTitle: getLabel('move_folder_to_trash_window_title')
 			};
 		}
 
@@ -625,13 +599,12 @@
 			let removed = false;
 
 			if (storage && userId > 0) {
-				const prefix = `pufferDesk:${userId}:`;
 				const keys = [];
 
 				for (let index = 0; index < storage.length; index += 1) {
 					const key = storage.key(index);
 
-					if (key && key.startsWith(prefix) && key.endsWith(':session')) {
+					if (typeof storageKeys.isWorkspaceSessionKey === 'function' && storageKeys.isWorkspaceSessionKey(key, userId)) {
 						keys.push(key);
 					}
 				}
@@ -741,7 +714,12 @@
 			}
 
 			if (!api || typeof api.post !== 'function') {
-				throw new Error('Settings service unavailable.');
+				throw new Error(getSettingsLabel('status.serviceUnavailable'));
+			}
+
+			const resetAction = getSettingsDomainAction('RESET');
+			if (!resetAction) {
+				throw new Error(getSettingsLabel('status.serviceUnavailable'));
 			}
 
 			if (dialogs && typeof dialogs.showBlockingOverlay === 'function') {
@@ -749,14 +727,14 @@
 			}
 
 			try {
-				const result = await api.post('pufferdesk_reset', {
+				const result = await api.post(resetAction, {
 					profile: 'erase_content_settings'
 				});
 
 				if (!result || !result.success) {
 					const message = result && result.data && result.data.message
 						? result.data.message
-						: 'PufferDesk settings could not be reset.';
+						: getSettingsLabel('status.settingsResetError');
 					throw new Error(message);
 				}
 
@@ -777,11 +755,11 @@
 			}
 		}
 
-		register('noop', {
+		register(commandIds.NOOP, {
 			run() {}
 		});
 
-		register('open-app', {
+		register(commandIds.OPEN_APP, {
 			isEnabled(payload) {
 				return Boolean(launcher && typeof launcher.openApp === 'function' && payload.target);
 			},
@@ -790,7 +768,7 @@
 			}
 		});
 
-		register('open-folder', {
+		register(commandIds.OPEN_FOLDER, {
 			isEnabled(payload) {
 				return Boolean(launcher && typeof launcher.openFolder === 'function' && payload.target);
 			},
@@ -799,7 +777,7 @@
 			}
 		});
 
-		register('open-folder-tab', {
+		register(commandIds.OPEN_FOLDER_TAB, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.openFolderTab === 'function' && getFolderIdFromPayload(payload, detail));
 			},
@@ -810,7 +788,7 @@
 			}
 		});
 
-		register('open-folder-window', {
+		register(commandIds.OPEN_FOLDER_WINDOW, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.openFolderWindow === 'function' && getFolderIdFromPayload(payload, detail));
 			},
@@ -821,29 +799,29 @@
 			}
 		});
 
-			register('folder.create', {
-				isEnabled(payload, detail) {
-					const parentId = getFolderCreateParentId(payload, detail);
+		register(commandIds.FOLDER_CREATE, {
+			isEnabled(payload, detail) {
+				const parentId = getFolderCreateParentId(payload, detail);
 
-					return Boolean(
-						folderManager
-						&& typeof folderManager.createFolder === 'function'
-						&& parentId !== 'trash'
-					);
-				},
-				run(payload, detail) {
-					const parentId = getFolderCreateParentId(payload, detail);
-					const folder = folderManager.createFolder(getLabel('untitled_folder', 'untitled folder'), [], {
-						parentId: parentId || 'desktop',
-						point: detail && detail.contextPoint ? detail.contextPoint : null
-					});
-					if (folder && (!parentId || parentId === 'desktop') && typeof folderManager.startInlineRename === 'function') {
-						folderManager.startInlineRename(folder.id);
-					}
+				return Boolean(
+					folderManager
+					&& typeof folderManager.createFolder === 'function'
+					&& parentId !== appIds.TRASH
+				);
+			},
+			run(payload, detail) {
+				const parentId = getFolderCreateParentId(payload, detail);
+				const folder = folderManager.createFolder(getLabel('untitled_folder'), [], {
+					parentId: parentId || containerTypes.DESKTOP,
+					point: detail && detail.contextPoint ? detail.contextPoint : null
+				});
+				if (folder && (!parentId || parentId === containerTypes.DESKTOP) && typeof folderManager.startInlineRename === 'function') {
+					folderManager.startInlineRename(folder.id);
 				}
+			}
 		});
 
-		register('folder.get-info', {
+		register(commandIds.FOLDER_GET_INFO, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.openFolderInfo === 'function' && getFolderIdFromPayload(payload, detail));
 			},
@@ -852,7 +830,7 @@
 			}
 		});
 
-		register('folder.refresh', {
+		register(commandIds.FOLDER_REFRESH, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.refreshFolderWindow === 'function' && getFolderIdFromPayload(payload, detail));
 			},
@@ -861,7 +839,7 @@
 			}
 		});
 
-		register('desktop.refresh', {
+		register(commandIds.DESKTOP_REFRESH, {
 			isEnabled() {
 				return Boolean(appSurfaceManager || folderManager || desktopIconManager);
 			},
@@ -870,7 +848,7 @@
 			}
 		});
 
-		register('document.new-sticky-note', {
+		register(commandIds.DOCUMENT_NEW_STICKY_NOTE, {
 			isEnabled() {
 				return Boolean(stickyNoteManager && typeof stickyNoteManager.createStickyNote === 'function');
 			},
@@ -879,7 +857,7 @@
 			}
 		});
 
-		register('document.open', {
+		register(commandIds.DOCUMENT_OPEN, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.openDocumentById === 'function' && getDocumentIdFromPayload(payload, detail));
 			},
@@ -888,14 +866,14 @@
 			}
 		});
 
-		register('desktop-icon.rename', {
+		register(commandIds.DESKTOP_ICON_RENAME, {
 			isEnabled(payload, detail) {
 				return Boolean(
 					desktopIconManager
 					&& typeof desktopIconManager.startInlineRename === 'function'
 					&& detail
-					&& detail.type === 'desktop-app'
-					&& (payload.target || detail.id) === 'trash'
+					&& detail.type === contextTargets.DESKTOP_APP
+					&& (payload.target || detail.id) === appIds.TRASH
 				);
 			},
 			run(payload, detail) {
@@ -907,7 +885,7 @@
 			}
 		});
 
-		register('folder-tab.close', {
+		register(commandIds.FOLDER_TAB_CLOSE, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.closeFolderTab === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
 			},
@@ -916,7 +894,7 @@
 			}
 		});
 
-		register('folder-tab.close-others', {
+		register(commandIds.FOLDER_TAB_CLOSE_OTHERS, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.closeOtherFolderTabs === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
 			},
@@ -925,7 +903,7 @@
 			}
 		});
 
-		register('folder-tab.close-right', {
+		register(commandIds.FOLDER_TAB_CLOSE_RIGHT, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.closeFolderTabsToRight === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
 			},
@@ -934,7 +912,7 @@
 			}
 		});
 
-		register('folder-tab.duplicate', {
+		register(commandIds.FOLDER_TAB_DUPLICATE, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.duplicateFolderTab === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
 			},
@@ -943,7 +921,7 @@
 			}
 		});
 
-		register('folder.rename', {
+		register(commandIds.FOLDER_RENAME, {
 			isEnabled(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
 				return Boolean(
@@ -959,7 +937,7 @@
 			}
 		});
 
-		register('folder.delete', {
+		register(commandIds.FOLDER_DELETE, {
 			isEnabled(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
 				return Boolean(
@@ -972,7 +950,7 @@
 			async run(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
 				const folder = folderManager.getFolder(folderId);
-				const folderLabel = folder && folder.label ? folder.label : getLabel('folder', 'Folder');
+				const folderLabel = folder && folder.label ? folder.label : getLabel('folder');
 				let confirmed = true;
 
 				if (isConfirmationEnabled('move_folder_to_trash', false)) {
@@ -988,7 +966,7 @@
 			}
 		});
 
-		register('trash.restore', {
+		register(commandIds.TRASH_RESTORE, {
 			isEnabled(payload) {
 				return Boolean(folderManager && typeof folderManager.restoreTrashItem === 'function' && payload.target);
 			},
@@ -997,20 +975,20 @@
 			}
 		});
 
-		register('trash.delete-immediately', {
+		register(commandIds.TRASH_DELETE_IMMEDIATELY, {
 			isEnabled(payload) {
 				return Boolean(folderManager && typeof folderManager.deleteTrashItem === 'function' && payload.target);
 			},
 			async run(payload) {
 				const confirmed = dialogs && typeof dialogs.confirm === 'function'
 					? await dialogs.confirm({
-						cancelLabel: getLabel('cancel', 'Cancel'),
-						confirmLabel: getLabel('delete', 'Delete'),
-						message: getLabel('delete_immediately_message', 'This permanently deletes the PufferDesk folder record. Apps and plugins are not deleted.'),
+						cancelLabel: getLabel('cancel'),
+						confirmLabel: getLabel('delete'),
+						message: getLabel('delete_immediately_message'),
 						soundEventKey: 'dialogDestructive',
-						title: getLabel('delete_immediately_title', 'Delete Immediately?')
+						title: getLabel('delete_immediately_title')
 					})
-					: window.confirm(getLabel('delete_immediately_fallback_message', 'Delete this PufferDesk folder record immediately?'));
+					: window.confirm(getLabel('delete_immediately_fallback_message'));
 
 				if (confirmed) {
 					folderManager.deleteTrashItem(payload.target);
@@ -1018,7 +996,7 @@
 			}
 		});
 
-		register('trash.empty', {
+		register(commandIds.TRASH_EMPTY, {
 			isEnabled() {
 				return Boolean(
 					folderManager
@@ -1043,13 +1021,13 @@
 				if (confirmed) {
 					const emptied = folderManager.emptyTrash();
 					if (emptied) {
-						playSoundEvent('trashEmpty', 'trash.empty');
+						playSoundEvent('trashEmpty');
 					}
 				}
 			}
 		});
 
-		register('folder.add-app', {
+		register(commandIds.FOLDER_ADD_APP, {
 			isEnabled(payload, detail) {
 				const appId = payload.target || getFolderAppTargetFromDetail(detail);
 				const folderId = payload.folderId || '';
@@ -1061,7 +1039,7 @@
 			}
 		});
 
-		register('folder.remove-app', {
+		register(commandIds.FOLDER_REMOVE_APP, {
 			isEnabled(payload, detail) {
 				const appId = payload.target || getFolderAppTargetFromDetail(detail);
 				const folderId = payload.folderId || (detail && detail.folderId) || '';
@@ -1073,7 +1051,7 @@
 			}
 		});
 
-		register('folder.sidebar-remove', {
+		register(commandIds.FOLDER_SIDEBAR_REMOVE, {
 			isEnabled(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
 
@@ -1082,7 +1060,7 @@
 					&& typeof launcher.removeFolderSidebarFavorite === 'function'
 					&& folderId
 					&& detail
-					&& detail.type === 'folder-sidebar-item'
+					&& detail.type === contextTargets.FOLDER_SIDEBAR
 					&& detail.targetElement
 					&& detail.targetElement.dataset
 					&& detail.targetElement.dataset.pdkFolderSidebarRemovable === '1'
@@ -1093,7 +1071,7 @@
 			}
 		});
 
-		register('folder.delete-selected', {
+		register(commandIds.FOLDER_DELETE_SELECTED, {
 			isEnabled(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
 
@@ -1113,7 +1091,7 @@
 			}
 		});
 
-		register('folder.toolbar-display', {
+		register(commandIds.FOLDER_TOOLBAR_DISPLAY, {
 			isEnabled(payload, detail) {
 				return Boolean(getFolderToolbarWindow(detail) && normalizeFolderToolbarDisplayMode(payload.mode));
 			},
@@ -1132,7 +1110,7 @@
 					toolbar.dataset.pdkFolderToolbarDisplay = mode;
 				}
 
-				win.dispatchEvent(new window.CustomEvent('pufferDesk:folder-toolbar-display-change', {
+				win.dispatchEvent(new window.CustomEvent(domEventNames.FOLDER_TOOLBAR_DISPLAY_CHANGE, {
 					detail: {
 						mode
 					}
@@ -1144,7 +1122,7 @@
 			}
 		});
 
-		register('folder.set-sort-mode', {
+		register(commandIds.FOLDER_SET_SORT_MODE, {
 			isEnabled(payload, detail) {
 				return Boolean(
 					launcher
@@ -1163,7 +1141,7 @@
 			}
 		});
 
-		register('folder.set-view-mode', {
+		register(commandIds.FOLDER_SET_VIEW_MODE, {
 			isEnabled(payload, detail) {
 				return Boolean(
 					launcher
@@ -1182,7 +1160,7 @@
 			}
 		});
 
-		register('open-about', {
+		register(commandIds.OPEN_ABOUT, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.openAbout === 'function' && (payload.target || getAppTargetFromDetail(detail)));
 			},
@@ -1191,7 +1169,7 @@
 			}
 		});
 
-		register('open-site-about', {
+		register(commandIds.OPEN_SITE_ABOUT, {
 			isEnabled() {
 				return Boolean(launcher && typeof launcher.openSiteAbout === 'function');
 			},
@@ -1200,7 +1178,7 @@
 			}
 		});
 
-		register('settings.open-panel', {
+		register(commandIds.SETTINGS_OPEN_PANEL, {
 			isEnabled(payload) {
 				return Boolean(launcher && typeof launcher.openSettingsPanel === 'function' && payload.panel);
 			},
@@ -1209,7 +1187,7 @@
 			}
 		});
 
-		register('sound.toggle-mute', {
+		register(commandIds.SOUND_TOGGLE_MUTE, {
 			isEnabled() {
 				return Boolean(window.PufferDesk.soundStatus && typeof window.PufferDesk.soundStatus.toggleMute === 'function');
 			},
@@ -1218,7 +1196,7 @@
 			}
 		});
 
-		register('app.keep-in-dock', {
+		register(commandIds.APP_KEEP_IN_DOCK, {
 			isEnabled(payload, detail) {
 				const appId = getAppIdFromPayload(payload, detail);
 
@@ -1229,7 +1207,7 @@
 			}
 		});
 
-		register('app.remove-from-dock', {
+		register(commandIds.APP_REMOVE_FROM_DOCK, {
 			isEnabled(payload, detail) {
 				const appId = getAppIdFromPayload(payload, detail);
 
@@ -1240,7 +1218,7 @@
 			}
 		});
 
-		register('app.toggle-login-item', {
+		register(commandIds.APP_TOGGLE_LOGIN_ITEM, {
 			isEnabled(payload, detail) {
 				return Boolean(api && appPreferences && appMap.has(getAppIdFromPayload(payload, detail)));
 			},
@@ -1249,7 +1227,7 @@
 			}
 		});
 
-		register('open-url', {
+		register(commandIds.OPEN_URL, {
 			isEnabled(payload) {
 				return Boolean(launcher && typeof launcher.openUrl === 'function' && (payload.url || payload.target));
 			},
@@ -1258,7 +1236,7 @@
 			}
 		});
 
-		register('navigate-url', {
+		register(commandIds.NAVIGATE_URL, {
 			isEnabled(payload) {
 				return Boolean(payload.url || payload.target);
 			},
@@ -1267,7 +1245,7 @@
 			}
 		});
 
-		register('open-external-url', {
+		register(commandIds.OPEN_EXTERNAL_URL, {
 			isEnabled(payload) {
 				return Boolean(payload.url || payload.target);
 			},
@@ -1276,7 +1254,7 @@
 			}
 		});
 
-		register('recent-items.clear', {
+		register(commandIds.RECENT_ITEMS_CLEAR, {
 			isEnabled() {
 				return Boolean(window.PufferDesk.menuBar && typeof window.PufferDesk.menuBar.clearRecentItems === 'function');
 			},
@@ -1285,7 +1263,7 @@
 			}
 		});
 
-		register('shell.restart', {
+		register(commandIds.SHELL_RESTART, {
 			isEnabled() {
 				return Boolean(config.shellUrl || window.location.href);
 			},
@@ -1294,7 +1272,7 @@
 			}
 		});
 
-		register('shell.switch-classic', {
+		register(commandIds.SHELL_SWITCH_CLASSIC, {
 			isEnabled(payload) {
 				return Boolean(payload.url || payload.target || config.classicUrl);
 			},
@@ -1303,7 +1281,7 @@
 			}
 		});
 
-		register('shell.lock', {
+		register(commandIds.SHELL_LOCK, {
 			isEnabled(payload) {
 				return Boolean(payload.url || payload.target || config.logoutUrl);
 			},
@@ -1314,7 +1292,7 @@
 			}
 		});
 
-		register('shell.sleep', {
+		register(commandIds.SHELL_SLEEP, {
 			isEnabled(payload) {
 				return Boolean(payload.url || payload.target || config.classicUrl);
 			},
@@ -1323,7 +1301,7 @@
 			}
 		});
 
-		register('shell.shutdown', {
+		register(commandIds.SHELL_SHUTDOWN, {
 			isEnabled(payload) {
 				return Boolean(payload.url || payload.target || config.classicUrl);
 			},
@@ -1332,7 +1310,7 @@
 			}
 		});
 
-		register('user.logout', {
+		register(commandIds.USER_LOGOUT, {
 			isEnabled(payload) {
 				return Boolean(payload.url || payload.target);
 			},
@@ -1341,7 +1319,7 @@
 			}
 		});
 
-		register('session.reset-layout', {
+		register(commandIds.SESSION_RESET_LAYOUT, {
 			isEnabled() {
 				return Boolean(config.storageKey && window.PufferDesk.session && window.PufferDesk.session.createSessionStore);
 			},
@@ -1351,7 +1329,7 @@
 			}
 		});
 
-		register('desktop.sort-icons', {
+		register(commandIds.DESKTOP_SORT_ICONS, {
 			isEnabled(payload) {
 				return Boolean(desktopIconManager && typeof desktopIconManager.setSortMode === 'function' && payload.mode);
 			},
@@ -1361,7 +1339,7 @@
 			}
 		});
 
-		register('system.erase-content-settings', {
+		register(commandIds.SYSTEM_ERASE_CONTENT_SETTINGS, {
 			isEnabled() {
 				return Boolean(api && typeof api.post === 'function');
 			},
@@ -1370,7 +1348,7 @@
 			}
 		});
 
-		register('widget.hide', {
+		register(commandIds.WIDGET_HIDE, {
 			isEnabled(payload, detail) {
 				return Boolean(widgetManager && typeof widgetManager.hideWidget === 'function' && getTargetWidget(detail));
 			},
@@ -1379,7 +1357,7 @@
 			}
 		});
 
-		register('window.focus', {
+		register(commandIds.WINDOW_FOCUS, {
 			isEnabled(payload, detail) {
 				return Boolean(manager && typeof manager.focusWindow === 'function' && getTargetWindow(detail));
 			},
@@ -1388,7 +1366,7 @@
 			}
 		});
 
-		register('window.focus-id', {
+		register(commandIds.WINDOW_FOCUS_ID, {
 			isEnabled(payload) {
 				return Boolean(manager && typeof manager.focusWindow === 'function' && getWindowById(payload.target));
 			},
@@ -1397,7 +1375,7 @@
 			}
 		});
 
-		register('window.close', {
+		register(commandIds.WINDOW_CLOSE, {
 			isEnabled(payload, detail) {
 				return Boolean(manager && typeof manager.closeWindow === 'function' && getTargetWindow(detail));
 			},
@@ -1416,9 +1394,9 @@
 			}
 		};
 
-		register('window.minimize', minimizeWindowCommand);
+		register(commandIds.WINDOW_MINIMIZE, minimizeWindowCommand);
 
-		register('window.open-browser-tab', {
+		register(commandIds.WINDOW_OPEN_BROWSER_TAB, {
 			isEnabled(payload, detail) {
 				return Boolean(getWindowBrowserUrl(detail, payload.url || payload.target));
 			},
@@ -1427,7 +1405,7 @@
 			}
 		});
 
-		register('window.reload', {
+		register(commandIds.WINDOW_RELOAD, {
 			isEnabled(payload, detail) {
 				return Boolean(getTargetWindowFrame(detail));
 			},
@@ -1454,7 +1432,7 @@
 			}
 		});
 
-		register('window.history-back', {
+		register(commandIds.WINDOW_HISTORY_BACK, {
 			isEnabled(payload, detail) {
 				return Boolean(getTargetWindowFrame(detail));
 			},
@@ -1469,7 +1447,7 @@
 			}
 		});
 
-		register('window.history-forward', {
+		register(commandIds.WINDOW_HISTORY_FORWARD, {
 			isEnabled(payload, detail) {
 				return Boolean(getTargetWindowFrame(detail));
 			},
@@ -1484,9 +1462,9 @@
 			}
 		});
 
-		register('window.hide', minimizeWindowCommand);
+		register(commandIds.WINDOW_HIDE, minimizeWindowCommand);
 
-		register('window.hide-others', {
+		register(commandIds.WINDOW_HIDE_OTHERS, {
 			isEnabled(payload, detail) {
 				return Boolean(manager && typeof manager.hideOtherWindows === 'function' && getTargetWindow(detail));
 			},
@@ -1495,7 +1473,7 @@
 			}
 		});
 
-		register('window.show-all', {
+		register(commandIds.WINDOW_SHOW_ALL, {
 			isEnabled() {
 				return Boolean(manager && typeof manager.showAllWindows === 'function' && typeof manager.hasHiddenWindows === 'function' && manager.hasHiddenWindows());
 			},
@@ -1504,7 +1482,7 @@
 			}
 		});
 
-		register('window.toggle-maximize', {
+		register(commandIds.WINDOW_TOGGLE_MAXIMIZE, {
 			isEnabled(payload, detail) {
 				return Boolean(manager && typeof manager.toggleMaximizeWindow === 'function' && getTargetWindow(detail));
 			},

@@ -8,8 +8,8 @@
 	window.PufferDesk.apps.settings.createProfilePanel = function createProfilePanel(ctx) {
 		const dom = ctx.dom;
 		const user = ctx.getUserProfile();
-		const name = user.name || ctx.t('profile.defaultName', 'Admin');
-		const role = user.role || user.subtitle || ctx.t('profile.defaultRole', 'WordPress User');
+		const name = user.name || ctx.t('profile.defaultName');
+		const role = user.role || user.subtitle || ctx.t('profile.defaultRole');
 		const profileUrl = user.profileUrl || '';
 		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-profile-panel');
 		const hero = dom.createElement('div', 'pdk-settings-profile-hero');
@@ -23,17 +23,17 @@
 		}
 
 		accountSection.appendChild(ctx.createProfileActionRow({
-			description: ctx.t('profile.personalInfoDescription', 'Name, contact, website, and bio'),
+			description: ctx.t('profile.personalInfoDescription'),
 			icon: 'dashicons-id',
-			label: ctx.t('profile.personalInfoLabel', 'Personal Information'),
+			label: ctx.t('profile.personalInfoLabel'),
 			tone: 'gray',
 			url: profileUrl,
-			windowTitle: ctx.t('profile.profileTitle', 'WordPress Profile')
+			windowTitle: ctx.t('profile.profileTitle')
 		}));
 		accountSection.appendChild(ctx.createProfileActionRow({
-			description: ctx.t('profile.rolePermissionsDescription', 'Current access level'),
+			description: ctx.t('profile.rolePermissionsDescription'),
 			icon: 'dashicons-shield',
-			label: ctx.t('profile.rolePermissionsLabel', 'Role & Permissions'),
+			label: ctx.t('profile.rolePermissionsLabel'),
 			tone: 'gray',
 			value: role
 		}));
@@ -46,14 +46,15 @@
 	function createProfileSignOutButton(ctx) {
 		const footer = ctx.dom.createElement('div', 'pdk-settings-profile-footer');
 		const button = document.createElement('button');
+		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
 
 		button.type = 'button';
 		button.className = 'pdk-settings-profile-sign-out';
-		button.textContent = ctx.t('profile.signOutLabel', 'Sign Out...');
+		button.textContent = ctx.t('profile.signOutLabel');
 		button.addEventListener('click', () => {
-			ctx.executeMenuCommand('user.logout', {
+			ctx.executeMenuCommand(commandIds.USER_LOGOUT, {
 				icon: 'dashicons-migrate',
-				label: ctx.t('profile.signOutLabel', 'Sign Out...'),
+				label: ctx.t('profile.signOutLabel'),
 				url: ctx.config.logoutUrl || ''
 			});
 		});

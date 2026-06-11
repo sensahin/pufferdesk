@@ -80,7 +80,7 @@ final class PufferDesk_Virtual_Filesystem {
 				$paths[ self::FOLDER_TRASH ],
 				'',
 				array(
-					'type'     => 'theme',
+					'type'     => PufferDesk_Icon_Renderer::TYPE_THEME,
 					'name'     => 'trash-empty.svg',
 					'fallback' => 'dashicons-trash',
 				),
@@ -293,7 +293,7 @@ final class PufferDesk_Virtual_Filesystem {
 	 */
 	private function theme_icon( $name, $fallback ) {
 		return array(
-			'type'     => 'theme',
+			'type'     => PufferDesk_Icon_Renderer::TYPE_THEME,
 			'name'     => $name,
 			'fallback' => $fallback,
 		);

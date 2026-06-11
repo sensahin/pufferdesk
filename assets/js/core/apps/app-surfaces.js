@@ -4,6 +4,26 @@
 	window.PufferDesk = window.PufferDesk || {};
 	window.PufferDesk.apps = window.PufferDesk.apps || {};
 
+	const eventNames = window.PufferDesk.events && window.PufferDesk.events.names
+		? window.PufferDesk.events.names
+		: {};
+	const contextTargets = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
+		? window.PufferDesk.shell.contextMenuConstants.targets || {}
+		: {};
+	const desktopIconPrefixes = window.PufferDesk.session && window.PufferDesk.session.workspace
+		? window.PufferDesk.session.workspace.desktopIconPrefixes || {}
+		: {};
+	const appLocations = window.PufferDesk.config.getContractMap('appLocations', {
+		DOCK: 'dock',
+		DESKTOP: 'desktop',
+		BOTH: 'both',
+		HIDDEN: 'hidden'
+	});
+
+	function getDesktopAppIconId(appId) {
+		return `${desktopIconPrefixes.app || ''}${appId}`;
+	}
+
 	function createRunningState() {
 		const externalRunningApps = new Set();
 
@@ -70,7 +90,7 @@
 			}
 
 			if (changed && window.PufferDesk.events && typeof window.PufferDesk.events.emit === 'function') {
-				window.PufferDesk.events.emit('app:running-state-changed', {
+				window.PufferDesk.events.emit(eventNames.APP_RUNNING_STATE_CHANGED, {
 					appId: normalizedAppId,
 					running: shouldRun,
 					source: options.source || 'external'
@@ -131,8 +151,10 @@
 
 		function normalizeLocations(locations = {}) {
 			const hasLauncher = hasLauncherSurface();
-			const allowedLocations = hasLauncher ? ['dock', 'desktop', 'both', 'hidden'] : ['desktop', 'hidden'];
-			const defaultLocation = hasLauncher ? 'dock' : 'desktop';
+			const allowedLocations = hasLauncher
+				? [appLocations.DOCK, appLocations.DESKTOP, appLocations.BOTH, appLocations.HIDDEN]
+				: [appLocations.DESKTOP, appLocations.HIDDEN];
+			const defaultLocation = hasLauncher ? appLocations.DOCK : appLocations.DESKTOP;
 			const normalized = {};
 
 			apps.forEach((app) => {
@@ -147,8 +169,8 @@
 				}
 
 				const location = typeof locations[app.id] === 'string' ? locations[app.id] : defaultLocation;
-				if (!hasLauncher && (location === 'dock' || location === 'both')) {
-					normalized[app.id] = 'desktop';
+				if (!hasLauncher && (location === appLocations.DOCK || location === appLocations.BOTH)) {
+					normalized[app.id] = appLocations.DESKTOP;
 					return;
 				}
 
@@ -164,8 +186,8 @@
 					const location = typeof locations[appId] === 'string' ? locations[appId] : '';
 					if (allowedLocations.includes(location)) {
 						normalized[appId] = location;
-					} else if (!hasLauncher && (location === 'dock' || location === 'both')) {
-						normalized[appId] = 'desktop';
+					} else if (!hasLauncher && (location === appLocations.DOCK || location === appLocations.BOTH)) {
+						normalized[appId] = appLocations.DESKTOP;
 					}
 				});
 			}
@@ -177,12 +199,12 @@
 			if (isFixedDockApp(app)) {
 				const fixedLocation = getFixedAppLocation(app);
 
-				return fixedLocation === 'both' || fixedLocation === surface;
+				return fixedLocation === appLocations.BOTH || fixedLocation === surface;
 			}
 
-			const location = app && app.id ? locations[app.id] || 'dock' : 'dock';
+			const location = app && app.id ? locations[app.id] || appLocations.DOCK : appLocations.DOCK;
 
-			return location === 'both' || location === surface;
+			return location === appLocations.BOTH || location === surface;
 		}
 
 		function isFixedDockApp(app) {
@@ -195,9 +217,11 @@
 				: {};
 			const location = app && app.id && typeof fixedLocations[app.id] === 'string'
 				? fixedLocations[app.id]
-				: 'dock';
+				: appLocations.DOCK;
 
-			return ['dock', 'desktop', 'both', 'hidden'].includes(location) ? location : 'dock';
+			return [appLocations.DOCK, appLocations.DESKTOP, appLocations.BOTH, appLocations.HIDDEN].includes(location)
+				? location
+				: appLocations.DOCK;
 		}
 
 		function normalizeFixedLocationForShell(location, hasLauncher) {
@@ -205,11 +229,11 @@
 				return location;
 			}
 
-			if (location === 'both') {
-				return 'desktop';
+			if (location === appLocations.BOTH) {
+				return appLocations.DESKTOP;
 			}
 
-			return location === 'dock' ? 'hidden' : location;
+			return location === appLocations.DOCK ? appLocations.HIDDEN : location;
 		}
 
 		function launcherShowsSeparator() {
@@ -223,7 +247,7 @@
 		function getDesktopIconLabelOverride(appId) {
 			const workspaceState = config.workspaceState && typeof config.workspaceState === 'object' ? config.workspaceState : {};
 			const icons = Array.isArray(workspaceState.desktopIcons) ? workspaceState.desktopIcons : [];
-			const icon = icons.find((item) => item && item.id === `app:${appId}` && typeof item.label === 'string' && item.label.trim());
+			const icon = icons.find((item) => item && item.id === getDesktopAppIconId(appId) && typeof item.label === 'string' && item.label.trim());
 
 			return icon ? icon.label.trim() : '';
 		}
@@ -250,7 +274,7 @@
 
 			button.type = 'button';
 			button.className = fixed ? 'pdk-dock-item pdk-tooltip-trigger pdk-dock-fixed-item' : 'pdk-dock-item pdk-tooltip-trigger';
-			button.dataset.pdkContext = 'dock-app';
+			button.dataset.pdkContext = contextTargets.DOCK_APP || 'dock-app';
 			button.dataset.pdkContextId = app.id;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkOpenApp = app.id;
@@ -259,7 +283,7 @@
 			}
 			button.draggable = false;
 			button.setAttribute('aria-label', appBadges.getAriaLabel(label, app));
-			button.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
+			button.appendChild(dom.createIcon(app.icon));
 			if (badge) {
 				button.appendChild(badge);
 			}
@@ -283,19 +307,19 @@
 
 			button.type = 'button';
 			button.className = 'pdk-desktop-icon pdk-desktop-app';
-			button.dataset.pdkContext = 'desktop-app';
+			button.dataset.pdkContext = contextTargets.DESKTOP_APP || 'desktop-app';
 			button.dataset.pdkContextId = app.id;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkDesktopIcon = '';
 			button.dataset.pdkDesktopIconDefaultLabel = defaultLabel;
-			button.dataset.pdkDesktopIconId = `app:${app.id}`;
+			button.dataset.pdkDesktopIconId = getDesktopAppIconId(app.id);
 			button.dataset.pdkDesktopIconKind = 'app';
 			button.dataset.pdkOpenApp = app.id;
 			if (labelOverride) {
 				button.dataset.pdkDesktopIconLabelOverride = '1';
 			}
 			button.setAttribute('aria-label', appBadges.getAriaLabel(label, badgeInfo));
-			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
+			icon.appendChild(dom.createIcon(app.icon));
 			if (badge) {
 				icon.appendChild(badge);
 			}
@@ -309,7 +333,7 @@
 		}
 
 		if (window.PufferDesk.events && typeof window.PufferDesk.events.on === 'function') {
-			window.PufferDesk.events.on('app:running-state-changed', syncRunningDockItems);
+			window.PufferDesk.events.on(eventNames.APP_RUNNING_STATE_CHANGED, syncRunningDockItems);
 		}
 
 		function syncDesktopManagers() {
@@ -338,7 +362,7 @@
 			if (dock) {
 				const minimizedWindows = dock.querySelector('.pdk-dock-minimized-windows');
 				const dockEndAnchor = getDockEndAnchor(dock);
-				const dockApps = apps.filter((app) => appIsShownIn(app, 'dock', normalizedLocations));
+				const dockApps = apps.filter((app) => appIsShownIn(app, appLocations.DOCK, normalizedLocations));
 				const fixedDockApps = dockApps.filter(isFixedDockApp);
 				const regularDockApps = dockApps.filter((app) => !isFixedDockApp(app));
 				const orderedDockApps = window.PufferDesk.desktopDock && typeof window.PufferDesk.desktopDock.orderApps === 'function'
@@ -372,7 +396,7 @@
 			}
 
 			let layer = desktop.querySelector('.pdk-desktop-apps');
-			const desktopApps = apps.filter((app) => appIsShownIn(app, 'desktop', normalizedLocations));
+			const desktopApps = apps.filter((app) => appIsShownIn(app, appLocations.DESKTOP, normalizedLocations));
 
 			if (!desktopApps.length) {
 				if (layer) {

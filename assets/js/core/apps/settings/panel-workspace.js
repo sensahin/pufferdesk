@@ -19,6 +19,9 @@
 		const workspace = config.workspace && typeof config.workspace === 'object' ? config.workspace : {};
 		const api = window.PufferDesk.services && window.PufferDesk.services.api ? window.PufferDesk.services.api : null;
 		const dialogs = window.PufferDesk.shellDialogs || null;
+		const storageKeys = window.PufferDesk.session && window.PufferDesk.session.storageKeys
+			? window.PufferDesk.session.storageKeys
+			: {};
 		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-workspace-panel');
 		const section = createSection('', 'pdk-settings-list pdk-settings-workspace-list');
 
@@ -45,7 +48,6 @@
 			}
 
 			try {
-				const prefix = `pufferDesk:${userId}:`;
 				const storage = window.localStorage;
 				const keys = [];
 
@@ -54,7 +56,7 @@
 				}
 
 				keys.forEach((key) => {
-					if (key && key.indexOf(prefix) === 0 && key.endsWith(':session')) {
+					if (typeof storageKeys.isWorkspaceSessionKey === 'function' && storageKeys.isWorkspaceSessionKey(key, userId)) {
 						storage.removeItem(key);
 					}
 				});
@@ -71,7 +73,7 @@
 
 		function confirmReset(action) {
 			const options = {
-				cancelLabel: t('workspace.cancelLabel', 'Cancel'),
+				cancelLabel: t('workspace.cancelLabel'),
 				confirmLabel: action.confirmLabel,
 				message: action.message,
 				title: action.title
@@ -86,9 +88,9 @@
 
 		function resetCurrentLayout() {
 			const action = {
-				confirmLabel: t('workspace.resetCurrentConfirmLabel', 'Reset'),
-				message: t('workspace.resetCurrentMessage', 'This resets the saved windows, widgets, desktop icons, and launcher order for the current theme.'),
-				title: t('workspace.resetCurrentTitle', 'Reset Current Theme Layout?')
+				confirmLabel: t('workspace.resetCurrentConfirmLabel'),
+				message: t('workspace.resetCurrentMessage'),
+				title: t('workspace.resetCurrentTitle')
 			};
 
 			confirmReset(action).then((confirmed) => {
@@ -96,7 +98,7 @@
 					return;
 				}
 
-				status.textContent = t('workspace.resettingLabel', 'Resetting...');
+				status.textContent = t('workspace.resettingLabel');
 				skipWindowRestoreOnce();
 
 				const store = getSessionStore();
@@ -110,9 +112,9 @@
 
 		function resetAllLayouts() {
 			const action = {
-				confirmLabel: t('workspace.resetAllConfirmLabel', 'Reset All'),
-				message: t('workspace.resetAllMessage', 'This resets saved workspace layouts for every PufferDesk theme for this WordPress account.'),
-				title: t('workspace.resetAllTitle', 'Reset Layouts for All Themes?')
+				confirmLabel: t('workspace.resetAllConfirmLabel'),
+				message: t('workspace.resetAllMessage'),
+				title: t('workspace.resetAllTitle')
 			};
 
 			confirmReset(action).then((confirmed) => {
@@ -121,11 +123,11 @@
 				}
 
 				if (!api || typeof api.post !== 'function' || !workspace.resetAction) {
-					status.textContent = t('workspace.resetError', 'Workspace layout could not be reset.');
+					status.textContent = t('workspace.resetError');
 					return;
 				}
 
-				status.textContent = t('workspace.resettingLabel', 'Resetting...');
+				status.textContent = t('workspace.resettingLabel');
 				skipWindowRestoreOnce();
 				api.post(workspace.resetAction, {
 					scope: 'all',
@@ -135,7 +137,7 @@
 						if (!result || !result.success) {
 							status.textContent = result && result.data && result.data.message
 								? result.data.message
-								: t('workspace.resetError', 'Workspace layout could not be reset.');
+								: t('workspace.resetError');
 							return;
 						}
 
@@ -143,31 +145,31 @@
 						reloadShell();
 					})
 					.catch((error) => {
-						status.textContent = error && error.message ? error.message : t('workspace.resetError', 'Workspace layout could not be reset.');
+						status.textContent = error && error.message ? error.message : t('workspace.resetError');
 					});
 			});
 		}
 
-		const currentButton = createButton(t('workspace.resetCurrentButton', 'Reset Current Theme Layout'), 'pdk-settings-button');
-		const allButton = createButton(t('workspace.resetAllButton', 'Reset Layouts for All Themes'), 'pdk-settings-button pdk-settings-danger-button');
+		const currentButton = createButton(t('workspace.resetCurrentButton'), 'pdk-settings-button');
+		const allButton = createButton(t('workspace.resetAllButton'), 'pdk-settings-button pdk-settings-danger-button');
 
 		currentButton.addEventListener('click', resetCurrentLayout);
 		allButton.addEventListener('click', resetAllLayouts);
 
 		section.appendChild(createSettingsRow(
-			t('workspace.resetCurrentLabel', 'Current theme layout'),
+			t('workspace.resetCurrentLabel'),
 			currentButton,
-			t('workspace.resetCurrentDescription', 'Reset windows, widgets, desktop icons, and launcher order for the active theme.'),
+			t('workspace.resetCurrentDescription'),
 			'pdk-settings-row-fluid-label'
 		));
 		section.appendChild(createSettingsRow(
-			t('workspace.resetAllLabel', 'All theme layouts'),
+			t('workspace.resetAllLabel'),
 			allButton,
-			t('workspace.resetAllDescription', 'Clear saved workspace layouts across every theme for this WordPress account.'),
+			t('workspace.resetAllDescription'),
 			'pdk-settings-row-fluid-label'
 		));
 
-		panel.appendChild(createSectionHeading(t('workspace.title', 'Workspace')));
+		panel.appendChild(createSectionHeading(t('workspace.title')));
 		panel.appendChild(section);
 
 		return panel;

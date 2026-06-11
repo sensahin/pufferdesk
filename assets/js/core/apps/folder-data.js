@@ -8,10 +8,12 @@
 		const apps = Array.isArray(options.apps) ? options.apps : [];
 		const folders = Array.isArray(options.folders) ? options.folders : [];
 		const appMap = options.appMap instanceof Map ? options.appMap : new Map(apps.map((app) => [app.id, app]));
+		const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
+		const eventNames = window.PufferDesk.events && window.PufferDesk.events.names ? window.PufferDesk.events.names : {};
 		const folderMap = new Map(folders.map((folder) => [folder.id, folder]));
-		const trashFolderId = options.trashFolderId || 'trash';
+		const trashFolderId = options.trashFolderId || appIds.TRASH;
 		const getFolderProvider = typeof options.getFolderProvider === 'function' ? options.getFolderProvider : () => null;
-		const getMenuLabel = typeof options.getMenuLabel === 'function' ? options.getMenuLabel : (key, fallback) => fallback;
+		const getMenuLabel = typeof options.getMenuLabel === 'function' ? options.getMenuLabel : (key, fallback) => fallback || key;
 		const isHiddenFromLaunchSurfaces = typeof options.isHiddenFromLaunchSurfaces === 'function' ? options.isHiddenFromLaunchSurfaces : () => false;
 		const documentStore = options.documentStore || null;
 		const virtualFilesystem = options.virtualFilesystem || null;
@@ -24,7 +26,7 @@
 		}
 
 		function getTrashFolder() {
-			const app = appMap.get('trash') || {};
+			const app = appMap.get(trashFolderId) || {};
 			const virtualFolder = virtualFilesystem && typeof virtualFilesystem.getFolder === 'function'
 				? virtualFilesystem.getFolder(trashFolderId)
 				: null;
@@ -33,7 +35,7 @@
 				icon: app.icon || 'dashicons-trash',
 				id: trashFolderId,
 				kind: 'system',
-				label: getMenuLabel('trash', 'Trash'),
+				label: getMenuLabel('trash'),
 				path: virtualFolder && virtualFolder.path ? virtualFolder.path : '',
 				special: 'trash',
 				user: false
@@ -128,8 +130,8 @@
 				document: documentData,
 				icon,
 				id: `document-${documentId}`,
-				kindLabel: isSticky ? getMenuLabel('sticky_note', 'Sticky Note') : getMenuLabel('document', 'Document'),
-				label: documentData.title || (isSticky ? getMenuLabel('sticky_note', 'Sticky Note') : getMenuLabel('document', 'Document')),
+				kindLabel: isSticky ? getMenuLabel('sticky_note') : getMenuLabel('document'),
+				label: documentData.title || (isSticky ? getMenuLabel('sticky_note') : getMenuLabel('document')),
 				modified: documentData.modified || '',
 				path: documentData.path || '',
 				type: 'document'
@@ -251,8 +253,8 @@
 			} : null);
 		}
 
-		if (window.PufferDesk.events && typeof window.PufferDesk.events.on === 'function') {
-			window.PufferDesk.events.on('documents:changed', (detail = {}) => {
+		if (window.PufferDesk.events && typeof window.PufferDesk.events.on === 'function' && eventNames.DOCUMENTS_CHANGED) {
+			window.PufferDesk.events.on(eventNames.DOCUMENTS_CHANGED, (detail = {}) => {
 				const documentData = detail && detail.document ? detail.document : null;
 				const parentPath = documentData && documentData.parentPath ? documentData.parentPath : '';
 				const folderId = parentPath && virtualFilesystem && typeof virtualFilesystem.getFolderIdForPath === 'function'

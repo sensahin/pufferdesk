@@ -11,6 +11,10 @@ defined( 'ABSPATH' ) || exit;
  * Handles load/save/reset actions for user workspace state.
  */
 final class PufferDesk_Workspace_Controller {
+	const ACTION_LOAD  = 'pufferdesk_load_workspace_state';
+	const ACTION_SAVE  = 'pufferdesk_save_workspace_state';
+	const ACTION_RESET = 'pufferdesk_reset_workspace_state';
+
 	/**
 	 * User preferences.
 	 *
@@ -73,9 +77,9 @@ final class PufferDesk_Workspace_Controller {
 	 * Register AJAX hooks.
 	 */
 	public function hooks() {
-		add_action( 'wp_ajax_pufferdesk_load_workspace_state', array( $this, 'load_state' ) );
-		add_action( 'wp_ajax_pufferdesk_save_workspace_state', array( $this, 'save_state' ) );
-		add_action( 'wp_ajax_pufferdesk_reset_workspace_state', array( $this, 'reset_state' ) );
+		add_action( 'wp_ajax_' . self::ACTION_LOAD, array( $this, 'load_state' ) );
+		add_action( 'wp_ajax_' . self::ACTION_SAVE, array( $this, 'save_state' ) );
+		add_action( 'wp_ajax_' . self::ACTION_RESET, array( $this, 'reset_state' ) );
 	}
 
 	/**

@@ -22,10 +22,38 @@
 		return hasValue(value) ? String(value) : fallback;
 	}
 
-	function formatDate(value) {
+	function getInfoPanelLabels() {
+		const configApi = window.PufferDesk.config;
+		const config = configApi && typeof configApi.get === 'function' ? configApi.get() : {};
+		const infoPanel = config.infoPanel && typeof config.infoPanel === 'object' ? config.infoPanel : {};
+
+		return infoPanel.labels && typeof infoPanel.labels === 'object' ? infoPanel.labels : {};
+	}
+
+	function getInfoPanelLabel(key, fallback = '', labels = null) {
+		const source = labels && typeof labels === 'object' ? labels : getInfoPanelLabels();
+		const value = source[key];
+
+		return typeof value === 'string' && value ? value : fallback;
+	}
+
+	function formatInfoPanelLabel(key, fallback = '', values = [], labels = null) {
+		const source = labels && typeof labels === 'object' ? labels : getInfoPanelLabels();
+		const configApi = window.PufferDesk.config;
+
+		if (configApi && typeof configApi.formatFromLabels === 'function') {
+			return configApi.formatFromLabels(source, key, fallback, values);
+		}
+
+		let index = 0;
+
+		return String(getInfoPanelLabel(key, fallback, source)).replace(/%d|%s/g, () => String(values[index++] ?? ''));
+	}
+
+	function formatDate(value, labels = null) {
 		const timestamp = Date.parse(value);
 		if (!Number.isFinite(timestamp)) {
-			return 'Not available';
+			return getInfoPanelLabel('notAvailable', '', labels);
 		}
 
 		return new Intl.DateTimeFormat(undefined, {
@@ -47,7 +75,7 @@
 		const header = dom.createElement('header', 'pdk-info-panel-header');
 		const icon = dom.createElement('span', 'pdk-info-panel-icon');
 		const headline = dom.createElement('div', 'pdk-info-panel-headline');
-		const title = dom.createElement('h1', 'pdk-info-panel-title', getText(options.title, 'Info'));
+		const title = dom.createElement('h1', 'pdk-info-panel-title', getText(options.title, getInfoPanelLabel('infoFallbackTitle')));
 		const subtitle = dom.createElement('p', 'pdk-info-panel-subtitle', getText(options.subtitle));
 
 		icon.appendChild(dom.createIcon(options.icon || 'dashicons-info'));
@@ -108,7 +136,7 @@
 		button.type = 'button';
 		button.className = 'pdk-info-panel-button';
 		addClassNames(button, options.className);
-		button.textContent = options.label || 'More Info...';
+		button.textContent = options.label || getInfoPanelLabel('moreInfoLabel');
 		button.addEventListener('click', () => {
 			if (typeof options.onClick === 'function') {
 				options.onClick();
@@ -148,7 +176,7 @@
 
 		const description = document.createElement('span');
 		description.className = 'pdk-info-panel-value';
-		description.textContent = hasValue(value) ? value : 'Not available';
+		description.textContent = hasValue(value) ? value : getInfoPanelLabel('notAvailable');
 
 		row.append(term, description);
 		body.appendChild(row);
@@ -249,14 +277,15 @@
 	function openSiteMoreInfo(siteInfo = {}) {
 		const commands = window.PufferDesk && window.PufferDesk.menuCommands;
 		const command = siteInfo.moreInfoCommand || '';
+		const labels = getInfoPanelLabels();
 
 		if (command && commands && typeof commands.execute === 'function') {
 			const didExecute = commands.execute({
 				command,
 				icon: siteInfo.moreInfoIcon || 'dashicons-info',
-				label: siteInfo.moreInfoLabel || 'More Info...',
+				label: siteInfo.moreInfoLabel || getInfoPanelLabel('moreInfoLabel', '', labels),
 				panel: siteInfo.moreInfoPanel || '',
-				title: siteInfo.moreInfoTitle || siteInfo.moreInfoLabel || 'More Info...',
+				title: siteInfo.moreInfoTitle || siteInfo.moreInfoLabel || getInfoPanelLabel('moreInfoLabel', '', labels),
 				url: siteInfo.moreInfoUrl || ''
 			});
 
@@ -266,18 +295,19 @@
 		}
 
 		if (siteInfo.moreInfoUrl && window.PufferDesk.appLauncher && typeof window.PufferDesk.appLauncher.openUrl === 'function') {
-			window.PufferDesk.appLauncher.openUrl(siteInfo.moreInfoUrl, siteInfo.moreInfoTitle || 'Site Health Info', siteInfo.moreInfoIcon || 'dashicons-heart');
+			window.PufferDesk.appLauncher.openUrl(siteInfo.moreInfoUrl, siteInfo.moreInfoTitle || getInfoPanelLabel('siteHealthInfoTitle', '', labels), siteInfo.moreInfoIcon || 'dashicons-heart');
 		}
 	}
 
 	function createSiteAboutWindow(siteInfo = {}) {
+		const labels = getInfoPanelLabels();
 		const aboutSubtitle = siteInfo.aboutSubtitle || siteInfo.tagline || siteInfo.url || '';
 		const specs = Array.isArray(siteInfo.aboutRows) ? siteInfo.aboutRows : (Array.isArray(siteInfo.rows) ? siteInfo.rows : []);
 
 		return createInfoPanelWindow({
 			action: siteInfo.moreInfoCommand || siteInfo.moreInfoUrl ? {
 				className: 'pdk-site-about-button',
-				label: siteInfo.moreInfoLabel || 'More Info...',
+				label: siteInfo.moreInfoLabel || getInfoPanelLabel('moreInfoLabel', '', labels),
 				onClick: () => openSiteMoreInfo(siteInfo)
 			} : null,
 			className: 'pdk-site-about',
@@ -290,44 +320,48 @@
 			specsClassName: 'pdk-site-about-specs',
 			subtitle: aboutSubtitle,
 			subtitleClassName: 'pdk-site-about-subtitle',
-			title: siteInfo.name || 'WordPress Site',
+			title: siteInfo.name || getInfoPanelLabel('wordpressSiteTitle', '', labels),
 			variant: 'site'
 		});
 	}
 
 	function createFolderInfoWindow(info = {}, actions = {}) {
+		const labels = getInfoPanelLabels();
 		const itemCount = Number.parseInt(info.itemCount, 10) || 0;
-		const general = createDisclosure('General:');
-		const more = createDisclosure('More Info:');
-		const name = createDisclosure('Name & Extension:');
-		const comments = createDisclosure('Comments:');
-		const preview = createDisclosure('Preview:', { open: false });
-		const permissions = createDisclosure('Sharing & Permissions:', { open: false });
+		const itemCountLabel = plural(itemCount, getInfoPanelLabel('itemSingular', '', labels), getInfoPanelLabel('itemPlural', '', labels));
+		const appCountLabel = plural(itemCount, getInfoPanelLabel('applicationSingular', '', labels), getInfoPanelLabel('applicationPlural', '', labels));
+		const folderFallbackTitle = getInfoPanelLabel('folderFallbackTitle', '', labels);
+		const general = createDisclosure(getInfoPanelLabel('generalSection', '', labels));
+		const more = createDisclosure(getInfoPanelLabel('moreInfoSection', '', labels));
+		const name = createDisclosure(getInfoPanelLabel('nameExtensionSection', '', labels));
+		const comments = createDisclosure(getInfoPanelLabel('commentsSection', '', labels));
+		const preview = createDisclosure(getInfoPanelLabel('previewSection', '', labels), { open: false });
+		const permissions = createDisclosure(getInfoPanelLabel('sharingPermissionsSection', '', labels), { open: false });
 
-		appendDefinition(general.body, 'Kind', info.kind || 'Folder');
-		appendDefinition(general.body, 'Size', `${plural(itemCount, 'item', 'items')} in this folder`);
-		appendDefinition(general.body, 'Where', info.where || 'PufferDesk');
-		appendDefinition(general.body, 'Source', info.source || 'PufferDesk');
-		appendDefinition(general.body, 'Created', formatDate(info.createdAt));
-		appendDefinition(general.body, 'Modified', formatDate(info.modifiedAt));
+		appendDefinition(general.body, getInfoPanelLabel('kindLabel', '', labels), info.kind || folderFallbackTitle);
+		appendDefinition(general.body, getInfoPanelLabel('sizeLabel', '', labels), formatInfoPanelLabel('folderSizeTemplate', '', [itemCountLabel], labels));
+		appendDefinition(general.body, getInfoPanelLabel('whereLabel', '', labels), info.where || 'PufferDesk');
+		appendDefinition(general.body, getInfoPanelLabel('sourceLabel', '', labels), info.source || 'PufferDesk');
+		appendDefinition(general.body, getInfoPanelLabel('createdLabel', '', labels), formatDate(info.createdAt, labels));
+		appendDefinition(general.body, getInfoPanelLabel('modifiedLabel', '', labels), formatDate(info.modifiedAt, labels));
 
 		const checks = document.createElement('div');
 		checks.className = 'pdk-info-panel-checks';
-		['Shared folder', 'Locked'].forEach((label) => {
+		[getInfoPanelLabel('sharedFolder', '', labels), getInfoPanelLabel('locked', '', labels)].forEach((label) => {
 			checks.appendChild(createCheckbox(label));
 		});
 		general.body.appendChild(checks);
 
-		appendDefinition(more.body, 'Last opened', formatDate(info.lastOpenedAt));
-		appendDefinition(more.body, 'Contains', plural(itemCount, 'application', 'applications'));
+		appendDefinition(more.body, getInfoPanelLabel('lastOpenedLabel', '', labels), formatDate(info.lastOpenedAt, labels));
+		appendDefinition(more.body, getInfoPanelLabel('containsLabel', '', labels), appCountLabel);
 		if (Array.isArray(info.items) && info.items.length) {
-			appendDefinition(more.body, 'Apps', info.items.map((item) => item.label).join(', '));
+			appendDefinition(more.body, getInfoPanelLabel('appsLabel', '', labels), info.items.map((item) => item.label).join(', '));
 		}
 
 		const nameInput = document.createElement('input');
 		nameInput.className = 'pdk-info-panel-name-input';
 		nameInput.type = 'text';
-		nameInput.value = info.label || 'Folder';
+		nameInput.value = info.label || folderFallbackTitle;
 		nameInput.disabled = !info.canRename;
 		nameInput.addEventListener('change', () => {
 			if (info.canRename && typeof actions.onRename === 'function') {
@@ -335,7 +369,7 @@
 			}
 		});
 		name.body.appendChild(nameInput);
-		name.body.appendChild(createCheckbox('Hide extension', {
+		name.body.appendChild(createCheckbox(getInfoPanelLabel('hideExtension', '', labels), {
 			disabledStyle: true
 		}));
 
@@ -352,10 +386,18 @@
 
 		const previewText = document.createElement('p');
 		previewText.className = 'pdk-info-panel-muted';
-		previewText.textContent = itemCount ? `${plural(itemCount, 'application', 'applications')} available.` : 'No items to preview.';
+		previewText.textContent = itemCount
+			? formatInfoPanelLabel('previewAvailableTemplate', '', [appCountLabel], labels)
+			: getInfoPanelLabel('noPreviewItems', '', labels);
 		preview.body.appendChild(previewText);
 
-		appendDefinition(permissions.body, 'Access', info.user ? 'Private to this WordPress user' : 'Visible to users with matching WordPress capabilities');
+		appendDefinition(
+			permissions.body,
+			getInfoPanelLabel('accessLabel', '', labels),
+			info.user
+				? getInfoPanelLabel('privateUserAccess', '', labels)
+				: getInfoPanelLabel('capabilityAccess', '', labels)
+		);
 
 		return createInfoPanelWindow({
 			children: [
@@ -368,12 +410,12 @@
 			],
 			header: {
 				icon: info.icon || 'dashicons-category',
-				meta: plural(itemCount, 'item', 'items'),
-				subtitle: `Modified: ${formatDate(info.modifiedAt)}`,
-				title: info.label || 'Folder'
+				meta: itemCountLabel,
+				subtitle: formatInfoPanelLabel('modifiedTemplate', '', [formatDate(info.modifiedAt, labels)], labels),
+				title: info.label || folderFallbackTitle
 			},
 			layout: 'inspector',
-			tagsPlaceholder: 'Add Tags...',
+			tagsPlaceholder: getInfoPanelLabel('addTags', '', labels),
 			variant: 'folder'
 		});
 	}

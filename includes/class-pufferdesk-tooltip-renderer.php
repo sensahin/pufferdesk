@@ -11,6 +11,25 @@ defined( 'ABSPATH' ) || exit;
  * Renders static tooltip markup for PHP shell templates.
  */
 final class PufferDesk_Tooltip_Renderer {
+	const PLACEMENT_TOP    = 'top';
+	const PLACEMENT_RIGHT  = 'right';
+	const PLACEMENT_BOTTOM = 'bottom';
+	const PLACEMENT_LEFT   = 'left';
+
+	/**
+	 * Supported tooltip placement IDs.
+	 *
+	 * @return string[]
+	 */
+	public static function get_placement_ids() {
+		return array(
+			self::PLACEMENT_TOP,
+			self::PLACEMENT_RIGHT,
+			self::PLACEMENT_BOTTOM,
+			self::PLACEMENT_LEFT,
+		);
+	}
+
 	/**
 	 * Build trigger data attributes for a tooltip target.
 	 *
@@ -20,7 +39,7 @@ final class PufferDesk_Tooltip_Renderer {
 	 */
 	public static function get_trigger_attributes( $label, $options = array() ) {
 		$label     = (string) $label;
-		$placement = self::normalize_placement( isset( $options['placement'] ) ? $options['placement'] : 'top' );
+		$placement = self::normalize_placement( isset( $options['placement'] ) ? $options['placement'] : self::PLACEMENT_TOP );
 		$surface   = self::normalize_surface( isset( $options['surface'] ) ? $options['surface'] : '' );
 		$attrs     = array(
 			'data-pdk-tooltip'           => $label,
@@ -52,7 +71,7 @@ final class PufferDesk_Tooltip_Renderer {
 		}
 
 		$surface   = self::normalize_surface( isset( $options['surface'] ) ? $options['surface'] : '' );
-		$placement = self::normalize_placement( isset( $options['placement'] ) ? $options['placement'] : 'top' );
+		$placement = self::normalize_placement( isset( $options['placement'] ) ? $options['placement'] : self::PLACEMENT_TOP );
 		$classes   = array( 'pdk-tooltip' );
 
 		if ( '' !== $surface ) {
@@ -80,7 +99,7 @@ final class PufferDesk_Tooltip_Renderer {
 	private static function normalize_placement( $placement ) {
 		$placement = sanitize_key( (string) $placement );
 
-		return in_array( $placement, array( 'top', 'right', 'bottom', 'left' ), true ) ? $placement : 'top';
+		return in_array( $placement, self::get_placement_ids(), true ) ? $placement : self::PLACEMENT_TOP;
 	}
 
 	/**

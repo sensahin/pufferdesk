@@ -34,34 +34,34 @@
 
 		panel.dataset.pdkSettingsPanel = 'desktop-dock';
 		if (showLauncher && launcher.position !== false) {
-			dockSection.appendChild(createDesktopDockSelectRow(t('desktopDock.rows.dockPosition', 'Dock position on screen'), 'dock_position', status));
+			dockSection.appendChild(createDesktopDockSelectRow(t('desktopDock.rows.dockPosition'), 'dock_position', status));
 		}
-		dockSection.appendChild(createDesktopDockSelectRow(t('desktopDock.rows.minimizeAnimation', 'Minimized window animation'), 'minimize_animation', status));
+		dockSection.appendChild(createDesktopDockSelectRow(t('desktopDock.rows.minimizeAnimation'), 'minimize_animation', status));
 		if (showLauncher) {
-			dockSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.minimizeIntoAppIcon', 'Minimize windows into application icon'), 'minimize_into_app_icon', status));
+			dockSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.minimizeIntoAppIcon'), 'minimize_into_app_icon', status));
 		}
 
 		if (showLauncher && launcher.autoHide !== false) {
-			behaviorSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.autoHideDock', 'Automatically hide and show the Dock'), 'auto_hide_dock', status));
+			behaviorSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.autoHideDock'), 'auto_hide_dock', status));
 		}
 		if (showLauncher) {
-			behaviorSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.animateOpeningApps', 'Animate opening applications'), 'animate_opening_apps', status));
+			behaviorSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.animateOpeningApps'), 'animate_opening_apps', status));
 		}
 		if (showLauncher && launcher.indicators !== false) {
-			behaviorSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.showOpenIndicators', 'Show indicators for open applications'), 'show_open_indicators', status));
+			behaviorSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.showOpenIndicators'), 'show_open_indicators', status));
 		}
 		desktopSection.appendChild(createDesktopDockSelectRow(
-			t('desktopDock.rows.wallpaperClick', 'Click wallpaper to show desktop'),
+			t('desktopDock.rows.wallpaperClick'),
 			'wallpaper_click',
 			status,
-			t('desktopDock.rows.wallpaperClickDescription', 'Click wallpaper to move windows out of the way, revealing your desktop items and widgets.')
+			t('desktopDock.rows.wallpaperClickDescription')
 		));
 
-		widgetsSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.showWidgetsDesktop', 'Show widgets on desktop'), 'show_widgets_desktop', status));
-		widgetsSection.appendChild(createDesktopDockSelectRow(t('desktopDock.rows.dimWidgets', 'Dim widgets on desktop'), 'dim_widgets', status));
+		widgetsSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.showWidgetsDesktop'), 'show_widgets_desktop', status));
+		widgetsSection.appendChild(createDesktopDockSelectRow(t('desktopDock.rows.dimWidgets'), 'dim_widgets', status));
 
 		if (showLauncher) {
-			panel.appendChild(createSectionHeading(t('desktopDock.headings.dock', 'Dock')));
+			panel.appendChild(createSectionHeading(t('desktopDock.headings.dock')));
 			if (sliderSection && sliderSection.children.length) {
 				panel.appendChild(sliderSection);
 			}
@@ -72,11 +72,11 @@
 				panel.appendChild(behaviorSection);
 			}
 		}
-		panel.appendChild(createSectionHeading(t('desktopDock.headings.apps', 'Apps')));
+		panel.appendChild(createSectionHeading(t('desktopDock.headings.apps')));
 		panel.appendChild(appsSection);
-		panel.appendChild(createSectionHeading(t('desktopDock.headings.desktop', 'Desktop')));
+		panel.appendChild(createSectionHeading(t('desktopDock.headings.desktop')));
 		panel.appendChild(desktopSection);
-		panel.appendChild(createSectionHeading(t('desktopDock.headings.widgets', 'Widgets')));
+		panel.appendChild(createSectionHeading(t('desktopDock.headings.widgets')));
 		panel.appendChild(widgetsSection);
 
 		return panel;

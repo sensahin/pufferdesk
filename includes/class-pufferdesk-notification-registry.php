@@ -61,6 +61,7 @@ final class PufferDesk_Notification_Registry {
 				'markAllRead' => self::ACTION_MARK_ALL_READ,
 				'dismiss'     => self::ACTION_DISMISS,
 			),
+			'sourceIds'   => PufferDesk_User_Preferences::notification_source_ids(),
 			'items'       => $notifications,
 			'labels'      => array(
 				'buttonLabel'     => __( 'Notifications', 'pufferdesk-admin-desktop' ),
@@ -72,7 +73,14 @@ final class PufferDesk_Notification_Registry {
 				'markRead'        => __( 'Mark as Read', 'pufferdesk-admin-desktop' ),
 				'newNotification' => __( 'New notification', 'pufferdesk-admin-desktop' ),
 				'open'            => __( 'Open Notifications', 'pufferdesk-admin-desktop' ),
+				'pufferdeskSource' => __( 'PufferDesk', 'pufferdesk-admin-desktop' ),
+				'commandFailedMessage' => __( 'The command could not be completed.', 'pufferdesk-admin-desktop' ),
+				'commandFailedTitle' => __( 'PufferDesk command failed.', 'pufferdesk-admin-desktop' ),
 				'refresh'         => __( 'Refresh', 'pufferdesk-admin-desktop' ),
+				'refreshFailedTitle' => __( 'Notifications could not be updated.', 'pufferdesk-admin-desktop' ),
+				'runtimeActionFailedTitle' => __( 'A PufferDesk action failed.', 'pufferdesk-admin-desktop' ),
+				'runtimeErrorFallback' => __( 'Unexpected runtime error.', 'pufferdesk-admin-desktop' ),
+				'serviceUnavailable' => __( 'Notification service unavailable.', 'pufferdesk-admin-desktop' ),
 			),
 			'preferences' => $preferences,
 			'unreadCount' => $this->count_unread( $notifications ),
@@ -562,7 +570,7 @@ final class PufferDesk_Notification_Registry {
 		return array(
 			array(
 				'id'           => sanitize_key( sprintf( 'wordpress-updates-%d-%d-%d-%d', $total, $core, $plugins, $themes ) ),
-				'source'       => 'wordpress_updates',
+				'source'       => PufferDesk_User_Preferences::NOTIFICATION_SOURCE_WORDPRESS_UPDATES,
 				'source_label' => __( 'WordPress Updates', 'pufferdesk-admin-desktop' ),
 				'type'         => 'warning',
 				'title'        => sprintf(
@@ -578,7 +586,7 @@ final class PufferDesk_Notification_Registry {
 				'actions'      => array(
 					array(
 						'label'   => __( 'Open Updates', 'pufferdesk-admin-desktop' ),
-						'command' => 'open-url',
+						'command' => PufferDesk_Command_Ids::OPEN_URL,
 						'url'     => admin_url( 'update-core.php' ),
 						'title'   => __( 'WordPress Updates', 'pufferdesk-admin-desktop' ),
 						'icon'    => 'dashicons-update',
@@ -607,7 +615,7 @@ final class PufferDesk_Notification_Registry {
 		return array(
 			array(
 				'id'           => sanitize_key( 'comments-moderation-' . $pending ),
-				'source'       => 'comments',
+				'source'       => PufferDesk_User_Preferences::NOTIFICATION_SOURCE_COMMENTS,
 				'source_label' => __( 'Comments', 'pufferdesk-admin-desktop' ),
 				'type'         => 'info',
 				'title'        => sprintf(
@@ -623,7 +631,7 @@ final class PufferDesk_Notification_Registry {
 				'actions'      => array(
 					array(
 						'label'   => __( 'Review Comments', 'pufferdesk-admin-desktop' ),
-						'command' => 'open-url',
+						'command' => PufferDesk_Command_Ids::OPEN_URL,
 						'url'     => admin_url( 'edit-comments.php?comment_status=moderated' ),
 						'title'   => __( 'Comments', 'pufferdesk-admin-desktop' ),
 						'icon'    => 'dashicons-admin-comments',
@@ -659,7 +667,7 @@ final class PufferDesk_Notification_Registry {
 		return array(
 			array(
 				'id'           => sanitize_key( sprintf( 'site-health-%d-%d', $critical, $recommended ) ),
-				'source'       => 'site_health',
+				'source'       => PufferDesk_User_Preferences::NOTIFICATION_SOURCE_SITE_HEALTH,
 				'source_label' => __( 'Site Health', 'pufferdesk-admin-desktop' ),
 				'type'         => $type,
 				'title'        => $critical > 0
@@ -686,7 +694,7 @@ final class PufferDesk_Notification_Registry {
 				'actions'      => array(
 					array(
 						'label'   => __( 'Open Site Health', 'pufferdesk-admin-desktop' ),
-						'command' => 'open-url',
+						'command' => PufferDesk_Command_Ids::OPEN_URL,
 						'url'     => admin_url( 'site-health.php' ),
 						'title'   => __( 'Site Health', 'pufferdesk-admin-desktop' ),
 						'icon'    => 'dashicons-heart',

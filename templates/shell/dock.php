@@ -65,7 +65,7 @@ $pufferdesk_render_dock_app = static function ( $pufferdesk_app, $theme, $puffer
 	<button
 		type="button"
 		class="pdk-dock-item pdk-tooltip-trigger<?php echo $pufferdesk_fixed ? ' pdk-dock-fixed-item' : ''; ?>"
-		data-pdk-context="dock-app"
+		data-pdk-context="<?php echo esc_attr( PufferDesk_Context_Menu_Contracts::TARGET_DOCK_APP ); ?>"
 		data-pdk-context-id="<?php echo esc_attr( $pufferdesk_app['id'] ); ?>"
 		data-pdk-context-label="<?php echo esc_attr( $pufferdesk_app_label ); ?>"
 		<?php echo PufferDesk_Tooltip_Renderer::get_trigger_attributes( $pufferdesk_app_label, array( 'surface' => 'dock' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -94,7 +94,7 @@ if ( $pufferdesk_show_search ) {
 ?>
 <aside
 	class="<?php echo esc_attr( implode( ' ', $pufferdesk_launcher_classes ) ); ?>"
-	data-pdk-context="dock"
+	data-pdk-context="<?php echo esc_attr( PufferDesk_Context_Menu_Contracts::TARGET_DOCK ); ?>"
 	data-pdk-context-id="<?php echo esc_attr( $pufferdesk_launcher ); ?>"
 	data-pdk-context-label="<?php echo esc_attr( $pufferdesk_launcher_label ); ?>"
 	data-pdk-shell-surface="launcher"

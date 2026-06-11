@@ -223,13 +223,14 @@
 		let soundConfig = normalizeConfig(config);
 		const audioCache = new Map();
 		const lastPlayedAt = new Map();
+		const eventNames = window.PufferDesk.events && window.PufferDesk.events.names ? window.PufferDesk.events.names : {};
 		let unlocked = false;
 
 		function emitPreferencesChanged(source = 'sound-manager') {
 			const events = window.PufferDesk.events || null;
 
-			if (events && typeof events.emit === 'function') {
-				events.emit('sounds:preferencesChanged', {
+			if (events && typeof events.emit === 'function' && eventNames.SOUNDS_PREFERENCES_CHANGED) {
+				events.emit(eventNames.SOUNDS_PREFERENCES_CHANGED, {
 					preferences: getPreferences(),
 					source
 				});

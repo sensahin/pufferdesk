@@ -7,6 +7,7 @@
 	window.PufferDesk.shell.createShortcutController = function createShortcutController(shell, context = {}) {
 		const commands = context.commands || null;
 		const menuController = context.menuController || null;
+		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 		const modifierSymbols = {
 			alt: '⌥',
 			ctrl: '⌃',
@@ -258,7 +259,7 @@
 			}
 
 			commands.execute(match.item);
-			shell.dispatchEvent(new window.CustomEvent('pufferDesk:shortcut-execute', {
+			shell.dispatchEvent(new window.CustomEvent(domEventNames.SHORTCUT_EXECUTE, {
 				detail: {
 					command: match.item.command,
 					key: match.shortcut.key,

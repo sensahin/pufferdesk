@@ -31,6 +31,14 @@
 		const runningState = window.PufferDesk.apps && window.PufferDesk.apps.runningState
 			? window.PufferDesk.apps.runningState
 			: null;
+		const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
+		const contextTargets = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
+			? window.PufferDesk.shell.contextMenuConstants.targets || {}
+			: {};
+		const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
+			? window.PufferDesk.session.workspace.sections || {}
+			: {};
+		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 		const richText = window.PufferDesk.richText || null;
 		const titlebarActions = window.PufferDesk.windows && window.PufferDesk.windows.titlebarActions
 			? window.PufferDesk.windows.titlebarActions
@@ -55,7 +63,7 @@
 				syncSafeArea: () => getStickySafeArea()
 			})
 			: null;
-		const stickyNotesAppId = 'sticky-notes';
+		const stickyNotesAppId = appIds.STICKY_NOTES;
 		const noteMap = new Map();
 		let layer = null;
 		let openOptionsMenu = null;
@@ -82,13 +90,13 @@
 		function getStickyNotesAppLabel() {
 			const app = getStickyNotesApp();
 
-			return app && typeof app.label === 'string' && app.label ? app.label : getLabel('stickyNotes', 'Sticky Notes');
+			return app && typeof app.label === 'string' && app.label ? app.label : getLabel('stickyNotes');
 		}
 
 		function dispatchActiveStickyNoteChange(entry) {
 			const app = getStickyNotesApp();
 
-			shell.dispatchEvent(new window.CustomEvent('pufferDesk:active-window-change', {
+			shell.dispatchEvent(new window.CustomEvent(domEventNames.ACTIVE_WINDOW_CHANGE, {
 				detail: {
 					appId: stickyNotesAppId,
 					documentId: entry && entry.document ? entry.document.id : '',
@@ -120,7 +128,7 @@
 		}
 
 		function getLabel(key, fallback) {
-			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
+			return typeof labels[key] === 'string' && labels[key] ? labels[key] : (fallback || key);
 		}
 
 		function clamp(value, min, max) {
@@ -229,7 +237,7 @@
 			if (!layer) {
 				layer = document.createElement('section');
 				layer.className = 'pdk-sticky-note-layer';
-				layer.setAttribute('aria-label', getLabel('stickyNote', 'Sticky Notes'));
+				layer.setAttribute('aria-label', getLabel('stickyNote'));
 				desktop.appendChild(layer);
 			}
 
@@ -238,7 +246,7 @@
 
 		function getSavedNotes() {
 			return sessionStore && typeof sessionStore.getSection === 'function'
-				? sessionStore.getSection('stickyNotes', [])
+				? sessionStore.getSection(workspaceSections.STICKY_NOTES, [])
 				: [];
 		}
 
@@ -397,7 +405,7 @@
 
 		function saveLayout() {
 			if (sessionStore && typeof sessionStore.saveSection === 'function') {
-				sessionStore.saveSection('stickyNotes', serializeNotes());
+				sessionStore.saveSection(workspaceSections.STICKY_NOTES, serializeNotes());
 			}
 		}
 
@@ -430,14 +438,14 @@
 				return richText.createEditor({
 					className: 'pdk-sticky-note-content',
 					html: documentData.content || '',
-					label: documentData.title || getLabel('stickyNote', 'Sticky Note'),
-					placeholder: getLabel('stickyPlaceholder', 'Take a note...')
+					label: documentData.title || getLabel('stickyNote'),
+					placeholder: getLabel('stickyPlaceholder')
 				});
 			}
 
 			const content = document.createElement('textarea');
 			content.className = 'pdk-sticky-note-content';
-			content.placeholder = getLabel('stickyPlaceholder', 'Take a note...');
+			content.placeholder = getLabel('stickyPlaceholder');
 			content.value = documentData.content || '';
 
 			return content;
@@ -462,7 +470,7 @@
 			if (!toolbar.classList.contains(className)) {
 				toolbar.classList.add(className);
 			}
-			toolbar.setAttribute('aria-label', getLabel('formatting', 'Formatting'));
+			toolbar.setAttribute('aria-label', getLabel('formatting'));
 			if (!richText || typeof richText.createToolbar !== 'function') {
 				toolbar.innerHTML = getFormatToolbarMarkup();
 			}
@@ -607,8 +615,8 @@
 			closeNoteOptionsMenu();
 
 			const menu = document.createElement('div');
-			const notesListButton = createOptionsMenuItem('is-notes-list', getLabel('notesList', 'Notes list'));
-			const deleteButton = createOptionsMenuItem('is-delete-note', getLabel('deleteNote', 'Delete Note'));
+			const notesListButton = createOptionsMenuItem('is-notes-list', getLabel('notesList'));
+			const deleteButton = createOptionsMenuItem('is-delete-note', getLabel('deleteNote'));
 
 			menu.className = 'pdk-sticky-note-options';
 			menu.setAttribute('role', 'menu');
@@ -791,7 +799,7 @@
 
 			const dialogs = getDialogs();
 			const fallback = () => {
-				if (window.confirm && !window.confirm(getLabel('deleteStickyNote', 'Delete this note?'))) {
+				if (window.confirm && !window.confirm(getLabel('deleteStickyNote'))) {
 					return Promise.resolve(false);
 				}
 
@@ -807,23 +815,23 @@
 					{
 						default: true,
 						id: 'save',
-						label: getLabel('saveEllipsis', 'Save...'),
+						label: getLabel('saveEllipsis'),
 						variant: 'primary'
 					},
 					{
 						id: 'delete',
-						label: getLabel('deleteNote', 'Delete Note'),
+						label: getLabel('deleteNote'),
 						variant: 'danger'
 					},
 					{
 						id: 'cancel',
-						label: getLabel('cancel', 'Cancel'),
+						label: getLabel('cancel'),
 						variant: 'cancel'
 					}
 				],
 				cancelAction: 'cancel',
 				icon: 'dashicons-sticky',
-				message: getLabel('discardNoteMessage', 'Are you sure you want to discard this sticky note?'),
+				message: getLabel('discardNoteMessage'),
 				style: 'floating',
 				title: getLabel('discardNoteTitle', "If you don't save this note, its contents will be lost."),
 				variant: 'sticky-note-discard'
@@ -992,19 +1000,19 @@
 				formatCleanup: null,
 				saveTask: null
 			};
-			const createButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-new', getLabel('newStickyNote', 'New Sticky Note'), '+');
-			const discardButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-discard', getLabel('discardNote', 'Discard Note'), '');
-			const menuButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-menu', getLabel('noteOptions', 'Note options'), '...');
-			const fullscreenButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-fullscreen', getLabel('fullscreenNote', 'Make Full Screen'), '');
-			const collapseButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-collapse', getLabel('hideNote', 'Hide Note'), '');
-			const closeButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-close', getLabel('close', 'Close'), 'x');
+			const createButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-new', getLabel('newStickyNote'), '+');
+			const discardButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-discard', getLabel('discardNote'), '');
+			const menuButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-menu', getLabel('noteOptions'), '...');
+			const fullscreenButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-fullscreen', getLabel('fullscreenNote'), '');
+			const collapseButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-collapse', getLabel('hideNote'), '');
+			const closeButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-close', getLabel('close'), 'x');
 
 			noteElement.className = 'pdk-sticky-note';
-			noteElement.dataset.pdkContext = 'sticky-note';
+			noteElement.dataset.pdkContext = contextTargets.STICKY_NOTE || 'sticky-note';
 			noteElement.dataset.pdkContextMenuDisabled = '1';
 			noteElement.dataset.pdkContextId = String(documentId);
 			noteElement.dataset.pdkResizeMode = 'both';
-			noteElement.setAttribute('aria-label', documentData.title || getLabel('stickyNote', 'Sticky Note'));
+			noteElement.setAttribute('aria-label', documentData.title || getLabel('stickyNote'));
 			applyNoteColor(entry, documentData.color);
 			dragHandle.className = 'pdk-sticky-note-chrome';
 			dragHandle.dataset.pdkStickyNoteDragHandle = '1';
@@ -1052,7 +1060,7 @@
 			return documentStore.create({
 				content: '',
 				kind: getStickyKind(),
-				title: getLabel('stickyNote', 'Sticky Note')
+				title: getLabel('stickyNote')
 			}).then((documentData) => {
 				const noteElement = renderNote(documentData, normalizeCreateState(state));
 				if (noteElement) {

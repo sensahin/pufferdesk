@@ -109,7 +109,9 @@ final class PufferDesk_Widget_Layout {
 	 */
 	private static function get_saved_widget_state( $widget, $workspace_state ) {
 		$widget_id = isset( $widget['id'] ) ? sanitize_key( (string) $widget['id'] ) : '';
-		$widgets   = isset( $workspace_state['widgets'] ) && is_array( $workspace_state['widgets'] ) ? $workspace_state['widgets'] : array();
+		$widgets   = isset( $workspace_state[ PufferDesk_Workspace_State::SECTION_WIDGETS ] ) && is_array( $workspace_state[ PufferDesk_Workspace_State::SECTION_WIDGETS ] )
+			? $workspace_state[ PufferDesk_Workspace_State::SECTION_WIDGETS ]
+			: array();
 
 		if ( '' === $widget_id ) {
 			return array();

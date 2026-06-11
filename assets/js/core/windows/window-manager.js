@@ -14,6 +14,16 @@
 		const eventBus = window.PufferDesk.events && typeof window.PufferDesk.events.emit === 'function'
 			? window.PufferDesk.events
 			: null;
+		const eventNames = eventBus && eventBus.names ? eventBus.names : {};
+		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
+		const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
+			? window.PufferDesk.session.workspace.sections || {}
+			: {};
+		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
+			? window.PufferDesk.session.workspace.windowKinds || {}
+			: {};
+		const iframeQueryKey = window.PufferDesk.config.getRouterQueryKey('iframe');
+		const iframeQueryValue = window.PufferDesk.config.getRouterValue('true');
 		let zIndex = 30;
 		let windowId = 0;
 		let activeWindow = null;
@@ -86,7 +96,7 @@
 				appId: win && win.dataset ? win.dataset.pdkAppWindow || '' : '',
 				folderId,
 				hidden: Boolean(win && win.classList.contains('is-hidden')),
-				kind: win && win.dataset ? win.dataset.pdkWindowKind || (win.dataset.pdkAppWindow ? 'app' : 'window') : '',
+				kind: win && win.dataset ? win.dataset.pdkWindowKind || (win.dataset.pdkAppWindow ? windowKinds.APP || 'app' : windowKinds.WINDOW || 'window') : '',
 				maximized: Boolean(win && win.classList.contains('is-maximized')),
 				restoring: restoreInProgress,
 				state,
@@ -106,19 +116,23 @@
 		}
 
 		function emitWindowStateChanged(win, change, detail = {}) {
-			return emitWindowEvent('window:stateChanged', win, Object.assign({
+			return emitWindowEvent(eventNames.WINDOW_STATE_CHANGED, win, Object.assign({
 				change
 			}, detail));
 		}
 
 		function withIframeParam(url) {
+			if (!iframeQueryKey || !iframeQueryValue) {
+				return url;
+			}
+
 			try {
 				const next = new URL(url, window.location.origin);
-				next.searchParams.set('pufferdesk_iframe', '1');
+				next.searchParams.set(iframeQueryKey, iframeQueryValue);
 				return next.toString();
 			} catch (error) {
 				const joiner = url.indexOf('?') === -1 ? '?' : '&';
-				return `${url}${joiner}pufferdesk_iframe=1`;
+				return `${url}${joiner}${window.encodeURIComponent(iframeQueryKey)}=${window.encodeURIComponent(iframeQueryValue)}`;
 			}
 		}
 
@@ -274,7 +288,7 @@
 				closed: true
 			});
 
-			emitWindowEvent('window:closed', win, {
+			emitWindowEvent(eventNames.WINDOW_CLOSED, win, {
 				appId: appId || win.dataset.pdkAppWindow || '',
 				state: closedState
 			});
@@ -305,7 +319,7 @@
 				appId: win.dataset.pdkAppWindow || '',
 				folderId,
 				id,
-				kind: win.dataset.pdkWindowKind || (win.dataset.pdkAppWindow ? 'app' : 'window'),
+				kind: win.dataset.pdkWindowKind || (win.dataset.pdkAppWindow ? windowKinds.APP || 'app' : windowKinds.WINDOW || 'window'),
 				menu: win.pdkMenu || null,
 				title: win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || '',
 				toolbarDisplay: win.dataset.pdkFolderToolbarDisplay || '',
@@ -316,7 +330,7 @@
 		}
 
 		function dispatchActiveWindowChange() {
-			shell.dispatchEvent(new window.CustomEvent('pufferDesk:active-window-change', {
+			shell.dispatchEvent(new window.CustomEvent(domEventNames.ACTIVE_WINDOW_CHANGE, {
 				detail: getActiveWindowDetail(activeWindow)
 			}));
 		}
@@ -330,7 +344,7 @@
 
 			fullscreenState = fullscreen;
 			shell.dataset.pdkFullscreenWindow = fullscreen ? '1' : '0';
-			shell.dispatchEvent(new window.CustomEvent('pufferDesk:fullscreen-window-change', {
+			shell.dispatchEvent(new window.CustomEvent(domEventNames.FULLSCREEN_WINDOW_CHANGE, {
 				detail: {
 					fullscreen
 				}
@@ -349,7 +363,7 @@
 			dispatchActiveWindowChange();
 			syncFullscreenState();
 			if (activeWindow && activeWindow !== previousWindow) {
-				emitWindowEvent('window:focused', activeWindow, {
+				emitWindowEvent(eventNames.WINDOW_FOCUSED, activeWindow, {
 					previousWindowElement: previousWindow || null,
 					previousWindowId: previousWindow ? getWindowId(previousWindow) : ''
 				});
@@ -477,7 +491,7 @@
 			}
 
 			preserveStoredWindowsUntilChange = false;
-			sessionStore.saveSection('windows', windows);
+			sessionStore.saveSection(workspaceSections.WINDOWS, windows);
 		}
 
 		function scheduleSave() {
@@ -523,7 +537,7 @@
 			}
 
 			bindWindowFrame(win);
-			emitWindowEvent('window:created', win, {
+			emitWindowEvent(eventNames.WINDOW_CREATED, win, {
 				options: windowOptions
 			});
 			emitWindowStateChanged(win, 'created');
@@ -597,7 +611,7 @@
 		}
 
 		function restoreSession(resolver) {
-			const windows = sessionStore.getSection('windows', []);
+			const windows = sessionStore.getSection(workspaceSections.WINDOWS, []);
 			if (!Array.isArray(windows)) {
 				return;
 			}
@@ -609,7 +623,7 @@
 					return;
 				}
 
-				if (item.kind === 'folder') {
+				if (item.kind === (windowKinds.FOLDER || 'folder')) {
 					if (item.folderId && resolver && typeof resolver.openFolder === 'function') {
 						resolver.openFolder(item.folderId, {
 							activeTabId: item.activeTabId || '',
@@ -623,7 +637,7 @@
 					return;
 				}
 
-				if (item.kind !== 'app' || !item.appId) {
+				if (item.kind !== (windowKinds.APP || 'app') || !item.appId) {
 					return;
 				}
 
@@ -655,7 +669,7 @@
 			});
 		}
 
-		shell.addEventListener('pufferDesk:desktop-dock-change', () => {
+		shell.addEventListener(domEventNames.DESKTOP_DOCK_CHANGE, () => {
 			syncMinimizedDockItems();
 			constrainVisibleWindows();
 			if (!shouldWallpaperClickShowDesktop()) {
@@ -663,7 +677,7 @@
 			}
 		});
 
-		shell.addEventListener('pufferDesk:menu-bar-layout-change', () => {
+		shell.addEventListener(domEventNames.MENU_BAR_LAYOUT_CHANGE, () => {
 			constrainVisibleWindows();
 		});
 

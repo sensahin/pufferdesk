@@ -27,15 +27,15 @@ $pufferdesk_folders_layer_class   .= $pufferdesk_folders_layer_restored ? ' is-m
 		<button
 			type="button"
 			class="pdk-desktop-icon pdk-desktop-folder"
-			data-pdk-context="desktop-folder"
+			data-pdk-context="<?php echo esc_attr( PufferDesk_Context_Menu_Contracts::TARGET_DESKTOP_FOLDER ); ?>"
 			data-pdk-context-id="<?php echo esc_attr( $pufferdesk_folder['id'] ); ?>"
 			data-pdk-context-label="<?php echo esc_attr( $pufferdesk_folder['label'] ); ?>"
 			data-pdk-desktop-icon
-			data-pdk-desktop-icon-id="<?php echo esc_attr( 'folder:' . $pufferdesk_folder['id'] ); ?>"
+			data-pdk-desktop-icon-id="<?php echo esc_attr( PufferDesk_Workspace_State::desktop_folder_icon_id( $pufferdesk_folder['id'] ) ); ?>"
 			data-pdk-desktop-icon-kind="folder"
 			data-pdk-open-folder="<?php echo esc_attr( $pufferdesk_folder['id'] ); ?>"
 			<?php if ( $pufferdesk_folders_layer_restored ) : ?>
-				<?php PufferDesk_Desktop_Layout::render_icon_attributes( 'folder:' . $pufferdesk_folder['id'], $pufferdesk_workspace_state ); ?>
+				<?php PufferDesk_Desktop_Layout::render_icon_attributes( PufferDesk_Workspace_State::desktop_folder_icon_id( $pufferdesk_folder['id'] ), $pufferdesk_workspace_state ); ?>
 			<?php endif; ?>
 			aria-label="<?php echo esc_attr( $pufferdesk_folder['label'] ); ?>"
 		>

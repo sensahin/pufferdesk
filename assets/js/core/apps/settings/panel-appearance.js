@@ -57,39 +57,39 @@
 		}
 
 		appearanceSection.appendChild(createSettingsRow(
-			t('appearance.appearanceLabel', 'Appearance'),
+			t('appearance.appearanceLabel'),
 			createOptionGroup('mode', settingsLabels.getOptions('appearance.modeOptions'), status, 'pdk-settings-preview-option', 'pdk-settings-appearance-preview')
 		));
 		if (appearanceCapabilities.windowMaterial !== false) {
 			appearanceSection.appendChild(createSettingsRow(
-				t('appearance.materialLabel', 'Liquid Glass'),
+				t('appearance.materialLabel'),
 				createOptionGroup('window_material', settingsLabels.getOptions('appearance.materialOptions'), status, 'pdk-settings-preview-option', 'pdk-settings-material-preview'),
-				t('appearance.materialDescription', 'Choose your preferred Liquid Glass look.'),
+				t('appearance.materialDescription'),
 				'pdk-settings-row-fluid-label'
 			));
 		}
 
 		if (selectableThemes.length) {
 			themeSection.appendChild(createSettingsRow(
-				t('appearance.themeLabel', 'Theme'),
+				t('appearance.themeLabel'),
 				createThemePicker(),
 				'',
 				'pdk-settings-theme-row'
 			));
 		}
 		if (appearanceCapabilities.accentColor !== false) {
-			themeSection.appendChild(createSettingsRow(t('appearance.colorLabel', 'Color'), createAccentGroup(status)));
+			themeSection.appendChild(createSettingsRow(t('appearance.colorLabel'), createAccentGroup(status)));
 		}
 		if (appearanceCapabilities.iconWidgetStyle !== false) {
 			themeSection.appendChild(createSettingsRow(
-				t('appearance.iconWidgetStyleLabel', 'Icon & widget style'),
+				t('appearance.iconWidgetStyleLabel'),
 				createOptionGroup('icon_widget_style', settingsLabels.getOptions('appearance.iconWidgetStyleOptions'), status, 'pdk-settings-icon-option', 'pdk-settings-icon-preview')
 			));
 		}
 
 		panel.appendChild(appearanceSection);
 		if (themeSection.children.length) {
-			panel.appendChild(createSectionHeading(t('appearance.themeHeading', 'Theme')));
+			panel.appendChild(createSectionHeading(t('appearance.themeHeading')));
 			panel.appendChild(themeSection);
 		}
 

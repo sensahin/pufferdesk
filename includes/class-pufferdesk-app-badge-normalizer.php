@@ -11,6 +11,23 @@ defined( 'ABSPATH' ) || exit;
  * Normalizes badge descriptors from registry data and WordPress admin menu HTML.
  */
 final class PufferDesk_App_Badge_Normalizer {
+	const TONE_ATTENTION = 'attention';
+	const TONE_NEUTRAL   = 'neutral';
+	const TONE_UPDATE    = 'update';
+
+	/**
+	 * Supported badge tone IDs.
+	 *
+	 * @return string[]
+	 */
+	public static function get_tone_ids() {
+		return array(
+			self::TONE_ATTENTION,
+			self::TONE_NEUTRAL,
+			self::TONE_UPDATE,
+		);
+	}
+
 	/**
 	 * Extract a notification badge from WordPress admin menu title HTML.
 	 *
@@ -86,9 +103,9 @@ final class PufferDesk_App_Badge_Normalizer {
 			$count  = '' !== $digits && is_string( $digits ) ? absint( $digits ) : 0;
 		}
 
-		$tone = isset( $badge['tone'] ) ? sanitize_key( $badge['tone'] ) : 'attention';
-		if ( ! in_array( $tone, array( 'attention', 'neutral', 'update' ), true ) ) {
-			$tone = 'attention';
+		$tone = isset( $badge['tone'] ) ? sanitize_key( $badge['tone'] ) : self::TONE_ATTENTION;
+		if ( ! in_array( $tone, self::get_tone_ids(), true ) ) {
+			$tone = self::TONE_ATTENTION;
 		}
 
 		$aria_label = isset( $badge['aria_label'] ) ? $this->sanitize_text( $badge['aria_label'] ) : '';
@@ -235,10 +252,10 @@ final class PufferDesk_App_Badge_Normalizer {
 			|| $this->has_html_class( $classes, 'site-health-counter' )
 			|| $this->has_html_class( $classes, 'menu-counter' )
 		) {
-			return 'attention';
+			return self::TONE_ATTENTION;
 		}
 
-		return 'update';
+		return self::TONE_UPDATE;
 	}
 
 	/**

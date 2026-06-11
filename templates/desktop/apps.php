@@ -23,18 +23,18 @@ $pufferdesk_apps_layer_class     = 'pdk-desktop-apps pdk-desktop-icon-layer';
 $pufferdesk_apps_layer_class    .= $pufferdesk_apps_layer_restored ? ' is-managed' : '';
 $pufferdesk_desktop_icon_labels  = array();
 
-if ( ! empty( $pufferdesk_workspace_state['desktopIcons'] ) && is_array( $pufferdesk_workspace_state['desktopIcons'] ) ) {
-	foreach ( $pufferdesk_workspace_state['desktopIcons'] as $pufferdesk_desktop_icon ) {
+if ( ! empty( $pufferdesk_workspace_state[ PufferDesk_Workspace_State::SECTION_DESKTOP_ICONS ] ) && is_array( $pufferdesk_workspace_state[ PufferDesk_Workspace_State::SECTION_DESKTOP_ICONS ] ) ) {
+	foreach ( $pufferdesk_workspace_state[ PufferDesk_Workspace_State::SECTION_DESKTOP_ICONS ] as $pufferdesk_desktop_icon ) {
 		if ( ! is_array( $pufferdesk_desktop_icon ) || empty( $pufferdesk_desktop_icon['id'] ) || empty( $pufferdesk_desktop_icon['label'] ) ) {
 			continue;
 		}
 
 		$pufferdesk_desktop_icon_id = (string) $pufferdesk_desktop_icon['id'];
-		if ( 0 !== strpos( $pufferdesk_desktop_icon_id, 'app:' ) ) {
+		if ( 0 !== strpos( $pufferdesk_desktop_icon_id, PufferDesk_Workspace_State::DESKTOP_ICON_PREFIX_APP ) ) {
 			continue;
 		}
 
-		$pufferdesk_desktop_icon_labels[ substr( $pufferdesk_desktop_icon_id, 4 ) ] = (string) $pufferdesk_desktop_icon['label'];
+		$pufferdesk_desktop_icon_labels[ substr( $pufferdesk_desktop_icon_id, strlen( PufferDesk_Workspace_State::DESKTOP_ICON_PREFIX_APP ) ) ] = (string) $pufferdesk_desktop_icon['label'];
 	}
 }
 ?>
@@ -51,19 +51,19 @@ if ( ! empty( $pufferdesk_workspace_state['desktopIcons'] ) && is_array( $puffer
 		<button
 			type="button"
 			class="pdk-desktop-icon pdk-desktop-app"
-			data-pdk-context="desktop-app"
+			data-pdk-context="<?php echo esc_attr( PufferDesk_Context_Menu_Contracts::TARGET_DESKTOP_APP ); ?>"
 			data-pdk-context-id="<?php echo esc_attr( $pufferdesk_app_id ); ?>"
 			data-pdk-context-label="<?php echo esc_attr( $pufferdesk_app_label ); ?>"
 			data-pdk-desktop-icon
 			data-pdk-desktop-icon-default-label="<?php echo esc_attr( $pufferdesk_app_default_label ); ?>"
-			data-pdk-desktop-icon-id="<?php echo esc_attr( 'app:' . $pufferdesk_app_id ); ?>"
+			data-pdk-desktop-icon-id="<?php echo esc_attr( PufferDesk_Workspace_State::desktop_app_icon_id( $pufferdesk_app_id ) ); ?>"
 			data-pdk-desktop-icon-kind="app"
 			data-pdk-open-app="<?php echo esc_attr( $pufferdesk_app_id ); ?>"
 			<?php if ( $pufferdesk_app_has_label_override ) : ?>
 				data-pdk-desktop-icon-label-override="1"
 			<?php endif; ?>
 			<?php if ( $pufferdesk_apps_layer_restored ) : ?>
-				<?php PufferDesk_Desktop_Layout::render_icon_attributes( 'app:' . $pufferdesk_app_id, $pufferdesk_workspace_state ); ?>
+				<?php PufferDesk_Desktop_Layout::render_icon_attributes( PufferDesk_Workspace_State::desktop_app_icon_id( $pufferdesk_app_id ), $pufferdesk_workspace_state ); ?>
 			<?php endif; ?>
 			aria-label="<?php echo esc_attr( $pufferdesk_aria_label ); ?>"
 		>

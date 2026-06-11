@@ -8,19 +8,21 @@
 	const finderModes = new Set(['icons', 'list']);
 	const iconAliases = new Set(['icons', 'extra-large-icons', 'large-icons', 'medium-icons', 'small-icons']);
 	const listAliases = new Set(['list', 'details', 'tiles', 'content']);
+	const toolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
+	const explorerSortModes = new Set(['none', 'name', 'kind']);
 	const explorerOptions = [
-		{ fallback: 'Extra large icons', group: 'icons', key: 'extra_large_icons', mode: 'extra-large-icons' },
-		{ fallback: 'Large icons', group: 'icons', key: 'large_icons', mode: 'large-icons' },
-		{ fallback: 'Medium icons', group: 'icons', key: 'medium_icons', mode: 'medium-icons' },
-		{ fallback: 'Small icons', group: 'icons', key: 'small_icons', mode: 'small-icons' },
-		{ fallback: 'List', group: 'list', key: 'list_view_short', mode: 'list' },
-		{ fallback: 'Details', group: 'list', key: 'details_view_short', mode: 'details' },
-		{ fallback: 'Tiles', group: 'list', key: 'tiles_view', mode: 'tiles' },
-		{ fallback: 'Content', group: 'list', key: 'content_view', mode: 'content' }
+		{ group: 'icons', key: 'extra_large_icons', mode: 'extra-large-icons' },
+		{ group: 'icons', key: 'large_icons', mode: 'large-icons' },
+		{ group: 'icons', key: 'medium_icons', mode: 'medium-icons' },
+		{ group: 'icons', key: 'small_icons', mode: 'small-icons' },
+		{ group: 'list', key: 'list_view_short', mode: 'list' },
+		{ group: 'list', key: 'details_view_short', mode: 'details' },
+		{ group: 'list', key: 'tiles_view', mode: 'tiles' },
+		{ group: 'list', key: 'content_view', mode: 'content' }
 	];
 	const finderOptions = [
-		{ fallback: 'as Icons', group: 'view', key: 'as_icons', mode: 'icons' },
-		{ fallback: 'as List', group: 'view', key: 'as_list', mode: 'list' }
+		{ group: 'view', key: 'as_icons', mode: 'icons' },
+		{ group: 'view', key: 'as_list', mode: 'list' }
 	];
 
 	function normalizeLayout(layout) {
@@ -74,8 +76,8 @@
 
 	function getLabel(option, getMenuLabel) {
 		return typeof getMenuLabel === 'function'
-			? getMenuLabel(option.key, option.fallback)
-			: option.fallback;
+			? getMenuLabel(option.key, option.key)
+			: option.key;
 	}
 
 	function isIconMode(mode) {
@@ -86,6 +88,14 @@
 		return listAliases.has(mode);
 	}
 
+	function normalizeToolbarDisplayMode(mode, fallback = 'icon-text') {
+		return toolbarDisplayModes.has(mode) ? mode : fallback;
+	}
+
+	function normalizeExplorerSortMode(mode, fallback = 'none') {
+		return explorerSortModes.has(mode) ? mode : fallback;
+	}
+
 	window.PufferDesk.apps.folderViewModes = {
 		getDefaultMode,
 		getLabel,
@@ -93,6 +103,8 @@
 		isIconMode,
 		isKnown,
 		isListMode,
+		normalizeExplorerSortMode,
+		normalizeToolbarDisplayMode,
 		normalize,
 		normalizeLayout
 	};

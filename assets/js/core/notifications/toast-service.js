@@ -9,6 +9,7 @@
 		const notificationConfig = config.notifications && typeof config.notifications === 'object' ? config.notifications : {};
 		const labels = notificationConfig.labels && typeof notificationConfig.labels === 'object' ? notificationConfig.labels : {};
 		const layer = shell ? shell.querySelector('[data-pdk-notification-toasts]') : null;
+		const eventNames = window.PufferDesk.events && window.PufferDesk.events.names ? window.PufferDesk.events.names : {};
 		const timers = new Map();
 
 		if (!shell || !store || !layer || !dom) {
@@ -17,8 +18,8 @@
 			};
 		}
 
-		function t(key, fallback) {
-			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
+		function t(key) {
+			return typeof labels[key] === 'string' && labels[key] ? labels[key] : key;
 		}
 
 		function closeToast(toast) {
@@ -49,14 +50,14 @@
 
 			toast.setAttribute('role', notification.type === 'error' ? 'alert' : 'status');
 			toast.dataset.pdkNotificationId = notification.id || '';
-			body.appendChild(dom.createElement('strong', 'pdk-notification-toast-title', notification.title || t('newNotification', 'New notification')));
+			body.appendChild(dom.createElement('strong', 'pdk-notification-toast-title', notification.title || t('newNotification')));
 			if (notification.message) {
 				body.appendChild(dom.createElement('span', 'pdk-notification-toast-message', notification.message));
 			}
 
 			close.type = 'button';
 			close.className = 'pdk-notification-toast-close';
-			close.setAttribute('aria-label', t('dismiss', 'Dismiss'));
+			close.setAttribute('aria-label', t('dismiss'));
 			close.textContent = '\u00d7';
 			close.addEventListener('click', () => {
 				if (notification.id && typeof store.dismiss === 'function') {
@@ -77,7 +78,7 @@
 		}
 
 		if (window.PufferDesk.events && typeof window.PufferDesk.events.on === 'function') {
-			window.PufferDesk.events.on('notifications:toast', (event) => {
+			window.PufferDesk.events.on(eventNames.NOTIFICATIONS_TOAST, (event) => {
 				if (event && event.detail && event.detail.notification) {
 					show(event.detail.notification);
 				}

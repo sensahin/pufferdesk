@@ -30,6 +30,10 @@ Generated release assets are minified for performance. Readable source files rem
 ## JavaScript
 - assets/js/core/config.js
 - assets/js/core/dom.js
+- assets/js/core/apps/app-ids.js
+- assets/js/core/shell/command-ids.js
+- assets/js/core/shell/context-menu-constants.js
+- assets/js/core/events/event-names.js
 - assets/js/core/services/tooltips.js
 - assets/js/core/events/event-bus.js
 - assets/js/core/shell/transient-surfaces.js
@@ -45,6 +49,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/services/rich-text.js
 - assets/js/core/services/geometry.js
 - assets/js/core/services/debounced-task.js
+- assets/js/core/drag-drop/constants.js
 - assets/js/core/drag-drop/item-model.js
 - assets/js/core/drag-drop/drop-target-registry.js
 - assets/js/core/drag-drop/draggable-registry.js
@@ -52,6 +57,8 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/drag-drop/move-validator.js
 - assets/js/core/drag-drop/move-service.js
 - assets/js/core/drag-drop/drag-drop-manager.js
+- assets/js/core/session/workspace-contract.js
+- assets/js/core/session/storage-keys.js
 - assets/js/core/session/session-store.js
 - assets/js/core/session/reopen-policy.js
 - assets/js/core/preferences/appearance.js

@@ -61,6 +61,10 @@ PHP services in `includes/`:
 - `class-pufferdesk-admin-controller.php`: admin page and admin bar hook registration.
 - `class-pufferdesk-router.php`: mode toggles, shell URL, iframe/classic routing.
 - `class-pufferdesk-user-preferences.php`: per-user mode/theme preferences.
+- `class-pufferdesk-app-ids.php`: stable bundled app IDs and native renderer IDs shared by PHP registries and browser runtime.
+- `class-pufferdesk-command-ids.php`: stable shell/menu/window command IDs shared by PHP menu definitions and browser modules.
+- `class-pufferdesk-client-storage-keys.php`: browser storage key fragments shared by PHP runtime config and JavaScript helpers.
+- `class-pufferdesk-context-menu-contracts.php`: shared context-menu target, area, item-type, and context-key identifiers for PHP templates and browser modules.
 - `class-pufferdesk-app-registry.php`: app/folder registry and app normalization.
 - `class-pufferdesk-app-badge-normalizer.php`: app badge descriptor and WordPress menu count normalization.
 - `class-pufferdesk-app-badge-renderer.php`: shared app badge ARIA-label and badge span rendering for shell templates.
@@ -70,6 +74,7 @@ PHP services in `includes/`:
 - `class-pufferdesk-widget-registry.php`: desktop widget registry and widget normalization.
 - `class-pufferdesk-widget-layout.php`: shared widget layout attributes for templates.
 - `class-pufferdesk-theme-registry.php`: theme family/version/parent inheritance.
+- `class-pufferdesk-window-chrome-contracts.php`: reusable window chrome control, placement, style, and title alignment contracts.
 - `class-pufferdesk-theme-token-renderer.php`: theme typography/token/wallpaper/preference CSS-variable emission for shell first paint.
 - `class-pufferdesk-wallpaper-registry.php`: shared bundled/theme/upload wallpaper options and CSS-variable resolution.
 - `class-pufferdesk-workspace-state.php`: per-user/per-site/per-theme workspace layout persistence and sanitization.
@@ -79,7 +84,7 @@ PHP services in `includes/`:
 - `class-pufferdesk-notification-registry.php`: notification providers, per-user retained history, user read/dismiss state, source/severity filtering, and client config.
 - `class-pufferdesk-notification-controller.php`: AJAX notification refresh, read, dismiss, and mark-all-read actions.
 - `class-pufferdesk-sound-registry.php`: semantic sound event registry, default release-safe sound assets, notification event mapping, and Settings preview event metadata.
-- `class-pufferdesk-settings-registry.php`: settings domain metadata, AJAX actions, defaults, reset domains, and panel ownership.
+- `class-pufferdesk-settings-registry.php`: settings domain IDs, AJAX actions, defaults, reset domains, and panel ownership.
 - `class-pufferdesk-asset-manifest.php`: source/dist asset manifest reader for enqueue order.
 - `class-pufferdesk-assets.php`: CSS/JS registration, enqueueing, and admin chrome classes.
 - `class-pufferdesk-shell-renderer.php`: template rendering and theme override resolution.
@@ -131,7 +136,7 @@ JavaScript:
 - `assets/js/core/services/geometry.js`: shared numeric/CSS geometry helpers.
 - `assets/js/core/services/debounced-task.js`: shared debounced task scheduling for delayed state saves and mutations.
 - `assets/js/core/drag-drop/`: central item/container models, drop target registry, move validation, move execution, and drag lifecycle manager for moving registered items between platform containers.
-- `assets/js/core/session/`: shared workspace session sections.
+- `assets/js/core/session/`: shared workspace session sections and storage-key helpers.
 - `assets/js/core/preferences/`: appearance, wallpaper, launcher, and menu bar preference appliers.
 - `assets/js/core/windows/`: windows, titlebar actions, shared resize handles, window factory, window state serialization.
 - `assets/js/core/widgets/`: widget binding, live updates, widget layout persistence.
@@ -149,6 +154,7 @@ JavaScript:
 - `assets/js/core/apps/settings/`: System Settings label normalization, shared UI helpers, and panel factory modules.
 - `assets/js/core/apps/settings/mutations.js`: shared Settings AJAX mutation/status helper.
 - `assets/js/core/shell/`: search, menu bar clock, command registry, top menus, the central context-menu platform, global shell controls.
+- `assets/js/core/shell/context-menu-constants.js`: browser accessor for PHP-provided context-menu target, area, item-type, and context-key contracts.
 
 Media:
 
@@ -167,8 +173,9 @@ Apps:
 - App `cap` values are normalized as WordPress capability keys and default to `read` when missing, empty, or non-scalar. Use `read` only for current-user shell features; privileged WordPress screens or actions must use their exact WordPress capability.
 - Apps derived from WordPress top-level admin menu items should inherit the menu item's capability so dock, desktop, launcher, and native admin visibility stay aligned.
 - Apps may define `window_persistence` as `workspace` or `none`. Use `workspace` for stable app windows that should reopen with the workspace, and `none` for transient/helper surfaces.
+- App descriptor groups, kinds, and window persistence values are owned by `PufferDesk_App_Normalizer`, exposed through `runtime.contracts.appDescriptors`, and consumed by browser helpers such as `app-window-options.js` and `native-app-opener.js`. Do not repeat `native`, `workspace`, `none`, or built-in group IDs in JavaScript when a contract value exists.
 - Apps may define a normalized `badge` with `text`, optional `count`, `tone`, and `aria_label`; WordPress menu count spans are extracted into this shape for top-level menu apps. PHP-rendered surfaces must use `PufferDesk_App_Badge_Renderer`; browser-rendered app surfaces must use `assets/js/core/apps/app-badges.js`.
-- Apps may define Dock metadata such as `dock.fixed` and `dock.placement` for system Dock slots. Generic controllers must respect fixed metadata for visibility, ordering, dragging, persistence, and menu options; do not let fixed shell items inherit ordinary app controls unless those actions are explicitly supported.
+- Apps may define Dock metadata such as `dock.fixed` and `dock.placement` for system Dock slots. App location values for Dock/Desktop/Both/Hidden are owned by `PufferDesk_User_Preferences`, exposed through `runtime.contracts.appLocations`, and consumed by app preference/surface modules; do not repeat those stored values in JavaScript. Generic controllers must respect fixed metadata for visibility, ordering, dragging, persistence, and menu options; do not let fixed shell items inherit ordinary app controls unless those actions are explicitly supported.
 - Apps may define reusable `about` metadata with `name`, `version`, `copyright`, `rights`, and `icon`; do not hard-code app-specific about windows.
 - About metadata must stay GPL-compatible for WordPress distribution. Do not use "All rights reserved" defaults in plugin UI.
 - App-specific top menu behavior belongs in the app's `menu` definition, not in hard-coded menu bar conditionals.
@@ -190,10 +197,12 @@ Menus:
 
 - Menu definitions use the canonical shape `array( 'groups' => array( ... ) )`.
 - Each group should define `id`, `label`, and `items`; supported group IDs are `site`, `app`, `file`, `edit`, `view`, `go`, `window`, and `help`.
+- Menu group IDs are owned by `PufferDesk_App_Menu_Normalizer`, exposed through `runtime.contracts.menuGroups`, and consumed by `assets/js/core/shell/menu-schema.js`; do not repeat group IDs in browser menu logic when a contract value exists.
 - Menu command items should define `label` plus optional `command`, `target`, `url`, `title`, `icon`, `shortcut`, `payload`, and `disabled`.
 - `shortcut` is executable data, not decorative text. Use macOS-style strings such as `⌘W`, `⌘M`, `⌘H`, `⌥⌘H`, or a structured descriptor with `key`, `modifiers`, `label`, `allowInTextFields`, and `preventDefault`. The keyboard engine lives in `assets/js/core/shell/shortcuts.js`.
 - Commands are registered in `assets/js/core/shell/commands.js`; schema normalization is in `assets/js/core/shell/menu-schema.js`; shared menu item rendering is in `assets/js/core/shell/menu-renderer.js`; top menu rendering is in `assets/js/core/shell/menu.js`.
 - Context menus are registered and rendered through the central platform documented in `docs/context-menu-platform.md`. Core modules include `assets/js/core/shell/context-menu.js`, `context-menu-resolver.js`, `context-menu-permissions.js`, `context-menu-positioner.js`, `context-menu-keyboard.js`, and `context-menu-theme-adapter.js`. Context targets should use stable `data-pdk-context` and `data-pdk-context-id` attributes rather than one-off event handlers.
+- Context target IDs, context keys, areas, target types, and item types are owned by `PufferDesk_Context_Menu_Contracts`, exposed through `runtime.contracts.contextMenu`, and consumed by `assets/js/core/shell/context-menu-constants.js`. Do not repeat context target strings in templates or JavaScript when a contract value exists.
 - Supported context target types include `desktop`, `app`, `desktop-app`, `dock-app`, `folder`, `desktop-folder`, `trash-item`, `window`, and `widget`.
 - Context menu providers should compose common command-backed items with target-specific items. Do not add right-click behavior inside dock, desktop, widget, or window modules unless it is exposing target state to the shared context menu system.
 - Before adding menu item icons, shortcuts, badges, separators, destructive styling, or other optional adornments, inspect the existing menu surface and match its established visual schema. Do not make one item visually different from peer items unless that whole menu type already uses the same affordance or the renderer contract explicitly requires it.
@@ -232,7 +241,7 @@ Themes:
 - Use parent/child theme inheritance for common theme-family styling.
 - Put visual language in theme CSS. Put behavior in core JS/PHP.
 - Use theme `shell` metadata for OS-family shell surfaces. Supported fields include `chrome`, `top_bar`, `launcher`, `system_menu`, `app_menu`, `status_area`, `launcher_search`, `system_menu_icon`, `launcher_separator`, `fixed_app_locations`, and `labels`; these normalize into shell runtime config and shell `data-pdk-*` attributes.
-- Use theme `window_chrome` metadata for reusable window chrome. Supported fields include `controls.placement`, `controls.order`, `controls.style`, `controls.labels`, `title.alignment`, and `title.show_icon`; do not hard-code family-specific window controls in JS.
+- Use theme `window_chrome` metadata for reusable window chrome. Supported fields include `controls.placement`, `controls.order`, `controls.style`, `controls.labels`, `title.alignment`, and `title.show_icon`; supported control IDs, placements, styles, title alignments, dataset actions, modifiers, and defaults are owned by `PufferDesk_Window_Chrome_Contracts` and exposed through `runtime.contracts.windowChrome`. Do not hard-code family-specific window controls in JS.
 - Use theme `surfaces` metadata for native app layout families. Supported fields include `settings` (`pufferdesk-settings`, `windows-settings`) and `folder` (`finder`, `file-explorer`). Do not make other OS families inherit PufferDesk/Finder-specific Settings, folder toolbar, sidebar, or titlebar layouts by styling alone.
 - Use theme `dialogs` metadata for confirmation dialog style and confirmation policy. Supported fields include `style` (`floating`, `system-window`) and `confirmations.{action_id}` with `enabled`, `variant`, `icon`, and `default_action`. For example, `move_folder_to_trash` may be disabled for PufferDesk-style move-to-Trash behavior and enabled for Redmond-style delete confirmations. Keep dialog behavior in the shared shell dialog service and command policy; keep visual skin in theme CSS using `data-pdk-dialog-style` and `data-pdk-dialog-variant`.
 - Use theme shell labels for family-specific vocabulary such as Dock versus Taskbar. Do not hard-code launcher labels in settings panels, menus, or context menus when a runtime label exists.
@@ -246,7 +255,7 @@ Themes:
 - Declare media through theme fields, not hard-coded paths in templates or app code. Supported fields are `wallpaper`, `wallpapers`, `icon_pack`, `cursor_pack`, and `sounds`; they normalize to local `assets/media/` descriptors with `path` and `url`.
 - Bundled themes should use `media.wallpapers.default` to choose their starting wallpaper from the shared wallpaper catalog. Do not give bundled themes separate wallpaper option lists unless the product intentionally needs a private theme pack.
 - External theme packs may still use `wallpapers` for theme-managed wallpaper collections. The canonical shape is `array( 'default' => 'wallpaper-id', 'items' => array( array( 'id' => 'wallpaper-id', 'label' => 'Wallpaper Label', 'path' => 'themes/{family}/{version}/wallpapers/file.jpg' ) ) )`.
-- Use `PufferDesk_Wallpaper_Registry` for the shared bundled wallpaper catalog, color backgrounds, theme image wallpapers, upload validation, and `--pdk-wallpaper-*` CSS-variable resolution. Do not read wallpaper URLs directly from templates or app JS.
+- Use `PufferDesk_Wallpaper_Registry` for the shared bundled wallpaper catalog, color backgrounds, theme image wallpapers, upload validation, wallpaper type IDs, and `--pdk-wallpaper-*` CSS-variable resolution. Wallpaper type IDs are exposed through `runtime.contracts.wallpaperTypes`; do not read wallpaper URLs or repeat wallpaper type strings directly from templates or app JS.
 - Keep OS media original, licensed for redistribution, or otherwise release-safe.
 - The public `redmond/modern` theme is Windows-inspired, not a Windows clone. Keep it on the taskbar/Start shell contract, use original CSS/SVG assets, use system font stacks only, and do not add Microsoft-owned logos, wallpapers, icons, font files, or copied trade dress.
 - Template override resolution order is:
@@ -260,6 +269,7 @@ Icons:
 - Dashicon strings are allowed as shorthand.
 - Prefer theme descriptors with Dashicon fallbacks for built-in apps, folders, and widgets, so OS icon packs can replace the visual asset without changing registry IDs or app definitions.
 - Theme icon files resolve from `theme.media.icon_pack.url`; missing files must fall back cleanly to Dashicons in PHP-rendered and JS-rendered surfaces.
+- Icon descriptor types and the default Dashicon fallback are owned by `PufferDesk_Icon_Renderer`, exposed through `runtime.contracts.icons`, and consumed by `window.PufferDesk.dom.createIcon()` / `getDefaultDashicon()`. Do not repeat icon type strings or the generic Dashicon fallback in browser modules when the helper can render the descriptor.
 - Prefer normalized descriptors for future flexibility:
 
 ```php
@@ -285,7 +295,8 @@ Session:
 - Use `assets/js/core/session/session-store.js` for persisted shell layout. It should treat WordPress user meta, via `PufferDesk_Workspace_State`, as durable state and browser `localStorage` as cache only.
 - Use `assets/js/core/session/reopen-policy.js` for one-time shell reopen behavior; do not clear stored layout just to skip reopening windows for one transition.
 - Store layout by named section, such as `windows`, `widgets`, `desktopIcons`, `desktopSort`, and `recentItems`.
-- The `windows` section may persist stable `app` and `folder` window records. Keep transient windows such as About, info panels, dialogs, and one-off document helpers out of workspace restoration.
+- Desktop icon IDs use prefixes owned by `PufferDesk_Workspace_State` and exposed through `runtime.contracts.workspace.desktopIconPrefixes`; templates and JavaScript should build app/folder desktop icon IDs through that contract instead of spelling prefix strings.
+- The `windows` section may persist stable `app` and `folder` window records. Window kind IDs are owned by `PufferDesk_Workspace_State`, exposed through `runtime.contracts.workspace.windowKinds`, and consumed by browser workspace/window modules; keep transient windows such as About, info panels, dialogs, and one-off document helpers out of workspace restoration.
 - Workspace saves must include the last accepted server `updatedAt` revision and must not silently overwrite newer server state. Conflict responses should adopt or merge the newer server state.
 - Keep the System Settings Workspace panel wired to `PufferDesk_Workspace_State` actions. Current-theme layout reset should not erase unrelated preference domains; full System erase may clear preference domains and all theme workspace states.
 - Same-browser workspace sync may use `BroadcastChannel`; do not imply cross-browser live sync unless a remote polling or push mechanism exists.

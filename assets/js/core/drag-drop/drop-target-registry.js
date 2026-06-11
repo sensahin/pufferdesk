@@ -7,6 +7,7 @@
 	window.PufferDesk.dragDrop.createDropTargetRegistry = function createDropTargetRegistry(options = {}) {
 		const models = window.PufferDesk.dragDrop.models;
 		const events = options.events || window.PufferDesk.events || null;
+		const eventNames = events && events.names ? events.names : {};
 		const containers = new Map();
 		const resolvers = new Set();
 
@@ -47,7 +48,7 @@
 			}
 
 			containers.set(normalized.id, normalized);
-			emit('dragdrop:container:registered', {
+			emit(eventNames.DRAGDROP_CONTAINER_REGISTERED, {
 				container: normalized
 			});
 
@@ -63,7 +64,7 @@
 			}
 
 			containers.delete(id);
-			emit('dragdrop:container:unregistered', {
+			emit(eventNames.DRAGDROP_CONTAINER_UNREGISTERED, {
 				container: removed
 			});
 

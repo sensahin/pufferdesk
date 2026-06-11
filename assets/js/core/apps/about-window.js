@@ -12,7 +12,7 @@
 		const copyright = about.copyright || '';
 		const rights = about.rights || '';
 		const detailLines = Array.isArray(about.lines) && about.lines.length ? about.lines : [version, copyright, rights];
-		const icon = about.icon || app.icon || 'dashicons-admin-generic';
+		const icon = about.icon || app.icon;
 		const content = dom.createElement('div', 'pdk-about');
 		const iconWrap = dom.createElement('span', 'pdk-about-icon');
 		const title = dom.createElement('h1', '', name);

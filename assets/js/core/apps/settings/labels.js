@@ -5,7 +5,15 @@
 	window.PufferDesk.apps = window.PufferDesk.apps || {};
 	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
+	const appLocations = window.PufferDesk.config.getContractMap('appLocations', {
+		DOCK: 'dock',
+		DESKTOP: 'desktop',
+		BOTH: 'both',
+		HIDDEN: 'hidden'
+	});
+
 	const defaults = {
+		appTitle: 'Settings',
 		appearance: {
 			accentOptions: [
 				{ value: 'multicolor', label: 'Multicolor' },
@@ -52,10 +60,10 @@
 		},
 		desktopDock: {
 			appLocationOptions: [
-				{ value: 'dock', label: 'Dock' },
-				{ value: 'desktop', label: 'Desktop' },
-				{ value: 'both', label: 'Dock & Desktop' },
-				{ value: 'hidden', label: 'Hidden' }
+				{ value: appLocations.DOCK, label: 'Dock' },
+				{ value: appLocations.DESKTOP, label: 'Desktop' },
+				{ value: appLocations.BOTH, label: 'Dock & Desktop' },
+				{ value: appLocations.HIDDEN, label: 'Hidden' }
 			],
 			headings: {
 				apps: 'Apps',
@@ -230,6 +238,8 @@
 			photoRemoved: 'Photo removed.',
 			removing: 'Removing...',
 			saving: 'Saving...',
+			serviceUnavailable: 'Settings service unavailable.',
+			settingsResetError: 'PufferDesk settings could not be reset.',
 			soundsSaveError: 'Sound could not be saved.',
 			soundsSaved: 'Sound saved.',
 			themeSaveError: 'Theme could not be saved.',

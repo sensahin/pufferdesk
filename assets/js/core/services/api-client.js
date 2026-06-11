@@ -4,12 +4,25 @@
 	window.PufferDesk = window.PufferDesk || {};
 	window.PufferDesk.services = window.PufferDesk.services || {};
 
+	function getSettingsLabel(path) {
+		const config = window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
+			? window.PufferDesk.config.get()
+			: {};
+		const settings = config.settings && typeof config.settings === 'object' ? config.settings : {};
+		const labels = settings.labels && typeof settings.labels === 'object' ? settings.labels : {};
+		const value = String(path || '').split('.').reduce((current, key) => (
+			current && Object.prototype.hasOwnProperty.call(current, key) ? current[key] : undefined
+		), labels);
+
+		return typeof value === 'string' && value ? value : path;
+	}
+
 	window.PufferDesk.services.api = {
 		post(action, data = {}) {
 			const config = window.PufferDesk.config.get();
 
 			if (!config.ajaxUrl || !config.nonce) {
-				return Promise.reject(new Error('Settings service unavailable.'));
+				return Promise.reject(new Error(getSettingsLabel('status.serviceUnavailable')));
 			}
 
 			const form = new window.FormData();

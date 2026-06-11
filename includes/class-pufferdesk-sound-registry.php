@@ -17,7 +17,7 @@ final class PufferDesk_Sound_Registry {
 	const EVENT_NOTIFICATION_ERROR    = 'notification.error';
 	const EVENT_DIALOG_WARNING        = 'dialog.warning';
 	const EVENT_DIALOG_DESTRUCTIVE    = 'dialog.destructive';
-	const EVENT_TRASH_EMPTY           = 'trash.empty';
+	const EVENT_TRASH_EMPTY           = PufferDesk_Command_Ids::TRASH_EMPTY;
 	const EVENT_APP_ERROR             = 'app.error';
 
 	/**

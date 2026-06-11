@@ -29,7 +29,7 @@ $pufferdesk_launcher = isset( $pufferdesk_shell['launcher'] ) ? (string) $puffer
 ?>
 <main
 	class="pdk-desktop"
-	data-pdk-context="desktop"
+	data-pdk-context="<?php echo esc_attr( PufferDesk_Context_Menu_Contracts::TARGET_DESKTOP ); ?>"
 	data-pdk-context-id="desktop"
 	aria-label="<?php esc_attr_e( 'PufferDesk desktop', 'pufferdesk-admin-desktop' ); ?>"
 >

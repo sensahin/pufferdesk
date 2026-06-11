@@ -6,6 +6,9 @@
 
 	window.PufferDesk.shell.createContextMenuPositioner = function createContextMenuPositioner(shell) {
 		const geometry = window.PufferDesk.geometry;
+		const targets = window.PufferDesk.shell.contextMenuConstants
+			? window.PufferDesk.shell.contextMenuConstants.targets || {}
+			: {};
 
 		function clamp(value, min, max) {
 			if (geometry && typeof geometry.clamp === 'function') {
@@ -63,7 +66,7 @@
 				return;
 			}
 
-			if (detail.type === 'dock-app' && positionDockMenu(popover, detail)) {
+			if (detail.type === targets.DOCK_APP && positionDockMenu(popover, detail)) {
 				return;
 			}
 

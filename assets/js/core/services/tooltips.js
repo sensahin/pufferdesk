@@ -3,10 +3,18 @@
 
 	window.PufferDesk = window.PufferDesk || {};
 
-	const placements = new Set([ 'top', 'right', 'bottom', 'left' ]);
+	const defaultPlacements = ['top', 'right', 'bottom', 'left'];
+
+	function getPlacements() {
+		const config = window.PufferDesk.config;
+
+		return config && typeof config.getContractList === 'function'
+			? config.getContractList('tooltipPlacements', defaultPlacements)
+			: defaultPlacements;
+	}
 
 	function normalizePlacement(placement) {
-		return placements.has(placement) ? placement : 'top';
+		return getPlacements().includes(placement) ? placement : 'top';
 	}
 
 	function normalizeSurface(surface) {

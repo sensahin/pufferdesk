@@ -6,8 +6,11 @@
 
 	window.PufferDesk.dragDrop.createDraggableRegistry = function createDraggableRegistry(options = {}) {
 		const models = window.PufferDesk.dragDrop.models;
+		const constants = window.PufferDesk.dragDrop.constants || {};
+		const containerTypes = constants.containerTypes || {};
 		const items = new Map();
 		const events = options.events || window.PufferDesk.events || null;
+		const eventNames = events && events.names ? events.names : {};
 
 		function emit(name, detail = {}) {
 			if (events && typeof events.emit === 'function') {
@@ -49,9 +52,9 @@
 				label: getLabelFromElement(element),
 				metadata: Object.assign({
 					element,
-					source: 'desktop'
+					source: containerTypes.DESKTOP
 				}, overrides.metadata || {}),
-				sourceContainerId: 'desktop',
+				sourceContainerId: containerTypes.DESKTOP,
 				type: kind
 			});
 		}
@@ -74,17 +77,17 @@
 					source: 'folder-item',
 					sourceFolderId: folderId
 				}, overrides.metadata || {}),
-				sourceContainerId: folderId ? models.createContainerId('folder', folderId) : '',
+				sourceContainerId: folderId ? models.createContainerId(containerTypes.FOLDER, folderId) : '',
 				type: kind
 			});
 		}
 
-		function fromLegacyDropDetail(detail = {}, source = 'desktop') {
+		function fromLegacyDropDetail(detail = {}, source = containerTypes.DESKTOP) {
 			const type = detail.sourceKind || detail.kind || detail.itemType || '';
 			const id = detail.sourceId || detail.id || detail.itemId || '';
 			const sourceFolderId = detail.sourceFolderId || detail.folderId || '';
 			const sourceContainerId = detail.fromContainerId
-				|| (sourceFolderId ? models.createContainerId('folder', sourceFolderId) : source === 'desktop' ? 'desktop' : '');
+				|| (sourceFolderId ? models.createContainerId(containerTypes.FOLDER, sourceFolderId) : source === containerTypes.DESKTOP ? containerTypes.DESKTOP : '');
 
 			return models.normalizeItem(detail.item || {}, {
 				id,
@@ -107,7 +110,7 @@
 			}
 
 			items.set(key, normalized);
-			emit('dragdrop:item:registered', {
+			emit(eventNames.DRAGDROP_ITEM_REGISTERED, {
 				item: normalized
 			});
 
@@ -123,7 +126,7 @@
 
 			const removed = items.get(key);
 			items.delete(key);
-			emit('dragdrop:item:unregistered', {
+			emit(eventNames.DRAGDROP_ITEM_UNREGISTERED, {
 				item: removed
 			});
 

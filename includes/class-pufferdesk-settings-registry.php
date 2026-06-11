@@ -12,6 +12,35 @@ defined( 'ABSPATH' ) || exit;
  */
 final class PufferDesk_Settings_Registry {
 	const CAPABILITY = 'read';
+	const DOMAIN_APPEARANCE        = 'appearance';
+	const DOMAIN_DESKTOP_DOCK      = 'desktop_dock';
+	const DOMAIN_APP_LOCATIONS     = 'app_locations';
+	const DOMAIN_APP_LOGIN_ITEMS   = 'app_login_items';
+	const DOMAIN_DESKTOP_FOLDERS   = 'desktop_folders';
+	const DOMAIN_DESKTOP_TRASH     = 'desktop_trash';
+	const DOMAIN_MENU_BAR          = 'menu_bar';
+	const DOMAIN_NOTIFICATIONS     = 'notifications';
+	const DOMAIN_SOUNDS            = 'sounds';
+	const DOMAIN_THEME             = 'theme';
+	const DOMAIN_WALLPAPER         = 'wallpaper';
+	const DOMAIN_WALLPAPER_UPLOADS = 'wallpaper_uploads';
+	const DOMAIN_RESET             = 'reset';
+
+	/**
+	 * User preference contract.
+	 *
+	 * @var PufferDesk_User_Preferences
+	 */
+	private $preferences;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param PufferDesk_User_Preferences|null $preferences User preference contract.
+	 */
+	public function __construct( $preferences = null ) {
+		$this->preferences = $preferences instanceof PufferDesk_User_Preferences ? $preferences : new PufferDesk_User_Preferences();
+	}
 
 	/**
 	 * Get all settings domains keyed by stable domain ID.
@@ -20,8 +49,8 @@ final class PufferDesk_Settings_Registry {
 	 */
 	public function get_domains() {
 		$domains = array(
-			'appearance'        => array(
-				'id'           => 'appearance',
+			self::DOMAIN_APPEARANCE => array(
+				'id'           => self::DOMAIN_APPEARANCE,
 				'label'        => 'Appearance',
 				'panel'        => 'appearance',
 				'capability'   => self::CAPABILITY,
@@ -30,15 +59,11 @@ final class PufferDesk_Settings_Registry {
 				'preference_key' => PufferDesk_User_Preferences::META_APPEARANCE,
 				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_APPEARANCE,
 				'sanitizer'    => 'PufferDesk_User_Preferences::set_appearance',
-				'default'      => array(
-					'mode'              => 'auto',
-					'window_material'   => 'clear',
-					'accent_color'      => 'multicolor',
-					'icon_widget_style' => 'default',
-				),
+				'default'      => $this->preferences->get_default_appearance(),
+				'options'      => $this->preferences->get_appearance_options(),
 			),
-			'desktop_dock'      => array(
-				'id'           => 'desktop_dock',
+			self::DOMAIN_DESKTOP_DOCK => array(
+				'id'           => self::DOMAIN_DESKTOP_DOCK,
 				'label'        => 'Desktop & Dock',
 				'panel'        => 'desktop-dock',
 				'capability'   => self::CAPABILITY,
@@ -47,22 +72,11 @@ final class PufferDesk_Settings_Registry {
 				'preference_key' => PufferDesk_User_Preferences::META_DESKTOP_DOCK,
 				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_DESKTOP_DOCK,
 				'sanitizer'    => 'PufferDesk_User_Preferences::set_desktop_dock',
-				'default'      => array(
-					'dock_size'              => 48,
-					'dock_magnification'     => 0,
-					'dock_position'          => 'bottom',
-					'minimize_animation'     => 'genie',
-					'minimize_into_app_icon' => false,
-					'auto_hide_dock'         => false,
-					'animate_opening_apps'   => true,
-					'show_open_indicators'   => true,
-					'wallpaper_click'        => 'never',
-					'show_widgets_desktop'   => true,
-					'dim_widgets'            => 'automatic',
-				),
+				'default'      => $this->preferences->get_default_desktop_dock(),
+				'options'      => $this->preferences->get_desktop_dock_options(),
 			),
-			'app_locations'     => array(
-				'id'           => 'app_locations',
+			self::DOMAIN_APP_LOCATIONS => array(
+				'id'           => self::DOMAIN_APP_LOCATIONS,
 				'label'        => 'App Locations',
 				'panel'        => 'apps',
 				'capability'   => self::CAPABILITY,
@@ -72,9 +86,10 @@ final class PufferDesk_Settings_Registry {
 				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_APP_LOCATIONS,
 				'sanitizer'    => 'PufferDesk_User_Preferences::set_app_locations',
 				'default'      => array(),
+				'options'      => $this->preferences->get_app_location_options(),
 			),
-			'app_login_items'   => array(
-				'id'           => 'app_login_items',
+			self::DOMAIN_APP_LOGIN_ITEMS => array(
+				'id'           => self::DOMAIN_APP_LOGIN_ITEMS,
 				'label'        => 'Login Items',
 				'panel'        => 'apps',
 				'capability'   => self::CAPABILITY,
@@ -85,8 +100,8 @@ final class PufferDesk_Settings_Registry {
 				'sanitizer'    => 'PufferDesk_User_Preferences::set_app_login_items',
 				'default'      => array(),
 			),
-			'desktop_folders'   => array(
-				'id'           => 'desktop_folders',
+			self::DOMAIN_DESKTOP_FOLDERS => array(
+				'id'           => self::DOMAIN_DESKTOP_FOLDERS,
 				'label'        => 'Desktop Folders',
 				'panel'        => 'apps',
 				'capability'   => self::CAPABILITY,
@@ -97,8 +112,8 @@ final class PufferDesk_Settings_Registry {
 				'sanitizer'    => 'PufferDesk_User_Preferences::set_desktop_folders',
 				'default'      => array(),
 			),
-			'desktop_trash'     => array(
-				'id'           => 'desktop_trash',
+			self::DOMAIN_DESKTOP_TRASH => array(
+				'id'           => self::DOMAIN_DESKTOP_TRASH,
 				'label'        => 'Trash',
 				'panel'        => 'apps',
 				'capability'   => self::CAPABILITY,
@@ -109,8 +124,8 @@ final class PufferDesk_Settings_Registry {
 				'sanitizer'    => 'PufferDesk_User_Preferences::set_desktop_trash',
 				'default'      => array(),
 			),
-			'menu_bar'          => array(
-				'id'           => 'menu_bar',
+			self::DOMAIN_MENU_BAR => array(
+				'id'           => self::DOMAIN_MENU_BAR,
 				'label'        => 'Menu Bar',
 				'panel'        => 'menu-bar',
 				'capability'   => self::CAPABILITY,
@@ -119,14 +134,11 @@ final class PufferDesk_Settings_Registry {
 				'preference_key' => PufferDesk_User_Preferences::META_MENU_BAR,
 				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_MENU_BAR,
 				'sanitizer'    => 'PufferDesk_User_Preferences::set_menu_bar',
-				'default'      => array(
-					'auto_hide'       => 'fullscreen',
-					'show_background' => false,
-					'recent_count'    => 10,
-				),
+				'default'      => $this->preferences->get_default_menu_bar(),
+				'options'      => $this->preferences->get_menu_bar_options(),
 			),
-			'notifications'     => array(
-				'id'           => 'notifications',
+			self::DOMAIN_NOTIFICATIONS => array(
+				'id'           => self::DOMAIN_NOTIFICATIONS,
 				'label'        => 'Notifications',
 				'panel'        => 'notifications',
 				'capability'   => self::CAPABILITY,
@@ -135,25 +147,13 @@ final class PufferDesk_Settings_Registry {
 				'preference_key' => PufferDesk_User_Preferences::META_NOTIFICATIONS,
 				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_NOTIFICATIONS,
 				'sanitizer'    => 'PufferDesk_User_Preferences::set_notifications',
-				'default'      => array(
-					'enabled'      => true,
-					'show_badges'  => true,
-					'show_toasts'  => true,
-					'quiet_mode'   => false,
-					'play_sound'   => false,
-					'history_days' => 30,
-					'severity'     => 'all',
-					'sources'      => array(
-						'wordpress_updates' => true,
-						'comments'          => true,
-						'site_health'       => true,
-						'pufferdesk'        => true,
-						'apps'              => true,
-					),
+				'default'      => $this->preferences->get_default_notifications(),
+				'options'      => array(
+					'severity' => $this->preferences->get_notification_severity_options(),
 				),
 			),
-			'sounds'            => array(
-				'id'           => 'sounds',
+			self::DOMAIN_SOUNDS => array(
+				'id'           => self::DOMAIN_SOUNDS,
 				'label'        => 'Sound',
 				'panel'        => 'sounds',
 				'capability'   => self::CAPABILITY,
@@ -162,13 +162,10 @@ final class PufferDesk_Settings_Registry {
 				'preference_key' => PufferDesk_User_Preferences::META_SOUNDS,
 				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_SOUNDS,
 				'sanitizer'    => 'PufferDesk_User_Preferences::set_sounds',
-				'default'      => array(
-					'enabled' => true,
-					'volume'  => 70,
-				),
+				'default'      => $this->preferences->get_default_sounds(),
 			),
-			'theme'             => array(
-				'id'           => 'theme',
+			self::DOMAIN_THEME => array(
+				'id'           => self::DOMAIN_THEME,
 				'label'        => 'Theme',
 				'panel'        => 'appearance',
 				'capability'   => self::CAPABILITY,
@@ -179,8 +176,8 @@ final class PufferDesk_Settings_Registry {
 				'sanitizer'    => 'PufferDesk_User_Preferences::set_theme_id',
 				'default'      => 'pufferdesk',
 			),
-			'wallpaper'         => array(
-				'id'           => 'wallpaper',
+			self::DOMAIN_WALLPAPER => array(
+				'id'           => self::DOMAIN_WALLPAPER,
 				'label'        => 'Wallpaper',
 				'panel'        => 'wallpaper',
 				'capability'   => self::CAPABILITY,
@@ -189,16 +186,10 @@ final class PufferDesk_Settings_Registry {
 				'preference_key' => PufferDesk_User_Preferences::META_WALLPAPER,
 				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_WALLPAPER,
 				'sanitizer'    => 'PufferDesk_User_Preferences::sanitize_wallpaper',
-				'default'      => array(
-					'type'          => 'theme',
-					'id'            => '',
-					'attachment_id' => 0,
-					'fit'           => 'cover',
-					'position'      => 'center center',
-				),
+				'default'      => $this->preferences->get_default_wallpaper(),
 			),
-			'wallpaper_uploads' => array(
-				'id'           => 'wallpaper_uploads',
+			self::DOMAIN_WALLPAPER_UPLOADS => array(
+				'id'           => self::DOMAIN_WALLPAPER_UPLOADS,
 				'label'        => 'Wallpaper Uploads',
 				'panel'        => 'wallpaper',
 				'capability'   => self::CAPABILITY,
@@ -209,8 +200,8 @@ final class PufferDesk_Settings_Registry {
 				'sanitizer'    => 'PufferDesk_User_Preferences::remove_wallpaper_upload',
 				'default'      => array(),
 			),
-			'reset'             => array(
-				'id'          => 'reset',
+			self::DOMAIN_RESET => array(
+				'id'          => self::DOMAIN_RESET,
 				'label'       => 'Reset',
 				'panel'       => 'workspace',
 				'capability'  => self::CAPABILITY,
@@ -230,6 +221,29 @@ final class PufferDesk_Settings_Registry {
 		 * @param array<string,array<string,mixed>> $domains Domain metadata.
 		 */
 		return apply_filters( 'pufferdesk_settings_domains', $domains );
+	}
+
+	/**
+	 * Stable domain IDs exposed to browser config.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function domain_ids() {
+		return array(
+			'APPEARANCE'        => self::DOMAIN_APPEARANCE,
+			'DESKTOP_DOCK'      => self::DOMAIN_DESKTOP_DOCK,
+			'APP_LOCATIONS'     => self::DOMAIN_APP_LOCATIONS,
+			'APP_LOGIN_ITEMS'   => self::DOMAIN_APP_LOGIN_ITEMS,
+			'DESKTOP_FOLDERS'   => self::DOMAIN_DESKTOP_FOLDERS,
+			'DESKTOP_TRASH'     => self::DOMAIN_DESKTOP_TRASH,
+			'MENU_BAR'          => self::DOMAIN_MENU_BAR,
+			'NOTIFICATIONS'     => self::DOMAIN_NOTIFICATIONS,
+			'SOUNDS'            => self::DOMAIN_SOUNDS,
+			'THEME'             => self::DOMAIN_THEME,
+			'WALLPAPER'         => self::DOMAIN_WALLPAPER,
+			'WALLPAPER_UPLOADS' => self::DOMAIN_WALLPAPER_UPLOADS,
+			'RESET'             => self::DOMAIN_RESET,
+		);
 	}
 
 	/**
@@ -342,6 +356,7 @@ final class PufferDesk_Settings_Registry {
 				'action'      => isset( $domain['ajax_action'] ) ? sanitize_key( $domain['ajax_action'] ) : '',
 				'resetDomain' => isset( $domain['reset_domain'] ) ? sanitize_key( $domain['reset_domain'] ) : '',
 				'default'     => isset( $domain['default'] ) ? $domain['default'] : null,
+				'options'     => isset( $domain['options'] ) && is_array( $domain['options'] ) ? $domain['options'] : array(),
 			);
 		}
 

@@ -9,6 +9,8 @@
 		const readNumber = geometry.readNumber;
 		const desktop = options.desktop || shell.querySelector('.pdk-desktop');
 		const layout = options.layout;
+		const workspace = window.PufferDesk.session && window.PufferDesk.session.workspace ? window.PufferDesk.session.workspace : {};
+		const windowKinds = workspace.windowKinds || {};
 		const emitWindowStateChanged = typeof options.emitWindowStateChanged === 'function'
 			? options.emitWindowStateChanged
 			: () => null;
@@ -76,14 +78,14 @@
 					return;
 				}
 
-				if (win.dataset.pdkWindowKind === 'folder') {
+				if (win.dataset.pdkWindowKind === (windowKinds.FOLDER || 'folder')) {
 					const folderId = win.dataset.pdkFolderWindow;
 					const tabState = typeof win.pdkSerializeFolderTabs === 'function'
 						? win.pdkSerializeFolderTabs()
 						: null;
 					if (folderId) {
 						const folderWindow = {
-							kind: 'folder',
+							kind: windowKinds.FOLDER || 'folder',
 							folderId,
 							state: readWindowState(win)
 						};
@@ -101,7 +103,7 @@
 				const appId = win.dataset.pdkAppWindow;
 				if (appId) {
 					windows.push({
-						kind: 'app',
+						kind: windowKinds.APP || 'app',
 						appId,
 						state: readWindowState(win)
 					});

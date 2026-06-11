@@ -2,6 +2,13 @@
 	'use strict';
 
 	window.PufferDesk = window.PufferDesk || {};
+	const runtimeConfig = window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
+		? window.PufferDesk.config.get()
+		: (window.pufferDesk || {});
+	const contracts = runtimeConfig.contracts && typeof runtimeConfig.contracts === 'object' ? runtimeConfig.contracts : {};
+	const iconContract = contracts.icons && typeof contracts.icons === 'object' ? contracts.icons : {};
+	const iconTypes = iconContract.types && typeof iconContract.types === 'object' ? iconContract.types : {};
+	const defaultDashicon = typeof iconContract.defaultDashicon === 'string' && iconContract.defaultDashicon ? iconContract.defaultDashicon : 'dashicons-admin-generic';
 
 	function escapeAttribute(value) {
 		if (window.CSS && typeof window.CSS.escape === 'function') {
@@ -25,14 +32,18 @@
 
 	function createDashicon(icon) {
 		const dashicon = document.createElement('span');
-		dashicon.className = `dashicons ${icon || 'dashicons-admin-generic'}`;
+		dashicon.className = `dashicons ${icon || defaultDashicon}`;
 		dashicon.setAttribute('aria-hidden', 'true');
 
 		return dashicon;
 	}
 
 	function getDashiconValue(value) {
-		return typeof value === 'string' && value ? value : 'dashicons-admin-generic';
+		return typeof value === 'string' && value ? value : defaultDashicon;
+	}
+
+	function getDefaultDashicon() {
+		return defaultDashicon;
 	}
 
 	function getThemeIconPackUrl() {
@@ -55,29 +66,29 @@
 	}
 
 	function normalizeIcon(icon) {
-		if (icon && typeof icon === 'object' && icon.type === 'image' && icon.url) {
+		if (icon && typeof icon === 'object' && icon.type === (iconTypes.IMAGE || 'image') && icon.url) {
 			return {
-				type: 'image',
+				type: iconTypes.IMAGE || 'image',
 				url: icon.url,
 				alt: icon.alt || ''
 			};
 		}
 
-		if (icon && typeof icon === 'object' && icon.type === 'dashicon') {
+		if (icon && typeof icon === 'object' && icon.type === (iconTypes.DASHICON || 'dashicon')) {
 			return {
-				type: 'dashicon',
-				value: icon.value || icon.dashicon || 'dashicons-admin-generic'
+				type: iconTypes.DASHICON || 'dashicon',
+				value: icon.value || icon.dashicon || defaultDashicon
 			};
 		}
 
-		if (icon && typeof icon === 'object' && icon.type === 'theme') {
+		if (icon && typeof icon === 'object' && icon.type === (iconTypes.THEME || 'theme')) {
 			const name = normalizeIconName(icon.name);
 			const fallback = getDashiconValue(icon.fallback);
 			const iconPackUrl = getThemeIconPackUrl();
 
 			if (name && iconPackUrl) {
 				return {
-					type: 'image',
+					type: iconTypes.IMAGE || 'image',
 					url: `${trailingslash(iconPackUrl)}${encodeURIComponent(name)}`,
 					alt: icon.alt || '',
 					fallback
@@ -85,21 +96,21 @@
 			}
 
 			return {
-				type: 'dashicon',
+				type: iconTypes.DASHICON || 'dashicon',
 				value: fallback
 			};
 		}
 
 		return {
-			type: 'dashicon',
-			value: typeof icon === 'string' && icon ? icon : 'dashicons-admin-generic'
+			type: iconTypes.DASHICON || 'dashicon',
+			value: typeof icon === 'string' && icon ? icon : defaultDashicon
 		};
 	}
 
 	function createIcon(icon) {
 		const descriptor = normalizeIcon(icon);
 
-		if (descriptor.type === 'image') {
+		if (descriptor.type === (iconTypes.IMAGE || 'image')) {
 			const image = document.createElement('img');
 			image.className = 'pdk-icon-image';
 			image.src = descriptor.url;
@@ -127,6 +138,7 @@
 		createDashicon,
 		createElement,
 		createIcon,
-		escapeAttribute
+		escapeAttribute,
+		getDefaultDashicon
 	};
 })();

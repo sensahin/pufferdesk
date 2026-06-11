@@ -5,7 +5,12 @@
 	window.PufferDesk.windows = window.PufferDesk.windows || {};
 
 	window.PufferDesk.windows.createWindowFactory = function createWindowFactory(callbacks = {}) {
-		const defaultWindowChrome = {
+		const contextTargets = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
+			? window.PufferDesk.shell.contextMenuConstants.targets || {}
+			: {};
+		const workspace = window.PufferDesk.session && window.PufferDesk.session.workspace ? window.PufferDesk.session.workspace : {};
+		const windowKinds = workspace.windowKinds || {};
+		const fallbackWindowChrome = {
 			controls: {
 				labels: {
 					close: 'Close',
@@ -21,7 +26,7 @@
 				show_icon: true
 			}
 		};
-		const controlDefinitions = {
+		const fallbackControlDefinitions = {
 			close: {
 				action: 'pdkClose',
 				modifier: 'close'
@@ -35,11 +40,86 @@
 				modifier: 'maximize'
 			}
 		};
+		const windowChromeContract = getWindowChromeContract();
+		const defaultWindowChrome = getDefaultWindowChrome(windowChromeContract);
+		const controlDefinitions = getControlDefinitions(windowChromeContract);
+		const controlIdMap = getContractMap(windowChromeContract.controlIds, {
+			CLOSE: 'close',
+			MAXIMIZE: 'maximize',
+			MINIMIZE: 'minimize'
+		});
+		const controlIds = Object.keys(controlDefinitions);
+		const controlPlacements = getContractList(windowChromeContract.placements, ['left', 'right']);
+		const controlStyles = getContractList(windowChromeContract.styles, ['traffic', 'caption', 'toolbar', 'hidden']);
+		const titleAlignments = getContractList(windowChromeContract.titleAlignments, ['left', 'center', 'right']);
 
-		function getRuntimeWindowChrome() {
-			const config = window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
+		function clone(value) {
+			if (!value || typeof value !== 'object') {
+				return value;
+			}
+
+			try {
+				return JSON.parse(JSON.stringify(value));
+			} catch (error) {
+				return Array.isArray(value) ? value.slice() : Object.assign({}, value);
+			}
+		}
+
+		function getRuntimeConfig() {
+			return window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
 				? window.PufferDesk.config.get()
 				: {};
+		}
+
+		function getWindowChromeContract() {
+			const config = getRuntimeConfig();
+			const contracts = config.contracts && typeof config.contracts === 'object' ? config.contracts : {};
+
+			return contracts.windowChrome && typeof contracts.windowChrome === 'object' ? contracts.windowChrome : {};
+		}
+
+		function getContractList(value, fallback) {
+			return Array.isArray(value) && value.length ? value.slice() : fallback.slice();
+		}
+
+		function getContractMap(value, fallback) {
+			return value && typeof value === 'object' ? Object.assign({}, fallback, value) : Object.assign({}, fallback);
+		}
+
+		function getFallbackControlMap(property) {
+			return Object.keys(fallbackControlDefinitions).reduce((map, id) => {
+				map[id] = fallbackControlDefinitions[id][property];
+				return map;
+			}, {});
+		}
+
+		function getDefaultWindowChrome(contract) {
+			return contract.defaultConfig && typeof contract.defaultConfig === 'object'
+				? clone(contract.defaultConfig)
+				: clone(fallbackWindowChrome);
+		}
+
+		function getControlDefinitions(contract) {
+			const ids = getContractList(contract.controls, Object.keys(fallbackControlDefinitions));
+			const actions = getContractMap(contract.controlDatasetActions, getFallbackControlMap('action'));
+			const modifiers = getContractMap(contract.controlModifiers, getFallbackControlMap('modifier'));
+
+			return ids.reduce((definitions, id) => {
+				if (!actions[id] || !modifiers[id]) {
+					return definitions;
+				}
+
+				definitions[id] = {
+					action: actions[id],
+					modifier: modifiers[id]
+				};
+
+				return definitions;
+			}, {});
+		}
+
+		function getRuntimeWindowChrome() {
+			const config = getRuntimeConfig();
 
 			if (config.windowChrome && typeof config.windowChrome === 'object') {
 				return config.windowChrome;
@@ -61,11 +141,11 @@
 				controls: {
 					labels: Object.assign({}, defaultWindowChrome.controls.labels, controls.labels && typeof controls.labels === 'object' ? controls.labels : {}),
 					order: order.length ? order : defaultWindowChrome.controls.order,
-					placement: ['left', 'right'].includes(controls.placement) ? controls.placement : defaultWindowChrome.controls.placement,
-					style: ['traffic', 'caption', 'toolbar', 'hidden'].includes(controls.style) ? controls.style : defaultWindowChrome.controls.style
+					placement: controlPlacements.includes(controls.placement) ? controls.placement : defaultWindowChrome.controls.placement,
+					style: controlStyles.includes(controls.style) ? controls.style : defaultWindowChrome.controls.style
 				},
 				title: {
-					alignment: ['left', 'center', 'right'].includes(title.alignment) ? title.alignment : defaultWindowChrome.title.alignment,
+					alignment: titleAlignments.includes(title.alignment) ? title.alignment : defaultWindowChrome.title.alignment,
 					show_icon: Object.prototype.hasOwnProperty.call(title, 'show_icon') ? Boolean(title.show_icon) : defaultWindowChrome.title.show_icon
 				}
 			};
@@ -94,13 +174,13 @@
 		function bindWindowControl(button, control, titlebar, appId) {
 			button.addEventListener('click', () => {
 				const win = titlebar.closest('.pdk-window');
-				if (control === 'close' && typeof callbacks.onClose === 'function') {
+				if (control === controlIdMap.CLOSE && typeof callbacks.onClose === 'function') {
 					callbacks.onClose(win, appId);
 				}
-				if (control === 'minimize' && typeof callbacks.onMinimize === 'function') {
+				if (control === controlIdMap.MINIMIZE && typeof callbacks.onMinimize === 'function') {
 					callbacks.onMinimize(win, appId);
 				}
-				if (control === 'maximize' && typeof callbacks.onMaximize === 'function') {
+				if (control === controlIdMap.MAXIMIZE && typeof callbacks.onMaximize === 'function') {
 					callbacks.onMaximize(win, appId);
 				}
 			});
@@ -133,6 +213,9 @@
 			const disabledControls = Array.isArray(options.disabledControls) ? options.disabledControls : [];
 			const titlebar = document.createElement('div');
 			titlebar.className = 'pdk-window-titlebar';
+			titlebar.dataset.pdkContext = contextTargets.WINDOW || 'window';
+			titlebar.dataset.pdkContextId = options.appId || options.windowKind || contextTargets.WINDOW || windowKinds.WINDOW || 'window';
+			titlebar.dataset.pdkContextLabel = options.title || options.titlebarLabel || '';
 			titlebar.dataset.pdkDragHandle = '';
 			titlebar.dataset.pdkWindowControlsPlacement = chrome.controls.placement;
 			titlebar.dataset.pdkWindowControlsStyle = chrome.controls.style;
@@ -167,14 +250,14 @@
 			const win = document.createElement('section');
 			win.className = 'pdk-window pdk-app-window';
 			win.dataset.pdkAppWindow = options.appId || '';
-			win.dataset.pdkContext = 'window';
-			win.dataset.pdkContextId = options.appId || options.windowKind || 'window';
+			win.dataset.pdkContext = contextTargets.WINDOW || 'window';
+			win.dataset.pdkContextId = options.appId || options.windowKind || contextTargets.WINDOW || windowKinds.WINDOW || 'window';
 			win.dataset.pdkContextLabel = options.title || '';
 			win.dataset.pdkResizeMode = options.resizeMode || 'both';
 			if (options.surfaceLayout) {
 				win.dataset.pdkSurfaceLayout = options.surfaceLayout;
 			}
-			win.dataset.pdkWindowKind = options.windowKind || (options.appId ? 'app' : 'window');
+			win.dataset.pdkWindowKind = options.windowKind || (options.appId ? windowKinds.APP || 'app' : windowKinds.WINDOW || 'window');
 			win.dataset.pdkWindowTitle = options.title || '';
 			win.dataset.pdkWindowControlsPlacement = chrome.controls.placement;
 			win.dataset.pdkWindowControlsStyle = chrome.controls.style;

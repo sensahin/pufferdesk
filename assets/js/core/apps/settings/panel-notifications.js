@@ -5,8 +5,6 @@
 	window.PufferDesk.apps = window.PufferDesk.apps || {};
 	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
-	const sourceOrder = ['wordpress_updates', 'comments', 'site_health', 'pufferdesk', 'apps'];
-
 	function normalizePreferences(preferences = {}) {
 		if (window.PufferDesk.notifications && typeof window.PufferDesk.notifications.normalizePreferences === 'function') {
 			return window.PufferDesk.notifications.normalizePreferences(preferences);
@@ -38,11 +36,14 @@
 		const behaviorSection = createSection('', 'pdk-settings-list pdk-settings-notifications-list');
 		const sourcesSection = createSection('', 'pdk-settings-list pdk-settings-notifications-list');
 		const notificationConfig = ctx.config.notifications && typeof ctx.config.notifications === 'object' ? ctx.config.notifications : {};
+		const sourceLabels = t('notifications.sourceLabels', {});
+		const sourceOrder = Object.keys(sourceLabels);
 		let currentPreferences = normalizePreferences(notificationConfig.preferences || {});
 		const dependentControls = [];
 		const toggleControls = Object.create(null);
 		const sourceControls = Object.create(null);
 		const selectControls = Object.create(null);
+		const getSettingAction = window.PufferDesk.config.getSettingAction.bind(window.PufferDesk.config);
 
 		panel.dataset.pdkSettingsPanel = 'notifications';
 
@@ -107,14 +108,14 @@
 		}
 
 		const saveNotificationsMutation = mutations.createDebounced({
-			action: 'pufferdesk_save_notifications',
-			errorText: t('status.notificationsSaveError', 'Notifications could not be saved.'),
+			action: getSettingAction('NOTIFICATIONS'),
+			errorText: t('status.notificationsSaveError'),
 			onSuccess(data) {
 				currentPreferences = normalizePreferences(data.notifications || currentPreferences);
 				syncRuntimePreferences();
 				syncControlStates();
 
-				return data.message || t('status.notificationsSaved', 'Notifications saved.');
+				return data.message || t('status.notificationsSaved');
 			},
 			payload: () => ({
 				enabled: currentPreferences.enabled ? '1' : '0',
@@ -224,35 +225,35 @@
 
 		behaviorSection.appendChild(createToggleRow(
 			'enabled',
-			t('notifications.rows.enabled', 'Enable notifications'),
+			t('notifications.rows.enabled'),
 			'',
 			false
 		));
 		behaviorSection.appendChild(createToggleRow(
 			'show_badges',
-			t('notifications.rows.showBadges', 'Show notification badges')
+			t('notifications.rows.showBadges')
 		));
 		behaviorSection.appendChild(createToggleRow(
 			'show_toasts',
-			t('notifications.rows.showToasts', 'Show notification banners')
+			t('notifications.rows.showToasts')
 		));
 		behaviorSection.appendChild(createToggleRow(
 			'quiet_mode',
-			t('notifications.rows.quietMode', 'Quiet mode'),
-			t('notifications.rows.quietModeDescription', 'Keep notifications in Notification Center without showing banners.')
+			t('notifications.rows.quietMode'),
+			t('notifications.rows.quietModeDescription')
 		));
 		behaviorSection.appendChild(createToggleRow(
 			'play_sound',
-			t('notifications.rows.playSound', 'Play sound')
+			t('notifications.rows.playSound')
 		));
 		behaviorSection.appendChild(createSelectRow(
 			'severity',
-			t('notifications.rows.severity', 'Show'),
+			t('notifications.rows.severity'),
 			'notifications.severityOptions'
 		));
 		behaviorSection.appendChild(createSelectRow(
 			'history_days',
-			t('notifications.rows.historyDays', 'Keep history'),
+			t('notifications.rows.historyDays'),
 			'notifications.historyOptions'
 		));
 
@@ -265,11 +266,11 @@
 			), control));
 		});
 
-		panel.appendChild(createSectionHeading(t('notifications.title', 'Notifications')));
-		panel.appendChild(dom.createElement('p', 'pdk-settings-panel-description', t('notifications.description', 'Choose which WordPress and PufferDesk events appear in Notification Center.')));
-		panel.appendChild(createSectionHeading(t('notifications.headings.behavior', 'Behavior')));
+		panel.appendChild(createSectionHeading(t('notifications.title')));
+		panel.appendChild(dom.createElement('p', 'pdk-settings-panel-description', t('notifications.description')));
+		panel.appendChild(createSectionHeading(t('notifications.headings.behavior')));
 		panel.appendChild(behaviorSection);
-		panel.appendChild(createSectionHeading(t('notifications.headings.sources', 'Sources')));
+		panel.appendChild(createSectionHeading(t('notifications.headings.sources')));
 		panel.appendChild(sourcesSection);
 
 		syncControlStates();

@@ -30,6 +30,8 @@ Source scan covered `assets/js/`, `assets/css/`, `templates/`, `includes/`, and 
 
 The platform keeps the old boot-facing `createContextMenuController()` factory as the compatibility entry point, but the implementation is now split into focused contracts:
 
+- `PufferDesk_Context_Menu_Contracts`: PHP source of truth for context target IDs, area IDs, target types, item types, and context keys; exposed to the browser as `runtime.contracts.contextMenu`.
+- `assets/js/core/shell/context-menu-constants.js`: browser accessor for the PHP-provided context-menu contract.
 - `assets/js/core/shell/context-menu-resolver.js`: resolves nested right-click targets into a normalized context object with `area`, `targetType`, `targetId`, `containerId`, `itemType`, `theme`, `metadata`, and legacy fields such as `type`, `id`, `app`, `folder`, and `windowElement`.
 - `assets/js/core/shell/context-menu-permissions.js`: filters declarative menu items with `visibleWhen`, `enabledWhen`, `requiresPermission`, `requiresFeature`, and `themeSupport`.
 - `assets/js/core/shell/context-menu-positioner.js`: positions menus inside shell viewport bounds, including Dock edge placement.
@@ -54,7 +56,7 @@ window.PufferDesk.contextMenus.register('folder.item', {
 });
 ```
 
-Supported keys include current target types such as `desktop.background`, `desktop.item`, `folder.background`, `folder.item`, `folder.toolbar`, `folder.tab`, `folder.sidebar`, `dock.background`, `dock.item`, `window.titlebar`, `widget.item`, and legacy `data-pdk-context` values such as `desktop-app` or `dock-app`.
+Supported keys include current target types such as `desktop.background`, `desktop.item`, `folder.background`, `folder.item`, `folder.toolbar`, `folder.tab`, `folder.sidebar`, `dock.background`, `dock.item`, `window.titlebar`, `widget.item`, and legacy `data-pdk-context` values such as `desktop-app` or `dock-app`. New core code should read these values from `window.PufferDesk.shell.contextMenuConstants` instead of spelling them directly.
 
 Extensions must register their command through `window.PufferDesk.menuCommands.register()` or the Desktop API command facade. Context menu items should not mutate app, folder, widget, or window state directly.
 

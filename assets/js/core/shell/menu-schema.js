@@ -4,17 +4,27 @@
 	window.PufferDesk = window.PufferDesk || {};
 	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
-	const standardGroupIds = ['app', 'file', 'edit', 'view', 'go', 'window', 'help'];
-	const recognizedGroupIds = ['site'].concat(standardGroupIds);
+	const menuGroupsContract = window.PufferDesk.config && typeof window.PufferDesk.config.getContractMap === 'function'
+		? window.PufferDesk.config.getContractMap('menuGroups', {})
+		: {};
+	const menuGroupIds = menuGroupsContract.ids && typeof menuGroupsContract.ids === 'object'
+		? menuGroupsContract.ids
+		: {};
+	const standardGroupIds = Array.isArray(menuGroupsContract.standard) && menuGroupsContract.standard.length
+		? menuGroupsContract.standard
+		: ['app', 'file', 'edit', 'view', 'go', 'window', 'help'];
+	const recognizedGroupIds = Array.isArray(menuGroupsContract.recognized) && menuGroupsContract.recognized.length
+		? menuGroupsContract.recognized
+		: [menuGroupIds.SITE || 'site'].concat(standardGroupIds);
 
 	window.PufferDesk.shell.createMenuSchema = function createMenuSchema(labels = {}) {
 		function getLabel(key, fallback) {
-			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
+			return typeof labels[key] === 'string' && labels[key] ? labels[key] : (fallback || key);
 		}
 
 		function getDefaultGroupLabel(id, context = {}) {
-			if (id === 'app') {
-				return context.appLabel || context.title || getLabel('admin', 'Admin');
+			if (id === (menuGroupIds.APP || 'app')) {
+				return context.appLabel || context.title || getLabel('admin');
 			}
 
 			return getLabel(id, id.charAt(0).toUpperCase() + id.slice(1));
@@ -177,7 +187,7 @@
 
 		function getDefaultDefinition(context = {}) {
 			const groups = standardGroupIds
-				.filter((id) => id !== 'go' || context.includeGo)
+				.filter((id) => id !== (menuGroupIds.GO || 'go') || context.includeGo)
 				.map((id) => ({
 					id,
 					items: [],
@@ -197,6 +207,12 @@
 
 		return {
 			getDefaultDefinition,
+			getGroupIds() {
+				return Object.assign({}, menuGroupIds);
+			},
+			getStandardGroupIds() {
+				return standardGroupIds.slice();
+			},
 			normalizeCommandItems,
 			normalizeDefinition
 		};

@@ -86,14 +86,14 @@ $pufferdesk_window_chrome = wp_parse_args(
 $pufferdesk_window_controls = wp_parse_args(
 	isset( $pufferdesk_window_chrome['controls'] ) && is_array( $pufferdesk_window_chrome['controls'] ) ? $pufferdesk_window_chrome['controls'] : array(),
 	array(
-		'placement' => 'left',
-		'style'     => 'traffic',
+		'placement' => PufferDesk_Window_Chrome_Contracts::PLACEMENT_LEFT,
+		'style'     => PufferDesk_Window_Chrome_Contracts::STYLE_TRAFFIC,
 	)
 );
 $pufferdesk_window_title = wp_parse_args(
 	isset( $pufferdesk_window_chrome['title'] ) && is_array( $pufferdesk_window_chrome['title'] ) ? $pufferdesk_window_chrome['title'] : array(),
 	array(
-		'alignment' => 'left',
+		'alignment' => PufferDesk_Window_Chrome_Contracts::TITLE_ALIGNMENT_LEFT,
 	)
 );
 $pufferdesk_token_styles      = PufferDesk_Theme_Token_Renderer::get_shell_styles( $theme, $wallpaper, $pufferdesk_desktop_dock );

@@ -5,13 +5,15 @@
 	window.PufferDesk.apps = window.PufferDesk.apps || {};
 
 	const actions = {
-		loginItems: 'pufferdesk_save_app_login_items',
-		locations: 'pufferdesk_save_app_locations'
+		loginItems: window.PufferDesk.config.getSettingAction('APP_LOGIN_ITEMS'),
+		locations: window.PufferDesk.config.getSettingAction('APP_LOCATIONS')
 	};
-	const defaultErrors = {
-		loginItems: 'Login items could not be saved.',
-		locations: 'App locations could not be saved.'
-	};
+	const appLocations = window.PufferDesk.config.getContractMap('appLocations', {
+		DOCK: 'dock',
+		DESKTOP: 'desktop',
+		BOTH: 'both',
+		HIDDEN: 'hidden'
+	});
 
 	window.PufferDesk.apps.createAppPreferenceStore = function createAppPreferenceStore(config = {}, options = {}) {
 		const api = options.api || (window.PufferDesk.services ? window.PufferDesk.services.api : null);
@@ -81,6 +83,35 @@
 			return result && result.data && result.data.message ? result.data.message : fallback;
 		}
 
+		function getSettingsLabel(path) {
+			const settings = config.settings && typeof config.settings === 'object' ? config.settings : {};
+			const labels = settings.labels && typeof settings.labels === 'object' ? settings.labels : {};
+			const value = String(path || '').split('.').reduce((current, key) => (
+				current && Object.prototype.hasOwnProperty.call(current, key) ? current[key] : undefined
+			), labels);
+
+			return typeof value === 'string' && value ? value : path;
+		}
+
+		function getMenuLabel(key) {
+			const menu = config.menu && typeof config.menu === 'object' ? config.menu : {};
+			const labels = menu.labels && typeof menu.labels === 'object' ? menu.labels : {};
+			const value = labels[key];
+
+			return typeof value === 'string' && value ? value : key;
+		}
+
+		function formatMenuLabel(key, values = []) {
+			if (window.PufferDesk.config && typeof window.PufferDesk.config.formatFromLabels === 'function') {
+				const menu = config.menu && typeof config.menu === 'object' ? config.menu : {};
+				const labels = menu.labels && typeof menu.labels === 'object' ? menu.labels : {};
+
+				return window.PufferDesk.config.formatFromLabels(labels, key, key, values);
+			}
+
+			return getMenuLabel(key);
+		}
+
 		function saveLocations(locations = {}, saveOptions = {}) {
 			const previous = getLocations();
 
@@ -88,7 +119,7 @@
 
 			if (!api || typeof api.post !== 'function') {
 				applyLocations(previous, saveOptions);
-				return Promise.reject(new Error(saveOptions.errorText || defaultErrors.locations));
+				return Promise.reject(new Error(saveOptions.errorText || getSettingsLabel('status.appLocationsSaveError')));
 			}
 
 			return api.post(actions.locations, {
@@ -96,7 +127,7 @@
 			}).then((result) => {
 				if (!result || !result.success) {
 					applyLocations(previous, saveOptions);
-					throw new Error(getErrorMessage(result, saveOptions.errorText || defaultErrors.locations));
+					throw new Error(getErrorMessage(result, saveOptions.errorText || getSettingsLabel('status.appLocationsSaveError')));
 				}
 
 				const data = result.data && typeof result.data === 'object' ? result.data : {};
@@ -116,7 +147,7 @@
 
 			if (!api || typeof api.post !== 'function') {
 				applyLoginItems(previous);
-				return Promise.reject(new Error(saveOptions.errorText || defaultErrors.loginItems));
+				return Promise.reject(new Error(saveOptions.errorText || getSettingsLabel('status.loginItemsSaveError')));
 			}
 
 			return api.post(actions.loginItems, {
@@ -124,7 +155,7 @@
 			}).then((result) => {
 				if (!result || !result.success) {
 					applyLoginItems(previous);
-					throw new Error(getErrorMessage(result, saveOptions.errorText || defaultErrors.loginItems));
+					throw new Error(getErrorMessage(result, saveOptions.errorText || getSettingsLabel('status.loginItemsSaveError')));
 				}
 
 				const data = result.data && typeof result.data === 'object' ? result.data : {};
@@ -169,7 +200,7 @@
 			});
 		}
 
-		function getLocation(appId, fallback = 'dock') {
+		function getLocation(appId, fallback = appLocations.DOCK) {
 			const locations = getLocations();
 
 			return locations[appId] || fallback;
@@ -191,17 +222,25 @@
 			const current = getLocation(appId);
 
 			if (!app) {
-				return Promise.reject(new Error(saveOptions.unavailableText || 'App unavailable.'));
+				return Promise.reject(new Error(saveOptions.unavailableText || getMenuLabel('app_unavailable')));
 			}
 
 			if (isFixedDockApp(appId)) {
-				return Promise.reject(new Error(saveOptions.fixedMessage || 'App has a fixed launcher placement.'));
+				return Promise.reject(new Error(saveOptions.fixedMessage || formatMenuLabel('fixed_launcher_placement_format', [getMenuLabel('launcher')])));
 			}
 
 			if (keepInDock) {
-				locations[appId] = current === 'desktop' ? 'both' : current === 'hidden' ? 'dock' : current;
+				locations[appId] = current === appLocations.DESKTOP
+					? appLocations.BOTH
+					: current === appLocations.HIDDEN
+						? appLocations.DOCK
+						: current;
 			} else {
-				locations[appId] = current === 'both' ? 'desktop' : current === 'dock' ? 'hidden' : current;
+				locations[appId] = current === appLocations.BOTH
+					? appLocations.DESKTOP
+					: current === appLocations.DOCK
+						? appLocations.HIDDEN
+						: current;
 			}
 
 			return saveLocations(locations, saveOptions);

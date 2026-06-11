@@ -5,6 +5,8 @@
 	window.PufferDesk.apps = window.PufferDesk.apps || {};
 	window.PufferDesk.apps.settings = window.PufferDesk.apps.settings || {};
 
+	const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
+
 	window.PufferDesk.apps.settings.createGeneralPanel = function createGeneralPanel(ctx) {
 		const general = ctx.getGeneralSettingsConfig();
 		const groups = Array.isArray(general.groups) ? general.groups : [];
@@ -12,9 +14,9 @@
 
 		panel.dataset.pdkSettingsPanel = 'general';
 		panel.appendChild(ctx.createSettingsHero({
-			description: general.description || ctx.t('generalPanel.description', 'Manage site information, updates, language, privacy, and WordPress tools.'),
+			description: general.description || ctx.t('generalPanel.description'),
 			icon: 'dashicons-admin-generic',
-			title: ctx.t('generalPanel.title', 'General')
+			title: ctx.t('generalPanel.title')
 		}));
 
 		groups.forEach((group) => {
@@ -44,9 +46,9 @@
 
 		panel.dataset.pdkSettingsPanel = 'general-about';
 		panel.dataset.pdkSettingsSidebar = 'general';
-		panel.dataset.pdkSettingsTitle = ctx.t('generalPanel.aboutTitle', 'About');
+		panel.dataset.pdkSettingsTitle = ctx.t('generalPanel.aboutTitle');
 		hero.appendChild(createSettingsAboutDevice(ctx, siteInfo));
-		hero.appendChild(dom.createElement('h2', '', siteInfo.name || ctx.t('generalPanel.siteFallbackTitle', 'WordPress Site')));
+		hero.appendChild(dom.createElement('h2', '', siteInfo.name || ctx.t('generalPanel.siteFallbackTitle')));
 		if (siteInfo.url) {
 			hero.appendChild(dom.createElement('p', '', siteInfo.url));
 		}
@@ -54,15 +56,15 @@
 		panel.appendChild(hero);
 		panel.appendChild(createSettingsAboutInfoCard(ctx, siteInfo));
 		if (wordpressSection) {
-			panel.appendChild(ctx.createSectionHeading(ctx.t('generalPanel.wordpressHeading', 'WordPress')));
+			panel.appendChild(ctx.createSectionHeading(ctx.t('generalPanel.wordpressHeading')));
 			panel.appendChild(wordpressSection);
 		}
 		if (displaySection) {
-			panel.appendChild(ctx.createSectionHeading(ctx.t('generalPanel.displaysHeading', 'Displays')));
+			panel.appendChild(ctx.createSectionHeading(ctx.t('generalPanel.displaysHeading')));
 			panel.appendChild(displaySection);
 		}
 		if (diagnostics) {
-			panel.appendChild(ctx.createSectionHeading(ctx.t('generalPanel.diagnosticsHeading', 'Diagnostics')));
+			panel.appendChild(ctx.createSectionHeading(ctx.t('generalPanel.diagnosticsHeading')));
 			panel.appendChild(diagnostics);
 		}
 		if (siteInfo.footer) {
@@ -106,8 +108,8 @@
 	function createSettingsAboutInfoCard(ctx, siteInfo = {}) {
 		const section = ctx.createSection('', 'pdk-settings-about-info-card');
 		const rows = [
-			{ label: ctx.t('generalPanel.nameLabel', 'Name'), value: siteInfo.name || '' },
-			{ label: ctx.t('generalPanel.addressLabel', 'Address'), value: siteInfo.url || '' }
+			{ label: ctx.t('generalPanel.nameLabel'), value: siteInfo.name || '' },
+			{ label: ctx.t('generalPanel.addressLabel'), value: siteInfo.url || '' }
 		].concat(Array.isArray(siteInfo.rows) ? siteInfo.rows : []);
 
 		rows.forEach((row) => {
@@ -123,7 +125,7 @@
 
 	function createSettingsAboutFeatureIcon(ctx, iconName) {
 		const icon = ctx.dom.createElement('span', 'pdk-settings-about-feature-icon');
-		icon.appendChild(ctx.dom.createDashicon(iconName || 'dashicons-admin-generic'));
+		icon.appendChild(ctx.dom.createDashicon(iconName));
 
 		return icon;
 	}
@@ -158,8 +160,8 @@
 			button.className = 'pdk-settings-about-button';
 			button.textContent = info.buttonLabel;
 			button.addEventListener('click', () => {
-				ctx.executeMenuCommand('open-url', {
-					icon: info.buttonIcon || info.icon || 'dashicons-admin-generic',
+				ctx.executeMenuCommand(commandIds.OPEN_URL, {
+					icon: info.buttonIcon || info.icon || ctx.dom.getDefaultDashicon(),
 					label: info.buttonLabel,
 					title: info.buttonTitle || info.buttonLabel,
 					url: info.buttonUrl
@@ -185,18 +187,18 @@
 
 		button.type = 'button';
 		button.className = 'pdk-settings-about-button';
-		button.textContent = siteInfo.moreInfoLabel || ctx.t('generalPanel.moreInfoLabel', 'More Info...');
+		button.textContent = siteInfo.moreInfoLabel || ctx.t('generalPanel.moreInfoLabel');
 		button.addEventListener('click', () => {
-			ctx.executeMenuCommand('open-url', {
+			ctx.executeMenuCommand(commandIds.OPEN_URL, {
 				icon: 'dashicons-heart',
-				label: siteInfo.moreInfoLabel || ctx.t('generalPanel.moreInfoLabel', 'More Info...'),
-				title: siteInfo.moreInfoTitle || ctx.t('generalPanel.moreInfoTitle', 'Site Health Info'),
+				label: siteInfo.moreInfoLabel || ctx.t('generalPanel.moreInfoLabel'),
+				title: siteInfo.moreInfoTitle || ctx.t('generalPanel.moreInfoTitle'),
 				url: siteInfo.moreInfoUrl
 			});
 		});
 
-		text.appendChild(dom.createElement('strong', '', ctx.t('generalPanel.diagnosticsTitle', 'Site Health')));
-		text.appendChild(dom.createElement('span', '', ctx.t('generalPanel.diagnosticsDescription', 'WordPress diagnostics and environment report')));
+		text.appendChild(dom.createElement('strong', '', ctx.t('generalPanel.diagnosticsTitle')));
+		text.appendChild(dom.createElement('span', '', ctx.t('generalPanel.diagnosticsDescription')));
 		row.appendChild(ctx.createSettingsRowIcon('dashicons-heart', 'red'));
 		row.appendChild(text);
 		row.appendChild(button);

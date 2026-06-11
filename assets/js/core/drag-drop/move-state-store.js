@@ -6,6 +6,11 @@
 
 	window.PufferDesk.dragDrop.createMoveStateStore = function createMoveStateStore(shell, options = {}) {
 		const models = window.PufferDesk.dragDrop.models;
+		const constants = window.PufferDesk.dragDrop.constants || {};
+		const containerTypes = constants.containerTypes || {};
+		const containerLabels = constants.containerLabels || {};
+		const dragReasons = constants.reasons || {};
+		const itemTypes = constants.itemTypes || {};
 		const config = options.config && typeof options.config === 'object' ? options.config : {};
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
@@ -45,7 +50,7 @@
 		}
 
 		function isTrashFolderId(folderId) {
-			return folderId === 'trash';
+			return folderId === containerTypes.TRASH;
 		}
 
 		function isRecentsFolderId(folderId) {
@@ -59,13 +64,13 @@
 		}
 
 		function getFolderParentId(folder) {
-			const parentId = models.normalizeId(folder && folder.parentId ? folder.parentId : 'desktop');
+			const parentId = models.normalizeId(folder && folder.parentId ? folder.parentId : containerTypes.DESKTOP);
 
-			return parentId && parentId !== 'trash' ? parentId : 'desktop';
+			return parentId && parentId !== containerTypes.TRASH ? parentId : containerTypes.DESKTOP;
 		}
 
 		function getFolderContainerId(folderId) {
-			return folderId && folderId !== 'desktop' ? models.createContainerId('folder', folderId) : 'desktop';
+			return folderId && folderId !== containerTypes.DESKTOP ? models.createContainerId(containerTypes.FOLDER, folderId) : containerTypes.DESKTOP;
 		}
 
 		function getAppCurrentContainerId(appId) {
@@ -74,7 +79,7 @@
 				? manager.getUserFolderForApp(appId)
 				: null;
 
-			return folder && folder.id ? models.createContainerId('folder', folder.id) : 'desktop';
+			return folder && folder.id ? models.createContainerId(containerTypes.FOLDER, folder.id) : containerTypes.DESKTOP;
 		}
 
 		function getFolderCurrentContainerId(folderId) {
@@ -91,7 +96,7 @@
 			const userFolder = manager && typeof manager.getUserFolderForApp === 'function'
 				? manager.getUserFolderForApp(item.id)
 				: null;
-			const actualContainerId = userFolder && userFolder.id ? models.createContainerId('folder', userFolder.id) : 'desktop';
+			const actualContainerId = userFolder && userFolder.id ? models.createContainerId(containerTypes.FOLDER, userFolder.id) : containerTypes.DESKTOP;
 			const currentContainerId = item.currentContainerId || item.sourceContainerId || actualContainerId;
 
 			return models.normalizeItem(Object.assign({}, item, {
@@ -136,11 +141,11 @@
 				return normalized;
 			}
 
-			if (normalized.type === 'app') {
+			if (normalized.type === itemTypes.APP) {
 				return enrichApp(normalized);
 			}
 
-			if (normalized.type === 'folder') {
+			if (normalized.type === itemTypes.FOLDER) {
 				return enrichFolder(normalized);
 			}
 
@@ -160,7 +165,7 @@
 			while (current && guard < 100) {
 				const parentId = getFolderParentId(current);
 
-				if (!parentId || parentId === 'desktop') {
+				if (!parentId || parentId === containerTypes.DESKTOP) {
 					return false;
 				}
 
@@ -175,7 +180,7 @@
 			return false;
 		}
 
-		function canMoveFolderToParent(folderId, parentId = 'desktop') {
+		function canMoveFolderToParent(folderId, parentId = containerTypes.DESKTOP) {
 			const manager = getFolderManager();
 
 			if (!manager || typeof manager.canMoveFolderToParent !== 'function') {
@@ -187,7 +192,7 @@
 
 		function getDynamicFolderContainer(containerId) {
 			const parsed = models.parseContainerId(containerId);
-			const folder = parsed.type === 'folder' ? getFolder(parsed.targetId) : null;
+			const folder = parsed.type === containerTypes.FOLDER ? getFolder(parsed.targetId) : null;
 
 			if (!folder) {
 				return null;
@@ -199,18 +204,18 @@
 						return false;
 					}
 
-					if (item.type === 'app') {
+					if (item.type === itemTypes.APP) {
 						return Boolean(isUserFolder(parsed.targetId));
 					}
 
-					if (item.type === 'folder') {
+					if (item.type === itemTypes.FOLDER) {
 						return Boolean(
 							item.metadata
 							&& item.metadata.user
 							&& item.id !== parsed.targetId
 							&& !isFolderDescendant(parsed.targetId, item.id)
 							&& canMoveFolderToParent(item.id, parsed.targetId)
-							&& (!move || move.reason !== 'trash')
+							&& (!move || move.reason !== dragReasons.TRASH)
 						);
 					}
 
@@ -229,36 +234,36 @@
 					user: isUserFolder(parsed.targetId)
 				},
 				persistence: 'desktopFolders',
-				type: 'folder'
+				type: containerTypes.FOLDER
 			};
 		}
 
 		function getStaticContainer(containerId) {
 			const id = models.normalizeContainerId(containerId);
 
-			if (id === 'desktop') {
+			if (id === containerTypes.DESKTOP) {
 				return {
 					accepts(item) {
-						return Boolean(item && (item.type === 'app' || (item.type === 'folder' && item.metadata && item.metadata.user)));
+						return Boolean(item && (item.type === itemTypes.APP || (item.type === itemTypes.FOLDER && item.metadata && item.metadata.user)));
 					},
 					canContainFolders: true,
 					canMoveOut: () => true,
 					canReorder: true,
-					id: 'desktop',
-					label: 'Desktop',
+					id: containerTypes.DESKTOP,
+					label: containerLabels.DESKTOP,
 					maxDepth: 0,
 					metadata: {},
 					persistence: 'workspace:desktopIcons',
-					type: 'desktop'
+					type: containerTypes.DESKTOP
 				};
 			}
 
-			if (id === 'folder-sidebar:favorites') {
+			if (id === containerTypes.FOLDER_SIDEBAR_FAVORITES) {
 				return {
 					accepts(item) {
 						return Boolean(
 							item
-							&& item.type === 'folder'
+							&& item.type === itemTypes.FOLDER
 							&& item.id
 							&& getFolder(item.id)
 							&& !isTrashFolderId(item.id)
@@ -269,45 +274,45 @@
 					canMoveOut: () => false,
 					canReorder: true,
 					id,
-					label: 'Folder Sidebar Favorites',
+					label: containerLabels.FOLDER_SIDEBAR_FAVORITES,
 					maxDepth: 0,
 					metadata: {
 						section: 'favorites'
 					},
 					persistence: 'workspace:folderSidebar',
-					type: 'folder-sidebar'
+					type: containerTypes.FOLDER_SIDEBAR
 				};
 			}
 
-			if (id === 'dock') {
+			if (id === containerTypes.DOCK) {
 				return {
 					accepts: () => false,
 					canContainFolders: false,
 					canMoveOut: () => false,
 					canReorder: true,
 					id,
-					label: 'Dock',
+					label: containerLabels.DOCK,
 					maxDepth: 0,
 					metadata: {},
 					persistence: 'preferences:appLocations',
-					type: 'dock'
+					type: containerTypes.DOCK
 				};
 			}
 
-			if (id === 'trash') {
+			if (id === containerTypes.TRASH) {
 				return {
 					accepts(item, move) {
-						return Boolean(item && item.type === 'folder' && item.metadata && item.metadata.user && move && move.reason === 'trash');
+						return Boolean(item && item.type === itemTypes.FOLDER && item.metadata && item.metadata.user && move && move.reason === dragReasons.TRASH);
 					},
 					canContainFolders: false,
 					canMoveOut: () => false,
 					canReorder: false,
 					id,
-					label: 'Trash',
+					label: containerLabels.TRASH,
 					maxDepth: 0,
 					metadata: {},
 					persistence: 'preferences:desktopTrash',
-					type: 'trash'
+					type: containerTypes.TRASH
 				};
 			}
 
@@ -331,34 +336,34 @@
 				return false;
 			}
 
-			if (item.type === 'app') {
-				if (move.toContainerId === 'desktop' && typeof manager.moveAppToDesktop === 'function') {
+			if (item.type === itemTypes.APP) {
+				if (move.toContainerId === containerTypes.DESKTOP && typeof manager.moveAppToDesktop === 'function') {
 					return Boolean(manager.moveAppToDesktop(item.id, {
 						point
 					}));
 				}
 
-				if (parsed.type === 'folder' && typeof manager.addAppToFolder === 'function') {
+				if (parsed.type === containerTypes.FOLDER && typeof manager.addAppToFolder === 'function') {
 					return Boolean(manager.addAppToFolder(item.id, parsed.targetId));
 				}
 			}
 
-			if (item.type === 'folder') {
-				if (move.toContainerId === 'desktop' && typeof manager.moveFolderToParent === 'function') {
-					return Boolean(manager.moveFolderToParent(item.id, 'desktop', {
+			if (item.type === itemTypes.FOLDER) {
+				if (move.toContainerId === containerTypes.DESKTOP && typeof manager.moveFolderToParent === 'function') {
+					return Boolean(manager.moveFolderToParent(item.id, containerTypes.DESKTOP, {
 						point
 					}));
 				}
 
-				if (move.toContainerId === 'folder-sidebar:favorites' && launcher && typeof launcher.addFolderSidebarFavorite === 'function') {
+				if (move.toContainerId === containerTypes.FOLDER_SIDEBAR_FAVORITES && launcher && typeof launcher.addFolderSidebarFavorite === 'function') {
 					return Boolean(launcher.addFolderSidebarFavorite(item.id));
 				}
 
-				if (move.toContainerId === 'trash' && move.reason === 'trash' && typeof manager.moveFolderToTrash === 'function') {
+				if (move.toContainerId === containerTypes.TRASH && move.reason === dragReasons.TRASH && typeof manager.moveFolderToTrash === 'function') {
 					return Boolean(manager.moveFolderToTrash(item.id));
 				}
 
-				if (parsed.type === 'folder' && typeof manager.moveFolderToParent === 'function') {
+				if (parsed.type === containerTypes.FOLDER && typeof manager.moveFolderToParent === 'function') {
 					return Boolean(manager.moveFolderToParent(item.id, parsed.targetId, {
 						point
 					}));

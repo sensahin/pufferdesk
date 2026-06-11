@@ -7,6 +7,7 @@
 	window.PufferDesk.apps.createFolderMenuOptions = function createFolderMenuOptions(options = {}) {
 		const folderViewModes = window.PufferDesk.apps.folderViewModes;
 		const getMenuLabel = typeof options.getMenuLabel === 'function' ? options.getMenuLabel : (key, fallback) => fallback;
+		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
 
 		function menuItem(label, command, itemOptions = {}) {
 			return Object.assign({
@@ -62,7 +63,7 @@
 					items.push(separator());
 				}
 
-				items.push(modeItem(getViewModeLabel(option), 'folder.set-view-mode', option.mode, activeMode, folderId));
+				items.push(modeItem(getViewModeLabel(option), commandIds.FOLDER_SET_VIEW_MODE, option.mode, activeMode, folderId));
 				previousGroup = option.group;
 			});
 
@@ -73,12 +74,12 @@
 			const activeMode = itemOptions.activeMode || 'none';
 
 			return [
-				modeItem(getMenuLabel('sort_none', 'None'), 'folder.set-sort-mode', 'none', activeMode, folderId),
+				modeItem(getMenuLabel('sort_none'), commandIds.FOLDER_SET_SORT_MODE, 'none', activeMode, folderId),
 				separator(),
-				modeItem(getMenuLabel('sort_name', 'Name'), 'folder.set-sort-mode', 'name', activeMode, folderId),
-				modeItem(getMenuLabel('sort_kind', 'Kind'), 'folder.set-sort-mode', 'kind', activeMode, folderId),
-				disabledItem(getMenuLabel('sort_date_modified', 'Date Modified')),
-				disabledItem(getMenuLabel('sort_size', 'Size'))
+				modeItem(getMenuLabel('sort_name'), commandIds.FOLDER_SET_SORT_MODE, 'name', activeMode, folderId),
+				modeItem(getMenuLabel('sort_kind'), commandIds.FOLDER_SET_SORT_MODE, 'kind', activeMode, folderId),
+				disabledItem(getMenuLabel('sort_date_modified')),
+				disabledItem(getMenuLabel('sort_size'))
 			];
 		}
 
@@ -91,11 +92,11 @@
 			const sortItems = getSortModeItems(folderId, {
 				activeMode: itemOptions.sortMode || 'none'
 			});
-			const infoLabel = itemOptions.infoLabel || getMenuLabel('get_info', 'Get Info');
-			const sortByLabel = itemOptions.sortByLabel || getMenuLabel('sort_by', 'Sort By');
+			const infoLabel = itemOptions.infoLabel || getMenuLabel('get_info');
+			const sortByLabel = itemOptions.sortByLabel || getMenuLabel('sort_by');
 
 			return [
-				menuItem(getMenuLabel('new_folder', 'New Folder'), 'folder.create', {
+				menuItem(getMenuLabel('new_folder'), commandIds.FOLDER_CREATE, {
 					icon: 'dashicons-category',
 					payload: {
 						folderId,
@@ -104,7 +105,7 @@
 					},
 					target: folderId
 				}),
-				menuItem(infoLabel, 'folder.get-info', {
+				menuItem(infoLabel, commandIds.FOLDER_GET_INFO, {
 					icon: 'dashicons-info-outline',
 					payload: {
 						folderId,
@@ -117,7 +118,7 @@
 					icon: 'dashicons-grid-view',
 					id: 'folder-content-view',
 					items: viewItems,
-					label: getMenuLabel('view', 'View')
+					label: getMenuLabel('view')
 				},
 				{
 					icon: 'dashicons-sort',

@@ -6,9 +6,14 @@
 
 	window.PufferDesk.dragDrop.createMoveService = function createMoveService(options = {}) {
 		const models = window.PufferDesk.dragDrop.models;
+		const constants = window.PufferDesk.dragDrop.constants || {};
+		const containerTypes = constants.containerTypes || {};
+		const itemTypes = constants.itemTypes || {};
+		const messages = constants.messages || {};
 		const validator = options.validator || null;
 		const stateStore = options.stateStore || null;
 		const events = options.events || window.PufferDesk.events || null;
+		const eventNames = events && events.names ? events.names : {};
 
 		function emit(name, detail = {}) {
 			if (events && typeof events.emit === 'function') {
@@ -21,19 +26,19 @@
 		function getFolderIdFromContainer(containerId) {
 			const parsed = models.parseContainerId(containerId);
 
-			return parsed.type === 'folder' ? parsed.targetId : '';
+			return parsed.type === containerTypes.FOLDER ? parsed.targetId : '';
 		}
 
 		function emitContainerChanges(move, changed) {
 			const folderIds = Array.from(new Set([
 				getFolderIdFromContainer(move.fromContainerId),
 				getFolderIdFromContainer(move.toContainerId),
-				move.itemType === 'folder' ? move.itemId : ''
+				move.itemType === itemTypes.FOLDER ? move.itemId : ''
 			].filter(Boolean)));
-			const desktopChanged = move.fromContainerId === 'desktop' || move.toContainerId === 'desktop' || move.itemType === 'app';
+			const desktopChanged = move.fromContainerId === containerTypes.DESKTOP || move.toContainerId === containerTypes.DESKTOP || move.itemType === itemTypes.APP;
 
 			if (desktopChanged) {
-				emit('desktop:layout:changed', {
+				emit(eventNames.DESKTOP_LAYOUT_CHANGED, {
 					changed: Boolean(changed),
 					item: move.item,
 					move,
@@ -42,7 +47,7 @@
 			}
 
 			folderIds.forEach((folderId) => {
-				emit('folder:contents:changed', {
+				emit(eventNames.FOLDER_CONTENTS_CHANGED, {
 					changed: Boolean(changed),
 					folderId,
 					item: move.item,
@@ -57,13 +62,13 @@
 				? validator.validate(request)
 				: {
 					code: 'missing-validator',
-					message: 'The move validator is not available.',
+					message: messages.MISSING_VALIDATOR,
 					move: models.normalizeMoveRequest(request),
 					valid: false
 				};
 
 			if (validateOptions.emit !== false) {
-				emit('drop:validate', {
+				emit(eventNames.DROP_VALIDATE, {
 					move: validation.move || models.normalizeMoveRequest(request),
 					validation
 				});
@@ -77,7 +82,7 @@
 			const move = validation.move || models.normalizeMoveRequest(request);
 
 			if (!validation.valid) {
-				emit('item:move:error', {
+				emit(eventNames.ITEM_MOVE_ERROR, {
 					error: validation,
 					move
 				});
@@ -89,12 +94,12 @@
 				};
 			}
 
-			emit('item:move:start', {
+			emit(eventNames.ITEM_MOVE_START, {
 				move
 			});
 
 			if (validation.noOp) {
-				emit('item:move:success', {
+				emit(eventNames.ITEM_MOVE_SUCCESS, {
 					changed: false,
 					move,
 					noOp: true
@@ -114,12 +119,12 @@
 				if (!changed) {
 					const error = {
 						code: 'move-not-applied',
-						message: 'The move did not change workspace state.',
+						message: messages.MOVE_NOT_APPLIED,
 						move,
 						valid: false
 					};
 
-					emit('item:move:error', {
+					emit(eventNames.ITEM_MOVE_ERROR, {
 						error,
 						move
 					});
@@ -131,7 +136,7 @@
 					};
 				}
 
-				emit('item:move:success', {
+				emit(eventNames.ITEM_MOVE_SUCCESS, {
 					changed,
 					move
 				});
@@ -150,11 +155,11 @@
 					valid: false
 				};
 
-				emit('item:move:error', {
+				emit(eventNames.ITEM_MOVE_ERROR, {
 					error: normalizedError,
 					move
 				});
-				emit('item:move:rollback', {
+				emit(eventNames.ITEM_MOVE_ROLLBACK, {
 					error: normalizedError,
 					move
 				});

@@ -3,26 +3,12 @@
 
 	window.PufferDesk = window.PufferDesk || {};
 
-	const defaults = {
-		dock_size: 48,
-		dock_magnification: 0,
-		dock_position: 'bottom',
-		minimize_animation: 'genie',
-		minimize_into_app_icon: false,
-		auto_hide_dock: false,
-		animate_opening_apps: true,
-		show_open_indicators: true,
-		wallpaper_click: 'never',
-		show_widgets_desktop: true,
-		dim_widgets: 'automatic'
-	};
-
-	const allowed = {
-		dock_position: ['left', 'bottom', 'right'],
-		minimize_animation: ['genie', 'scale'],
-		wallpaper_click: ['always', 'never'],
-		dim_widgets: ['automatic', 'always', 'never']
-	};
+	const defaults = window.PufferDesk.config.getSettingDefault('desktop_dock') || {};
+	const allowed = window.PufferDesk.config.getSettingOptions('desktop_dock') || {};
+	const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
+		? window.PufferDesk.session.workspace.sections || {}
+		: {};
+	const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 
 	function normalizeBoolean(value) {
 		if (typeof value === 'boolean') {
@@ -101,7 +87,7 @@
 		shell.style.setProperty('--pdk-dock-tile-size', `${tileSize}px`);
 		shell.style.setProperty('--pdk-dock-hover-lift', `${lift}px`);
 		shell.style.setProperty('--pdk-dock-hover-scale', scale);
-		shell.dispatchEvent(new window.CustomEvent('pufferDesk:desktop-dock-change', {
+		shell.dispatchEvent(new window.CustomEvent(domEventNames.DESKTOP_DOCK_CHANGE, {
 			detail: current
 		}));
 
@@ -150,7 +136,7 @@
 	function getDockOrder(config = {}) {
 		const state = getWorkspaceState(config);
 
-		return normalizeDockOrder(state.dockApps || [], config.apps || []);
+		return normalizeDockOrder(state[workspaceSections.DOCK_APPS] || [], config.apps || []);
 	}
 
 	function orderApps(apps = [], config = {}) {
@@ -264,11 +250,11 @@
 	function saveDockOrder(config = {}, sessionStore, order = []) {
 		const normalized = normalizeDockOrder(order, config.apps || []);
 		config.workspaceState = Object.assign({}, getWorkspaceState(config), {
-			dockApps: normalized
+			[workspaceSections.DOCK_APPS]: normalized
 		});
 
 		if (sessionStore && typeof sessionStore.saveSection === 'function') {
-			sessionStore.saveSection('dockApps', normalized);
+			sessionStore.saveSection(workspaceSections.DOCK_APPS, normalized);
 			return true;
 		}
 
@@ -553,7 +539,7 @@
 
 			if (didDrag && !shouldSave && drag.originalOrder.length) {
 				config.workspaceState = Object.assign({}, getWorkspaceState(config), {
-					dockApps: drag.originalOrder
+					[workspaceSections.DOCK_APPS]: drag.originalOrder
 				});
 				if (placeholder) {
 					dock.insertBefore(item, placeholder);
@@ -711,7 +697,7 @@
 			event.stopPropagation();
 		}, true);
 
-		window.addEventListener('pufferDesk:workspace-state-changed', (event) => {
+		window.addEventListener(domEventNames.WORKSPACE_STATE_CHANGED, (event) => {
 			if (drag && drag.dragging) {
 				return;
 			}

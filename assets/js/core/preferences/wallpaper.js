@@ -9,7 +9,14 @@
 		'--pdk-wallpaper-repeat': 'no-repeat',
 		'--pdk-wallpaper-size': 'cover'
 	};
-	const menuContrastCachePrefix = 'pufferDesk:wallpaper-menu-contrast:';
+	const storageKeys = window.PufferDesk.session && window.PufferDesk.session.storageKeys
+		? window.PufferDesk.session.storageKeys
+		: {};
+	const wallpaperTypes = window.PufferDesk.config.getContractMap('wallpaperTypes', {
+		COLOR: 'color',
+		THEME: 'theme',
+		UPLOAD: 'upload'
+	});
 
 	function sanitizeContrast(value) {
 		return value === 'dark' || value === 'light' || value === 'auto' ? value : '';
@@ -57,7 +64,9 @@
 	function getCacheKey(wallpaper = {}) {
 		const current = getCurrent(wallpaper);
 
-		return `${menuContrastCachePrefix}${getPreferenceKey(getPreference(wallpaper))}:${current.url || ''}`;
+		return typeof storageKeys.getWallpaperMenuContrastKey === 'function'
+			? storageKeys.getWallpaperMenuContrastKey(getPreferenceKey(getPreference(wallpaper)), current.url || '')
+			: '';
 	}
 
 	function getCachedMenuContrast(key) {
@@ -227,8 +236,8 @@
 	}
 
 	function getPreferenceKey(preference = {}) {
-		if (preference.type === 'upload') {
-			return `upload:${Number.parseInt(preference.attachment_id, 10) || 0}`;
+		if (preference.type === wallpaperTypes.UPLOAD) {
+			return `${wallpaperTypes.UPLOAD}:${Number.parseInt(preference.attachment_id, 10) || 0}`;
 		}
 
 		return `${preference.type || ''}:${preference.id || ''}`;

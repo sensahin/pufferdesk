@@ -13,6 +13,8 @@
 		const desktop = shell.querySelector('.pdk-desktop');
 		const layer = shell.querySelector('.pdk-widget-layer');
 		const sessionStore = window.PufferDesk.session.createSessionStore(options.storageKey || '');
+		const workspaceSections = window.PufferDesk.session.workspace ? window.PufferDesk.session.workspace.sections || {} : {};
+		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 		let restoreInProgress = false;
 		let sessionSaveDisabled = false;
 		const sessionSaveTask = createDebouncedTask(() => saveSession(), {
@@ -158,7 +160,7 @@
 				return;
 			}
 
-			sessionStore.saveSection('widgets', serializeWidgets());
+			sessionStore.saveSection(workspaceSections.WIDGETS, serializeWidgets());
 		}
 
 		function scheduleSave() {
@@ -230,7 +232,7 @@
 				return;
 			}
 
-			const widgets = sessionStore.getSection('widgets', []);
+			const widgets = sessionStore.getSection(workspaceSections.WIDGETS, []);
 			if (!Array.isArray(widgets)) {
 				return;
 			}
@@ -267,7 +269,7 @@
 
 			widget.hidden = Boolean(hidden);
 			scheduleSave();
-			shell.dispatchEvent(new window.CustomEvent('pufferDesk:widgets-change', {
+			shell.dispatchEvent(new window.CustomEvent(domEventNames.WIDGETS_CHANGE, {
 				detail: {
 					widgets: serializeWidgets()
 				}
@@ -300,7 +302,7 @@
 		}
 
 		window.addEventListener('beforeunload', saveSession);
-		window.addEventListener('pufferDesk:workspace-state-changed', handleWorkspaceStateChanged);
+		window.addEventListener(domEventNames.WORKSPACE_STATE_CHANGED, handleWorkspaceStateChanged);
 
 		return {
 			bindExistingWidgets,

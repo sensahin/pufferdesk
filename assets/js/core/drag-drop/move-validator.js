@@ -6,6 +6,9 @@
 
 	window.PufferDesk.dragDrop.createMoveValidator = function createMoveValidator(options = {}) {
 		const models = window.PufferDesk.dragDrop.models;
+		const constants = window.PufferDesk.dragDrop.constants || {};
+		const containerTypes = constants.containerTypes || {};
+		const itemTypes = constants.itemTypes || {};
 		const containers = options.dropTargets || null;
 		const stateStore = options.stateStore || null;
 
@@ -55,7 +58,7 @@
 				return invalid('missing-item', 'Move requests must include a supported item id and type.', move);
 			}
 
-			if (!['app', 'folder'].includes(move.itemType)) {
+			if (![itemTypes.APP, itemTypes.FOLDER].includes(move.itemType)) {
 				return invalid('unsupported-item-type', 'Only apps and folders can be moved by the core move service.', move);
 			}
 
@@ -63,7 +66,7 @@
 				return invalid('unknown-item', 'The moved item does not exist in the current workspace.', move);
 			}
 
-			if (move.item.metadata.locked && move.toContainerId !== 'folder-sidebar:favorites') {
+			if (move.item.metadata.locked && move.toContainerId !== containerTypes.FOLDER_SIDEBAR_FAVORITES) {
 				return invalid('locked-item', 'Locked or system items cannot be moved to that container.', move);
 			}
 
@@ -104,18 +107,18 @@
 		function validateFolderRules(move) {
 			const target = models.parseContainerId(move.toContainerId);
 
-			if (move.itemType !== 'folder') {
+			if (move.itemType !== itemTypes.FOLDER) {
 				return null;
 			}
 
 			if (!move.item.metadata || !move.item.metadata.user) {
-				return move.toContainerId === 'folder-sidebar:favorites'
+				return move.toContainerId === containerTypes.FOLDER_SIDEBAR_FAVORITES
 					? null
 					: invalid('system-folder-move', 'Only user-created folders can be moved between containers.', move);
 			}
 
-			if (target.type === 'folder') {
-				if (target.targetId === 'trash') {
+			if (target.type === containerTypes.FOLDER) {
+				if (target.targetId === containerTypes.TRASH) {
 					return invalid('trash-parent', 'Trash cannot be used as a folder parent.', move);
 				}
 
@@ -139,15 +142,15 @@
 			const target = models.parseContainerId(move.toContainerId);
 			const metadata = move.item && move.item.metadata ? move.item.metadata : {};
 
-			if (move.itemType !== 'app') {
+			if (move.itemType !== itemTypes.APP) {
 				return null;
 			}
 
-			if (move.toContainerId === 'desktop' && metadata.actualContainerId === 'desktop') {
+			if (move.toContainerId === containerTypes.DESKTOP && metadata.actualContainerId === containerTypes.DESKTOP) {
 				return invalid('already-on-desktop', 'The app is already available on the desktop.', move);
 			}
 
-			if (target.type === 'folder' && metadata.userFolderId && metadata.userFolderId === target.targetId) {
+			if (target.type === containerTypes.FOLDER && metadata.userFolderId && metadata.userFolderId === target.targetId) {
 				return invalid('duplicate-item', 'The target folder already contains this app.', move);
 			}
 

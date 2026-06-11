@@ -25,6 +25,11 @@
 		const dom = window.PufferDesk.dom;
 		const api = context.apiClient || (window.PufferDesk.services ? window.PufferDesk.services.api : null);
 		const events = context.events || window.PufferDesk.events || null;
+		const eventNames = events && events.names ? events.names : {};
+		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
+		const contextTargets = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
+			? window.PufferDesk.shell.contextMenuConstants.targets || {}
+			: {};
 		const createDebouncedTask = window.PufferDesk.services && window.PufferDesk.services.createDebouncedTask
 			? window.PufferDesk.services.createDebouncedTask
 			: null;
@@ -34,6 +39,7 @@
 			: {};
 		const soundLabels = settingsLabels.sounds && typeof settingsLabels.sounds === 'object' ? settingsLabels.sounds : {};
 		const statusLabels = soundLabels.status && typeof soundLabels.status === 'object' ? soundLabels.status : {};
+		const getSettingAction = window.PufferDesk.config.getSettingAction.bind(window.PufferDesk.config);
 		const transientSurfaces = window.PufferDesk.shell && window.PufferDesk.shell.transientSurfaces
 			? window.PufferDesk.shell.transientSurfaces
 			: null;
@@ -48,14 +54,14 @@
 		let syncingSoundManager = false;
 		let fallbackTimer = null;
 
-		function t(key, fallback) {
+		function t(key) {
 			const value = statusLabels[key];
 
-			return typeof value === 'string' && value ? value : fallback;
+			return typeof value === 'string' && value ? value : key;
 		}
 
 		function formatVolume(value) {
-			const template = t('volumeValue', 'Volume %d%');
+			const template = t('volumeValue');
 
 			if (window.PufferDesk.config && typeof window.PufferDesk.config.formatTemplate === 'function') {
 				return window.PufferDesk.config.formatTemplate(template, [value]);
@@ -93,10 +99,10 @@
 
 		function getButtonLabel() {
 			if (isMuted()) {
-				return t('mutedLabel', 'Sound muted');
+				return t('mutedLabel');
 			}
 
-			return `${t('buttonLabel', 'Sound')}: ${preferences.volume}%`;
+			return `${t('buttonLabel')}: ${preferences.volume}%`;
 		}
 
 		function setRuntimePreferences(nextPreferences, options = {}) {
@@ -139,7 +145,7 @@
 				return Promise.resolve(null);
 			}
 
-			return api.post('pufferdesk_save_sounds', {
+			return api.post(getSettingAction('SOUNDS'), {
 				enabled: savePreferences.enabled ? '1' : '0',
 				volume: savePreferences.volume
 			}).then((result) => {
@@ -215,15 +221,15 @@
 
 			button.type = 'button';
 			button.className = 'pdk-sound-status-button';
-			button.dataset.pdkContext = 'sound-status';
+			button.dataset.pdkContext = contextTargets.SOUND_STATUS || 'sound-status';
 			button.dataset.pdkContextId = 'sound';
-			button.dataset.pdkContextLabel = t('title', 'Sound');
+			button.dataset.pdkContextLabel = t('title');
 			button.setAttribute('aria-haspopup', 'dialog');
 			button.setAttribute('aria-expanded', 'false');
 			icon.className = 'pdk-sound-status-icon';
 			icon.setAttribute('aria-hidden', 'true');
 			screenReaderLabel.className = 'screen-reader-text';
-			screenReaderLabel.textContent = t('buttonLabel', 'Sound');
+			screenReaderLabel.textContent = t('buttonLabel');
 			button.append(icon, screenReaderLabel);
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
@@ -247,12 +253,12 @@
 			flyout.dataset.pdkSoundFlyout = '1';
 			flyout.hidden = true;
 			flyout.setAttribute('role', 'dialog');
-			flyout.setAttribute('aria-label', t('title', 'Sound'));
-			title.textContent = t('title', 'Sound');
+			flyout.setAttribute('aria-label', t('title'));
+			title.textContent = t('title');
 			title.className = 'pdk-sound-flyout-title';
 			volumeRow.className = 'pdk-sound-volume-row';
 			volumeText.className = 'pdk-sound-volume-label';
-			volumeText.textContent = soundLabels.rows && soundLabels.rows.volume ? soundLabels.rows.volume : t('buttonLabel', 'Sound');
+			volumeText.textContent = soundLabels.rows && soundLabels.rows.volume ? soundLabels.rows.volume : t('buttonLabel');
 			value.className = 'pdk-sound-volume-value';
 			range.type = 'range';
 			range.className = 'pdk-sound-volume-slider';
@@ -273,7 +279,7 @@
 			});
 			settings.type = 'button';
 			settings.className = 'pdk-sound-settings-button';
-			settings.textContent = t('settings', 'Sound Settings');
+			settings.textContent = t('settings');
 			settings.addEventListener('click', openSettings);
 			const volumeIconUrl = getSharedIconUrl('volume.svg');
 
@@ -397,8 +403,8 @@
 
 			if (window.PufferDesk.menuCommands && typeof window.PufferDesk.menuCommands.execute === 'function') {
 				return window.PufferDesk.menuCommands.execute({
-					command: 'settings.open-panel',
-					label: t('settings', 'Sound Settings'),
+					command: commandIds.SETTINGS_OPEN_PANEL,
+					label: t('settings'),
 					panel: 'sounds'
 				}, {
 					type: 'sound-status'
@@ -451,8 +457,8 @@
 					positionFlyout(activeButton);
 				}
 			});
-			if (events && typeof events.on === 'function') {
-				events.on('sounds:preferencesChanged', handlePreferenceEvent);
+			if (events && typeof events.on === 'function' && eventNames.SOUNDS_PREFERENCES_CHANGED) {
+				events.on(eventNames.SOUNDS_PREFERENCES_CHANGED, handlePreferenceEvent);
 			}
 			if (transientSurfaces && typeof transientSurfaces.closeOnOther === 'function') {
 				transientSurfaces.closeOnOther('sound', closeFlyout);

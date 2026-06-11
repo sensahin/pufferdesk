@@ -25,12 +25,18 @@
 		const menuBar = window.PufferDesk.menuBar;
 		const wallpaper = window.PufferDesk.wallpaper;
 		const config = context.config || window.PufferDesk.config.get();
+		const wallpaperTypes = window.PufferDesk.config.getContractMap('wallpaperTypes', {
+			COLOR: 'color',
+			THEME: 'theme',
+			UPLOAD: 'upload'
+		});
 		const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
 		const capabilities = settingsConfig.capabilities && typeof settingsConfig.capabilities === 'object'
 			? settingsConfig.capabilities
 			: (config.shellCapabilities && typeof config.shellCapabilities === 'object' ? config.shellCapabilities : {});
 		const settingsLabels = window.PufferDesk.apps.settings.createLabels(settingsConfig);
-		const settingsUI = window.PufferDesk.apps.settings.createUI({ dom });
+		const settingsUI = window.PufferDesk.apps.settings.createUI({ dom, labels: settingsLabels });
+		const getSettingAction = window.PufferDesk.config.getSettingAction.bind(window.PufferDesk.config);
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const themes = Array.isArray(config.themes) ? config.themes : [];
 		const shell = document.querySelector('[data-pufferdesk-shell]');
@@ -99,7 +105,7 @@
 		const appLocationOptions = settingsLabels.getOptions('desktopDock.appLocationOptions');
 		const menuBarSelectOptions = t('menuBar.selectOptions', {});
 		const sidebarItems = settingsLabels.getOptions('sidebar.items').filter((item) => item && item.visible !== false);
-		const profileItem = { id: 'profile', label: t('profile.sectionLabel', 'WordPress Account') };
+		const profileItem = { id: 'profile', label: t('profile.sectionLabel') };
 		const createSettingsRow = settingsUI.createSettingsRow;
 		const createSection = settingsUI.createSection;
 		const createSectionHeading = settingsUI.createSectionHeading;
@@ -109,19 +115,19 @@
 		const updateRangeFill = settingsUI.updateRangeFill;
 		const mutations = window.PufferDesk.apps.settings.createMutations({ api, t });
 		const saveAppearanceMutation = mutations.createDebounced({
-			action: 'pufferdesk_save_appearance',
-			errorText: t('status.appearanceSaveError', 'Appearance could not be saved.'),
+			action: getSettingAction('APPEARANCE'),
+			errorText: t('status.appearanceSaveError'),
 			onSuccess(data) {
 				applyAppearance(data.appearance || currentAppearance);
 
-				return data.message || t('status.appearanceSaved', 'Appearance saved.');
+				return data.message || t('status.appearanceSaved');
 			},
 			payload: () => currentAppearance,
 			wait: 180
 		});
 		const saveDesktopDockMutation = mutations.createDebounced({
-			action: 'pufferdesk_save_desktop_dock',
-			errorText: t('status.desktopDockSaveError', 'Desktop & Dock could not be saved.'),
+			action: getSettingAction('DESKTOP_DOCK'),
+			errorText: t('status.desktopDockSaveError'),
 			onSuccess(data) {
 				applyDesktopDock(data.desktopDock || currentDesktopDock);
 
@@ -131,22 +137,22 @@
 			wait: 180
 		});
 		const saveAppLocationsMutation = mutations.createDebounced(appPreferences.createLocationsMutationRequest({
-			errorText: t('status.appLocationsSaveError', 'App locations could not be saved.'),
+			errorText: t('status.appLocationsSaveError'),
 			onSuccess(data) {
-				return data.message || t('status.appLocationsSaved', 'App locations saved.');
+				return data.message || t('status.appLocationsSaved');
 			},
 			wait: 180
 		}));
 		const saveAppLoginItemsMutation = mutations.createDebounced(appPreferences.createLoginItemsMutationRequest({
-			errorText: t('status.loginItemsSaveError', 'Login items could not be saved.'),
+			errorText: t('status.loginItemsSaveError'),
 			onSuccess(data) {
-				return data.message || t('status.loginItemsSaved', 'Login items saved.');
+				return data.message || t('status.loginItemsSaved');
 			},
 			wait: 180
 		}));
 		const saveMenuBarMutation = mutations.createDebounced({
-			action: 'pufferdesk_save_menu_bar',
-			errorText: t('status.menuBarSaveError', 'Menu Bar could not be saved.'),
+			action: getSettingAction('MENU_BAR'),
+			errorText: t('status.menuBarSaveError'),
 			latestOnly: true,
 			onSuccess(data) {
 				applyMenuBar(data.menuBar || currentMenuBar);
@@ -264,7 +270,7 @@
 		}
 
 		function getThemeOptionLabel(theme) {
-			const family = theme.family_label || theme.label || theme.family || t('appearance.themeFallbackLabel', 'Theme');
+			const family = theme.family_label || theme.label || theme.family || t('appearance.themeFallbackLabel');
 			const version = theme.version_label || theme.version || '';
 			if (!version || theme.version === 'default') {
 				return family;
@@ -294,8 +300,8 @@
 				return wallpaper.getPreferenceKey(preference);
 			}
 
-			if (preference.type === 'upload') {
-				return `upload:${Number.parseInt(preference.attachment_id, 10) || 0}`;
+			if (preference.type === wallpaperTypes.UPLOAD) {
+				return `${wallpaperTypes.UPLOAD}:${Number.parseInt(preference.attachment_id, 10) || 0}`;
 			}
 
 			return `${preference.type || ''}:${preference.id || ''}`;
@@ -350,7 +356,7 @@
 		}
 
 		function applyWallpaperPreview(preview, item = {}) {
-			if (item.type === 'color' && item.swatch) {
+			if (item.type === wallpaperTypes.COLOR && item.swatch) {
 				preview.style.backgroundColor = item.swatch;
 				preview.style.backgroundImage = 'none';
 				return;
@@ -374,29 +380,29 @@
 			}
 
 			if (key === 'colors') {
-				return getWallpaperItems().filter((item) => item && item.type === 'color');
+				return getWallpaperItems().filter((item) => item && item.type === wallpaperTypes.COLOR);
 			}
 
-			return getWallpaperItems().filter((item) => item && item.type !== 'upload' && item.type !== 'color');
+			return getWallpaperItems().filter((item) => item && item.type !== wallpaperTypes.UPLOAD && item.type !== wallpaperTypes.COLOR);
 		}
 
 		function getWallpaperUploads() {
 			const uploads = currentWallpaper && Array.isArray(currentWallpaper.uploads)
-				? currentWallpaper.uploads.filter((item) => item && item.type === 'upload' && Number.parseInt(item.attachment_id, 10) > 0)
+				? currentWallpaper.uploads.filter((item) => item && item.type === wallpaperTypes.UPLOAD && Number.parseInt(item.attachment_id, 10) > 0)
 				: [];
 			const current = getWallpaperCurrent();
 			const attachmentId = Number.parseInt(current.attachment_id, 10) || 0;
 
-			if (current.type !== 'upload' || !attachmentId) {
+			if (current.type !== wallpaperTypes.UPLOAD || !attachmentId) {
 				return uploads;
 			}
 
 			const currentKey = getWallpaperKey({
-				type: 'upload',
+				type: wallpaperTypes.UPLOAD,
 				attachment_id: attachmentId
 			});
 			const hasCurrent = uploads.some((item) => getWallpaperKey({
-				type: 'upload',
+				type: wallpaperTypes.UPLOAD,
 				attachment_id: item.attachment_id || 0
 			}) === currentKey);
 
@@ -412,7 +418,7 @@
 		}
 
 		function getUserInitials(name) {
-			return String(name || t('profile.defaultName', 'Admin'))
+			return String(name || t('profile.defaultName'))
 				.trim()
 				.split(/\s+/)
 				.slice(0, 2)
@@ -446,14 +452,14 @@
 			if (profileUrl) {
 				avatar.type = 'button';
 				avatar.dataset.pdkOpenUrl = profileUrl;
-				avatar.dataset.pdkTitle = t('profile.profileTitle', 'WordPress Profile');
+				avatar.dataset.pdkTitle = t('profile.profileTitle');
 				avatar.dataset.pdkIcon = 'dashicons-admin-users';
-				avatar.setAttribute('aria-label', t('profile.editProfileLabel', 'Edit profile'));
+				avatar.setAttribute('aria-label', t('profile.editProfileLabel'));
 			}
 
 			populateAvatar(avatar, user, name);
 			if (profileUrl) {
-				avatar.appendChild(dom.createElement('span', 'pdk-settings-profile-hero-edit', t('profile.editLabel', 'Edit')));
+				avatar.appendChild(dom.createElement('span', 'pdk-settings-profile-hero-edit', t('profile.editLabel')));
 			}
 
 			return avatar;
@@ -516,7 +522,7 @@
 			}
 
 			if (wallpaperAddPhotoLabel) {
-				wallpaperAddPhotoLabel.textContent = t('wallpaper.addPhotoLabel', 'Add Photo...');
+				wallpaperAddPhotoLabel.textContent = t('wallpaper.addPhotoLabel');
 			}
 		}
 
@@ -527,7 +533,7 @@
 
 			const uploads = getWallpaperUploads();
 			const expectedKeys = uploads.map((item) => getWallpaperKey({
-				type: 'upload',
+				type: wallpaperTypes.UPLOAD,
 				attachment_id: item.attachment_id || 0
 			}));
 
@@ -549,7 +555,7 @@
 				const button = ensureUploadedPhotoOption(item);
 				const preview = button.querySelector('.pdk-settings-wallpaper-selected-photo-preview');
 				const label = button.querySelector('.pdk-settings-wallpaper-selected-photo-label');
-				const title = item.label || t('wallpaper.selectedPhotoLabel', 'Selected Photo');
+				const title = item.label || t('wallpaper.selectedPhotoLabel');
 
 				button.pdkWallpaperItem = item;
 				button.setAttribute('aria-label', title);
@@ -580,8 +586,8 @@
 
 			wallpaperPhotoToggle.hidden = !hasOverflow;
 			wallpaperPhotoToggle.textContent = wallpaperPhotoExpanded
-				? t('wallpaper.showLessLabel', 'Show Less')
-				: settingsLabels.format(t('wallpaper.showAllLabel', 'Show All (%d)'), [items.length]);
+				? t('wallpaper.showLessLabel')
+				: settingsLabels.format(t('wallpaper.showAllLabel'), [items.length]);
 			wallpaperPhotoToggle.setAttribute('aria-expanded', wallpaperPhotoExpanded ? 'true' : 'false');
 
 			items.forEach((item, index) => {
@@ -591,7 +597,7 @@
 
 		function ensureUploadedPhotoOption(item) {
 			const key = getWallpaperKey({
-				type: 'upload',
+				type: wallpaperTypes.UPLOAD,
 				attachment_id: item.attachment_id || 0
 			});
 			const existing = wallpaperUploadedPhotoButtons.find((button) => button.dataset.pdkWallpaperKey === key);
@@ -620,7 +626,7 @@
 			removeButton.type = 'button';
 			removeButton.className = 'pdk-settings-wallpaper-remove-photo';
 			removeButton.hidden = true;
-			removeButton.setAttribute('aria-label', t('wallpaper.removePhotoLabel', 'Remove photo'));
+			removeButton.setAttribute('aria-label', t('wallpaper.removePhotoLabel'));
 			removeButton.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
@@ -808,8 +814,8 @@
 
 		function saveWallpaper(payload, status, fallbackWallpaper = null) {
 			return mutations.post({
-				action: 'pufferdesk_save_wallpaper',
-				errorText: t('status.wallpaperSaveError', 'Wallpaper could not be saved.'),
+				action: getSettingAction('WALLPAPER'),
+				errorText: t('status.wallpaperSaveError'),
 				onError() {
 					if (fallbackWallpaper) {
 						applyWallpaper(fallbackWallpaper);
@@ -820,7 +826,7 @@
 				onSuccess(data) {
 					applyWallpaper(data.wallpaper || currentWallpaper);
 
-					return data.message || t('status.wallpaperSaved', 'Wallpaper saved.');
+					return data.message || t('status.wallpaperSaved');
 				},
 				payload,
 				status
@@ -834,33 +840,33 @@
 			}
 
 			mutations.post({
-				action: 'pufferdesk_remove_wallpaper_upload',
-				errorText: t('status.photoRemoveError', 'Photo could not be removed.'),
+				action: getSettingAction('WALLPAPER_UPLOADS'),
+				errorText: t('status.photoRemoveError'),
 				onError() {
 					syncWallpaperControls();
 				},
 				onSuccess(data) {
 					applyWallpaper(data.wallpaper || currentWallpaper);
 
-					return data.message || t('status.photoRemoved', 'Photo removed.');
+					return data.message || t('status.photoRemoved');
 				},
 				payload: {
 					attachment_id: attachmentId
 				},
-				pendingText: t('status.removing', 'Removing...'),
+				pendingText: t('status.removing'),
 				status
 			});
 		}
 
 		function selectWallpaperItem(item, status) {
-			const attachmentId = item.type === 'upload'
+			const attachmentId = item.type === wallpaperTypes.UPLOAD
 				? Number.parseInt(item.attachment_id, 10) || 0
 				: 0;
 			const fallbackWallpaper = currentWallpaper;
 			const nextWallpaper = Object.assign({}, currentWallpaper, {
 				preference: {
 					type: item.type,
-					id: item.type === 'upload' ? '' : item.id,
+					id: item.type === wallpaperTypes.UPLOAD ? '' : item.id,
 					attachment_id: attachmentId,
 					fit: item.fit || 'cover',
 					position: item.position || 'center center'
@@ -943,7 +949,7 @@
 
 			const option = document.createElement('option');
 			option.value = 'automatic';
-			option.textContent = t('desktopDock.selectOptions.dim_widgets.0.label', 'Automatically');
+			option.textContent = t('desktopDock.selectOptions.dim_widgets.0.label');
 			option.selected = true;
 			select.appendChild(option);
 
@@ -1010,7 +1016,7 @@
 		function createAppLocationIcon(app) {
 			const icon = dom.createElement('span', 'pdk-settings-row-icon pdk-settings-sidebar-icon-gray');
 
-			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
+			icon.appendChild(dom.createIcon(app.icon));
 
 			return icon;
 		}
@@ -1038,7 +1044,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-settings-toggle';
-			button.setAttribute('aria-label', t('apps.openAtLoginLabel', 'Open at login'));
+			button.setAttribute('aria-label', t('apps.openAtLoginLabel'));
 			button.setAttribute('aria-pressed', appOpensAtLogin(app.id) ? 'true' : 'false');
 			button.addEventListener('click', () => updateAppLoginItem(app.id, !appOpensAtLogin(app.id), status));
 			button.appendChild(dom.createElement('span', 'pdk-settings-toggle-knob'));
@@ -1087,7 +1093,7 @@
 
 		function createWallpaperOption(item, status, extraClassName = '') {
 			const button = document.createElement('button');
-			const preview = dom.createElement('span', item.type === 'color' ? 'pdk-settings-wallpaper-swatch' : 'pdk-settings-wallpaper-preview');
+			const preview = dom.createElement('span', item.type === wallpaperTypes.COLOR ? 'pdk-settings-wallpaper-swatch' : 'pdk-settings-wallpaper-preview');
 			const label = dom.createElement('span', 'pdk-settings-wallpaper-label', item.label || item.id);
 			const key = getWallpaperKey({
 				type: item.type,
@@ -1112,7 +1118,7 @@
 		function createWallpaperGrid(status, items, className = '', optionClassName = '') {
 			const grid = dom.createElement('div', `pdk-settings-wallpaper-grid ${className}`.trim());
 			items.forEach((item) => {
-				if (item && item.type !== 'upload') {
+				if (item && item.type !== wallpaperTypes.UPLOAD) {
 					grid.appendChild(createWallpaperOption(item, status, optionClassName));
 				}
 			});
@@ -1152,8 +1158,8 @@
 							child.hidden = !expanded && index >= visibleCount;
 						});
 						toggle.textContent = expanded
-							? t('wallpaper.showLessLabel', 'Show Less')
-							: settingsLabels.format(t('wallpaper.showAllLabel', 'Show All (%d)'), [items.length]);
+							? t('wallpaper.showLessLabel')
+							: settingsLabels.format(t('wallpaper.showAllLabel'), [items.length]);
 						toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
 					};
 
@@ -1170,15 +1176,15 @@
 
 		function chooseUploadedWallpaper(status) {
 			if (!currentWallpaper.can_upload || !window.wp || !window.wp.media) {
-				status.textContent = t('status.mediaUnavailable', 'Media Library is not available for this user.');
+				status.textContent = t('status.mediaUnavailable');
 				return;
 			}
 
 			if (!mediaFrame) {
 				mediaFrame = window.wp.media({
-					title: t('wallpaper.chooseWallpaperTitle', 'Choose Wallpaper'),
+					title: t('wallpaper.chooseWallpaperTitle'),
 					button: {
-						text: t('wallpaper.useAsWallpaperLabel', 'Use as Wallpaper')
+						text: t('wallpaper.useAsWallpaperLabel')
 					},
 					library: {
 						type: 'image'
@@ -1195,7 +1201,7 @@
 					const attachmentId = Number.parseInt(attachment.id, 10) || 0;
 					const imageUrl = attachment.url || '';
 					if (!attachmentId || !imageUrl) {
-						status.textContent = t('status.invalidImage', 'Choose a valid image.');
+						status.textContent = t('status.invalidImage');
 						return;
 					}
 
@@ -1203,17 +1209,17 @@
 					const fallbackWallpaper = currentWallpaper;
 					const nextWallpaper = Object.assign({}, currentWallpaper, {
 						preference: {
-							type: 'upload',
+							type: wallpaperTypes.UPLOAD,
 							id: '',
 							attachment_id: attachmentId,
 							fit: 'cover',
 							position: 'center center'
 						},
 						current: {
-								type: 'upload',
+								type: wallpaperTypes.UPLOAD,
 								id: 'custom',
 								attachment_id: attachmentId,
-								label: attachment.title || t('wallpaper.customWallpaperLabel', 'Custom Wallpaper'),
+								label: attachment.title || t('wallpaper.customWallpaperLabel'),
 							preview: imageCssValue,
 							css_value: imageCssValue,
 							fit: 'cover',
@@ -1238,13 +1244,13 @@
 		function createPhotoWallpaperGroup(status) {
 			const group = dom.createElement('div', 'pdk-settings-wallpaper-photos');
 			const header = dom.createElement('div', 'pdk-settings-wallpaper-photos-header');
-			const heading = dom.createElement('h3', '', t('wallpaper.yourPhotosHeading', 'Your Photos'));
+			const heading = dom.createElement('h3', '', t('wallpaper.yourPhotosHeading'));
 			const grid = dom.createElement('div', 'pdk-settings-wallpaper-photo-grid');
 			const addButton = document.createElement('button');
 			const toggle = document.createElement('button');
 			const preview = dom.createElement('span', 'pdk-settings-wallpaper-upload-preview');
 			const icon = dom.createElement('span', 'pdk-settings-wallpaper-upload-icon');
-			const label = dom.createElement('span', 'pdk-settings-wallpaper-upload-label', t('wallpaper.addPhotoLabel', 'Add Photo...'));
+			const label = dom.createElement('span', 'pdk-settings-wallpaper-upload-label', t('wallpaper.addPhotoLabel'));
 
 			toggle.type = 'button';
 			toggle.className = 'pdk-settings-section-toggle';
@@ -1283,15 +1289,15 @@
 			const row = dom.createElement('div', 'pdk-settings-desktop-dock-slider-row');
 
 			if (options.size !== false) {
-				row.appendChild(createDesktopDockRange('dock_size', t('desktopDock.rows.dockSize', 'Size'), {
-					labels: [t('desktopDock.ranges.small', 'Small'), t('desktopDock.ranges.large', 'Large')],
+				row.appendChild(createDesktopDockRange('dock_size', t('desktopDock.rows.dockSize'), {
+					labels: [t('desktopDock.ranges.small'), t('desktopDock.ranges.large')],
 					max: 72,
 					min: 28
 				}, status));
 			}
 			if (options.magnification !== false) {
-				row.appendChild(createDesktopDockRange('dock_magnification', t('desktopDock.rows.dockMagnification', 'Magnification'), {
-					labels: [t('desktopDock.ranges.off', 'Off'), t('desktopDock.ranges.small', 'Small'), t('desktopDock.ranges.large', 'Large')],
+				row.appendChild(createDesktopDockRange('dock_magnification', t('desktopDock.rows.dockMagnification'), {
+					labels: [t('desktopDock.ranges.off'), t('desktopDock.ranges.small'), t('desktopDock.ranges.large')],
 					max: 24,
 					min: 0
 				}, status));
@@ -1381,7 +1387,7 @@
 		function createSettingsActionRow(options = {}) {
 			return settingsUI.createActionRow(options, {
 				executeCommand: executeMenuCommand,
-				fallbackWindowTitle: t('generalPanel.fallbackWindowTitle', 'WordPress'),
+				fallbackWindowTitle: t('generalPanel.fallbackWindowTitle'),
 				openPanel: openSettingsSubpanel
 			});
 		}
@@ -1413,7 +1419,7 @@
 
 		function createUserProfile() {
 			const user = getUserProfile();
-			const name = user.name || t('profile.defaultName', 'Admin');
+			const name = user.name || t('profile.defaultName');
 			const profile = document.createElement('button');
 
 			profile.type = 'button';
@@ -1423,7 +1429,7 @@
 			profile.addEventListener('click', () => setActiveSection(profileItem.id));
 			const text = dom.createElement('span', 'pdk-settings-profile-text');
 			text.appendChild(dom.createElement('strong', '', name));
-			text.appendChild(dom.createElement('span', '', user.subtitle || t('profile.defaultRole', 'WordPress User')));
+			text.appendChild(dom.createElement('span', '', user.subtitle || t('profile.defaultRole')));
 
 			profile.appendChild(createAvatar('pdk-settings-profile-avatar', user, name));
 			profile.appendChild(text);
@@ -1438,7 +1444,7 @@
 		function createSettingsSidebar() {
 			const sidebar = dom.createElement('aside', 'pdk-settings-sidebar');
 			const dragZone = dom.createElement('div', 'pdk-split-sidebar-drag-zone');
-			const sidebarTitle = dom.createElement('h2', 'pdk-settings-sidebar-title', t('appTitle', 'Settings'));
+			const sidebarTitle = dom.createElement('h2', 'pdk-settings-sidebar-title', t('appTitle'));
 			const search = dom.createElement('label', 'pdk-settings-search-field');
 			const searchInput = document.createElement('input');
 			const nav = dom.createElement('nav', 'pdk-settings-sidebar-nav');
@@ -1452,8 +1458,8 @@
 
 			search.appendChild(dom.createDashicon('dashicons-search'));
 			searchInput.type = 'search';
-			searchInput.placeholder = t('sidebar.searchPlaceholder', 'Search');
-			searchInput.setAttribute('aria-label', t('sidebar.searchLabel', 'Search settings'));
+			searchInput.placeholder = t('sidebar.searchPlaceholder');
+			searchInput.setAttribute('aria-label', t('sidebar.searchLabel'));
 			search.appendChild(searchInput);
 
 			if (isWindowsSettingsLayout) {
@@ -1465,7 +1471,7 @@
 				sidebar.appendChild(createUserProfile());
 			}
 
-			nav.setAttribute('aria-label', t('sidebar.navLabel', 'Settings sections'));
+			nav.setAttribute('aria-label', t('sidebar.navLabel'));
 			sidebarItems.forEach((item) => {
 				const button = document.createElement('button');
 				button.type = 'button';
@@ -1511,7 +1517,7 @@
 			button.className = 'pdk-settings-titlebar-back';
 			button.disabled = true;
 			button.dataset.pdkNoDrag = '';
-			button.setAttribute('aria-label', t('history.back', 'Back'));
+			button.setAttribute('aria-label', t('history.back'));
 			button.appendChild(dom.createElement('span', 'pdk-settings-titlebar-back-chevron'));
 			button.addEventListener('click', goBackInSettingsHistory);
 			backButton = button;
@@ -1532,7 +1538,7 @@
 					button.type = 'button';
 					button.className = `pdk-settings-history-button pdk-settings-history-button-${direction}`;
 					button.disabled = true;
-					button.setAttribute('aria-label', direction === 'back' ? t('history.back', 'Back') : t('history.forward', 'Forward'));
+					button.setAttribute('aria-label', direction === 'back' ? t('history.back') : t('history.forward'));
 					button.appendChild(dom.createElement('span', 'pdk-settings-history-chevron'));
 					if (direction === 'back') {
 						backButton = button;
@@ -1556,20 +1562,20 @@
 				const dialogs = window.PufferDesk && window.PufferDesk.shellDialogs ? window.PufferDesk.shellDialogs : null;
 
 				if (dialogs && typeof dialogs.showBlockingOverlay === 'function') {
-					dialogs.showBlockingOverlay(t('status.themeSwitching', 'Switching theme...'));
+					dialogs.showBlockingOverlay(t('status.themeSwitching'));
 				}
 			}
 
 			mutations.post({
-				action: 'pufferdesk_save_theme',
-				errorText: t('status.themeSaveError', 'Theme could not be saved.'),
+				action: getSettingAction('THEME'),
+				errorText: t('status.themeSaveError'),
 				onSuccess() {
 					showThemeSwitchOverlay();
 					window.setTimeout(() => {
 						window.location.href = config.shellUrl || window.location.href;
 					}, 320);
 
-					return t('status.themeSaved', 'Theme saved.');
+					return t('status.themeSaved');
 				},
 				payload: {
 					theme_id: themeId
@@ -1650,7 +1656,7 @@
 			pane.appendChild(settingsPanels.createSystemPanel(panelContext));
 			pane.appendChild(status);
 
-		main.appendChild(createPaneHeader(t('generalPanel.title', 'General')));
+		main.appendChild(createPaneHeader(t('generalPanel.title')));
 		main.appendChild(pane);
 		content.appendChild(createSettingsSidebar());
 		if (isWindowsSettingsLayout) {
@@ -1678,12 +1684,14 @@
 	};
 
 	if (typeof window.PufferDesk.apps.registerNativeAppRenderer === 'function') {
-		window.PufferDesk.apps.registerNativeAppRenderer('settings', ({ config }) => {
-			const layout = getSettingsLayout(config);
-			const isWindowsLayout = layout === 'windows-settings';
-			const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
-			const labels = settingsConfig.labels && typeof settingsConfig.labels === 'object' ? settingsConfig.labels : {};
-			const appTitle = typeof labels.appTitle === 'string' && labels.appTitle ? labels.appTitle : 'Settings';
+		const nativeIds = window.PufferDesk.apps.nativeIds || {};
+		window.PufferDesk.apps.registerNativeAppRenderer(nativeIds.SETTINGS, ({ config }) => {
+				const layout = getSettingsLayout(config);
+				const isWindowsLayout = layout === 'windows-settings';
+				const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
+				const labels = settingsConfig.labels && typeof settingsConfig.labels === 'object' ? settingsConfig.labels : {};
+				const settingsLabels = window.PufferDesk.apps.settings.createLabels(settingsConfig);
+				const appTitle = typeof labels.appTitle === 'string' && labels.appTitle ? labels.appTitle : settingsLabels.get('appTitle');
 
 			return {
 				bodyClass: `pdk-window-body pdk-settings-body${isWindowsLayout ? ' pdk-settings-windows-body' : ''}`,

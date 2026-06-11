@@ -6,6 +6,9 @@
 
 	window.PufferDesk.windows.createWindowDock = function createWindowDock(shell, options = {}) {
 		const dom = window.PufferDesk.dom;
+		const contextTargets = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
+			? window.PufferDesk.shell.contextMenuConstants.targets || {}
+			: {};
 		const tooltips = window.PufferDesk.tooltips || null;
 		const desktop = options.desktop || shell.querySelector('.pdk-desktop');
 		const dock = options.dock || shell.querySelector('.pdk-dock');
@@ -198,7 +201,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-dock-window-item pdk-tooltip-trigger';
-			button.dataset.pdkContext = 'window';
+			button.dataset.pdkContext = contextTargets.WINDOW || 'window';
 			button.dataset.pdkContextId = id;
 			button.dataset.pdkContextLabel = title;
 			button.dataset.pdkRestoreWindowId = id;
@@ -209,7 +212,7 @@
 			if (icon) {
 				button.appendChild(icon.cloneNode(true));
 			} else {
-				button.appendChild(dom.createDashicon('dashicons-admin-generic'));
+				button.appendChild(dom.createDashicon());
 			}
 			if (tooltips && typeof tooltips.attach === 'function') {
 				tooltips.attach(button, title, { surface: 'dock' });

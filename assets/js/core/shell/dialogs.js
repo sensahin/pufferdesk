@@ -7,6 +7,7 @@
 	window.PufferDesk.shell.createShellDialogs = function createShellDialogs(shell) {
 		const dom = window.PufferDesk.dom || null;
 		const geometry = window.PufferDesk.geometry;
+		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
 		let activeDialog = null;
 		let activeOverlay = null;
 
@@ -20,6 +21,15 @@
 			const config = getRuntimeConfig();
 
 			return config.dialogs && typeof config.dialogs === 'object' ? config.dialogs : {};
+		}
+
+		function getMenuLabel(key) {
+			const config = getRuntimeConfig();
+			const menu = config.menu && typeof config.menu === 'object' ? config.menu : {};
+			const labels = menu.labels && typeof menu.labels === 'object' ? menu.labels : {};
+			const value = labels[key];
+
+			return typeof value === 'string' && value ? value : key;
 		}
 
 		function normalizeClassToken(value, fallback = 'default') {
@@ -65,7 +75,7 @@
 			}
 
 			if (eventKey === 'trashEmpty') {
-				return 'trash.empty';
+				return commandIds.TRASH_EMPTY;
 			}
 
 			return 'dialog.warning';
@@ -156,7 +166,7 @@
 			}
 
 			if (dom && typeof dom.createIcon === 'function') {
-				icon.appendChild(dom.createIcon(iconValue || 'dashicons-admin-generic'));
+				icon.appendChild(dom.createIcon(iconValue));
 			}
 
 			return icon;
@@ -464,7 +474,7 @@
 				const actions = Array.isArray(options.actions) && options.actions.length
 					? options.actions
 					: [
-						{ id: 'cancel', label: 'Cancel', variant: 'cancel' }
+						{ id: 'cancel', label: getMenuLabel('cancel'), variant: 'cancel' }
 					];
 				const titleId = `pdk-shell-dialog-title-${Date.now()}`;
 				const messageId = `pdk-shell-dialog-message-${Date.now()}`;

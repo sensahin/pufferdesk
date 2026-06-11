@@ -41,7 +41,7 @@ final class PufferDesk_Notification_Normalizer {
 	 */
 	public function normalize( $notification, $state = array() ) {
 		$notification = is_array( $notification ) ? $notification : array();
-		$source       = ! empty( $notification['source'] ) ? sanitize_key( (string) $notification['source'] ) : 'pufferdesk';
+		$source       = ! empty( $notification['source'] ) ? sanitize_key( (string) $notification['source'] ) : PufferDesk_User_Preferences::NOTIFICATION_SOURCE_PUFFERDESK;
 		$title        = ! empty( $notification['title'] ) ? sanitize_text_field( (string) $notification['title'] ) : '';
 		$message      = ! empty( $notification['message'] ) ? sanitize_textarea_field( (string) $notification['message'] ) : '';
 		$id           = ! empty( $notification['id'] ) ? sanitize_key( (string) $notification['id'] ) : '';
@@ -181,15 +181,15 @@ final class PufferDesk_Notification_Normalizer {
 	 */
 	private function get_source_label( $source ) {
 		switch ( $source ) {
-			case 'wordpress_updates':
+			case PufferDesk_User_Preferences::NOTIFICATION_SOURCE_WORDPRESS_UPDATES:
 				return __( 'WordPress Updates', 'pufferdesk-admin-desktop' );
-			case 'comments':
+			case PufferDesk_User_Preferences::NOTIFICATION_SOURCE_COMMENTS:
 				return __( 'Comments', 'pufferdesk-admin-desktop' );
-			case 'site_health':
+			case PufferDesk_User_Preferences::NOTIFICATION_SOURCE_SITE_HEALTH:
 				return __( 'Site Health', 'pufferdesk-admin-desktop' );
-			case 'apps':
+			case PufferDesk_User_Preferences::NOTIFICATION_SOURCE_APPS:
 				return __( 'Apps', 'pufferdesk-admin-desktop' );
-			case 'pufferdesk':
+			case PufferDesk_User_Preferences::NOTIFICATION_SOURCE_PUFFERDESK:
 			default:
 				return __( 'PufferDesk', 'pufferdesk-admin-desktop' );
 		}

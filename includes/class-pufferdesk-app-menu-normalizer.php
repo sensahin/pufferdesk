@@ -11,6 +11,63 @@ defined( 'ABSPATH' ) || exit;
  * Normalizes app menu definitions into the runtime menu schema.
  */
 final class PufferDesk_App_Menu_Normalizer {
+	const GROUP_SITE   = 'site';
+	const GROUP_APP    = 'app';
+	const GROUP_FILE   = 'file';
+	const GROUP_EDIT   = 'edit';
+	const GROUP_VIEW   = 'view';
+	const GROUP_GO     = 'go';
+	const GROUP_WINDOW = 'window';
+	const GROUP_HELP   = 'help';
+
+	/**
+	 * Standard app menu group ids.
+	 *
+	 * @return array<int,string>
+	 */
+	public static function get_standard_group_ids() {
+		return array(
+			self::GROUP_APP,
+			self::GROUP_FILE,
+			self::GROUP_EDIT,
+			self::GROUP_VIEW,
+			self::GROUP_GO,
+			self::GROUP_WINDOW,
+			self::GROUP_HELP,
+		);
+	}
+
+	/**
+	 * Recognized app menu group ids.
+	 *
+	 * @return array<int,string>
+	 */
+	public static function get_recognized_group_ids() {
+		return array_merge( array( self::GROUP_SITE ), self::get_standard_group_ids() );
+	}
+
+	/**
+	 * Browser menu group contract.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function client_contract() {
+		return array(
+			'ids'        => array(
+				'SITE'   => self::GROUP_SITE,
+				'APP'    => self::GROUP_APP,
+				'FILE'   => self::GROUP_FILE,
+				'EDIT'   => self::GROUP_EDIT,
+				'VIEW'   => self::GROUP_VIEW,
+				'GO'     => self::GROUP_GO,
+				'WINDOW' => self::GROUP_WINDOW,
+				'HELP'   => self::GROUP_HELP,
+			),
+			'standard'  => self::get_standard_group_ids(),
+			'recognized' => self::get_recognized_group_ids(),
+		);
+	}
+
 	/**
 	 * Normalize the menu definition for an app.
 	 *
@@ -54,58 +111,58 @@ final class PufferDesk_App_Menu_Normalizer {
 		return array(
 			'groups' => array(
 				array(
-					'id'    => 'app',
+					'id'    => self::GROUP_APP,
 					'label' => __( 'System Settings', 'pufferdesk-admin-desktop' ),
 					'items' => array(
 						array(
 							'label'   => __( 'About System Settings', 'pufferdesk-admin-desktop' ),
-							'command' => 'open-about',
-							'target'  => 'os-settings',
+							'command' => PufferDesk_Command_Ids::OPEN_ABOUT,
+							'target'  => PufferDesk_App_Ids::OS_SETTINGS,
 						),
 						array( 'type' => 'separator' ),
 						array(
 							'label'    => __( 'Hide System Settings', 'pufferdesk-admin-desktop' ),
-							'command'  => 'window.hide',
+							'command'  => PufferDesk_Command_Ids::WINDOW_HIDE,
 							'icon'     => 'dashicons-hidden',
 							'shortcut' => '⌘H',
 						),
 						array(
 							'label'    => __( 'Hide Others', 'pufferdesk-admin-desktop' ),
-							'command'  => 'window.hide-others',
+							'command'  => PufferDesk_Command_Ids::WINDOW_HIDE_OTHERS,
 							'icon'     => 'dashicons-excerpt-view',
 							'shortcut' => '⌥⌘H',
 						),
 						array(
 							'label'   => __( 'Show All', 'pufferdesk-admin-desktop' ),
-							'command' => 'window.show-all',
+							'command' => PufferDesk_Command_Ids::WINDOW_SHOW_ALL,
 							'icon'    => 'dashicons-visibility',
 						),
 						array( 'type' => 'separator' ),
 						array(
 							'label'    => __( 'Quit System Settings', 'pufferdesk-admin-desktop' ),
-							'command'  => 'window.close',
+							'command'  => PufferDesk_Command_Ids::WINDOW_CLOSE,
 							'icon'     => 'dashicons-dismiss',
 							'shortcut' => '⌘Q',
 						),
 					),
 				),
 				array(
-					'id'    => 'edit',
+					'id'    => self::GROUP_EDIT,
 					'label' => __( 'Edit', 'pufferdesk-admin-desktop' ),
 					'items' => array(),
 				),
 				array(
-					'id'    => 'view',
+					'id'    => self::GROUP_VIEW,
 					'label' => __( 'View', 'pufferdesk-admin-desktop' ),
 					'items' => array(),
 				),
 				array(
-					'id'    => 'window',
+					'id'    => self::GROUP_WINDOW,
 					'label' => __( 'Window', 'pufferdesk-admin-desktop' ),
 					'items' => array(),
 				),
 				array(
-					'id'    => 'help',
+					'id'    => self::GROUP_HELP,
 					'label' => __( 'Help', 'pufferdesk-admin-desktop' ),
 					'items' => array(),
 				),
@@ -368,7 +425,7 @@ final class PufferDesk_App_Menu_Normalizer {
 	private function get_default_app_menu_groups( $app_label ) {
 		return array(
 			array(
-				'id'    => 'app',
+				'id'    => self::GROUP_APP,
 				'label' => $app_label,
 				'items' => array(
 					array(
@@ -377,7 +434,7 @@ final class PufferDesk_App_Menu_Normalizer {
 							__( 'About %s', 'pufferdesk-admin-desktop' ),
 							$app_label
 						),
-						'command' => 'open-about',
+						'command' => PufferDesk_Command_Ids::OPEN_ABOUT,
 					),
 					array( 'type' => 'separator' ),
 					array(
@@ -386,17 +443,17 @@ final class PufferDesk_App_Menu_Normalizer {
 							__( 'Hide %s', 'pufferdesk-admin-desktop' ),
 							$app_label
 						),
-						'command'  => 'window.hide',
+						'command'  => PufferDesk_Command_Ids::WINDOW_HIDE,
 						'shortcut' => '⌘H',
 					),
 					array(
 						'label'    => __( 'Hide Others', 'pufferdesk-admin-desktop' ),
-						'command'  => 'window.hide-others',
+						'command'  => PufferDesk_Command_Ids::WINDOW_HIDE_OTHERS,
 						'shortcut' => '⌥⌘H',
 					),
 					array(
 						'label'   => __( 'Show All', 'pufferdesk-admin-desktop' ),
-						'command' => 'window.show-all',
+						'command' => PufferDesk_Command_Ids::WINDOW_SHOW_ALL,
 					),
 					array( 'type' => 'separator' ),
 					array(
@@ -405,48 +462,48 @@ final class PufferDesk_App_Menu_Normalizer {
 							__( 'Quit %s', 'pufferdesk-admin-desktop' ),
 							$app_label
 						),
-						'command'  => 'window.close',
+						'command'  => PufferDesk_Command_Ids::WINDOW_CLOSE,
 						'shortcut' => '⌘Q',
 					),
 				),
 			),
 			array(
-				'id'    => 'file',
+				'id'    => self::GROUP_FILE,
 				'label' => __( 'File', 'pufferdesk-admin-desktop' ),
 				'items' => array(),
 			),
 			array(
-				'id'    => 'edit',
+				'id'    => self::GROUP_EDIT,
 				'label' => __( 'Edit', 'pufferdesk-admin-desktop' ),
 				'items' => array(),
 			),
 			array(
-				'id'    => 'view',
+				'id'    => self::GROUP_VIEW,
 				'label' => __( 'View', 'pufferdesk-admin-desktop' ),
 				'items' => array(),
 			),
 			array(
-				'id'    => 'window',
+				'id'    => self::GROUP_WINDOW,
 				'label' => __( 'Window', 'pufferdesk-admin-desktop' ),
 				'items' => array(
 					array(
 						'label'    => __( 'Minimize', 'pufferdesk-admin-desktop' ),
-						'command'  => 'window.minimize',
+						'command'  => PufferDesk_Command_Ids::WINDOW_MINIMIZE,
 						'shortcut' => '⌘M',
 					),
 					array(
 						'label'   => __( 'Zoom', 'pufferdesk-admin-desktop' ),
-						'command' => 'window.toggle-maximize',
+						'command' => PufferDesk_Command_Ids::WINDOW_TOGGLE_MAXIMIZE,
 					),
 					array(
 						'label'    => __( 'Close', 'pufferdesk-admin-desktop' ),
-						'command'  => 'window.close',
+						'command'  => PufferDesk_Command_Ids::WINDOW_CLOSE,
 						'shortcut' => '⌘W',
 					),
 				),
 			),
 			array(
-				'id'    => 'help',
+				'id'    => self::GROUP_HELP,
 				'label' => __( 'Help', 'pufferdesk-admin-desktop' ),
 				'items' => array(),
 			),
@@ -471,7 +528,7 @@ final class PufferDesk_App_Menu_Normalizer {
 	 * @return array<int,string>
 	 */
 	private function get_default_menu_group_ids() {
-		return array( 'app', 'file', 'edit', 'view', 'go', 'window', 'help' );
+		return self::get_standard_group_ids();
 	}
 
 	/**
@@ -483,13 +540,13 @@ final class PufferDesk_App_Menu_Normalizer {
 	 */
 	private function get_default_menu_group_label( $id, $fallback_label ) {
 		$labels = array(
-			'app'    => $fallback_label,
-			'file'   => __( 'File', 'pufferdesk-admin-desktop' ),
-			'edit'   => __( 'Edit', 'pufferdesk-admin-desktop' ),
-			'view'   => __( 'View', 'pufferdesk-admin-desktop' ),
-			'go'     => __( 'Go', 'pufferdesk-admin-desktop' ),
-			'window' => __( 'Window', 'pufferdesk-admin-desktop' ),
-			'help'   => __( 'Help', 'pufferdesk-admin-desktop' ),
+			self::GROUP_APP    => $fallback_label,
+			self::GROUP_FILE   => __( 'File', 'pufferdesk-admin-desktop' ),
+			self::GROUP_EDIT   => __( 'Edit', 'pufferdesk-admin-desktop' ),
+			self::GROUP_VIEW   => __( 'View', 'pufferdesk-admin-desktop' ),
+			self::GROUP_GO     => __( 'Go', 'pufferdesk-admin-desktop' ),
+			self::GROUP_WINDOW => __( 'Window', 'pufferdesk-admin-desktop' ),
+			self::GROUP_HELP   => __( 'Help', 'pufferdesk-admin-desktop' ),
 		);
 
 		return isset( $labels[ $id ] ) ? $labels[ $id ] : sanitize_text_field( $id );

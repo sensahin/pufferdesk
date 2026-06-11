@@ -34,7 +34,9 @@
 		const outputSection = createSection('', 'pdk-settings-sound-slider-section');
 		const soundConfig = ctx.config.sounds && typeof ctx.config.sounds === 'object' ? ctx.config.sounds : {};
 		const events = window.PufferDesk.events || null;
+		const eventNames = events && events.names ? events.names : {};
 		const dependentControls = [];
+		const getSettingAction = window.PufferDesk.config.getSettingAction.bind(window.PufferDesk.config);
 		let currentPreferences = normalizePreferences(soundConfig.preferences || {});
 		let enabledToggle = null;
 		let volumeInput = null;
@@ -100,14 +102,14 @@
 		}
 
 		const saveSoundsMutation = mutations.createDebounced({
-			action: 'pufferdesk_save_sounds',
-			errorText: t('status.soundsSaveError', 'Sound could not be saved.'),
+			action: getSettingAction('SOUNDS'),
+			errorText: t('status.soundsSaveError'),
 			onSuccess(data) {
 				currentPreferences = normalizePreferences(data.sounds || currentPreferences);
 				syncRuntimePreferences();
 				syncControlStates();
 
-				return data.message || t('status.soundsSaved', 'Sound saved.');
+				return data.message || t('status.soundsSaved');
 			},
 			payload: () => ({
 				enabled: currentPreferences.enabled ? '1' : '0',
@@ -156,8 +158,8 @@
 		function createVolumeSection() {
 			const row = dom.createElement('div', 'pdk-settings-sound-slider-row');
 			const range = createRangeField({
-				label: t('sounds.rows.volume', 'Output volume'),
-				labels: [t('sounds.ranges.low', 'Low'), t('sounds.ranges.high', 'High')],
+				label: t('sounds.rows.volume'),
+				labels: [t('sounds.ranges.low'), t('sounds.ranges.high')],
 				max: 100,
 				min: 0,
 				onInput: (value) => {
@@ -174,13 +176,13 @@
 		}
 
 		behaviorSection.appendChild(createRow(
-			t('sounds.rows.enabled', 'Enable system sounds'),
-			createToggle(t('sounds.rows.enabled', 'Enable system sounds'))
+			t('sounds.rows.enabled'),
+			createToggle(t('sounds.rows.enabled'))
 		));
 		outputSection.appendChild(createVolumeSection());
 
 		if (events && typeof events.on === 'function') {
-			events.on('sounds:preferencesChanged', (event) => {
+			events.on(eventNames.SOUNDS_PREFERENCES_CHANGED, (event) => {
 				const detail = event && event.detail ? event.detail : {};
 
 				currentPreferences = normalizePreferences(detail.preferences || currentPreferences);
@@ -188,11 +190,11 @@
 			});
 		}
 
-		panel.appendChild(createSectionHeading(t('sounds.title', 'Sound')));
-		panel.appendChild(dom.createElement('p', 'pdk-settings-panel-description', t('sounds.description', 'Control system sound effects used by PufferDesk.')));
-		panel.appendChild(createSectionHeading(t('sounds.headings.behavior', 'Behavior')));
+		panel.appendChild(createSectionHeading(t('sounds.title')));
+		panel.appendChild(dom.createElement('p', 'pdk-settings-panel-description', t('sounds.description')));
+		panel.appendChild(createSectionHeading(t('sounds.headings.behavior')));
 		panel.appendChild(behaviorSection);
-		panel.appendChild(createSectionHeading(t('sounds.headings.output', 'Output')));
+		panel.appendChild(createSectionHeading(t('sounds.headings.output')));
 		panel.appendChild(outputSection);
 
 		syncControlStates();

@@ -10,6 +10,12 @@
 		const widgetMap = new Map((Array.isArray(config.widgets) ? config.widgets : []).map((widget) => [widget.id, widget]));
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
+		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
+		const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
+		const defaultDashicon = window.PufferDesk.dom.getDefaultDashicon();
+		const constants = window.PufferDesk.shell.contextMenuConstants || {};
+		const targets = constants.targets || {};
+		const itemTypes = constants.itemTypes || {};
 		const desktopIconManager = context.desktopIconManager || null;
 		const folderManager = context.folderManager || null;
 		const manager = context.manager || null;
@@ -25,6 +31,9 @@
 				getMenuLabel: getLabel
 			})
 			: null;
+		const folderViewModes = window.PufferDesk.apps && window.PufferDesk.apps.folderViewModes
+			? window.PufferDesk.apps.folderViewModes
+			: null;
 
 		function commandItem(label, command, options = {}) {
 			return Object.assign({
@@ -34,7 +43,7 @@
 		}
 
 		function getLabel(key, fallback) {
-			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
+			return typeof labels[key] === 'string' && labels[key] ? labels[key] : (fallback || key);
 		}
 
 		function getMenuContextKeys(detail = {}) {
@@ -68,7 +77,7 @@
 			return Object.assign({
 				id: 'action-strip',
 				items,
-				label: getLabel('quick_actions', 'Quick Actions'),
+				label: getLabel('quick_actions'),
 				type: 'action-strip'
 			}, options);
 		}
@@ -104,7 +113,7 @@
 		function getFolderTabDetails(detail = {}) {
 			const win = detail.windowElement || null;
 			const tabs = win
-				? Array.from(win.querySelectorAll('[data-pdk-context="folder-tab"][data-pdk-context-id]'))
+				? Array.from(win.querySelectorAll(`[data-pdk-context="${targets.FOLDER_TAB}"][data-pdk-context-id]`))
 				: [];
 			const tabId = detail.id || '';
 			const index = tabs.findIndex((tab) => tab.dataset.pdkContextId === tabId);
@@ -117,7 +126,7 @@
 		}
 
 		function isTrashFolder(folder) {
-			return Boolean(folder && folder.id === 'trash');
+			return Boolean(folder && folder.id === appIds.TRASH);
 		}
 
 		function isFileExplorerSurface() {
@@ -156,7 +165,7 @@
 		function sortByItem(label, mode) {
 			const active = getDesktopSortMode() === mode;
 
-			return commandItem(label, 'desktop.sort-icons', {
+			return commandItem(label, commandIds.DESKTOP_SORT_ICONS, {
 				icon: active ? 'dashicons-yes' : '',
 				payload: {
 					mode
@@ -166,46 +175,46 @@
 
 		function getSortByItems() {
 			return [
-				sortByItem(getLabel('sort_none', 'None'), 'none'),
+				sortByItem(getLabel('sort_none'), 'none'),
 				separator(),
-				sortByItem(getLabel('sort_snap_to_grid', 'Snap to Grid'), 'snap-to-grid'),
+				sortByItem(getLabel('sort_snap_to_grid'), 'snap-to-grid'),
 				separator(),
-				sortByItem(getLabel('sort_name', 'Name'), 'name'),
-				sortByItem(getLabel('sort_kind', 'Kind'), 'kind'),
-				sortByItem(getLabel('sort_last_modified_by', 'Last Modified By'), 'last-modified-by'),
-				sortByItem(getLabel('sort_date_last_opened', 'Date Last Opened'), 'date-last-opened'),
-				sortByItem(getLabel('sort_date_added', 'Date Added'), 'date-added'),
-				sortByItem(getLabel('sort_date_modified', 'Date Modified'), 'date-modified'),
-				sortByItem(getLabel('sort_date_created', 'Date Created'), 'date-created'),
-				sortByItem(getLabel('sort_size', 'Size'), 'size')
+				sortByItem(getLabel('sort_name'), 'name'),
+				sortByItem(getLabel('sort_kind'), 'kind'),
+				sortByItem(getLabel('sort_last_modified_by'), 'last-modified-by'),
+				sortByItem(getLabel('sort_date_last_opened'), 'date-last-opened'),
+				sortByItem(getLabel('sort_date_added'), 'date-added'),
+				sortByItem(getLabel('sort_date_modified'), 'date-modified'),
+				sortByItem(getLabel('sort_date_created'), 'date-created'),
+				sortByItem(getLabel('sort_size'), 'size')
 			];
 		}
 
 		function getRedmondDesktopViewItems() {
 			return [
-				disabledItem(getLabel('large_icons', 'Large icons'), {
+				disabledItem(getLabel('large_icons'), {
 					icon: 'dashicons-screenoptions',
 					id: 'desktop-view-large-icons'
 				}),
-				disabledItem(getLabel('medium_icons', 'Medium icons'), {
+				disabledItem(getLabel('medium_icons'), {
 					icon: 'dashicons-screenoptions',
 					id: 'desktop-view-medium-icons'
 				}),
-				disabledItem(getLabel('small_icons', 'Small icons'), {
+				disabledItem(getLabel('small_icons'), {
 					icon: 'dashicons-screenoptions',
 					id: 'desktop-view-small-icons'
 				}),
 				separator(),
-				sortByItem(getLabel('sort_snap_to_grid', 'Snap to Grid'), 'snap-to-grid')
+				sortByItem(getLabel('sort_snap_to_grid'), 'snap-to-grid')
 			];
 		}
 
 		function getRedmondDesktopSortByItems() {
 			return [
-				sortByItem(getLabel('sort_name', 'Name'), 'name'),
-				sortByItem(getLabel('sort_size', 'Size'), 'size'),
-				sortByItem(getLabel('sort_kind', 'Kind'), 'kind'),
-				sortByItem(getLabel('sort_date_modified', 'Date Modified'), 'date-modified')
+				sortByItem(getLabel('sort_name'), 'name'),
+				sortByItem(getLabel('sort_size'), 'size'),
+				sortByItem(getLabel('sort_kind'), 'kind'),
+				sortByItem(getLabel('sort_date_modified'), 'date-modified')
 			];
 		}
 
@@ -219,15 +228,15 @@
 								icon: 'dashicons-grid-view',
 								id: 'desktop-view',
 								items: getRedmondDesktopViewItems(),
-								label: getLabel('view', 'View')
+								label: getLabel('view')
 							},
 							{
 								icon: 'dashicons-sort',
 								id: 'desktop-sort-by',
 								items: getRedmondDesktopSortByItems(),
-								label: getLabel('sort_by_sentence', 'Sort by')
+								label: getLabel('sort_by_sentence')
 							},
-							commandItem(getLabel('refresh', 'Refresh'), 'desktop.refresh', {
+							commandItem(getLabel('refresh'), commandIds.DESKTOP_REFRESH, {
 								icon: 'dashicons-update',
 								id: 'desktop-refresh'
 							})
@@ -240,37 +249,37 @@
 								icon: 'dashicons-plus-alt2',
 								id: 'desktop-new',
 								items: [
-									commandItem(getLabel('folder', 'Folder'), 'folder.create', {
+									commandItem(getLabel('folder'), commandIds.FOLDER_CREATE, {
 										icon: 'dashicons-category',
 										id: 'desktop-new-folder'
 									}),
-									commandItem(getLabel('new_sticky_note', 'New Sticky Note'), 'document.new-sticky-note', {
+									commandItem(getLabel('new_sticky_note'), commandIds.DOCUMENT_NEW_STICKY_NOTE, {
 										icon: 'dashicons-sticky',
 										id: 'desktop-new-sticky-note'
 									})
 								],
-								label: getLabel('new', 'New')
+								label: getLabel('new')
 							}
 						]
 					},
 					{
 						id: 'display',
 						items: [
-							commandItem(getLabel('explore_background', 'Explore background'), 'settings.open-panel', {
+							commandItem(getLabel('explore_background'), commandIds.SETTINGS_OPEN_PANEL, {
 								icon: 'dashicons-format-image',
 								id: 'desktop-explore-background',
 								panel: 'wallpaper'
 							}),
-							disabledItem(getLabel('next_background', 'Next background'), {
+							disabledItem(getLabel('next_background'), {
 								icon: 'dashicons-format-gallery',
 								id: 'desktop-next-background'
 							}),
-							commandItem(getLabel('display_settings', 'Display settings'), 'settings.open-panel', {
+							commandItem(getLabel('display_settings'), commandIds.SETTINGS_OPEN_PANEL, {
 								icon: 'dashicons-desktop',
 								id: 'desktop-display-settings',
 								panel: 'desktop-dock'
 							}),
-							commandItem(getLabel('personalize', 'Personalize'), 'settings.open-panel', {
+							commandItem(getLabel('personalize'), commandIds.SETTINGS_OPEN_PANEL, {
 								icon: 'dashicons-edit',
 								id: 'desktop-personalize',
 								panel: 'appearance'
@@ -280,7 +289,7 @@
 					{
 						id: 'system',
 						items: [
-							disabledItem(getLabel('open_in_terminal', 'Open in Terminal'), {
+							disabledItem(getLabel('open_in_terminal'), {
 								icon: 'dashicons-editor-code',
 								id: 'desktop-open-terminal'
 							})
@@ -289,7 +298,7 @@
 					{
 						id: 'more-options',
 						items: [
-							disabledItem(getLabel('show_more_options', 'Show more options'), {
+							disabledItem(getLabel('show_more_options'), {
 								icon: 'dashicons-external',
 								id: 'desktop-show-more-options'
 							})
@@ -304,7 +313,9 @@
 				? detail.windowElement.dataset.pdkFolderToolbarDisplay
 				: '';
 
-			return ['icon-text', 'icon-only', 'text-only'].includes(mode) ? mode : 'icon-text';
+			return folderViewModes && typeof folderViewModes.normalizeToolbarDisplayMode === 'function'
+				? folderViewModes.normalizeToolbarDisplayMode(mode)
+				: 'icon-text';
 		}
 
 		function getFolderContentFolderId(detail = {}) {
@@ -330,7 +341,9 @@
 			const win = detail.windowElement || null;
 			const mode = win && win.dataset ? win.dataset.pdkExplorerSortMode || '' : '';
 
-			return ['name', 'kind'].includes(mode) ? mode : 'none';
+			return folderViewModes && typeof folderViewModes.normalizeExplorerSortMode === 'function'
+				? folderViewModes.normalizeExplorerSortMode(mode)
+				: 'none';
 		}
 
 		function getFolderContentMenuItems(detail = {}) {
@@ -339,10 +352,10 @@
 
 			return folderMenuOptions
 				? folderMenuOptions.getFolderContentItems(folderId, {
-					infoLabel: isFileExplorerSurface() ? getLabel('properties', 'Properties') : getLabel('get_info', 'Get Info'),
+					infoLabel: isFileExplorerSurface() ? getLabel('properties') : getLabel('get_info'),
 					infoShortcut: isFileExplorerSurface() ? 'Alt+Enter' : '',
 					layout,
-					sortByLabel: isRedmondFamily() ? getLabel('sort_by_sentence', 'Sort by') : getLabel('sort_by', 'Sort By'),
+					sortByLabel: isRedmondFamily() ? getLabel('sort_by_sentence') : getLabel('sort_by'),
 					sortMode: getFolderContentSortMode(detail),
 					viewMode: getFolderContentViewMode(detail)
 				})
@@ -352,7 +365,7 @@
 		function folderToolbarDisplayItem(label, mode, detail = {}) {
 			const active = getFolderToolbarDisplayMode(detail) === mode;
 
-			return commandItem(label, 'folder.toolbar-display', {
+			return commandItem(label, commandIds.FOLDER_TOOLBAR_DISPLAY, {
 				icon: active ? 'dashicons-yes' : '',
 				payload: {
 					mode
@@ -365,14 +378,14 @@
 				return [];
 			}
 
-			if (detail.type === 'desktop-app' && isRedmondFamily() && app.id === 'trash') {
+			if (detail.type === targets.DESKTOP_APP && isRedmondFamily() && app.id === appIds.TRASH) {
 				return getRedmondRecycleBinItems(app);
 			}
 
 			const folderId = detail.folderId || '';
 			const addToFolderItems = getUserFolders()
 				.filter((folder) => folder.id !== folderId)
-				.map((folder) => commandItem(folder.label, 'folder.add-app', {
+				.map((folder) => commandItem(folder.label, commandIds.FOLDER_ADD_APP, {
 					icon: folder.icon || 'dashicons-category',
 					payload: {
 						folderId: folder.id
@@ -380,14 +393,14 @@
 					target: app.id
 			}));
 			const items = [
-				commandItem(getLabel('open', 'Open'), 'open-app', {
-					icon: app.icon || 'dashicons-admin-generic',
+				commandItem(getLabel('open'), commandIds.OPEN_APP, {
+					icon: app.icon || defaultDashicon,
 					target: app.id
 				})
 			];
 
 			if (app.url) {
-				items.push(commandItem(getLabel('open_in_browser_tab', 'Open in Browser Tab'), 'window.open-browser-tab', {
+				items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {
 					icon: 'dashicons-external',
 					title: app.label || '',
 					url: app.url
@@ -395,7 +408,7 @@
 			}
 
 			if (folderId && isUserFolder(folderId)) {
-				items.push(commandItem(getLabel('remove_from_folder', 'Remove from Folder'), 'folder.remove-app', {
+				items.push(commandItem(getLabel('remove_from_folder'), commandIds.FOLDER_REMOVE_APP, {
 					icon: 'dashicons-no-alt',
 					payload: {
 						folderId
@@ -409,12 +422,12 @@
 					icon: 'dashicons-category',
 					id: folderId ? 'move-to-folder' : 'add-to-folder',
 					items: addToFolderItems,
-					label: folderId ? getLabel('move_to_folder', 'Move to Folder') : getLabel('add_to_folder', 'Add to Folder')
+					label: folderId ? getLabel('move_to_folder') : getLabel('add_to_folder')
 				});
 			}
 
 			items.push(
-				commandItem(getLabel('about', 'About'), 'open-about', {
+				commandItem(getLabel('about'), commandIds.OPEN_ABOUT, {
 					icon: 'dashicons-info-outline',
 					target: app.id
 				})
@@ -428,7 +441,7 @@
 
 			return [
 				actionStrip([
-					commandItem(getLabel('rename', 'Rename'), 'desktop-icon.rename', {
+					commandItem(getLabel('rename'), commandIds.DESKTOP_ICON_RENAME, {
 						icon: 'dashicons-edit',
 						id: 'rename',
 						target: app.id
@@ -436,33 +449,33 @@
 				], {
 					id: 'recycle-bin-actions'
 				}),
-				commandItem(getLabel('open', 'Open'), 'open-app', {
+				commandItem(getLabel('open'), commandIds.OPEN_APP, {
 					icon: app.icon || 'dashicons-trash',
 					id: 'recycle-bin-open',
-					shortcut: getLabel('enter_key', 'Enter'),
+					shortcut: getLabel('enter_key'),
 					target: app.id
 				}),
-				commandItem(getLabel('empty_trash', 'Empty Recycle Bin'), 'trash.empty', {
+				commandItem(getLabel('empty_trash'), commandIds.TRASH_EMPTY, {
 					disabled: !hasTrashItems,
 					icon: 'dashicons-trash',
 					id: 'recycle-bin-empty'
 				}),
-				disabledItem(getLabel('pin_to_quick_access', 'Pin to Quick Access'), {
+				disabledItem(getLabel('pin_to_quick_access'), {
 					icon: 'dashicons-admin-links',
 					id: 'recycle-bin-pin-quick-access'
 				}),
-				disabledItem(getLabel('pin_to_start', 'Pin to Start'), {
+				disabledItem(getLabel('pin_to_start'), {
 					icon: 'dashicons-admin-links',
 					id: 'recycle-bin-pin-start'
 				}),
-				commandItem(getLabel('properties', 'Properties'), 'folder.get-info', {
+				commandItem(getLabel('properties'), commandIds.FOLDER_GET_INFO, {
 					icon: 'dashicons-admin-tools',
 					id: 'recycle-bin-properties',
 					shortcut: 'Alt+Enter',
-					target: 'trash'
+					target: appIds.TRASH
 				}),
 				separator(),
-				disabledItem(getLabel('show_more_options', 'Show more options'), {
+				disabledItem(getLabel('show_more_options'), {
 					icon: 'dashicons-external',
 					id: 'recycle-bin-show-more-options'
 				})
@@ -472,13 +485,13 @@
 		function getDockOptionsItem(app, state) {
 			const optionItems = [
 				state.open
-					? commandItem(getLabel('keep_in_launcher', 'Keep in Dock'), 'app.keep-in-dock', {
+					? commandItem(getLabel('keep_in_launcher'), commandIds.APP_KEEP_IN_DOCK, {
 						target: app.id
 					})
-					: commandItem(getLabel('remove_from_launcher', 'Remove from Dock'), 'app.remove-from-dock', {
+					: commandItem(getLabel('remove_from_launcher'), commandIds.APP_REMOVE_FROM_DOCK, {
 						target: app.id
 					}),
-				commandItem(getLabel('open_at_login', 'Open at Login'), 'app.toggle-login-item', {
+				commandItem(getLabel('open_at_login'), commandIds.APP_TOGGLE_LOGIN_ITEM, {
 					target: app.id
 				})
 			];
@@ -486,7 +499,7 @@
 			return {
 				id: 'dock-options',
 				items: optionItems,
-				label: getLabel('launcher_options', 'Options')
+				label: getLabel('launcher_options')
 			};
 		}
 
@@ -495,13 +508,13 @@
 				return [];
 			}
 
-			if (app.id === 'trash') {
+			if (app.id === appIds.TRASH) {
 				return [
-					commandItem(getLabel('open', 'Open'), 'open-app', {
+					commandItem(getLabel('open'), commandIds.OPEN_APP, {
 						target: app.id
 					}),
 					separator(),
-					commandItem(getLabel('empty_trash', 'Empty Trash'), 'trash.empty')
+					commandItem(getLabel('empty_trash'), commandIds.TRASH_EMPTY)
 				];
 			}
 
@@ -510,21 +523,21 @@
 
 			if (state.open) {
 				items.push(
-					commandItem(state.hidden ? getLabel('show', 'Show') : getLabel('hide', 'Hide'), state.hidden ? 'window.focus' : 'window.hide', {
+					commandItem(state.hidden ? getLabel('show') : getLabel('hide'), state.hidden ? commandIds.WINDOW_FOCUS : commandIds.WINDOW_HIDE, {
 						target: app.id
 					}),
-					commandItem(getLabel('quit', 'Quit'), 'window.close', {
+					commandItem(getLabel('quit'), commandIds.WINDOW_CLOSE, {
 						target: app.id
 					})
 				);
 			} else {
-				items.push(commandItem(getLabel('open', 'Open'), 'open-app', {
+				items.push(commandItem(getLabel('open'), commandIds.OPEN_APP, {
 					target: app.id
 				}));
 			}
 
 			if (app.url) {
-				items.push(commandItem(getLabel('open_in_browser_tab', 'Open in Browser Tab'), 'window.open-browser-tab', {
+				items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {
 					title: app.label || '',
 					url: app.url
 				}));
@@ -539,7 +552,7 @@
 
 			items.push(
 				separator(),
-				commandItem(getLabel('about', 'About'), 'open-about', {
+				commandItem(getLabel('about'), commandIds.OPEN_ABOUT, {
 					target: app.id
 				})
 			);
@@ -570,11 +583,11 @@
 			const muted = isSoundMuted();
 
 			return [
-				commandItem(muted ? getLabel('sound_unmute', 'Unmute') : getLabel('sound_mute', 'Mute'), 'sound.toggle-mute', {
+				commandItem(muted ? getLabel('sound_unmute') : getLabel('sound_mute'), commandIds.SOUND_TOGGLE_MUTE, {
 					icon: muted ? 'dashicons-controls-volumeon' : 'dashicons-controls-volumeoff',
 					id: 'sound-toggle-mute'
 				}),
-				commandItem(getLabel('sound_settings', 'Sound Settings'), 'settings.open-panel', {
+				commandItem(getLabel('sound_settings'), commandIds.SETTINGS_OPEN_PANEL, {
 					icon: 'dashicons-format-audio',
 					id: 'sound-settings',
 					panel: 'sounds'
@@ -589,16 +602,16 @@
 
 			if (isTrashFolder(folder)) {
 				return [
-					commandItem(getLabel('open', 'Open'), 'open-folder', {
+					commandItem(getLabel('open'), commandIds.OPEN_FOLDER, {
 						icon: folder.icon || 'dashicons-trash',
 						target: folder.id
 					}),
-					commandItem(getLabel('open_in_new_tab', 'Open in New Tab'), 'open-folder-tab', {
+					commandItem(getLabel('open_in_new_tab'), commandIds.OPEN_FOLDER_TAB, {
 						icon: 'dashicons-plus-alt2',
 						target: folder.id
 					}),
 					separator(),
-					commandItem(getLabel('empty_trash', 'Empty Trash'), 'trash.empty', {
+					commandItem(getLabel('empty_trash'), commandIds.TRASH_EMPTY, {
 						icon: 'dashicons-trash'
 					})
 				];
@@ -610,23 +623,23 @@
 
 			if (useExplorerMenu) {
 				items.push(actionStrip([
-					commandItem(getLabel('cut', 'Cut'), '', {
+					commandItem(getLabel('cut'), '', {
 						disabled: true,
 						icon: 'dashicons-admin-page',
 						id: 'cut'
 					}),
-					commandItem(getLabel('copy', 'Copy'), '', {
+					commandItem(getLabel('copy'), '', {
 						disabled: true,
 						icon: 'dashicons-clipboard',
 						id: 'copy'
 					}),
-					commandItem(getLabel('rename', 'Rename'), canMutateFolder ? 'folder.rename' : '', {
+					commandItem(getLabel('rename'), canMutateFolder ? commandIds.FOLDER_RENAME : '', {
 						disabled: !canMutateFolder,
 						icon: 'dashicons-edit',
 						id: 'rename',
 						target: folder.id
 					}),
-					commandItem(getLabel('delete', 'Delete'), canMutateFolder ? 'folder.delete' : '', {
+					commandItem(getLabel('delete'), canMutateFolder ? commandIds.FOLDER_DELETE : '', {
 						disabled: !canMutateFolder,
 						icon: 'dashicons-trash',
 						id: 'delete',
@@ -638,12 +651,12 @@
 			}
 
 			items.push(
-				commandItem(getLabel('open', 'Open'), 'open-folder', {
+				commandItem(getLabel('open'), commandIds.OPEN_FOLDER, {
 					icon: folder.icon || 'dashicons-category',
-					shortcut: useExplorerMenu ? getLabel('enter_key', 'Enter') : '',
+					shortcut: useExplorerMenu ? getLabel('enter_key') : '',
 					target: folder.id
 				}),
-				commandItem(getLabel('open_in_new_tab', 'Open in New Tab'), 'open-folder-tab', {
+				commandItem(getLabel('open_in_new_tab'), commandIds.OPEN_FOLDER_TAB, {
 					icon: 'dashicons-plus-alt2',
 					target: folder.id
 				})
@@ -651,16 +664,16 @@
 
 			if (useExplorerMenu) {
 				items.push(
-					commandItem(getLabel('open_in_new_window', 'Open in New Window'), 'open-folder-window', {
+					commandItem(getLabel('open_in_new_window'), commandIds.OPEN_FOLDER_WINDOW, {
 						icon: 'dashicons-external',
 						id: 'open-in-new-window',
 						target: folder.id
 					}),
-					disabledItem(getLabel('pin_to_quick_access', 'Pin to Quick Access'), {
+					disabledItem(getLabel('pin_to_quick_access'), {
 						icon: 'dashicons-admin-links',
 						id: 'pin-to-quick-access'
 					}),
-					disabledItem(getLabel('pin_to_start', 'Pin to Start'), {
+					disabledItem(getLabel('pin_to_start'), {
 						icon: 'dashicons-admin-links',
 						id: 'pin-to-start'
 					}),
@@ -668,12 +681,12 @@
 						icon: 'dashicons-archive',
 						id: 'compress-to',
 						items: [
-							disabledItem(getLabel('zip_file', 'ZIP file')),
-							disabledItem(getLabel('compressed_folder', 'Compressed folder'))
+							disabledItem(getLabel('zip_file')),
+							disabledItem(getLabel('compressed_folder'))
 						],
-						label: getLabel('compress_to', 'Compress to...')
+						label: getLabel('compress_to')
 					},
-					disabledItem(getLabel('copy_as_path', 'Copy as path'), {
+					disabledItem(getLabel('copy_as_path'), {
 						icon: 'dashicons-media-code',
 						id: 'copy-as-path',
 						shortcut: 'Ctrl+Shift+C'
@@ -682,7 +695,7 @@
 			}
 
 			items.push(
-				commandItem(useExplorerMenu ? getLabel('properties', 'Properties') : getLabel('get_info', 'Get Info'), 'folder.get-info', {
+				commandItem(useExplorerMenu ? getLabel('properties') : getLabel('get_info'), commandIds.FOLDER_GET_INFO, {
 					icon: 'dashicons-info-outline',
 					shortcut: useExplorerMenu ? 'Alt+Enter' : '',
 					target: folder.id
@@ -692,12 +705,12 @@
 			if (useExplorerMenu) {
 				items.push(
 					separator(),
-					disabledItem(getLabel('open_in_terminal', 'Open in Terminal'), {
+					disabledItem(getLabel('open_in_terminal'), {
 						icon: 'dashicons-editor-code',
 						id: 'open-in-terminal'
 					}),
 					separator(),
-					disabledItem(getLabel('show_more_options', 'Show more options'), {
+					disabledItem(getLabel('show_more_options'), {
 						icon: 'dashicons-external',
 						id: 'show-more-options'
 					})
@@ -707,11 +720,11 @@
 			if (canMutateFolder && !useExplorerMenu) {
 				items.push(
 					separator(),
-					commandItem(getLabel('rename', 'Rename'), 'folder.rename', {
+					commandItem(getLabel('rename'), commandIds.FOLDER_RENAME, {
 						icon: 'dashicons-edit',
 						target: folder.id
 					}),
-					commandItem(getLabel('move_to_trash', 'Move to Trash'), 'folder.delete', {
+					commandItem(getLabel('move_to_trash'), commandIds.FOLDER_DELETE, {
 						icon: 'dashicons-trash',
 						target: folder.id
 					})
@@ -729,11 +742,11 @@
 			}
 
 			return [
-				commandItem(getLabel('put_back', 'Put Back'), 'trash.restore', {
+				commandItem(getLabel('put_back'), commandIds.TRASH_RESTORE, {
 					icon: 'dashicons-undo',
 					target: trashId
 				}),
-				commandItem(getLabel('delete_immediately', 'Delete Immediately'), 'trash.delete-immediately', {
+				commandItem(getLabel('delete_immediately'), commandIds.TRASH_DELETE_IMMEDIATELY, {
 					icon: 'dashicons-trash',
 					target: trashId
 				})
@@ -751,7 +764,7 @@
 
 		function normalizeMenu(definition, detail = {}) {
 			const normalized = menuSchema.normalizeDefinition(definition, {
-				appLabel: detail.label || getLabel('context_menu', 'Context Menu')
+				appLabel: detail.label || getLabel('context_menu')
 			});
 			const groups = normalized.groups
 				.map((group) => Object.assign({}, group, {
@@ -810,7 +823,7 @@
 						{
 							id: options.group || 'extensions',
 							items: resolved,
-							label: options.label || getLabel('extensions', 'Extensions')
+							label: options.label || getLabel('extensions')
 						}
 					]
 				}, detail);
@@ -825,7 +838,7 @@
 					{
 						id: options.group || 'extensions',
 						items: [resolved],
-						label: options.label || getLabel('extensions', 'Extensions')
+						label: options.label || getLabel('extensions')
 					}
 				]
 			}, detail);
@@ -877,7 +890,7 @@
 			};
 		}
 
-		registerProvider('desktop', () => {
+		registerProvider(targets.DESKTOP, () => {
 			if (isRedmondFamily()) {
 				return getRedmondDesktopMenu();
 			}
@@ -887,29 +900,29 @@
 					{
 						id: 'primary',
 						items: [
-							commandItem(getLabel('new_folder', 'New Folder'), 'folder.create', {
+							commandItem(getLabel('new_folder'), commandIds.FOLDER_CREATE, {
 								icon: 'dashicons-category'
 							}),
-							commandItem(getLabel('new_sticky_note', 'New Sticky Note'), 'document.new-sticky-note', {
+							commandItem(getLabel('new_sticky_note'), commandIds.DOCUMENT_NEW_STICKY_NOTE, {
 								icon: 'dashicons-sticky'
 							}),
 							{
 								icon: 'dashicons-sort',
 								id: 'sort-by',
 								items: getSortByItems(),
-								label: getLabel('sort_by', 'Sort By')
+								label: getLabel('sort_by')
 							},
 							separator(),
-							commandItem(getLabel('change_wallpaper', 'Change Wallpaper...'), 'settings.open-panel', {
+							commandItem(getLabel('change_wallpaper'), commandIds.SETTINGS_OPEN_PANEL, {
 								icon: 'dashicons-format-image',
 								panel: 'wallpaper'
 							}),
-							commandItem(getLabel('system_settings', 'System Settings...'), 'open-app', {
+							commandItem(getLabel('system_settings'), commandIds.OPEN_APP, {
 								icon: 'dashicons-admin-customizer',
-								target: 'os-settings'
+								target: appIds.OS_SETTINGS
 							}),
 							separator(),
-							commandItem(getLabel('reset_layout', 'Reset Layout'), 'session.reset-layout', {
+							commandItem(getLabel('reset_layout'), commandIds.SESSION_RESET_LAYOUT, {
 								icon: 'dashicons-update'
 							})
 						]
@@ -918,7 +931,7 @@
 			};
 		});
 
-		registerProvider('app', (detail) => ({
+		registerProvider(itemTypes.APP, (detail) => ({
 			groups: [
 				{
 					id: 'primary',
@@ -926,10 +939,10 @@
 				}
 			]
 		}));
-		registerProvider('desktop-app', (detail) => providers.get('app')(detail));
-		registerProvider('folder-app', (detail) => providers.get('app')(detail));
+		registerProvider(targets.DESKTOP_APP, (detail) => providers.get(itemTypes.APP)(detail));
+		registerProvider(targets.FOLDER_APP, (detail) => providers.get(itemTypes.APP)(detail));
 
-		registerProvider('dock-app', (detail) => {
+		registerProvider(targets.DOCK_APP, (detail) => {
 			const app = detail.app || appMap.get(detail.id);
 			return {
 				groups: [
@@ -940,16 +953,16 @@
 				]
 			};
 		});
-		registerProvider('dock', () => ({
+		registerProvider(targets.DOCK, () => ({
 			groups: [
 				{
 					id: 'primary',
 					items: [
-						commandItem(getLabel('show_all', 'Show All'), 'window.show-all', {
+						commandItem(getLabel('show_all'), commandIds.WINDOW_SHOW_ALL, {
 							icon: 'dashicons-visibility'
 						}),
-						commandItem(getLabel('launcher_settings', 'Dock Settings'), 'settings.open-panel', {
-							icon: 'dashicons-admin-generic',
+						commandItem(getLabel('launcher_settings'), commandIds.SETTINGS_OPEN_PANEL, {
+							icon: defaultDashicon,
 							panel: 'desktop-dock'
 						})
 					]
@@ -957,7 +970,7 @@
 			]
 		}));
 
-		registerProvider('sound-status', () => ({
+		registerProvider(targets.SOUND_STATUS, () => ({
 			groups: [
 				{
 					id: 'primary',
@@ -966,7 +979,7 @@
 			]
 		}));
 
-		registerProvider('folder', (detail) => ({
+		registerProvider(itemTypes.FOLDER, (detail) => ({
 			groups: [
 				{
 					id: 'primary',
@@ -974,12 +987,12 @@
 				}
 			]
 		}));
-		registerProvider('folder-sidebar-item', (detail) => ({
+		registerProvider(targets.FOLDER_SIDEBAR, (detail) => ({
 			groups: [
 				{
 					id: 'primary',
 					items: [
-						commandItem(getLabel('remove_from_sidebar', 'Remove from Sidebar'), 'folder.sidebar-remove', {
+						commandItem(getLabel('remove_from_sidebar'), commandIds.FOLDER_SIDEBAR_REMOVE, {
 							icon: 'dashicons-no-alt',
 							target: detail.id
 						})
@@ -987,7 +1000,7 @@
 				}
 			]
 		}));
-		registerProvider('folder-content', (detail) => ({
+		registerProvider(targets.FOLDER_CONTENT, (detail) => ({
 			groups: [
 				{
 					id: 'primary',
@@ -995,16 +1008,16 @@
 				}
 			]
 		}));
-		registerProvider('document', (detail) => ({
+		registerProvider(targets.DOCUMENT, (detail) => ({
 			groups: [
 				{
 					id: 'primary',
 					items: [
-						commandItem(getLabel('open', 'Open'), 'document.open', {
+						commandItem(getLabel('open'), commandIds.DOCUMENT_OPEN, {
 							icon: 'dashicons-media-document',
 							target: detail.id
 						}),
-						commandItem(getLabel('delete', 'Delete'), 'folder.delete-selected', {
+						commandItem(getLabel('delete'), commandIds.FOLDER_DELETE_SELECTED, {
 							icon: 'dashicons-trash',
 							payload: {
 								folderId: detail.folderId || '',
@@ -1016,8 +1029,8 @@
 				}
 			]
 		}));
-		registerProvider('desktop-folder', (detail) => providers.get('folder')(detail));
-		registerProvider('folder-tab', (detail) => {
+		registerProvider(targets.DESKTOP_FOLDER, (detail) => providers.get(itemTypes.FOLDER)(detail));
+		registerProvider(targets.FOLDER_TAB, (detail) => {
 			const tabDetails = getFolderTabDetails(detail);
 			const payload = {
 				folderId: detail.folderId || '',
@@ -1030,18 +1043,18 @@
 					{
 						id: 'primary',
 						items: [
-							commandItem(getLabel('close_tab', 'Close Tab'), 'folder-tab.close', Object.assign({
+							commandItem(getLabel('close_tab'), commandIds.FOLDER_TAB_CLOSE, Object.assign({
 								icon: 'dashicons-no-alt',
 								shortcut: 'Ctrl+W'
 							}, payload)),
-							commandItem(getLabel('close_other_tabs', 'Close Other Tabs'), 'folder-tab.close-others', Object.assign({
+							commandItem(getLabel('close_other_tabs'), commandIds.FOLDER_TAB_CLOSE_OTHERS, Object.assign({
 								disabled: tabDetails.tabCount <= 1
 							}, payload)),
-							commandItem(getLabel('close_tabs_to_right', 'Close Tabs to the Right'), 'folder-tab.close-right', Object.assign({
+							commandItem(getLabel('close_tabs_to_right'), commandIds.FOLDER_TAB_CLOSE_RIGHT, Object.assign({
 								disabled: tabDetails.index < 0 || tabDetails.index >= tabDetails.tabCount - 1
 							}, payload)),
 							separator(),
-							commandItem(getLabel('duplicate_tab', 'Duplicate Tab'), 'folder-tab.duplicate', Object.assign({
+							commandItem(getLabel('duplicate_tab'), commandIds.FOLDER_TAB_DUPLICATE, Object.assign({
 								icon: 'dashicons-admin-page'
 							}, payload))
 						]
@@ -1049,7 +1062,7 @@
 				]
 			};
 		});
-		registerProvider('trash-item', (detail) => ({
+		registerProvider(targets.TRASH_ITEM, (detail) => ({
 			groups: [
 				{
 					id: 'primary',
@@ -1058,20 +1071,20 @@
 			]
 		}));
 
-		registerProvider('folder-toolbar', (detail) => ({
+		registerProvider(targets.FOLDER_TOOLBAR, (detail) => ({
 			groups: [
 				{
 					id: 'display',
 					items: [
-						folderToolbarDisplayItem(getLabel('icons_and_text', 'Icons and Text'), 'icon-text', detail),
-						folderToolbarDisplayItem(getLabel('icons_only', 'Icons Only'), 'icon-only', detail),
-						folderToolbarDisplayItem(getLabel('text_only', 'Text Only'), 'text-only', detail)
+						folderToolbarDisplayItem(getLabel('icons_and_text'), 'icon-text', detail),
+						folderToolbarDisplayItem(getLabel('icons_only'), 'icon-only', detail),
+						folderToolbarDisplayItem(getLabel('text_only'), 'text-only', detail)
 					]
 				}
 			]
 		}));
 
-		registerProvider('window', (detail) => {
+		registerProvider(targets.WINDOW, (detail) => {
 			const app = detail.appId ? appMap.get(detail.appId) : null;
 			const browserUrl = getWindowBrowserUrl(detail, app);
 			const win = detail.windowElement || null;
@@ -1083,24 +1096,24 @@
 						{
 							id: 'primary',
 							items: [
-								commandItem(getLabel('window_restore', 'Restore'), 'window.focus', {
+								commandItem(getLabel('window_restore'), commandIds.WINDOW_FOCUS, {
 									disabled: !isHidden,
 									icon: 'dashicons-image-rotate'
 								}),
-								disabledItem(getLabel('window_move', 'Move'), {
+								disabledItem(getLabel('window_move'), {
 									icon: 'dashicons-move'
 								}),
-								disabledItem(getLabel('window_size', 'Size'), {
+								disabledItem(getLabel('window_size'), {
 									icon: 'dashicons-editor-expand'
 								}),
-								commandItem(getLabel('window_minimize', 'Minimize'), 'window.minimize', {
+								commandItem(getLabel('window_minimize'), commandIds.WINDOW_MINIMIZE, {
 									icon: 'dashicons-minus'
 								}),
-								commandItem(isMaximized ? getLabel('window_restore', 'Restore') : getLabel('window_maximize', 'Maximize'), 'window.toggle-maximize', {
+								commandItem(isMaximized ? getLabel('window_restore') : getLabel('window_maximize'), commandIds.WINDOW_TOGGLE_MAXIMIZE, {
 									icon: 'dashicons-editor-expand'
 								}),
 								separator(),
-								commandItem(getLabel('window_close', 'Close'), 'window.close', {
+								commandItem(getLabel('window_close'), commandIds.WINDOW_CLOSE, {
 									icon: 'dashicons-no-alt',
 									shortcut: 'Alt+F4'
 								})
@@ -1110,13 +1123,13 @@
 				};
 			}
 			const items = [
-				commandItem(getLabel('bring_to_front', 'Bring to Front'), 'window.focus', {
+				commandItem(getLabel('bring_to_front'), commandIds.WINDOW_FOCUS, {
 					icon: 'dashicons-editor-expand'
 				})
 			];
 
 			if (browserUrl) {
-				items.push(commandItem(getLabel('open_in_browser_tab', 'Open in Browser Tab'), 'window.open-browser-tab', {
+				items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {
 					icon: 'dashicons-external',
 					title: detail.label || (app && app.label ? app.label : ''),
 					url: browserUrl
@@ -1124,16 +1137,16 @@
 			}
 
 			items.push(
-				commandItem(getLabel('window_minimize', 'Minimize'), 'window.minimize', {
+				commandItem(getLabel('window_minimize'), commandIds.WINDOW_MINIMIZE, {
 					icon: 'dashicons-minus'
 				}),
-				commandItem(getLabel('window_close', 'Close'), 'window.close', {
+				commandItem(getLabel('window_close'), commandIds.WINDOW_CLOSE, {
 					icon: 'dashicons-no-alt'
 				})
 			);
 
 			if (app) {
-				items.push(separator(), commandItem(getLabel('about', 'About'), 'open-about', {
+				items.push(separator(), commandItem(getLabel('about'), commandIds.OPEN_ABOUT, {
 					icon: 'dashicons-info-outline',
 					target: app.id
 				}));
@@ -1149,14 +1162,14 @@
 			};
 		});
 
-		registerProvider('widget', (detail) => {
+		registerProvider(targets.WIDGET, (detail) => {
 			const widget = detail.widget || widgetMap.get(detail.id);
 			return {
 				groups: [
 					{
 					id: 'primary',
 					items: [
-							commandItem(getLabel('hide_widget', 'Hide Widget'), 'widget.hide', {
+							commandItem(getLabel('hide_widget'), commandIds.WIDGET_HIDE, {
 								icon: widget && widget.icon ? widget.icon : 'dashicons-hidden',
 								target: detail.id
 							})
@@ -1199,6 +1212,9 @@
 			: null);
 		const folderManager = context.folderManager || null;
 		const geometry = window.PufferDesk.geometry;
+		const constants = window.PufferDesk.shell.contextMenuConstants || {};
+		const targets = constants.targets || {};
+		const eventNames = window.PufferDesk.events && window.PufferDesk.events.names ? window.PufferDesk.events.names : {};
 		const dockLongPressDelay = 560;
 		const dockLongPressMoveTolerance = 8;
 		let popover = null;
@@ -1210,7 +1226,7 @@
 		let bound = false;
 
 		function emit(name, detail = {}) {
-			if (window.PufferDesk.events && typeof window.PufferDesk.events.emit === 'function') {
+			if (name && window.PufferDesk.events && typeof window.PufferDesk.events.emit === 'function') {
 				window.PufferDesk.events.emit(name, detail);
 			}
 		}
@@ -1285,7 +1301,7 @@
 				&& target.classList
 				&& target.classList.contains('pdk-window')
 				&& target.dataset
-				&& target.dataset.pdkContext === 'window'
+				&& target.dataset.pdkContext === targets.WINDOW
 			);
 		}
 
@@ -1311,14 +1327,14 @@
 		}
 
 		function getTargetDetail(target) {
-			const type = target.dataset.pdkContext || 'desktop';
+			const type = target.dataset.pdkContext || targets.DESKTOP;
 			const id = target.dataset.pdkContextId || target.dataset.pdkOpenApp || target.dataset.pdkOpenFolder || target.dataset.pdkWidget || '';
 			const windowElement = getContextWindowElement(target);
 			const app = id && Array.isArray(config.apps) ? config.apps.find((item) => item.id === id) : null;
 			const folder = id && folderManager && typeof folderManager.getFolder === 'function'
 				? folderManager.getFolder(id)
 				: (id && Array.isArray(config.folders) ? config.folders.find((item) => item.id === id) : null);
-			const trashItem = type === 'trash-item' && id ? getTrashItem(id) : null;
+			const trashItem = type === targets.TRASH_ITEM && id ? getTrashItem(id) : null;
 			const widget = id && Array.isArray(config.widgets) ? config.widgets.find((item) => item.id === id) : null;
 			const detail = {
 				app,
@@ -1389,7 +1405,7 @@
 
 			activeDetail = null;
 			activeDockPressMenu = null;
-			emit('contextmenu:close', {});
+			emit(eventNames.CONTEXT_MENU_CLOSE, {});
 		}
 
 		function positionDockMenu(detail = {}) {
@@ -1434,7 +1450,7 @@
 				return;
 			}
 
-			if (detail.type === 'dock-app' && positionDockMenu(detail)) {
+			if (detail.type === targets.DOCK_APP && positionDockMenu(detail)) {
 				return;
 			}
 
@@ -1451,13 +1467,13 @@
 		}
 
 		function activateContextTarget(detail = {}) {
-			if (!detail.targetElement || !['dock-app', 'trash-item'].includes(detail.type)) {
+			if (!detail.targetElement || ![targets.DOCK_APP, targets.TRASH_ITEM].includes(detail.type)) {
 				return;
 			}
 
 			activeContextTarget = detail.targetElement;
 			activeContextTarget.classList.add('is-context-menu-active');
-			if (detail.type === 'dock-app') {
+			if (detail.type === targets.DOCK_APP) {
 				activeContextTarget.classList.add('is-tooltip-dismissed');
 			}
 		}
@@ -1490,7 +1506,7 @@
 				closeMenu();
 				activeDetail = nextDetail;
 				setCommandContext(activeDetail);
-				emit('contextmenu:open', {
+				emit(eventNames.CONTEXT_MENU_OPEN, {
 					context: activeDetail
 				});
 				popover = document.createElement('div');
@@ -1516,7 +1532,7 @@
 				}
 				popover.replaceChildren(...filteredMenuDefinition.groups.flatMap((group, groupIndex) => {
 					const groupItems = group.items.map((item) => itemRenderer.createItem(item, activeDetail, (executedItem, executedContext) => {
-						emit('contextmenu:item:execute', {
+						emit(eventNames.CONTEXT_MENU_ITEM_EXECUTE, {
 							context: executedContext,
 							item: executedItem
 						});
@@ -1547,7 +1563,7 @@
 				if (activeDetail.autoFocusFirst && keyboardController && typeof keyboardController.focusFirst === 'function') {
 					keyboardController.focusFirst(popover);
 				}
-				emit('contextmenu:render', {
+				emit(eventNames.CONTEXT_MENU_RENDER, {
 					context: activeDetail,
 					menu: filteredMenuDefinition,
 					popover
@@ -1558,7 +1574,7 @@
 				if (window.console && typeof window.console.error === 'function') {
 					window.console.error('PufferDesk context menu failed.', error);
 				}
-				emit('contextmenu:error', {
+				emit(eventNames.CONTEXT_MENU_ERROR, {
 					context: detail || {},
 					error
 				});
@@ -1576,7 +1592,7 @@
 				return;
 			}
 
-			emit('contextmenu:item:hover', {
+			emit(eventNames.CONTEXT_MENU_ITEM_HOVER, {
 				context: activeDetail,
 				itemId: item.dataset.pdkMenuItem || ''
 			});
@@ -1625,7 +1641,7 @@
 			}
 
 			const detail = resolver && typeof resolver.getTargetDetail === 'function' ? resolver.getTargetDetail(target) : getTargetDetail(target);
-			emit('contextmenu:resolve', {
+			emit(eventNames.CONTEXT_MENU_RESOLVE, {
 				context: detail,
 				event,
 				target
@@ -1635,17 +1651,15 @@
 				y: event.clientY
 			});
 
-			if (opened) {
-				event.preventDefault();
-				event.stopPropagation();
-			}
+			event.preventDefault();
+			event.stopPropagation();
 
 			return opened;
 		}
 
 		function getDockLongPressTarget(target) {
 			const item = target && typeof target.closest === 'function'
-				? target.closest('[data-pdk-context="dock-app"]')
+				? target.closest(`[data-pdk-context="${targets.DOCK_APP}"]`)
 				: null;
 
 			return item && shell.contains(item) ? item : null;

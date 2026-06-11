@@ -106,7 +106,7 @@ final class PufferDesk_Plugin {
 		);
 		$sound_registry     = new PufferDesk_Sound_Registry();
 		$asset_manifest     = new PufferDesk_Asset_Manifest();
-		$settings_registry  = new PufferDesk_Settings_Registry();
+		$settings_registry  = new PufferDesk_Settings_Registry( $preferences );
 		$this->router       = new PufferDesk_Router( $preferences );
 		$shell_context      = new PufferDesk_Shell_Context(
 			$preferences,

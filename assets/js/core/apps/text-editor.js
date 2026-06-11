@@ -31,16 +31,16 @@
 		const titleInput = document.createElement('input');
 		const editor = document.createElement('textarea');
 		const status = document.createElement('div');
-		const saveButton = createButton('pdk-document-editor-button is-primary', getLabel('save', 'Save'), getLabel('save', 'Save'));
-		const deleteButton = createButton('pdk-document-editor-button', getLabel('delete', 'Delete'), getLabel('delete', 'Delete'));
-		const newButton = createButton('pdk-document-editor-new', getLabel('newDocument', 'New Document'), getLabel('newDocument', 'New Document'));
+		const saveButton = createButton('pdk-document-editor-button is-primary', getLabel('save'), getLabel('save'));
+		const deleteButton = createButton('pdk-document-editor-button', getLabel('delete'), getLabel('delete'));
+		const newButton = createButton('pdk-document-editor-new', getLabel('newDocument'), getLabel('newDocument'));
 		const documents = [];
 		const initialDocumentId = Number.parseInt(context.initialDocumentId, 10) || 0;
 		let currentDocument = null;
 		let isSaving = false;
 
-		function getLabel(key, fallback) {
-			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
+		function getLabel(key) {
+			return typeof labels[key] === 'string' && labels[key] ? labels[key] : key;
 		}
 
 		function getTextKind() {
@@ -57,14 +57,14 @@
 				content: '',
 				id: 0,
 				kind: getTextKind(),
-				title: getLabel('untitledDocument', 'Untitled Document')
+				title: getLabel('untitledDocument')
 			};
 		}
 
 		function syncEditor() {
 			const documentData = currentDocument || getUntitledDocument();
 
-			titleInput.value = documentData.title || getLabel('untitledDocument', 'Untitled Document');
+			titleInput.value = documentData.title || getLabel('untitledDocument');
 			editor.value = documentData.content || '';
 			deleteButton.disabled = !documentData.id;
 			saveButton.disabled = isSaving;
@@ -90,7 +90,7 @@
 			if (!documents.length) {
 				const empty = document.createElement('p');
 				empty.className = 'pdk-document-editor-empty';
-				empty.textContent = getLabel('noDocuments', 'No documents');
+				empty.textContent = getLabel('noDocuments');
 				list.appendChild(empty);
 				return;
 			}
@@ -103,7 +103,7 @@
 				item.type = 'button';
 				item.dataset.pdkDocumentId = String(documentData.id);
 				title.className = 'pdk-document-editor-list-title';
-				title.textContent = documentData.title || getLabel('untitledDocument', 'Untitled Document');
+				title.textContent = documentData.title || getLabel('untitledDocument');
 				meta.className = 'pdk-document-editor-list-meta';
 				meta.textContent = documentData.modified ? new Date(documentData.modified).toLocaleString() : '';
 				item.append(title, meta);
@@ -134,13 +134,13 @@
 			const payload = {
 				content: editor.value,
 				kind: getTextKind(),
-				title: titleInput.value || getLabel('untitledDocument', 'Untitled Document')
+				title: titleInput.value || getLabel('untitledDocument')
 			};
 			const currentId = currentDocument && currentDocument.id ? currentDocument.id : 0;
 
 			isSaving = true;
 			saveButton.disabled = true;
-			setStatus(getLabel('saving', 'Saving...'));
+			setStatus(getLabel('saving'));
 
 			const request = currentId
 				? documentStore.update(currentId, payload)
@@ -148,10 +148,10 @@
 
 			return request.then((documentData) => {
 				upsertDocument(documentData);
-				setStatus(getLabel('saved', 'Saved'), 'success');
+				setStatus(getLabel('saved'), 'success');
 				return true;
 			}).catch((error) => {
-				setStatus(error && error.message ? error.message : getLabel('couldNotSaveDocument', 'Could not save document.'), 'error');
+				setStatus(error && error.message ? error.message : getLabel('couldNotSaveDocument'), 'error');
 				return false;
 			}).finally(() => {
 				isSaving = false;
@@ -164,7 +164,7 @@
 				return Promise.resolve(false);
 			}
 
-			if (window.confirm && !window.confirm(getLabel('deleteDocumentConfirm', 'Delete this document?'))) {
+			if (window.confirm && !window.confirm(getLabel('deleteDocumentConfirm'))) {
 				return Promise.resolve(false);
 			}
 
@@ -176,21 +176,21 @@
 				}
 				renderList();
 				setCurrentDocument(documents[0] || getUntitledDocument());
-				setStatus(getLabel('deleted', 'Deleted'), 'success');
+				setStatus(getLabel('deleted'), 'success');
 				return true;
 			}).catch((error) => {
-				setStatus(error && error.message ? error.message : getLabel('couldNotDeleteDocument', 'Could not delete document.'), 'error');
+				setStatus(error && error.message ? error.message : getLabel('couldNotDeleteDocument'), 'error');
 				return false;
 			});
 		}
 
 		function loadDocuments() {
 			if (!documentStore || typeof documentStore.list !== 'function') {
-				setStatus(getLabel('documentServiceUnavailable', 'Document service unavailable.'), 'error');
+				setStatus(getLabel('documentServiceUnavailable'), 'error');
 				return Promise.resolve([]);
 			}
 
-			setStatus(getLabel('loading', 'Loading...'));
+			setStatus(getLabel('loading'));
 
 			return documentStore.list(getTextKind(), initialDocumentId ? { includeAllFolders: true } : {}).then((items) => {
 				documents.splice(0, documents.length, ...items);
@@ -201,7 +201,7 @@
 			}).catch((error) => {
 				renderList();
 				setCurrentDocument(getUntitledDocument());
-				setStatus(error && error.message ? error.message : getLabel('couldNotLoadDocuments', 'Could not load documents.'), 'error');
+				setStatus(error && error.message ? error.message : getLabel('couldNotLoadDocuments'), 'error');
 				return [];
 			});
 		}
@@ -212,7 +212,7 @@
 		main.className = 'pdk-document-editor-main';
 		titleInput.className = 'pdk-document-editor-title';
 		titleInput.type = 'text';
-		titleInput.placeholder = getLabel('untitledDocument', 'Untitled Document');
+		titleInput.placeholder = getLabel('untitledDocument');
 		editor.className = 'pdk-document-editor-content';
 		editor.spellcheck = true;
 		status.className = 'pdk-document-editor-status';
@@ -248,7 +248,8 @@
 	};
 
 	if (typeof window.PufferDesk.apps.registerNativeAppRenderer === 'function') {
-		window.PufferDesk.apps.registerNativeAppRenderer('text-editor', (context = {}) => {
+		const nativeIds = window.PufferDesk.apps.nativeIds || {};
+		window.PufferDesk.apps.registerNativeAppRenderer(nativeIds.TEXT_EDITOR, (context = {}) => {
 			const config = context.config || {};
 			const labels = getLabels(config);
 			const title = typeof labels.textEditor === 'string' && labels.textEditor ? labels.textEditor : 'Text Editor';

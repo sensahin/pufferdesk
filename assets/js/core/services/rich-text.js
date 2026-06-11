@@ -9,28 +9,24 @@
 		{
 			command: 'bold',
 			id: 'bold',
-			label: 'Bold',
 			labelKey: 'bold',
 			text: 'B'
 		},
 		{
 			command: 'italic',
 			id: 'italic',
-			label: 'Italic',
 			labelKey: 'italic',
 			text: 'I'
 		},
 		{
 			command: 'underline',
 			id: 'underline',
-			label: 'Underline',
 			labelKey: 'underline',
 			text: 'U'
 		},
 		{
 			command: 'strikeThrough',
 			id: 'strikeThrough',
-			label: 'Strikethrough',
 			labelKey: 'strikethrough',
 			text: 'ab'
 		},
@@ -38,14 +34,12 @@
 			command: 'insertUnorderedList',
 			icon: 'dashicons dashicons-editor-ul',
 			id: 'unorderedList',
-			label: 'Bullet list',
 			labelKey: 'bulletList'
 		},
 		{
 			command: 'insertImage',
 			icon: 'dashicons dashicons-format-image',
 			id: 'insertImage',
-			label: 'Insert image',
 			labelKey: 'insertImage'
 		}
 	];
@@ -72,7 +66,7 @@
 	const uriAttributes = new Set([ 'href', 'src' ]);
 
 	function getLabel(labels, key, fallback) {
-		return labels && typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
+		return labels && typeof labels[key] === 'string' && labels[key] ? labels[key] : (fallback || key);
 	}
 
 	function isSafeUrl(value) {
@@ -291,7 +285,7 @@
 
 	function createToolbarButton(definition, labels = {}) {
 		const button = document.createElement('button');
-		const label = getLabel(labels, definition.labelKey, definition.label || definition.labelKey);
+			const label = getLabel(labels, definition.labelKey);
 		const content = document.createElement('span');
 
 		button.className = 'pdk-rich-text-command';

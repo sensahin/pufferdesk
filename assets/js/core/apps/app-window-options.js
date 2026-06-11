@@ -10,6 +10,13 @@
 		const shell = options.shell || null;
 		const appMap = options.appMap instanceof Map ? options.appMap : new Map();
 		const nativeApps = options.nativeApps || window.PufferDesk.apps || {};
+		const workspace = window.PufferDesk.session && window.PufferDesk.session.workspace ? window.PufferDesk.session.workspace : {};
+		const windowKinds = workspace.windowKinds || {};
+		const descriptorContract = config.contracts && config.contracts.appDescriptors && typeof config.contracts.appDescriptors === 'object'
+			? config.contracts.appDescriptors
+			: {};
+		const appKinds = descriptorContract.kinds || {};
+		const windowPersistence = descriptorContract.windowPersistence || {};
 
 		function getNativeAppWindowOptions(app, baseOptions, nativeContext = {}) {
 			const getOptions = nativeApps && typeof nativeApps.getNativeAppWindowOptions === 'function'
@@ -38,14 +45,14 @@
 				icon: app.icon,
 				menu: app.menu || null,
 				title: app.label,
-				windowKind: 'app'
+				windowKind: windowKinds.APP || 'app'
 			};
 
-			if (app.window_persistence === 'none') {
+			if (app.window_persistence === (windowPersistence.NONE || 'none')) {
 				windowOptions.persist = false;
 			}
 
-			if (app.kind === 'native') {
+			if (app.kind === (appKinds.NATIVE || 'native')) {
 				return getNativeAppWindowOptions(app, windowOptions, nativeContext);
 			}
 

@@ -98,7 +98,9 @@ final class PufferDesk_Desktop_Layout {
 	 */
 	private static function get_desktop_icon_map( $workspace_state ) {
 		$map   = array();
-		$icons = isset( $workspace_state['desktopIcons'] ) && is_array( $workspace_state['desktopIcons'] ) ? $workspace_state['desktopIcons'] : array();
+		$icons = isset( $workspace_state[ PufferDesk_Workspace_State::SECTION_DESKTOP_ICONS ] ) && is_array( $workspace_state[ PufferDesk_Workspace_State::SECTION_DESKTOP_ICONS ] )
+			? $workspace_state[ PufferDesk_Workspace_State::SECTION_DESKTOP_ICONS ]
+			: array();
 
 		foreach ( $icons as $icon ) {
 			if ( ! is_array( $icon ) || empty( $icon['id'] ) ) {

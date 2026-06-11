@@ -28,8 +28,8 @@
 			};
 		}
 
-		function t(key, fallback) {
-			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
+		function t(key) {
+			return typeof labels[key] === 'string' && labels[key] ? labels[key] : key;
 		}
 
 		function formatTime(timestamp) {
@@ -111,7 +111,7 @@
 			const body = dom.createElement('div', 'pdk-notification-item-body');
 			const meta = dom.createElement('div', 'pdk-notification-item-meta');
 			const titleRow = dom.createElement('div', 'pdk-notification-item-title-row');
-			const title = dom.createElement('strong', 'pdk-notification-item-title', notification.title || t('newNotification', 'New notification'));
+			const title = dom.createElement('strong', 'pdk-notification-item-title', notification.title || t('newNotification'));
 			const dismiss = document.createElement('button');
 
 			item.dataset.pdkNotificationId = notification.id || '';
@@ -124,7 +124,7 @@
 			titleRow.appendChild(title);
 			dismiss.type = 'button';
 			dismiss.className = 'pdk-notification-item-dismiss';
-			dismiss.setAttribute('aria-label', t('dismiss', 'Dismiss'));
+			dismiss.setAttribute('aria-label', t('dismiss'));
 			dismiss.textContent = '\u00d7';
 			dismiss.addEventListener('click', (event) => {
 				event.stopPropagation();
@@ -165,7 +165,7 @@
 				let badge = button.querySelector('.pdk-notification-button-badge');
 				button.hidden = !notificationsEnabled;
 				button.classList.toggle('has-unread', notificationsEnabled && count > 0);
-				button.setAttribute('aria-label', count > 0 ? `${t('open', 'Open Notifications')}, ${count}` : t('open', 'Open Notifications'));
+				button.setAttribute('aria-label', count > 0 ? `${t('open')}, ${count}` : t('open'));
 
 				if (!notificationsEnabled || !preferences.show_badges || count <= 0) {
 					if (badge) {
@@ -195,7 +195,7 @@
 			}
 
 			if (!items.length) {
-				list.appendChild(dom.createElement('p', 'pdk-notification-empty', t('empty', 'No notifications')));
+				list.appendChild(dom.createElement('p', 'pdk-notification-empty', t('empty')));
 				return;
 			}
 
@@ -238,7 +238,7 @@
 		}
 
 		toggles.forEach((button) => {
-			button.setAttribute('aria-label', t('open', 'Open Notifications'));
+			button.setAttribute('aria-label', t('open'));
 			button.addEventListener('click', (event) => {
 				event.stopPropagation();
 				toggle();
@@ -246,12 +246,12 @@
 		});
 
 		if (markAllButton) {
-			markAllButton.textContent = t('markAllRead', 'Mark All as Read');
+			markAllButton.textContent = t('markAllRead');
 			markAllButton.addEventListener('click', () => store.markAllRead());
 		}
 
 		if (refreshButton) {
-			refreshButton.setAttribute('aria-label', t('refresh', 'Refresh'));
+			refreshButton.setAttribute('aria-label', t('refresh'));
 			refreshButton.addEventListener('click', () => {
 				if (refreshing || typeof store.refresh !== 'function') {
 					return;
@@ -272,7 +272,7 @@
 		}
 
 		if (closeButton) {
-			closeButton.setAttribute('aria-label', t('close', 'Close'));
+			closeButton.setAttribute('aria-label', t('close'));
 			closeButton.addEventListener('click', close);
 		}
 

@@ -12,13 +12,24 @@
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
+		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
+		const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
+		const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
+			? window.PufferDesk.session.workspace.sections || {}
+			: {};
+		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
+			? window.PufferDesk.session.workspace.windowKinds || {}
+			: {};
+		const folderWindowKind = windowKinds.FOLDER || 'folder';
+		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 		const schema = window.PufferDesk.shell.createMenuSchema(labels);
 		const commands = context.commands || window.PufferDesk.shell.createCommandRegistry(shell, context);
 		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands);
 		const transientSurfaces = window.PufferDesk.shell.transientSurfaces || null;
 		const desktopIconManager = context.desktopIconManager || null;
 		const launcher = context.launcher || null;
-		const standardGroupIds = ['app', 'file', 'edit', 'view', 'go', 'window', 'help'];
+		const menuGroupIds = schema.getGroupIds();
+		const standardGroupIds = schema.getStandardGroupIds();
 		let activeDetail = { kind: 'desktop' };
 		const persistentDefinition = menuConfig.persistent
 			? schema.normalizeDefinition(menuConfig.persistent, {
@@ -64,7 +75,7 @@
 				return { kind: 'desktop' };
 			}
 
-			const savedWindows = window.PufferDesk.session.createSessionStore(config.storageKey).getSection('windows', []);
+			const savedWindows = window.PufferDesk.session.createSessionStore(config.storageKey).getSection(workspaceSections.WINDOWS, []);
 			if (!Array.isArray(savedWindows) || !savedWindows.length) {
 				return { kind: 'desktop' };
 			}
@@ -118,12 +129,12 @@
 		}
 
 		function getLabel(key, fallback) {
-			return typeof labels[key] === 'string' && labels[key] ? labels[key] : fallback;
+			return typeof labels[key] === 'string' && labels[key] ? labels[key] : (fallback || key);
 		}
 
 		function getGroupLabel(id, detail = {}) {
-			if (id === 'app') {
-				return detail.title || getLabel('admin', 'Admin');
+			if (id === (menuGroupIds.APP || 'app')) {
+				return detail.title || getLabel('admin');
 			}
 
 			return getLabel(id, id.charAt(0).toUpperCase() + id.slice(1));
@@ -134,15 +145,15 @@
 		}
 
 		function isFolderDetail(detail = {}) {
-			return detail.kind === 'folder' || detail.kind === 'folder-info' || Boolean(detail.folderId);
+			return detail.kind === folderWindowKind || detail.kind === 'folder-info' || Boolean(detail.folderId);
 		}
 
 		function isFolderWindowDetail(detail = {}) {
-			return detail.kind === 'folder';
+			return detail.kind === folderWindowKind;
 		}
 
 		function getActiveFolderId(detail = {}) {
-			return detail.folderId || (detail.kind === 'folder' ? detail.id : '');
+			return detail.folderId || (detail.kind === folderWindowKind ? detail.id : '');
 		}
 
 		function getDesktopSortMode() {
@@ -152,8 +163,8 @@
 		}
 
 		function getFolderToolbarDisplayMode(detail = {}) {
-			return ['icon-text', 'icon-only', 'text-only'].includes(detail.toolbarDisplay)
-				? detail.toolbarDisplay
+			return window.PufferDesk.apps.folderViewModes && typeof window.PufferDesk.apps.folderViewModes.normalizeToolbarDisplayMode === 'function'
+				? window.PufferDesk.apps.folderViewModes.normalizeToolbarDisplayMode(detail.toolbarDisplay)
 				: 'icon-text';
 		}
 
@@ -164,7 +175,7 @@
 		}
 
 		function sortByItem(label, mode) {
-			return commandItem(label, 'desktop.sort-icons', {
+			return commandItem(label, commandIds.DESKTOP_SORT_ICONS, {
 				icon: getDesktopSortMode() === mode ? 'dashicons-yes' : '',
 				payload: {
 					mode
@@ -173,7 +184,7 @@
 		}
 
 		function folderToolbarDisplayItem(label, mode, detail = {}) {
-			return commandItem(label, 'folder.toolbar-display', {
+			return commandItem(label, commandIds.FOLDER_TOOLBAR_DISPLAY, {
 				icon: getFolderToolbarDisplayMode(detail) === mode ? 'dashicons-yes' : '',
 				id: `folder-toolbar-${mode}`,
 				payload: {
@@ -187,14 +198,14 @@
 			const items = [];
 
 			if (!isWindowDetail(detail) || isFolderWindowDetail(detail)) {
-				items.push(commandItem(getLabel('new_folder', 'New Folder'), 'folder.create', {
+				items.push(commandItem(getLabel('new_folder'), commandIds.FOLDER_CREATE, {
 					icon: 'dashicons-category',
 					shortcut: '⇧⌘N'
 				}));
 			}
 
 			if (folderId) {
-				items.push(commandItem(getLabel('get_info', 'Get Info'), 'folder.get-info', {
+				items.push(commandItem(getLabel('get_info'), commandIds.FOLDER_GET_INFO, {
 					icon: 'dashicons-info-outline',
 					shortcut: '⌘I',
 					target: folderId
@@ -207,22 +218,22 @@
 				}
 
 				if (hasBrowserTabTarget(detail)) {
-					items.push(commandItem(getLabel('open_in_browser_tab', 'Open in Browser Tab'), 'window.open-browser-tab', {
+					items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {
 						icon: 'dashicons-external'
 					}));
 					items.push(separator());
 				}
 
-				items.push(commandItem(getLabel('close_window', 'Close Window'), 'window.close', {
+				items.push(commandItem(getLabel('close_window'), commandIds.WINDOW_CLOSE, {
 					icon: 'dashicons-dismiss',
 					shortcut: '⌘W'
 				}));
 			}
 
 			if (!items.length) {
-				items.push(commandItem(getLabel('system_settings', 'System Settings...'), 'open-app', {
+				items.push(commandItem(getLabel('system_settings'), commandIds.OPEN_APP, {
 					icon: 'dashicons-admin-customizer',
-					target: 'os-settings'
+					target: appIds.OS_SETTINGS
 				}));
 			}
 
@@ -231,31 +242,31 @@
 
 		function getEditItems() {
 			return [
-				{ disabled: true, label: getLabel('undo', 'Undo'), shortcut: '⌘Z' },
-				{ disabled: true, label: getLabel('redo', 'Redo'), shortcut: '⇧⌘Z' },
+				{ disabled: true, label: getLabel('undo'), shortcut: '⌘Z' },
+				{ disabled: true, label: getLabel('redo'), shortcut: '⇧⌘Z' },
 				separator(),
-				{ disabled: true, label: getLabel('cut', 'Cut'), shortcut: '⌘X' },
-				{ disabled: true, label: getLabel('copy', 'Copy'), shortcut: '⌘C' },
-				{ disabled: true, label: getLabel('paste', 'Paste'), shortcut: '⌘V' },
+				{ disabled: true, label: getLabel('cut'), shortcut: '⌘X' },
+				{ disabled: true, label: getLabel('copy'), shortcut: '⌘C' },
+				{ disabled: true, label: getLabel('paste'), shortcut: '⌘V' },
 				separator(),
-				{ disabled: true, label: getLabel('select_all', 'Select All'), shortcut: '⌘A' }
+				{ disabled: true, label: getLabel('select_all'), shortcut: '⌘A' }
 			];
 		}
 
 		function getSortByItems() {
 			return [
-				sortByItem(getLabel('sort_none', 'None'), 'none'),
+				sortByItem(getLabel('sort_none'), 'none'),
 				separator(),
-				sortByItem(getLabel('sort_snap_to_grid', 'Snap to Grid'), 'snap-to-grid'),
+				sortByItem(getLabel('sort_snap_to_grid'), 'snap-to-grid'),
 				separator(),
-				sortByItem(getLabel('sort_name', 'Name'), 'name'),
-				sortByItem(getLabel('sort_kind', 'Kind'), 'kind'),
-				sortByItem(getLabel('sort_last_modified_by', 'Last Modified By'), 'last-modified-by'),
-				sortByItem(getLabel('sort_date_last_opened', 'Date Last Opened'), 'date-last-opened'),
-				sortByItem(getLabel('sort_date_added', 'Date Added'), 'date-added'),
-				sortByItem(getLabel('sort_date_modified', 'Date Modified'), 'date-modified'),
-				sortByItem(getLabel('sort_date_created', 'Date Created'), 'date-created'),
-				sortByItem(getLabel('sort_size', 'Size'), 'size')
+				sortByItem(getLabel('sort_name'), 'name'),
+				sortByItem(getLabel('sort_kind'), 'kind'),
+				sortByItem(getLabel('sort_last_modified_by'), 'last-modified-by'),
+				sortByItem(getLabel('sort_date_last_opened'), 'date-last-opened'),
+				sortByItem(getLabel('sort_date_added'), 'date-added'),
+				sortByItem(getLabel('sort_date_modified'), 'date-modified'),
+				sortByItem(getLabel('sort_date_created'), 'date-created'),
+				sortByItem(getLabel('sort_size'), 'size')
 			];
 		}
 
@@ -266,10 +277,10 @@
 						icon: 'dashicons-sort',
 						id: 'sort-by',
 						items: getSortByItems(),
-						label: getLabel('sort_by', 'Sort By')
+						label: getLabel('sort_by')
 					},
 					separator(),
-					commandItem(getLabel('reset_layout', 'Reset Layout'), 'session.reset-layout', {
+					commandItem(getLabel('reset_layout'), commandIds.SESSION_RESET_LAYOUT, {
 						icon: 'dashicons-update'
 					})
 				];
@@ -277,41 +288,58 @@
 
 			if (isFolderWindowDetail(detail)) {
 				return [
-					commandItem(getLabel('refresh', 'Refresh'), 'folder.refresh', {
+					commandItem(getLabel('refresh'), commandIds.FOLDER_REFRESH, {
 						icon: 'dashicons-update',
 						target: getActiveFolderId(detail)
 					}),
 					separator(),
-					folderToolbarDisplayItem(getLabel('icons_and_text', 'Icons and Text'), 'icon-text', detail),
-					folderToolbarDisplayItem(getLabel('icons_only', 'Icons Only'), 'icon-only', detail),
-					folderToolbarDisplayItem(getLabel('text_only', 'Text Only'), 'text-only', detail),
+					folderToolbarDisplayItem(getLabel('icons_and_text'), 'icon-text', detail),
+					folderToolbarDisplayItem(getLabel('icons_only'), 'icon-only', detail),
+					folderToolbarDisplayItem(getLabel('text_only'), 'text-only', detail),
 					separator(),
-					commandItem(getLabel('zoom', 'Zoom'), 'window.toggle-maximize', {
+					commandItem(getLabel('zoom'), commandIds.WINDOW_TOGGLE_MAXIMIZE, {
 						icon: 'dashicons-fullscreen-alt'
 					})
 				];
 			}
 
 			return [
-				commandItem(getLabel('reload_page', 'Reload Page'), 'window.reload', {
+				commandItem(getLabel('reload_page'), commandIds.WINDOW_RELOAD, {
 					icon: 'dashicons-update',
 					shortcut: '⌘R'
 				}),
 				separator(),
-				commandItem(getLabel('zoom', 'Zoom'), 'window.toggle-maximize', {
+				commandItem(getLabel('zoom'), commandIds.WINDOW_TOGGLE_MAXIMIZE, {
 					icon: 'dashicons-fullscreen-alt'
 				})
 			];
 		}
 
+		function getPreferredAppIds() {
+			return [
+				appIds.DASHBOARD,
+				appIds.POSTS,
+				appIds.PAGES,
+				appIds.MEDIA,
+				appIds.COMMENTS,
+				appIds.APPEARANCE,
+				appIds.PLUGINS,
+				appIds.USERS,
+				appIds.SETTINGS,
+				appIds.TOOLS,
+				appIds.SITE_HEALTH,
+				appIds.OS_SETTINGS
+			].filter(Boolean);
+		}
+
 		function getGoAppItems() {
-			const preferredIds = ['dashboard', 'posts', 'pages', 'media', 'comments', 'appearance', 'plugins', 'users', 'settings', 'tools', 'site-health', 'os-settings'];
+			const preferredIds = getPreferredAppIds();
 
 			return preferredIds
 				.map((appId) => appMap.get(appId))
 				.filter(Boolean)
-				.map((app) => commandItem(app.label || app.id, 'open-app', {
-					icon: app.icon || 'dashicons-admin-generic',
+				.map((app) => commandItem(app.label || app.id, commandIds.OPEN_APP, {
+					icon: app.icon,
 					target: app.id
 				}));
 		}
@@ -320,11 +348,11 @@
 			const items = [];
 			if (isWindowDetail(detail) && !isFolderDetail(detail)) {
 				items.push(
-					commandItem(getLabel('back', 'Back'), 'window.history-back', {
+					commandItem(getLabel('back'), commandIds.WINDOW_HISTORY_BACK, {
 						icon: 'dashicons-arrow-left-alt2',
 						shortcut: '⌘['
 					}),
-					commandItem(getLabel('forward', 'Forward'), 'window.history-forward', {
+					commandItem(getLabel('forward'), commandIds.WINDOW_HISTORY_FORWARD, {
 						icon: 'dashicons-arrow-right-alt2',
 						shortcut: '⌘]'
 					}),
@@ -346,7 +374,7 @@
 			return windows.map((win) => {
 				const title = win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || 'Window';
 				const id = win.dataset.pdkWindowId || '';
-				return commandItem(title, 'window.focus-id', {
+				return commandItem(title, commandIds.WINDOW_FOCUS_ID, {
 					icon: win.classList.contains('is-active') ? 'dashicons-yes' : '',
 					target: id
 				});
@@ -357,20 +385,20 @@
 			const baseItems = existingItems.length ? existingItems : (
 				isWindowDetail(detail)
 					? [
-						commandItem(getLabel('window_minimize', 'Minimize'), 'window.minimize', {
+						commandItem(getLabel('window_minimize'), commandIds.WINDOW_MINIMIZE, {
 							icon: 'dashicons-minus',
 							shortcut: '⌘M'
 						}),
-						commandItem(getLabel('zoom', 'Zoom'), 'window.toggle-maximize', {
+						commandItem(getLabel('zoom'), commandIds.WINDOW_TOGGLE_MAXIMIZE, {
 							icon: 'dashicons-fullscreen-alt'
 						}),
-						commandItem(getLabel('window_close', 'Close'), 'window.close', {
+						commandItem(getLabel('window_close'), commandIds.WINDOW_CLOSE, {
 							icon: 'dashicons-dismiss',
 							shortcut: '⌘W'
 						})
 					]
 					: [
-						commandItem(getLabel('show_all_windows', 'Show All'), 'window.show-all', {
+						commandItem(getLabel('show_all_windows'), commandIds.WINDOW_SHOW_ALL, {
 							icon: 'dashicons-visibility'
 						})
 					]
@@ -386,14 +414,14 @@
 
 		function getHelpItems() {
 			return [
-				commandItem(getLabel('about_this_site', 'About This Site'), 'open-site-about', {
+				commandItem(getLabel('about_this_site'), commandIds.OPEN_SITE_ABOUT, {
 					icon: 'dashicons-info-outline'
 				}),
-				commandItem(getLabel('wordpress_documentation', 'WordPress Documentation'), 'open-external-url', {
+				commandItem(getLabel('wordpress_documentation'), commandIds.OPEN_EXTERNAL_URL, {
 					icon: 'dashicons-editor-help',
 					url: 'https://wordpress.org/documentation/'
 				}),
-				commandItem(getLabel('support_forums', 'Support Forums'), 'open-external-url', {
+				commandItem(getLabel('support_forums'), commandIds.OPEN_EXTERNAL_URL, {
 					icon: 'dashicons-sos',
 					url: 'https://wordpress.org/support/forums/'
 				})
@@ -402,17 +430,17 @@
 
 		function getDefaultItemsForGroup(group, detail = {}) {
 			switch (group.id) {
-				case 'file':
+				case menuGroupIds.FILE || 'file':
 					return getFileItems(detail);
-				case 'edit':
+				case menuGroupIds.EDIT || 'edit':
 					return getEditItems();
-				case 'view':
+				case menuGroupIds.VIEW || 'view':
 					return getViewItems(detail);
-				case 'go':
+				case menuGroupIds.GO || 'go':
 					return getGoItems(detail);
-				case 'window':
+				case menuGroupIds.WINDOW || 'window':
 					return getWindowItems(detail, group.items);
-				case 'help':
+				case menuGroupIds.HELP || 'help':
 					return getHelpItems(detail);
 				default:
 					return group.items;
@@ -423,7 +451,7 @@
 			const items = Array.isArray(group.items) ? group.items : [];
 
 			if (items.length) {
-				return group.id === 'window' ? getWindowItems(detail, items) : items;
+				return group.id === (menuGroupIds.WINDOW || 'window') ? getWindowItems(detail, items) : items;
 			}
 
 			return getDefaultItemsForGroup(Object.assign({}, group, { items }), detail);
@@ -453,7 +481,7 @@
 			});
 
 			return {
-				groups: ordered.filter((group) => group.id !== 'app' || group.items.length)
+				groups: ordered.filter((group) => group.id !== (menuGroupIds.APP || 'app') || group.items.length)
 			};
 		}
 
@@ -531,9 +559,9 @@
 					? recentItems.concat([
 						{ type: 'separator' },
 						{
-							command: 'recent-items.clear',
+							command: commandIds.RECENT_ITEMS_CLEAR,
 							id: 'clear-recent-items',
-							label: getLabel('clear_menu', 'Clear Menu')
+							label: getLabel('clear_menu')
 						}
 					])
 					: [];
@@ -562,7 +590,7 @@
 		}
 
 		function getPinnedStartApps() {
-			const preferredIds = ['dashboard', 'posts', 'pages', 'media', 'comments', 'appearance', 'plugins', 'users', 'settings', 'tools', 'site-health', 'os-settings'];
+			const preferredIds = getPreferredAppIds();
 			const byId = new Map();
 			const apps = Array.isArray(config.apps) ? config.apps.filter(isVisibleStartApp) : [];
 
@@ -601,8 +629,8 @@
 			input.type = 'search';
 			input.className = 'pdk-start-search-input';
 			input.autocomplete = 'off';
-			input.placeholder = getLabel('start_search_placeholder', 'Search');
-			input.setAttribute('aria-label', getLabel('start_search_label', 'Search apps, settings, and commands'));
+			input.placeholder = getLabel('start_search_placeholder');
+			input.setAttribute('aria-label', getLabel('start_search_label'));
 			input.addEventListener('keydown', (event) => {
 				if (event.key !== 'Enter') {
 					return;
@@ -637,13 +665,13 @@
 			button.dataset.pdkStartPinnedApp = app.id;
 			button.setAttribute('aria-label', app.label);
 			icon.className = 'pdk-start-pinned-icon';
-			icon.appendChild(dom.createIcon(app.icon || 'dashicons-admin-generic'));
+			icon.appendChild(dom.createIcon(app.icon));
 			label.className = 'pdk-start-pinned-label';
 			label.textContent = app.label;
 			button.append(icon, label);
 			button.addEventListener('click', () => {
-				commands.execute(commandItem(app.label, 'open-app', {
-					icon: app.icon || 'dashicons-admin-generic',
+				commands.execute(commandItem(app.label, commandIds.OPEN_APP, {
+					icon: app.icon,
 					target: app.id
 				}), activeDetail);
 				closePopover();
@@ -697,7 +725,7 @@
 			}
 
 			return group.items
-				.filter((item) => item && item.command && ['open-site-about', 'open-app', 'open-url'].includes(item.command))
+				.filter((item) => item && item.command && [commandIds.OPEN_SITE_ABOUT, commandIds.OPEN_APP, commandIds.OPEN_URL].includes(item.command))
 				.slice(0, 4);
 		}
 
@@ -739,11 +767,11 @@
 			const user = config.user && typeof config.user === 'object' ? config.user : {};
 
 			return [
-				commandItem(getLabel('start_manage_account', 'Manage account'), 'open-url', {
+				commandItem(getLabel('start_manage_account'), commandIds.OPEN_URL, {
 					icon: 'dashicons-admin-users',
 					url: user.profileUrl || ''
 				}),
-				commandItem(getLabel('start_sign_out', 'Sign out'), 'user.logout', {
+				commandItem(getLabel('start_sign_out'), commandIds.USER_LOGOUT, {
 					icon: 'dashicons-migrate',
 					target: config.logoutUrl || ''
 				})
@@ -752,19 +780,19 @@
 
 		function getStartPowerItems() {
 			return [
-				commandItem(getLabel('start_lock', 'Lock'), 'shell.lock', {
+				commandItem(getLabel('start_lock'), commandIds.SHELL_LOCK, {
 					icon: 'dashicons-lock',
 					target: config.logoutUrl || ''
 				}),
-				commandItem(getLabel('start_sleep', 'Sleep'), 'shell.sleep', {
+				commandItem(getLabel('start_sleep'), commandIds.SHELL_SLEEP, {
 					icon: 'dashicons-hidden',
 					target: config.classicUrl || ''
 				}),
-				commandItem(getLabel('start_shutdown', 'Shut down'), 'shell.shutdown', {
+				commandItem(getLabel('start_shutdown'), commandIds.SHELL_SHUTDOWN, {
 					icon: 'dashicons-migrate',
 					target: config.classicUrl || ''
 				}),
-				commandItem(getLabel('start_restart', 'Restart'), 'shell.restart', {
+				commandItem(getLabel('start_restart'), commandIds.SHELL_RESTART, {
 					icon: 'dashicons-update'
 				})
 			];
@@ -837,7 +865,7 @@
 			const user = config.user && typeof config.user === 'object' ? config.user : {};
 			const button = document.createElement('button');
 			const label = document.createElement('span');
-			const name = user.name || getLabel('admin', 'Admin');
+			const name = user.name || getLabel('admin');
 
 			button.type = 'button';
 			button.className = 'pdk-start-footer-user pdk-start-account-button';
@@ -849,7 +877,7 @@
 			label.textContent = name;
 			button.append(createStartAvatar(user), label);
 			button.addEventListener('click', () => {
-				openStartFooterFlyout(button, 'account', getStartAccountItems(), getLabel('start_account', 'Account'));
+				openStartFooterFlyout(button, 'account', getStartAccountItems(), getLabel('start_account'));
 			});
 
 			return button;
@@ -864,12 +892,12 @@
 			button.dataset.pdkStartFooterMenuTrigger = 'power';
 			button.setAttribute('aria-haspopup', 'menu');
 			button.setAttribute('aria-expanded', 'false');
-			button.setAttribute('aria-label', getLabel('start_power_menu', 'Power options'));
+			button.setAttribute('aria-label', getLabel('start_power_menu'));
 			icon.className = 'pdk-start-power-icon';
 			icon.setAttribute('aria-hidden', 'true');
 			button.appendChild(icon);
 			button.addEventListener('click', () => {
-				openStartFooterFlyout(button, 'power', getStartPowerItems(), getLabel('start_power_menu', 'Power options'));
+				openStartFooterFlyout(button, 'power', getStartPowerItems(), getLabel('start_power_menu'));
 			});
 
 			return button;
@@ -884,7 +912,7 @@
 			const recommendedItems = getStartRecommendedItems(group);
 
 			pinnedSection.className = 'pdk-start-section pdk-start-section-pinned';
-			pinnedSection.appendChild(createStartSectionHeading(getLabel('start_pinned', 'Pinned')));
+			pinnedSection.appendChild(createStartSectionHeading(getLabel('start_pinned')));
 			pinnedGrid.className = 'pdk-start-pinned-grid';
 			getPinnedStartApps().forEach((app) => {
 				pinnedGrid.appendChild(createStartPinnedItem(app));
@@ -892,7 +920,7 @@
 			pinnedSection.appendChild(pinnedGrid);
 
 			recommendedSection.className = 'pdk-start-section pdk-start-section-recommended';
-			recommendedSection.appendChild(createStartSectionHeading(getLabel('start_recommended', 'Recommended')));
+			recommendedSection.appendChild(createStartSectionHeading(getLabel('start_recommended')));
 			recommendedList.className = 'pdk-start-recommended-list';
 			if (recommendedItems.length) {
 				recommendedItems.forEach((item) => {
@@ -901,13 +929,13 @@
 			} else {
 				const empty = document.createElement('div');
 				empty.className = 'pdk-start-recommended-empty';
-				empty.textContent = getLabel('start_no_recent_items', 'No recent items yet');
+				empty.textContent = getLabel('start_no_recent_items');
 				recommendedList.appendChild(empty);
 			}
 			recommendedSection.appendChild(recommendedList);
 
 			footer.className = 'pdk-start-footer';
-			footer.setAttribute('aria-label', getLabel('start_power', 'Power and session'));
+			footer.setAttribute('aria-label', getLabel('start_power'));
 			footer.append(createStartAccountButton(), createStartPowerButton());
 
 			return [
@@ -933,7 +961,7 @@
 			}
 
 			return Object.assign({}, item, {
-				label: getLabel('close_item_format', 'Close %s').replace('%s', title)
+				label: getLabel('close_item_format').replace('%s', title)
 			});
 		}
 
@@ -1129,7 +1157,7 @@
 			bindSystemButton();
 			if (menu) {
 				render(getInitialActiveDetail());
-				shell.addEventListener('pufferDesk:active-window-change', (event) => {
+				shell.addEventListener(domEventNames.ACTIVE_WINDOW_CHANGE, (event) => {
 					render(event.detail || { kind: 'desktop' });
 				});
 			}
@@ -1159,12 +1187,12 @@
 					closePopover();
 				}
 			});
-			window.addEventListener('pufferDesk:recent-items-change', () => {
+			window.addEventListener(domEventNames.RECENT_ITEMS_CHANGE, () => {
 				if (openGroupId === 'system') {
 					openPopover(getSystemGroup(), activeButton || systemButton);
 				}
 			});
-			shell.addEventListener('pufferDesk:menu-bar-change', () => {
+			shell.addEventListener(domEventNames.MENU_BAR_CHANGE, () => {
 				config.menuBar = Object.assign({}, config.menuBar || {}, {
 					auto_hide: shell.dataset.pdkMenuBarAutoHide || 'fullscreen',
 					recent_count: Number.parseInt(shell.dataset.pdkMenuBarRecentCount, 10) || 0,

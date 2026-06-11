@@ -9,7 +9,7 @@
 		const getFolderChildFolders = typeof options.getFolderChildFolders === 'function' ? options.getFolderChildFolders : () => [];
 		const getFolderDocuments = typeof options.getFolderDocuments === 'function' ? options.getFolderDocuments : () => [];
 		const getTrashItems = typeof options.getTrashItems === 'function' ? options.getTrashItems : () => [];
-		const getMenuLabel = typeof options.getMenuLabel === 'function' ? options.getMenuLabel : (key, fallback) => fallback;
+		const getMenuLabel = typeof options.getMenuLabel === 'function' ? options.getMenuLabel : (key, fallback) => fallback || key;
 		const getExplorerSortMode = typeof options.getExplorerSortMode === 'function' ? options.getExplorerSortMode : () => 'none';
 		const renderer = options.launcherRenderer || {};
 
@@ -28,11 +28,11 @@
 			if (sortMode === 'kind') {
 				return normalized.sort((a, b) => {
 					const firstKind = a && a.type === 'folder'
-						? getMenuLabel('folder', 'Folder')
-						: (a && a.type === 'document' ? getMenuLabel('document', 'Document') : getMenuLabel('application', 'Application'));
+						? getMenuLabel('folder')
+						: (a && a.type === 'document' ? getMenuLabel('document') : getMenuLabel('application'));
 					const secondKind = b && b.type === 'folder'
-						? getMenuLabel('folder', 'Folder')
-						: (b && b.type === 'document' ? getMenuLabel('document', 'Document') : getMenuLabel('application', 'Application'));
+						? getMenuLabel('folder')
+						: (b && b.type === 'document' ? getMenuLabel('document') : getMenuLabel('application'));
 					const kindCompare = collator.compare(firstKind, secondKind);
 
 					return kindCompare || collator.compare(a && a.label ? a.label : '', b && b.label ? b.label : '');
@@ -47,12 +47,12 @@
 				folder,
 				icon: folder.icon || 'dashicons-category',
 				id: folder.id,
-				label: folder.label || getMenuLabel('folder', 'Folder'),
+				label: folder.label || getMenuLabel('folder'),
 				type: 'folder'
 			}));
 			const appItems = getFolderApps(folderId).map((app) => ({
 				app,
-				icon: app.icon || 'dashicons-admin-generic',
+				icon: app.icon,
 				id: app.id,
 				label: app.label || app.id,
 				type: 'app'

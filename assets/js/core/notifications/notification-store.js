@@ -7,13 +7,49 @@
 	const allowedTypes = ['info', 'success', 'warning', 'error'];
 	const allowedPriorities = ['low', 'normal', 'high', 'critical'];
 	const allowedSeverity = ['all', 'warnings', 'critical'];
-	const defaultSources = {
-		apps: true,
-		comments: true,
-		pufferdesk: true,
-		site_health: true,
-		wordpress_updates: true
-	};
+
+	function getNotificationConfig() {
+		const config = window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
+			? window.PufferDesk.config.get()
+			: {};
+
+		return config.notifications && typeof config.notifications === 'object' ? config.notifications : {};
+	}
+
+	function getSourceIds() {
+		const notificationConfig = getNotificationConfig();
+
+		return notificationConfig.sourceIds && typeof notificationConfig.sourceIds === 'object' ? notificationConfig.sourceIds : {};
+	}
+
+	function getDefaultSourceId() {
+		const sourceIds = getSourceIds();
+
+		return typeof sourceIds.PUFFERDESK === 'string' && sourceIds.PUFFERDESK ? sourceIds.PUFFERDESK : 'PUFFERDESK';
+	}
+
+	function getDefaultSources() {
+		const sourceIds = getSourceIds();
+		const notificationConfig = getNotificationConfig();
+		const preferenceSources = notificationConfig.preferences && notificationConfig.preferences.sources && typeof notificationConfig.preferences.sources === 'object'
+			? notificationConfig.preferences.sources
+			: {};
+		const sources = {};
+
+		Object.keys(sourceIds).forEach((key) => {
+			if (typeof sourceIds[key] === 'string' && sourceIds[key]) {
+				sources[sourceIds[key]] = true;
+			}
+		});
+
+		if (!Object.keys(sources).length) {
+			Object.keys(preferenceSources).forEach((source) => {
+				sources[source] = true;
+			});
+		}
+
+		return sources;
+	}
 
 	function sanitizeId(value) {
 		return String(value || '')
@@ -59,7 +95,7 @@
 		const sourcePreferences = preferences.sources && typeof preferences.sources === 'object'
 			? preferences.sources
 			: {};
-		const sources = Object.assign({}, defaultSources);
+		const sources = Object.assign({}, getDefaultSources());
 
 		Object.keys(sources).forEach((source) => {
 			if (Object.prototype.hasOwnProperty.call(sourcePreferences, source)) {
@@ -104,7 +140,7 @@
 	}
 
 	function normalizeNotification(notification = {}) {
-		const source = sanitizeId(notification.source) || 'pufferdesk';
+		const source = sanitizeId(notification.source) || getDefaultSourceId();
 		const title = typeof notification.title === 'string' ? notification.title.trim() : '';
 		const message = typeof notification.message === 'string' ? notification.message.trim() : '';
 		const type = allowedTypes.includes(notification.type) ? notification.type : 'info';
@@ -144,7 +180,7 @@
 	}
 
 	function sourceIsEnabled(notification, preferences) {
-		const sources = preferences.sources || defaultSources;
+		const sources = preferences.sources || getDefaultSources();
 
 		return sources[notification.source] !== false;
 	}
@@ -202,6 +238,8 @@
 		const actions = notificationConfig.actions && typeof notificationConfig.actions === 'object' ? notificationConfig.actions : {};
 		const api = window.PufferDesk.services && window.PufferDesk.services.api ? window.PufferDesk.services.api : null;
 		const events = window.PufferDesk.events || null;
+		const eventNames = events && events.names ? events.names : {};
+		const labels = notificationConfig.labels && typeof notificationConfig.labels === 'object' ? notificationConfig.labels : {};
 		const listeners = new Set();
 		let preferences = normalizePreferences(notificationConfig.preferences || {});
 		let allItems = sortNotifications((Array.isArray(notificationConfig.items) ? notificationConfig.items : [])
@@ -213,6 +251,10 @@
 			return sortNotifications(allItems.filter((notification) => canDisplay(notification, preferences)));
 		}
 
+		function getLabel(key) {
+			return typeof labels[key] === 'string' && labels[key] ? labels[key] : key;
+		}
+
 		function syncVisibleItems() {
 			items = getVisibleItems();
 		}
@@ -222,13 +264,13 @@
 
 			listeners.forEach((listener) => listener(snapshot, extra));
 			if (events && typeof events.emit === 'function') {
-				events.emit('notifications:changed', Object.assign({ notifications: snapshot }, extra));
+				events.emit(eventNames.NOTIFICATIONS_CHANGED, Object.assign({ notifications: snapshot }, extra));
 			}
 		}
 
 		function emitReceived(notification) {
 			if (events && typeof events.emit === 'function') {
-				events.emit('notifications:received', {
+				events.emit(eventNames.NOTIFICATIONS_RECEIVED, {
 					notification,
 					preferences: getSnapshot().preferences
 				});
@@ -241,7 +283,7 @@
 			}
 
 			if (events && typeof events.emit === 'function') {
-				events.emit('notifications:toast', { notification });
+				events.emit(eventNames.NOTIFICATIONS_TOAST, { notification });
 			}
 			listeners.forEach((listener) => listener(getSnapshot(), {
 				notification,
@@ -294,10 +336,10 @@
 				})
 				.catch((error) => {
 					notify({
-						message: error && error.message ? error.message : 'Notification service unavailable.',
-						source: 'pufferdesk',
-						sourceLabel: 'PufferDesk',
-						title: 'Notifications could not be updated.',
+						message: error && error.message ? error.message : getLabel('serviceUnavailable'),
+						source: getDefaultSourceId(),
+						sourceLabel: getLabel('pufferdeskSource'),
+						title: getLabel('refreshFailedTitle'),
 						toast: true,
 						type: 'error'
 					}, {
@@ -322,7 +364,7 @@
 		function notify(notification, options = {}) {
 			const normalized = normalizeNotification(Object.assign({
 				persistence: 'session',
-				source: 'pufferdesk',
+				source: getDefaultSourceId(),
 				toast: true
 			}, notification || {}));
 
@@ -425,8 +467,8 @@
 				notify({
 					message: event.filename ? `${event.filename}:${event.lineno || 0}` : '',
 					sound: false,
-					source: 'pufferdesk',
-					sourceLabel: 'PufferDesk',
+					source: getDefaultSourceId(),
+					sourceLabel: getLabel('pufferdeskSource'),
 					title: event.message,
 					toast: true,
 					type: 'error'
@@ -435,15 +477,15 @@
 
 			window.addEventListener('unhandledrejection', (event) => {
 				const reason = event && event.reason ? event.reason : null;
-				const message = reason && reason.message ? reason.message : String(reason || 'Unexpected runtime error.');
+				const message = reason && reason.message ? reason.message : String(reason || getLabel('runtimeErrorFallback'));
 
 				playAppErrorSound();
 				notify({
 					message,
 					sound: false,
-					source: 'pufferdesk',
-					sourceLabel: 'PufferDesk',
-					title: 'A PufferDesk action failed.',
+					source: getDefaultSourceId(),
+					sourceLabel: getLabel('pufferdeskSource'),
+					title: getLabel('runtimeActionFailedTitle'),
 					toast: true,
 					type: 'error'
 				});

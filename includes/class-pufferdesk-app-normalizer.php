@@ -12,6 +12,63 @@ defined( 'ABSPATH' ) || exit;
  */
 final class PufferDesk_App_Normalizer {
 	const DEFAULT_CAPABILITY = 'read';
+	const GROUP_CONTENT = 'content';
+	const GROUP_SITE = 'site';
+	const GROUP_SYSTEM = 'system';
+	const KIND_IFRAME = 'iframe';
+	const KIND_NATIVE = 'native';
+	const WINDOW_PERSISTENCE_WORKSPACE = 'workspace';
+	const WINDOW_PERSISTENCE_NONE = 'none';
+
+	/**
+	 * App group IDs.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_group_ids() {
+		return array(
+			'CONTENT' => self::GROUP_CONTENT,
+			'SITE'    => self::GROUP_SITE,
+			'SYSTEM'  => self::GROUP_SYSTEM,
+		);
+	}
+
+	/**
+	 * App kind IDs.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_kind_ids() {
+		return array(
+			'IFRAME' => self::KIND_IFRAME,
+			'NATIVE' => self::KIND_NATIVE,
+		);
+	}
+
+	/**
+	 * App window persistence IDs.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_window_persistence_ids() {
+		return array(
+			'NONE'      => self::WINDOW_PERSISTENCE_NONE,
+			'WORKSPACE' => self::WINDOW_PERSISTENCE_WORKSPACE,
+		);
+	}
+
+	/**
+	 * Browser-facing app descriptor contract.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function client_contract() {
+		return array(
+			'groups'            => self::get_group_ids(),
+			'kinds'             => self::get_kind_ids(),
+			'windowPersistence' => self::get_window_persistence_ids(),
+		);
+	}
 
 	/**
 	 * Badge normalizer.
@@ -93,21 +150,21 @@ final class PufferDesk_App_Normalizer {
 
 			$id                 = sanitize_key( $app['id'] );
 			$label              = sanitize_text_field( $app['label'] );
-			$icon               = isset( $app['icon'] ) ? PufferDesk_Icon_Renderer::normalize( $app['icon'] ) : PufferDesk_Icon_Renderer::normalize( 'dashicons-admin-generic' );
-			$group              = isset( $app['group'] ) ? sanitize_key( $app['group'] ) : 'system';
-			$kind               = isset( $app['kind'] ) ? sanitize_key( $app['kind'] ) : 'iframe';
-			$window_persistence = isset( $app['window_persistence'] ) ? sanitize_key( (string) $app['window_persistence'] ) : 'workspace';
+			$icon               = isset( $app['icon'] ) ? PufferDesk_Icon_Renderer::normalize( $app['icon'] ) : PufferDesk_Icon_Renderer::normalize( PufferDesk_Icon_Renderer::DEFAULT_DASHICON );
+			$group              = isset( $app['group'] ) ? sanitize_key( $app['group'] ) : self::GROUP_SYSTEM;
+			$kind               = isset( $app['kind'] ) ? sanitize_key( $app['kind'] ) : self::KIND_IFRAME;
+			$window_persistence = isset( $app['window_persistence'] ) ? sanitize_key( (string) $app['window_persistence'] ) : self::WINDOW_PERSISTENCE_WORKSPACE;
 			if ( '' === $id || '' === $label ) {
 				continue;
 			}
-			if ( ! in_array( $group, array( 'content', 'site', 'system' ), true ) ) {
-				$group = 'system';
+			if ( ! in_array( $group, self::get_group_ids(), true ) ) {
+				$group = self::GROUP_SYSTEM;
 			}
-			if ( ! in_array( $kind, array( 'iframe', 'native' ), true ) ) {
-				$kind = 'iframe';
+			if ( ! in_array( $kind, self::get_kind_ids(), true ) ) {
+				$kind = self::KIND_IFRAME;
 			}
-			if ( ! in_array( $window_persistence, array( 'workspace', 'none' ), true ) ) {
-				$window_persistence = 'workspace';
+			if ( ! in_array( $window_persistence, self::get_window_persistence_ids(), true ) ) {
+				$window_persistence = self::WINDOW_PERSISTENCE_WORKSPACE;
 			}
 
 			$url    = isset( $app['url'] ) ? esc_url_raw( $app['url'] ) : '';
@@ -126,11 +183,11 @@ final class PufferDesk_App_Normalizer {
 			 */
 			$badge = $this->badge_normalizer->normalize( apply_filters( 'pufferdesk_app_badge', $badge, $app ) );
 
-			if ( 'iframe' === $kind && '' === $url ) {
+			if ( self::KIND_IFRAME === $kind && '' === $url ) {
 				continue;
 			}
 
-			if ( 'native' === $kind && '' === $native ) {
+			if ( self::KIND_NATIVE === $kind && '' === $native ) {
 				continue;
 			}
 

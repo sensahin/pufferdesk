@@ -6,10 +6,15 @@
 
 	window.PufferDesk.dragDrop.createDragDropManager = function createDragDropManager(options = {}) {
 		const models = window.PufferDesk.dragDrop.models;
+		const constants = window.PufferDesk.dragDrop.constants || {};
+		const containerTypes = constants.containerTypes || {};
+		const targetKinds = constants.targetKinds || {};
+		const dragReasons = constants.reasons || {};
 		const draggables = options.draggables || null;
 		const moveService = options.moveService || null;
 		const stateStore = options.stateStore || null;
 		const events = options.events || window.PufferDesk.events || null;
+		const eventNames = events && events.names ? events.names : {};
 		let activeDrag = null;
 
 		function emit(name, detail = {}) {
@@ -49,28 +54,28 @@
 				return models.normalizeContainerId(target.toContainerId || target.containerId);
 			}
 
-			if (target.kind === 'desktop' || target.type === 'desktop') {
-				return 'desktop';
+			if (target.kind === containerTypes.DESKTOP || target.type === containerTypes.DESKTOP) {
+				return containerTypes.DESKTOP;
 			}
 
-			if (target.kind === 'sidebar-favorites' || target.kind === 'folder-sidebar-favorites' || target.type === 'folder-sidebar') {
-				return 'folder-sidebar:favorites';
+			if (target.kind === containerTypes.SIDEBAR_FAVORITES_LEGACY || target.kind === targetKinds.FOLDER_SIDEBAR_FAVORITES || target.type === containerTypes.FOLDER_SIDEBAR) {
+				return containerTypes.FOLDER_SIDEBAR_FAVORITES;
 			}
 
-			if (target.kind === 'trash' || target.type === 'trash') {
-				return 'trash';
+			if (target.kind === containerTypes.TRASH || target.type === containerTypes.TRASH) {
+				return containerTypes.TRASH;
 			}
 
-			if (target.kind === 'dock' || target.type === 'dock') {
-				return 'dock';
+			if (target.kind === containerTypes.DOCK || target.type === containerTypes.DOCK) {
+				return containerTypes.DOCK;
 			}
 
-			if (target.kind === 'folder' || target.type === 'folder' || target.targetKind === 'folder') {
-				return models.createContainerId('folder', target.id || target.targetId || target.folderId || '');
+			if (target.kind === containerTypes.FOLDER || target.type === containerTypes.FOLDER || target.targetKind === containerTypes.FOLDER) {
+				return models.createContainerId(containerTypes.FOLDER, target.id || target.targetId || target.folderId || '');
 			}
 
-			if (target.targetKind === 'folder-sidebar-favorites') {
-				return 'folder-sidebar:favorites';
+			if (target.targetKind === targetKinds.FOLDER_SIDEBAR_FAVORITES) {
+				return containerTypes.FOLDER_SIDEBAR_FAVORITES;
 			}
 
 			return '';
@@ -95,10 +100,10 @@
 
 		function createLegacyMoveRequest(detail = {}, options = {}) {
 			const item = draggables && typeof draggables.fromLegacyDropDetail === 'function'
-				? draggables.fromLegacyDropDetail(detail, options.source || 'desktop')
+				? draggables.fromLegacyDropDetail(detail, options.source || containerTypes.DESKTOP)
 				: models.normalizeItem({
 					id: detail.sourceId || detail.id,
-					sourceContainerId: detail.sourceFolderId ? models.createContainerId('folder', detail.sourceFolderId) : 'desktop',
+					sourceContainerId: detail.sourceFolderId ? models.createContainerId(containerTypes.FOLDER, detail.sourceFolderId) : containerTypes.DESKTOP,
 					type: detail.sourceKind || detail.kind
 				});
 			const toContainerId = getContainerIdFromTarget({
@@ -107,11 +112,11 @@
 			});
 
 			return createMoveRequest({
-				fromContainerId: item.sourceContainerId || (detail.sourceFolderId ? models.createContainerId('folder', detail.sourceFolderId) : 'desktop'),
+				fromContainerId: item.sourceContainerId || (detail.sourceFolderId ? models.createContainerId(containerTypes.FOLDER, detail.sourceFolderId) : containerTypes.DESKTOP),
 				item,
 				metadata: Object.assign({}, detail.metadata || {}, options.metadata || {}),
 				position: options.position || detail.position || null,
-				reason: options.reason || 'drag-drop',
+				reason: options.reason || dragReasons.DRAG_DROP,
 				toContainerId
 			});
 		}
@@ -129,7 +134,7 @@
 				sourceContainerId: normalized.sourceContainerId || normalized.currentContainerId || '',
 				startedAt: Date.now()
 			};
-			emit('drag:start', {
+			emit(eventNames.DRAG_START, {
 				drag: activeDrag,
 				item: normalized
 			});
@@ -153,7 +158,7 @@
 					valid: false
 				};
 
-			emit('drag:hover', {
+			emit(eventNames.DRAG_HOVER, {
 				activeDrag,
 				move: validation.move || move,
 				validation
@@ -163,7 +168,7 @@
 		}
 
 		function leave(target = null) {
-			emit('drag:leave', {
+			emit(eventNames.DRAG_LEAVE, {
 				activeDrag,
 				target
 			});
@@ -172,7 +177,7 @@
 		function cancel(reason = 'cancelled') {
 			const drag = activeDrag;
 			activeDrag = null;
-			emit('drag:cancel', {
+			emit(eventNames.DRAG_CANCEL, {
 				drag,
 				reason
 			});

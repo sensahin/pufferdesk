@@ -17,7 +17,7 @@ $pufferdesk_time = current_time( 'timestamp' );
 ?>
 <section
 	class="pdk-widget pdk-clock-widget"
-	data-pdk-context="widget"
+	data-pdk-context="<?php echo esc_attr( PufferDesk_Context_Menu_Contracts::TARGET_WIDGET ); ?>"
 	data-pdk-context-id="<?php echo esc_attr( $widget['id'] ); ?>"
 	data-pdk-context-label="<?php echo esc_attr( $widget['label'] ); ?>"
 	data-pdk-widget="<?php echo esc_attr( $widget['id'] ); ?>"

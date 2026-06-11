@@ -6,17 +6,24 @@
 
 	window.PufferDesk.apps.createLauncherRenderer = function createLauncherRenderer(options = {}) {
 		const dom = options.dom || window.PufferDesk.dom;
-		const getMenuLabel = typeof options.getMenuLabel === 'function' ? options.getMenuLabel : (key, fallback) => fallback;
+		const getMenuLabel = typeof options.getMenuLabel === 'function' ? options.getMenuLabel : (key, fallback) => fallback || key;
 		const openApp = typeof options.openApp === 'function' ? options.openApp : () => null;
 		const openDocument = typeof options.openDocument === 'function' ? options.openDocument : () => null;
 		const openFolder = typeof options.openFolder === 'function' ? options.openFolder : () => null;
 		const renderFolderWindow = typeof options.renderFolderWindow === 'function' ? options.renderFolderWindow : () => false;
+		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
+		const contextTargets = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
+			? window.PufferDesk.shell.contextMenuConstants.targets || {}
+			: {};
+		const contextItemTypes = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
+			? window.PufferDesk.shell.contextMenuConstants.itemTypes || {}
+			: {};
 
 		function emitSelectionChange(grid) {
 			const win = grid && typeof grid.closest === 'function' ? grid.closest('.pdk-window') : null;
 
 			if (win) {
-				win.dispatchEvent(new window.CustomEvent('pufferDesk:folder-selection-change', {
+				win.dispatchEvent(new window.CustomEvent(domEventNames.FOLDER_SELECTION_CHANGE, {
 					detail: {
 						selectedItems: Array.from(grid.querySelectorAll('.pdk-app-launcher.is-selected, .pdk-finder-trash-item.is-selected'))
 					}
@@ -84,7 +91,9 @@
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = 'pdk-app-launcher';
-			button.dataset.pdkContext = removable ? 'folder-app' : 'app';
+			button.dataset.pdkContext = removable
+				? contextTargets.FOLDER_APP || 'folder-app'
+				: contextItemTypes.APP || 'app';
 			button.dataset.pdkContextId = app.id;
 			button.dataset.pdkContextLabel = app.label;
 			if (folderId) {
@@ -129,11 +138,11 @@
 
 		function createFolderButton(folder, parentFolderId = '', win = null) {
 			const button = document.createElement('button');
-			const label = folder && folder.label ? folder.label : getMenuLabel('folder', 'Folder');
+			const label = folder && folder.label ? folder.label : getMenuLabel('folder');
 
 			button.type = 'button';
 			button.className = 'pdk-app-launcher pdk-folder-launcher';
-			button.dataset.pdkContext = 'folder';
+			button.dataset.pdkContext = contextTargets.FOLDER || 'folder';
 			button.dataset.pdkContextId = folder.id;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkDraggableFolderItem = '1';
@@ -179,11 +188,11 @@
 
 		function createDocumentButton(item, folderId = '') {
 			const button = document.createElement('button');
-			const label = item && item.label ? item.label : getMenuLabel('document', 'Document');
+			const label = item && item.label ? item.label : getMenuLabel('document');
 
 			button.type = 'button';
 			button.className = 'pdk-app-launcher pdk-document-launcher';
-			button.dataset.pdkContext = 'document';
+			button.dataset.pdkContext = contextTargets.DOCUMENT || 'document';
 			button.dataset.pdkContextId = item.id || '';
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkDocumentId = item.document && item.document.id ? String(item.document.id) : String(item.id || '').replace(/^document-/, '');
@@ -222,12 +231,12 @@
 
 		function createTrashItemButton(item) {
 			const button = document.createElement('button');
-			const label = item && item.label ? item.label : getMenuLabel('folder', 'Folder');
+			const label = item && item.label ? item.label : getMenuLabel('folder');
 			const icon = item && item.icon ? item.icon : item && item.folder && item.folder.icon ? item.folder.icon : 'dashicons-category';
 
 			button.type = 'button';
 			button.className = 'pdk-desktop-icon pdk-desktop-folder pdk-finder-trash-item';
-			button.dataset.pdkContext = 'trash-item';
+			button.dataset.pdkContext = contextTargets.TRASH_ITEM || 'trash-item';
 			button.dataset.pdkContextId = item.id;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkTrashItemId = item.id;

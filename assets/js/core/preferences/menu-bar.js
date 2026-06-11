@@ -3,12 +3,14 @@
 
 	window.PufferDesk = window.PufferDesk || {};
 
-	const defaults = {
-		auto_hide: 'fullscreen',
-		show_background: false,
-		recent_count: 10
-	};
-	const allowedAutoHide = ['always', 'desktop', 'fullscreen', 'never'];
+	const defaults = window.PufferDesk.config.getSettingDefault('menu_bar') || {};
+	const allowed = window.PufferDesk.config.getSettingOptions('menu_bar') || {};
+	const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
+	const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
+	const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
+		? window.PufferDesk.session.workspace.sections || {}
+		: {};
+	const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 	const recentLimit = 50;
 	let hideTimer = null;
 
@@ -34,7 +36,7 @@
 		const autoHide = String(preferences.auto_hide || '');
 
 		return {
-			auto_hide: allowedAutoHide.includes(autoHide) ? autoHide : defaults.auto_hide,
+			auto_hide: Array.isArray(allowed.auto_hide) && allowed.auto_hide.includes(autoHide) ? autoHide : defaults.auto_hide,
 			show_background: Object.prototype.hasOwnProperty.call(preferences, 'show_background')
 				? normalizeBoolean(preferences.show_background)
 				: defaults.show_background,
@@ -73,7 +75,7 @@
 			setRevealed(shell, false);
 		}
 
-		shell.dispatchEvent(new window.CustomEvent('pufferDesk:menu-bar-layout-change', {
+		shell.dispatchEvent(new window.CustomEvent(domEventNames.MENU_BAR_LAYOUT_CHANGE, {
 			detail: {
 				hidden
 			}
@@ -90,7 +92,7 @@
 		shell.dataset.pdkMenuBarBackground = current.show_background ? '1' : '0';
 		shell.dataset.pdkMenuBarRecentCount = String(current.recent_count);
 		syncHiddenState(shell, current);
-		shell.dispatchEvent(new window.CustomEvent('pufferDesk:menu-bar-change', {
+		shell.dispatchEvent(new window.CustomEvent(domEventNames.MENU_BAR_CHANGE, {
 			detail: current
 		}));
 
@@ -131,7 +133,7 @@
 		}, { passive: true });
 		menuBar.addEventListener('pointerenter', reveal);
 		menuBar.addEventListener('pointerleave', conceal);
-		shell.addEventListener('pufferDesk:fullscreen-window-change', () => {
+		shell.addEventListener(domEventNames.FULLSCREEN_WINDOW_CHANGE, () => {
 			apply(shell, {
 				auto_hide: shell.dataset.pdkMenuBarAutoHide,
 				show_background: shell.dataset.pdkMenuBarBackground === '1',
@@ -162,7 +164,7 @@
 		}
 
 		return {
-			command: typeof item.command === 'string' ? item.command : 'open-app',
+			command: typeof item.command === 'string' ? item.command : commandIds.OPEN_APP,
 			icon: item.icon || '',
 			id,
 			label,
@@ -175,7 +177,7 @@
 
 	function getRecentItems(config = {}) {
 		const store = getSessionStore(config);
-		const items = store ? store.getSection('recentItems', []) : [];
+		const items = store ? store.getSection(workspaceSections.RECENT_ITEMS, []) : [];
 
 		return Array.isArray(items) ? items.map(normalizeRecentItem).filter(Boolean) : [];
 	}
@@ -208,7 +210,7 @@
 			});
 		}
 
-		if (item.type === 'folder' && (item.target || item.id) === 'trash') {
+		if (item.type === 'folder' && (item.target || item.id) === appIds.TRASH) {
 			const trashLabel = getConfigLabel(config, 'trash', item.label || 'Trash');
 
 			return Object.assign({}, item, {
@@ -223,7 +225,7 @@
 	function saveRecentItems(config = {}, items = []) {
 		const store = getSessionStore(config);
 		if (store) {
-			store.saveSection('recentItems', items.slice(0, recentLimit));
+			store.saveSection(workspaceSections.RECENT_ITEMS, items.slice(0, recentLimit));
 		}
 	}
 
@@ -238,7 +240,7 @@
 			.filter((current) => `${current.type}:${current.id}` !== key);
 		next.unshift(normalized);
 		saveRecentItems(config, next);
-		window.dispatchEvent(new window.CustomEvent('pufferDesk:recent-items-change', {
+		window.dispatchEvent(new window.CustomEvent(domEventNames.RECENT_ITEMS_CHANGE, {
 			detail: {
 				items: next
 			}
@@ -249,7 +251,7 @@
 
 	function clearRecentItems(config = {}) {
 		saveRecentItems(config, []);
-		window.dispatchEvent(new window.CustomEvent('pufferDesk:recent-items-change', {
+		window.dispatchEvent(new window.CustomEvent(domEventNames.RECENT_ITEMS_CHANGE, {
 			detail: {
 				items: []
 			}

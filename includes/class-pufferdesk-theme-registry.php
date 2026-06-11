@@ -136,17 +136,17 @@ final class PufferDesk_Theme_Registry {
 				),
 				'window_chrome'  => array(
 					'controls' => array(
-						'placement' => 'right',
-						'order'     => array( 'minimize', 'maximize', 'close' ),
-						'style'     => 'toolbar',
+						'placement' => PufferDesk_Window_Chrome_Contracts::PLACEMENT_RIGHT,
+						'order'     => array( PufferDesk_Window_Chrome_Contracts::CONTROL_MINIMIZE, PufferDesk_Window_Chrome_Contracts::CONTROL_MAXIMIZE, PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ),
+						'style'     => PufferDesk_Window_Chrome_Contracts::STYLE_TOOLBAR,
 						'labels'    => array(
-							'close'    => __( 'Close', 'pufferdesk-admin-desktop' ),
-							'minimize' => __( 'Minimize', 'pufferdesk-admin-desktop' ),
-							'maximize' => __( 'Maximize', 'pufferdesk-admin-desktop' ),
+							PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE    => __( 'Close', 'pufferdesk-admin-desktop' ),
+							PufferDesk_Window_Chrome_Contracts::CONTROL_MINIMIZE => __( 'Minimize', 'pufferdesk-admin-desktop' ),
+							PufferDesk_Window_Chrome_Contracts::CONTROL_MAXIMIZE => __( 'Maximize', 'pufferdesk-admin-desktop' ),
 						),
 					),
 					'title'    => array(
-						'alignment' => 'left',
+						'alignment' => PufferDesk_Window_Chrome_Contracts::TITLE_ALIGNMENT_LEFT,
 						'show_icon' => true,
 					),
 				),
@@ -382,17 +382,17 @@ final class PufferDesk_Theme_Registry {
 				),
 				'window_chrome'  => array(
 					'controls' => array(
-						'placement' => 'right',
-						'order'     => array( 'minimize', 'maximize', 'close' ),
-						'style'     => 'toolbar',
+						'placement' => PufferDesk_Window_Chrome_Contracts::PLACEMENT_RIGHT,
+						'order'     => array( PufferDesk_Window_Chrome_Contracts::CONTROL_MINIMIZE, PufferDesk_Window_Chrome_Contracts::CONTROL_MAXIMIZE, PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ),
+						'style'     => PufferDesk_Window_Chrome_Contracts::STYLE_TOOLBAR,
 						'labels'    => array(
-							'close'    => __( 'Close', 'pufferdesk-admin-desktop' ),
-							'minimize' => __( 'Minimize', 'pufferdesk-admin-desktop' ),
-							'maximize' => __( 'Maximize', 'pufferdesk-admin-desktop' ),
+							PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE    => __( 'Close', 'pufferdesk-admin-desktop' ),
+							PufferDesk_Window_Chrome_Contracts::CONTROL_MINIMIZE => __( 'Minimize', 'pufferdesk-admin-desktop' ),
+							PufferDesk_Window_Chrome_Contracts::CONTROL_MAXIMIZE => __( 'Maximize', 'pufferdesk-admin-desktop' ),
 						),
 					),
 					'title'    => array(
-						'alignment' => 'left',
+						'alignment' => PufferDesk_Window_Chrome_Contracts::TITLE_ALIGNMENT_LEFT,
 						'show_icon' => true,
 					),
 				),
@@ -1570,22 +1570,7 @@ final class PufferDesk_Theme_Registry {
 	 * @return array<string,mixed>
 	 */
 	private function get_default_window_chrome_config() {
-		return array(
-			'controls' => array(
-				'placement' => 'left',
-				'order'     => array( 'close', 'minimize', 'maximize' ),
-				'style'     => 'traffic',
-				'labels'    => array(
-					'close'    => __( 'Close', 'pufferdesk-admin-desktop' ),
-					'minimize' => __( 'Minimize', 'pufferdesk-admin-desktop' ),
-					'maximize' => __( 'Maximize', 'pufferdesk-admin-desktop' ),
-				),
-			),
-			'title'    => array(
-				'alignment' => 'left',
-				'show_icon' => true,
-			),
-		);
+		return PufferDesk_Window_Chrome_Contracts::default_config();
 	}
 
 	/**
@@ -1924,58 +1909,7 @@ final class PufferDesk_Theme_Registry {
 	 * @return array<string,mixed>
 	 */
 	private function normalize_window_chrome_config( $window_chrome ) {
-		if ( ! is_array( $window_chrome ) ) {
-			return array();
-		}
-
-		$normalized = array();
-		$controls   = isset( $window_chrome['controls'] ) && is_array( $window_chrome['controls'] )
-			? $window_chrome['controls']
-			: array();
-		$title      = isset( $window_chrome['title'] ) && is_array( $window_chrome['title'] )
-			? $window_chrome['title']
-			: array();
-
-		if ( array_key_exists( 'placement', $controls ) ) {
-			$placement = sanitize_key( (string) $controls['placement'] );
-			if ( in_array( $placement, array( 'left', 'right' ), true ) ) {
-				$normalized['controls']['placement'] = $placement;
-			}
-		}
-
-		if ( array_key_exists( 'style', $controls ) ) {
-			$style = sanitize_key( (string) $controls['style'] );
-			if ( in_array( $style, array( 'traffic', 'caption', 'toolbar', 'hidden' ), true ) ) {
-				$normalized['controls']['style'] = $style;
-			}
-		}
-
-		if ( isset( $controls['order'] ) ) {
-			$order = $this->normalize_window_control_order( $controls['order'] );
-			if ( ! empty( $order ) ) {
-				$normalized['controls']['order'] = $order;
-			}
-		}
-
-		if ( isset( $controls['labels'] ) && is_array( $controls['labels'] ) ) {
-			$labels = $this->normalize_string_map( $controls['labels'], array( 'close', 'minimize', 'maximize' ) );
-			if ( ! empty( $labels ) ) {
-				$normalized['controls']['labels'] = $labels;
-			}
-		}
-
-		if ( array_key_exists( 'alignment', $title ) ) {
-			$alignment = sanitize_key( (string) $title['alignment'] );
-			if ( in_array( $alignment, array( 'left', 'center', 'right' ), true ) ) {
-				$normalized['title']['alignment'] = $alignment;
-			}
-		}
-
-		if ( array_key_exists( 'show_icon', $title ) ) {
-			$normalized['title']['show_icon'] = (bool) $title['show_icon'];
-		}
-
-		return $normalized;
+		return PufferDesk_Window_Chrome_Contracts::normalize_config( $window_chrome );
 	}
 
 	/**
@@ -2106,10 +2040,7 @@ final class PufferDesk_Theme_Registry {
 	 * @return array<string,mixed>
 	 */
 	private function complete_window_chrome_config( $window_chrome ) {
-		return $this->merge_theme_config(
-			$this->get_default_window_chrome_config(),
-			is_array( $window_chrome ) ? $window_chrome : array()
-		);
+		return PufferDesk_Window_Chrome_Contracts::complete_config( $window_chrome );
 	}
 
 	/**
@@ -2182,32 +2113,6 @@ final class PufferDesk_Theme_Registry {
 			$location = sanitize_key( (string) $location );
 			if ( '' !== $app_id && in_array( $location, $allowed, true ) ) {
 				$normalized[ $app_id ] = $location;
-			}
-		}
-
-		return $normalized;
-	}
-
-	/**
-	 * Normalize the order of supported window controls.
-	 *
-	 * @param mixed $order Raw order.
-	 * @return string[]
-	 */
-	private function normalize_window_control_order( $order ) {
-		if ( is_string( $order ) ) {
-			$order = preg_split( '/[\s,]+/', $order );
-		}
-
-		if ( ! is_array( $order ) ) {
-			return array();
-		}
-
-		$normalized = array();
-		foreach ( $order as $control ) {
-			$control = sanitize_key( (string) $control );
-			if ( in_array( $control, array( 'close', 'minimize', 'maximize' ), true ) && ! in_array( $control, $normalized, true ) ) {
-				$normalized[] = $control;
 			}
 		}
 

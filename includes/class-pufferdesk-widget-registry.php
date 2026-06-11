@@ -12,6 +12,8 @@ defined( 'ABSPATH' ) || exit;
  */
 final class PufferDesk_Widget_Registry {
 	const DEFAULT_CAPABILITY = 'read';
+	const KIND_NATIVE = 'native';
+	const NATIVE_CLOCK = 'clock';
 
 	/**
 	 * Default width for widgets without an explicit size.
@@ -38,8 +40,8 @@ final class PufferDesk_Widget_Registry {
 				'id'               => 'clock',
 				'label'            => __( 'Clock', 'pufferdesk-admin-desktop' ),
 				'icon'             => $this->theme_icon( 'clock.svg', 'dashicons-clock' ),
-				'kind'             => 'native',
-				'native'           => 'clock',
+				'kind'             => self::KIND_NATIVE,
+				'native'           => self::NATIVE_CLOCK,
 				'cap'              => self::DEFAULT_CAPABILITY,
 				'default_position' => array(
 					'right' => 24,
@@ -98,7 +100,7 @@ final class PufferDesk_Widget_Registry {
 
 			$id       = sanitize_key( $widget['id'] );
 			$label    = sanitize_text_field( $widget['label'] );
-			$kind     = isset( $widget['kind'] ) ? sanitize_key( $widget['kind'] ) : 'native';
+			$kind     = isset( $widget['kind'] ) ? sanitize_key( $widget['kind'] ) : self::KIND_NATIVE;
 			$native   = isset( $widget['native'] ) ? sanitize_key( $widget['native'] ) : '';
 			$template = isset( $widget['template'] ) ? PufferDesk_Path_Normalizer::normalize_relative_path( $widget['template'] ) : '';
 
@@ -106,8 +108,8 @@ final class PufferDesk_Widget_Registry {
 				continue;
 			}
 
-			if ( ! in_array( $kind, array( 'native' ), true ) ) {
-				$kind = 'native';
+			if ( ! in_array( $kind, array( self::KIND_NATIVE ), true ) ) {
+				$kind = self::KIND_NATIVE;
 			}
 
 			if ( '' === $native ) {
@@ -121,7 +123,7 @@ final class PufferDesk_Widget_Registry {
 			$normalized[] = array(
 				'id'               => $id,
 				'label'            => $label,
-				'icon'             => isset( $widget['icon'] ) ? PufferDesk_Icon_Renderer::normalize( $widget['icon'] ) : PufferDesk_Icon_Renderer::normalize( 'dashicons-admin-generic' ),
+				'icon'             => isset( $widget['icon'] ) ? PufferDesk_Icon_Renderer::normalize( $widget['icon'] ) : PufferDesk_Icon_Renderer::normalize( PufferDesk_Icon_Renderer::DEFAULT_DASHICON ),
 				'cap'              => $cap,
 				'kind'             => $kind,
 				'native'           => $native,
@@ -205,7 +207,7 @@ final class PufferDesk_Widget_Registry {
 	 */
 	private function theme_icon( $name, $fallback ) {
 		return array(
-			'type'     => 'theme',
+			'type'     => PufferDesk_Icon_Renderer::TYPE_THEME,
 			'name'     => $name,
 			'fallback' => $fallback,
 		);

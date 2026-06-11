@@ -28,14 +28,14 @@
 			const status = request.status || null;
 			const pendingText = Object.prototype.hasOwnProperty.call(request, 'pendingText')
 				? request.pendingText
-				: t('status.saving', 'Saving...');
+				: t('status.saving');
 
 			if (status && pendingText !== false) {
 				status.textContent = pendingText;
 			}
 
 			if (!api || typeof api.post !== 'function' || !request.action) {
-				const error = new Error(t('status.serviceUnavailable', 'Settings service unavailable.'));
+				const error = new Error(t('status.serviceUnavailable'));
 
 				if (status) {
 					status.textContent = error.message;
@@ -125,7 +125,7 @@
 			return function queueDebounced(overrides = {}) {
 				const pendingText = Object.prototype.hasOwnProperty.call(overrides, 'pendingText')
 					? overrides.pendingText
-					: (Object.prototype.hasOwnProperty.call(request, 'pendingText') ? request.pendingText : t('status.saving', 'Saving...'));
+					: (Object.prototype.hasOwnProperty.call(request, 'pendingText') ? request.pendingText : t('status.saving'));
 				const status = overrides.status || request.status || null;
 
 				sequence += 1;

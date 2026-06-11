@@ -13,6 +13,12 @@ defined( 'ABSPATH' ) || exit;
 final class PufferDesk_Router {
 	const PAGE_SLUG    = 'pufferdesk-admin-desktop';
 	const NONCE_TOGGLE = 'pufferdesk_toggle';
+	const QUERY_CLASSIC     = 'pufferdesk_classic';
+	const QUERY_IFRAME      = 'pufferdesk_iframe';
+	const QUERY_MODE        = 'pufferdesk';
+	const QUERY_PAGE        = 'page';
+	const QUERY_REDIRECT_TO = 'redirect_to';
+	const QUERY_TRUE_VALUE  = '1';
 
 	/**
 	 * User preferences service.
@@ -34,7 +40,7 @@ final class PufferDesk_Router {
 	 * Persist the user's chosen mode.
 	 */
 	public function handle_mode_toggle() {
-		if ( ! isset( $_GET['pufferdesk'] ) ) {
+		if ( ! isset( $_GET[ self::QUERY_MODE ] ) ) {
 			return;
 		}
 
@@ -44,13 +50,13 @@ final class PufferDesk_Router {
 
 		check_admin_referer( self::NONCE_TOGGLE );
 
-		$enabled = '1' === sanitize_text_field( wp_unslash( $_GET['pufferdesk'] ) );
+		$enabled = self::QUERY_TRUE_VALUE === sanitize_text_field( wp_unslash( $_GET[ self::QUERY_MODE ] ) );
 		$this->preferences->set_enabled( $enabled );
 
 		$redirect = $enabled ? $this->get_shell_url() : admin_url( 'index.php' );
-		if ( isset( $_GET['redirect_to'] ) ) {
+		if ( isset( $_GET[ self::QUERY_REDIRECT_TO ] ) ) {
 			$redirect = wp_validate_redirect(
-				esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ),
+				esc_url_raw( wp_unslash( $_GET[ self::QUERY_REDIRECT_TO ] ) ),
 				$redirect
 			);
 		}
@@ -104,8 +110,8 @@ final class PufferDesk_Router {
 
 		return add_query_arg(
 			array(
-				'pufferdesk'   => $enabled ? '1' : '0',
-				'redirect_to'   => $redirect,
+				self::QUERY_MODE        => $enabled ? self::QUERY_TRUE_VALUE : '0',
+				self::QUERY_REDIRECT_TO => $redirect,
 				'_wpnonce'      => wp_create_nonce( self::NONCE_TOGGLE ),
 			),
 			admin_url( 'index.php' )
@@ -120,9 +126,9 @@ final class PufferDesk_Router {
 	public function is_shell_request() {
 		return is_admin()
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing query var.
-			&& isset( $_GET['page'] )
+			&& isset( $_GET[ self::QUERY_PAGE ] )
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only routing query var.
-			&& self::PAGE_SLUG === sanitize_key( wp_unslash( $_GET['page'] ) );
+			&& self::PAGE_SLUG === sanitize_key( wp_unslash( $_GET[ self::QUERY_PAGE ] ) );
 	}
 
 	/**
@@ -132,7 +138,7 @@ final class PufferDesk_Router {
 	 */
 	public function is_iframe_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only iframe display flag.
-		return is_admin() && isset( $_GET['pufferdesk_iframe'] );
+		return is_admin() && isset( $_GET[ self::QUERY_IFRAME ] );
 	}
 
 	/**
@@ -142,6 +148,27 @@ final class PufferDesk_Router {
 	 */
 	public function is_classic_override_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only one-request redirect bypass.
-		return isset( $_GET['pufferdesk_classic'] );
+		return isset( $_GET[ self::QUERY_CLASSIC ] );
+	}
+
+	/**
+	 * Client-safe route query key contract.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function client_contract() {
+		return array(
+			'pageSlug' => self::PAGE_SLUG,
+			'query'    => array(
+				'classic'    => self::QUERY_CLASSIC,
+				'iframe'     => self::QUERY_IFRAME,
+				'mode'       => self::QUERY_MODE,
+				'page'       => self::QUERY_PAGE,
+				'redirectTo' => self::QUERY_REDIRECT_TO,
+			),
+			'values'   => array(
+				'true' => self::QUERY_TRUE_VALUE,
+			),
+		);
 	}
 }

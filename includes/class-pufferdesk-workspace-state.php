@@ -13,6 +13,39 @@ defined( 'ABSPATH' ) || exit;
 final class PufferDesk_Workspace_State {
 	const META_PREFIX = 'pufferdesk_workspace_state';
 	const VERSION     = 3;
+	const SECTION_DESKTOP_ICONS = 'desktopIcons';
+	const SECTION_DESKTOP_SORT = 'desktopSort';
+	const SECTION_DOCK_APPS = 'dockApps';
+	const SECTION_FOLDER_SIDEBAR = 'folderSidebar';
+	const SECTION_RECENT_ITEMS = 'recentItems';
+	const SECTION_STICKY_NOTES = 'stickyNotes';
+	const SECTION_WIDGETS = 'widgets';
+	const SECTION_WINDOWS = 'windows';
+	const DESKTOP_ICON_PREFIX_APP = 'app:';
+	const DESKTOP_ICON_PREFIX_FOLDER = 'folder:';
+	const WINDOW_KIND_APP = 'app';
+	const WINDOW_KIND_FOLDER = 'folder';
+	const WINDOW_KIND_WINDOW = 'window';
+
+	/**
+	 * Build a persisted desktop app icon ID.
+	 *
+	 * @param string $app_id App ID.
+	 * @return string
+	 */
+	public static function desktop_app_icon_id( $app_id ) {
+		return self::DESKTOP_ICON_PREFIX_APP . $app_id;
+	}
+
+	/**
+	 * Build a persisted desktop folder icon ID.
+	 *
+	 * @param string $folder_id Folder ID.
+	 * @return string
+	 */
+	public static function desktop_folder_icon_id( $folder_id ) {
+		return self::DESKTOP_ICON_PREFIX_FOLDER . $folder_id;
+	}
 
 	/**
 	 * Get a user's workspace state for a theme.
@@ -108,24 +141,55 @@ final class PufferDesk_Workspace_State {
 	 *
 	 * @return array<string,mixed>
 	 */
-	public function get_default_state() {
+	public static function get_default_state() {
 		return array(
 			'version'      => self::VERSION,
 			'updatedAt'    => 0,
-			'dockApps'     => array(),
-			'windows'      => array(),
-			'widgets'      => array(),
-			'stickyNotes'  => array(),
-			'desktopIcons' => array(),
-			'desktopSort'  => array(
+			self::SECTION_DOCK_APPS => array(),
+			self::SECTION_WINDOWS => array(),
+			self::SECTION_WIDGETS => array(),
+			self::SECTION_STICKY_NOTES => array(),
+			self::SECTION_DESKTOP_ICONS => array(),
+			self::SECTION_DESKTOP_SORT => array(
 				'mode' => 'none',
 			),
-			'folderSidebar' => array(
+			self::SECTION_FOLDER_SIDEBAR => array(
 				'collapsed'          => array(),
 				'favoriteIds'        => array(),
 				'removedFavoriteIds' => array(),
 			),
-			'recentItems'   => array(),
+			self::SECTION_RECENT_ITEMS => array(),
+		);
+	}
+
+	/**
+	 * Workspace section IDs used by PHP and browser state managers.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_section_ids() {
+		return array(
+			'DESKTOP_ICONS'  => self::SECTION_DESKTOP_ICONS,
+			'DESKTOP_SORT'   => self::SECTION_DESKTOP_SORT,
+			'DOCK_APPS'      => self::SECTION_DOCK_APPS,
+			'FOLDER_SIDEBAR' => self::SECTION_FOLDER_SIDEBAR,
+			'RECENT_ITEMS'   => self::SECTION_RECENT_ITEMS,
+			'STICKY_NOTES'   => self::SECTION_STICKY_NOTES,
+			'WIDGETS'        => self::SECTION_WIDGETS,
+			'WINDOWS'        => self::SECTION_WINDOWS,
+		);
+	}
+
+	/**
+	 * Persisted window kind IDs used by PHP and browser window managers.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_window_kind_ids() {
+		return array(
+			'APP'    => self::WINDOW_KIND_APP,
+			'FOLDER' => self::WINDOW_KIND_FOLDER,
+			'WINDOW' => self::WINDOW_KIND_WINDOW,
 		);
 	}
 
@@ -144,14 +208,14 @@ final class PufferDesk_Workspace_State {
 		return array(
 			'version'      => self::VERSION,
 			'updatedAt'    => isset( $state['updatedAt'] ) ? $this->sanitize_timestamp( $state['updatedAt'] ) : $default['updatedAt'],
-			'dockApps'     => $this->sanitize_dock_apps( isset( $state['dockApps'] ) ? $state['dockApps'] : array(), $apps ),
-			'windows'      => $this->sanitize_windows( isset( $state['windows'] ) ? $state['windows'] : array(), $apps, $folders ),
-			'widgets'      => $this->sanitize_widgets( isset( $state['widgets'] ) ? $state['widgets'] : array(), $widgets ),
-			'stickyNotes'  => $this->sanitize_sticky_notes( isset( $state['stickyNotes'] ) ? $state['stickyNotes'] : array() ),
-			'desktopIcons' => $this->sanitize_desktop_icons( isset( $state['desktopIcons'] ) ? $state['desktopIcons'] : array(), $apps, $folders ),
-			'desktopSort'  => $this->sanitize_desktop_sort( isset( $state['desktopSort'] ) ? $state['desktopSort'] : array() ),
-			'folderSidebar' => $this->sanitize_folder_sidebar( isset( $state['folderSidebar'] ) ? $state['folderSidebar'] : array(), $folders ),
-			'recentItems'   => $this->sanitize_recent_items( isset( $state['recentItems'] ) ? $state['recentItems'] : array(), $apps, $folders ),
+			self::SECTION_DOCK_APPS => $this->sanitize_dock_apps( isset( $state[ self::SECTION_DOCK_APPS ] ) ? $state[ self::SECTION_DOCK_APPS ] : array(), $apps ),
+			self::SECTION_WINDOWS => $this->sanitize_windows( isset( $state[ self::SECTION_WINDOWS ] ) ? $state[ self::SECTION_WINDOWS ] : array(), $apps, $folders ),
+			self::SECTION_WIDGETS => $this->sanitize_widgets( isset( $state[ self::SECTION_WIDGETS ] ) ? $state[ self::SECTION_WIDGETS ] : array(), $widgets ),
+			self::SECTION_STICKY_NOTES => $this->sanitize_sticky_notes( isset( $state[ self::SECTION_STICKY_NOTES ] ) ? $state[ self::SECTION_STICKY_NOTES ] : array() ),
+			self::SECTION_DESKTOP_ICONS => $this->sanitize_desktop_icons( isset( $state[ self::SECTION_DESKTOP_ICONS ] ) ? $state[ self::SECTION_DESKTOP_ICONS ] : array(), $apps, $folders ),
+			self::SECTION_DESKTOP_SORT => $this->sanitize_desktop_sort( isset( $state[ self::SECTION_DESKTOP_SORT ] ) ? $state[ self::SECTION_DESKTOP_SORT ] : array() ),
+			self::SECTION_FOLDER_SIDEBAR => $this->sanitize_folder_sidebar( isset( $state[ self::SECTION_FOLDER_SIDEBAR ] ) ? $state[ self::SECTION_FOLDER_SIDEBAR ] : array(), $folders ),
+			self::SECTION_RECENT_ITEMS => $this->sanitize_recent_items( isset( $state[ self::SECTION_RECENT_ITEMS ] ) ? $state[ self::SECTION_RECENT_ITEMS ] : array(), $apps, $folders ),
 		);
 	}
 
@@ -180,7 +244,7 @@ final class PufferDesk_Workspace_State {
 			return array_values( (array) $apps );
 		}
 
-		if ( empty( $state['dockApps'] ) || ! is_array( $state['dockApps'] ) ) {
+		if ( empty( $state[ self::SECTION_DOCK_APPS ] ) || ! is_array( $state[ self::SECTION_DOCK_APPS ] ) ) {
 			return $this->order_fixed_dock_apps_last( $apps );
 		}
 
@@ -201,7 +265,7 @@ final class PufferDesk_Workspace_State {
 			$by_id[ sanitize_key( (string) $app['id'] ) ] = $app;
 		}
 
-		foreach ( $state['dockApps'] as $app_id ) {
+		foreach ( $state[ self::SECTION_DOCK_APPS ] as $app_id ) {
 			$app_id = sanitize_key( (string) $app_id );
 			if ( ! isset( $by_id[ $app_id ] ) ) {
 				continue;
@@ -264,7 +328,7 @@ final class PufferDesk_Workspace_State {
 				continue;
 			}
 
-			$kind      = isset( $window['kind'] ) ? sanitize_key( (string) $window['kind'] ) : 'app';
+			$kind      = isset( $window['kind'] ) ? sanitize_key( (string) $window['kind'] ) : self::WINDOW_KIND_APP;
 			$app_id    = isset( $window['appId'] ) ? sanitize_key( (string) $window['appId'] ) : '';
 			$folder_id = isset( $window['folderId'] ) ? sanitize_key( (string) $window['folderId'] ) : '';
 			$state     = $this->sanitize_rect_state(
@@ -278,7 +342,7 @@ final class PufferDesk_Workspace_State {
 				)
 			);
 
-			if ( 'folder' === $kind ) {
+			if ( self::WINDOW_KIND_FOLDER === $kind ) {
 				if ( ! $this->is_allowed_folder_id( $folder_id, $available_folders ) ) {
 					continue;
 				}
@@ -299,7 +363,7 @@ final class PufferDesk_Workspace_State {
 				}
 
 				$folder_window = array(
-					'kind'     => 'folder',
+					'kind'     => self::WINDOW_KIND_FOLDER,
 					'folderId' => $folder_id,
 					'state'    => $state,
 				);
@@ -316,7 +380,7 @@ final class PufferDesk_Workspace_State {
 				}
 
 				$sanitized[] = array(
-					'kind'  => 'app',
+					'kind'  => self::WINDOW_KIND_APP,
 					'appId' => $app_id,
 					'state' => $state,
 				);
@@ -653,7 +717,7 @@ final class PufferDesk_Workspace_State {
 				'state' => $this->sanitize_position_state( isset( $icon['state'] ) && is_array( $icon['state'] ) ? $icon['state'] : array() ),
 			);
 
-			if ( 0 === strpos( $id, 'app:' ) && isset( $icon['label'] ) ) {
+			if ( 0 === strpos( $id, self::DESKTOP_ICON_PREFIX_APP ) && isset( $icon['label'] ) ) {
 				$label = sanitize_text_field( (string) $icon['label'] );
 				if ( '' !== $label ) {
 					$record['label'] = $label;
@@ -967,12 +1031,12 @@ final class PufferDesk_Workspace_State {
 	 * @return bool
 	 */
 	private function is_allowed_desktop_icon_id( $icon_id, $available_apps, $available_folders ) {
-		if ( 0 === strpos( $icon_id, 'app:' ) ) {
-			return $this->is_allowed_app_id( sanitize_key( substr( $icon_id, 4 ) ), $available_apps );
+		if ( 0 === strpos( $icon_id, self::DESKTOP_ICON_PREFIX_APP ) ) {
+			return $this->is_allowed_app_id( sanitize_key( substr( $icon_id, strlen( self::DESKTOP_ICON_PREFIX_APP ) ) ), $available_apps );
 		}
 
-		if ( 0 === strpos( $icon_id, 'folder:' ) ) {
-			return $this->is_allowed_folder_id( sanitize_key( substr( $icon_id, 7 ) ), $available_folders );
+		if ( 0 === strpos( $icon_id, self::DESKTOP_ICON_PREFIX_FOLDER ) ) {
+			return $this->is_allowed_folder_id( sanitize_key( substr( $icon_id, strlen( self::DESKTOP_ICON_PREFIX_FOLDER ) ) ), $available_folders );
 		}
 
 		return strlen( $icon_id ) <= 140;
@@ -997,21 +1061,25 @@ final class PufferDesk_Workspace_State {
 	 */
 	private function sanitize_recent_command( $command, $type ) {
 		$command = sanitize_key( (string) $command );
-		$allowed = array( 'open-app', 'open-folder', 'open-url' );
+		$allowed = array(
+			PufferDesk_Command_Ids::OPEN_APP,
+			PufferDesk_Command_Ids::OPEN_FOLDER,
+			PufferDesk_Command_Ids::OPEN_URL,
+		);
 
 		if ( in_array( $command, $allowed, true ) ) {
 			return $command;
 		}
 
 		if ( 'folder' === $type ) {
-			return 'open-folder';
+			return PufferDesk_Command_Ids::OPEN_FOLDER;
 		}
 
 		if ( 'document' === $type ) {
-			return 'open-url';
+			return PufferDesk_Command_Ids::OPEN_URL;
 		}
 
-		return 'open-app';
+		return PufferDesk_Command_Ids::OPEN_APP;
 	}
 
 	/**

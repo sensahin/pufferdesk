@@ -4,6 +4,7 @@ PufferDesk treats drag/drop as a core platform service. UI modules may own point
 
 ## Core modules
 
+- `assets/js/core/drag-drop/constants.js`: stable item types, container IDs, container prefixes, target aliases, and move reasons.
 - `assets/js/core/drag-drop/item-model.js`: canonical item, container, position, and move request normalization.
 - `assets/js/core/drag-drop/draggable-registry.js`: compatibility adapter from existing desktop/folder DOM markers into normalized item models.
 - `assets/js/core/drag-drop/drop-target-registry.js`: registered and dynamically resolved drop containers.

@@ -61,6 +61,9 @@
 		shell.dataset.pdkBooted = '1';
 
 		const config = window.PufferDesk.config.get();
+		const eventNames = window.PufferDesk.events.names || {};
+		const dragDropConstants = window.PufferDesk.dragDrop.constants || {};
+		const dragDropContainerTypes = dragDropConstants.containerTypes || {};
 		if (window.PufferDesk.appearance) {
 			window.PufferDesk.appearance.apply(shell, config.appearance || {});
 			window.PufferDesk.appearance.bindSystemMode(shell);
@@ -85,7 +88,7 @@
 		window.PufferDesk.notificationStore = notificationStore;
 		const soundManager = window.PufferDesk.services.createSoundManager(config);
 		window.PufferDesk.sound = soundManager;
-		window.PufferDesk.events.on('notifications:received', (event) => {
+		window.PufferDesk.events.on(eventNames.NOTIFICATIONS_RECEIVED, (event) => {
 			const detail = event && event.detail ? event.detail : {};
 			const snapshot = notificationStore && typeof notificationStore.getSnapshot === 'function'
 				? notificationStore.getSnapshot()
@@ -140,7 +143,12 @@
 			moveService,
 			stateStore: moveStateStore
 		});
-		['desktop', 'folder-sidebar:favorites', 'dock', 'trash'].forEach((containerId) => {
+		[
+			dragDropContainerTypes.DESKTOP,
+			dragDropContainerTypes.FOLDER_SIDEBAR_FAVORITES,
+			dragDropContainerTypes.DOCK,
+			dragDropContainerTypes.TRASH
+		].forEach((containerId) => {
 			const container = moveStateStore.getContainer(containerId);
 			if (container) {
 				dropTargetRegistry.register(container);
@@ -154,18 +162,18 @@
 					&& config.theme.family === 'redmond'
 					&& detail
 					&& detail.kind === 'app'
-					&& detail.id === 'trash'
+					&& detail.id === dragDropContainerTypes.TRASH
 				);
 			},
 			canDropOnFolder(detail) {
 				return Boolean(dragDropManager.canDropLegacy(detail, {
 					emit: false,
-					source: 'desktop'
+					source: dragDropContainerTypes.DESKTOP
 				}));
 			},
 			onDropOnFolder(detail) {
 				dragDropManager.dropLegacy(detail, {
-					source: 'desktop'
+					source: dragDropContainerTypes.DESKTOP
 				});
 			},
 			onRenameIcon(detail) {
@@ -312,7 +320,7 @@
 		window.PufferDesk.soundStatus = soundStatus;
 		window.PufferDesk.desktop.api = desktopApi;
 		window.PufferDesk.desktopApi = desktopApi;
-		window.PufferDesk.events.emit('desktop:ready', {
+		window.PufferDesk.events.emit(eventNames.DESKTOP_READY, {
 			api: desktopApi,
 			config,
 			dragDropManager,

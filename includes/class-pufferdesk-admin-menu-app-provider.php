@@ -141,7 +141,7 @@ final class PufferDesk_Admin_Menu_App_Provider {
 				'label'  => $label,
 				'url'    => $url,
 				'icon'   => $this->get_admin_menu_icon( isset( $item[6] ) ? (string) $item[6] : '', $menu_title ),
-				'group'  => 'site',
+				'group'  => PufferDesk_App_Normalizer::GROUP_SITE,
 				'cap'    => $cap,
 				'source' => 'wp-menu',
 			);
@@ -270,17 +270,17 @@ final class PufferDesk_Admin_Menu_App_Provider {
 	 */
 	private function get_admin_menu_app_id( $slug ) {
 		$core_ids = array(
-			'edit-comments.php'       => 'comments',
-			'edit.php'                => 'posts',
-			'edit.php?post_type=page' => 'pages',
-			'index.php'               => 'dashboard',
-			'options-general.php'     => 'settings',
-			'plugins.php'             => 'plugins',
-			'themes.php'              => 'appearance',
-			'tools.php'               => 'tools',
-			'upload.php'              => 'media',
-			'users.php'               => 'users',
-			'admin.php?page=wc-admin' => 'woocommerce',
+			'edit-comments.php'       => PufferDesk_App_Ids::COMMENTS,
+			'edit.php'                => PufferDesk_App_Ids::POSTS,
+			'edit.php?post_type=page' => PufferDesk_App_Ids::PAGES,
+			'index.php'               => PufferDesk_App_Ids::DASHBOARD,
+			'options-general.php'     => PufferDesk_App_Ids::SETTINGS,
+			'plugins.php'             => PufferDesk_App_Ids::PLUGINS,
+			'themes.php'              => PufferDesk_App_Ids::APPEARANCE,
+			'tools.php'               => PufferDesk_App_Ids::TOOLS,
+			'upload.php'              => PufferDesk_App_Ids::MEDIA,
+			'users.php'               => PufferDesk_App_Ids::USERS,
+			'admin.php?page=wc-admin' => PufferDesk_App_Ids::WOOCOMMERCE,
 		);
 
 		if ( isset( $core_ids[ $slug ] ) ) {
@@ -336,10 +336,10 @@ final class PufferDesk_Admin_Menu_App_Provider {
 		if ( '' === $icon || 'none' === $icon ) {
 			$title_icon = $this->get_admin_menu_title_icon( $menu_title );
 
-			return $title_icon ? $title_icon : 'dashicons-admin-generic';
+			return $title_icon ? $title_icon : PufferDesk_Icon_Renderer::DEFAULT_DASHICON;
 		}
 
-		if ( 'dashicons-admin-generic' === $icon ) {
+		if ( PufferDesk_Icon_Renderer::DEFAULT_DASHICON === $icon ) {
 			$title_icon = $this->get_admin_menu_title_icon( $menu_title );
 
 			return $title_icon ? $title_icon : $icon;
@@ -352,9 +352,9 @@ final class PufferDesk_Admin_Menu_App_Provider {
 		$url = $this->get_admin_menu_image_url( $icon );
 
 		return $url ? array(
-			'type' => 'image',
+			'type' => PufferDesk_Icon_Renderer::TYPE_IMAGE,
 			'url'  => $url,
-		) : 'dashicons-admin-generic';
+		) : PufferDesk_Icon_Renderer::DEFAULT_DASHICON;
 	}
 
 	/**
@@ -378,7 +378,7 @@ final class PufferDesk_Admin_Menu_App_Provider {
 		}
 
 		return array(
-			'type' => 'image',
+			'type' => PufferDesk_Icon_Renderer::TYPE_IMAGE,
 			'url'  => $url,
 		);
 	}
