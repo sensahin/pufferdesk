@@ -317,6 +317,8 @@
 			const button = document.createElement('button');
 			const label = item && item.label ? item.label : getMenuLabel('folder');
 			const icon = item && item.icon ? item.icon : item && item.folder && item.folder.icon ? item.folder.icon : 'dashicons-category';
+			const isDocument = Boolean(item && item.type === 'document');
+			const documentData = isDocument && item.document && typeof item.document === 'object' ? item.document : {};
 
 			button.type = 'button';
 			button.className = 'pdk-desktop-icon pdk-desktop-folder pdk-finder-trash-item';
@@ -324,6 +326,13 @@
 			button.dataset.pdkContextId = item.id;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkTrashItemId = item.id;
+			button.dataset.pdkTrashItemType = isDocument ? 'document' : 'folder';
+			if (isDocument) {
+				button.classList.add('pdk-finder-trash-document');
+				button.dataset.pdkDocumentId = documentData.id ? String(documentData.id) : String(item.documentId || '').replace(/^document-/, '');
+				button.dataset.pdkDocumentKind = documentData.kind ? String(documentData.kind) : '';
+				button.dataset.pdkStickyColor = documentData.color ? String(documentData.color) : '';
+			}
 			button.setAttribute('aria-label', label);
 			button.setAttribute('aria-pressed', 'false');
 			button.setAttribute('aria-selected', 'false');

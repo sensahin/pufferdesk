@@ -1242,7 +1242,7 @@
 							icon: 'dashicons-media-document',
 							target: detail.id
 						}),
-						commandItem(getLabel('delete'), commandIds.FOLDER_DELETE_SELECTED, {
+						commandItem(getLabel('move_to_trash'), commandIds.FOLDER_DELETE_SELECTED, {
 							icon: 'dashicons-trash',
 							payload: {
 								folderId: detail.folderId || '',

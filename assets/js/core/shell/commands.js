@@ -1149,7 +1149,7 @@
 				return Boolean(folderManager && typeof folderManager.restoreTrashItem === 'function' && payload.target);
 			},
 			run(payload) {
-				folderManager.restoreTrashItem(payload.target);
+				return folderManager.restoreTrashItem(payload.target);
 			}
 		});
 
@@ -1169,7 +1169,7 @@
 					: window.confirm(getLabel('delete_immediately_fallback_message'));
 
 				if (confirmed) {
-					folderManager.deleteTrashItem(payload.target);
+					return folderManager.deleteTrashItem(payload.target);
 				}
 			}
 		});
@@ -1197,7 +1197,7 @@
 				}
 
 				if (confirmed) {
-					const emptied = folderManager.emptyTrash();
+					const emptied = await folderManager.emptyTrash();
 					if (emptied) {
 						playSoundEvent('trashEmpty');
 					}
@@ -1264,6 +1264,26 @@
 			},
 			run(payload, detail) {
 				return launcher.deleteSelectedFolderItems(getFolderIdFromPayload(payload, detail), {
+					windowElement: detail && detail.windowElement ? detail.windowElement : null
+				});
+			}
+		});
+
+		register(commandIds.FOLDER_DELETE_SELECTED_IMMEDIATELY, {
+			isEnabled(payload, detail) {
+				const folderId = getFolderIdFromPayload(payload, detail);
+
+				return Boolean(
+					launcher
+					&& typeof launcher.hasSelectedFolderItems === 'function'
+					&& folderId
+					&& launcher.hasSelectedFolderItems(folderId, {
+						windowElement: detail && detail.windowElement ? detail.windowElement : null
+					})
+				);
+			},
+			run(payload, detail) {
+				return launcher.deleteSelectedFolderItemsImmediately(getFolderIdFromPayload(payload, detail), {
 					windowElement: detail && detail.windowElement ? detail.windowElement : null
 				});
 			}

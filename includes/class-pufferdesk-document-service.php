@@ -283,12 +283,13 @@ final class PufferDesk_Document_Service {
 	}
 
 	/**
-	 * Trash a document.
+	 * Trash or permanently delete a document.
 	 *
 	 * @param int $document_id Document post ID.
+	 * @param bool $force Whether to permanently delete the document.
 	 * @return bool|WP_Error
 	 */
-	public function delete_document( $document_id ) {
+	public function delete_document( $document_id, $force = false ) {
 		$post = $this->get_document_post( $document_id );
 		if ( is_wp_error( $post ) ) {
 			return $post;
@@ -298,7 +299,44 @@ final class PufferDesk_Document_Service {
 			return $this->permission_error();
 		}
 
+		if ( $force ) {
+			return false !== wp_delete_post( $post->ID, true );
+		}
+
 		return false !== wp_trash_post( $post->ID );
+	}
+
+	/**
+	 * Restore a document from Trash and optionally restore its virtual path.
+	 *
+	 * @param int                 $document_id Document post ID.
+	 * @param array<string,mixed> $args Restore payload.
+	 * @return array<string,mixed>|WP_Error
+	 */
+	public function restore_document( $document_id, $args = array() ) {
+		$post = $this->get_document_post( $document_id );
+		if ( is_wp_error( $post ) ) {
+			return $post;
+		}
+
+		if ( ! $this->current_user_can_edit_document( $post ) ) {
+			return $this->permission_error();
+		}
+
+		if ( 'trash' === $post->post_status && false === wp_untrash_post( $post->ID ) ) {
+			return new WP_Error(
+				'pufferdesk_document_restore_failed',
+				__( 'Could not restore document.', 'pufferdesk-admin-desktop' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$args = is_array( $args ) ? $args : array();
+		if ( array_key_exists( 'parentPath', $args ) ) {
+			update_post_meta( $post->ID, PufferDesk_Document_Post_Type::META_PARENT_PATH, $this->normalize_parent_path( $args['parentPath'], $this->get_document_kind( $post ) ) );
+		}
+
+		return $this->get_document( $post->ID );
 	}
 
 	/**

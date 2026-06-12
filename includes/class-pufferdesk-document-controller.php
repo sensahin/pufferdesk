@@ -17,6 +17,7 @@ final class PufferDesk_Document_Controller {
 	const ACTION_UPDATE = 'pufferdesk_update_document';
 	const ACTION_DELETE = 'pufferdesk_delete_document';
 	const ACTION_DUPLICATE = 'pufferdesk_duplicate_document';
+	const ACTION_RESTORE = 'pufferdesk_restore_document';
 
 	/**
 	 * Document service.
@@ -44,6 +45,7 @@ final class PufferDesk_Document_Controller {
 		add_action( 'wp_ajax_' . self::ACTION_UPDATE, array( $this, 'update_document' ) );
 		add_action( 'wp_ajax_' . self::ACTION_DELETE, array( $this, 'delete_document' ) );
 		add_action( 'wp_ajax_' . self::ACTION_DUPLICATE, array( $this, 'duplicate_document' ) );
+		add_action( 'wp_ajax_' . self::ACTION_RESTORE, array( $this, 'restore_document' ) );
 	}
 
 	/**
@@ -161,12 +163,12 @@ final class PufferDesk_Document_Controller {
 	}
 
 	/**
-	 * Move a document to Trash.
+	 * Trash or permanently delete a document.
 	 */
 	public function delete_document() {
 		$this->verify_request();
 
-		$deleted = $this->documents->delete_document( $this->get_post_id() );
+		$deleted = $this->documents->delete_document( $this->get_post_id(), $this->get_post_bool( 'force' ) );
 		if ( is_wp_error( $deleted ) ) {
 			$this->send_error( $deleted );
 		}
@@ -174,6 +176,30 @@ final class PufferDesk_Document_Controller {
 		wp_send_json_success(
 			array(
 				'deleted' => (bool) $deleted,
+			)
+		);
+	}
+
+	/**
+	 * Restore a document from Trash.
+	 */
+	public function restore_document() {
+		$this->verify_request();
+
+		$document = $this->documents->restore_document(
+			$this->get_post_id(),
+			array(
+				'parentPath' => $this->get_parent_path(),
+			)
+		);
+
+		if ( is_wp_error( $document ) ) {
+			$this->send_error( $document );
+		}
+
+		wp_send_json_success(
+			array(
+				'document' => $document,
 			)
 		);
 	}
@@ -206,6 +232,18 @@ final class PufferDesk_Document_Controller {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Verified before calling this helper; document service sanitizes fields by semantic type.
 		return (string) wp_unslash( $_POST[ $key ] );
+	}
+
+	/**
+	 * Read a boolean-like scalar from POST.
+	 *
+	 * @param string $key POST key.
+	 * @return bool
+	 */
+	private function get_post_bool( $key ) {
+		$value = strtolower( $this->get_post_string( $key ) );
+
+		return in_array( $value, array( '1', 'true', 'yes', 'on' ), true );
 	}
 
 	/**

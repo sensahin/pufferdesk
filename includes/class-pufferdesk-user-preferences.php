@@ -1348,6 +1348,22 @@ final class PufferDesk_User_Preferences {
 			}
 
 			$type = isset( $item['type'] ) ? sanitize_key( (string) $item['type'] ) : 'folder';
+			if ( 'document' === $type ) {
+				$document_item = $this->sanitize_desktop_trash_document_item( $item );
+				if ( empty( $document_item ) || isset( $seen[ $document_item['id'] ] ) ) {
+					continue;
+				}
+
+				$sanitized[] = $document_item;
+				$seen[ $document_item['id'] ] = true;
+
+				if ( count( $sanitized ) >= 100 ) {
+					break;
+				}
+
+				continue;
+			}
+
 			if ( 'folder' !== $type ) {
 				continue;
 			}
@@ -1394,6 +1410,59 @@ final class PufferDesk_User_Preferences {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Sanitize a document Trash record.
+	 *
+	 * @param array<string,mixed> $item Raw Trash record.
+	 * @return array<string,mixed>|null
+	 */
+	private function sanitize_desktop_trash_document_item( $item ) {
+		$document    = isset( $item['document'] ) && is_array( $item['document'] ) ? $item['document'] : array();
+		$document_id = isset( $item['documentId'] ) ? absint( $item['documentId'] ) : 0;
+		$document_id = $document_id ? $document_id : ( isset( $document['id'] ) ? absint( $document['id'] ) : 0 );
+
+		if ( ! $document_id ) {
+			return null;
+		}
+
+		$label = isset( $item['label'] ) ? sanitize_text_field( (string) $item['label'] ) : '';
+		$title = isset( $document['title'] ) ? sanitize_text_field( (string) $document['title'] ) : '';
+		$label = '' !== $label ? $label : $title;
+		$label = '' !== $label ? $label : __( 'Document', 'pufferdesk-admin-desktop' );
+
+		$kind = isset( $document['kind'] ) ? sanitize_key( (string) $document['kind'] ) : '';
+		if ( ! in_array( $kind, array( PufferDesk_Document_Service::KIND_STICKY, PufferDesk_Document_Service::KIND_TEXT ), true ) ) {
+			$kind = '';
+		}
+
+		$restore = isset( $item['restore'] ) && is_array( $item['restore'] ) ? $item['restore'] : array();
+		$parent_path = isset( $restore['parentPath'] ) ? sanitize_text_field( (string) $restore['parentPath'] ) : '';
+		$parent_path = '' !== $parent_path ? $parent_path : ( isset( $document['parentPath'] ) ? sanitize_text_field( (string) $document['parentPath'] ) : '' );
+		$id          = isset( $item['id'] ) ? sanitize_key( (string) $item['id'] ) : '';
+		$id          = '' !== $id ? $id : 'document-' . $document_id;
+
+		return array(
+			'document'   => array(
+				'color'      => isset( $document['color'] ) ? sanitize_key( (string) $document['color'] ) : '',
+				'id'         => $document_id,
+				'kind'       => $kind,
+				'modified'   => isset( $document['modified'] ) ? sanitize_text_field( (string) $document['modified'] ) : '',
+				'parentPath' => $parent_path,
+				'path'       => isset( $document['path'] ) ? sanitize_text_field( (string) $document['path'] ) : '',
+				'title'      => $title ? $title : $label,
+			),
+			'documentId' => $document_id,
+			'icon'       => PufferDesk_Icon_Renderer::normalize( isset( $item['icon'] ) ? $item['icon'] : 'dashicons-media-document' ),
+			'id'         => $id,
+			'label'      => $label,
+			'restore'    => array(
+				'parentPath' => $parent_path,
+			),
+			'trashedAt'  => $this->sanitize_desktop_folder_timestamp( isset( $item['trashedAt'] ) ? $item['trashedAt'] : '', gmdate( 'c' ) ),
+			'type'       => 'document',
+		);
 	}
 
 	/**

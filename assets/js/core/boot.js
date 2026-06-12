@@ -204,9 +204,12 @@
 		});
 		window.PufferDesk.stickyNoteManager = stickyNoteManager;
 		launcher = window.PufferDesk.apps.createAppLauncher(shell, manager, config, {
+			documentStore,
 			dragDropManager
 		});
-		folderManager = window.PufferDesk.desktop.createFolderManager(shell, launcher, config);
+		folderManager = window.PufferDesk.desktop.createFolderManager(shell, launcher, config, {
+			documentStore
+		});
 		if (typeof launcher.setFolderProvider === 'function') {
 			launcher.setFolderProvider(folderManager);
 		}
@@ -221,6 +224,7 @@
 		const commands = window.PufferDesk.shell.createCommandRegistry(shell, {
 			clipboard,
 			config,
+			documentStore,
 			dialogs,
 			folderManager,
 			launcher,
@@ -240,6 +244,7 @@
 		const contextMenuController = window.PufferDesk.shell.createContextMenuController(shell, config, {
 			commands,
 			desktopIconManager,
+			documentStore,
 			folderManager,
 			launcher,
 			manager,

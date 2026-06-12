@@ -1445,6 +1445,11 @@
 	opacity: var(--pdk-folder-icon-opacity);
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-finder-trash-item[data-pdk-trash-item-type="document"] .pdk-icon-image.pdk-icon-brand {
+	filter: none;
+	opacity: 1;
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-icon-widget-style="dark"] .pdk-dock-item:has(.pdk-icon-image),
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-icon-widget-style="dark"] .pdk-dock-window-item:has(.pdk-icon-image),
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-icon-widget-style="clear"] .pdk-dock-item:has(.pdk-icon-image),

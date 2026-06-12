@@ -1179,7 +1179,7 @@
 			return true;
 		}
 
-		function deleteNote(documentId) {
+		function deleteNote(documentId, options = {}) {
 			const entry = noteMap.get(Number.parseInt(documentId, 10));
 
 			if (entry && isUnsavedEntry(entry)) {
@@ -1190,7 +1190,7 @@
 				return Promise.resolve(removeRenderedNote(documentId));
 			}
 
-			return documentStore.remove(documentId).then((deleted) => {
+			return documentStore.remove(documentId, options).then((deleted) => {
 				removeRenderedNote(documentId);
 				return Boolean(deleted);
 			});

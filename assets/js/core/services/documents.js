@@ -181,13 +181,33 @@
 			});
 		}
 
-		function remove(id) {
-			return post('delete', {
+		function restore(id, payload = {}) {
+			return post('restore', Object.assign({}, payload, {
 				id: String(id || '')
-			}).then((result) => {
+			})).then((result) => {
+				const documentData = normalizeDocument(unwrapResult(result, 'document', labels), labels);
+				emitChange('restore', {
+					document: documentData
+				});
+
+				return documentData;
+			});
+		}
+
+		function remove(id, options = {}) {
+			const payload = {
+				id: String(id || '')
+			};
+
+			if (options && options.force) {
+				payload.force = '1';
+			}
+
+			return post('delete', payload).then((result) => {
 				const deleted = Boolean(unwrapResult(result, 'deleted', labels));
 				if (deleted) {
 					emitChange('delete', {
+						force: Boolean(options && options.force),
 						id: Number.parseInt(id, 10) || 0
 					});
 				}
@@ -207,6 +227,7 @@
 			list,
 			normalizeDocument,
 			remove,
+			restore,
 			update
 		};
 	};

@@ -4,7 +4,7 @@
 	window.PufferDesk = window.PufferDesk || {};
 	window.PufferDesk.desktop = window.PufferDesk.desktop || {};
 
-	window.PufferDesk.desktop.createFolderManager = function createFolderManager(shell, launcher, config = {}) {
+	window.PufferDesk.desktop.createFolderManager = function createFolderManager(shell, launcher, config = {}, options = {}) {
 		const dom = window.PufferDesk.dom;
 		const geometry = window.PufferDesk.geometry;
 		const createDebouncedTask = window.PufferDesk.services.createDebouncedTask;
@@ -12,6 +12,7 @@
 		const readNumber = geometry.readNumber;
 		const desktop = shell.querySelector('.pdk-desktop');
 		const api = window.PufferDesk.services && window.PufferDesk.services.api ? window.PufferDesk.services.api : null;
+		const documentStore = options.documentStore || null;
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const systemFolders = Array.isArray(config.folders) ? config.folders : [];
 		const defaultFolderIcon = { type: 'theme', name: 'folder.svg', fallback: 'dashicons-category' };
@@ -98,6 +99,40 @@
 			}
 
 			return getMenuLabel(key, fallback);
+		}
+
+		function parseDocumentId(value) {
+			const direct = Number.parseInt(value, 10);
+			const match = String(value || '').match(/(\d+)$/);
+
+			if (Number.isFinite(direct) && direct > 0) {
+				return direct;
+			}
+
+			return match ? Number.parseInt(match[1], 10) || 0 : 0;
+		}
+
+		function getDocumentTrashIcon(documentData = {}) {
+			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
+			const kind = typeof documentData.kind === 'string' ? documentData.kind : '';
+
+			return kind && kind === stickyKind
+				? { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' }
+				: { type: 'theme', name: 'text-editor.svg', fallback: 'dashicons-media-document' };
+		}
+
+		function serializeDocumentTrashDocument(documentData = {}) {
+			const documentId = parseDocumentId(documentData.id);
+
+			return {
+				color: typeof documentData.color === 'string' ? documentData.color : '',
+				id: documentId,
+				kind: typeof documentData.kind === 'string' ? documentData.kind : '',
+				modified: typeof documentData.modified === 'string' ? documentData.modified : '',
+				parentPath: typeof documentData.parentPath === 'string' ? documentData.parentPath : '',
+				path: typeof documentData.path === 'string' ? documentData.path : '',
+				title: typeof documentData.title === 'string' ? documentData.title : ''
+			};
 		}
 
 			function getUntitledFolderLabel() {
@@ -310,8 +345,48 @@
 			return normalized;
 		}
 
+		function normalizeDocumentTrashItem(item) {
+			const rawDocument = item && item.document && typeof item.document === 'object' ? item.document : {};
+			const documentId = parseDocumentId(item && (item.documentId || item.id || rawDocument.id));
+			const parentPath = typeof rawDocument.parentPath === 'string' && rawDocument.parentPath
+				? rawDocument.parentPath
+				: (item && item.restore && typeof item.restore.parentPath === 'string' ? item.restore.parentPath : '');
+			const documentData = serializeDocumentTrashDocument(Object.assign({}, rawDocument, {
+				id: documentId,
+				parentPath
+			}));
+			const label = String(item && item.label ? item.label : documentData.title || getMenuLabel('document')).trim() || getMenuLabel('document');
+
+			if (!documentId) {
+				return null;
+			}
+
+			return {
+				document: Object.assign({}, documentData, {
+					title: documentData.title || label
+				}),
+				documentId,
+				icon: item && item.icon ? item.icon : getDocumentTrashIcon(documentData),
+				id: normalizeId(item && item.id ? item.id : '') || `document-${documentId}`,
+				label,
+				restore: {
+					parentPath
+				},
+				trashedAt: normalizeTimestamp(item && item.trashedAt, new Date().toISOString()),
+				type: 'document'
+			};
+		}
+
 		function normalizeTrashItem(item) {
-			if (!item || typeof item !== 'object' || (item.type && item.type !== 'folder')) {
+			if (!item || typeof item !== 'object') {
+				return null;
+			}
+
+			if (item.type === 'document') {
+				return normalizeDocumentTrashItem(item);
+			}
+
+			if (item.type && item.type !== 'folder') {
 				return null;
 			}
 
@@ -347,6 +422,25 @@
 
 			function serializeTrash() {
 				return trashItems.map((item) => {
+					if (item && item.type === 'document') {
+						const documentData = serializeDocumentTrashDocument(item.document);
+
+						return {
+							document: Object.assign({}, documentData, {
+								title: documentData.title || item.label || getMenuLabel('document')
+							}),
+							documentId: item.documentId || documentData.id,
+							icon: item.icon || getDocumentTrashIcon(documentData),
+							id: item.id,
+							label: item.label || documentData.title || getMenuLabel('document'),
+							restore: {
+								parentPath: item.restore && typeof item.restore.parentPath === 'string' ? item.restore.parentPath : documentData.parentPath || ''
+							},
+							trashedAt: item.trashedAt || '',
+							type: 'document'
+						};
+					}
+
 					const folder = serializeFolder(item.folder);
 
 					return {
@@ -713,8 +807,9 @@
 					itemCount: trashItems.length,
 					items: trashItems.map((item) => ({
 						id: item.id,
-						label: item.label || getFolderLabel(),
+						label: item.label || (item.type === 'document' ? getMenuLabel('document') : getFolderLabel()),
 						source: 'trash',
+						type: item.type || 'folder',
 						url: ''
 					})),
 					kind: getMenuLabel('trash'),
@@ -882,6 +977,44 @@
 				});
 			}
 
+			function removeTrashItemsByDocumentIds(documentIds = []) {
+				const ids = new Set((Array.isArray(documentIds) ? documentIds : []).map(parseDocumentId).filter(Boolean));
+
+				if (!ids.size) {
+					return;
+				}
+
+				trashItems = trashItems.filter((item) => !(item && item.type === 'document' && ids.has(parseDocumentId(item.documentId))));
+			}
+
+			function moveDocumentToTrash(documentData) {
+				const documentId = parseDocumentId(documentData && documentData.id);
+				const trashItem = normalizeTrashItem({
+					document: documentData,
+					documentId,
+					icon: getDocumentTrashIcon(documentData),
+					id: `document-${documentId}`,
+					label: documentData && documentData.title ? documentData.title : getMenuLabel('document'),
+					restore: {
+						parentPath: documentData && typeof documentData.parentPath === 'string' ? documentData.parentPath : ''
+					},
+					trashedAt: new Date().toISOString(),
+					type: 'document'
+				});
+
+				if (!trashItem) {
+					return null;
+				}
+
+				removeTrashItemsByDocumentIds([documentId]);
+				trashItems.unshift(trashItem);
+				trashItems = trashItems.filter(Boolean).slice(0, 100);
+				scheduleTrashSave();
+				dispatchTrashChange();
+
+				return serializeTrash().find((item) => item.id === trashItem.id) || null;
+			}
+
 			function moveFolderToTrash(folderId) {
 				const index = userFolders.findIndex((folder) => folder.id === folderId);
 				if (index < 0) {
@@ -927,9 +1060,33 @@
 		function restoreTrashItem(trashId) {
 			const index = trashItems.findIndex((item) => item.id === trashId);
 			const item = index >= 0 ? trashItems[index] : null;
-			const restored = item ? normalizeFolder(item.folder) : null;
 
-			if (!item || item.type !== 'folder' || !restored) {
+			if (!item) {
+				return null;
+			}
+
+			if (item.type === 'document') {
+				if (!documentStore || typeof documentStore.restore !== 'function') {
+					return Promise.resolve(null);
+				}
+
+				return documentStore.restore(item.documentId, {
+					parentPath: item.restore && typeof item.restore.parentPath === 'string' ? item.restore.parentPath : ''
+				}).then((documentData) => {
+					const currentIndex = trashItems.findIndex((trashItem) => trashItem && trashItem.id === trashId);
+					if (currentIndex >= 0) {
+						trashItems.splice(currentIndex, 1);
+					}
+					scheduleTrashSave();
+					dispatchTrashChange();
+
+					return documentData;
+				});
+			}
+
+			const restored = normalizeFolder(item.folder);
+
+			if (item.type !== 'folder' || !restored) {
 				return null;
 			}
 
@@ -992,6 +1149,28 @@
 				return false;
 			}
 
+			const item = trashItems[index];
+			if (item && item.type === 'document') {
+				if (!documentStore || typeof documentStore.remove !== 'function') {
+					return Promise.resolve(false);
+				}
+
+				return documentStore.remove(item.documentId, {
+					force: true
+				}).then((deleted) => {
+					if (deleted) {
+						const currentIndex = trashItems.findIndex((trashItem) => trashItem && trashItem.id === trashId);
+						if (currentIndex >= 0) {
+							trashItems.splice(currentIndex, 1);
+						}
+						scheduleTrashSave();
+						dispatchTrashChange();
+					}
+
+					return Boolean(deleted);
+				});
+			}
+
 			trashItems.splice(index, 1);
 			scheduleTrashSave();
 			dispatchTrashChange();
@@ -1002,6 +1181,20 @@
 		function emptyTrash() {
 			if (!trashItems.length) {
 				return false;
+			}
+
+			const documentItems = trashItems.filter((item) => item && item.type === 'document');
+
+			if (documentItems.length && documentStore && typeof documentStore.remove === 'function') {
+				return Promise.all(documentItems.map((item) => documentStore.remove(item.documentId, {
+					force: true
+				}).catch(() => false))).then(() => {
+					trashItems = [];
+					scheduleTrashSave();
+					dispatchTrashChange();
+
+					return true;
+				});
 			}
 
 			trashItems = [];
@@ -1438,6 +1631,7 @@
 			isAppReferenceInFolder,
 			isUserFolder,
 			moveAppReferenceToFolder,
+			moveDocumentToTrash,
 			moveFolderToTrash,
 			moveAppToDesktop,
 			moveFolderToParent,

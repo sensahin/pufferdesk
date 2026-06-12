@@ -51,9 +51,9 @@
 			? config.theme.surfaces
 			: {};
 		const themeFamily = config.theme && typeof config.theme.family === 'string' ? config.theme.family : '';
-		const documentStore = window.PufferDesk.documents && typeof window.PufferDesk.documents.createDocumentStore === 'function'
+		const documentStore = options.documentStore || (window.PufferDesk.documents && typeof window.PufferDesk.documents.createDocumentStore === 'function'
 			? window.PufferDesk.documents.createDocumentStore(config)
-			: null;
+			: null);
 		const virtualFilesystem = window.PufferDesk.virtualFilesystem && typeof window.PufferDesk.virtualFilesystem.create === 'function'
 			? window.PufferDesk.virtualFilesystem.create(config)
 			: null;
@@ -2468,7 +2468,7 @@
 			return getSelectedFolderItems(folderId, options.windowElement || null).some(canDeleteSelectedFolderItem);
 		}
 
-		function deleteSelectedFolderItems(folderId, options = {}) {
+		function moveSelectedFolderItemsToTrash(folderId, options = {}) {
 			const win = options.windowElement || getFolderWindow(folderId);
 			const provider = getFolderProvider();
 			const selectedItems = getSelectedFolderItems(folderId, win).filter(canDeleteSelectedFolderItem);
@@ -2487,9 +2487,62 @@
 				} else if (item.type === 'document') {
 					const stickyManager = window.PufferDesk.stickyNoteManager || null;
 					const isSticky = Boolean(item.kind && documentStore && documentStore.kinds && item.kind === documentStore.kinds.sticky);
+					const removePromise = documentStore && typeof documentStore.get === 'function' && typeof documentStore.remove === 'function'
+						? documentStore.get(item.id).then((documentData) => documentStore.remove(item.id).then((deleted) => {
+							if (deleted && provider && typeof provider.moveDocumentToTrash === 'function') {
+								provider.moveDocumentToTrash(documentData);
+							}
+							if (deleted && isSticky && stickyManager && typeof stickyManager.removeRenderedNote === 'function') {
+								stickyManager.removeRenderedNote(item.id);
+							}
+
+							return deleted;
+						}))
+						: Promise.resolve(false);
+
+					documentDeletes.push(Promise.resolve(removePromise).then((deleted) => {
+						changed = Boolean(deleted) || changed;
+					}));
+				}
+			});
+
+			return Promise.all(documentDeletes).then(() => {
+				const activeFolderId = win && win.dataset ? win.dataset.pdkFolderWindow || folderId : folderId;
+
+				if (activeFolderId) {
+					refreshFolderWindow(activeFolderId);
+				}
+
+				return changed;
+			});
+		}
+
+		function deleteSelectedFolderItems(folderId, options = {}) {
+			return moveSelectedFolderItemsToTrash(folderId, options);
+		}
+
+		function deleteSelectedFolderItemsImmediately(folderId, options = {}) {
+			const win = options.windowElement || getFolderWindow(folderId);
+			const provider = getFolderProvider();
+			const selectedItems = getSelectedFolderItems(folderId, win).filter(canDeleteSelectedFolderItem);
+			const documentDeletes = [];
+			let changed = false;
+
+			if (!selectedItems.length) {
+				return Promise.resolve(false);
+			}
+
+			selectedItems.forEach((item) => {
+				if (item.type === 'folder' && provider && typeof provider.deleteFolder === 'function') {
+					changed = provider.deleteFolder(item.id) || changed;
+				} else if (item.type === 'app' && provider && typeof provider.removeAppFromFolder === 'function') {
+					changed = provider.removeAppFromFolder(item.id, item.parentFolderId) || changed;
+				} else if (item.type === 'document') {
+					const stickyManager = window.PufferDesk.stickyNoteManager || null;
+					const isSticky = Boolean(item.kind && documentStore && documentStore.kinds && item.kind === documentStore.kinds.sticky);
 					const removePromise = isSticky && stickyManager && typeof stickyManager.deleteNote === 'function'
-						? stickyManager.deleteNote(item.id)
-						: (documentStore && typeof documentStore.remove === 'function' ? documentStore.remove(item.id) : Promise.resolve(false));
+						? stickyManager.deleteNote(item.id, { force: true })
+						: (documentStore && typeof documentStore.remove === 'function' ? documentStore.remove(item.id, { force: true }) : Promise.resolve(false));
 
 					documentDeletes.push(Promise.resolve(removePromise).then((deleted) => {
 						changed = Boolean(deleted) || changed;
@@ -2589,12 +2642,15 @@
 
 		function getFolderToolbarActions(folderId = '') {
 			const canCreateFolder = folderId && !isTrashFolderId(folderId);
+			const deleteCommand = themeFamily === 'pufferdesk'
+				? commandIds.FOLDER_DELETE_SELECTED_IMMEDIATELY
+				: commandIds.FOLDER_DELETE_SELECTED;
 			const actions = [
 				{ id: 'view', label: getMenuLabel('view'), icon: 'dashicons-grid-view', disclosure: 'vertical', menuPlacement: 'icon-top' },
 				{ id: 'group', label: getMenuLabel('group'), icon: 'dashicons-list-view', disclosure: true, menuPlacement: 'icon-bottom' },
 				{ id: 'copy', label: getMenuLabel('copy'), icon: 'dashicons-clipboard', command: commandIds.CLIPBOARD_COPY },
 				{ id: 'paste', label: getMenuLabel('paste'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_PASTE },
-				{ id: 'delete', label: getMenuLabel('delete'), icon: 'dashicons-trash', command: commandIds.FOLDER_DELETE_SELECTED },
+				{ id: 'delete', label: getMenuLabel('delete'), icon: 'dashicons-trash', command: deleteCommand },
 				{ id: 'get-info', label: getMenuLabel('get_info'), icon: 'dashicons-info-outline', command: commandIds.FOLDER_GET_INFO }
 			];
 
@@ -4008,6 +4064,7 @@
 				closeFolderWindow,
 				closeOtherFolderTabs,
 				deleteSelectedFolderItems,
+				deleteSelectedFolderItemsImmediately,
 				duplicateFolderTab,
 				getActiveFolderWindow,
 				getSelectedFolderItems,

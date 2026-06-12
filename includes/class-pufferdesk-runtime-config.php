@@ -354,6 +354,7 @@ final class PufferDesk_Runtime_Config {
 				'duplicate' => PufferDesk_Document_Controller::ACTION_DUPLICATE,
 				'get'    => PufferDesk_Document_Controller::ACTION_GET,
 				'list'   => PufferDesk_Document_Controller::ACTION_LIST,
+				'restore' => PufferDesk_Document_Controller::ACTION_RESTORE,
 				'update' => PufferDesk_Document_Controller::ACTION_UPDATE,
 			),
 			'capabilities' => array(
@@ -1879,8 +1880,8 @@ final class PufferDesk_Runtime_Config {
 				'delete'                  => __( 'Delete', 'pufferdesk-admin-desktop' ),
 				'delete_immediately'      => __( 'Delete Immediately', 'pufferdesk-admin-desktop' ),
 				'delete_immediately_title' => __( 'Delete Immediately?', 'pufferdesk-admin-desktop' ),
-				'delete_immediately_message' => __( 'This permanently deletes the PufferDesk folder record. Apps and plugins are not deleted.', 'pufferdesk-admin-desktop' ),
-				'delete_immediately_fallback_message' => __( 'Delete this PufferDesk folder record immediately?', 'pufferdesk-admin-desktop' ),
+				'delete_immediately_message' => __( 'This permanently deletes the selected item. Apps and plugins are not deleted.', 'pufferdesk-admin-desktop' ),
+				'delete_immediately_fallback_message' => __( 'Delete this item immediately?', 'pufferdesk-admin-desktop' ),
 				'about_this_site'         => __( 'About This Site', 'pufferdesk-admin-desktop' ),
 				'about_pufferdesk'        => __( 'About PufferDesk', 'pufferdesk-admin-desktop' ),
 				'move_validator_unavailable' => __( 'The move validator is not available.', 'pufferdesk-admin-desktop' ),
