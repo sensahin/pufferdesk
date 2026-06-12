@@ -10,11 +10,10 @@ Generated for the full PHP/JS Single Source of Truth cleanup task.
 ## PHP Files
 
 - `assets/media/shared/icons/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
+- `assets/media/shared/icons/theme/index.php` - No change: Shared theme icon pack directory index stub only; no SSOT logic or labels to centralize.
 - `assets/media/shared/sounds/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
 - `assets/media/themes/pufferdesk/default/cursors/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
-- `assets/media/themes/pufferdesk/default/icons/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
 - `assets/media/themes/pufferdesk/default/wallpapers/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
-- `assets/media/themes/redmond/modern/icons/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
 - `assets/media/themes/redmond/modern/wallpapers/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
 - `includes/class-pufferdesk-admin-controller.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
 - `includes/class-pufferdesk-admin-menu-app-provider.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.

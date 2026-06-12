@@ -3,11 +3,10 @@
 PufferDesk avoids bundled Apple-owned, Microsoft-owned, Canonical-owned, and other third-party platform artwork, app logos, wallpapers, and font files.
 
 Selected app, document, and virtual folder SVG glyphs in
-assets/media/themes/pufferdesk/default/icons/ and
-assets/media/themes/redmond/modern/icons/ are based on Tabler Icons v3.44.0
-under the MIT License. The surrounding app icon wrappers, gradients, colors,
-and theme styling are PufferDesk assets. See THIRD-PARTY-NOTICES.txt for the
-full license notice.
+assets/media/shared/icons/theme/ are based on Tabler Icons v3.44.0 under the
+MIT License. The surrounding app icon wrappers, gradients, colors, and theme
+styling are PufferDesk assets. See THIRD-PARTY-NOTICES.txt for the full
+license notice.
 
 Built-in wallpapers are CSS-defined gradients declared in the theme registry. No built-in wallpaper image files are currently bundled.
 

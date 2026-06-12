@@ -65,7 +65,7 @@ final class PufferDesk_Widget_Registry {
 		 *
 		 * Icons may be a Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-clock' )
-		 * array( 'type' => 'image', 'src' => 'themes/pufferdesk/default/icons/clock.svg' )
+		 * array( 'type' => 'image', 'src' => 'shared/icons/theme/clock.svg' )
 		 * array( 'type' => 'theme', 'name' => 'clock.svg', 'fallback' => 'dashicons-clock' )
 		 *
 		 * @param array<int,array<string,mixed>> $widgets Registered widgets.

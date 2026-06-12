@@ -220,7 +220,7 @@ final class PufferDesk_App_Registry {
 		 * Missing, empty, or non-scalar cap values default to read during normalization.
 		 * Icons may be a Dashicon string or a descriptor:
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-admin-post' )
-		 * array( 'type' => 'image', 'src' => 'themes/pufferdesk/default/icons/posts.svg' )
+		 * array( 'type' => 'image', 'src' => 'shared/icons/theme/posts.svg' )
 		 * array( 'type' => 'theme', 'name' => 'posts.svg', 'fallback' => 'dashicons-admin-post' )
 		 * About windows may define about name, version, copyright, rights, and icon.
 		 * Menus use array( 'groups' => array( ... ) ) with command-backed items.

@@ -285,7 +285,7 @@ Icons:
 
 'icon' => array(
 	'type' => 'image',
-	'src'  => 'themes/pufferdesk/default/icons/posts.svg',
+	'src'  => 'shared/icons/theme/posts.svg',
 );
 
 'icon' => array(

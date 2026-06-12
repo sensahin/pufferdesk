@@ -46,7 +46,7 @@ final class PufferDesk_Theme_Registry {
 					'wallpapers'  => array(
 						'default' => 'aurora-flow',
 					),
-					'icon_pack'   => 'themes/pufferdesk/default/icons',
+					'icon_pack'   => 'shared/icons/theme',
 				),
 				'tokens'         => array(
 					'radius' => array(
@@ -73,7 +73,7 @@ final class PufferDesk_Theme_Registry {
 					'wallpapers' => array(
 						'default' => 'pane-light',
 					),
-					'icon_pack'  => 'themes/redmond/modern/icons',
+					'icon_pack'  => 'shared/icons/theme',
 				),
 				'tokens'         => array(
 					'radius' => array(

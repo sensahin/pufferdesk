@@ -4,7 +4,7 @@ Third-Party Notices
 Tabler Icons
 ------------
 
-Selected app, document, and virtual folder glyphs in the PufferDesk and Redmond theme icon packs are based on Tabler Icons v3.44.0.
+Selected app, document, and virtual folder glyphs in the shared PufferDesk theme icon pack are based on Tabler Icons v3.44.0.
 
 Source: https://github.com/tabler/tabler-icons
 

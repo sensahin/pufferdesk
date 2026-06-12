@@ -77,9 +77,9 @@ The foundation separates shell behavior from OS appearance:
 - `assets/css/themes/` owns theme-specific visual language.
 - `assets/media/` reserves release-safe media locations:
   - `assets/media/themes/{family}/{version}/wallpapers/`
-  - `assets/media/themes/{family}/{version}/icons/`
   - `assets/media/themes/{family}/{version}/cursors/`
   - `assets/media/shared/icons/`
+  - `assets/media/shared/icons/theme/`
   - `assets/media/shared/sounds/`
 
 Apps and folders use structured icon descriptors internally. Dashicon strings still work as shorthand, but the normalized shape supports both current and future media-backed icons:
@@ -92,7 +92,7 @@ Apps and folders use structured icon descriptors internally. Dashicon strings st
 
 'icon' => array(
 	'type'       => 'image',
-	'src'        => 'themes/pufferdesk/default/icons/posts.svg',
+	'src'        => 'shared/icons/theme/posts.svg',
 	'appearance' => 'brand',
 );
 
@@ -396,14 +396,14 @@ Themes support family/version inheritance. A concrete theme can declare a parent
 		'wallpapers'  => array(
 			'default' => 'aurora-flow',
 		),
-		'icon_pack'   => 'themes/pufferdesk/default/icons',
+		'icon_pack'   => 'shared/icons/theme',
 	),
 );
 ```
 
-Theme media fields are normalized to local `assets/media/` descriptors with `path` and `url` values, then exposed in the runtime theme config. Directory-backed media packs such as `icon_pack` also expose direct-child file `versions` so browser-rendered theme icons can append cache-busting filemtime query strings just like PHP-rendered shell icons. Keep OS media original or licensed for redistribution. Theme mode can be `auto`, `pufferdesk`, or `redmond`; auto mode uses the request platform hint only to choose the initial concrete theme, with PufferDesk as the Linux/unknown fallback, while explicit manual selections remain stored and are not overridden by platform detection.
+Theme media fields are normalized to local `assets/media/` descriptors with `path` and `url` values, then exposed in the runtime theme config. Directory-backed media packs such as `icon_pack` also expose direct-child file `versions` so browser-rendered theme icons can append cache-busting filemtime query strings just like PHP-rendered shell icons. Bundled themes share `assets/media/shared/icons/theme/` for app, document, folder, and Trash icons; add a theme-specific icon pack only when the artwork is genuinely different, not when SVG sizing alone can handle a smaller surface. Keep OS media original or licensed for redistribution. Theme mode can be `auto`, `pufferdesk`, or `redmond`; auto mode uses the request platform hint only to choose the initial concrete theme, with PufferDesk as the Linux/unknown fallback, while explicit manual selections remain stored and are not overridden by platform detection.
 
-`redmond` is a public `redmond/modern` theme inspired by modern Windows desktop patterns without bundling Microsoft-owned assets or clone artwork. Its shell contract uses a bottom full-width taskbar, Start system menu, compact taskbar search field, no global menu bar, no global app menu, taskbar status controls, fixed Trash on the desktop, no taskbar separator, and right-aligned window controls ordered minimize, maximize, close. Its surface contract uses `windows-settings` for the native Settings app and `file-explorer` for folder windows, so those areas render Windows-style navigation, command, address, and list surfaces instead of inheriting PufferDesk/Finder layouts. The Redmond Start surface is rendered from registered apps and `menu.system` command data by the shared menu controller, while taskbar search and the Start glyph are declared in theme shell metadata and rendered by the shared launcher template. Typography prefers local system stacks such as `"Segoe UI Variable"` and `"Segoe UI"` without shipping font files. Theme app, document, and virtual folder icons use local SVG wrappers with selected Tabler Icons glyphs under the MIT License; bundled wallpapers, Trash, and theme wrappers remain PufferDesk assets.
+`redmond` is a public `redmond/modern` theme inspired by modern Windows desktop patterns without bundling Microsoft-owned assets or clone artwork. Its shell contract uses a bottom full-width taskbar, Start system menu, compact taskbar search field, no global menu bar, no global app menu, taskbar status controls, fixed Trash on the desktop, no taskbar separator, and right-aligned window controls ordered minimize, maximize, close. Its surface contract uses `windows-settings` for the native Settings app and `file-explorer` for folder windows, so those areas render Windows-style navigation, command, address, and list surfaces instead of inheriting PufferDesk/Finder layouts. The Redmond Start surface is rendered from registered apps and `menu.system` command data by the shared menu controller, while taskbar search and the Start glyph are declared in theme shell metadata and rendered by the shared launcher template. Typography prefers local system stacks such as `"Segoe UI Variable"` and `"Segoe UI"` without shipping font files. App, document, and virtual folder icons come from the shared PufferDesk SVG icon pack with selected Tabler Icons glyphs under the MIT License; bundled wallpapers and theme wrappers remain PufferDesk assets.
 
 Wallpapers are managed by `PufferDesk_Wallpaper_Registry`. It combines one shared bundled wallpaper catalog, bundled original color backgrounds, optional theme-declared wallpaper collections, and user-selected Media Library uploads, then resolves the active choice into `--pdk-wallpaper-*` CSS variables for the shell. Wallpaper type IDs live in the registry, flow through `runtime.contracts.wallpaperTypes`, and should be used by preference sanitizers or browser modules instead of repeated `color`, `theme`, or `upload` strings. Bundled themes should set `media.wallpapers.default` to choose their starting wallpaper from the shared catalog instead of exposing different wallpaper lists per theme. Bundled gradient wallpapers use `css_value` instead of image files to keep plugin size small. Image wallpapers remain supported through `path` or `file` fields for original/licensed assets that need texture or detail. The older single `wallpaper` field remains a fallback for one-image themes, but new public bundled themes should normally declare only a default wallpaper id. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing. Third-party icon notices are tracked in `THIRD-PARTY-NOTICES.txt`.
 
