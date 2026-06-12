@@ -107,7 +107,6 @@ Generated for the full PHP/JS Single Source of Truth cleanup task.
 - `assets/js/core/apps/settings/ui.js` - Changed: Removed English fallback strings behind the Settings label helper.
 - `assets/js/core/apps/site-about-window.js` - Changed: Site info fallback source/location labels now use runtime info panel labels.
 - `assets/js/core/apps/sticky-notes-app.js` - Changed: Removed browser copies of document kind IDs and consumed document/app runtime labels for native app title fallbacks.
-- `assets/js/core/apps/text-editor.js` - Changed: Removed browser copies of document kind IDs and consumed document/app runtime labels for native app title fallbacks.
 - `assets/js/core/boot.js` - No change: Core bootstrap/config/dom helper reviewed; no additional safe cleanup needed.
 - `assets/js/core/config.js` - No change: Core bootstrap/config/dom helper reviewed; no additional safe cleanup needed.
 - `assets/js/core/desktop/desktop-icons.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.

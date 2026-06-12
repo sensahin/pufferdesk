@@ -37,7 +37,7 @@ Shortcut descriptors may also use:
 
 - `keys: ['primary', ',']`
 - `macCombo`, `winCombo`, or `linuxCombo` for platform-specific exceptions
-- `allowInTextFields` for intentional input-focused shortcuts such as Text Editor save
+- `allowInTextFields` only for intentional input-focused shortcuts with an owning native surface
 - `allowReserved` and `reservedReason` only when a normally risky shortcut is intentionally scoped and documented
 - `enabledWhen(ctx)` for runtime availability checks
 
@@ -58,7 +58,7 @@ The resolver never intercepts normal text editing shortcuts while focus is insid
 
 ## Reserved Shortcuts
 
-The conflict checker blocks common browser and OS shortcuts such as browser reload, location bar, new tab, print, browser history navigation, private window, reopened tab, DevTools, and unscoped primary+W. Scoped `primary+W` is allowed for PufferDesk windows or folder tabs. `primary+S` is only allowed where intentionally handled, currently the native Text Editor save command.
+The conflict checker blocks common browser and OS shortcuts such as browser reload, location bar, new tab, print, browser history navigation, private window, reopened tab, DevTools, and unscoped primary+W. Scoped `primary+W` is allowed for PufferDesk windows or folder tabs.
 
 When a module registers a duplicate combo in an overlapping context, the registry reports the conflict and does not override the existing command.
 

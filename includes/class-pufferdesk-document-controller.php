@@ -1,6 +1,6 @@
 <?php
 /**
- * AJAX controller for native document apps.
+ * AJAX controller for Sticky Notes documents.
  *
  * @package PufferDesk
  */
@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Exposes shared document actions to the desktop runtime.
+ * Exposes Sticky Notes document actions to the desktop runtime.
  */
 final class PufferDesk_Document_Controller {
 	const ACTION_LIST   = 'pufferdesk_list_documents';
@@ -49,7 +49,7 @@ final class PufferDesk_Document_Controller {
 	}
 
 	/**
-	 * List documents for the current user.
+	 * List Sticky Notes documents for the current user.
 	 */
 	public function list_documents() {
 		$this->verify_request();

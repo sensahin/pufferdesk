@@ -18,7 +18,6 @@ final class PufferDesk_Virtual_Filesystem {
 	const FOLDER_STICKIES    = 'stickies';
 	const FOLDER_TRASH       = 'trash';
 	const KIND_STICKY_NOTE   = 'sticky_note';
-	const KIND_TEXT_DOCUMENT = 'text_document';
 
 	/**
 	 * Stable virtual folder IDs exposed to browser runtime.
@@ -157,9 +156,7 @@ final class PufferDesk_Virtual_Filesystem {
 			'folders'      => $folders,
 			'defaultPaths' => array(
 				self::KIND_STICKY_NOTE   => $paths[ self::FOLDER_STICKIES ],
-				self::KIND_TEXT_DOCUMENT => $paths[ self::FOLDER_DOCUMENTS ],
 				'sticky'                 => $paths[ self::FOLDER_STICKIES ],
-				'text'                   => $paths[ self::FOLDER_DOCUMENTS ],
 				self::FOLDER_DESKTOP     => $paths[ self::FOLDER_DESKTOP ],
 				self::FOLDER_DOCUMENTS   => $paths[ self::FOLDER_DOCUMENTS ],
 				self::FOLDER_STICKIES    => $paths[ self::FOLDER_STICKIES ],
@@ -184,7 +181,7 @@ final class PufferDesk_Virtual_Filesystem {
 			return $paths[ self::FOLDER_STICKIES ];
 		}
 
-		return $paths[ self::FOLDER_DOCUMENTS ];
+		return $paths[ self::FOLDER_STICKIES ];
 	}
 
 	/**

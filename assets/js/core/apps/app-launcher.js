@@ -412,28 +412,22 @@
 
 		function getDocumentRecentIcon(documentData = {}) {
 			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
-			const textKind = documentStore && documentStore.kinds ? documentStore.kinds.text : '';
 
 			if (documentData.kind === stickyKind) {
 				return { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' };
-			}
-
-			if (documentData.kind === textKind) {
-				return { type: 'theme', name: 'text-editor.svg', fallback: 'dashicons-media-document' };
 			}
 
 			return 'dashicons-media-document';
 		}
 
 		function getDocumentRecentLabel(documentData = {}) {
-			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
 			const title = typeof documentData.title === 'string' ? documentData.title.trim() : '';
 
 			if (title) {
 				return title;
 			}
 
-			return documentData.kind === stickyKind ? getMenuLabel('sticky_note') : getMenuLabel('document');
+			return getMenuLabel('sticky_note');
 		}
 
 		function recordDocumentOpen(documentData = {}) {
@@ -679,7 +673,6 @@
 		function openDocument(documentData) {
 			const documentId = Number.parseInt(documentData && documentData.id, 10);
 			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
-			const textKind = documentStore && documentStore.kinds ? documentStore.kinds.text : '';
 
 			if (!documentId) {
 				return null;
@@ -697,14 +690,6 @@
 				}
 
 				return null;
-			}
-
-			if (documentData.kind === textKind) {
-				return openApp(appIds.TEXT_EDITOR, {
-					nativeContext: {
-						initialDocumentId: documentId
-					}
-				});
 			}
 
 			return null;

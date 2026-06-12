@@ -81,7 +81,7 @@
 			}
 
 			if (item && item.type === 'document') {
-				return item.kindLabel || getMenuLabel('document');
+				return item.kindLabel || getMenuLabel('sticky_note');
 			}
 
 			return getMenuLabel('application');
@@ -138,7 +138,7 @@
 					return getMenuLabel('sticky_note');
 				}
 
-				return getMenuLabel('document');
+				return getMenuLabel('sticky_note');
 			}
 
 			return getMenuLabel('folder');
@@ -156,7 +156,7 @@
 				const normalized = {
 					icon: item && item.icon ? item.icon : isDocument ? 'dashicons-media-document' : 'dashicons-category',
 					id: item && item.id ? item.id : '',
-					label: item && item.label ? item.label : (isDocument ? documentData.title || getMenuLabel('document') : getMenuLabel('folder')),
+					label: item && item.label ? item.label : (isDocument ? documentData.title || getMenuLabel('sticky_note') : getMenuLabel('folder')),
 					originalType: item && item.type ? item.type : 'folder',
 					trashItem: item,
 					type: isDocument ? 'document' : 'folder'

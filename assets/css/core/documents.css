@@ -116,20 +116,20 @@
 	opacity: 1;
 }
 
-.pdk-rich-text-editor:empty::before {
+.pdk-rich-text-surface:empty::before {
 	color: var(--pdk-sticky-note-placeholder, rgb(0 0 0 / 0.42));
 	content: attr(data-placeholder);
 	opacity: 1;
 	pointer-events: none;
 }
 
-.pdk-rich-text-editor ul,
-.pdk-rich-text-editor ol {
+.pdk-rich-text-surface ul,
+.pdk-rich-text-surface ol {
 	margin: 0 0 0 1.2em;
 	padding-left: 1.2em;
 }
 
-.pdk-rich-text-editor img {
+.pdk-rich-text-surface img {
 	display: block;
 	height: auto;
 	max-width: 100%;
@@ -172,37 +172,15 @@
 	line-height: 1;
 }
 
-.pdk-document-editor-body,
 .pdk-sticky-notes-app-body {
 	padding: 0;
 }
 
-.pdk-document-editor {
-	background: var(--pdk-document-editor-bg, var(--pdk-window-content-bg, #fff));
-	color: var(--pdk-document-editor-ink, var(--pdk-ink));
-	display: grid;
-	grid-template-columns: minmax(190px, 230px) minmax(0, 1fr);
-	height: 100%;
-	min-height: 0;
-	width: 100%;
-}
-
-.pdk-document-editor-sidebar {
-	background: var(--pdk-document-editor-sidebar-bg, var(--pdk-card-bg));
-	border-right: 1px solid var(--pdk-document-editor-border, var(--pdk-divider));
-	display: grid;
-	grid-template-rows: auto minmax(0, 1fr);
-	min-width: 0;
-	padding: 12px;
-}
-
-.pdk-document-editor-new,
-.pdk-document-editor-button,
 .pdk-sticky-notes-app-new,
 .pdk-sticky-notes-app-button {
 	appearance: none;
-	background: var(--pdk-document-editor-button-bg, var(--pdk-control-bg));
-	border: 1px solid var(--pdk-document-editor-button-border, var(--pdk-material-control-border, transparent));
+	background: var(--pdk-sticky-notes-app-button-bg, var(--pdk-control-bg));
+	border: 1px solid var(--pdk-sticky-notes-app-button-border, var(--pdk-material-control-border, transparent));
 	border-radius: 7px;
 	color: inherit;
 	cursor: default;
@@ -213,100 +191,12 @@
 	padding: 0 12px;
 }
 
-.pdk-document-editor-button.is-primary,
 .pdk-sticky-notes-app-new {
 	background: var(--pdk-accent-active-strong, var(--pdk-accent));
 	border-color: transparent;
 	color: var(--pdk-accent-ink, #fff);
 }
 
-.pdk-document-editor-button:disabled {
-	opacity: 0.54;
-}
-
-.pdk-document-editor-list {
-	margin-top: 12px;
-	min-height: 0;
-	overflow: auto;
-}
-
-.pdk-document-editor-list-item {
-	appearance: none;
-	background: transparent;
-	border: 0;
-	border-radius: 7px;
-	color: inherit;
-	cursor: default;
-	display: grid;
-	font-family: inherit;
-	gap: 4px;
-	padding: 9px 10px;
-	text-align: left;
-	width: 100%;
-}
-
-.pdk-document-editor-list-item:hover,
-.pdk-document-editor-list-item.is-active {
-	background: var(--pdk-highlight, rgb(var(--pdk-accent-rgb) / 0.12));
-}
-
-.pdk-document-editor-list-title {
-	font-size: var(--pdk-text-body);
-	font-weight: var(--pdk-weight-medium);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.pdk-document-editor-list-meta,
-.pdk-document-editor-empty {
-	color: var(--pdk-muted);
-	font-size: var(--pdk-text-caption);
-}
-
-.pdk-document-editor-main {
-	display: grid;
-	grid-template-rows: auto minmax(0, 1fr) auto;
-	min-width: 0;
-}
-
-.pdk-document-editor-title {
-	background: transparent;
-	border: 0;
-	border-bottom: 1px solid var(--pdk-document-editor-border, var(--pdk-divider));
-	color: inherit;
-	font-family: inherit;
-	font-size: 20px;
-	font-weight: var(--pdk-weight-semibold);
-	min-width: 0;
-	outline: none;
-	padding: 14px 16px;
-}
-
-.pdk-document-editor-content {
-	background: transparent;
-	border: 0;
-	color: inherit;
-	font-family: var(--pdk-font-ui);
-	font-size: 15px;
-	line-height: 1.55;
-	min-height: 0;
-	outline: none;
-	padding: 16px;
-	resize: none;
-	width: 100%;
-}
-
-.pdk-document-editor-footer {
-	align-items: center;
-	border-top: 1px solid var(--pdk-document-editor-border, var(--pdk-divider));
-	display: flex;
-	gap: 10px;
-	justify-content: end;
-	padding: 10px 12px;
-}
-
-.pdk-document-editor-status,
 .pdk-sticky-notes-app-status {
 	color: var(--pdk-muted);
 	font-size: var(--pdk-text-caption);
@@ -314,13 +204,12 @@
 	min-width: 0;
 }
 
-.pdk-document-editor-status[data-pdk-tone="error"],
 .pdk-sticky-notes-app-status[data-pdk-tone="error"] {
 	color: var(--pdk-danger-bg, #b91c1c);
 }
 
 .pdk-sticky-notes-app {
-	background: var(--pdk-document-editor-bg, var(--pdk-window-content-bg, #fff));
+	background: var(--pdk-sticky-notes-app-bg, var(--pdk-window-content-bg, #fff));
 	color: var(--pdk-ink);
 	display: grid;
 	grid-template-rows: auto minmax(0, 1fr) auto;

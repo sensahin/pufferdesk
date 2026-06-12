@@ -988,7 +988,7 @@
 				kind: getStickyKind(),
 				parentPath: fallbackParentPath,
 				style: 'floating',
-				title: getLabel('saveDocumentTitle'),
+				title: getLabel('saveStickyNoteTitle'),
 				value: getSuggestedSaveTitle(entry),
 				variant: 'document-save'
 			};

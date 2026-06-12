@@ -1,6 +1,6 @@
 <?php
 /**
- * Shared native document persistence service.
+ * Shared Sticky Notes document persistence service.
  *
  * @package PufferDesk
  */
@@ -8,12 +8,11 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Owns document create/read/update/delete behavior for native apps.
+ * Owns Sticky Notes create/read/update/delete behavior.
  */
 final class PufferDesk_Document_Service {
 	const CAPABILITY     = 'edit_posts';
 	const KIND_STICKY    = 'sticky_note';
-	const KIND_TEXT      = 'text_document';
 	const FORMAT_DEFAULT = 'html';
 
 	/**
@@ -33,16 +32,16 @@ final class PufferDesk_Document_Service {
 	}
 
 	/**
-	 * Shared document labels used by PHP services and runtime config.
+	 * Shared Sticky Notes document labels used by PHP services and runtime config.
 	 *
 	 * @return array<string,string>
 	 */
 	public static function get_default_labels() {
 		return array(
 			/* translators: %s: Source document title. */
-			'copyNameFormat'   => __( '%s copy', 'pufferdesk-admin-desktop' ),
-			'stickyNote'       => __( 'Sticky Note', 'pufferdesk-admin-desktop' ),
-			'untitledDocument' => __( 'Untitled Document', 'pufferdesk-admin-desktop' ),
+			'copyNameFormat'     => __( '%s copy', 'pufferdesk-admin-desktop' ),
+			'stickyNote'         => __( 'Sticky Note', 'pufferdesk-admin-desktop' ),
+			'untitledStickyNote' => __( 'Untitled Sticky Note', 'pufferdesk-admin-desktop' ),
 		);
 	}
 
@@ -59,7 +58,7 @@ final class PufferDesk_Document_Service {
 	}
 
 	/**
-	 * Whether the current user can use native document features.
+	 * Whether the current user can use Sticky Notes document features.
 	 *
 	 * @return bool
 	 */
@@ -79,10 +78,10 @@ final class PufferDesk_Document_Service {
 		}
 
 		$args    = is_array( $args ) ? $args : array();
-		$kind    = $this->normalize_kind( isset( $args['kind'] ) ? $args['kind'] : self::KIND_TEXT );
+		$kind    = $this->normalize_kind( isset( $args['kind'] ) ? $args['kind'] : self::KIND_STICKY );
 		$content = $this->sanitize_content( isset( $args['content'] ) ? $args['content'] : '' );
 		$title   = $this->sanitize_title( isset( $args['title'] ) ? $args['title'] : '' );
-		$title   = $title ? $title : $this->derive_title( $content, self::KIND_STICKY === $kind ? self::get_default_label( 'stickyNote' ) : self::get_default_label( 'untitledDocument' ) );
+		$title   = $title ? $title : $this->derive_title( $content, self::get_default_label( 'stickyNote' ) );
 		$parent_path = $this->normalize_parent_path( isset( $args['parentPath'] ) ? $args['parentPath'] : '', $kind );
 
 		$post_id = wp_insert_post(
@@ -248,7 +247,7 @@ final class PufferDesk_Document_Service {
 			return $this->permission_error();
 		}
 
-		$kind        = '' !== $kind ? $this->normalize_kind( $kind ) : '';
+		$kind        = '' !== $kind ? $this->normalize_kind( $kind ) : self::KIND_STICKY;
 		$parent_path = '' !== $parent_path ? $this->virtual_filesystem->normalize_path( $parent_path, '' ) : '';
 
 		$posts = get_posts(
@@ -443,7 +442,7 @@ final class PufferDesk_Document_Service {
 	private function normalize_kind( $kind ) {
 		$kind = sanitize_key( (string) $kind );
 
-		return in_array( $kind, array( self::KIND_STICKY, self::KIND_TEXT ), true ) ? $kind : self::KIND_TEXT;
+		return self::KIND_STICKY === $kind ? $kind : self::KIND_STICKY;
 	}
 
 	/**
@@ -500,7 +499,7 @@ final class PufferDesk_Document_Service {
 	 */
 	private function get_copy_title( $title ) {
 		$title = $this->sanitize_title( $title );
-		$title = '' !== $title ? $title : self::get_default_label( 'untitledDocument' );
+		$title = '' !== $title ? $title : self::get_default_label( 'untitledStickyNote' );
 
 		return sanitize_text_field(
 			sprintf(

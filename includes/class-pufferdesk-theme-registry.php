@@ -1684,7 +1684,7 @@ final class PufferDesk_Theme_Registry {
 	}
 
 	/**
-	 * Normalize native document theme metadata.
+	 * Normalize Sticky Notes document theme metadata.
 	 *
 	 * @param mixed $documents Raw document metadata.
 	 * @return array<string,mixed>
@@ -1967,7 +1967,7 @@ final class PufferDesk_Theme_Registry {
 	}
 
 	/**
-	 * Default native document contract for themes.
+	 * Default Sticky Notes document contract for themes.
 	 *
 	 * @return array<string,mixed>
 	 */

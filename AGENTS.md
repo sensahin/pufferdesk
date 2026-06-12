@@ -132,7 +132,7 @@ JavaScript:
 - `assets/js/core/config.js`: runtime payload accessor.
 - `assets/js/core/dom.js`: shared DOM helpers.
 - `assets/js/core/events/`: internal event bus.
-- `assets/js/core/services/`: browser storage, AJAX clients, tooltip helpers, semantic sound playback, virtual filesystem helpers, native document requests, geometry helpers, and debounced tasks.
+- `assets/js/core/services/`: browser storage, AJAX clients, tooltip helpers, semantic sound playback, virtual filesystem helpers, Sticky Notes document requests, geometry helpers, and debounced tasks.
 - `assets/js/core/services/tooltips.js`: shared browser tooltip creation and trigger attribute helper.
 - `assets/js/core/services/sound-manager.js`: shared browser sound manager for semantic shell events such as notification alerts.
 - `assets/js/core/services/geometry.js`: shared numeric/CSS geometry helpers.

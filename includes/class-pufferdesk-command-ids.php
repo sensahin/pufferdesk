@@ -23,7 +23,6 @@ final class PufferDesk_Command_Ids {
 	const DOCUMENT_NEW_STICKY_NOTE      = 'document.new-sticky-note';
 	const DOCUMENT_OPEN_STICKY_NOTES    = 'document.open-sticky-notes';
 	const DOCUMENT_OPEN                 = 'document.open';
-	const DOCUMENT_SAVE                 = 'document.save';
 	const FOLDER_ADD_APP                = 'folder.add-app';
 	const FOLDER_CREATE                 = 'folder.create';
 	const FOLDER_DELETE                      = 'folder.delete';

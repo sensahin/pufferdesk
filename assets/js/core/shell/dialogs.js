@@ -846,10 +846,10 @@
 			closeActiveDialog();
 
 			return new Promise((resolve) => {
-				const title = options.title || getDocumentLabel('saveDocumentTitle');
+				const title = options.title || getDocumentLabel('saveStickyNoteTitle');
 				const initialName = typeof options.value === 'string' && options.value.trim()
 					? options.value.trim()
-					: getDocumentLabel('untitledDocument');
+					: getDocumentLabel('untitledStickyNote');
 				const closeLabel = options.closeLabel || getDialogLabel('close');
 				const confirmLabel = options.confirmLabel || getDocumentLabel('save');
 				const cancelLabel = options.cancelLabel || getDocumentLabel('cancel');

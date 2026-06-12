@@ -84,15 +84,6 @@ final class PufferDesk_App_Registry {
 				'window_persistence' => PufferDesk_App_Normalizer::WINDOW_PERSISTENCE_NONE,
 			),
 			array(
-				'id'     => PufferDesk_App_Ids::TEXT_EDITOR,
-				'label'  => __( 'Text Editor', 'pufferdesk-admin-desktop' ),
-				'icon'   => $this->theme_icon( 'text-editor.svg', 'dashicons-edit-page' ),
-				'group'  => PufferDesk_App_Normalizer::GROUP_CONTENT,
-				'cap'    => PufferDesk_Document_Service::CAPABILITY,
-				'kind'   => PufferDesk_App_Normalizer::KIND_NATIVE,
-				'native' => PufferDesk_App_Ids::NATIVE_TEXT_EDITOR,
-			),
-			array(
 				'id'    => PufferDesk_App_Ids::PAGES,
 				'label' => __( 'Pages', 'pufferdesk-admin-desktop' ),
 				'url'   => admin_url( 'edit.php?post_type=page' ),

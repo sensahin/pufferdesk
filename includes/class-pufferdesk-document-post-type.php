@@ -1,6 +1,6 @@
 <?php
 /**
- * Private document post type registration.
+ * Private Sticky Notes post type registration.
  *
  * @package PufferDesk
  */
@@ -8,7 +8,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registers the private content container used by native document apps.
+ * Registers the private content container used by Sticky Notes.
  */
 final class PufferDesk_Document_Post_Type {
 	const POST_TYPE   = 'pufferdesk_note';

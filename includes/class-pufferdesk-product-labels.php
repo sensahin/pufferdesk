@@ -30,20 +30,20 @@ final class PufferDesk_Product_Labels {
 	}
 
 	/**
-	 * Private document post type plural label.
+	 * Private Sticky Notes post type plural label.
 	 *
 	 * @return string
 	 */
 	public static function documents_name() {
-		return __( 'PufferDesk Documents', 'pufferdesk-admin-desktop' );
+		return __( 'PufferDesk Sticky Notes', 'pufferdesk-admin-desktop' );
 	}
 
 	/**
-	 * Private document post type singular label.
+	 * Private Sticky Notes post type singular label.
 	 *
 	 * @return string
 	 */
 	public static function document_name() {
-		return __( 'PufferDesk Document', 'pufferdesk-admin-desktop' );
+		return __( 'PufferDesk Sticky Note', 'pufferdesk-admin-desktop' );
 	}
 }

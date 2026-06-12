@@ -184,9 +184,9 @@
 
 	function createEditor(options = {}) {
 		const editor = document.createElement('div');
-		const className = typeof options.className === 'string' && options.className ? options.className : 'pdk-rich-text-editor';
+		const className = typeof options.className === 'string' && options.className ? options.className : 'pdk-rich-text-surface';
 
-		editor.className = `${className} pdk-rich-text-editor`;
+		editor.className = `${className} pdk-rich-text-surface`;
 		editor.contentEditable = 'true';
 		editor.role = 'textbox';
 		editor.spellcheck = options.spellcheck !== false;

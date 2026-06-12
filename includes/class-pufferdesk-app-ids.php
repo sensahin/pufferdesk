@@ -22,7 +22,6 @@ final class PufferDesk_App_Ids {
 	const SETTINGS     = 'settings';
 	const SITE_HEALTH  = 'site-health';
 	const STICKY_NOTES = 'sticky-notes';
-	const TEXT_EDITOR  = 'text-editor';
 	const TOOLS        = 'tools';
 	const TRASH        = 'trash';
 	const USERS        = 'users';
@@ -30,7 +29,6 @@ final class PufferDesk_App_Ids {
 
 	const NATIVE_SETTINGS     = 'settings';
 	const NATIVE_STICKY_NOTES = 'sticky-notes';
-	const NATIVE_TEXT_EDITOR  = 'text-editor';
 	const NATIVE_TRASH        = 'trash';
 
 	/**
@@ -51,7 +49,6 @@ final class PufferDesk_App_Ids {
 			'SETTINGS'     => self::SETTINGS,
 			'SITE_HEALTH'  => self::SITE_HEALTH,
 			'STICKY_NOTES' => self::STICKY_NOTES,
-			'TEXT_EDITOR'  => self::TEXT_EDITOR,
 			'TOOLS'        => self::TOOLS,
 			'TRASH'        => self::TRASH,
 			'USERS'        => self::USERS,
@@ -68,7 +65,6 @@ final class PufferDesk_App_Ids {
 		return array(
 			'SETTINGS'     => self::NATIVE_SETTINGS,
 			'STICKY_NOTES' => self::NATIVE_STICKY_NOTES,
-			'TEXT_EDITOR'  => self::NATIVE_TEXT_EDITOR,
 			'TRASH'        => self::NATIVE_TRASH,
 		);
 	}

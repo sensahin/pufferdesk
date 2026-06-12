@@ -20,7 +20,7 @@ PufferDesk wraps existing WordPress admin screens in a desktop-style shell. The 
 - Per-user mode preference.
 - Dashboard entry redirects to PufferDesk by default.
 - Emergency one-request classic override: `/wp-admin/index.php?pufferdesk_classic=1`.
-- PufferDesk shell with system menu, site title menu, app menu bar, right-click context menus, internal clipboard cut/copy/paste for folders, app references, sticky notes, and documents, notifications, generated and user-created desktop folders, desktop widgets, theme-driven launcher surfaces, search, draggable windows, iframe-based admin apps, and native document apps such as Sticky Notes and Text Editor.
+- PufferDesk shell with system menu, site title menu, app menu bar, right-click context menus, internal clipboard cut/copy/paste for folders, app references, and sticky notes, notifications, generated and user-created desktop folders, desktop widgets, theme-driven launcher surfaces, search, draggable windows, iframe-based admin apps, and native Sticky Notes.
 - Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave more like OS windows.
 
 == Notes ==
@@ -49,7 +49,7 @@ The foundation separates shell behavior from OS appearance:
   - `desktop.css` for desktop surfaces and desktop icons.
   - `widgets.css` for desktop widget layout and shared widget chrome.
   - `windows.css` for reusable window chrome.
-  - `documents.css` for native document apps, sticky note desktop objects, and shared document controls.
+  - `documents.css` for Sticky Notes surfaces, sticky note desktop objects, and shared document controls.
   - `dock.css` for dock behavior and states.
   - `apps.css` for generic app grids and app launcher tiles.
   - `folders.css` for folder windows, Finder-style surfaces, Trash, and folder info panels.
@@ -63,7 +63,7 @@ The foundation separates shell behavior from OS appearance:
   - `config.js` exposes the WordPress-provided runtime payload.
   - `dom.js` owns shared DOM helpers.
   - `events/` owns the internal event bus used for decoupled shell/module notifications.
-  - `services/` owns browser storage, AJAX clients, tooltip helpers, semantic sound playback, virtual filesystem helpers, native document requests, geometry helpers, and debounced task scheduling.
+  - `services/` owns browser storage, AJAX clients, tooltip helpers, semantic sound playback, virtual filesystem helpers, Sticky Notes document requests, geometry helpers, and debounced task scheduling.
   - `drag-drop/` owns the central drag/drop platform: normalized movable item models, drop target registry, move validation, move execution, drag lifecycle events, and compatibility adapters for desktop and folder-window item moves.
   - `preferences/` owns shell preference appliers such as appearance, wallpaper, launcher, and menu bar state.
   - `session/` owns per-user, per-theme workspace session sections such as windows, widgets, desktop icons, recent items, and folder sidebar state, with WordPress user meta as durable state, browser storage as cache/fallback, and `storage-keys.js` as the browser helper for PHP-provided storage key fragments.
@@ -71,7 +71,7 @@ The foundation separates shell behavior from OS appearance:
   - `widgets/` owns widget binding, drag behavior, live updates, and widget layout persistence.
   - `notifications/` owns the notification store, center binding, toast presentation, read/dismiss state, and runtime system notifications.
   - `desktop/` owns desktop icon layout plus user-created folder rendering, sticky note desktop objects, and membership behavior.
-  - `apps/` owns app launching, native app renderer registration, native app content such as System Settings, Sticky Notes, Text Editor, and extracted helpers for app badges, app preferences, app window options, native app opening, launcher rendering, folder rendering/data/window state, and recent items.
+  - `apps/` owns app launching, native app renderer registration, native app content such as System Settings and Sticky Notes, and extracted helpers for app badges, app preferences, app window options, native app opening, launcher rendering, folder rendering/data/window state, and recent items.
   - `apps/settings/` owns System Settings label normalization, shared panel UI helpers, AJAX mutation/status helpers, and panel factory modules.
   - `shell/` owns global shell controls such as search, clock behavior, menu commands, top menus, context menus, and command-backed clipboard actions. Clipboard payloads are transient tab-session state: copy expires after 30 minutes, cut expires after 15 minutes, Refresh prunes expired or stale clipboard entries, and workspace reset/erase actions clear the clipboard. `context-menu-constants.js` exposes the PHP-provided context target/key contract to browser modules.
 - `assets/css/themes/` owns theme-specific visual language.
@@ -118,9 +118,9 @@ Drag/drop item moves flow through the core drag/drop platform in `assets/js/core
 
 Notifications are centralized through `PufferDesk_Notification_Registry`, `PufferDesk_Notification_Controller`, `assets/js/core/notifications/`, and the Desktop API notification facade. Server-side providers can add capability-aware notifications with the `pufferdesk_notifications` filter; browser modules should call `window.PufferDesk.desktopApi.notifications.notify()` for runtime notifications instead of creating standalone toast UI. Notification settings live in the `notifications` settings domain and control source visibility, severity, badges, toasts, quiet mode, notification-specific sound preference, and history retention. Stable notification source IDs live on `PufferDesk_User_Preferences` and are exposed as `notifications.sourceIds`; Settings source rows and runtime PufferDesk notifications should use those IDs instead of hard-coded source names. Provider-backed notifications are retained per user and pruned by the saved retention window. Notification sounds flow through `PufferDesk_Sound_Registry`, `assets/js/core/services/sound-manager.js`, and the runtime `sounds.events` map so future theme sound packs can replace semantic events without notification-specific playback code. Extensions can add semantic events with the `pufferdesk_sound_events` filter. `sounds.eventIds` exposes stable client aliases, `sounds.eventList` drives the multi-event preview list in Settings > Sound, and `sounds.notificationEvents` maps notification types to semantic sound IDs. Shared shell dialogs, Trash empty success, command failures, and runtime app errors use those aliases through the Desktop API sound facade. Global sound enable and output volume live in the separate `sounds` settings domain. Core CSS owns notification structure, while theme CSS owns the visual variables for notification buttons, centers, items, and toasts.
 
-Native document features use one private WordPress post type (`pufferdesk_note`) and the shared `PufferDesk_Document_Service` for create, duplicate, list, update, and trash behavior. Sticky Notes and Text Editor only differ by document `kind` (`sticky_note` or `text_document`); content is stored in `post_content`, while user-visible note/window layout is stored separately in the workspace state. Document organization uses `PufferDesk_Virtual_Filesystem` canonical paths such as `pdk://site/{site}/home/{user}/stickies` and `pdk://site/{site}/home/{user}/documents`; the stored `_pufferdesk_document_parent_path` meta is the source of truth for where a document appears in virtual folders. Do not store document content or document folder placement in `workspaceState`, browser storage, widgets, or app-specific user meta. Browser code should use `assets/js/core/services/documents.js` and `assets/js/core/services/virtual-filesystem.js` instead of posting directly to document AJAX actions or hard-coding folder paths.
+Sticky Notes use one private WordPress post type (`pufferdesk_note`) and the shared `PufferDesk_Document_Service` for create, duplicate, list, update, and trash behavior. Sticky-note content is stored in `post_content`, while user-visible note/window layout is stored separately in the workspace state. Document organization uses `PufferDesk_Virtual_Filesystem` canonical paths such as `pdk://site/{site}/home/{user}/stickies`; the stored `_pufferdesk_document_parent_path` meta is the source of truth for where a saved sticky note appears in virtual folders. Do not store sticky-note content or document folder placement in `workspaceState`, browser storage, widgets, or app-specific user meta. Browser code should use `assets/js/core/services/documents.js` and `assets/js/core/services/virtual-filesystem.js` instead of posting directly to document AJAX actions or hard-coding folder paths.
 
-Theme document metadata can define native document save behavior. Sticky Notes currently use `theme.documents.stickyNoteSavePolicy`: `default-location` creates documents directly in the virtual filesystem default path, while `ask-on-first-save` keeps a new note client-side until the first explicit Save opens the shared document save dialog and stores the selected virtual parent path.
+Theme sticky-note document metadata can define save behavior. Sticky Notes currently use `theme.documents.stickyNoteSavePolicy`: `default-location` creates notes directly in the virtual filesystem default path, while `ask-on-first-save` keeps a new note client-side until the first explicit Save opens the shared document save dialog and stores the selected virtual parent path.
 
 == Extension examples ==
 

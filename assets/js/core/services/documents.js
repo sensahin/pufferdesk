@@ -46,7 +46,7 @@
 			modified: typeof data.modified === 'string' ? data.modified : '',
 			parentPath: typeof data.parentPath === 'string' ? data.parentPath : '',
 			path: typeof data.path === 'string' ? data.path : '',
-			title: typeof data.title === 'string' && data.title ? data.title : getDocumentLabel(labels, 'untitledDocument')
+			title: typeof data.title === 'string' && data.title ? data.title : getDocumentLabel(labels, 'untitledStickyNote')
 		};
 	}
 
@@ -57,7 +57,7 @@
 			return data[key];
 		}
 
-		throw new Error(data.message || getDocumentLabel(labels, 'documentServiceUnavailable'));
+		throw new Error(data.message || getDocumentLabel(labels, 'stickyNotesServiceUnavailable'));
 	}
 
 	window.PufferDesk.documents.createDocumentStore = function createDocumentStore(config) {
@@ -77,7 +77,7 @@
 			const action = actions[actionKey];
 
 			if (!api || typeof api.post !== 'function' || !action) {
-				return Promise.reject(new Error(getDocumentLabel(labels, 'documentServiceUnavailable')));
+				return Promise.reject(new Error(getDocumentLabel(labels, 'stickyNotesServiceUnavailable')));
 			}
 
 			return api.post(action, payload);
@@ -221,8 +221,7 @@
 			duplicate,
 			get,
 			kinds: {
-				sticky: kinds.sticky || '',
-				text: kinds.text || ''
+				sticky: kinds.sticky || ''
 			},
 			list,
 			normalizeDocument,

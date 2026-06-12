@@ -273,7 +273,7 @@
 
 		function createDocumentButton(item, folderId = '') {
 			const button = document.createElement('button');
-			const label = item && item.label ? item.label : getMenuLabel('document');
+			const label = item && item.label ? item.label : getMenuLabel('sticky_note');
 
 			button.type = 'button';
 			button.className = 'pdk-app-launcher pdk-document-launcher';

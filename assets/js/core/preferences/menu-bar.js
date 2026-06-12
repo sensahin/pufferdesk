@@ -361,7 +361,6 @@
 	function getPufferDeskAppIds() {
 		return new Set([
 			appIds.STICKY_NOTES,
-			appIds.TEXT_EDITOR,
 			appIds.OS_SETTINGS,
 			appIds.TRASH
 		].filter(Boolean));

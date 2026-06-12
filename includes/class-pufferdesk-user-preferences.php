@@ -1430,10 +1430,10 @@ final class PufferDesk_User_Preferences {
 		$label = isset( $item['label'] ) ? sanitize_text_field( (string) $item['label'] ) : '';
 		$title = isset( $document['title'] ) ? sanitize_text_field( (string) $document['title'] ) : '';
 		$label = '' !== $label ? $label : $title;
-		$label = '' !== $label ? $label : __( 'Document', 'pufferdesk-admin-desktop' );
+		$label = '' !== $label ? $label : __( 'Sticky Note', 'pufferdesk-admin-desktop' );
 
 		$kind = isset( $document['kind'] ) ? sanitize_key( (string) $document['kind'] ) : '';
-		if ( ! in_array( $kind, array( PufferDesk_Document_Service::KIND_STICKY, PufferDesk_Document_Service::KIND_TEXT ), true ) ) {
+		if ( PufferDesk_Document_Service::KIND_STICKY !== $kind ) {
 			$kind = '';
 		}
 

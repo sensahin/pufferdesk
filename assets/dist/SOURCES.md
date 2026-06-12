@@ -101,7 +101,6 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/apps/settings/panel-workspace.js
 - assets/js/core/apps/settings/panel-system.js
 - assets/js/core/apps/settings-app.js
-- assets/js/core/apps/text-editor.js
 - assets/js/core/apps/sticky-notes-app.js
 - assets/js/core/apps/recent-items.js
 - assets/js/core/apps/folder-data.js

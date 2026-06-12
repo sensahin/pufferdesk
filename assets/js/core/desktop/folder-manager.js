@@ -117,11 +117,7 @@
 		}
 
 		function getDocumentTrashIcon(documentData = {}) {
-			const kind = typeof documentData.kind === 'string' ? documentData.kind : '';
-
-			return kind && kind === getStickyKind()
-				? { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' }
-				: { type: 'theme', name: 'text-editor.svg', fallback: 'dashicons-media-document' };
+			return { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' };
 		}
 
 		function getStickyKind() {
@@ -129,9 +125,7 @@
 		}
 
 		function getDocumentFallbackLabel(documentData = {}) {
-			const kind = typeof documentData.kind === 'string' ? documentData.kind : '';
-
-			return kind && kind === getStickyKind() ? getMenuLabel('sticky_note') : getMenuLabel('document');
+			return getMenuLabel('sticky_note');
 		}
 
 		function getDocumentDesktopIconId(documentId) {
@@ -146,8 +140,9 @@
 
 		function normalizeDesktopDocument(documentData) {
 			const documentId = parseDocumentId(documentData && documentData.id);
+			const kind = typeof documentData.kind === 'string' ? documentData.kind : '';
 
-			if (!documentId) {
+			if (!documentId || kind !== getStickyKind()) {
 				return null;
 			}
 
@@ -397,7 +392,7 @@
 				id: documentId,
 				parentPath
 			}));
-			const label = String(item && item.label ? item.label : documentData.title || getMenuLabel('document')).trim() || getMenuLabel('document');
+			const label = String(item && item.label ? item.label : documentData.title || getMenuLabel('sticky_note')).trim() || getMenuLabel('sticky_note');
 
 			if (!documentId) {
 				return null;
@@ -469,12 +464,12 @@
 
 						return {
 							document: Object.assign({}, documentData, {
-								title: documentData.title || item.label || getMenuLabel('document')
+								title: documentData.title || item.label || getMenuLabel('sticky_note')
 							}),
 							documentId: item.documentId || documentData.id,
 							icon: item.icon || getDocumentTrashIcon(documentData),
 							id: item.id,
-							label: item.label || documentData.title || getMenuLabel('document'),
+							label: item.label || documentData.title || getMenuLabel('sticky_note'),
 							restore: {
 								parentPath: item.restore && typeof item.restore.parentPath === 'string' ? item.restore.parentPath : documentData.parentPath || ''
 							},
@@ -570,7 +565,7 @@
 			}
 
 			layer = dom.createElement('section', 'pdk-desktop-documents pdk-desktop-icon-layer');
-			layer.setAttribute('aria-label', getMenuLabel('documents', getMenuLabel('document')));
+			layer.setAttribute('aria-label', getMenuLabel('sticky_note'));
 
 			const appLayer = desktop.querySelector('.pdk-desktop-apps');
 			const folderLayer = desktop.querySelector('.pdk-desktop-folders');
@@ -971,7 +966,7 @@
 					itemCount: trashItems.length,
 					items: trashItems.map((item) => ({
 						id: item.id,
-						label: item.label || (item.type === 'document' ? getMenuLabel('document') : getFolderLabel()),
+						label: item.label || (item.type === 'document' ? getMenuLabel('sticky_note') : getFolderLabel()),
 						source: 'trash',
 						type: item.type || 'folder',
 						url: ''
@@ -1158,7 +1153,7 @@
 					documentId,
 					icon: getDocumentTrashIcon(documentData),
 					id: `document-${documentId}`,
-					label: documentData && documentData.title ? documentData.title : getMenuLabel('document'),
+					label: documentData && documentData.title ? documentData.title : getMenuLabel('sticky_note'),
 					restore: {
 						parentPath: documentData && typeof documentData.parentPath === 'string' ? documentData.parentPath : ''
 					},

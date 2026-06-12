@@ -736,16 +736,6 @@
 			]
 		},
 		{
-			"handle": "pufferdesk-text-editor",
-			"path": "assets/js/core/apps/text-editor.js",
-			"deps": [
-				"pufferdesk-dom",
-				"pufferdesk-app-ids",
-				"pufferdesk-documents-service",
-				"pufferdesk-native-apps"
-			]
-		},
-		{
 			"handle": "pufferdesk-sticky-notes-app",
 			"path": "assets/js/core/apps/sticky-notes-app.js",
 			"deps": [
@@ -834,7 +824,6 @@
 				"pufferdesk-site-about-window",
 				"pufferdesk-native-apps",
 				"pufferdesk-settings-app",
-				"pufferdesk-text-editor",
 				"pufferdesk-sticky-notes-app",
 				"pufferdesk-recent-items",
 				"pufferdesk-folder-data",

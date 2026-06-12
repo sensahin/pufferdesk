@@ -1037,21 +1037,6 @@
 		};
 	}
 
-	function getTextEditorRoot(executionContext) {
-		const target = executionContext && executionContext.target;
-
-		if (target && typeof target.closest === 'function') {
-			const targetRoot = target.closest('.pdk-document-editor');
-			if (targetRoot) {
-				return targetRoot;
-			}
-		}
-
-		const win = executionContext && executionContext.detail ? executionContext.detail.windowElement : null;
-
-		return win && typeof win.querySelector === 'function' ? win.querySelector('.pdk-document-editor') : null;
-	}
-
 	function getDefaultShortcutDefinitions(config = {}) {
 		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
 		const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
@@ -1151,21 +1136,6 @@
 				contexts: [shortcutContexts.DESKTOP, shortcutContexts.FOLDER],
 				id: commandIds.TRASH_EMPTY,
 				label: getMenuLabel(labels, 'empty_trash')
-			},
-			{
-				allowInTextFields: true,
-				allowReserved: true,
-				combo: 'primary+s',
-				command: commandIds.DOCUMENT_SAVE,
-				contexts: [shortcutContexts.INPUT_FOCUSED, shortcutContexts.WINDOW],
-				enabledWhen(executionContext) {
-					const root = getTextEditorRoot(executionContext);
-
-					return Boolean(root && root.pufferDeskTextEditor && typeof root.pufferDeskTextEditor.save === 'function');
-				},
-				id: commandIds.DOCUMENT_SAVE,
-				label: getMenuLabel(labels, 'save'),
-				reservedReason: getMenuLabel(labels, 'shortcut_reserved_text_editor_reason')
 			}
 		].filter((definition) => definition.command);
 	}
