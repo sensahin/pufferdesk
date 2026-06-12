@@ -134,38 +134,6 @@
 			}));
 		}
 
-		function getDocumentId(value) {
-			const direct = Number.parseInt(value, 10);
-			const match = String(value || '').match(/(\d+)$/);
-
-			if (Number.isFinite(direct) && direct > 0) {
-				return direct;
-			}
-
-			return match ? Number.parseInt(match[1], 10) || 0 : 0;
-		}
-
-		function enrichDocument(item) {
-			const documentId = getDocumentId(item.id);
-			const sourceContainerId = item.sourceContainerId || item.currentContainerId || '';
-			const currentContainerId = item.currentContainerId || sourceContainerId;
-
-			return models.normalizeItem(Object.assign({}, item, {
-				currentContainerId,
-				icon: item.icon || { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' },
-				id: documentId ? String(documentId) : item.id,
-				label: item.label || '',
-				metadata: Object.assign({}, item.metadata, {
-					documentId,
-					exists: Boolean(documentId),
-					locked: false,
-					system: false,
-					user: true
-				}),
-				sourceContainerId
-			}));
-		}
-
 		function getItem(item) {
 			const normalized = models.normalizeItem(item);
 
@@ -179,10 +147,6 @@
 
 			if (normalized.type === itemTypes.FOLDER) {
 				return enrichFolder(normalized);
-			}
-
-			if (normalized.type === itemTypes.DOCUMENT) {
-				return enrichDocument(normalized);
 			}
 
 			return normalized;
@@ -299,20 +263,11 @@
 					accepts(item) {
 						return Boolean(
 							item
+							&& item.type === itemTypes.FOLDER
 							&& item.id
-							&& (
-								(
-									item.type === itemTypes.FOLDER
-									&& getFolder(item.id)
-									&& !isTrashFolderId(item.id)
-									&& !isRecentsFolderId(item.id)
-								)
-								|| (
-									item.type === itemTypes.DOCUMENT
-									&& item.metadata
-									&& item.metadata.documentId
-								)
-							)
+							&& getFolder(item.id)
+							&& !isTrashFolderId(item.id)
+							&& !isRecentsFolderId(item.id)
 						);
 					},
 					canContainFolders: false,
@@ -401,12 +356,7 @@
 				}
 
 				if (move.toContainerId === containerTypes.FOLDER_SIDEBAR_FAVORITES && launcher && typeof launcher.addFolderSidebarFavorite === 'function') {
-					return Boolean(launcher.addFolderSidebarFavorite({
-						icon: item.icon || '',
-						label: item.label || '',
-						targetId: item.id,
-						type: itemTypes.FOLDER
-					}));
+					return Boolean(launcher.addFolderSidebarFavorite(item.id));
 				}
 
 				if (move.toContainerId === containerTypes.TRASH && move.reason === dragReasons.TRASH && typeof manager.moveFolderToTrash === 'function') {
@@ -416,17 +366,6 @@
 				if (parsed.type === containerTypes.FOLDER && typeof manager.moveFolderToParent === 'function') {
 					return Boolean(manager.moveFolderToParent(item.id, parsed.targetId, {
 						point
-					}));
-				}
-			}
-
-			if (item.type === itemTypes.DOCUMENT) {
-				if (move.toContainerId === containerTypes.FOLDER_SIDEBAR_FAVORITES && launcher && typeof launcher.addFolderSidebarFavorite === 'function') {
-					return Boolean(launcher.addFolderSidebarFavorite({
-						icon: item.icon || '',
-						label: item.label || '',
-						targetId: item.metadata && item.metadata.documentId ? item.metadata.documentId : item.id,
-						type: itemTypes.DOCUMENT
 					}));
 				}
 			}

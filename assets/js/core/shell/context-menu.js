@@ -81,14 +81,6 @@
 			}));
 		}
 
-		function getSidebarAddLabel() {
-			return themeFamily === 'redmond' ? getLabel('pin_to_quick_access') : getLabel('add_to_sidebar');
-		}
-
-		function getSidebarRemoveLabel() {
-			return themeFamily === 'redmond' ? getLabel('unpin_from_quick_access') : getLabel('remove_from_sidebar');
-		}
-
 		function getClipboardItems(options = {}) {
 			const includeCut = options.includeCut !== false && showsCutMenuItems();
 			const includeCopy = options.includeCopy !== false;
@@ -846,18 +838,6 @@
 				commandItem(getLabel('open_in_new_tab'), commandIds.OPEN_FOLDER_TAB, {
 					icon: 'dashicons-plus-alt2',
 					target: folder.id
-				}),
-				commandItem(getSidebarAddLabel(), commandIds.FOLDER_SIDEBAR_ADD, {
-					hideWhenUnavailable: true,
-					icon: 'dashicons-admin-links',
-					id: useExplorerMenu ? 'pin-to-quick-access' : 'add-to-sidebar',
-					payload: {
-						icon: folder.icon || 'dashicons-category',
-						label: folder.label || getLabel('folder'),
-						targetId: folder.id,
-						type: 'folder'
-					},
-					target: folder.id
 				})
 			);
 
@@ -867,6 +847,10 @@
 						icon: 'dashicons-external',
 						id: 'open-in-new-window',
 						target: folder.id
+					}),
+					disabledItem(getLabel('pin_to_quick_access'), {
+						icon: 'dashicons-admin-links',
+						id: 'pin-to-quick-access'
 					}),
 					disabledItem(getLabel('pin_to_start'), {
 						icon: 'dashicons-admin-links',
@@ -1200,13 +1184,8 @@
 				{
 					id: 'primary',
 					items: [
-						commandItem(getSidebarRemoveLabel(), commandIds.FOLDER_SIDEBAR_REMOVE, {
+						commandItem(getLabel('remove_from_sidebar'), commandIds.FOLDER_SIDEBAR_REMOVE, {
 							icon: 'dashicons-no-alt',
-							payload: {
-								favoriteId: detail.id,
-								targetId: detail.metadata && detail.metadata.dataset ? detail.metadata.dataset.pdkFolderSidebarTargetId || '' : '',
-								type: detail.metadata && detail.metadata.dataset ? detail.metadata.dataset.pdkFolderSidebarFavoriteType || '' : ''
-							},
 							target: detail.id
 						})
 					]
@@ -1261,16 +1240,6 @@
 					items: [
 						commandItem(getLabel('open'), commandIds.DOCUMENT_OPEN, {
 							icon: 'dashicons-media-document',
-							target: detail.id
-						}),
-						commandItem(getSidebarAddLabel(), commandIds.FOLDER_SIDEBAR_ADD, {
-							hideWhenUnavailable: true,
-							icon: 'dashicons-admin-links',
-							payload: {
-								label: detail.label || getLabel('sticky_note'),
-								targetId: detail.metadata && detail.metadata.dataset ? detail.metadata.dataset.pdkDocumentId || detail.id : detail.id,
-								type: 'document'
-							},
 							target: detail.id
 						}),
 						commandItem(getLabel('move_to_trash'), commandIds.FOLDER_DELETE_SELECTED, {

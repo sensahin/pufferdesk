@@ -169,9 +169,9 @@ final class PufferDesk_Workspace_State {
 				'folders' => array(),
 			),
 			self::SECTION_FOLDER_SIDEBAR => array(
-				'collapsed'      => array(),
-				'items'          => array(),
-				'removedItemIds' => array(),
+				'collapsed'          => array(),
+				'favoriteIds'        => array(),
+				'removedFavoriteIds' => array(),
 			),
 			self::SECTION_RECENT_ITEMS => array(),
 		);
@@ -866,9 +866,9 @@ final class PufferDesk_Workspace_State {
 		$available_folders = $this->get_available_ids( $folders );
 		$state             = is_array( $sidebar ) ? $sidebar : array();
 		$collapsed         = array();
-		$items             = array();
-		$removed_item_ids  = array();
-		$seen_items        = array();
+		$favorite_ids      = array();
+		$removed_ids       = array();
+		$seen_favorites    = array();
 		$seen_removed      = array();
 
 		foreach ( isset( $state['collapsed'] ) && is_array( $state['collapsed'] ) ? $state['collapsed'] : array() as $section => $value ) {
@@ -878,130 +878,37 @@ final class PufferDesk_Workspace_State {
 			}
 		}
 
-		foreach ( isset( $state['items'] ) && is_array( $state['items'] ) ? $state['items'] : array() as $item ) {
-			$item = $this->sanitize_folder_sidebar_item( $item, $available_folders );
-			if ( ! $item || isset( $seen_items[ $item['id'] ] ) ) {
+		foreach ( isset( $state['favoriteIds'] ) && is_array( $state['favoriteIds'] ) ? $state['favoriteIds'] : array() as $folder_id ) {
+			$folder_id = sanitize_key( (string) $folder_id );
+			if ( ! $this->is_allowed_folder_id( $folder_id, $available_folders ) || isset( $seen_favorites[ $folder_id ] ) ) {
 				continue;
 			}
 
-			$items[]                  = $item;
-			$seen_items[ $item['id'] ] = true;
-			if ( count( $items ) >= 100 ) {
+			$favorite_ids[]                 = $folder_id;
+			$seen_favorites[ $folder_id ] = true;
+			if ( count( $favorite_ids ) >= 50 ) {
 				break;
 			}
 		}
 
-		foreach ( isset( $state['removedItemIds'] ) && is_array( $state['removedItemIds'] ) ? $state['removedItemIds'] : array() as $item_id ) {
-			$item_id = $this->sanitize_folder_sidebar_item_id( $item_id, $available_folders );
-			if ( ! $item_id || isset( $seen_removed[ $item_id ] ) ) {
+		foreach ( isset( $state['removedFavoriteIds'] ) && is_array( $state['removedFavoriteIds'] ) ? $state['removedFavoriteIds'] : array() as $folder_id ) {
+			$folder_id = sanitize_key( (string) $folder_id );
+			if ( ! $this->is_allowed_folder_id( $folder_id, $available_folders ) || isset( $seen_removed[ $folder_id ] ) ) {
 				continue;
 			}
 
-			$removed_item_ids[]       = $item_id;
-			$seen_removed[ $item_id ] = true;
-			if ( count( $removed_item_ids ) >= 100 ) {
+			$removed_ids[]              = $folder_id;
+			$seen_removed[ $folder_id ] = true;
+			if ( count( $removed_ids ) >= 50 ) {
 				break;
 			}
 		}
 
 		return array(
-			'collapsed'      => $collapsed,
-			'items'          => $items,
-			'removedItemIds' => $removed_item_ids,
+			'collapsed'          => $collapsed,
+			'favoriteIds'        => $favorite_ids,
+			'removedFavoriteIds' => $removed_ids,
 		);
-	}
-
-	/**
-	 * Sanitize a normalized folder sidebar bookmark item.
-	 *
-	 * @param mixed                $item Raw sidebar item.
-	 * @param array<string,bool>   $available_folders Available folder IDs.
-	 * @return array<string,mixed>|null
-	 */
-	private function sanitize_folder_sidebar_item( $item, $available_folders ) {
-		if ( ! is_array( $item ) ) {
-			return null;
-		}
-
-		$type      = isset( $item['type'] ) ? sanitize_key( (string) $item['type'] ) : '';
-		$target_id = isset( $item['targetId'] ) ? (string) $item['targetId'] : '';
-
-		if ( 'folder' === $type ) {
-			$target_id = sanitize_key( $target_id );
-			if ( ! $this->is_allowed_folder_id( $target_id, $available_folders ) ) {
-				return null;
-			}
-		} elseif ( 'document' === $type ) {
-			$target_id = (string) absint( $target_id );
-			if ( '0' === $target_id ) {
-				return null;
-			}
-		} else {
-			return null;
-		}
-
-		return array(
-			'id'       => $type . ':' . $target_id,
-			'type'     => $type,
-			'targetId' => $target_id,
-			'label'    => isset( $item['label'] ) ? sanitize_text_field( (string) $item['label'] ) : '',
-			'icon'     => $this->sanitize_folder_sidebar_icon( isset( $item['icon'] ) ? $item['icon'] : '' ),
-		);
-	}
-
-	/**
-	 * Sanitize a normalized folder sidebar bookmark ID.
-	 *
-	 * @param mixed                $item_id Raw item ID.
-	 * @param array<string,bool>   $available_folders Available folder IDs.
-	 * @return string
-	 */
-	private function sanitize_folder_sidebar_item_id( $item_id, $available_folders ) {
-		$parts = explode( ':', (string) $item_id, 2 );
-		if ( 2 !== count( $parts ) ) {
-			return '';
-		}
-
-		$type      = sanitize_key( $parts[0] );
-		$target_id = $parts[1];
-
-		if ( 'folder' === $type ) {
-			$target_id = sanitize_key( $target_id );
-			return $this->is_allowed_folder_id( $target_id, $available_folders ) ? $type . ':' . $target_id : '';
-		}
-
-		if ( 'document' === $type ) {
-			$target_id = (string) absint( $target_id );
-			return '0' !== $target_id ? $type . ':' . $target_id : '';
-		}
-
-		return '';
-	}
-
-	/**
-	 * Sanitize a sidebar bookmark icon descriptor.
-	 *
-	 * @param mixed $icon Raw icon descriptor.
-	 * @return string|array<string,string>
-	 */
-	private function sanitize_folder_sidebar_icon( $icon ) {
-		if ( is_string( $icon ) ) {
-			return sanitize_text_field( $icon );
-		}
-
-		if ( ! is_array( $icon ) ) {
-			return '';
-		}
-
-		$allowed = array( 'type', 'name', 'fallback', 'src', 'url', 'class' );
-		$clean   = array();
-		foreach ( $allowed as $key ) {
-			if ( isset( $icon[ $key ] ) && is_scalar( $icon[ $key ] ) ) {
-				$clean[ $key ] = sanitize_text_field( (string) $icon[ $key ] );
-			}
-		}
-
-		return $clean;
 	}
 
 	/**

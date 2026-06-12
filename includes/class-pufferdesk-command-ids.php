@@ -35,7 +35,6 @@ final class PufferDesk_Command_Ids {
 	const FOLDER_SET_GROUP_MODE              = 'folder.set-group-mode';
 	const FOLDER_SET_SORT_MODE               = 'folder.set-sort-mode';
 	const FOLDER_SET_VIEW_MODE               = 'folder.set-view-mode';
-	const FOLDER_SIDEBAR_ADD                 = 'folder.sidebar-add';
 	const FOLDER_SIDEBAR_REMOVE              = 'folder.sidebar-remove';
 	const FOLDER_TAB_CLOSE              = 'folder-tab.close';
 	const FOLDER_TAB_CLOSE_OTHERS       = 'folder-tab.close-others';
