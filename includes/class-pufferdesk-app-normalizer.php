@@ -120,6 +120,43 @@ final class PufferDesk_App_Normalizer {
 	}
 
 	/**
+	 * Build About metadata for a WordPress core admin screen.
+	 *
+	 * @param string $name Screen label.
+	 * @return array<string,mixed>
+	 */
+	public static function get_wordpress_core_about( $name ) {
+		$wp_version = get_bloginfo( 'version' );
+		$year       = gmdate( 'Y' );
+		$name       = sanitize_text_field( (string) $name );
+		$version    = '' !== $wp_version
+			? sprintf(
+				/* translators: %s: WordPress version number. */
+				__( 'WordPress Version %s', 'pufferdesk-admin-desktop' ),
+				$wp_version
+			)
+			: __( 'WordPress', 'pufferdesk-admin-desktop' );
+		$copyright = sprintf(
+			/* translators: %s: current year. */
+			__( 'Copyright (c) 2003-%s WordPress contributors.', 'pufferdesk-admin-desktop' ),
+			$year
+		);
+		$rights    = __( 'Licensed under GPLv2 or later.', 'pufferdesk-admin-desktop' );
+
+		return array(
+			'name'      => '' !== $name ? $name : __( 'WordPress', 'pufferdesk-admin-desktop' ),
+			'version'   => $version,
+			'copyright' => $copyright,
+			'rights'    => $rights,
+			'lines'     => array(
+				$version,
+				$copyright,
+				$rights,
+			),
+		);
+	}
+
+	/**
 	 * Badge normalizer.
 	 *
 	 * @var PufferDesk_App_Badge_Normalizer

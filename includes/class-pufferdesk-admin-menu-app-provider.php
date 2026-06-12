@@ -113,9 +113,9 @@ final class PufferDesk_Admin_Menu_App_Provider {
 				continue;
 			}
 
-			$url_key      = $this->get_url_key( $url );
-			$plugin_about = $this->get_admin_menu_plugin_about( $slug );
-			$index        = isset( $by_id[ $id ] )
+			$url_key = $this->get_url_key( $url );
+			$about   = $this->get_admin_menu_about( $slug, $label );
+			$index   = isset( $by_id[ $id ] )
 				? $by_id[ $id ]
 				: ( isset( $by_url[ $url_key ] ) ? $by_url[ $url_key ] : null );
 
@@ -123,8 +123,8 @@ final class PufferDesk_Admin_Menu_App_Provider {
 				if ( ! isset( $used[ $index ] ) ) {
 					$matched_app        = $apps[ $index ];
 					$matched_app['cap'] = $cap;
-					if ( ! empty( $plugin_about ) && empty( $matched_app['about'] ) ) {
-						$matched_app['about'] = $plugin_about;
+					if ( ! empty( $about ) && empty( $matched_app['about'] ) ) {
+						$matched_app['about'] = $about;
 					}
 					if ( ! empty( $badge ) ) {
 						$matched_app['badge'] = $badge;
@@ -146,8 +146,8 @@ final class PufferDesk_Admin_Menu_App_Provider {
 				'source' => 'wp-menu',
 			);
 
-			if ( ! empty( $plugin_about ) ) {
-				$menu_app['about'] = $plugin_about;
+			if ( ! empty( $about ) ) {
+				$menu_app['about'] = $about;
 			}
 			if ( ! empty( $badge ) ) {
 				$menu_app['badge'] = $badge;
@@ -586,6 +586,53 @@ final class PufferDesk_Admin_Menu_App_Provider {
 			'copyright' => isset( $lines[1] ) ? $lines[1] : '',
 			'rights'    => '',
 			'lines'     => $lines,
+		);
+	}
+
+	/**
+	 * Build About metadata for a WordPress admin menu item.
+	 *
+	 * Plugin-owned screens use their plugin headers. WordPress core screens use
+	 * WordPress core metadata instead of the PufferDesk product fallback.
+	 *
+	 * @param string $slug Menu slug.
+	 * @param string $label Menu label.
+	 * @return array<string,mixed>
+	 */
+	private function get_admin_menu_about( $slug, $label ) {
+		$plugin_about = $this->get_admin_menu_plugin_about( $slug );
+		if ( ! empty( $plugin_about ) ) {
+			return $plugin_about;
+		}
+
+		return $this->is_wordpress_core_menu_slug( $slug )
+			? PufferDesk_App_Normalizer::get_wordpress_core_about( $label )
+			: array();
+	}
+
+	/**
+	 * Whether a top-level admin menu slug belongs to WordPress core.
+	 *
+	 * @param string $slug Menu slug.
+	 * @return bool
+	 */
+	private function is_wordpress_core_menu_slug( $slug ) {
+		return in_array(
+			$slug,
+			array(
+				'edit-comments.php',
+				'edit.php',
+				'edit.php?post_type=page',
+				'index.php',
+				'options-general.php',
+				'plugins.php',
+				'site-health.php',
+				'themes.php',
+				'tools.php',
+				'upload.php',
+				'users.php',
+			),
+			true
 		);
 	}
 
