@@ -850,7 +850,7 @@ final class PufferDesk_Workspace_State {
 				continue;
 			}
 
-			if ( 'document' === $type && empty( $item['url'] ) ) {
+			if ( 'document' === $type && empty( $item['url'] ) && ! preg_match( '/\d+$/', $id ) ) {
 				continue;
 			}
 
@@ -1060,8 +1060,9 @@ final class PufferDesk_Workspace_State {
 	 * @return string
 	 */
 	private function sanitize_recent_command( $command, $type ) {
-		$command = sanitize_key( (string) $command );
+		$command = strtolower( preg_replace( '/[^a-z0-9_.-]/', '', (string) $command ) );
 		$allowed = array(
+			PufferDesk_Command_Ids::DOCUMENT_OPEN,
 			PufferDesk_Command_Ids::OPEN_APP,
 			PufferDesk_Command_Ids::OPEN_FOLDER,
 			PufferDesk_Command_Ids::OPEN_URL,

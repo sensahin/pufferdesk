@@ -1822,6 +1822,10 @@ final class PufferDesk_Runtime_Config {
 				'quick_actions'           => __( 'Quick Actions', 'pufferdesk-admin-desktop' ),
 				'extensions'              => __( 'Extensions', 'pufferdesk-admin-desktop' ),
 				'clear_menu'              => __( 'Clear Menu', 'pufferdesk-admin-desktop' ),
+				'recent_group_system'     => __( 'System', 'pufferdesk-admin-desktop' ),
+				'recent_group_wordpress'  => __( 'WordPress', 'pufferdesk-admin-desktop' ),
+				'recent_group_plugins'    => __( 'Plugins', 'pufferdesk-admin-desktop' ),
+				'recent_group_documents'  => __( 'Documents', 'pufferdesk-admin-desktop' ),
 				/* translators: %s: active window or app title. */
 				'close_item_format'       => __( 'Close %s', 'pufferdesk-admin-desktop' ),
 				'app_badge_aria_label_format' => PufferDesk_App_Badge_Normalizer::get_aria_label_format(),

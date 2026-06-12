@@ -12,6 +12,7 @@
 		: {};
 	const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 	const recentLimit = 50;
+	const recentGroupOrder = ['system', 'wordpress', 'plugins', 'documents'];
 	let hideTimer = null;
 	const fullscreenSourcesByShell = new WeakMap();
 
@@ -284,6 +285,29 @@
 		return window.PufferDesk.session.createSessionStore(config.storageKey);
 	}
 
+	function parseDocumentId(value) {
+		const direct = Number.parseInt(value, 10);
+		const match = String(value || '').match(/(\d+)$/);
+
+		if (Number.isFinite(direct) && direct > 0) {
+			return direct;
+		}
+
+		return match ? Number.parseInt(match[1], 10) || 0 : 0;
+	}
+
+	function getDefaultRecentCommand(type, item = {}) {
+		if (type === 'folder') {
+			return commandIds.OPEN_FOLDER;
+		}
+
+		if (type === 'document') {
+			return item.url ? commandIds.OPEN_URL : commandIds.DOCUMENT_OPEN;
+		}
+
+		return commandIds.OPEN_APP;
+	}
+
 	function normalizeRecentItem(item = {}) {
 		const type = typeof item.type === 'string' ? item.type : 'app';
 		const id = typeof item.id === 'string' ? item.id : '';
@@ -294,7 +318,7 @@
 		}
 
 		return {
-			command: typeof item.command === 'string' ? item.command : commandIds.OPEN_APP,
+			command: typeof item.command === 'string' && item.command ? item.command : getDefaultRecentCommand(type, item),
 			icon: item.icon || '',
 			id,
 			label,
@@ -316,6 +340,31 @@
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 
 		return apps.find((app) => app && app.id === appId) || null;
+	}
+
+	function getCoreWordPressAppIds() {
+		return new Set([
+			appIds.DASHBOARD,
+			appIds.POSTS,
+			appIds.PAGES,
+			appIds.MEDIA,
+			appIds.COMMENTS,
+			appIds.APPEARANCE,
+			appIds.PLUGINS,
+			appIds.USERS,
+			appIds.SETTINGS,
+			appIds.TOOLS,
+			appIds.SITE_HEALTH
+		].filter(Boolean));
+	}
+
+	function getPufferDeskAppIds() {
+		return new Set([
+			appIds.STICKY_NOTES,
+			appIds.TEXT_EDITOR,
+			appIds.OS_SETTINGS,
+			appIds.TRASH
+		].filter(Boolean));
 	}
 
 	function getConfigLabel(config = {}, key = '', fallback = '') {
@@ -340,16 +389,102 @@
 			});
 		}
 
-		if (item.type === 'folder' && (item.target || item.id) === appIds.TRASH) {
-			const trashLabel = getConfigLabel(config, 'trash', item.label || 'trash');
+		if (item.type === 'document') {
+			const documentId = parseDocumentId(item.target || item.id);
+			const isDocumentCommand = item.command === commandIds.DOCUMENT_OPEN || (!item.url && documentId);
+			const label = item.label || item.title || getConfigLabel(config, 'document', '');
 
 			return Object.assign({}, item, {
-				label: trashLabel,
-				title: trashLabel
+				command: isDocumentCommand ? commandIds.DOCUMENT_OPEN : item.command,
+				id: documentId && isDocumentCommand ? String(documentId) : item.id,
+				label,
+				target: documentId && isDocumentCommand ? String(documentId) : item.target,
+				title: item.title || label
 			});
 		}
 
 		return item;
+	}
+
+	function getRecentGroupKey(config = {}, item = {}) {
+		if (item.type === 'document') {
+			return 'documents';
+		}
+
+		if (item.type === 'folder') {
+			return '';
+		}
+
+		if (item.type !== 'app') {
+			return '';
+		}
+
+		const app = item.app || getConfigApp(config, item.target || item.id);
+		const pufferdeskAppIds = getPufferDeskAppIds();
+		const coreWordPressAppIds = getCoreWordPressAppIds();
+		const appId = app && app.id ? app.id : item.target || item.id;
+
+		if ((app && app.kind === 'native') || pufferdeskAppIds.has(appId)) {
+			return 'system';
+		}
+
+		if (coreWordPressAppIds.has(appId)) {
+			return 'wordpress';
+		}
+
+		return 'plugins';
+	}
+
+	function getRecentGroupLabel(config = {}, groupKey = '') {
+		const labelKeys = {
+			documents: 'recent_group_documents',
+			plugins: 'recent_group_plugins',
+			system: 'recent_group_system',
+			wordpress: 'recent_group_wordpress'
+		};
+
+		return getConfigLabel(config, labelKeys[groupKey] || '', '');
+	}
+
+	function groupRecentMenuItems(config = {}, items = []) {
+		const grouped = new Map();
+
+		items.forEach((item) => {
+			const key = getRecentGroupKey(config, item);
+			if (!key) {
+				return;
+			}
+
+			const groupItems = grouped.get(key) || [];
+
+			groupItems.push(item);
+			grouped.set(key, groupItems);
+		});
+
+		return recentGroupOrder.reduce((menuItems, groupKey) => {
+			const groupItems = grouped.get(groupKey) || [];
+
+			if (!groupItems.length) {
+				return menuItems;
+			}
+
+			if (menuItems.length) {
+				menuItems.push({ type: 'separator' });
+			}
+
+			const groupLabel = getRecentGroupLabel(config, groupKey);
+
+			if (groupLabel) {
+				menuItems.push({
+					id: `recent-section-${groupKey}`,
+					label: groupLabel,
+					type: 'section'
+				});
+			}
+			menuItems.push(...groupItems);
+
+			return menuItems;
+		}, []);
 	}
 
 	function saveRecentItems(config = {}, items = []) {
@@ -390,9 +525,10 @@
 		return [];
 	}
 
-	function getRecentMenuItems(config = {}, count = defaults.recent_count) {
-		return getRecentItems(config)
+	function getRecentMenuItems(config = {}, count = defaults.recent_count, options = {}) {
+		const items = getRecentItems(config)
 			.slice(0, normalizeCount(count))
+			.filter((item) => item.type !== 'folder')
 			.map((item) => {
 				const displayItem = getRecentDisplayItem(config, item);
 
@@ -403,9 +539,12 @@
 					label: displayItem.label,
 					target: displayItem.target,
 					title: displayItem.title,
+					type: displayItem.type,
 					url: displayItem.url
 				};
 			});
+
+		return options && options.grouped ? groupRecentMenuItems(config, items) : items;
 	}
 
 	window.PufferDesk.menuBar = {

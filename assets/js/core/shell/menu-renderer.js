@@ -212,6 +212,15 @@
 				return separator;
 			}
 
+			if (item.type === 'section') {
+				const section = document.createElement('span');
+				section.className = 'pdk-menu-section-label';
+				section.dataset.pdkMenuSection = item.id || item.label;
+				section.setAttribute('role', 'presentation');
+				section.textContent = item.label || '';
+				return section;
+			}
+
 			if (item.type === 'action-strip') {
 				return createActionStrip(item, detail, onExecute);
 			}

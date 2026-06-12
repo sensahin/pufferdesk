@@ -589,6 +589,18 @@
 	text-align: right;
 }
 
+.pdk-menu-section-label {
+	color: var(--pdk-menu-popover-muted);
+	display: block;
+	font-size: var(--pdk-text-caption);
+	font-weight: var(--pdk-weight-semibold);
+	line-height: 1.2;
+	padding: 5px 10px 3px;
+	position: relative;
+	text-align: left;
+	z-index: 1;
+}
+
 .pdk-menu-action-strip {
 	align-items: stretch;
 	display: grid;

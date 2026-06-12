@@ -585,7 +585,7 @@
 
 				const count = getRecentCount();
 				const recentItems = window.PufferDesk.menuBar
-					? window.PufferDesk.menuBar.getRecentMenuItems(config, count)
+					? window.PufferDesk.menuBar.getRecentMenuItems(config, count, { grouped: true })
 					: [];
 				const submenuItems = recentItems.length
 					? recentItems.concat([

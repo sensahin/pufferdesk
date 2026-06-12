@@ -295,6 +295,17 @@
 			return folderData && typeof folderData.getFolderDocuments === 'function' ? folderData.getFolderDocuments(folderId) : [];
 		}
 
+		function parseDocumentId(value) {
+			const direct = Number.parseInt(value, 10);
+			const match = String(value || '').match(/(\d+)$/);
+
+			if (Number.isFinite(direct) && direct > 0) {
+				return direct;
+			}
+
+			return match ? Number.parseInt(match[1], 10) || 0 : 0;
+		}
+
 		function getRecentDisplayItems(count = 50) {
 			return typeof recentItems.list === 'function' ? recentItems.list(count).map((item) => {
 				const type = item && typeof item.type === 'string' ? item.type : '';
@@ -314,28 +325,18 @@
 					} : null;
 				}
 
-				if (type === 'folder') {
-					const folder = getFolder(target);
-					return folder ? {
-						command: item.command || commandIds.OPEN_FOLDER,
-						folder,
-						icon: folder.icon || item.icon || 'dashicons-category',
-						id: folder.id,
-						label: folder.label || item.label || getMenuLabel('folder'),
-						target: folder.id,
-						title: folder.label || item.title || item.label,
-						type: 'folder'
-					} : null;
-				}
-
 				if (type === 'document' && item && (item.url || item.target)) {
+					const documentId = parseDocumentId(item.target || item.id);
+					const isNativeDocument = Boolean(documentId && (!item.url || item.command === commandIds.DOCUMENT_OPEN));
+					const label = item.label || item.title || getMenuLabel('document');
+
 					return {
-						command: item.command || commandIds.OPEN_URL,
+						command: isNativeDocument ? commandIds.DOCUMENT_OPEN : item.command || commandIds.OPEN_URL,
 						icon: item.icon || 'dashicons-media-document',
-						id: item.id,
-						label: item.label || item.title || getMenuLabel('document'),
-						target: item.target || item.url,
-						title: item.title || item.label || getMenuLabel('document'),
+						id: isNativeDocument ? String(documentId) : item.id,
+						label,
+						target: isNativeDocument ? String(documentId) : item.target || item.url,
+						title: item.title || label,
 						type: 'document',
 						url: item.url || ''
 					};
@@ -405,6 +406,52 @@
 				target: app.id,
 				title: app.label,
 				type: 'app'
+			});
+		}
+
+		function getDocumentRecentIcon(documentData = {}) {
+			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
+			const textKind = documentStore && documentStore.kinds ? documentStore.kinds.text : '';
+
+			if (documentData.kind === stickyKind) {
+				return { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' };
+			}
+
+			if (documentData.kind === textKind) {
+				return { type: 'theme', name: 'text-editor.svg', fallback: 'dashicons-media-document' };
+			}
+
+			return 'dashicons-media-document';
+		}
+
+		function getDocumentRecentLabel(documentData = {}) {
+			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
+			const title = typeof documentData.title === 'string' ? documentData.title.trim() : '';
+
+			if (title) {
+				return title;
+			}
+
+			return documentData.kind === stickyKind ? getMenuLabel('sticky_note') : getMenuLabel('document');
+		}
+
+		function recordDocumentOpen(documentData = {}) {
+			const documentId = Number.parseInt(documentData.id, 10);
+
+			if (!documentId) {
+				return;
+			}
+
+			const label = getDocumentRecentLabel(documentData);
+
+			addRecentItem({
+				command: commandIds.DOCUMENT_OPEN,
+				icon: getDocumentRecentIcon(documentData),
+				id: String(documentId),
+				label,
+				target: String(documentId),
+				title: label,
+				type: 'document'
 			});
 		}
 
@@ -581,6 +628,8 @@
 			if (!documentId) {
 				return null;
 			}
+
+			recordDocumentOpen(documentData);
 
 			if (documentData.kind === stickyKind) {
 				const stickyManager = window.PufferDesk.stickyNoteManager || null;
@@ -1111,8 +1160,15 @@
 				});
 			}
 
-			if (item.type === 'document' && (item.url || item.target)) {
-				return openUrl(item.url || item.target, item.title || item.label, item.icon);
+			if (item.type === 'document') {
+				const documentId = parseDocumentId(item.target || item.id);
+				if (documentId && (!item.url || item.command === commandIds.DOCUMENT_OPEN)) {
+					return openDocumentById(documentId);
+				}
+
+				if (item.url || item.target) {
+					return openUrl(item.url || item.target, item.title || item.label, item.icon);
+				}
 			}
 
 			return null;
