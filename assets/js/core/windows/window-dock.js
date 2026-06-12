@@ -52,6 +52,12 @@
 			items.forEach((item) => item.classList.toggle('is-running', running));
 		}
 
+		function refreshDockFit() {
+			if (window.PufferDesk.desktopDock && typeof window.PufferDesk.desktopDock.refreshFit === 'function') {
+				window.PufferDesk.desktopDock.refreshFit(shell);
+			}
+		}
+
 		function shouldAnimateOpeningApps() {
 			return shell.dataset.pdkDockAnimateApps !== '0';
 		}
@@ -239,20 +245,27 @@
 			}
 			button.addEventListener('click', () => focusWindow(win));
 			container.appendChild(button);
+			refreshDockFit();
 
 			return button;
 		}
 
 		function removeMinimizedDockItem(win) {
 			const item = getMinimizedDockItem(win);
+			let changed = false;
 
 			if (item) {
 				item.remove();
+				changed = true;
 			}
 
 			const container = dock && dock.querySelector('.pdk-dock-minimized-windows');
 			if (container && !container.children.length) {
 				container.remove();
+				changed = true;
+			}
+			if (changed) {
+				refreshDockFit();
 			}
 		}
 
@@ -263,12 +276,14 @@
 				if (container && !container.children.length) {
 					container.remove();
 				}
+				refreshDockFit();
 				return;
 			}
 
 			shell.querySelectorAll('.pdk-window.is-hidden:not(.is-closed)').forEach((win) => {
 				createMinimizedDockItem(win);
 			});
+			refreshDockFit();
 		}
 
 		function minimizeWindow(win) {

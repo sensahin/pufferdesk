@@ -391,6 +391,9 @@
 					});
 				}
 				syncRunningDockItems();
+				if (window.PufferDesk.desktopDock && typeof window.PufferDesk.desktopDock.refreshFit === 'function') {
+					window.PufferDesk.desktopDock.refreshFit(shell);
+				}
 			}
 
 			const desktop = shell.querySelector('.pdk-desktop');

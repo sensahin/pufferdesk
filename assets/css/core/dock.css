@@ -28,6 +28,7 @@
 	color: var(--pdk-accent);
 	cursor: default;
 	display: flex;
+	flex: 0 0 var(--pdk-dock-item-size, 48px);
 	height: var(--pdk-dock-item-size, 44px);
 	justify-content: center;
 	padding: 0;
@@ -48,11 +49,14 @@
 
 .pdk-dock-item:hover,
 .pdk-dock-item:focus,
-.pdk-dock-item:focus-within,
-.pdk-dock-item.is-running {
+.pdk-dock-item:focus-within {
 	background: var(--pdk-control-bg-hover);
 	outline: none;
 	transform: translateY(calc(-1 * var(--pdk-dock-hover-lift, 3px))) scale(var(--pdk-dock-hover-scale, 1));
+}
+
+.pdk-dock-item.is-running {
+	background: var(--pdk-control-bg-hover);
 }
 
 .pdk-dock-item.is-running::after {
@@ -171,10 +175,14 @@
 	width: calc(var(--pdk-dock-item-size, 48px) * 0.72);
 }
 
+.pdk-shell[data-pdk-dock-position="left"] .pdk-dock-minimized-windows,
+.pdk-shell[data-pdk-dock-position="right"] .pdk-dock-minimized-windows {
+	flex-direction: column;
+}
+
 .pdk-shell[data-pdk-dock-position="left"] .pdk-dock-item:hover,
 .pdk-shell[data-pdk-dock-position="left"] .pdk-dock-item:focus,
 .pdk-shell[data-pdk-dock-position="left"] .pdk-dock-item:focus-within,
-.pdk-shell[data-pdk-dock-position="left"] .pdk-dock-item.is-running,
 .pdk-shell[data-pdk-dock-position="left"] .pdk-dock-window-item:hover,
 .pdk-shell[data-pdk-dock-position="left"] .pdk-dock-window-item:focus,
 .pdk-shell[data-pdk-dock-position="left"] .pdk-dock-window-item:focus-within {
@@ -201,7 +209,6 @@
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-item:hover,
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-item:focus,
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-item:focus-within,
-.pdk-shell[data-pdk-dock-position="right"] .pdk-dock-item.is-running,
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-window-item:hover,
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-window-item:focus,
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-window-item:focus-within {
@@ -389,6 +396,7 @@
 .pdk-shell[data-pdk-shell-launcher="taskbar"] .pdk-dock-item,
 .pdk-shell[data-pdk-shell-launcher="taskbar"] .pdk-dock-window-item {
 	border-radius: 6px;
+	flex-basis: calc(var(--pdk-dock-item-size, 48px) - 8px);
 	height: calc(var(--pdk-dock-item-size, 48px) - 8px);
 	width: calc(var(--pdk-dock-item-size, 48px) - 8px);
 }

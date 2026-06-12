@@ -125,6 +125,7 @@
 		const saveDesktopDockMutation = mutations.createDebounced({
 			action: getSettingAction('DESKTOP_DOCK'),
 			errorText: t('status.desktopDockSaveError'),
+			latestOnly: true,
 			onSuccess(data) {
 				applyDesktopDock(data.desktopDock || currentDesktopDock);
 

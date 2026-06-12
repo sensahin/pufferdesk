@@ -130,8 +130,8 @@
 	--pdk-icon-widget-surface-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.86), rgba(218, 234, 238, 0.8));
 	--pdk-icon-widget-surface-border: rgba(255, 255, 255, 0.72);
 	--pdk-icon-widget-surface-shadow: 0 8px 16px rgba(16, 34, 50, 0.12), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
-	--pdk-icon-widget-dock-surface-size: clamp(38px, calc(var(--pdk-dock-tile-size, 48px) - 8px), 46px);
-	--pdk-icon-widget-dock-symbol-size: clamp(20px, calc(var(--pdk-dock-tile-size, 48px) - 26px), 24px);
+	--pdk-icon-widget-dock-surface-size: clamp(16px, calc(var(--pdk-dock-tile-size, 48px) - 4px), 46px);
+	--pdk-icon-widget-dock-symbol-size: clamp(10px, calc(var(--pdk-dock-tile-size, 48px) - 12px), 24px);
 	--pdk-icon-widget-dock-surface-radius: 11px;
 	--pdk-icon-widget-dock-surface-border: transparent;
 	--pdk-icon-widget-dock-surface-border-width: 0;
@@ -1290,6 +1290,8 @@
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-dock-position="left"] .pdk-dock,
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-dock-position="right"] .pdk-dock {
 	bottom: auto;
+	gap: 6px;
+	padding: 6px;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock::before {
@@ -1322,6 +1324,7 @@
 	border-radius: 14px;
 	box-shadow: none;
 	color: var(--pdk-accent);
+	flex-basis: var(--pdk-dock-item-size, 54px);
 	height: var(--pdk-dock-item-size, 54px);
 	position: relative;
 	transition: background-color 120ms ease, box-shadow 120ms ease, transform 150ms ease;
@@ -1332,11 +1335,15 @@
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item:hover,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item:focus,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item:hover,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item:focus,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item.is-running {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item:focus {
 	background: transparent;
 	filter: none;
 	transform: translateY(calc(-1 * var(--pdk-dock-hover-lift, 0px))) scale(var(--pdk-dock-hover-scale, 1));
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item.is-running {
+	background: transparent;
+	filter: none;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item.is-running::after {
@@ -1372,12 +1379,12 @@
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item:has(> .pdk-icon-mask),
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item:has(> .pdk-icon-mask) {
 	color: var(--pdk-icon-widget-symbol);
-	min-width: var(--pdk-dock-tile-size, var(--pdk-dock-item-size, 48px));
+	min-width: var(--pdk-dock-item-size, 48px);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item:has(> .dashicons),
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item:has(> .dashicons) {
-	min-width: var(--pdk-dock-tile-size, var(--pdk-dock-item-size, 48px));
+	min-width: var(--pdk-dock-item-size, 48px);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item:has(> .pdk-icon-mask)::before,

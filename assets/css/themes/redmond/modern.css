@@ -95,7 +95,8 @@
 	--pdk-dock-icon-size: 24px;
 	--pdk-dock-item-size: 48px;
 	--pdk-dock-tile-size: 28px;
-	--pdk-redmond-taskbar-adaptive-icon-size: 26px;
+	--pdk-redmond-taskbar-item-size: clamp(22px, calc(var(--pdk-dock-item-size, 48px) - 8px), 40px);
+	--pdk-redmond-taskbar-adaptive-icon-size: clamp(18px, calc(var(--pdk-redmond-taskbar-item-size, 40px) - 8px), 26px);
 	--pdk-redmond-tooltip-bg: #f2f2f2;
 	--pdk-redmond-tooltip-border: #c8c8c8;
 	--pdk-redmond-tooltip-ink: #1f1f1f;
@@ -1101,16 +1102,16 @@
 	border-radius: 4px;
 	box-shadow: none;
 	color: #1f2937;
-	flex: 0 0 40px;
-	height: 40px;
-	min-width: 40px;
-	width: 40px;
+	flex: 0 0 var(--pdk-redmond-taskbar-item-size, 40px);
+	height: var(--pdk-redmond-taskbar-item-size, 40px);
+	min-width: var(--pdk-redmond-taskbar-item-size, 40px);
+	width: var(--pdk-redmond-taskbar-item-size, 40px);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item .pdk-icon-image,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-window-item .pdk-icon-image {
-	height: 40px;
-	width: 40px;
+	height: var(--pdk-redmond-taskbar-item-size, 40px);
+	width: var(--pdk-redmond-taskbar-item-size, 40px);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item .dashicons,
