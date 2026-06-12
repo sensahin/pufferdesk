@@ -839,11 +839,19 @@ final class PufferDesk_Workspace_State {
 			'date-modified',
 			'size',
 		);
+		$group_modes = array(
+			'none',
+			'name',
+			'kind',
+			'date-added',
+			'date-modified',
+			'size',
+		);
 
 		return array(
 			'viewMode'  => in_array( $view_mode, $view_modes, true ) ? $view_mode : 'icons',
 			'sortMode'  => in_array( $sort_mode, $sort_modes, true ) ? $sort_mode : 'none',
-			'groupMode' => 'none' === $group_mode ? $group_mode : 'none',
+			'groupMode' => in_array( $group_mode, $group_modes, true ) ? $group_mode : 'none',
 		);
 	}
 

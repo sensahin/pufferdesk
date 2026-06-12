@@ -32,6 +32,7 @@ final class PufferDesk_Command_Ids {
 	const FOLDER_REFRESH                     = 'folder.refresh';
 	const FOLDER_REMOVE_APP                  = 'folder.remove-app';
 	const FOLDER_RENAME                      = 'folder.rename';
+	const FOLDER_SET_GROUP_MODE              = 'folder.set-group-mode';
 	const FOLDER_SET_SORT_MODE               = 'folder.set-sort-mode';
 	const FOLDER_SET_VIEW_MODE               = 'folder.set-view-mode';
 	const FOLDER_SIDEBAR_REMOVE              = 'folder.sidebar-remove';

@@ -10,7 +10,22 @@
 	const listAliases = new Set(['list', 'details', 'tiles', 'content']);
 	const toolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
 	const explorerSortModes = new Set(['none', 'name', 'kind', 'date-added', 'date-modified', 'size']);
-	const explorerGroupModes = new Set(['none']);
+	const explorerGroupModes = new Set(['none', 'name', 'kind', 'date-added', 'date-modified', 'size']);
+	const finderGroupModes = new Set(['none', 'name', 'kind', 'date-added', 'size']);
+	const explorerGroupOptions = [
+		{ key: 'sort_none', mode: 'none' },
+		{ key: 'sort_name', mode: 'name' },
+		{ key: 'sort_date_modified', mode: 'date-modified' },
+		{ key: 'type', mode: 'kind' },
+		{ key: 'sort_size', mode: 'size' }
+	];
+	const finderGroupOptions = [
+		{ key: 'sort_none', mode: 'none' },
+		{ key: 'sort_name', mode: 'name' },
+		{ key: 'sort_kind', mode: 'kind' },
+		{ key: 'sort_date_added', mode: 'date-added' },
+		{ key: 'sort_size', mode: 'size' }
+	];
 	const explorerOptions = [
 		{ group: 'icons', key: 'extra_large_icons', mode: 'extra-large-icons' },
 		{ group: 'icons', key: 'large_icons', mode: 'large-icons' },
@@ -75,6 +90,12 @@
 			: finderOptions.slice();
 	}
 
+	function getGroupOptions(layout = 'finder') {
+		return normalizeLayout(layout) === 'file-explorer'
+			? explorerGroupOptions.slice()
+			: finderGroupOptions.slice();
+	}
+
 	function getLabel(option, getMenuLabel) {
 		return typeof getMenuLabel === 'function'
 			? getMenuLabel(option.key, option.key)
@@ -97,12 +118,15 @@
 		return explorerSortModes.has(mode) ? mode : fallback;
 	}
 
-	function normalizeExplorerGroupMode(mode, fallback = 'none') {
-		return explorerGroupModes.has(mode) ? mode : fallback;
+	function normalizeExplorerGroupMode(mode, fallback = 'none', layout = 'finder') {
+		const modes = normalizeLayout(layout) === 'file-explorer' ? explorerGroupModes : finderGroupModes;
+
+		return modes.has(mode) ? mode : fallback;
 	}
 
 	window.PufferDesk.apps.folderViewModes = {
 		getDefaultMode,
+		getGroupOptions,
 		getLabel,
 		getOptions,
 		isIconMode,

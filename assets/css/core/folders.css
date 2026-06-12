@@ -618,6 +618,43 @@
 	gap: 16px 12px;
 }
 
+.pdk-folder-body .pdk-app-grid.pdk-folder-grid-grouped {
+	grid-template-columns: 1fr;
+	gap: 18px;
+}
+
+.pdk-folder-item-group {
+	display: grid;
+	gap: 10px;
+	min-width: 0;
+}
+
+.pdk-folder-item-group-heading {
+	color: var(--pdk-muted);
+	font-size: var(--pdk-text-caption);
+	font-weight: var(--pdk-weight-semibold);
+	line-height: 1.2;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pdk-folder-item-group-items {
+	display: grid;
+	min-width: 0;
+}
+
+.pdk-folder-item-group-items-icons {
+	gap: 16px 12px;
+	grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+}
+
+.pdk-folder-item-group-items-list {
+	gap: 0;
+	grid-template-columns: 1fr;
+}
+
 .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row) {
 	min-height: 84px;
 }
@@ -736,6 +773,22 @@
 	grid-template-columns: 1fr;
 	overflow: auto;
 	width: 100%;
+}
+
+.pdk-finder-pane .pdk-app-grid.pdk-folder-list.pdk-folder-grid-grouped,
+.pdk-explorer-pane .pdk-app-grid.pdk-folder-list.pdk-folder-grid-grouped {
+	gap: 0;
+}
+
+.pdk-folder-list .pdk-folder-item-group {
+	gap: 0;
+}
+
+.pdk-folder-list .pdk-folder-item-group-heading {
+	align-items: end;
+	display: flex;
+	min-height: 30px;
+	padding: 8px 12px 4px;
 }
 
 .pdk-explorer-pane .pdk-app-grid.pdk-folder-list.pdk-folder-list-layout-file-explorer {

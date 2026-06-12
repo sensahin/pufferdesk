@@ -4736,6 +4736,19 @@
 	font-weight: var(--pdk-weight-regular);
 }
 
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-item-group-heading {
+	color: var(--pdk-redmond-explorer-list-header-ink, var(--pdk-muted));
+	font-size: 12px;
+	font-weight: var(--pdk-weight-semibold);
+	padding-left: 24px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-list .pdk-folder-item-group-heading {
+	border-bottom: 1px solid var(--pdk-redmond-explorer-list-divider, var(--pdk-divider));
+	min-height: 32px;
+	padding-bottom: 5px;
+}
+
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-folder-list-row {
 	background: transparent;
 	border: 0;

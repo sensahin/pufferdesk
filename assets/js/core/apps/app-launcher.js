@@ -126,6 +126,7 @@
 			: null;
 		const folderRenderer = window.PufferDesk.apps.createFolderRenderer
 			? window.PufferDesk.apps.createFolderRenderer({
+				getExplorerGroupMode,
 				getExplorerSortMode,
 				getFolderApps,
 				getFolderChildFolders,
@@ -462,7 +463,9 @@
 			const state = isPlainObject(record) ? record : {};
 
 			return {
-				groupMode: normalizeExplorerGroupMode(state.groupMode || 'none'),
+				groupMode: folderViewModes && typeof folderViewModes.normalizeExplorerGroupMode === 'function'
+					? folderViewModes.normalizeExplorerGroupMode(state.groupMode || 'none', 'none', layout)
+					: 'none',
 				sortMode: normalizeExplorerSortMode(state.sortMode || 'none'),
 				viewMode: normalizeExplorerViewMode(state.viewMode || '', layout)
 			};
@@ -926,19 +929,17 @@
 			return normalizeExplorerSortMode(win && win.dataset ? win.dataset.pdkExplorerSortMode : '');
 		}
 
-		function normalizeExplorerGroupMode(mode) {
-			return folderViewModes && typeof folderViewModes.normalizeExplorerGroupMode === 'function'
-				? folderViewModes.normalizeExplorerGroupMode(mode)
-				: 'none';
-		}
-
 		function getExplorerGroupMode(win) {
-			return normalizeExplorerGroupMode(win && win.dataset ? win.dataset.pdkExplorerGroupMode : '');
+			return folderViewModes && typeof folderViewModes.normalizeExplorerGroupMode === 'function'
+				? folderViewModes.normalizeExplorerGroupMode(win && win.dataset ? win.dataset.pdkExplorerGroupMode : '', 'none', getFolderViewLayout(win))
+				: 'none';
 		}
 
 		function setExplorerGroupMode(win, mode, options = {}) {
 			const layout = getFolderViewLayout(win);
-			const normalized = normalizeExplorerGroupMode(mode);
+			const normalized = folderViewModes && typeof folderViewModes.normalizeExplorerGroupMode === 'function'
+				? folderViewModes.normalizeExplorerGroupMode(mode, 'none', layout)
+				: 'none';
 			const folderId = options.folderId || (win && win.dataset ? win.dataset.pdkFolderWindow : '');
 
 			if (folderId && options.persist !== false) {
@@ -949,6 +950,13 @@
 
 			if (win && win.dataset) {
 				win.dataset.pdkExplorerGroupMode = normalized;
+			}
+
+			if (win && folderId && options.render !== false) {
+				renderFolderWindow(win, folderId, {
+					replaceHistory: true,
+					touch: false
+				});
 			}
 
 			return normalized;
@@ -2136,6 +2144,7 @@
 
 		function getExplorerCommandMenuItems(action, folderId, win) {
 			const sortMode = getExplorerSortMode(win);
+			const groupMode = getExplorerGroupMode(win);
 
 			if (action.id === 'sort') {
 				return folderMenuOptions
@@ -2150,9 +2159,19 @@
 				return getFolderViewModeMenuItems(folderId, win);
 			}
 
+			if (action.id === 'group') {
+				return folderMenuOptions
+					? folderMenuOptions.getGroupModeItems(folderId, {
+						activeMode: groupMode,
+						layout: getFolderViewLayout(win)
+					})
+					: [];
+			}
+
 			if (action.id === 'action') {
 				return folderMenuOptions
 					? folderMenuOptions.getFolderContentItems(folderId, {
+						groupMode,
 						infoLabel: getMenuLabel('get_info'),
 						layout: getFolderViewLayout(win),
 						sortMode,
@@ -2191,7 +2210,7 @@
 		}
 
 		function hasExplorerCommandMenu(action) {
-			return Boolean(action && ['action', 'sort', 'view', 'more'].includes(action.id));
+			return Boolean(action && ['action', 'group', 'sort', 'view', 'more'].includes(action.id));
 		}
 
 		function closeExplorerCommandMenu() {
@@ -2355,6 +2374,7 @@
 				],
 				[
 					{ id: 'sort', label: getMenuLabel('sort'), icon: 'dashicons-sort', disclosure: true },
+					{ id: 'group', label: getMenuLabel('group'), icon: 'dashicons-screenoptions', disclosure: true },
 					{ id: 'view', label: getMenuLabel('view'), icon: 'dashicons-grid-view', disclosure: true },
 					{ id: 'more', label: getMenuLabel('more'), icon: 'dashicons-ellipsis', showLabel: false }
 				],
@@ -2849,7 +2869,7 @@
 			];
 
 			if (isPufferDeskFamily()) {
-				actions.splice(1, 0, { id: 'group', label: getMenuLabel('group'), icon: 'dashicons-screenoptions', disclosure: true, disabled: true });
+				actions.splice(1, 0, { id: 'group', label: getMenuLabel('group'), icon: 'dashicons-screenoptions', disclosure: true });
 			}
 
 			if (!isPufferDeskFamily()) {
@@ -3902,7 +3922,8 @@
 			});
 			setExplorerGroupMode(win, display.groupMode, {
 				folderId,
-				persist: false
+				persist: false,
+				render: false
 			});
 			if (manager && typeof manager.makeDraggable === 'function') {
 				manager.makeDraggable(win);

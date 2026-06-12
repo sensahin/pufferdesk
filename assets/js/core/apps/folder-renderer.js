@@ -10,10 +10,26 @@
 		const getFolderDocuments = typeof options.getFolderDocuments === 'function' ? options.getFolderDocuments : () => [];
 		const getTrashItems = typeof options.getTrashItems === 'function' ? options.getTrashItems : () => [];
 		const getMenuLabel = typeof options.getMenuLabel === 'function' ? options.getMenuLabel : (key, fallback) => fallback || key;
+		const getExplorerGroupMode = typeof options.getExplorerGroupMode === 'function' ? options.getExplorerGroupMode : () => 'none';
 		const getExplorerSortMode = typeof options.getExplorerSortMode === 'function' ? options.getExplorerSortMode : () => 'none';
 		const setExplorerSortMode = typeof options.setExplorerSortMode === 'function' ? options.setExplorerSortMode : () => '';
 		const renderer = options.launcherRenderer || {};
 		const textEncoder = typeof window.TextEncoder === 'function' ? new window.TextEncoder() : null;
+		const dateGroupOrder = {
+			today: 0,
+			yesterday: 1,
+			previous7: 2,
+			previous30: 3,
+			older: 4,
+			noDate: 5
+		};
+		const sizeGroupOrder = {
+			zero: 0,
+			small: 1,
+			medium: 2,
+			large: 3,
+			huge: 4
+		};
 
 		function normalizeLayout(win) {
 			return win && win.dataset && win.dataset.pdkFolderLayout === 'file-explorer' ? 'file-explorer' : 'finder';
@@ -33,6 +49,10 @@
 			const mode = getViewMode(win);
 
 			return normalizeLayout(win) === 'finder' ? mode === 'list' : ['list', 'details'].includes(mode);
+		}
+
+		function getGroupMode(win) {
+			return getExplorerGroupMode(win);
 		}
 
 		function getListColumns(layout) {
@@ -352,6 +372,205 @@
 			return normalized;
 		}
 
+		function getDateGroup(timestamp) {
+			const value = Number.isFinite(timestamp) ? timestamp : 0;
+			const date = value ? new Date(value) : null;
+			const now = new Date();
+			const dayMs = 24 * 60 * 60 * 1000;
+			const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+			if (!date || !Number.isFinite(date.getTime())) {
+				return {
+					key: 'no-date',
+					label: getMenuLabel('group_no_date'),
+					order: dateGroupOrder.noDate
+				};
+			}
+
+			const itemDay = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+			const ageDays = Math.floor((today - itemDay) / dayMs);
+
+			if (ageDays <= 0) {
+				return {
+					key: 'today',
+					label: getMenuLabel('group_today'),
+					order: dateGroupOrder.today
+				};
+			}
+
+			if (ageDays === 1) {
+				return {
+					key: 'yesterday',
+					label: getMenuLabel('group_yesterday'),
+					order: dateGroupOrder.yesterday
+				};
+			}
+
+			if (ageDays <= 7) {
+				return {
+					key: 'previous-7-days',
+					label: getMenuLabel('group_previous_7_days'),
+					order: dateGroupOrder.previous7
+				};
+			}
+
+			if (ageDays <= 30) {
+				return {
+					key: 'previous-30-days',
+					label: getMenuLabel('group_previous_30_days'),
+					order: dateGroupOrder.previous30
+				};
+			}
+
+			return {
+				key: 'older',
+				label: getMenuLabel('group_older'),
+				order: dateGroupOrder.older
+			};
+		}
+
+		function getSizeGroup(size) {
+			const bytes = Number.isFinite(size) ? Math.max(0, size) : 0;
+
+			if (bytes === 0) {
+				return {
+					key: 'zero',
+					label: getMenuLabel('zero_bytes'),
+					order: sizeGroupOrder.zero
+				};
+			}
+
+			if (bytes < 1024 * 1024) {
+				return {
+					key: 'small',
+					label: getMenuLabel('group_size_small'),
+					order: sizeGroupOrder.small
+				};
+			}
+
+			if (bytes < 100 * 1024 * 1024) {
+				return {
+					key: 'medium',
+					label: getMenuLabel('group_size_medium'),
+					order: sizeGroupOrder.medium
+				};
+			}
+
+			if (bytes < 1024 * 1024 * 1024) {
+				return {
+					key: 'large',
+					label: getMenuLabel('group_size_large'),
+					order: sizeGroupOrder.large
+				};
+			}
+
+			return {
+				key: 'huge',
+				label: getMenuLabel('group_size_huge'),
+				order: sizeGroupOrder.huge
+			};
+		}
+
+		function getNameGroup(label) {
+			const first = String(label || '').trim().charAt(0).toUpperCase();
+
+			if (/^[A-Z]$/.test(first)) {
+				return {
+					key: first,
+					label: first,
+					order: first.charCodeAt(0)
+				};
+			}
+
+			if (/^[0-9]$/.test(first)) {
+				return {
+					key: 'numbers',
+					label: getMenuLabel('group_numbers'),
+					order: 91
+				};
+			}
+
+			return {
+				key: 'other',
+				label: getMenuLabel('group_other'),
+				order: 92
+			};
+		}
+
+		function getItemGroup(item, groupMode, layout) {
+			const metadata = item && item.listMeta ? item.listMeta : getListMetadata(item);
+
+			if (groupMode === 'name') {
+				return getNameGroup(item && item.label ? item.label : '');
+			}
+
+			if (groupMode === 'kind') {
+				const label = metadata.kindLabel || getItemKindLabel(item);
+
+				return {
+					key: `kind-${label}`,
+					label,
+					order: label
+				};
+			}
+
+			if (groupMode === 'date-added') {
+				return getDateGroup(metadata.dateAdded);
+			}
+
+			if (groupMode === 'date-modified') {
+				return getDateGroup(metadata.dateModified);
+			}
+
+			if (groupMode === 'size') {
+				return getSizeGroup(metadata.size);
+			}
+
+			return {
+				key: 'none',
+				label: '',
+				order: 0
+			};
+		}
+
+		function groupExplorerFolderItems(items, win, layout) {
+			const groupMode = getGroupMode(win);
+			const sortedItems = sortExplorerFolderItems(items, win);
+			const groups = new Map();
+			const collator = new Intl.Collator(undefined, {
+				numeric: true,
+				sensitivity: 'base'
+			});
+
+			if (groupMode === 'none') {
+				return [];
+			}
+
+			sortedItems.forEach((item) => {
+				const descriptor = getItemGroup(item, groupMode, layout);
+				const key = descriptor.key || 'other';
+
+				if (!groups.has(key)) {
+					groups.set(key, {
+						items: [],
+						key,
+						label: descriptor.label || getMenuLabel('group_other'),
+						order: descriptor.order
+					});
+				}
+
+				groups.get(key).items.push(item);
+			});
+
+			return Array.from(groups.values()).sort((first, second) => {
+				if (typeof first.order === 'number' && typeof second.order === 'number') {
+					return first.order - second.order;
+				}
+
+				return collator.compare(String(first.order || first.label), String(second.order || second.label));
+			});
+		}
+
 		function getDisplayItems(folderId, win = null) {
 			const folderItems = getFolderChildFolders(folderId).map((folder) => ({
 				folder,
@@ -468,6 +687,31 @@
 			return header;
 		}
 
+		function createItemGroup(group, folderId, removable, win, layout, listView) {
+			const section = document.createElement('section');
+			const heading = document.createElement('div');
+			const items = document.createElement('div');
+
+			section.className = 'pdk-folder-item-group';
+			section.dataset.pdkFolderGroupKey = group.key || '';
+			heading.className = 'pdk-folder-item-group-heading';
+			heading.textContent = group.label || '';
+			items.className = [
+				'pdk-folder-item-group-items',
+				listView ? 'pdk-folder-item-group-items-list' : 'pdk-folder-item-group-items-icons'
+			].join(' ');
+
+			group.items.forEach((item) => {
+				const button = createDisplayButton(item, folderId, removable, win);
+
+				items.appendChild(listView ? enhanceDisplayButtonForList(button, item, layout) : button);
+			});
+
+			section.append(heading, items);
+
+			return section;
+		}
+
 		function createItemGrid(folderId, win = null, options = {}) {
 			const grid = document.createElement('div');
 			const isTrash = Boolean(options.trash);
@@ -475,15 +719,26 @@
 			const items = isTrash ? getTrashDisplayItems(win) : getDisplayItems(folderId, win);
 			const layout = normalizeLayout(win);
 			const listView = isColumnListView(win);
+			const groupMode = getGroupMode(win);
+			const grouped = groupMode !== 'none';
 
 			grid.className = [
 				'pdk-app-grid',
 				'pdk-finder-grid',
 				isTrash ? 'pdk-finder-trash-grid' : '',
-				listView ? `pdk-folder-list pdk-folder-list-layout-${layout}` : ''
+				listView ? `pdk-folder-list pdk-folder-list-layout-${layout}` : '',
+				grouped ? 'pdk-folder-grid-grouped' : ''
 			].filter(Boolean).join(' ');
+			grid.dataset.pdkFolderGroupMode = groupMode;
 			if (listView) {
 				grid.appendChild(createListHeader(folderId, win, layout));
+			}
+			if (grouped) {
+				groupExplorerFolderItems(items, win, layout).forEach((group) => {
+					grid.appendChild(createItemGroup(group, folderId, removable, win, layout, listView));
+				});
+
+				return grid;
 			}
 			items.forEach((item) => {
 				const button = createDisplayButton(item, folderId, removable, win);

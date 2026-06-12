@@ -88,6 +88,25 @@
 			];
 		}
 
+		function getGroupModeOptions(layout) {
+			return folderViewModes && typeof folderViewModes.getGroupOptions === 'function'
+				? folderViewModes.getGroupOptions(layout)
+				: [];
+		}
+
+		function getGroupModeItems(folderId, itemOptions = {}) {
+			const layout = itemOptions.layout || 'finder';
+			const activeMode = itemOptions.activeMode || 'none';
+
+			return getGroupModeOptions(layout).map((option, index) => {
+				const item = modeItem(getMenuLabel(option.key), commandIds.FOLDER_SET_GROUP_MODE, option.mode, activeMode, folderId);
+
+				return index === 1
+					? [separator(), item]
+					: item;
+			}).flat();
+		}
+
 		function getFolderContentItems(folderId, itemOptions = {}) {
 			const layout = itemOptions.layout || 'finder';
 			const viewItems = getViewModeItems(folderId, {
@@ -96,6 +115,10 @@
 			});
 			const sortItems = getSortModeItems(folderId, {
 				activeMode: itemOptions.sortMode || 'none',
+				layout
+			});
+			const groupItems = getGroupModeItems(folderId, {
+				activeMode: itemOptions.groupMode || 'none',
 				layout
 			});
 			const infoLabel = itemOptions.infoLabel || getMenuLabel('get_info');
@@ -131,6 +154,12 @@
 					id: 'folder-content-sort-by',
 					items: sortItems,
 					label: sortByLabel
+				},
+				{
+					icon: 'dashicons-screenoptions',
+					id: 'folder-content-group-by',
+					items: groupItems,
+					label: getMenuLabel('group')
 				}
 			];
 		}
@@ -138,6 +167,7 @@
 		return {
 			disabledItem,
 			getFolderContentItems,
+			getGroupModeItems,
 			getSortModeItems,
 			getViewModeItems,
 			getViewModeOptions,

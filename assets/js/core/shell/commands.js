@@ -184,6 +184,18 @@
 				: '';
 		}
 
+		function getFolderLayoutFromDetail(detail = activeDetail) {
+			const win = getTargetWindow(detail);
+
+			return win && win.dataset && win.dataset.pdkFolderLayout === 'file-explorer' ? 'file-explorer' : 'finder';
+		}
+
+		function normalizeFolderExplorerGroupMode(mode, detail = activeDetail) {
+			return folderViewModes && typeof folderViewModes.normalizeExplorerGroupMode === 'function'
+				? folderViewModes.normalizeExplorerGroupMode(mode, '', getFolderLayoutFromDetail(detail))
+				: '';
+		}
+
 		function normalizeFolderExplorerViewMode(mode) {
 			if (folderViewModes && typeof folderViewModes.isKnown === 'function') {
 				return folderViewModes.isKnown(mode) ? mode : '';
@@ -1339,6 +1351,25 @@
 				});
 				refreshActiveMenu(Object.assign({}, activeDetail, detail || {}, {
 					folderSortMode: payload.mode
+				}));
+			}
+		});
+
+		register(commandIds.FOLDER_SET_GROUP_MODE, {
+			isEnabled(payload, detail) {
+				return Boolean(
+					launcher
+					&& typeof launcher.setFolderGroupMode === 'function'
+					&& getFolderIdFromPayload(payload, detail)
+					&& normalizeFolderExplorerGroupMode(payload.mode, detail)
+				);
+			},
+			run(payload, detail) {
+				launcher.setFolderGroupMode(getFolderIdFromPayload(payload, detail), payload.mode, {
+					windowElement: detail && detail.windowElement ? detail.windowElement : null
+				});
+				refreshActiveMenu(Object.assign({}, activeDetail, detail || {}, {
+					folderGroupMode: payload.mode
 				}));
 			}
 		});

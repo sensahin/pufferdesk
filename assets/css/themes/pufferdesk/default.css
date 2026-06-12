@@ -2497,6 +2497,23 @@
 	z-index: 0;
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-grid.pdk-folder-list.pdk-folder-grid-grouped::before {
+	content: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-item-group-heading {
+	color: var(--pdk-muted);
+	font-size: 11px;
+	font-weight: var(--pdk-weight-semibold);
+	padding-left: 44px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-list .pdk-folder-item-group-heading {
+	min-height: 34px;
+	padding-bottom: 5px;
+	padding-left: var(--pdk-finder-list-name-inset, 44px);
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-list-header {
 	background: transparent;
 	border-bottom: 1px solid var(--pdk-finder-list-divider, var(--pdk-finder-divider));
