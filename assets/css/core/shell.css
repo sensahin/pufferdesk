@@ -348,16 +348,22 @@
 	--pdk-menu-bar-half-height: 0px;
 }
 
+.pdk-shell:not([data-pdk-menu-bar-hidden="1"]) .pdk-menu-bar {
+	opacity: 1 !important;
+	pointer-events: auto;
+	transform: translateY(0) !important;
+}
+
 .pdk-shell[data-pdk-menu-bar-hidden="1"] .pdk-menu-bar {
-	opacity: 0;
+	opacity: 0 !important;
 	pointer-events: none;
-	transform: translateY(calc(-100% - 2px));
+	transform: translateY(calc(-100% - 2px)) !important;
 }
 
 .pdk-shell[data-pdk-menu-bar-hidden="1"][data-pdk-menu-bar-revealed="1"] .pdk-menu-bar {
-	opacity: 1;
+	opacity: 1 !important;
 	pointer-events: auto;
-	transform: translateY(0);
+	transform: translateY(0) !important;
 }
 
 .pdk-brand,

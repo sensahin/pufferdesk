@@ -39,6 +39,7 @@
 			? window.PufferDesk.session.workspace.sections || {}
 			: {};
 		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
+		const stickyFullscreenSourceId = 'sticky-note:active';
 		const richText = window.PufferDesk.richText || null;
 		const titlebarActions = window.PufferDesk.windows && window.PufferDesk.windows.titlebarActions
 			? window.PufferDesk.windows.titlebarActions
@@ -152,11 +153,45 @@
 		function getMenuBarHeight() {
 			const menuBar = shell ? shell.querySelector('.pdk-menu-bar') : null;
 
-			if (!menuBar || shell.dataset.pdkShellTopBar === 'none') {
+			if (!menuBar || shell.dataset.pdkShellTopBar === 'none' || shell.dataset.pdkMenuBarHidden === '1') {
 				return 0;
 			}
 
 			return Math.ceil(menuBar.getBoundingClientRect().height);
+		}
+
+		function getTopFullscreenEntry(preferredElement = null) {
+			const entries = Array.from(noteMap.values()).filter((entry) => (
+				entry
+				&& entry.element
+				&& !entry.element.hidden
+			));
+
+			if (preferredElement) {
+				const preferred = entries.find((entry) => entry.element === preferredElement);
+
+				return preferred && preferred.element.classList.contains('is-fullscreen') ? preferred : null;
+			}
+
+			const topEntry = entries.sort((first, second) => (
+				toNumber(second.element.style.zIndex, 0) - toNumber(first.element.style.zIndex, 0)
+			))[0] || null;
+
+			return topEntry && topEntry.element.classList.contains('is-fullscreen') ? topEntry : null;
+		}
+
+		function syncStickyFullscreenSource(preferredElement = null) {
+			const menuBar = window.PufferDesk.menuBar || null;
+			if (!menuBar || typeof menuBar.setFullscreenSource !== 'function') {
+				return false;
+			}
+
+			const entry = getTopFullscreenEntry(preferredElement);
+			return menuBar.setFullscreenSource(shell, stickyFullscreenSourceId, Boolean(entry), {
+				documentId: entry && entry.document ? String(entry.document.id) : '',
+				source: 'sticky-note',
+				stickyNoteElement: entry ? entry.element : null
+			});
 		}
 
 		function getStickySafeTop(edge) {
@@ -184,6 +219,17 @@
 				left: edge,
 				right: edge,
 				top: getStickySafeTop(edge)
+			};
+		}
+
+		function getStickyFullscreenSafeArea() {
+			const edge = Math.max(0, getCssPixelValue('--pdk-window-safe-edge', 8));
+
+			return {
+				bottom: edge,
+				left: edge,
+				right: edge,
+				top: shell.dataset.pdkMenuBarHidden === '1' ? edge : getStickySafeTop(edge)
 			};
 		}
 
@@ -334,7 +380,16 @@
 		}
 
 		function applyState(noteElement, state) {
-			const fullscreenBounds = state.fullscreen ? getFullscreenBounds() : null;
+			const collapsed = Boolean(state.collapsed);
+			const fullscreen = !collapsed && Boolean(state.fullscreen);
+
+			noteElement.style.zIndex = String(state.zIndex);
+			noteElement.hidden = Boolean(state.hidden);
+			noteElement.classList.toggle('is-collapsed', collapsed);
+			noteElement.classList.toggle('is-fullscreen', fullscreen);
+			syncStickyFullscreenSource();
+
+			const fullscreenBounds = fullscreen ? getFullscreenBounds() : null;
 			const nextLeft = fullscreenBounds ? fullscreenBounds.left : state.left;
 			const nextTop = fullscreenBounds ? fullscreenBounds.top : state.top;
 			const nextWidth = fullscreenBounds ? fullscreenBounds.width : state.width;
@@ -350,11 +405,7 @@
 			noteElement.style.height = state.collapsed
 				? `${getCollapsedHeight(noteElement)}px`
 				: `${nextHeight}px`;
-			noteElement.style.zIndex = String(state.zIndex);
-			noteElement.hidden = Boolean(state.hidden);
 			noteElement.dataset.pdkExpandedHeight = String(Math.max(140, state.expandedHeight || state.height || 285));
-			noteElement.classList.toggle('is-collapsed', Boolean(state.collapsed));
-			noteElement.classList.toggle('is-fullscreen', Boolean(state.fullscreen));
 		}
 
 		function getCollapsedHeight(noteElement) {
@@ -365,7 +416,7 @@
 		}
 
 		function getFullscreenBounds() {
-			const safeArea = getStickySafeArea();
+			const safeArea = getStickyFullscreenSafeArea();
 
 			return {
 				height: Math.max(140, desktop.clientHeight - safeArea.top - safeArea.bottom),
@@ -416,6 +467,7 @@
 			if (entry) {
 				dispatchActiveStickyNoteChange(entry);
 			}
+			syncStickyFullscreenSource(noteElement);
 			saveLayout();
 		}
 
@@ -693,6 +745,7 @@
 			}
 
 			entry.element.hidden = true;
+			syncStickyFullscreenSource();
 			saveLayout();
 			syncRunningState();
 			return true;
@@ -709,6 +762,13 @@
 			entry.element.style.height = `${toNumber(entry.element.dataset.pdkExpandedHeight, 285)}px`;
 			constrainNoteElement(entry.element);
 			bringToFront(entry.element);
+			if (entry.element.classList.contains('is-fullscreen')) {
+				const bounds = getFullscreenBounds();
+				entry.element.style.left = `${bounds.left}px`;
+				entry.element.style.top = `${bounds.top}px`;
+				entry.element.style.width = `${bounds.width}px`;
+				entry.element.style.height = `${bounds.height}px`;
+			}
 			entry.content.focus();
 			syncRunningState();
 			return true;
@@ -737,6 +797,7 @@
 			}
 			entry.element.remove();
 			noteMap.delete(entry.document.id);
+			syncStickyFullscreenSource();
 			saveLayout();
 			syncRunningState();
 
@@ -753,6 +814,7 @@
 				entry.element.classList.remove('is-fullscreen');
 				entry.element.classList.add('is-collapsed');
 				entry.element.style.height = `${getCollapsedHeight(entry.element)}px`;
+				syncStickyFullscreenSource(entry.element);
 			} else {
 				entry.element.classList.remove('is-collapsed');
 				entry.element.style.height = `${toNumber(entry.element.dataset.pdkExpandedHeight, 285)}px`;
@@ -768,19 +830,21 @@
 			}
 
 			if (fullscreen) {
-				const bounds = getFullscreenBounds();
 				entry.element.dataset.pdkRestoreLeft = entry.element.style.left || '';
 				entry.element.dataset.pdkRestoreTop = entry.element.style.top || '';
 				entry.element.dataset.pdkRestoreWidth = entry.element.style.width || '';
 				entry.element.dataset.pdkRestoreHeight = entry.element.style.height || '';
 				entry.element.classList.remove('is-collapsed');
 				entry.element.classList.add('is-fullscreen');
+				syncStickyFullscreenSource(entry.element);
+				const bounds = getFullscreenBounds();
 				entry.element.style.left = `${bounds.left}px`;
 				entry.element.style.top = `${bounds.top}px`;
 				entry.element.style.width = `${bounds.width}px`;
 				entry.element.style.height = `${bounds.height}px`;
 			} else {
 				entry.element.classList.remove('is-fullscreen');
+				syncStickyFullscreenSource(entry.element);
 				entry.element.style.left = entry.element.dataset.pdkRestoreLeft || entry.element.style.left;
 				entry.element.style.top = entry.element.dataset.pdkRestoreTop || entry.element.style.top;
 				entry.element.style.width = entry.element.dataset.pdkRestoreWidth || entry.element.style.width;

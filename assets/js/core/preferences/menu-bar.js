@@ -13,6 +13,7 @@
 	const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 	const recentLimit = 50;
 	let hideTimer = null;
+	const fullscreenSourcesByShell = new WeakMap();
 
 	function normalizeBoolean(value) {
 		if (typeof value === 'boolean') {
@@ -48,6 +49,113 @@
 		return shell.dataset.pdkFullscreenWindow === '1';
 	}
 
+	function getFullscreenSources(shell) {
+		if (!shell) {
+			return null;
+		}
+
+		let sources = fullscreenSourcesByShell.get(shell);
+		if (!sources) {
+			sources = new Map();
+			fullscreenSourcesByShell.set(shell, sources);
+		}
+
+		return sources;
+	}
+
+	function readFullscreenDetail(sources) {
+		const values = sources ? Array.from(sources.values()) : [];
+		const active = values.length ? values[values.length - 1] : null;
+
+		return {
+			fullscreen: Boolean(active),
+			source: active && active.source ? active.source : '',
+			sourceId: active && active.sourceId ? active.sourceId : '',
+			sources: values.map((item) => Object.assign({}, item))
+		};
+	}
+
+	function syncFullscreenState(shell, sources, options = {}) {
+		const detail = readFullscreenDetail(sources);
+		const previous = shell.dataset.pdkFullscreenWindow === '1';
+		const next = detail.fullscreen;
+
+		if (!options.force && previous === next) {
+			return detail;
+		}
+
+		shell.dataset.pdkFullscreenWindow = next ? '1' : '0';
+		shell.dispatchEvent(new window.CustomEvent(domEventNames.FULLSCREEN_WINDOW_CHANGE, {
+			detail
+		}));
+
+		return detail;
+	}
+
+	function setFullscreenSource(shell, sourceId, fullscreen, detail = {}) {
+		const sources = getFullscreenSources(shell);
+		const normalizedId = String(sourceId || '').trim();
+
+		if (!shell || !sources || !normalizedId) {
+			return false;
+		}
+
+		if (fullscreen) {
+			sources.delete(normalizedId);
+			sources.set(normalizedId, Object.assign({}, detail, {
+				source: typeof detail.source === 'string' && detail.source ? detail.source : normalizedId,
+				sourceId: normalizedId
+			}));
+		} else {
+			sources.delete(normalizedId);
+		}
+
+		syncFullscreenState(shell, sources);
+
+		return true;
+	}
+
+	function clearFullscreenSources(shell, sourcePrefix = '') {
+		const sources = getFullscreenSources(shell);
+		const prefix = String(sourcePrefix || '');
+		let changed = false;
+
+		if (!sources) {
+			return false;
+		}
+
+		Array.from(sources.keys()).forEach((sourceId) => {
+			if (!prefix || sourceId.indexOf(prefix) === 0) {
+				sources.delete(sourceId);
+				changed = true;
+			}
+		});
+
+		if (changed) {
+			syncFullscreenState(shell, sources);
+		}
+
+		return changed;
+	}
+
+	function recomputeWindowFullscreenSource(shell, activeWindow) {
+		const sourceId = 'window:active';
+		const fullscreen = Boolean(
+			activeWindow
+			&& !activeWindow.classList.contains('is-hidden')
+			&& !activeWindow.classList.contains('is-closed')
+			&& !activeWindow.classList.contains('is-minimizing')
+			&& !activeWindow.classList.contains('is-show-desktop-hidden')
+			&& activeWindow.classList.contains('is-maximized')
+		);
+
+		return setFullscreenSource(shell, sourceId, fullscreen, {
+			source: 'window',
+			windowElement: fullscreen ? activeWindow : null,
+			windowId: fullscreen && activeWindow.dataset ? activeWindow.dataset.pdkWindowId || '' : ''
+		});
+	}
+
 	function shouldAutoHide(shell, preferences) {
 		const current = normalize(preferences);
 
@@ -64,8 +172,29 @@
 		return !isFullscreen(shell);
 	}
 
+	function getMenuBar(shell) {
+		return shell ? shell.querySelector('.pdk-menu-bar') : null;
+	}
+
+	function syncVisibilityStyles(shell) {
+		const menuBar = getMenuBar(shell);
+
+		if (!menuBar) {
+			return;
+		}
+
+		const hidden = shell.dataset.pdkMenuBarHidden === '1';
+		const revealed = shell.dataset.pdkMenuBarRevealed === '1';
+		const visible = !hidden || revealed;
+
+		menuBar.style.opacity = visible ? '1' : '0';
+		menuBar.style.pointerEvents = visible ? 'auto' : 'none';
+		menuBar.style.transform = visible ? 'translateY(0)' : 'translateY(calc(-100% - 2px))';
+	}
+
 	function setRevealed(shell, revealed) {
 		shell.dataset.pdkMenuBarRevealed = revealed ? '1' : '0';
+		syncVisibilityStyles(shell);
 	}
 
 	function syncHiddenState(shell, preferences) {
@@ -74,6 +203,7 @@
 		if (!hidden) {
 			setRevealed(shell, false);
 		}
+		syncVisibilityStyles(shell);
 
 		shell.dispatchEvent(new window.CustomEvent(domEventNames.MENU_BAR_LAYOUT_CHANGE, {
 			detail: {
@@ -283,9 +413,13 @@
 		apply,
 		bindAutoHide,
 		clearRecentItems,
+		clearFullscreenSources,
 		defaults,
 		getRecentItems,
 		getRecentMenuItems,
-		normalize
+		isFullscreen,
+		normalize,
+		recomputeWindowFullscreenSource,
+		setFullscreenSource
 	};
 })();

@@ -11,6 +11,7 @@
 		const dock = shell.querySelector('.pdk-dock');
 		const menuBar = shell.querySelector('.pdk-menu-bar');
 		const sessionStore = window.PufferDesk.session.createSessionStore(options.storageKey || '');
+		const menuBarState = window.PufferDesk.menuBar || null;
 		const eventBus = window.PufferDesk.events && typeof window.PufferDesk.events.emit === 'function'
 			? window.PufferDesk.events
 			: null;
@@ -27,7 +28,6 @@
 		let zIndex = 30;
 		let windowId = 0;
 		let activeWindow = null;
-		let fullscreenState = shell.dataset.pdkFullscreenWindow === '1';
 		let restoreInProgress = false;
 		let preserveStoredWindowsUntilChange = Boolean(options.preserveStoredWindowsUntilChange);
 		let sessionSaveDisabled = false;
@@ -336,13 +336,18 @@
 		}
 
 		function syncFullscreenState(force = false) {
-			const fullscreen = Boolean(activeWindow && isVisibleWindow(activeWindow) && activeWindow.classList.contains('is-maximized'));
-
-			if (!force && fullscreen === fullscreenState) {
+			if (menuBarState && typeof menuBarState.recomputeWindowFullscreenSource === 'function') {
+				menuBarState.recomputeWindowFullscreenSource(shell, activeWindow);
 				return;
 			}
 
-			fullscreenState = fullscreen;
+			const fullscreen = Boolean(activeWindow && isVisibleWindow(activeWindow) && activeWindow.classList.contains('is-maximized'));
+			const previous = shell.dataset.pdkFullscreenWindow === '1';
+
+			if (!force && fullscreen === previous) {
+				return;
+			}
+
 			shell.dataset.pdkFullscreenWindow = fullscreen ? '1' : '0';
 			shell.dispatchEvent(new window.CustomEvent(domEventNames.FULLSCREEN_WINDOW_CHANGE, {
 				detail: {
@@ -362,6 +367,9 @@
 			}
 			dispatchActiveWindowChange();
 			syncFullscreenState();
+			if (activeWindow && menuBarState && typeof menuBarState.clearFullscreenSources === 'function') {
+				menuBarState.clearFullscreenSources(shell, 'sticky-note:');
+			}
 			if (activeWindow && activeWindow !== previousWindow) {
 				emitWindowEvent(eventNames.WINDOW_FOCUSED, activeWindow, {
 					previousWindowElement: previousWindow || null,
