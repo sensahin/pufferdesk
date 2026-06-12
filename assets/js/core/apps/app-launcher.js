@@ -460,6 +460,61 @@
 			return String(value || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 120);
 		}
 
+		function isPlainObject(value) {
+			return Boolean(value && typeof value === 'object' && !Array.isArray(value));
+		}
+
+		function normalizeFolderDisplayRecord(record, layout = getFolderLayout()) {
+			const state = isPlainObject(record) ? record : {};
+
+			return {
+				groupMode: normalizeExplorerGroupMode(state.groupMode || 'none'),
+				sortMode: normalizeExplorerSortMode(state.sortMode || 'none'),
+				viewMode: normalizeExplorerViewMode(state.viewMode || '', layout)
+			};
+		}
+
+		function getFolderDisplayStateSection() {
+			const raw = sessionStore && typeof sessionStore.getSection === 'function'
+				? sessionStore.getSection(workspaceSections.FOLDER_DISPLAY, { folders: {} })
+				: {};
+			const state = isPlainObject(raw) ? raw : {};
+
+			return {
+				folders: isPlainObject(state.folders) ? state.folders : {}
+			};
+		}
+
+		function getFolderDisplayState(folderId, layout = getFolderLayout()) {
+			const folderKey = normalizeFolderId(folderId);
+			const state = getFolderDisplayStateSection();
+			const record = folderKey && isPlainObject(state.folders[folderKey])
+				? state.folders[folderKey]
+				: {};
+
+			return normalizeFolderDisplayRecord(record, layout);
+		}
+
+		function saveFolderDisplayState(folderId, nextState, layout = getFolderLayout()) {
+			const folderKey = normalizeFolderId(folderId);
+
+			if (!folderKey || !workspaceSections.FOLDER_DISPLAY || !sessionStore || typeof sessionStore.saveSection !== 'function') {
+				return false;
+			}
+
+			const state = getFolderDisplayStateSection();
+			const previous = getFolderDisplayState(folderKey, layout);
+			const record = normalizeFolderDisplayRecord(Object.assign({}, previous, isPlainObject(nextState) ? nextState : {}), layout);
+
+			sessionStore.saveSection(workspaceSections.FOLDER_DISPLAY, {
+				folders: Object.assign({}, state.folders, {
+					[folderKey]: record
+				})
+			});
+
+			return true;
+		}
+
 		function getFolderSidebarState() {
 			const raw = sessionStore && typeof sessionStore.getSection === 'function'
 				? sessionStore.getSection(workspaceSections.FOLDER_SIDEBAR, {})
@@ -835,10 +890,18 @@
 		}
 
 		function setExplorerViewMode(win, mode, options = {}) {
+			const layout = getFolderViewLayout(win);
 			const previous = getExplorerViewMode(win);
-			const normalized = normalizeExplorerViewMode(mode, getFolderViewLayout(win));
+			const normalized = normalizeExplorerViewMode(mode, layout);
+			const folderId = options.folderId || (win && win.dataset ? win.dataset.pdkFolderWindow : '');
 			const pane = win ? win.querySelector('.pdk-finder-pane') : null;
 			const statusbar = win ? win.querySelector('.pdk-explorer-statusbar') : null;
+
+			if (folderId && options.persist !== false) {
+				saveFolderDisplayState(folderId, {
+					viewMode: normalized
+				}, layout);
+			}
 
 			if (win && win.dataset) {
 				win.dataset.pdkFolderViewMode = normalized;
@@ -876,6 +939,48 @@
 
 		function getExplorerSortMode(win) {
 			return normalizeExplorerSortMode(win && win.dataset ? win.dataset.pdkExplorerSortMode : '');
+		}
+
+		function normalizeExplorerGroupMode(mode) {
+			return folderViewModes && typeof folderViewModes.normalizeExplorerGroupMode === 'function'
+				? folderViewModes.normalizeExplorerGroupMode(mode)
+				: 'none';
+		}
+
+		function getExplorerGroupMode(win) {
+			return normalizeExplorerGroupMode(win && win.dataset ? win.dataset.pdkExplorerGroupMode : '');
+		}
+
+		function setExplorerGroupMode(win, mode, options = {}) {
+			const layout = getFolderViewLayout(win);
+			const normalized = normalizeExplorerGroupMode(mode);
+			const folderId = options.folderId || (win && win.dataset ? win.dataset.pdkFolderWindow : '');
+
+			if (folderId && options.persist !== false) {
+				saveFolderDisplayState(folderId, {
+					groupMode: normalized
+				}, layout);
+			}
+
+			if (win && win.dataset) {
+				win.dataset.pdkExplorerGroupMode = normalized;
+			}
+
+			return normalized;
+		}
+
+		function applyFolderDisplayState(win, folderId, layout = getFolderLayout()) {
+			const display = getFolderDisplayState(folderId, layout);
+
+			if (win && win.dataset) {
+				win.dataset.pdkFolderLayout = layout;
+				win.dataset.pdkFolderViewMode = display.viewMode;
+				win.dataset.pdkExplorerViewMode = display.viewMode;
+				win.dataset.pdkExplorerSortMode = display.sortMode;
+				win.dataset.pdkExplorerGroupMode = display.groupMode;
+			}
+
+			return display;
 		}
 
 		function getFolderDisplayItems(folderId, win = null) {
@@ -1829,19 +1934,28 @@
 			});
 		}
 
-		function setExplorerSortMode(win, mode) {
+		function setExplorerSortMode(win, mode, options = {}) {
 			const normalized = normalizeExplorerSortMode(mode);
-			const folderId = win && win.dataset ? win.dataset.pdkFolderWindow : '';
+			const folderId = options.folderId || (win && win.dataset ? win.dataset.pdkFolderWindow : '');
+			const layout = getFolderViewLayout(win);
+
+			if (folderId && options.persist !== false) {
+				saveFolderDisplayState(folderId, {
+					sortMode: normalized
+				}, layout);
+			}
 
 			if (!win || !folderId) {
 				return normalized;
 			}
 
 			win.dataset.pdkExplorerSortMode = normalized;
-			renderFolderWindow(win, folderId, {
-				replaceHistory: true,
-				touch: false
-			});
+			if (options.render !== false) {
+				renderFolderWindow(win, folderId, {
+					replaceHistory: true,
+					touch: false
+				});
+			}
 
 			return normalized;
 		}
@@ -2038,7 +2152,7 @@
 		function getExplorerCommandMenuItems(action, folderId, win) {
 			const sortMode = getExplorerSortMode(win);
 
-			if (action.id === 'sort' || action.id === 'group') {
+			if (action.id === 'sort') {
 				return folderMenuOptions
 					? folderMenuOptions.getSortModeItems(folderId, {
 						activeMode: sortMode,
@@ -2092,7 +2206,7 @@
 		}
 
 		function hasExplorerCommandMenu(action) {
-			return Boolean(action && ['action', 'sort', 'group', 'view', 'more'].includes(action.id));
+			return Boolean(action && ['action', 'sort', 'view', 'more'].includes(action.id));
 		}
 
 		function closeExplorerCommandMenu() {
@@ -2401,12 +2515,16 @@
 			listButton.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
-				setExplorerViewMode(getTargetWindow(), 'list');
+				setExplorerViewMode(getTargetWindow(), 'list', {
+					folderId
+				});
 			});
 			detailButton.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
-				setExplorerViewMode(getTargetWindow(), 'details');
+				setExplorerViewMode(getTargetWindow(), 'details', {
+					folderId
+				});
 			});
 			setViewButtons(getExplorerViewMode(win));
 			viewGroup.append(listButton, detailButton);
@@ -2713,7 +2831,6 @@
 				: commandIds.FOLDER_DELETE_SELECTED;
 			const actions = [
 				{ id: 'view', label: getMenuLabel('view'), icon: 'dashicons-grid-view', disclosure: 'vertical', menuPlacement: 'icon-top' },
-				{ id: 'group', label: getMenuLabel('group'), icon: 'dashicons-list-view', disclosure: true, menuPlacement: 'icon-bottom' },
 				{ id: 'copy', label: getMenuLabel('copy'), icon: 'dashicons-clipboard', command: commandIds.CLIPBOARD_COPY },
 				{ id: 'paste', label: getMenuLabel('paste'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_PASTE },
 				{ id: 'delete', label: getMenuLabel('delete'), icon: 'dashicons-trash', command: deleteCommand },
@@ -3724,6 +3841,9 @@
 				return false;
 			}
 
+			const layout = getFolderLayout();
+			const display = applyFolderDisplayState(win, folderId, layout);
+
 			if (options.updateHistory !== false && !Array.isArray(options.tabs)) {
 				updateFolderWindowHistory(win, folderId, {
 					replace: Boolean(options.replaceHistory),
@@ -3745,18 +3865,20 @@
 			updateFolderWindowMeta(win, folderId);
 			syncExplorerTitlebarTabControls(win, folderId);
 			win.pdkSerializeFolderTabs = () => serializeFolderTabs(win);
-			win.dataset.pdkFolderLayout = getFolderLayout();
-			win.dataset.pdkFolderViewMode = getExplorerViewMode(win);
-			win.dataset.pdkExplorerViewMode = getExplorerViewMode(win);
-			win.dataset.pdkExplorerSortMode = getExplorerSortMode(win);
-			body.dataset.pdkFolderLayout = getFolderLayout();
+			body.dataset.pdkFolderLayout = layout;
 			applyFolderPaneContext(body, folderId, folder);
 			body.classList.toggle('pdk-explorer-body', isFileExplorerLayout());
 			body.classList.toggle('pdk-finder-body', !isFileExplorerLayout());
 			setFolderToolbarDisplayMode(win, getFolderToolbarDisplayMode(win));
 			body.replaceChildren(createFolderContent(folderId, win));
-			setExplorerViewMode(win, getExplorerViewMode(win), {
+			setExplorerViewMode(win, display.viewMode, {
+				folderId,
+				persist: false,
 				render: false
+			});
+			setExplorerGroupMode(win, display.groupMode, {
+				folderId,
+				persist: false
 			});
 			if (manager && typeof manager.makeDraggable === 'function') {
 				manager.makeDraggable(win);
@@ -4158,11 +4280,21 @@
 				removeFolderSidebarFavorite,
 				setFolderSortMode(folderId, mode, options = {}) {
 					const win = options.windowElement || getFolderWindow(folderId);
-					return setExplorerSortMode(win, mode);
+					return setExplorerSortMode(win, mode, Object.assign({}, options, {
+						folderId
+					}));
 				},
 				setFolderViewMode(folderId, mode, options = {}) {
 					const win = options.windowElement || getFolderWindow(folderId);
-					return setExplorerViewMode(win, mode);
+					return setExplorerViewMode(win, mode, Object.assign({}, options, {
+						folderId
+					}));
+				},
+				setFolderGroupMode(folderId, mode, options = {}) {
+					const win = options.windowElement || getFolderWindow(folderId);
+					return setExplorerGroupMode(win, mode, Object.assign({}, options, {
+						folderId
+					}));
 				},
 				setFolderProvider(provider) {
 					folderProvider = provider && typeof provider === 'object' ? provider : null;

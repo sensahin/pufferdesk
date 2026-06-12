@@ -19,6 +19,7 @@
 			DESKTOP_ICONS: workspaceSections.DESKTOP_ICONS,
 			DESKTOP_SORT: workspaceSections.DESKTOP_SORT,
 			DOCK_APPS: workspaceSections.DOCK_APPS,
+			FOLDER_DISPLAY: workspaceSections.FOLDER_DISPLAY,
 			FOLDER_SIDEBAR: workspaceSections.FOLDER_SIDEBAR,
 			RECENT_ITEMS: workspaceSections.RECENT_ITEMS,
 			STICKY_NOTES: workspaceSections.STICKY_NOTES,
@@ -58,6 +59,9 @@
 				[sectionIds.DESKTOP_ICONS]: [],
 				[sectionIds.DESKTOP_SORT]: {
 					mode: 'none'
+				},
+				[sectionIds.FOLDER_DISPLAY]: {
+					folders: {}
 				},
 				[sectionIds.FOLDER_SIDEBAR]: {
 					collapsed: {},
@@ -106,6 +110,7 @@
 				[sectionIds.DESKTOP_ICONS]: Array.isArray(session[sectionIds.DESKTOP_ICONS]) ? session[sectionIds.DESKTOP_ICONS] : [],
 				[sectionIds.DESKTOP_SORT]: isObject(session[sectionIds.DESKTOP_SORT]) ? session[sectionIds.DESKTOP_SORT] : defaults[sectionIds.DESKTOP_SORT],
 				[sectionIds.DOCK_APPS]: Array.isArray(session[sectionIds.DOCK_APPS]) ? session[sectionIds.DOCK_APPS] : [],
+				[sectionIds.FOLDER_DISPLAY]: isObject(session[sectionIds.FOLDER_DISPLAY]) ? session[sectionIds.FOLDER_DISPLAY] : defaults[sectionIds.FOLDER_DISPLAY],
 				[sectionIds.FOLDER_SIDEBAR]: isObject(session[sectionIds.FOLDER_SIDEBAR]) ? session[sectionIds.FOLDER_SIDEBAR] : defaults[sectionIds.FOLDER_SIDEBAR],
 				[sectionIds.RECENT_ITEMS]: Array.isArray(session[sectionIds.RECENT_ITEMS]) ? session[sectionIds.RECENT_ITEMS] : [],
 				[sectionIds.STICKY_NOTES]: Array.isArray(session[sectionIds.STICKY_NOTES]) ? session[sectionIds.STICKY_NOTES] : [],

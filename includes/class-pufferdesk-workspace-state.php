@@ -12,10 +12,11 @@ defined( 'ABSPATH' ) || exit;
  */
 final class PufferDesk_Workspace_State {
 	const META_PREFIX = 'pufferdesk_workspace_state';
-	const VERSION     = 3;
+	const VERSION     = 4;
 	const SECTION_DESKTOP_ICONS = 'desktopIcons';
 	const SECTION_DESKTOP_SORT = 'desktopSort';
 	const SECTION_DOCK_APPS = 'dockApps';
+	const SECTION_FOLDER_DISPLAY = 'folderDisplay';
 	const SECTION_FOLDER_SIDEBAR = 'folderSidebar';
 	const SECTION_RECENT_ITEMS = 'recentItems';
 	const SECTION_STICKY_NOTES = 'stickyNotes';
@@ -153,6 +154,9 @@ final class PufferDesk_Workspace_State {
 			self::SECTION_DESKTOP_SORT => array(
 				'mode' => 'none',
 			),
+			self::SECTION_FOLDER_DISPLAY => array(
+				'folders' => array(),
+			),
 			self::SECTION_FOLDER_SIDEBAR => array(
 				'collapsed'          => array(),
 				'favoriteIds'        => array(),
@@ -172,6 +176,7 @@ final class PufferDesk_Workspace_State {
 			'DESKTOP_ICONS'  => self::SECTION_DESKTOP_ICONS,
 			'DESKTOP_SORT'   => self::SECTION_DESKTOP_SORT,
 			'DOCK_APPS'      => self::SECTION_DOCK_APPS,
+			'FOLDER_DISPLAY' => self::SECTION_FOLDER_DISPLAY,
 			'FOLDER_SIDEBAR' => self::SECTION_FOLDER_SIDEBAR,
 			'RECENT_ITEMS'   => self::SECTION_RECENT_ITEMS,
 			'STICKY_NOTES'   => self::SECTION_STICKY_NOTES,
@@ -214,6 +219,7 @@ final class PufferDesk_Workspace_State {
 			self::SECTION_STICKY_NOTES => $this->sanitize_sticky_notes( isset( $state[ self::SECTION_STICKY_NOTES ] ) ? $state[ self::SECTION_STICKY_NOTES ] : array() ),
 			self::SECTION_DESKTOP_ICONS => $this->sanitize_desktop_icons( isset( $state[ self::SECTION_DESKTOP_ICONS ] ) ? $state[ self::SECTION_DESKTOP_ICONS ] : array(), $apps, $folders ),
 			self::SECTION_DESKTOP_SORT => $this->sanitize_desktop_sort( isset( $state[ self::SECTION_DESKTOP_SORT ] ) ? $state[ self::SECTION_DESKTOP_SORT ] : array() ),
+			self::SECTION_FOLDER_DISPLAY => $this->sanitize_folder_display( isset( $state[ self::SECTION_FOLDER_DISPLAY ] ) ? $state[ self::SECTION_FOLDER_DISPLAY ] : array(), $folders ),
 			self::SECTION_FOLDER_SIDEBAR => $this->sanitize_folder_sidebar( isset( $state[ self::SECTION_FOLDER_SIDEBAR ] ) ? $state[ self::SECTION_FOLDER_SIDEBAR ] : array(), $folders ),
 			self::SECTION_RECENT_ITEMS => $this->sanitize_recent_items( isset( $state[ self::SECTION_RECENT_ITEMS ] ) ? $state[ self::SECTION_RECENT_ITEMS ] : array(), $apps, $folders ),
 		);
@@ -758,6 +764,75 @@ final class PufferDesk_Workspace_State {
 
 		return array(
 			'mode' => in_array( $mode, $allowed, true ) ? $mode : 'none',
+		);
+	}
+
+	/**
+	 * Sanitize per-folder display preferences.
+	 *
+	 * @param mixed                          $display Raw folder display state.
+	 * @param array<int,array<string,mixed>> $folders Available folders.
+	 * @return array<string,array<string,array<string,string>>>
+	 */
+	private function sanitize_folder_display( $display, $folders ) {
+		$available_folders = $this->get_available_ids( $folders );
+		$state             = is_array( $display ) ? $display : array();
+		$folder_records    = isset( $state['folders'] ) && is_array( $state['folders'] ) ? $state['folders'] : array();
+		$sanitized         = array();
+
+		foreach ( $folder_records as $folder_id => $record ) {
+			$folder_id = sanitize_key( (string) $folder_id );
+			if ( '' === $folder_id || ! is_array( $record ) || ! $this->is_allowed_folder_id( $folder_id, $available_folders ) ) {
+				continue;
+			}
+
+			$sanitized[ $folder_id ] = $this->sanitize_folder_display_record( $record );
+
+			if ( count( $sanitized ) >= 300 ) {
+				break;
+			}
+		}
+
+		return array(
+			'folders' => $sanitized,
+		);
+	}
+
+	/**
+	 * Sanitize a single folder display preference record.
+	 *
+	 * @param array<string,mixed> $record Raw folder display record.
+	 * @return array<string,string>
+	 */
+	private function sanitize_folder_display_record( $record ) {
+		$view_mode  = isset( $record['viewMode'] ) ? sanitize_key( (string) $record['viewMode'] ) : '';
+		$sort_mode  = isset( $record['sortMode'] ) ? sanitize_key( (string) $record['sortMode'] ) : '';
+		$group_mode = isset( $record['groupMode'] ) ? sanitize_key( (string) $record['groupMode'] ) : '';
+
+		$view_modes = array(
+			'icons',
+			'extra-large-icons',
+			'large-icons',
+			'medium-icons',
+			'small-icons',
+			'list',
+			'details',
+			'tiles',
+			'content',
+		);
+		$sort_modes = array(
+			'none',
+			'name',
+			'kind',
+			'date-added',
+			'date-modified',
+			'size',
+		);
+
+		return array(
+			'viewMode'  => in_array( $view_mode, $view_modes, true ) ? $view_mode : 'icons',
+			'sortMode'  => in_array( $sort_mode, $sort_modes, true ) ? $sort_mode : 'none',
+			'groupMode' => 'none' === $group_mode ? $group_mode : 'none',
 		);
 	}
 

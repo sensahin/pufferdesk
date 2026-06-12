@@ -122,6 +122,63 @@
 			};
 		}
 
+		function getTrashKindLabel(item = {}) {
+			if (item && item.type === 'document') {
+				const documentData = item.document && typeof item.document === 'object' ? item.document : {};
+
+				if (item.kindLabel) {
+					return item.kindLabel;
+				}
+
+				if (documentData.kindLabel) {
+					return documentData.kindLabel;
+				}
+
+				if (documentData.kind === 'sticky') {
+					return getMenuLabel('sticky_note');
+				}
+
+				return getMenuLabel('document');
+			}
+
+			return getMenuLabel('folder');
+		}
+
+		function getTrashDisplayItems(win = null) {
+			const items = getTrashItems().map((item) => {
+				const isDocument = item && item.type === 'document';
+				const documentData = isDocument && item.document && typeof item.document === 'object' ? item.document : {};
+				const trashDate = item && item.trashedAt ? item.trashedAt : '';
+				const documentForList = isDocument ? Object.assign({}, documentData, {
+					created: trashDate || documentData.created || '',
+					modified: trashDate || documentData.modified || ''
+				}) : {};
+				const normalized = {
+					icon: item && item.icon ? item.icon : isDocument ? 'dashicons-media-document' : 'dashicons-category',
+					id: item && item.id ? item.id : '',
+					label: item && item.label ? item.label : (isDocument ? documentData.title || getMenuLabel('document') : getMenuLabel('folder')),
+					originalType: item && item.type ? item.type : 'folder',
+					trashItem: item,
+					type: isDocument ? 'document' : 'folder'
+				};
+				const listMeta = getListMetadata(Object.assign({}, normalized, {
+					created: trashDate,
+					createdAt: trashDate,
+					document: documentForList,
+					kindLabel: getTrashKindLabel(item),
+					modified: trashDate,
+					modifiedAt: trashDate,
+					size: item && Number.isFinite(item.size) ? item.size : 0
+				}));
+
+				return Object.assign({}, normalized, {
+					listMeta
+				});
+			});
+
+			return sortExplorerFolderItems(items, win);
+		}
+
 		function isSameCalendarDate(first, second) {
 			return first.getFullYear() === second.getFullYear()
 				&& first.getMonth() === second.getMonth()
@@ -328,6 +385,10 @@
 		}
 
 		function createDisplayButton(item, folderId = '', removable = false, win = null) {
+			if (item && item.trashItem && typeof renderer.createTrashItemButton === 'function') {
+				return renderer.createTrashItemButton(item.trashItem);
+			}
+
 			if (item && item.type === 'folder' && typeof renderer.createFolderButton === 'function') {
 				return renderer.createFolderButton(item.folder, folderId, win);
 			}
@@ -360,6 +421,9 @@
 
 			button.classList.add('pdk-folder-list-row');
 			button.dataset.pdkFolderListItemType = item && item.type ? item.type : '';
+			if (item && item.trashItem) {
+				button.dataset.pdkFolderListSource = 'trash';
+			}
 			Array.from(button.childNodes).forEach((node) => {
 				nameCell.appendChild(node);
 			});
@@ -408,20 +472,21 @@
 			const grid = document.createElement('div');
 			const isTrash = Boolean(options.trash);
 			const removable = Boolean(options.removable);
-			const items = isTrash ? getTrashItems() : getDisplayItems(folderId, win);
+			const items = isTrash ? getTrashDisplayItems(win) : getDisplayItems(folderId, win);
 			const layout = normalizeLayout(win);
-			const listView = !isTrash && isColumnListView(win);
+			const listView = isColumnListView(win);
 
-			grid.className = isTrash
-				? 'pdk-app-grid pdk-finder-grid pdk-finder-trash-grid'
-				: `pdk-app-grid pdk-finder-grid${listView ? ` pdk-folder-list pdk-folder-list-layout-${layout}` : ''}`;
+			grid.className = [
+				'pdk-app-grid',
+				'pdk-finder-grid',
+				isTrash ? 'pdk-finder-trash-grid' : '',
+				listView ? `pdk-folder-list pdk-folder-list-layout-${layout}` : ''
+			].filter(Boolean).join(' ');
 			if (listView) {
 				grid.appendChild(createListHeader(folderId, win, layout));
 			}
 			items.forEach((item) => {
-				const button = isTrash && typeof renderer.createTrashItemButton === 'function'
-					? renderer.createTrashItemButton(item)
-					: createDisplayButton(item, folderId, removable, win);
+				const button = createDisplayButton(item, folderId, removable, win);
 
 				grid.appendChild(listView ? enhanceDisplayButtonForList(button, item, layout) : button);
 			});
@@ -433,6 +498,7 @@
 			createDisplayButton,
 			createItemGrid,
 			getDisplayItems,
+			getTrashDisplayItems,
 			sortExplorerFolderItems
 		};
 	};

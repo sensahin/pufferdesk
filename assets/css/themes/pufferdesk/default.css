@@ -1095,7 +1095,7 @@
 	width: 32px;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row) {
 	-webkit-backdrop-filter: none;
 	backdrop-filter: none;
 	background: transparent;
@@ -1106,11 +1106,11 @@
 	transform: none;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-grid {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-grid:not(.pdk-folder-list) {
 	grid-template-columns: minmax(240px, 1fr);
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) {
 	align-items: center;
 	border-radius: 6px;
 	flex-direction: row;
@@ -1122,19 +1122,19 @@
 	width: 100%;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher .pdk-app-icon {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-icon {
 	height: 24px;
 	width: 24px;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher .pdk-app-icon .pdk-icon-image,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher .pdk-app-icon .dashicons,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher .pdk-app-icon .pdk-icon-mask {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-icon .pdk-icon-image,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-icon .dashicons,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-icon .pdk-icon-mask {
 	height: 24px;
 	width: 24px;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher-label {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-launcher-label {
 	display: block;
 	max-height: none;
 	max-width: none;
@@ -1142,9 +1142,9 @@
 	width: auto;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-selected,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher[aria-selected="true"],
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-context-menu-active {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row).is-selected,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row)[aria-selected="true"],
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row).is-context-menu-active {
 	background: transparent;
 	border-color: transparent;
 	box-shadow: none;
@@ -1152,13 +1152,13 @@
 	transform: none;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher .pdk-app-icon {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-icon {
 	isolation: isolate;
 	position: relative;
 	transition: transform 120ms ease;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher .pdk-app-icon::before {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-icon::before {
 	background: var(--pdk-desktop-icon-selection-icon-bg, rgba(255, 255, 255, 0.16));
 	border-radius: var(--pdk-desktop-icon-selection-icon-radius, 10px);
 	content: "";
@@ -1169,14 +1169,14 @@
 	z-index: 0;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher .pdk-app-icon > * {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-icon > * {
 	position: relative;
 	z-index: 1;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-selected .pdk-app-icon::before,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher[aria-selected="true"] .pdk-app-icon::before,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-context-menu-active .pdk-app-icon::before {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row).is-selected .pdk-app-icon::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row)[aria-selected="true"] .pdk-app-icon::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row).is-context-menu-active .pdk-app-icon::before {
 	opacity: 1;
 }
 
@@ -1191,7 +1191,7 @@
 	opacity: var(--pdk-folder-icon-opacity);
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher-label {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-launcher-label {
 	border-radius: 4px;
 	box-sizing: border-box;
 	display: grid;
@@ -1204,9 +1204,9 @@
 	width: max-content;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-selected .pdk-app-launcher-label,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher[aria-selected="true"] .pdk-app-launcher-label,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-context-menu-active .pdk-app-launcher-label {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row).is-selected .pdk-app-launcher-label,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row)[aria-selected="true"] .pdk-app-launcher-label,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row).is-context-menu-active .pdk-app-launcher-label {
 	background: var(--pdk-desktop-icon-selection-bg, rgba(36, 88, 202, 0.82));
 	color: var(--pdk-desktop-icon-selection-ink, #fff);
 	margin-inline: -3px;
@@ -1214,7 +1214,7 @@
 	text-shadow: none;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.is-renaming .pdk-app-launcher-label {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher:not(.pdk-folder-list-row).is-renaming .pdk-app-launcher-label {
 	background: var(--pdk-desktop-rename-bg, transparent);
 	box-shadow: var(--pdk-desktop-rename-shadow, 0 1px 4px rgba(0, 0, 0, 0.22));
 	color: var(--pdk-desktop-rename-ink, var(--pdk-ink));
@@ -2520,7 +2520,7 @@
 	text-align: right;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row {
 	background: transparent;
 	border: 0;
 	border-radius: 6px;
@@ -2537,7 +2537,7 @@
 	z-index: 1;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row::before {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row::before {
 	background: transparent;
 	border-radius: var(--pdk-finder-list-row-band-radius);
 	content: "";
@@ -2592,38 +2592,38 @@
 	width: 16px;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-selected,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row[aria-selected="true"],
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-context-menu-active {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-selected,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row[aria-selected="true"],
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-context-menu-active {
 	background: transparent;
 	color: var(--pdk-finder-list-row-selected-ink, var(--pdk-accent-ink));
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-selected::before,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row[aria-selected="true"]::before,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-context-menu-active::before {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-selected::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row[aria-selected="true"]::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-context-menu-active::before {
 	background: var(--pdk-finder-list-row-selected-bg);
 	opacity: 1;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-selected .pdk-folder-list-cell,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row[aria-selected="true"] .pdk-folder-list-cell,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-context-menu-active .pdk-folder-list-cell,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-selected .pdk-folder-list-cell-name .pdk-truncated-label,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row[aria-selected="true"] .pdk-folder-list-cell-name .pdk-truncated-label,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-context-menu-active .pdk-folder-list-cell-name .pdk-truncated-label {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-selected .pdk-folder-list-cell,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row[aria-selected="true"] .pdk-folder-list-cell,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-context-menu-active .pdk-folder-list-cell,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-selected .pdk-folder-list-cell-name .pdk-truncated-label,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row[aria-selected="true"] .pdk-folder-list-cell-name .pdk-truncated-label,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-context-menu-active .pdk-folder-list-cell-name .pdk-truncated-label {
 	color: var(--pdk-finder-list-row-selected-ink, var(--pdk-accent-ink));
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-selected .pdk-app-icon::before,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row[aria-selected="true"] .pdk-app-icon::before,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-context-menu-active .pdk-app-icon::before {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-selected .pdk-app-icon::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row[aria-selected="true"] .pdk-app-icon::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-context-menu-active .pdk-app-icon::before {
 	opacity: 0;
 }
 
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-selected .pdk-app-launcher-label,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row[aria-selected="true"] .pdk-app-launcher-label,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-context-menu-active .pdk-app-launcher-label {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-selected .pdk-truncated-label,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row[aria-selected="true"] .pdk-truncated-label,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-folder-list-row.is-context-menu-active .pdk-truncated-label {
 	background: transparent;
 	margin-inline: 0;
 	padding-inline: 0;

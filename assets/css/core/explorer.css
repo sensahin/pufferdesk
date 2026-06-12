@@ -255,8 +255,8 @@
 	grid-template-columns: minmax(220px, 1fr);
 }
 
-.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher,
-.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row),
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher:not(.pdk-folder-list-row),
 .pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher {
 	align-items: center;
@@ -269,8 +269,8 @@
 	width: 100%;
 }
 
-.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-icon,
-.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-icon,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-icon,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-icon,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-icon,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-icon {
 	flex: 0 0 auto;
@@ -278,16 +278,16 @@
 	width: 28px;
 }
 
-.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-icon .pdk-icon-mask,
-.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-icon .pdk-icon-mask,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-icon .pdk-icon-mask,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher:not(.pdk-folder-list-row) .pdk-app-icon .pdk-icon-mask,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-icon .pdk-icon-mask,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-icon .pdk-icon-mask {
 	height: 24px;
 	width: 24px;
 }
 
-.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher > span:last-child,
-.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher > span:last-child,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) > span:last-child,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher:not(.pdk-folder-list-row) > span:last-child,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher > span:last-child,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher > span:last-child {
 	min-width: 0;
@@ -296,8 +296,8 @@
 	white-space: nowrap;
 }
 
-.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher > .pdk-truncated-label,
-.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher > .pdk-truncated-label,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) > .pdk-truncated-label,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher:not(.pdk-folder-list-row) > .pdk-truncated-label,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher > .pdk-truncated-label,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher > .pdk-truncated-label {
 	display: block;
@@ -307,22 +307,22 @@
 	width: auto;
 }
 
-.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher > .pdk-truncated-label::before,
-.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher > .pdk-truncated-label::before,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) > .pdk-truncated-label::before,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher:not(.pdk-folder-list-row) > .pdk-truncated-label::before,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher > .pdk-truncated-label::before,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher > .pdk-truncated-label::before {
 	content: attr(data-pdk-label-full);
 }
 
-.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher > .pdk-truncated-label > .pdk-truncated-label-line,
-.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher > .pdk-truncated-label > .pdk-truncated-label-line,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row) > .pdk-truncated-label > .pdk-truncated-label-line,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher:not(.pdk-folder-list-row) > .pdk-truncated-label > .pdk-truncated-label-line,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher > .pdk-truncated-label > .pdk-truncated-label-line,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher > .pdk-truncated-label > .pdk-truncated-label-line {
 	display: none;
 }
 
-.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher.is-renaming > .pdk-truncated-label,
-.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher.is-renaming > .pdk-truncated-label,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row).is-renaming > .pdk-truncated-label,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher:not(.pdk-folder-list-row).is-renaming > .pdk-truncated-label,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher.is-renaming > .pdk-truncated-label,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher.is-renaming > .pdk-truncated-label {
 	max-width: min(256px, calc(100vw - 48px));
@@ -330,8 +330,8 @@
 	width: max-content;
 }
 
-.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher.is-renaming > .pdk-truncated-label::before,
-.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher.is-renaming > .pdk-truncated-label::before,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher:not(.pdk-folder-list-row).is-renaming > .pdk-truncated-label::before,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher:not(.pdk-folder-list-row).is-renaming > .pdk-truncated-label::before,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="tiles"] .pdk-app-launcher.is-renaming > .pdk-truncated-label::before,
 .pdk-explorer-pane[data-pdk-explorer-view-mode="content"] .pdk-app-launcher.is-renaming > .pdk-truncated-label::before {
 	content: none;
@@ -343,8 +343,8 @@
 	grid-template-columns: 1fr;
 }
 
-.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-app-launcher.pdk-folder-list-row,
-.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-app-launcher.pdk-folder-list-row {
+.pdk-explorer-pane[data-pdk-explorer-view-mode="list"] .pdk-folder-list-row,
+.pdk-explorer-pane[data-pdk-explorer-view-mode="details"] .pdk-folder-list-row {
 	display: grid !important;
 	flex-direction: initial;
 	gap: 0;

@@ -4736,7 +4736,7 @@
 	font-weight: var(--pdk-weight-regular);
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-folder-list-row {
 	background: transparent;
 	border: 0;
 	border-radius: 0;
@@ -4778,15 +4778,15 @@
 	width: 16px;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row:hover,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row:focus {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-folder-list-row:hover,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-folder-list-row:focus {
 	background: var(--pdk-redmond-explorer-list-row-hover-bg, var(--pdk-redmond-explorer-row-hover-bg, rgb(232 240 254)));
 	border-color: transparent;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-selected,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row[aria-selected="true"],
-.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row.is-context-menu-active {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-folder-list-row.is-selected,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-folder-list-row[aria-selected="true"],
+.pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="file-explorer"] .pdk-folder-body .pdk-folder-list-row.is-context-menu-active {
 	background: var(--pdk-redmond-explorer-list-row-selected-bg, var(--pdk-redmond-explorer-selection-bg, rgb(204 232 255)));
 	border-color: transparent;
 	color: var(--pdk-ink);

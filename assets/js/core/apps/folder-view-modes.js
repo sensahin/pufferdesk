@@ -10,6 +10,7 @@
 	const listAliases = new Set(['list', 'details', 'tiles', 'content']);
 	const toolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
 	const explorerSortModes = new Set(['none', 'name', 'kind', 'date-added', 'date-modified', 'size']);
+	const explorerGroupModes = new Set(['none']);
 	const explorerOptions = [
 		{ group: 'icons', key: 'extra_large_icons', mode: 'extra-large-icons' },
 		{ group: 'icons', key: 'large_icons', mode: 'large-icons' },
@@ -96,6 +97,10 @@
 		return explorerSortModes.has(mode) ? mode : fallback;
 	}
 
+	function normalizeExplorerGroupMode(mode, fallback = 'none') {
+		return explorerGroupModes.has(mode) ? mode : fallback;
+	}
+
 	window.PufferDesk.apps.folderViewModes = {
 		getDefaultMode,
 		getLabel,
@@ -103,6 +108,7 @@
 		isIconMode,
 		isKnown,
 		isListMode,
+		normalizeExplorerGroupMode,
 		normalizeExplorerSortMode,
 		normalizeToolbarDisplayMode,
 		normalize,
