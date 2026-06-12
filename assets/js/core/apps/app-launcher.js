@@ -132,7 +132,8 @@
 				getFolderDocuments,
 				getMenuLabel,
 				getTrashItems,
-				launcherRenderer
+				launcherRenderer,
+				setExplorerSortMode
 			})
 			: null;
 
@@ -833,7 +834,8 @@
 			return normalizeExplorerViewMode(mode, getFolderViewLayout(win));
 		}
 
-		function setExplorerViewMode(win, mode) {
+		function setExplorerViewMode(win, mode, options = {}) {
+			const previous = getExplorerViewMode(win);
 			const normalized = normalizeExplorerViewMode(mode, getFolderViewLayout(win));
 			const pane = win ? win.querySelector('.pdk-finder-pane') : null;
 			const statusbar = win ? win.querySelector('.pdk-explorer-statusbar') : null;
@@ -853,6 +855,13 @@
 					const active = (button.dataset.pdkFolderViewMode || button.dataset.pdkExplorerViewMode) === normalized;
 					button.classList.toggle('is-active', active);
 					button.setAttribute('aria-pressed', active ? 'true' : 'false');
+				});
+			}
+
+			if (options.render !== false && win && win.dataset && win.dataset.pdkFolderWindow && previous !== normalized) {
+				renderFolderWindow(win, win.dataset.pdkFolderWindow, {
+					replaceHistory: true,
+					touch: false
 				});
 			}
 
@@ -2032,7 +2041,8 @@
 			if (action.id === 'sort' || action.id === 'group') {
 				return folderMenuOptions
 					? folderMenuOptions.getSortModeItems(folderId, {
-						activeMode: sortMode
+						activeMode: sortMode,
+						layout: getFolderViewLayout(win)
 					})
 					: [];
 			}
@@ -3745,7 +3755,9 @@
 			body.classList.toggle('pdk-finder-body', !isFileExplorerLayout());
 			setFolderToolbarDisplayMode(win, getFolderToolbarDisplayMode(win));
 			body.replaceChildren(createFolderContent(folderId, win));
-			setExplorerViewMode(win, getExplorerViewMode(win));
+			setExplorerViewMode(win, getExplorerViewMode(win), {
+				render: false
+			});
 			if (manager && typeof manager.makeDraggable === 'function') {
 				manager.makeDraggable(win);
 			}

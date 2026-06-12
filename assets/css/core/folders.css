@@ -726,6 +726,135 @@
 	content: none;
 }
 
+.pdk-finder-pane .pdk-app-grid.pdk-folder-list,
+.pdk-explorer-pane .pdk-app-grid.pdk-folder-list {
+	--pdk-folder-list-columns: minmax(220px, 1fr) minmax(80px, 104px) minmax(112px, 150px) minmax(152px, 196px);
+
+	align-content: start;
+	display: grid;
+	gap: 0;
+	grid-template-columns: 1fr;
+	overflow: auto;
+	width: 100%;
+}
+
+.pdk-explorer-pane .pdk-app-grid.pdk-folder-list.pdk-folder-list-layout-file-explorer {
+	--pdk-folder-list-columns: minmax(220px, 1.25fr) minmax(154px, 210px) minmax(190px, 1fr) minmax(76px, 110px);
+}
+
+.pdk-finder-pane .pdk-app-grid.pdk-folder-list.pdk-folder-list-layout-finder {
+	--pdk-folder-list-columns: minmax(118px, 1.35fr) minmax(76px, 0.48fr) minmax(60px, 0.45fr) minmax(104px, 0.85fr);
+}
+
+.pdk-folder-list-header,
+.pdk-app-launcher.pdk-folder-list-row {
+	box-sizing: border-box;
+	display: grid !important;
+	grid-template-columns: var(--pdk-folder-list-columns);
+	width: 100%;
+}
+
+.pdk-folder-list-header {
+	align-items: center;
+	position: sticky;
+	top: 0;
+	z-index: 2;
+}
+
+.pdk-folder-list-heading {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-sizing: border-box;
+	color: inherit;
+	cursor: default;
+	font: inherit;
+	height: 100%;
+	min-width: 0;
+	overflow: hidden;
+	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pdk-folder-list-heading.is-active {
+	font-weight: 600;
+}
+
+.pdk-folder-list-heading.is-active::after {
+	border-color: currentColor transparent transparent;
+	border-style: solid;
+	border-width: 4px 3px 0;
+	content: "";
+	display: inline-block;
+	margin-left: 6px;
+	opacity: 0.68;
+	transform: translateY(-1px);
+	vertical-align: middle;
+}
+
+.pdk-app-launcher.pdk-folder-list-row {
+	align-items: center;
+	flex-direction: initial;
+	gap: 0;
+	justify-content: initial;
+	padding: 0;
+	text-align: left;
+}
+
+.pdk-folder-list-cell {
+	box-sizing: border-box;
+	display: block;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pdk-folder-list-cell-name {
+	align-items: center;
+	display: flex;
+	gap: 8px;
+}
+
+.pdk-folder-list-cell-size {
+	text-align: right;
+}
+
+.pdk-folder-list-cell-name .pdk-app-icon {
+	flex: 0 0 auto;
+}
+
+.pdk-folder-list-cell-name .pdk-truncated-label {
+	display: block;
+	max-height: none;
+	max-width: none;
+	min-width: 0;
+	overflow: hidden;
+	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	width: auto;
+}
+
+.pdk-folder-list-cell-name .pdk-truncated-label::before {
+	content: attr(data-pdk-label-full);
+}
+
+.pdk-folder-list-cell-name .pdk-truncated-label > .pdk-truncated-label-line {
+	display: none;
+}
+
+.pdk-folder-list-row.is-renaming .pdk-folder-list-cell-name .pdk-truncated-label {
+	overflow: visible;
+	white-space: normal;
+}
+
+.pdk-folder-list-row.is-renaming .pdk-folder-list-cell-name .pdk-truncated-label::before {
+	content: none;
+}
+
 .pdk-folder-body .pdk-finder-trash-grid {
 	grid-template-columns: repeat(auto-fill, minmax(74px, 92px));
 	gap: 22px 20px;

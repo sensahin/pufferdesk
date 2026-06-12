@@ -72,14 +72,19 @@
 
 		function getSortModeItems(folderId, itemOptions = {}) {
 			const activeMode = itemOptions.activeMode || 'none';
+			const layout = itemOptions.layout || 'finder';
+			const dateItem = layout === 'file-explorer'
+				? modeItem(getMenuLabel('sort_date_modified'), commandIds.FOLDER_SET_SORT_MODE, 'date-modified', activeMode, folderId)
+				: modeItem(getMenuLabel('sort_date_added'), commandIds.FOLDER_SET_SORT_MODE, 'date-added', activeMode, folderId);
+			const kindLabel = layout === 'file-explorer' ? getMenuLabel('type') : getMenuLabel('sort_kind');
 
 			return [
 				modeItem(getMenuLabel('sort_none'), commandIds.FOLDER_SET_SORT_MODE, 'none', activeMode, folderId),
 				separator(),
 				modeItem(getMenuLabel('sort_name'), commandIds.FOLDER_SET_SORT_MODE, 'name', activeMode, folderId),
-				modeItem(getMenuLabel('sort_kind'), commandIds.FOLDER_SET_SORT_MODE, 'kind', activeMode, folderId),
-				disabledItem(getMenuLabel('sort_date_modified')),
-				disabledItem(getMenuLabel('sort_size'))
+				dateItem,
+				modeItem(kindLabel, commandIds.FOLDER_SET_SORT_MODE, 'kind', activeMode, folderId),
+				modeItem(getMenuLabel('sort_size'), commandIds.FOLDER_SET_SORT_MODE, 'size', activeMode, folderId)
 			];
 		}
 
@@ -90,7 +95,8 @@
 				layout
 			});
 			const sortItems = getSortModeItems(folderId, {
-				activeMode: itemOptions.sortMode || 'none'
+				activeMode: itemOptions.sortMode || 'none',
+				layout
 			});
 			const infoLabel = itemOptions.infoLabel || getMenuLabel('get_info');
 			const sortByLabel = itemOptions.sortByLabel || getMenuLabel('sort_by');

@@ -9,7 +9,7 @@
 	const iconAliases = new Set(['icons', 'extra-large-icons', 'large-icons', 'medium-icons', 'small-icons']);
 	const listAliases = new Set(['list', 'details', 'tiles', 'content']);
 	const toolbarDisplayModes = new Set(['icon-text', 'icon-only', 'text-only']);
-	const explorerSortModes = new Set(['none', 'name', 'kind']);
+	const explorerSortModes = new Set(['none', 'name', 'kind', 'date-added', 'date-modified', 'size']);
 	const explorerOptions = [
 		{ group: 'icons', key: 'extra_large_icons', mode: 'extra-large-icons' },
 		{ group: 'icons', key: 'large_icons', mode: 'large-icons' },
