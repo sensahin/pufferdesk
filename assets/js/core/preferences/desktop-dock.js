@@ -67,8 +67,9 @@
 		if (!fitStates.has(shell)) {
 			fitStates.set(shell, {
 				current: null,
-				fitting: false,
-				maxSize: 0,
+			fitting: false,
+			dockRevealTimer: 0,
+			maxSize: 0,
 				mutationObserver: null,
 				pending: false,
 				resizeObserver: null,
@@ -83,6 +84,85 @@
 
 	function isTaskbarLauncher(shell) {
 		return Boolean(shell && shell.dataset && shell.dataset.pdkShellLauncher === 'taskbar');
+	}
+
+	function shouldFullscreenAutoHideDock(shell) {
+		return Boolean(
+			shell
+			&& shell.dataset
+			&& shell.dataset.pdkShellLauncher === 'dock'
+			&& shell.dataset.pdkFullscreenWindow === '1'
+		);
+	}
+
+	function getDockChangeDetail(preferences = {}) {
+		return Object.assign({}, preferences, {
+			auto_hide_dock_effective: Boolean(preferences.auto_hide_dock_effective),
+			fullscreen_auto_hide_dock: Boolean(preferences.fullscreen_auto_hide_dock)
+		});
+	}
+
+	function setDockRevealed(shell, revealed) {
+		if (shell && shell.dataset) {
+			shell.dataset.pdkDockRevealed = revealed ? '1' : '0';
+		}
+	}
+
+	function syncEffectiveAutoHide(shell, preferences = {}) {
+		if (!shell) {
+			return false;
+		}
+
+		const userAutoHide = Boolean(preferences.auto_hide_dock);
+		const fullscreenAutoHide = shouldFullscreenAutoHideDock(shell);
+		const effectiveAutoHide = userAutoHide || fullscreenAutoHide;
+		const previousAutoHide = shell.dataset.pdkDockAutoHide === '1';
+		const previousFullscreenAutoHide = shell.dataset.pdkDockFullscreenAutoHide === '1';
+
+		shell.dataset.pdkDockUserAutoHide = userAutoHide ? '1' : '0';
+		shell.dataset.pdkDockFullscreenAutoHide = fullscreenAutoHide ? '1' : '0';
+		shell.dataset.pdkDockAutoHide = effectiveAutoHide ? '1' : '0';
+
+		preferences.auto_hide_dock_effective = effectiveAutoHide;
+		preferences.fullscreen_auto_hide_dock = fullscreenAutoHide;
+		if (!fullscreenAutoHide) {
+			setDockRevealed(shell, false);
+		}
+
+		return previousAutoHide !== effectiveAutoHide || previousFullscreenAutoHide !== fullscreenAutoHide;
+	}
+
+	function isDockRevealEdge(event, shell) {
+		const position = shell && shell.dataset ? shell.dataset.pdkDockPosition || 'bottom' : 'bottom';
+		const edgeSize = 4;
+
+		if (position === 'left') {
+			return event.clientX <= edgeSize;
+		}
+		if (position === 'right') {
+			return event.clientX >= window.innerWidth - edgeSize;
+		}
+
+		return event.clientY >= window.innerHeight - edgeSize;
+	}
+
+	function isPointerAwayFromDock(event, shell, dock) {
+		if (!shell || !dock) {
+			return true;
+		}
+
+		const position = shell.dataset.pdkDockPosition || 'bottom';
+		const rect = dock.getBoundingClientRect();
+		const edgePadding = 14;
+
+		if (position === 'left') {
+			return event.clientX > rect.right + edgePadding;
+		}
+		if (position === 'right') {
+			return event.clientX < rect.left - edgePadding;
+		}
+
+		return event.clientY < rect.top - edgePadding;
 	}
 
 	function isVerticalDock(shell, preferences = {}) {
@@ -569,6 +649,64 @@
 		window.addEventListener('resize', () => scheduleDockFit(shell), { passive: true });
 	}
 
+	function bindFullscreenAutoHide(shell) {
+		const dock = shell ? shell.querySelector('.pdk-dock') : null;
+
+		if (!shell || !dock || shell.dataset.pdkDockFullscreenAutoHideBound === '1') {
+			return;
+		}
+
+		shell.dataset.pdkDockFullscreenAutoHideBound = '1';
+		const reveal = () => {
+			const state = getFitState(shell);
+
+			if (shell.dataset.pdkDockFullscreenAutoHide !== '1') {
+				return;
+			}
+
+			window.clearTimeout(state.dockRevealTimer);
+			setDockRevealed(shell, true);
+		};
+		const conceal = () => {
+			const state = getFitState(shell);
+
+			if (shell.dataset.pdkDockFullscreenAutoHide !== '1') {
+				setDockRevealed(shell, false);
+				return;
+			}
+
+			window.clearTimeout(state.dockRevealTimer);
+			state.dockRevealTimer = window.setTimeout(() => setDockRevealed(shell, false), 220);
+		};
+
+		shell.addEventListener(domEventNames.FULLSCREEN_WINDOW_CHANGE, () => {
+			const state = getFitState(shell);
+			const current = state.current || normalize({});
+
+			if (!syncEffectiveAutoHide(shell, current)) {
+				return;
+			}
+
+			scheduleDockFit(shell);
+			shell.dispatchEvent(new window.CustomEvent(domEventNames.DESKTOP_DOCK_CHANGE, {
+				detail: getDockChangeDetail(current)
+			}));
+		});
+		document.addEventListener('pointermove', (event) => {
+			if (shell.dataset.pdkDockFullscreenAutoHide !== '1') {
+				return;
+			}
+
+			if (isDockRevealEdge(event, shell)) {
+				reveal();
+			} else if (shell.dataset.pdkDockRevealed === '1' && isPointerAwayFromDock(event, shell, dock)) {
+				conceal();
+			}
+		}, { passive: true });
+		dock.addEventListener('pointerenter', reveal);
+		dock.addEventListener('pointerleave', conceal);
+	}
+
 	function apply(shell, preferences = {}) {
 		if (!shell) {
 			return normalize(preferences);
@@ -578,7 +716,7 @@
 		const fitState = getFitState(shell);
 
 		shell.dataset.pdkDockPosition = current.dock_position;
-		shell.dataset.pdkDockAutoHide = current.auto_hide_dock ? '1' : '0';
+		syncEffectiveAutoHide(shell, current);
 		shell.dataset.pdkDockAnimateApps = current.animate_opening_apps ? '1' : '0';
 		shell.dataset.pdkDockShowIndicators = current.show_open_indicators ? '1' : '0';
 		shell.dataset.pdkMinimizeAnimation = current.minimize_animation;
@@ -597,9 +735,10 @@
 		const immediateSize = estimatedMaxSize && desiredSize > estimatedMaxSize ? estimatedMaxSize : desiredSize;
 		applyDockSizeVariables(shell, current, immediateSize, desiredSize > 0 ? Math.min(1, immediateSize / desiredSize) : 1);
 		bindResponsiveSizing(shell);
+		bindFullscreenAutoHide(shell);
 		scheduleDockFit(shell);
 		shell.dispatchEvent(new window.CustomEvent(domEventNames.DESKTOP_DOCK_CHANGE, {
-			detail: current
+			detail: getDockChangeDetail(current)
 		}));
 
 		return current;

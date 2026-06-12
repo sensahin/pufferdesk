@@ -313,6 +313,19 @@
 	opacity: 1;
 }
 
+.pdk-shell[data-pdk-dock-fullscreen-auto-hide="1"] .pdk-dock {
+	opacity: 0;
+}
+
+.pdk-shell[data-pdk-dock-fullscreen-auto-hide="1"] .pdk-dock:hover,
+.pdk-shell[data-pdk-dock-fullscreen-auto-hide="1"] .pdk-dock:focus-within {
+	opacity: 1;
+}
+
+.pdk-shell[data-pdk-dock-fullscreen-auto-hide="1"][data-pdk-dock-revealed="1"] .pdk-dock {
+	opacity: 1;
+}
+
 .pdk-shell[data-pdk-dock-auto-hide="1"][data-pdk-dock-position="bottom"] .pdk-dock {
 	transform: translateX(-50%) translateY(calc(100% - 5px));
 }
@@ -337,6 +350,18 @@
 
 .pdk-shell[data-pdk-dock-auto-hide="1"][data-pdk-dock-position="right"] .pdk-dock:hover,
 .pdk-shell[data-pdk-dock-auto-hide="1"][data-pdk-dock-position="right"] .pdk-dock:focus-within {
+	transform: translateY(-50%) translateX(0);
+}
+
+.pdk-shell[data-pdk-dock-auto-hide="1"][data-pdk-dock-revealed="1"][data-pdk-dock-position="bottom"] .pdk-dock {
+	transform: translateX(-50%) translateY(0);
+}
+
+.pdk-shell[data-pdk-dock-auto-hide="1"][data-pdk-dock-revealed="1"][data-pdk-dock-position="left"] .pdk-dock {
+	transform: translateY(-50%) translateX(0);
+}
+
+.pdk-shell[data-pdk-dock-auto-hide="1"][data-pdk-dock-revealed="1"][data-pdk-dock-position="right"] .pdk-dock {
 	transform: translateY(-50%) translateX(0);
 }
 
