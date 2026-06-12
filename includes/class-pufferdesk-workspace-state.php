@@ -23,6 +23,7 @@ final class PufferDesk_Workspace_State {
 	const SECTION_WIDGETS = 'widgets';
 	const SECTION_WINDOWS = 'windows';
 	const DESKTOP_ICON_PREFIX_APP = 'app:';
+	const DESKTOP_ICON_PREFIX_DOCUMENT = 'document:';
 	const DESKTOP_ICON_PREFIX_FOLDER = 'folder:';
 	const WINDOW_KIND_APP = 'app';
 	const WINDOW_KIND_FOLDER = 'folder';
@@ -46,6 +47,16 @@ final class PufferDesk_Workspace_State {
 	 */
 	public static function desktop_folder_icon_id( $folder_id ) {
 		return self::DESKTOP_ICON_PREFIX_FOLDER . $folder_id;
+	}
+
+	/**
+	 * Build a persisted desktop document icon ID.
+	 *
+	 * @param int|string $document_id Document ID.
+	 * @return string
+	 */
+	public static function desktop_document_icon_id( $document_id ) {
+		return self::DESKTOP_ICON_PREFIX_DOCUMENT . absint( $document_id );
 	}
 
 	/**
@@ -719,7 +730,7 @@ final class PufferDesk_Workspace_State {
 			$kind   = isset( $icon['kind'] ) ? sanitize_key( (string) $icon['kind'] ) : 'item';
 			$record = array(
 				'id'    => $id,
-				'kind'  => in_array( $kind, array( 'app', 'folder', 'item' ), true ) ? $kind : 'item',
+				'kind'  => in_array( $kind, array( 'app', 'document', 'folder', 'item' ), true ) ? $kind : 'item',
 				'state' => $this->sanitize_position_state( isset( $icon['state'] ) && is_array( $icon['state'] ) ? $icon['state'] : array() ),
 			);
 
@@ -1112,6 +1123,10 @@ final class PufferDesk_Workspace_State {
 
 		if ( 0 === strpos( $icon_id, self::DESKTOP_ICON_PREFIX_FOLDER ) ) {
 			return $this->is_allowed_folder_id( sanitize_key( substr( $icon_id, strlen( self::DESKTOP_ICON_PREFIX_FOLDER ) ) ), $available_folders );
+		}
+
+		if ( 0 === strpos( $icon_id, self::DESKTOP_ICON_PREFIX_DOCUMENT ) ) {
+			return absint( substr( $icon_id, strlen( self::DESKTOP_ICON_PREFIX_DOCUMENT ) ) ) > 0;
 		}
 
 		return strlen( $icon_id ) <= 140;

@@ -1258,12 +1258,14 @@
 					&& typeof launcher.hasSelectedFolderItems === 'function'
 					&& folderId
 					&& launcher.hasSelectedFolderItems(folderId, {
+						targetElement: detail && detail.targetElement ? detail.targetElement : null,
 						windowElement: detail && detail.windowElement ? detail.windowElement : null
 					})
 				);
 			},
 			run(payload, detail) {
 				return launcher.deleteSelectedFolderItems(getFolderIdFromPayload(payload, detail), {
+					targetElement: detail && detail.targetElement ? detail.targetElement : null,
 					windowElement: detail && detail.windowElement ? detail.windowElement : null
 				});
 			}
@@ -1278,12 +1280,14 @@
 					&& typeof launcher.hasSelectedFolderItems === 'function'
 					&& folderId
 					&& launcher.hasSelectedFolderItems(folderId, {
+						targetElement: detail && detail.targetElement ? detail.targetElement : null,
 						windowElement: detail && detail.windowElement ? detail.windowElement : null
 					})
 				);
 			},
 			run(payload, detail) {
 				return launcher.deleteSelectedFolderItemsImmediately(getFolderIdFromPayload(payload, detail), {
+					targetElement: detail && detail.targetElement ? detail.targetElement : null,
 					windowElement: detail && detail.windowElement ? detail.windowElement : null
 				});
 			}

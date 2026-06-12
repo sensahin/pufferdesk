@@ -49,6 +49,7 @@
 }
 
 .pdk-desktop-apps,
+.pdk-desktop-documents,
 .pdk-desktop-folders {
 	align-content: start;
 	display: grid;

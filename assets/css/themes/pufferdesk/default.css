@@ -911,6 +911,7 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop-apps,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop-documents,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop-folders {
 	inset: var(--pdk-desktop-icon-layer-top) auto 112px 24px;
 }

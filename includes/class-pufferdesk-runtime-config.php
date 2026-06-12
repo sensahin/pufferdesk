@@ -253,8 +253,9 @@ final class PufferDesk_Runtime_Config {
 			'workspace'    => array(
 				'defaultState' => PufferDesk_Workspace_State::get_default_state(),
 				'desktopIconPrefixes' => array(
-					'app'    => PufferDesk_Workspace_State::DESKTOP_ICON_PREFIX_APP,
-					'folder' => PufferDesk_Workspace_State::DESKTOP_ICON_PREFIX_FOLDER,
+					'app'      => PufferDesk_Workspace_State::DESKTOP_ICON_PREFIX_APP,
+					'document' => PufferDesk_Workspace_State::DESKTOP_ICON_PREFIX_DOCUMENT,
+					'folder'   => PufferDesk_Workspace_State::DESKTOP_ICON_PREFIX_FOLDER,
 				),
 				'sections'     => PufferDesk_Workspace_State::get_section_ids(),
 				'windowKinds'  => PufferDesk_Workspace_State::get_window_kind_ids(),
@@ -1774,14 +1775,17 @@ final class PufferDesk_Runtime_Config {
 				'sort_none'               => __( 'None', 'pufferdesk-admin-desktop' ),
 				'type'                    => __( 'Type', 'pufferdesk-admin-desktop' ),
 				'zero_bytes'              => __( 'Zero bytes', 'pufferdesk-admin-desktop' ),
-				'bytes_unit'              => __( 'bytes', 'pufferdesk-admin-desktop' ),
-				'kb_unit'                 => __( 'KB', 'pufferdesk-admin-desktop' ),
-				'mb_unit'                 => __( 'MB', 'pufferdesk-admin-desktop' ),
-				'gb_unit'                 => __( 'GB', 'pufferdesk-admin-desktop' ),
-				'today_at_time'           => __( 'Today at %s', 'pufferdesk-admin-desktop' ),
-				'yesterday_at_time'       => __( 'Yesterday at %s', 'pufferdesk-admin-desktop' ),
-				'date_at_time'            => __( '%1$s at %2$s', 'pufferdesk-admin-desktop' ),
-				'use_groups'              => __( 'Use Groups', 'pufferdesk-admin-desktop' ),
+					'bytes_unit'              => __( 'bytes', 'pufferdesk-admin-desktop' ),
+					'kb_unit'                 => __( 'KB', 'pufferdesk-admin-desktop' ),
+					'mb_unit'                 => __( 'MB', 'pufferdesk-admin-desktop' ),
+					'gb_unit'                 => __( 'GB', 'pufferdesk-admin-desktop' ),
+					/* translators: %s: time. */
+					'today_at_time'           => __( 'Today at %s', 'pufferdesk-admin-desktop' ),
+					/* translators: %s: time. */
+					'yesterday_at_time'       => __( 'Yesterday at %s', 'pufferdesk-admin-desktop' ),
+					/* translators: 1: date, 2: time. */
+					'date_at_time'            => __( '%1$s at %2$s', 'pufferdesk-admin-desktop' ),
+					'use_groups'              => __( 'Use Groups', 'pufferdesk-admin-desktop' ),
 				'show_view_options'       => __( 'Show View Options', 'pufferdesk-admin-desktop' ),
 				'extra_large_icons'       => __( 'Extra large icons', 'pufferdesk-admin-desktop' ),
 				'large_icons'             => __( 'Large icons', 'pufferdesk-admin-desktop' ),

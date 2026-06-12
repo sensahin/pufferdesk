@@ -27,6 +27,7 @@
 		const desktopIconPrefixes = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.desktopIconPrefixes || {}
 			: {};
+		const eventNames = window.PufferDesk.events && window.PufferDesk.events.names ? window.PufferDesk.events.names : {};
 		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 		const getSettingAction = window.PufferDesk.config.getSettingAction.bind(window.PufferDesk.config);
 		const systemFolderMap = new Map(systemFolders.map((folder) => [folder.id, Object.assign({ kind: 'system', user: false }, folder)]));
@@ -36,6 +37,9 @@
 			? virtualFilesystem.getFolderId('DESKTOP')
 			: '';
 		let userFolders = [];
+		let desktopDocuments = [];
+		let desktopDocumentsLoadRequest = null;
+		let desktopDocumentsReloadQueued = false;
 		let trashItems = [];
 		let sessionSaveDisabled = false;
 		let idCounter = 0;
@@ -113,12 +117,50 @@
 		}
 
 		function getDocumentTrashIcon(documentData = {}) {
-			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
 			const kind = typeof documentData.kind === 'string' ? documentData.kind : '';
 
-			return kind && kind === stickyKind
+			return kind && kind === getStickyKind()
 				? { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' }
 				: { type: 'theme', name: 'text-editor.svg', fallback: 'dashicons-media-document' };
+		}
+
+		function getStickyKind() {
+			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
+		}
+
+		function getDocumentFallbackLabel(documentData = {}) {
+			const kind = typeof documentData.kind === 'string' ? documentData.kind : '';
+
+			return kind && kind === getStickyKind() ? getMenuLabel('sticky_note') : getMenuLabel('document');
+		}
+
+		function getDocumentDesktopIconId(documentId) {
+			return `${desktopIconPrefixes.document || 'document:'}${documentId}`;
+		}
+
+		function getDocumentSize(documentData = {}) {
+			const content = typeof documentData.content === 'string' ? documentData.content : '';
+
+			return content.length;
+		}
+
+		function normalizeDesktopDocument(documentData) {
+			const documentId = parseDocumentId(documentData && documentData.id);
+
+			if (!documentId) {
+				return null;
+			}
+
+			const label = String(documentData.title || getDocumentFallbackLabel(documentData)).trim() || getDocumentFallbackLabel(documentData);
+
+			return {
+				document: documentData,
+				icon: getDocumentTrashIcon(documentData),
+				id: `document-${documentId}`,
+				label,
+				modified: typeof documentData.modified === 'string' ? documentData.modified : '',
+				type: 'document'
+			};
 		}
 
 		function serializeDocumentTrashDocument(documentData = {}) {
@@ -516,6 +558,33 @@
 			return layer;
 		}
 
+		function ensureDocumentLayer() {
+			if (!desktop) {
+				return null;
+			}
+
+			let layer = desktop.querySelector('.pdk-desktop-documents');
+			if (layer) {
+				layer.classList.add('pdk-desktop-icon-layer');
+				return layer;
+			}
+
+			layer = dom.createElement('section', 'pdk-desktop-documents pdk-desktop-icon-layer');
+			layer.setAttribute('aria-label', getMenuLabel('documents', getMenuLabel('document')));
+
+			const appLayer = desktop.querySelector('.pdk-desktop-apps');
+			const folderLayer = desktop.querySelector('.pdk-desktop-folders');
+			if (appLayer && appLayer.parentNode === desktop) {
+				desktop.insertBefore(layer, appLayer);
+			} else if (folderLayer && folderLayer.parentNode === desktop && folderLayer.nextSibling) {
+				desktop.insertBefore(layer, folderLayer.nextSibling);
+			} else {
+				desktop.insertBefore(layer, desktop.firstChild);
+			}
+
+			return layer;
+		}
+
 		function createFolderButton(folder) {
 			const button = document.createElement('button');
 			button.type = 'button';
@@ -545,6 +614,47 @@
 			return button;
 		}
 
+		function createDesktopDocumentButton(item) {
+			const documentData = item && item.document ? item.document : {};
+			const documentId = parseDocumentId(documentData.id || item.id);
+			const label = item && item.label ? item.label : getDocumentFallbackLabel(documentData);
+			const kind = typeof documentData.kind === 'string' ? documentData.kind : '';
+			const button = document.createElement('button');
+
+			button.type = 'button';
+			button.className = 'pdk-desktop-icon pdk-desktop-document pdk-document-launcher';
+			button.dataset.pdkContext = contextTargets.DOCUMENT || 'document';
+			button.dataset.pdkContextId = item.id || `document-${documentId}`;
+			button.dataset.pdkContextLabel = label;
+			button.dataset.pdkDesktopIcon = '';
+			button.dataset.pdkDesktopIconId = getDocumentDesktopIconId(documentId);
+			button.dataset.pdkDesktopIconKind = 'document';
+			button.dataset.pdkDocumentId = String(documentId);
+			button.dataset.pdkDocumentKind = kind;
+			button.dataset.pdkFolderId = desktopFolderId;
+			button.dataset.pdkDateAdded = documentData.created || '';
+			button.dataset.pdkDateCreated = documentData.created || '';
+			button.dataset.pdkDateModified = documentData.modified || documentData.created || '';
+			button.dataset.pdkSize = String(getDocumentSize(documentData));
+			button.setAttribute('aria-label', label);
+
+			const icon = dom.createElement('span', 'pdk-app-icon');
+			icon.appendChild(dom.createIcon(item.icon || getDocumentTrashIcon(documentData)));
+
+			const itemLabel = dom.createTruncatedLabel('pdk-desktop-app-label', label);
+
+			button.append(icon, itemLabel);
+			button.addEventListener('dblclick', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				if (launcher && typeof launcher.openDocumentById === 'function') {
+					launcher.openDocumentById(documentId);
+				}
+			});
+
+			return button;
+		}
+
 		function renderUserFolders() {
 			const layer = ensureFolderLayer();
 			if (!layer) {
@@ -555,6 +665,60 @@
 				userFolders
 					.filter(isDesktopFolder)
 					.forEach((folder) => layer.appendChild(createFolderButton(folder)));
+		}
+
+		function renderDesktopDocuments() {
+			const layer = ensureDocumentLayer();
+			if (!layer) {
+				return;
+			}
+
+			layer.replaceChildren();
+			desktopDocuments.forEach((item) => {
+				layer.appendChild(createDesktopDocumentButton(item));
+			});
+		}
+
+		function loadDesktopDocuments() {
+			const parentPath = getDesktopFolderPath();
+			if (
+				!documentStore
+				|| typeof documentStore.list !== 'function'
+				|| !parentPath
+			) {
+				desktopDocuments = [];
+				renderDesktopDocuments();
+				return Promise.resolve([]);
+			}
+
+			if (desktopDocumentsLoadRequest) {
+				desktopDocumentsReloadQueued = true;
+				return desktopDocumentsLoadRequest;
+			}
+
+			desktopDocumentsLoadRequest = documentStore.list('', {
+				parentPath
+			}).then((documents) => {
+				desktopDocuments = Array.isArray(documents)
+					? documents.map(normalizeDesktopDocument).filter(Boolean)
+					: [];
+				renderDesktopDocuments();
+				refreshDesktopIcons();
+				return desktopDocuments.slice();
+			}).catch(() => {
+				desktopDocuments = [];
+				renderDesktopDocuments();
+				refreshDesktopIcons();
+				return [];
+			}).finally(() => {
+				desktopDocumentsLoadRequest = null;
+				if (desktopDocumentsReloadQueued) {
+					desktopDocumentsReloadQueued = false;
+					loadDesktopDocuments();
+				}
+			});
+
+			return desktopDocumentsLoadRequest;
 		}
 
 		function refreshDesktopIcons() {
@@ -1596,6 +1760,7 @@
 			loadFolders();
 			loadTrash();
 			renderUserFolders();
+			loadDesktopDocuments();
 			syncDesktopAppVisibility();
 			dispatchTrashChange();
 		}
@@ -1604,6 +1769,12 @@
 			saveFolders();
 			saveTrash();
 		});
+
+		if (window.PufferDesk.events && typeof window.PufferDesk.events.on === 'function' && eventNames.DOCUMENTS_CHANGED) {
+			window.PufferDesk.events.on(eventNames.DOCUMENTS_CHANGED, () => {
+				loadDesktopDocuments();
+			});
+		}
 
 		return {
 			addAppToFolder,

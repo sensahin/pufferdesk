@@ -2564,7 +2564,35 @@
 			return match ? Number.parseInt(match[1], 10) || 0 : 0;
 		}
 
-		function getSelectedFolderItemElements(folderId, win = null) {
+		function getSelectedDesktopDocumentElements(folderId, options = {}) {
+			const targetElement = options && options.targetElement ? options.targetElement : null;
+			const targetIsDesktopDocument = Boolean(
+				targetElement
+				&& targetElement.classList
+				&& targetElement.classList.contains('pdk-desktop-document')
+			);
+			const currentFolderId = String(folderId || '');
+
+			if (currentFolderId !== desktopFolderId || !shell || !targetIsDesktopDocument) {
+				return [];
+			}
+
+			const desktop = shell.querySelector('.pdk-desktop');
+			if (!desktop) {
+				return [];
+			}
+
+			const selected = Array.from(desktop.querySelectorAll('.pdk-desktop-document.is-selected[data-pdk-document-id]'));
+
+			return selected.length ? selected : [targetElement];
+		}
+
+		function getSelectedFolderItemElements(folderId, win = null, options = {}) {
+			const desktopDocumentItems = getSelectedDesktopDocumentElements(folderId, options);
+			if (desktopDocumentItems.length) {
+				return desktopDocumentItems;
+			}
+
 			const targetWindow = win || getFolderWindow(folderId);
 			const grid = targetWindow ? targetWindow.querySelector('.pdk-finder-pane .pdk-finder-grid') : null;
 			const currentFolderId = targetWindow && targetWindow.dataset ? targetWindow.dataset.pdkFolderWindow || folderId : folderId;
@@ -2581,11 +2609,11 @@
 				});
 		}
 
-		function getSelectedFolderItems(folderId, win = null) {
+		function getSelectedFolderItems(folderId, win = null, options = {}) {
 			const targetWindow = win || getFolderWindow(folderId);
 			const currentFolderId = targetWindow && targetWindow.dataset ? targetWindow.dataset.pdkFolderWindow || folderId : folderId;
 
-			return getSelectedFolderItemElements(currentFolderId, targetWindow)
+			return getSelectedFolderItemElements(currentFolderId, targetWindow, options)
 				.map((item) => {
 					const context = item.dataset.pdkContext || '';
 					const id = item.dataset.pdkContextId || '';
@@ -2649,13 +2677,13 @@
 		}
 
 		function hasSelectedFolderItems(folderId, options = {}) {
-			return getSelectedFolderItems(folderId, options.windowElement || null).some(canDeleteSelectedFolderItem);
+			return getSelectedFolderItems(folderId, options.windowElement || null, options).some(canDeleteSelectedFolderItem);
 		}
 
 		function moveSelectedFolderItemsToTrash(folderId, options = {}) {
 			const win = options.windowElement || getFolderWindow(folderId);
 			const provider = getFolderProvider();
-			const selectedItems = getSelectedFolderItems(folderId, win).filter(canDeleteSelectedFolderItem);
+			const selectedItems = getSelectedFolderItems(folderId, win, options).filter(canDeleteSelectedFolderItem);
 			const documentDeletes = [];
 			let changed = false;
 
@@ -2708,7 +2736,7 @@
 		function deleteSelectedFolderItemsImmediately(folderId, options = {}) {
 			const win = options.windowElement || getFolderWindow(folderId);
 			const provider = getFolderProvider();
-			const selectedItems = getSelectedFolderItems(folderId, win).filter(canDeleteSelectedFolderItem);
+			const selectedItems = getSelectedFolderItems(folderId, win, options).filter(canDeleteSelectedFolderItem);
 			const documentDeletes = [];
 			let changed = false;
 
@@ -2831,11 +2859,22 @@
 				: commandIds.FOLDER_DELETE_SELECTED;
 			const actions = [
 				{ id: 'view', label: getMenuLabel('view'), icon: 'dashicons-grid-view', disclosure: 'vertical', menuPlacement: 'icon-top' },
-				{ id: 'copy', label: getMenuLabel('copy'), icon: 'dashicons-clipboard', command: commandIds.CLIPBOARD_COPY },
-				{ id: 'paste', label: getMenuLabel('paste'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_PASTE },
 				{ id: 'delete', label: getMenuLabel('delete'), icon: 'dashicons-trash', command: deleteCommand },
 				{ id: 'get-info', label: getMenuLabel('get_info'), icon: 'dashicons-info-outline', command: commandIds.FOLDER_GET_INFO }
 			];
+
+			if (isPufferDeskFamily()) {
+				actions.splice(1, 0, { id: 'group', label: getMenuLabel('group'), icon: 'dashicons-screenoptions', disclosure: true, disabled: true });
+			}
+
+			if (!isPufferDeskFamily()) {
+				actions.splice(
+					1,
+					0,
+					{ id: 'copy', label: getMenuLabel('copy'), icon: 'dashicons-clipboard', command: commandIds.CLIPBOARD_COPY },
+					{ id: 'paste', label: getMenuLabel('paste'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_PASTE }
+				);
+			}
 
 			if (showsCutFolderActions()) {
 				actions.splice(2, 0, { id: 'cut', label: getMenuLabel('cut'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_CUT });

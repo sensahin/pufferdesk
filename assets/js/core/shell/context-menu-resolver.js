@@ -163,7 +163,11 @@
 				return areas.TRASH;
 			}
 
-			if (type.indexOf('folder') === 0 || type === targets.DOCUMENT) {
+			if (type === targets.DOCUMENT) {
+				return windowElement && windowElement.dataset && windowElement.dataset.pdkWindowKind === folderWindowKind ? areas.FOLDER : areas.DESKTOP;
+			}
+
+			if (type.indexOf('folder') === 0) {
 				return areas.FOLDER;
 			}
 
