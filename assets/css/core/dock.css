@@ -120,7 +120,7 @@
 .pdk-dock-minimized-windows {
 	align-items: center;
 	display: flex;
-	gap: 8px;
+	gap: inherit;
 }
 
 .pdk-dock-separator {
@@ -128,7 +128,7 @@
 	border-radius: 999px;
 	flex: 0 0 1px;
 	height: calc(var(--pdk-dock-item-size, 48px) * 0.72);
-	margin: 0 2px;
+	margin: 0;
 	opacity: 0.9;
 	pointer-events: none;
 }
@@ -171,7 +171,7 @@
 .pdk-shell[data-pdk-dock-position="right"] .pdk-dock-separator {
 	flex-basis: 1px;
 	height: 1px;
-	margin: 2px 0;
+	margin: 0;
 	width: calc(var(--pdk-dock-item-size, 48px) * 0.72);
 }
 
@@ -266,7 +266,7 @@
 
 .pdk-dock-item.is-dock-reorder-pending,
 .pdk-dock-item.is-dock-reordering {
-	cursor: grabbing;
+	cursor: default;
 }
 
 .pdk-dock-reorder-placeholder {
