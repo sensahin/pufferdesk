@@ -44,6 +44,15 @@
 			return typeof value === 'string' && value ? value : key;
 		}
 
+		function getDocumentLabel(key) {
+			const config = getRuntimeConfig();
+			const documents = config.documents && typeof config.documents === 'object' ? config.documents : {};
+			const labels = documents.labels && typeof documents.labels === 'object' ? documents.labels : {};
+			const value = labels[key];
+
+			return typeof value === 'string' && value ? value : getMenuLabel(key);
+		}
+
 		function normalizeClassToken(value, fallback = 'default') {
 			const token = String(value || '').replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 48);
 
@@ -786,6 +795,201 @@
 			});
 		}
 
+		function getSaveDialogLocations(options = {}) {
+			const config = getRuntimeConfig();
+			const virtualFilesystem = window.PufferDesk.virtualFilesystem && typeof window.PufferDesk.virtualFilesystem.create === 'function'
+				? window.PufferDesk.virtualFilesystem.create(config)
+				: null;
+			const folders = virtualFilesystem && typeof virtualFilesystem.getFolders === 'function'
+				? virtualFilesystem.getFolders()
+				: [];
+			const seen = new Set();
+			const locations = [];
+
+			folders.forEach((folder) => {
+				const path = folder && typeof folder.path === 'string' ? folder.path : '';
+
+				if (!path || seen.has(path) || folder.special === 'trash') {
+					return;
+				}
+
+				seen.add(path);
+				locations.push({
+					label: folder.label || path,
+					path,
+					where: virtualFilesystem && typeof virtualFilesystem.getWhereLabel === 'function'
+						? virtualFilesystem.getWhereLabel(path)
+						: path
+				});
+			});
+
+			if (
+				options.parentPath
+				&& !seen.has(options.parentPath)
+				&& virtualFilesystem
+				&& typeof virtualFilesystem.getDisplayPath === 'function'
+			) {
+				locations.push({
+					label: virtualFilesystem.getDisplayPath(options.parentPath),
+					path: options.parentPath,
+					where: virtualFilesystem.getWhereLabel(options.parentPath)
+				});
+			}
+
+			return {
+				locations,
+				virtualFilesystem
+			};
+		}
+
+		function saveDocument(options = {}) {
+			closeActiveDialog();
+
+			return new Promise((resolve) => {
+				const title = options.title || getDocumentLabel('saveDocumentTitle');
+				const initialName = typeof options.value === 'string' && options.value.trim()
+					? options.value.trim()
+					: getDocumentLabel('untitledDocument');
+				const closeLabel = options.closeLabel || getDialogLabel('close');
+				const confirmLabel = options.confirmLabel || getDocumentLabel('save');
+				const cancelLabel = options.cancelLabel || getDocumentLabel('cancel');
+				const titleId = `pdk-shell-dialog-title-${Date.now()}`;
+				const messageId = `pdk-shell-dialog-message-${Date.now()}`;
+				const locationData = getSaveDialogLocations(options);
+				const locations = locationData.locations;
+				const virtualFilesystem = locationData.virtualFilesystem;
+				const defaultParentPath = options.parentPath
+					|| (
+						options.kind
+						&& virtualFilesystem
+						&& typeof virtualFilesystem.getDefaultPathForKind === 'function'
+							? virtualFilesystem.getDefaultPathForKind(options.kind)
+							: ''
+					)
+					|| (locations[0] ? locations[0].path : '');
+
+				const layer = document.createElement('div');
+				layer.className = 'pdk-shell-dialog-layer';
+
+				const dialog = document.createElement('div');
+				dialog.className = 'pdk-shell-dialog pdk-shell-document-save-dialog';
+				applyDialogMetadata(layer, dialog, options, 'document-save');
+				dialog.setAttribute('role', 'dialog');
+				dialog.setAttribute('aria-modal', 'true');
+				dialog.setAttribute('aria-labelledby', titleId);
+				dialog.setAttribute('aria-describedby', messageId);
+
+				const titleElement = document.createElement('h2');
+				titleElement.className = 'pdk-shell-dialog-title';
+				titleElement.id = titleId;
+				titleElement.textContent = title;
+
+				const statusElement = document.createElement('p');
+				statusElement.className = 'pdk-shell-dialog-message pdk-shell-document-save-status';
+				statusElement.id = messageId;
+				statusElement.textContent = locations.length ? '' : getDocumentLabel('saveLocationUnavailable');
+				statusElement.hidden = locations.length > 0;
+
+				const form = document.createElement('form');
+				form.className = 'pdk-shell-document-save-form';
+
+				const nameRow = document.createElement('label');
+				nameRow.className = 'pdk-shell-document-save-row';
+				const nameLabel = document.createElement('span');
+				nameLabel.className = 'pdk-shell-document-save-label';
+				nameLabel.textContent = getDocumentLabel('saveAs');
+				const nameInput = document.createElement('input');
+				nameInput.className = 'pdk-shell-dialog-input pdk-shell-document-save-input';
+				nameInput.type = 'text';
+				nameInput.value = initialName;
+				nameRow.append(nameLabel, nameInput);
+
+				const locationRow = document.createElement('label');
+				locationRow.className = 'pdk-shell-document-save-row';
+				const locationLabel = document.createElement('span');
+				locationLabel.className = 'pdk-shell-document-save-label';
+				locationLabel.textContent = getDocumentLabel('where');
+				const locationSelect = document.createElement('select');
+				locationSelect.className = 'pdk-shell-dialog-select pdk-shell-document-save-select';
+				locationSelect.disabled = !locations.length;
+
+				locations.forEach((location) => {
+					const option = document.createElement('option');
+					option.value = location.path;
+					option.textContent = location.label;
+					option.selected = location.path === defaultParentPath;
+					locationSelect.appendChild(option);
+				});
+
+				if (locations.length && !locationSelect.value) {
+					locationSelect.value = locations[0].path;
+				}
+
+				locationRow.append(locationLabel, locationSelect);
+				form.append(nameRow, locationRow);
+
+				const actions = document.createElement('div');
+				actions.className = 'pdk-shell-dialog-actions';
+
+				const cancelButton = createButton(cancelLabel, 'pdk-shell-dialog-button');
+				const confirmButton = createButton(confirmLabel, 'pdk-shell-dialog-button pdk-shell-dialog-button-primary');
+				confirmButton.disabled = !locations.length;
+
+				function finish(value) {
+					layer.removeEventListener('keydown', onKeyDown);
+					closeActiveDialog();
+					resolve(value);
+				}
+
+				function getPayload() {
+					const titleValue = nameInput.value.trim() || initialName;
+					const parentPath = locationSelect.value || defaultParentPath;
+
+					if (!parentPath) {
+						return null;
+					}
+
+					return {
+						parentPath,
+						title: titleValue
+					};
+				}
+
+				function onKeyDown(event) {
+					if (event.key === 'Escape') {
+						event.preventDefault();
+						finish(null);
+					}
+				}
+
+				cancelButton.addEventListener('click', () => finish(null));
+				confirmButton.addEventListener('click', () => finish(getPayload()));
+				form.addEventListener('submit', (event) => {
+					event.preventDefault();
+					if (!confirmButton.disabled) {
+						finish(getPayload());
+					}
+				});
+				layer.addEventListener('keydown', onKeyDown);
+
+				actions.append(cancelButton, confirmButton);
+				if (getDialogStyle(options) === 'system-window') {
+					dialog.appendChild(createDialogTitlebar(title, closeLabel, () => finish(null)));
+				}
+				dialog.append(titleElement, statusElement, form, actions);
+				bindDialogDrag(layer, dialog);
+				layer.appendChild(dialog);
+				shell.appendChild(layer);
+				activeDialog = layer;
+
+				window.requestAnimationFrame(() => {
+					layer.classList.add('is-visible');
+					nameInput.focus({ preventScroll: true });
+					nameInput.select();
+				});
+			});
+		}
+
 		function showBlockingOverlay(message) {
 			if (activeOverlay) {
 				removeLayer(activeOverlay);
@@ -826,6 +1030,7 @@
 			confirmActionDialog,
 			confirmTimedAction,
 			prompt,
+			saveDocument,
 			showBlockingOverlay
 		};
 	};

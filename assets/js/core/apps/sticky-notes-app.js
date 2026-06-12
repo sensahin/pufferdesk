@@ -162,7 +162,9 @@
 			}
 
 			if (documentStore && typeof documentStore.list === 'function') {
-				return documentStore.list(getStickyKind());
+				return documentStore.list(getStickyKind(), {
+					includeAllFolders: true
+				});
 			}
 
 			return Promise.resolve([]);

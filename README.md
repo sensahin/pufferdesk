@@ -120,6 +120,8 @@ Notifications are centralized through `PufferDesk_Notification_Registry`, `Puffe
 
 Native document features use one private WordPress post type (`pufferdesk_note`) and the shared `PufferDesk_Document_Service` for create, duplicate, list, update, and trash behavior. Sticky Notes and Text Editor only differ by document `kind` (`sticky_note` or `text_document`); content is stored in `post_content`, while user-visible note/window layout is stored separately in the workspace state. Document organization uses `PufferDesk_Virtual_Filesystem` canonical paths such as `pdk://site/{site}/home/{user}/stickies` and `pdk://site/{site}/home/{user}/documents`; the stored `_pufferdesk_document_parent_path` meta is the source of truth for where a document appears in virtual folders. Do not store document content or document folder placement in `workspaceState`, browser storage, widgets, or app-specific user meta. Browser code should use `assets/js/core/services/documents.js` and `assets/js/core/services/virtual-filesystem.js` instead of posting directly to document AJAX actions or hard-coding folder paths.
 
+Theme document metadata can define native document save behavior. Sticky Notes currently use `theme.documents.stickyNoteSavePolicy`: `default-location` creates documents directly in the virtual filesystem default path, while `ask-on-first-save` keeps a new note client-side until the first explicit Save opens the shared document save dialog and stores the selected virtual parent path.
+
 == Extension examples ==
 
 Register apps with PHP filters, then use the Desktop API for native app renderers and window events:

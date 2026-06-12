@@ -29,6 +29,7 @@ final class PufferDesk_Theme_Registry {
 				'tokens'         => array(),
 				'shell'          => $this->get_default_shell_config(),
 				'dialogs'        => $this->get_default_dialog_config(),
+				'documents'      => $this->get_default_document_config(),
 				'window_chrome'  => $this->get_default_window_chrome_config(),
 				'abstract'       => true,
 			),
@@ -54,6 +55,9 @@ final class PufferDesk_Theme_Registry {
 						'menu_popover'     => '18px',
 					),
 				),
+				'documents'      => array(
+					'stickyNoteSavePolicy' => 'ask-on-first-save',
+				),
 				'mode_tokens'    => $this->get_pufferdesk_default_mode_tokens(),
 			),
 			'redmond' => array(
@@ -77,6 +81,9 @@ final class PufferDesk_Theme_Registry {
 						'window_maximized' => '0',
 						'menu_popover'     => '12px',
 					),
+				),
+				'documents'      => array(
+					'stickyNoteSavePolicy' => 'default-location',
 				),
 				'mode_tokens'    => $this->get_redmond_modern_mode_tokens(),
 				'app_labels'     => array(
@@ -712,6 +719,7 @@ final class PufferDesk_Theme_Registry {
 				'typography'    => $resolved['typography'],
 				'shell'         => $resolved['shell'],
 				'dialogs'       => $resolved['dialogs'],
+				'documents'     => $resolved['documents'],
 				'surfaces'      => $resolved['surfaces'],
 				'settings'      => $resolved['settings'],
 				'window_chrome' => $resolved['window_chrome'],
@@ -795,6 +803,7 @@ final class PufferDesk_Theme_Registry {
 				'shell'          => $this->normalize_shell_config( isset( $theme['shell'] ) ? $theme['shell'] : array() ),
 				'menu'           => $this->normalize_menu_config( isset( $theme['menu'] ) ? $theme['menu'] : array() ),
 				'dialogs'        => $this->normalize_dialog_config( isset( $theme['dialogs'] ) ? $theme['dialogs'] : array() ),
+				'documents'      => $this->normalize_document_config( isset( $theme['documents'] ) ? $theme['documents'] : array() ),
 				'sounds'         => $this->normalize_sound_config( isset( $theme['sounds'] ) ? $theme['sounds'] : array() ),
 				'surfaces'       => $this->normalize_surface_config( isset( $theme['surfaces'] ) ? $theme['surfaces'] : array() ),
 				'settings'       => $this->normalize_settings_config( isset( $theme['settings'] ) ? $theme['settings'] : array() ),
@@ -842,6 +851,7 @@ final class PufferDesk_Theme_Registry {
 		$theme['shell']            = $this->complete_shell_config( $this->merge_theme_config( $parent['shell'], $theme['shell'] ) );
 		$theme['menu']             = $this->complete_menu_config( $this->merge_theme_config( $parent['menu'], $theme['menu'] ) );
 		$theme['dialogs']          = $this->complete_dialog_config( $this->merge_theme_config( $parent['dialogs'], $theme['dialogs'] ) );
+		$theme['documents']        = $this->complete_document_config( $this->merge_theme_config( $parent['documents'], $theme['documents'] ) );
 		$theme['sounds']           = $this->complete_sound_config( $this->merge_theme_config( $parent['sounds'], $theme['sounds'] ) );
 		$theme['surfaces']         = $this->complete_surface_config( $this->merge_theme_config( $parent['surfaces'], $theme['surfaces'] ) );
 		$theme['settings']         = $this->complete_settings_config( $this->merge_theme_config( $parent['settings'], $theme['settings'] ) );
@@ -867,6 +877,7 @@ final class PufferDesk_Theme_Registry {
 		$theme['shell']            = $this->complete_shell_config( isset( $theme['shell'] ) ? $theme['shell'] : array() );
 		$theme['menu']             = $this->complete_menu_config( isset( $theme['menu'] ) ? $theme['menu'] : array() );
 		$theme['dialogs']          = $this->complete_dialog_config( isset( $theme['dialogs'] ) ? $theme['dialogs'] : array() );
+		$theme['documents']        = $this->complete_document_config( isset( $theme['documents'] ) ? $theme['documents'] : array() );
 		$theme['sounds']           = $this->complete_sound_config( isset( $theme['sounds'] ) ? $theme['sounds'] : array() );
 		$theme['surfaces']         = $this->complete_surface_config( isset( $theme['surfaces'] ) ? $theme['surfaces'] : array() );
 		$theme['settings']         = $this->complete_settings_config( isset( $theme['settings'] ) ? $theme['settings'] : array() );
@@ -1673,6 +1684,33 @@ final class PufferDesk_Theme_Registry {
 	}
 
 	/**
+	 * Normalize native document theme metadata.
+	 *
+	 * @param mixed $documents Raw document metadata.
+	 * @return array<string,mixed>
+	 */
+	private function normalize_document_config( $documents ) {
+		if ( ! is_array( $documents ) ) {
+			return array();
+		}
+
+		$normalized = array();
+		$policy     = '';
+
+		if ( array_key_exists( 'stickyNoteSavePolicy', $documents ) ) {
+			$policy = sanitize_key( (string) $documents['stickyNoteSavePolicy'] );
+		} elseif ( array_key_exists( 'sticky_note_save_policy', $documents ) ) {
+			$policy = sanitize_key( (string) $documents['sticky_note_save_policy'] );
+		}
+
+		if ( in_array( $policy, array( 'ask-on-first-save', 'default-location' ), true ) ) {
+			$normalized['stickyNoteSavePolicy'] = $policy;
+		}
+
+		return $normalized;
+	}
+
+	/**
 	 * Normalize theme sound metadata.
 	 *
 	 * @param mixed $sounds Raw sound metadata.
@@ -1925,6 +1963,30 @@ final class PufferDesk_Theme_Registry {
 		return $this->merge_theme_config(
 			$this->get_default_dialog_config(),
 			is_array( $dialogs ) ? $dialogs : array()
+		);
+	}
+
+	/**
+	 * Default native document contract for themes.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_default_document_config() {
+		return array(
+			'stickyNoteSavePolicy' => 'default-location',
+		);
+	}
+
+	/**
+	 * Apply defaults to document metadata.
+	 *
+	 * @param mixed $documents Document metadata.
+	 * @return array<string,mixed>
+	 */
+	private function complete_document_config( $documents ) {
+		return $this->merge_theme_config(
+			$this->get_default_document_config(),
+			is_array( $documents ) ? $documents : array()
 		);
 	}
 

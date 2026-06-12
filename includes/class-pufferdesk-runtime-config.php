@@ -177,7 +177,7 @@ final class PufferDesk_Runtime_Config {
 			'desktopFolders' => isset( $context['desktop_folders'] ) && is_array( $context['desktop_folders'] ) ? $context['desktop_folders'] : array(),
 			'desktopTrash'   => isset( $context['desktop_trash'] ) && is_array( $context['desktop_trash'] ) ? $context['desktop_trash'] : array(),
 			'dialogs'        => $this->get_dialogs_config( $theme ),
-			'documents'      => $this->get_documents_config(),
+			'documents'      => $this->get_documents_config( $theme ),
 			'logoutUrl'      => $this->get_logout_url(),
 			'media'          => array(
 				'sharedIconsUrl' => esc_url_raw( PUFFERDESK_URL . 'assets/media/shared/icons/' ),
@@ -336,12 +336,16 @@ final class PufferDesk_Runtime_Config {
 	 *
 	 * @return array<string,mixed>
 	 */
-	private function get_documents_config() {
+	private function get_documents_config( $theme = array() ) {
 		$window_chrome = PufferDesk_Window_Chrome_Contracts::default_config();
 		$close_label   = isset( $window_chrome['controls']['labels'][ PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ] )
 			? $window_chrome['controls']['labels'][ PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ]
 			: PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE;
 		$document_labels = PufferDesk_Document_Service::get_default_labels();
+		$theme_documents = isset( $theme['documents'] ) && is_array( $theme['documents'] ) ? $theme['documents'] : array();
+		$sticky_save_policy = isset( $theme_documents['stickyNoteSavePolicy'] ) && in_array( $theme_documents['stickyNoteSavePolicy'], array( 'ask-on-first-save', 'default-location' ), true )
+			? $theme_documents['stickyNoteSavePolicy']
+			: 'default-location';
 
 		return array(
 			'actions'      => array(
@@ -358,6 +362,9 @@ final class PufferDesk_Runtime_Config {
 			'kinds'        => array(
 				'sticky' => PufferDesk_Document_Service::KIND_STICKY,
 				'text'   => PufferDesk_Document_Service::KIND_TEXT,
+			),
+			'savePolicies' => array(
+				'stickyNote' => $sticky_save_policy,
 			),
 			'labels'       => array(
 				'close'            => $close_label,
@@ -394,7 +401,10 @@ final class PufferDesk_Runtime_Config {
 				'noteOptions'      => __( 'Note options', 'pufferdesk-admin-desktop' ),
 				'notesList'        => __( 'Notes list', 'pufferdesk-admin-desktop' ),
 				'save'             => __( 'Save', 'pufferdesk-admin-desktop' ),
+				'saveAs'           => __( 'Save As:', 'pufferdesk-admin-desktop' ),
+				'saveDocumentTitle' => __( 'Save Sticky Note', 'pufferdesk-admin-desktop' ),
 				'saveEllipsis'     => __( 'Save...', 'pufferdesk-admin-desktop' ),
+				'saveLocationUnavailable' => __( 'No save locations available.', 'pufferdesk-admin-desktop' ),
 				'saved'            => __( 'Saved', 'pufferdesk-admin-desktop' ),
 				'saving'           => __( 'Saving...', 'pufferdesk-admin-desktop' ),
 				'search'           => __( 'Search', 'pufferdesk-admin-desktop' ),
@@ -407,6 +417,7 @@ final class PufferDesk_Runtime_Config {
 				'textEditor'       => __( 'Text Editor', 'pufferdesk-admin-desktop' ),
 				'underline'        => __( 'Underline', 'pufferdesk-admin-desktop' ),
 				'untitledDocument' => $document_labels['untitledDocument'],
+				'where'            => __( 'Where:', 'pufferdesk-admin-desktop' ),
 			),
 		);
 	}

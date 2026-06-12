@@ -171,6 +171,65 @@
 	box-shadow: 0 0 0 3px var(--pdk-focus-ring, rgba(36, 88, 202, 0.28));
 }
 
+.pdk-shell-dialog-select {
+	appearance: none;
+	background: rgba(255, 255, 255, 0.18);
+	border: 1px solid var(--pdk-dialog-button-border);
+	border-radius: 7px;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+	color: var(--pdk-dialog-ink);
+	font-family: var(--pdk-font-ui);
+	font-size: var(--pdk-text-body);
+	line-height: 1.2;
+	min-height: 28px;
+	outline: none;
+	padding: 5px 28px 5px 8px;
+	width: 100%;
+}
+
+.pdk-shell-dialog-select:focus {
+	border-color: var(--pdk-accent);
+	box-shadow: 0 0 0 3px var(--pdk-focus-ring, rgba(36, 88, 202, 0.28));
+}
+
+.pdk-shell-document-save-dialog {
+	gap: 12px;
+	max-width: min(480px, calc(100% - 48px));
+	text-align: left;
+	width: 440px;
+}
+
+.pdk-shell-document-save-dialog .pdk-shell-dialog-title {
+	text-align: center;
+}
+
+.pdk-shell-document-save-form {
+	display: grid;
+	gap: 10px;
+	min-width: 0;
+}
+
+.pdk-shell-document-save-row {
+	align-items: center;
+	display: grid;
+	gap: 10px;
+	grid-template-columns: minmax(74px, auto) minmax(0, 1fr);
+	min-width: 0;
+}
+
+.pdk-shell-document-save-label {
+	color: var(--pdk-dialog-ink);
+	font-family: var(--pdk-font-ui);
+	font-size: var(--pdk-text-caption);
+	font-weight: var(--pdk-weight-medium);
+	text-align: right;
+	white-space: nowrap;
+}
+
+.pdk-shell-document-save-status {
+	text-align: center;
+}
+
 .pdk-shell-dialog-actions {
 	display: flex;
 	gap: 8px;
@@ -203,6 +262,11 @@
 
 .pdk-shell-dialog-button:active {
 	background: var(--pdk-dialog-button-hover-bg);
+}
+
+.pdk-shell-dialog-button:disabled {
+	opacity: 0.46;
+	pointer-events: none;
 }
 
 .pdk-shell-dialog-button:focus-visible {

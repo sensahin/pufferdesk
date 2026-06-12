@@ -65,11 +65,13 @@
 			})
 			: null;
 		const stickyNotesAppId = appIds.STICKY_NOTES;
+		const stickySavePolicyAsk = 'ask-on-first-save';
 		const noteMap = new Map();
 		let layer = null;
 		let openOptionsMenu = null;
 		let restorePromise = null;
 		let highestZ = 40;
+		let transientNoteId = 0;
 
 		function isRedmondTheme() {
 			const theme = config.theme && typeof config.theme === 'object' ? config.theme : {};
@@ -87,6 +89,46 @@
 
 		function getStickyKind() {
 			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
+		}
+
+		function getStickySavePolicy() {
+			const documents = config.documents && typeof config.documents === 'object' ? config.documents : {};
+			const savePolicies = documents.savePolicies && typeof documents.savePolicies === 'object' ? documents.savePolicies : {};
+			const policy = typeof savePolicies.stickyNote === 'string' ? savePolicies.stickyNote : '';
+
+			return policy || 'default-location';
+		}
+
+		function shouldAskOnFirstSave() {
+			return getStickySavePolicy() === stickySavePolicyAsk;
+		}
+
+		function isPersistedDocumentId(documentId) {
+			const id = Number.parseInt(documentId, 10);
+
+			return Number.isFinite(id) && id > 0;
+		}
+
+		function isUnsavedEntry(entry) {
+			return Boolean(entry && entry.unsaved === true) || !isPersistedDocumentId(entry && entry.document ? entry.document.id : 0);
+		}
+
+		function createTransientDocument(overrides = {}) {
+			transientNoteId -= 1;
+
+			return Object.assign({
+				authorId: Number.parseInt(config.userId, 10) || 0,
+				color: 'yellow',
+				content: '',
+				created: new Date().toISOString(),
+				format: 'html',
+				id: transientNoteId,
+				kind: getStickyKind(),
+				modified: '',
+				parentPath: '',
+				path: '',
+				title: getLabel('stickyNote')
+			}, overrides);
 		}
 
 		function getStickyNotesApp() {
@@ -485,10 +527,12 @@
 		}
 
 		function serializeNotes() {
-			return Array.from(noteMap.values()).map((entry) => ({
-				id: entry.document.id,
-				state: readState(entry.element)
-			}));
+			return Array.from(noteMap.values())
+				.filter((entry) => entry && entry.document && isPersistedDocumentId(entry.document.id))
+				.map((entry) => ({
+					id: entry.document.id,
+					state: readState(entry.element)
+				}));
 		}
 
 		function saveLayout() {
@@ -606,6 +650,10 @@
 
 			applyNoteColor(entry, nextColor);
 			entry.document.color = nextColor;
+
+			if (isUnsavedEntry(entry)) {
+				return Promise.resolve(true);
+			}
 
 			if (!documentStore || typeof documentStore.update !== 'function') {
 				return Promise.resolve(false);
@@ -746,32 +794,233 @@
 			};
 		}
 
-		function updateDocument(entry) {
+		function getNoteContent(entry) {
+			return entry && entry.content ? entry.content.value : '';
+		}
+
+		function syncLocalDocumentContent(entry) {
+			if (!entry || !entry.document) {
+				return;
+			}
+
+			entry.document.content = getNoteContent(entry);
+			entry.document.modified = new Date().toISOString();
+		}
+
+		function getNoteText(entry) {
+			if (!entry || !entry.content) {
+				return '';
+			}
+
+			const value = typeof entry.content.innerText === 'string' && entry.content.innerText
+				? entry.content.innerText
+				: getNoteContent(entry).replace(/<[^>]*>/g, ' ');
+
+			return String(value || '').replace(/\s+/g, ' ').trim();
+		}
+
+		function getSuggestedSaveTitle(entry) {
+			const currentTitle = entry && entry.document && typeof entry.document.title === 'string' ? entry.document.title.trim() : '';
+			const defaultTitle = getLabel('stickyNote');
+			const textTitle = getNoteText(entry);
+
+			if (currentTitle && currentTitle !== defaultTitle) {
+				return currentTitle;
+			}
+
+			return textTitle ? textTitle.slice(0, 80) : defaultTitle;
+		}
+
+		function syncEntryDocument(entry, documentData) {
+			if (!entry || !documentData) {
+				return;
+			}
+
+			const oldId = Number.parseInt(entry.document && entry.document.id, 10);
+			const newId = Number.parseInt(documentData.id, 10);
+
+			if (Number.isFinite(oldId) && oldId !== newId) {
+				noteMap.delete(oldId);
+			}
+
+			entry.document = documentData;
+			entry.unsaved = false;
+
+			if (entry.element) {
+				entry.element.dataset.pdkContextId = String(newId);
+				entry.element.setAttribute('aria-label', documentData.title || getLabel('stickyNote'));
+			}
+
+			if (Number.isFinite(newId)) {
+				noteMap.set(newId, entry);
+			}
+		}
+
+		function getSaveDialog() {
+			const dialogs = getDialogs();
+
+			return dialogs && typeof dialogs.saveDocument === 'function' ? dialogs : null;
+		}
+
+		function requestSaveMetadata(entry) {
+			const dialogs = getSaveDialog();
+			const fallbackParentPath = entry && entry.document && entry.document.parentPath ? entry.document.parentPath : '';
+			const options = {
+				kind: getStickyKind(),
+				parentPath: fallbackParentPath,
+				style: 'floating',
+				title: getLabel('saveDocumentTitle'),
+				value: getSuggestedSaveTitle(entry),
+				variant: 'document-save'
+			};
+
+			if (dialogs) {
+				return dialogs.saveDocument(options);
+			}
+
+			if (!window.prompt) {
+				return Promise.resolve(null);
+			}
+
+			const title = window.prompt(getLabel('saveAs'), options.value);
+			if (title === null) {
+				return Promise.resolve(null);
+			}
+
+			return Promise.resolve({
+				parentPath: fallbackParentPath,
+				title
+			});
+		}
+
+		function updateDocument(entry, options = {}) {
 			if (!documentStore || !entry || !entry.document || !entry.content) {
 				return Promise.resolve(false);
 			}
 
-			const content = entry.content.value;
+			if (entry.pendingSave) {
+				if (options.explicit === true && !isUnsavedEntry(entry)) {
+					return entry.pendingSave.then(() => updateDocument(entry, options));
+				}
 
-			return documentStore.update(entry.document.id, {
-				content,
-				kind: getStickyKind()
-			}).then((documentData) => {
-				entry.document = documentData;
-				return true;
-			}).catch(() => false);
+				return entry.pendingSave;
+			}
+
+			syncLocalDocumentContent(entry);
+			const content = getNoteContent(entry);
+			const saveRequest = Promise.resolve().then(() => {
+				if (isUnsavedEntry(entry)) {
+					if (shouldAskOnFirstSave() && options.explicit !== true) {
+						return false;
+					}
+
+					const metadataRequest = shouldAskOnFirstSave()
+						? requestSaveMetadata(entry)
+						: Promise.resolve({
+							parentPath: entry.document.parentPath || '',
+							title: entry.document.title || getLabel('stickyNote')
+						});
+
+					return metadataRequest.then((metadata) => {
+						if (!metadata || !metadata.parentPath) {
+							return false;
+						}
+
+						return documentStore.create({
+							color: entry.document.color || '',
+							content,
+							kind: getStickyKind(),
+							parentPath: metadata.parentPath,
+							title: metadata.title || getLabel('stickyNote')
+						}).then((documentData) => {
+							syncEntryDocument(entry, documentData);
+							saveLayout();
+							return true;
+						});
+					});
+				}
+
+				const payload = {
+					content,
+					kind: getStickyKind()
+				};
+
+				if (shouldAskOnFirstSave() && entry.document.title) {
+					payload.title = entry.document.title;
+				}
+
+				return documentStore.update(entry.document.id, payload).then((documentData) => {
+					syncEntryDocument(entry, documentData);
+					return true;
+				});
+			});
+
+			entry.pendingSave = saveRequest.catch(() => false).finally(() => {
+				entry.pendingSave = null;
+			});
+
+			return entry.pendingSave;
+		}
+
+		function canAutoSaveEntry(entry) {
+			return Boolean(entry && (!isUnsavedEntry(entry) || !shouldAskOnFirstSave()));
 		}
 
 		function createSaveTask(entry) {
+			let task = null;
+
+			function runExplicitSave() {
+				if (task && typeof task.cancel === 'function') {
+					task.cancel();
+				}
+
+				return updateDocument(entry, {
+					explicit: true
+				});
+			}
+
+			function scheduleAutoSave() {
+				if (!canAutoSaveEntry(entry)) {
+					return false;
+				}
+
+				return updateDocument(entry, {
+					explicit: false
+				});
+			}
+
 			if (!createDebouncedTask) {
 				return {
-					run: () => updateDocument(entry),
-					schedule: () => updateDocument(entry)
+					run: runExplicitSave,
+					schedule: scheduleAutoSave
 				};
 			}
 
-			return createDebouncedTask(() => updateDocument(entry), {
+			task = createDebouncedTask(() => updateDocument(entry, {
+				explicit: false
+			}), {
+				shouldRun: () => canAutoSaveEntry(entry),
 				wait: 520
+			});
+
+			return {
+				cancel: task.cancel,
+				run: runExplicitSave,
+				schedule: task.schedule
+			};
+		}
+
+		function saveAndCloseNote(entry) {
+			if (!entry || !entry.saveTask || typeof entry.saveTask.run !== 'function') {
+				return Promise.resolve(false);
+			}
+
+			return entry.saveTask.run().then((saved) => {
+				if (!saved || !entry.document || !isPersistedDocumentId(entry.document.id)) {
+					return false;
+				}
+
+				return hideNote(entry.document.id);
 			});
 		}
 
@@ -814,6 +1063,10 @@
 		function deleteNote(documentId) {
 			const entry = noteMap.get(Number.parseInt(documentId, 10));
 
+			if (entry && isUnsavedEntry(entry)) {
+				return Promise.resolve(removeRenderedNote(documentId));
+			}
+
 			if (!documentStore) {
 				return Promise.resolve(removeRenderedNote(documentId));
 			}
@@ -829,6 +1082,9 @@
 			}
 
 			closeNoteOptionsMenu();
+			if (entry.saveTask && typeof entry.saveTask.cancel === 'function') {
+				entry.saveTask.cancel();
+			}
 			if (typeof entry.formatCleanup === 'function') {
 				entry.formatCleanup();
 			}
@@ -947,7 +1203,7 @@
 				}
 
 				if (action === 'save') {
-					return entry.saveTask.run();
+					return saveAndCloseNote(entry);
 				}
 
 				return false;
@@ -1109,7 +1365,8 @@
 				document: documentData,
 				element: noteElement,
 				formatCleanup: null,
-				saveTask: null
+				saveTask: null,
+				unsaved: !isPersistedDocumentId(documentId) || documentData.unsaved === true
 			};
 			const createButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-new', getLabel('newStickyNote'), '+');
 			const discardButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-discard', getLabel('discardNote'), '');
@@ -1147,8 +1404,17 @@
 			syncRunningState();
 
 			noteElement.addEventListener('pointerdown', () => bringToFront(noteElement));
-			content.addEventListener('input', () => entry.saveTask.schedule());
-			content.addEventListener('blur', () => entry.saveTask.run());
+			content.addEventListener('input', () => {
+				syncLocalDocumentContent(entry);
+				entry.saveTask.schedule();
+			});
+			content.addEventListener('blur', () => {
+				if (canAutoSaveEntry(entry)) {
+					updateDocument(entry, {
+						explicit: false
+					});
+				}
+			});
 			createButton.addEventListener('click', () => {
 				createStickyNote({
 					left: noteElement.offsetLeft + 28,
@@ -1167,6 +1433,19 @@
 		function createStickyNote(state = {}) {
 			if (!documentStore || typeof documentStore.create !== 'function') {
 				return Promise.resolve(null);
+			}
+
+			if (shouldAskOnFirstSave()) {
+				const documentData = createTransientDocument({
+					unsaved: true
+				});
+				const noteElement = renderNote(documentData, normalizeCreateState(state));
+				if (noteElement) {
+					showNote(documentData.id);
+					saveLayout();
+				}
+
+				return Promise.resolve(documentData);
 			}
 
 			return documentStore.create({
@@ -1195,7 +1474,9 @@
 				return restorePromise;
 			}
 
-			restorePromise = documentStore.list(getStickyKind()).then((documents) => {
+			restorePromise = documentStore.list(getStickyKind(), {
+				includeAllFolders: true
+			}).then((documents) => {
 				documents.forEach((documentData) => {
 					renderNote(documentData, getSavedState(documentData.id));
 				});
@@ -1211,7 +1492,10 @@
 		}
 
 		function getNotes() {
-			return Array.from(noteMap.values()).map((entry) => entry.document);
+			return Array.from(noteMap.values()).map((entry) => {
+				syncLocalDocumentContent(entry);
+				return entry.document;
+			});
 		}
 
 		function getNoteSnapshot(documentId) {
@@ -1230,7 +1514,33 @@
 			const snapshot = getNoteSnapshot(documentId);
 			const offset = Number.isFinite(options.offset) ? options.offset : 28;
 
-			if (!snapshot || !documentStore || typeof documentStore.duplicate !== 'function') {
+			if (!snapshot) {
+				return Promise.resolve(null);
+			}
+
+			if (!isPersistedDocumentId(documentId)) {
+				const state = Object.assign({}, snapshot.state, options.state && typeof options.state === 'object' ? options.state : {});
+				const documentData = createTransientDocument({
+					color: snapshot.document.color || 'yellow',
+					content: snapshot.document.content || getNoteContent(noteMap.get(Number.parseInt(documentId, 10))),
+					parentPath: '',
+					path: '',
+					title: snapshot.document.title || getLabel('stickyNote'),
+					unsaved: true
+				});
+
+				if (options.render !== false) {
+					state.left = toNumber(state.left, snapshot.state.left || 110) + offset;
+					state.top = toNumber(state.top, snapshot.state.top || getStickySafeArea().top) + offset;
+					renderNote(documentData, state);
+					showNote(documentData.id);
+					saveLayout();
+				}
+
+				return Promise.resolve(documentData);
+			}
+
+			if (!documentStore || typeof documentStore.duplicate !== 'function') {
 				return Promise.resolve(null);
 			}
 
