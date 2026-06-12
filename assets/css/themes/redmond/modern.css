@@ -95,6 +95,7 @@
 	--pdk-dock-icon-size: 24px;
 	--pdk-dock-item-size: 48px;
 	--pdk-dock-tile-size: 28px;
+	--pdk-redmond-taskbar-adaptive-icon-size: 26px;
 	--pdk-redmond-tooltip-bg: #f2f2f2;
 	--pdk-redmond-tooltip-border: #c8c8c8;
 	--pdk-redmond-tooltip-ink: #1f1f1f;
@@ -1116,10 +1117,10 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-window-item .dashicons,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item .pdk-icon-mask,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-window-item .pdk-icon-mask {
-	font-size: 32px;
-	height: 32px;
-	line-height: 32px;
-	width: 32px;
+	font-size: var(--pdk-redmond-taskbar-adaptive-icon-size, 26px);
+	height: var(--pdk-redmond-taskbar-adaptive-icon-size, 26px);
+	line-height: var(--pdk-redmond-taskbar-adaptive-icon-size, 26px);
+	width: var(--pdk-redmond-taskbar-adaptive-icon-size, 26px);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock-item:hover,

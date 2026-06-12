@@ -130,6 +130,12 @@
 	--pdk-icon-widget-surface-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.86), rgba(218, 234, 238, 0.8));
 	--pdk-icon-widget-surface-border: rgba(255, 255, 255, 0.72);
 	--pdk-icon-widget-surface-shadow: 0 8px 16px rgba(16, 34, 50, 0.12), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+	--pdk-icon-widget-dock-surface-size: clamp(38px, calc(var(--pdk-dock-tile-size, 48px) - 8px), 46px);
+	--pdk-icon-widget-dock-symbol-size: clamp(20px, calc(var(--pdk-dock-tile-size, 48px) - 26px), 24px);
+	--pdk-icon-widget-dock-surface-radius: 11px;
+	--pdk-icon-widget-dock-surface-border: transparent;
+	--pdk-icon-widget-dock-surface-border-width: 0;
+	--pdk-icon-widget-dock-surface-shadow: 0 5px 12px rgba(16, 34, 50, 0.1), 0 1px 0 rgba(255, 255, 255, 0.28) inset;
 	--pdk-icon-widget-symbol: var(--pdk-accent);
 	--pdk-icon-adaptive-ink: var(--pdk-icon-widget-symbol);
 	--pdk-icon-widget-tile-bg: var(--pdk-tile-bg);
@@ -1343,15 +1349,15 @@
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item .dashicons,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item .dashicons {
 	background: var(--pdk-icon-widget-surface-bg);
-	border: 1px solid var(--pdk-icon-widget-surface-border);
-	border-radius: 14px;
-	box-shadow: var(--pdk-icon-widget-surface-shadow);
+	border: var(--pdk-icon-widget-dock-surface-border-width, 0) solid var(--pdk-icon-widget-dock-surface-border, transparent);
+	border-radius: var(--pdk-icon-widget-dock-surface-radius, 12px);
+	box-shadow: var(--pdk-icon-widget-dock-surface-shadow, var(--pdk-icon-widget-surface-shadow));
 	color: var(--pdk-icon-widget-symbol);
-	font-size: var(--pdk-dock-icon-size, 27px);
-	height: var(--pdk-dock-tile-size, 52px);
-	line-height: var(--pdk-dock-tile-size, 52px);
+	font-size: var(--pdk-icon-widget-dock-symbol-size, 23px);
+	height: var(--pdk-icon-widget-dock-surface-size, 44px);
+	line-height: var(--pdk-icon-widget-dock-surface-size, 44px);
 	transition: filter 120ms ease, opacity 120ms ease, transform 120ms ease;
-	width: var(--pdk-dock-tile-size, 52px);
+	width: var(--pdk-icon-widget-dock-surface-size, 44px);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item .pdk-icon-image,
@@ -1365,16 +1371,38 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item:has(> .pdk-icon-mask),
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item:has(> .pdk-icon-mask) {
-	background: var(--pdk-icon-widget-surface-bg);
-	border: 1px solid var(--pdk-icon-widget-surface-border);
-	box-shadow: var(--pdk-icon-widget-surface-shadow);
 	color: var(--pdk-icon-widget-symbol);
+	min-width: var(--pdk-dock-tile-size, var(--pdk-dock-item-size, 48px));
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item:has(> .dashicons),
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item:has(> .dashicons) {
+	min-width: var(--pdk-dock-tile-size, var(--pdk-dock-item-size, 48px));
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item:has(> .pdk-icon-mask)::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item:has(> .pdk-icon-mask)::before {
+	background: var(--pdk-icon-widget-surface-bg);
+	border: var(--pdk-icon-widget-dock-surface-border-width, 0) solid var(--pdk-icon-widget-dock-surface-border, transparent);
+	border-radius: var(--pdk-icon-widget-dock-surface-radius, 12px);
+	box-shadow: var(--pdk-icon-widget-dock-surface-shadow, var(--pdk-icon-widget-surface-shadow));
+	content: "";
+	height: var(--pdk-icon-widget-dock-surface-size, 44px);
+	left: 50%;
+	pointer-events: none;
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: var(--pdk-icon-widget-dock-surface-size, 44px);
+	z-index: 0;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-item > .pdk-icon-mask,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-dock-window-item > .pdk-icon-mask {
-	height: var(--pdk-dock-icon-size, 27px);
-	width: var(--pdk-dock-icon-size, 27px);
+	height: var(--pdk-icon-widget-dock-symbol-size, 23px);
+	position: relative;
+	width: var(--pdk-icon-widget-dock-symbol-size, 23px);
+	z-index: 1;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop-app .pdk-icon-image.pdk-icon-brand,
