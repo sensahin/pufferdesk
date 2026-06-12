@@ -934,7 +934,7 @@ final class PufferDesk_Theme_Registry {
 	 * Normalize theme media fields into local asset descriptors.
 	 *
 	 * @param array<string,mixed> $theme Raw theme data.
-	 * @return array<string,array<string,string>>
+	 * @return array<string,array<mixed>>
 	 */
 	private function normalize_media( $theme ) {
 		$media = isset( $theme['media'] ) && is_array( $theme['media'] ) ? $theme['media'] : array();
@@ -958,9 +958,9 @@ final class PufferDesk_Theme_Registry {
 	 *
 	 * Empty child descriptors inherit parent descriptors.
 	 *
-	 * @param array<string,array<string,string>> $parent Parent media.
-	 * @param array<string,array<string,string>> $child Child media.
-	 * @return array<string,array<string,string>>
+	 * @param array<string,array<mixed>> $parent Parent media.
+	 * @param array<string,array<mixed>> $child Child media.
+	 * @return array<string,array<mixed>>
 	 */
 	private function merge_media( $parent, $child ) {
 		$merged = $child;
@@ -2239,7 +2239,7 @@ final class PufferDesk_Theme_Registry {
 	 * Normalize a media directory path below assets/media.
 	 *
 	 * @param mixed $path Raw path.
-	 * @return array<string,string>
+	 * @return array<string,mixed>
 	 */
 	private function normalize_media_directory( $path ) {
 		return $this->normalize_media_asset( $path, true );
@@ -2250,7 +2250,7 @@ final class PufferDesk_Theme_Registry {
 	 *
 	 * @param mixed $path Raw path.
 	 * @param bool  $directory Whether the asset is a directory.
-	 * @return array<string,string>
+	 * @return array<string,mixed>
 	 */
 	private function normalize_media_asset( $path, $directory ) {
 		$path = $this->sanitize_asset_path( $path, 'assets/media/' );
@@ -2263,11 +2263,56 @@ final class PufferDesk_Theme_Registry {
 		}
 
 		$url_path = $directory ? trailingslashit( $path ) : $path;
-
-		return array(
+		$asset    = array(
 			'path' => $path,
 			'url'  => PUFFERDESK_URL . 'assets/media/' . $url_path,
 		);
+
+		if ( $directory ) {
+			$versions = $this->get_media_directory_versions( $path );
+			if ( ! empty( $versions ) ) {
+				$asset['versions'] = $versions;
+			}
+		}
+
+		return $asset;
+	}
+
+	/**
+	 * Build a direct-child file version map for runtime-generated media URLs.
+	 *
+	 * @param string $path Normalized media directory path.
+	 * @return array<string,string>
+	 */
+	private function get_media_directory_versions( $path ) {
+		$directory = PUFFERDESK_DIR . 'assets/media/' . $path;
+		if ( '' === $path || ! is_dir( $directory ) ) {
+			return array();
+		}
+
+		$files = scandir( $directory );
+		if ( false === $files ) {
+			return array();
+		}
+
+		$versions = array();
+		foreach ( $files as $file ) {
+			if ( ! preg_match( '/\.(svg|png|webp|jpe?g|gif)$/i', $file ) ) {
+				continue;
+			}
+
+			$full_path = trailingslashit( $directory ) . $file;
+			if ( ! is_file( $full_path ) ) {
+				continue;
+			}
+
+			$mtime             = filemtime( $full_path );
+			$versions[ $file ] = false !== $mtime ? (string) $mtime : PUFFERDESK_VERSION;
+		}
+
+		ksort( $versions );
+
+		return $versions;
 	}
 
 	/**

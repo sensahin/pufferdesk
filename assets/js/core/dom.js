@@ -178,6 +178,15 @@
 		return iconPack && iconPack.url ? String(iconPack.url) : '';
 	}
 
+	function getThemeIconVersion(name) {
+		const config = window.PufferDesk.config ? window.PufferDesk.config.get() : (window.pufferDesk || {});
+		const iconPack = config.theme && config.theme.media && config.theme.media.icon_pack ? config.theme.media.icon_pack : null;
+		const versions = iconPack && iconPack.versions && typeof iconPack.versions === 'object' ? iconPack.versions : {};
+		const version = versions[name];
+
+		return typeof version === 'string' || typeof version === 'number' ? String(version) : '';
+	}
+
 	function normalizeIconName(name) {
 		const value = typeof name === 'string' ? name.trim() : '';
 		if (!/^[a-zA-Z0-9._-]+\.(svg|png|webp|jpe?g|gif)$/i.test(value)) {
@@ -193,6 +202,14 @@
 
 	function trailingslash(value) {
 		return value.endsWith('/') ? value : `${value}/`;
+	}
+
+	function appendVersion(url, version) {
+		if (!version) {
+			return url;
+		}
+
+		return `${url}${url.includes('?') ? '&' : '?'}ver=${encodeURIComponent(version)}`;
 	}
 
 	function normalizeIcon(icon) {
@@ -218,11 +235,12 @@
 			const fallback = getDashiconValue(icon.fallback);
 			const iconPackUrl = getThemeIconPackUrl();
 			const appearance = normalizeIconAppearance(icon.appearance);
+			const version = getThemeIconVersion(name);
 
 			if (name && iconPackUrl) {
 				return {
 					type: iconTypes.IMAGE,
-					url: `${trailingslash(iconPackUrl)}${encodeURIComponent(name)}`,
+					url: appendVersion(`${trailingslash(iconPackUrl)}${encodeURIComponent(name)}`, version),
 					alt: icon.alt || '',
 					fallback,
 					appearance
