@@ -520,8 +520,8 @@
 
 			return {
 				collapsed: state.collapsed && typeof state.collapsed === 'object' && !Array.isArray(state.collapsed) ? state.collapsed : {},
-				favoriteIds: Array.isArray(state.favoriteIds) ? state.favoriteIds.map(normalizeFolderId).filter(Boolean) : [],
-				removedFavoriteIds: Array.isArray(state.removedFavoriteIds) ? state.removedFavoriteIds.map(normalizeFolderId).filter(Boolean) : []
+				items: Array.isArray(state.items) ? state.items.map(normalizeFolderSidebarFavoriteItem).filter(Boolean) : [],
+				removedItemIds: Array.isArray(state.removedItemIds) ? state.removedItemIds.map(normalizeFolderSidebarFavoriteId).filter(Boolean) : []
 			};
 		}
 
@@ -532,33 +532,174 @@
 
 			sessionStore.saveSection(workspaceSections.FOLDER_SIDEBAR, {
 				collapsed: state && state.collapsed && typeof state.collapsed === 'object' ? state.collapsed : {},
-				favoriteIds: Array.isArray(state && state.favoriteIds) ? state.favoriteIds : [],
-				removedFavoriteIds: Array.isArray(state && state.removedFavoriteIds) ? state.removedFavoriteIds : []
+				items: Array.isArray(state && state.items) ? state.items.map(normalizeFolderSidebarFavoriteItem).filter(Boolean) : [],
+				removedItemIds: Array.isArray(state && state.removedItemIds) ? state.removedItemIds.map(normalizeFolderSidebarFavoriteId).filter(Boolean) : []
 			});
 
 			return true;
 		}
 
-		function getDefaultFinderFavorites() {
-			return defaultFinderFavoriteIds.filter((folderId) => Boolean(getFolder(folderId)));
+		function normalizeFolderSidebarFavoriteType(value) {
+			const type = String(value || '').trim();
+
+			return ['folder', 'document'].includes(type) ? type : '';
 		}
 
-		function getFinderFavoriteIds() {
-			const state = getFolderSidebarState();
-			const removed = new Set(state.removedFavoriteIds);
-			const seen = new Set();
-			const ids = [];
+		function createFolderSidebarFavoriteId(type, targetId) {
+			const normalizedType = normalizeFolderSidebarFavoriteType(type);
+			const normalizedTargetId = normalizedType === 'document'
+				? String(parseDocumentId(targetId) || '')
+				: normalizeFolderId(targetId);
 
-			getDefaultFinderFavorites().concat(state.favoriteIds).forEach((folderId) => {
-				if (!folderId || removed.has(folderId) || seen.has(folderId) || !getFolder(folderId) || isTrashFolderId(folderId) || isRecentsFolderId(folderId)) {
+			return normalizedType && normalizedTargetId ? `${normalizedType}:${normalizedTargetId}` : '';
+		}
+
+		function normalizeFolderSidebarFavoriteId(value) {
+			const parts = String(value || '').split(':');
+
+			if (parts.length !== 2) {
+				return '';
+			}
+
+			return createFolderSidebarFavoriteId(parts[0], parts[1]);
+		}
+
+		function cloneSidebarFavoriteIcon(icon) {
+			if (!icon) {
+				return '';
+			}
+
+			if (typeof icon === 'string') {
+				return icon;
+			}
+
+			if (isPlainObject(icon)) {
+				return Object.assign({}, icon);
+			}
+
+			return '';
+		}
+
+		function getDefaultDocumentFavoriteIcon() {
+			return { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' };
+		}
+
+		function getFolderSidebarFavoriteInputType(input = {}, detail = {}) {
+			const rawType = input.type || input.itemType || input.kind || detail.itemType || '';
+
+			if (normalizeFolderSidebarFavoriteType(rawType)) {
+				return normalizeFolderSidebarFavoriteType(rawType);
+			}
+
+			if (detail.type === contextTargets.DOCUMENT || detail.kind === contextTargets.DOCUMENT) {
+				return 'document';
+			}
+
+			if (
+				detail.type === contextTargets.FOLDER
+				|| detail.type === contextTargets.DESKTOP_FOLDER
+				|| detail.kind === contextTargets.FOLDER
+				|| detail.kind === contextTargets.DESKTOP_FOLDER
+			) {
+				return 'folder';
+			}
+
+			return '';
+		}
+
+		function normalizeFolderSidebarFavoriteItem(input, detail = {}) {
+			const raw = input && typeof input === 'object' && !Array.isArray(input) ? input : {};
+			const metadata = detail && detail.metadata && detail.metadata.dataset && typeof detail.metadata.dataset === 'object'
+				? detail.metadata.dataset
+				: {};
+			const storedId = normalizeFolderSidebarFavoriteId(raw.id || '');
+			const storedParts = storedId ? storedId.split(':') : [];
+			const type = getFolderSidebarFavoriteInputType(raw, detail) || (storedParts.length === 2 ? storedParts[0] : '');
+			const targetSource = raw.targetId
+				|| raw.documentId
+				|| raw.folderId
+				|| raw.target
+				|| metadata.pdkDocumentId
+				|| metadata.pdkFolderItemId
+				|| detail.documentId
+				|| detail.folderId
+				|| detail.target
+				|| detail.id
+				|| (storedParts.length === 2 ? storedParts[1] : '');
+			const targetId = type === 'document' ? String(parseDocumentId(targetSource) || '') : normalizeFolderId(targetSource);
+
+			if (!type || !targetId) {
+				return null;
+			}
+
+			if (type === 'folder') {
+				const folder = getFolder(targetId);
+
+				if (!folder || isTrashFolderId(targetId) || isRecentsFolderId(targetId)) {
+					return null;
+				}
+
+				return {
+					icon: cloneSidebarFavoriteIcon(raw.icon || detail.icon || (detail.folder && detail.folder.icon) || folder.icon || 'dashicons-category'),
+					id: createFolderSidebarFavoriteId(type, targetId),
+					label: raw.label || detail.label || folder.label || getMenuLabel('folder'),
+					targetId,
+					type
+				};
+			}
+
+			return {
+				icon: cloneSidebarFavoriteIcon(raw.icon || detail.icon || getDefaultDocumentFavoriteIcon()),
+				id: createFolderSidebarFavoriteId(type, targetId),
+				label: raw.label || detail.label || getMenuLabel('sticky_note'),
+				targetId,
+				type
+			};
+		}
+
+		function getDefaultFolderSidebarFavoriteItems() {
+			return defaultFinderFavoriteIds
+				.map((folderId) => getFolder(folderId))
+				.filter(Boolean)
+				.map((folder) => normalizeFolderSidebarFavoriteItem({
+					icon: folder.icon || 'dashicons-category',
+					label: folder.label || getMenuLabel('folder'),
+					targetId: folder.id,
+					type: 'folder'
+				}))
+				.filter(Boolean);
+		}
+
+		function getFolderSidebarFavoriteItems() {
+			const state = getFolderSidebarState();
+			const removed = new Set(state.removedItemIds);
+			const seen = new Set();
+			const items = [];
+
+			getDefaultFolderSidebarFavoriteItems().concat(state.items).forEach((item) => {
+				const favorite = normalizeFolderSidebarFavoriteItem(item);
+
+				if (!favorite || removed.has(favorite.id) || seen.has(favorite.id)) {
 					return;
 				}
 
-				seen.add(folderId);
-				ids.push(folderId);
+				seen.add(favorite.id);
+				items.push(favorite);
 			});
 
-			return ids;
+			return items;
+		}
+
+		function hasFolderSidebarFavorite(input, detail = {}) {
+			const item = normalizeFolderSidebarFavoriteItem(input, detail);
+
+			return Boolean(item && getFolderSidebarFavoriteItems().some((favorite) => favorite.id === item.id));
+		}
+
+		function canAddFolderSidebarFavorite(input, detail = {}) {
+			const item = normalizeFolderSidebarFavoriteItem(input, detail);
+
+			return Boolean(item && !hasFolderSidebarFavorite(item));
 		}
 
 		function refreshOpenFolderSidebars() {
@@ -588,19 +729,23 @@
 			return true;
 		}
 
-		function addFolderSidebarFavorite(folderId) {
-			const normalized = normalizeFolderId(folderId);
-			const folder = getFolder(normalized);
+		function addFolderSidebarFavorite(input, detail = {}) {
+			const item = normalizeFolderSidebarFavoriteItem(input, detail);
 			const state = getFolderSidebarState();
-			const defaults = new Set(getDefaultFinderFavorites());
+			const defaults = new Set(getDefaultFolderSidebarFavoriteItems().map((favorite) => favorite.id));
+			const existingIndex = state.items.findIndex((favorite) => favorite && favorite.id === (item && item.id));
 
-			if (!folder || isTrashFolderId(normalized) || isRecentsFolderId(normalized)) {
+			if (!item) {
 				return false;
 			}
 
-			state.removedFavoriteIds = state.removedFavoriteIds.filter((id) => id !== normalized);
-			if (!defaults.has(normalized) && !state.favoriteIds.includes(normalized)) {
-				state.favoriteIds.push(normalized);
+			state.removedItemIds = state.removedItemIds.filter((id) => id !== item.id);
+			if (!defaults.has(item.id)) {
+				if (existingIndex >= 0) {
+					state.items[existingIndex] = item;
+				} else {
+					state.items.push(item);
+				}
 			}
 			saveFolderSidebarState(state);
 			refreshOpenFolderSidebars();
@@ -608,28 +753,30 @@
 			return true;
 		}
 
-		function removeFolderSidebarFavorite(folderId) {
-			const normalized = normalizeFolderId(folderId);
+		function removeFolderSidebarFavorite(input, detail = {}) {
+			const item = normalizeFolderSidebarFavoriteItem(input, detail);
+			const favoriteId = item ? item.id : normalizeFolderSidebarFavoriteId(input && typeof input === 'string' ? input : input && input.id ? input.id : '');
 			const state = getFolderSidebarState();
-			const visibleFavoriteIds = new Set(getFinderFavoriteIds());
+			const defaultIds = new Set(getDefaultFolderSidebarFavoriteItems().map((favorite) => favorite.id));
+			const visibleFavoriteIds = new Set(getFolderSidebarFavoriteItems().map((favorite) => favorite.id));
 			let changed = false;
 
-			if (!normalized) {
+			if (!favoriteId) {
 				return false;
 			}
 
-			const nextFavorites = state.favoriteIds.filter((id) => id !== normalized);
-			if (nextFavorites.length !== state.favoriteIds.length) {
-				state.favoriteIds = nextFavorites;
+			const nextFavorites = state.items.filter((favorite) => favorite && favorite.id !== favoriteId);
+			if (nextFavorites.length !== state.items.length) {
+				state.items = nextFavorites;
 				changed = true;
 			}
 
-			if (!state.removedFavoriteIds.includes(normalized)) {
-				state.removedFavoriteIds.push(normalized);
+			if (defaultIds.has(favoriteId) && !state.removedItemIds.includes(favoriteId)) {
+				state.removedItemIds.push(favoriteId);
 				changed = true;
 			}
 
-			if (!changed && visibleFavoriteIds.has(normalized)) {
+			if (!changed && visibleFavoriteIds.has(favoriteId)) {
 				changed = true;
 			}
 
@@ -1433,9 +1580,14 @@
 
 		function getFolderDragDetail(item, sourceFolderId) {
 			const kind = item && item.dataset ? item.dataset.pdkFolderItemKind || '' : '';
-			const id = item && item.dataset ? item.dataset.pdkFolderItemId || item.dataset.pdkContextId || item.dataset.pdkOpenFolder || '' : '';
+			const id = item && item.dataset
+				? kind === 'document'
+					? String(parseDocumentId(item.dataset.pdkDocumentId || item.dataset.pdkFolderItemId || item.dataset.pdkContextId) || '')
+					: item.dataset.pdkFolderItemId || item.dataset.pdkContextId || item.dataset.pdkOpenFolder || ''
+				: '';
+			const label = item && item.dataset ? item.dataset.pdkContextLabel || item.getAttribute('aria-label') || '' : '';
 
-			if (!id || !['app', 'folder'].includes(kind)) {
+			if (!id || !['app', 'folder', 'document'].includes(kind)) {
 				return null;
 			}
 
@@ -1443,6 +1595,7 @@
 				id,
 				item,
 				kind,
+				label,
 				sourceFolderId
 			};
 		}
@@ -1519,7 +1672,9 @@
 			return {
 				fromContainerId: sourceContainerId,
 				item: {
+					icon: dragDetail && dragDetail.kind === 'document' ? getDefaultDocumentFavoriteIcon() : '',
 					id: dragDetail && dragDetail.id ? dragDetail.id : '',
+					label: dragDetail && dragDetail.label ? dragDetail.label : '',
 					metadata: {
 						source: 'folder-item',
 						sourceFolderId
@@ -2181,14 +2336,24 @@
 			}
 
 			if (action.id === 'more') {
+				const folder = getFolder(folderId);
+
 				return [
 					explorerMenuItem(getMenuLabel('refresh'), commandIds.FOLDER_REFRESH, {
 						icon: 'dashicons-update',
 						target: folderId
 					}),
 					explorerMenuSeparator(),
-					disabledExplorerMenuItem(getMenuLabel('pin_to_quick_access'), {
-						icon: 'dashicons-admin-links'
+					explorerMenuItem(getMenuLabel('pin_to_quick_access'), commandIds.FOLDER_SIDEBAR_ADD, {
+						hideWhenUnavailable: true,
+						icon: 'dashicons-admin-links',
+						payload: {
+							icon: folder && folder.icon ? folder.icon : 'dashicons-category',
+							label: folder && folder.label ? folder.label : getMenuLabel('folder'),
+							targetId: folderId,
+							type: 'folder'
+						},
+						target: folderId
 					}),
 					disabledExplorerMenuItem(getMenuLabel('copy_as_path'), {
 						icon: 'dashicons-clipboard',
@@ -3441,22 +3606,29 @@
 		function createFinderSidebarItem(options = {}) {
 			const button = document.createElement('button');
 			const label = options.label || getMenuLabel('folder');
-			const folderId = options.id || '';
+			const itemId = options.id || '';
+			const targetId = options.targetId || itemId;
 
 			button.type = 'button';
 			button.className = `pdk-settings-sidebar-item pdk-finder-sidebar-item${options.active ? ' is-active' : ''}`;
 			button.dataset.pdkContext = options.context || contextTargets.FOLDER;
-			button.dataset.pdkContextId = folderId;
+			button.dataset.pdkContextId = itemId;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkFolderSidebarItem = '1';
 			button.dataset.pdkFolderSidebarSection = options.section || '';
+			if (options.favoriteType) {
+				button.dataset.pdkFolderSidebarFavoriteType = options.favoriteType;
+			}
+			if (targetId) {
+				button.dataset.pdkFolderSidebarTargetId = targetId;
+			}
 			if (options.removable) {
 				button.dataset.pdkFolderSidebarRemovable = '1';
 			}
 			if (options.dropTarget === 'folder') {
 				button.dataset.pdkFolderSidebarDropKind = 'folder';
 				button.dataset.pdkFolderSidebarTarget = 'folder';
-				button.dataset.pdkOpenFolder = folderId;
+				button.dataset.pdkOpenFolder = targetId;
 			}
 			if (options.active) {
 				button.setAttribute('aria-current', 'page');
@@ -3519,6 +3691,7 @@
 
 		function createExplorerSidebarButton(options = {}) {
 			const button = document.createElement('button');
+			const targetId = options.targetId || options.id || '';
 
 			button.type = 'button';
 			button.className = `pdk-settings-sidebar-item pdk-finder-sidebar-item pdk-explorer-sidebar-item${options.active ? ' is-active' : ''}${options.pinned ? ' has-pin' : ''}`;
@@ -3530,6 +3703,24 @@
 			}
 			if (options.label) {
 				button.dataset.pdkContextLabel = options.label;
+			}
+			if (options.favoriteType) {
+				button.dataset.pdkFolderSidebarFavoriteType = options.favoriteType;
+			}
+			if (options.section) {
+				button.dataset.pdkFolderSidebarItem = '1';
+				button.dataset.pdkFolderSidebarSection = options.section;
+			}
+			if (targetId) {
+				button.dataset.pdkFolderSidebarTargetId = targetId;
+			}
+			if (options.removable) {
+				button.dataset.pdkFolderSidebarRemovable = '1';
+			}
+			if (options.dropTarget === 'folder') {
+				button.dataset.pdkFolderSidebarDropKind = 'folder';
+				button.dataset.pdkFolderSidebarTarget = 'folder';
+				button.dataset.pdkOpenFolder = targetId;
 			}
 			if (options.active) {
 				button.setAttribute('aria-current', 'page');
@@ -3545,6 +3736,41 @@
 			});
 
 			return button;
+		}
+
+		function createSidebarFavoriteButton(favorite, folderId, win, isExplorer = false) {
+			const active = favorite.type === 'folder' && favorite.targetId === folderId;
+			const options = {
+				active,
+				context: contextTargets.FOLDER_SIDEBAR,
+				favoriteType: favorite.type,
+				icon: favorite.icon || (favorite.type === 'document' ? getDefaultDocumentFavoriteIcon() : 'dashicons-category'),
+				id: favorite.id,
+				label: favorite.label || (favorite.type === 'document' ? getMenuLabel('sticky_note') : getMenuLabel('folder')),
+				removable: true,
+				section: 'favorites',
+				targetId: favorite.targetId,
+				onClick() {
+					if (favorite.type === 'folder') {
+						if (win && favorite.targetId !== folderId) {
+							renderFolderWindow(win, favorite.targetId);
+						}
+						return;
+					}
+
+					if (favorite.type === 'document') {
+						openDocumentById(favorite.targetId);
+					}
+				}
+			};
+
+			if (favorite.type === 'folder') {
+				options.outlineIcon = isExplorer ? '' : 'folder';
+			}
+
+			return isExplorer ? createExplorerSidebarButton(Object.assign({}, options, {
+				pinned: true
+			})) : createFinderSidebarItem(options);
 		}
 
 		function createExplorerSidebarStaticItem(label, iconName, options = {}) {
@@ -3584,6 +3810,8 @@
 				const currentFolder = getFolder(folderId);
 				const mediaApp = appMap.get(appIds.MEDIA);
 
+				folderGroup.dataset.pdkFolderSidebarDropKind = 'favorites';
+				folderGroup.dataset.pdkFolderSidebarSection = 'favorites';
 				primaryGroup.appendChild(createExplorerSidebarButton({
 					active: !isTrashFolderId(folderId),
 					context: contextTargets.FOLDER,
@@ -3606,22 +3834,8 @@
 					}));
 				}
 
-				getFolders().forEach((folder) => {
-					if (!folder || folder.id === trashFolderId) {
-						return;
-					}
-					folderGroup.appendChild(createExplorerSidebarButton({
-						context: contextTargets.FOLDER,
-						icon: folder.icon || 'dashicons-category',
-						id: folder.id,
-						label: folder.label || getMenuLabel('folder'),
-						pinned: true,
-						onClick() {
-							if (win && folder.id !== folderId) {
-								renderFolderWindow(win, folder.id);
-							}
-						}
-					}));
+				getFolderSidebarFavoriteItems().forEach((favorite) => {
+					folderGroup.appendChild(createSidebarFavoriteButton(favorite, folderId, win, true));
 				});
 
 				systemGroup.appendChild(createExplorerSidebarStaticItem(getMenuLabel('this_pc'), 'dashicons-desktop', { collapsed: true }));
@@ -3653,26 +3867,7 @@
 			nav.appendChild(createFinderSidebarSection(
 				'favorites',
 				getMenuLabel('favorites'),
-				getFinderFavoriteIds().map((favoriteId) => {
-					const folder = getFolder(favoriteId);
-
-					return createFinderSidebarItem({
-						active: folder && folder.id === folderId,
-						context: contextTargets.FOLDER_SIDEBAR,
-						dropTarget: 'folder',
-						icon: folder && folder.icon ? folder.icon : 'dashicons-category',
-						id: folder ? folder.id : favoriteId,
-						label: folder && folder.label ? folder.label : getMenuLabel('folder'),
-						outlineIcon: 'folder',
-						removable: true,
-						section: 'favorites',
-						onClick() {
-							if (win && folder && folder.id !== folderId) {
-								renderFolderWindow(win, folder.id);
-							}
-						}
-					});
-				}),
+				getFolderSidebarFavoriteItems().map((favorite) => createSidebarFavoriteButton(favorite, folderId, win)),
 				{
 					dropKind: 'favorites'
 				}
@@ -4293,6 +4488,7 @@
 		return {
 			addFolderSidebarFavorite,
 			bindShellClicks,
+			canAddFolderSidebarFavorite,
 			closeFolderInfoWindow,
 				closeFolderTab,
 				closeFolderTabsToRight,
@@ -4304,6 +4500,7 @@
 				getActiveFolderWindow,
 				getSelectedFolderItems,
 				getWindowOptions,
+				hasFolderSidebarFavorite,
 				hasSelectedFolderItems,
 				openAbout,
 			openApp,

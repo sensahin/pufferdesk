@@ -65,8 +65,8 @@
 				},
 				[sectionIds.FOLDER_SIDEBAR]: {
 					collapsed: {},
-					favoriteIds: [],
-					removedFavoriteIds: []
+					items: [],
+					removedItemIds: []
 				},
 				[sectionIds.RECENT_ITEMS]: []
 			};

@@ -447,6 +447,36 @@
 			return match ? Number.parseInt(match[1], 10) || 0 : 0;
 		}
 
+		function getSidebarFavoriteItemFromPayload(payload = {}, detail = {}) {
+			const commandPayload = payload && typeof payload === 'object' ? payload : {};
+			const contextDetail = detail && typeof detail === 'object' ? detail : {};
+			const dataset = contextDetail.metadata && contextDetail.metadata.dataset && typeof contextDetail.metadata.dataset === 'object'
+				? contextDetail.metadata.dataset
+				: contextDetail.targetElement && contextDetail.targetElement.dataset
+					? contextDetail.targetElement.dataset
+					: {};
+			const type = commandPayload.type
+				|| commandPayload.itemType
+				|| dataset.pdkFolderSidebarFavoriteType
+				|| contextDetail.itemType
+				|| (contextDetail.type === contextTargets.DOCUMENT ? 'document' : '')
+				|| (contextDetail.type === contextTargets.FOLDER || contextDetail.type === contextTargets.DESKTOP_FOLDER ? 'folder' : '');
+			const targetId = commandPayload.targetId
+				|| commandPayload.documentId
+				|| commandPayload.folderId
+				|| dataset.pdkFolderSidebarTargetId
+				|| commandPayload.target
+				|| (type === 'document' ? getDocumentIdFromPayload(commandPayload, contextDetail) : getFolderIdFromPayload(commandPayload, contextDetail));
+
+			return {
+				icon: commandPayload.icon || '',
+				id: commandPayload.favoriteId || commandPayload.id || (contextDetail.type === contextTargets.FOLDER_SIDEBAR ? contextDetail.id : ''),
+				label: commandPayload.label || contextDetail.label || '',
+				targetId,
+				type
+			};
+		}
+
 		function getFolderCreateParentId(payload = {}, detail = {}) {
 			if (payload.parentId) {
 				return payload.parentId;
@@ -1241,14 +1271,28 @@
 			}
 		});
 
+		register(commandIds.FOLDER_SIDEBAR_ADD, {
+			isEnabled(payload, detail) {
+				return Boolean(
+					launcher
+					&& typeof launcher.canAddFolderSidebarFavorite === 'function'
+					&& launcher.canAddFolderSidebarFavorite(getSidebarFavoriteItemFromPayload(payload, detail))
+				);
+			},
+			run(payload, detail) {
+				return launcher.addFolderSidebarFavorite(getSidebarFavoriteItemFromPayload(payload, detail));
+			}
+		});
+
 		register(commandIds.FOLDER_SIDEBAR_REMOVE, {
 			isEnabled(payload, detail) {
-				const folderId = getFolderIdFromPayload(payload, detail);
+				const favorite = getSidebarFavoriteItemFromPayload(payload, detail);
 
 				return Boolean(
 					launcher
 					&& typeof launcher.removeFolderSidebarFavorite === 'function'
-					&& folderId
+					&& favorite
+					&& (favorite.id || favorite.targetId)
 					&& detail
 					&& detail.type === contextTargets.FOLDER_SIDEBAR
 					&& detail.targetElement
@@ -1257,7 +1301,7 @@
 				);
 			},
 			run(payload, detail) {
-				return launcher.removeFolderSidebarFavorite(getFolderIdFromPayload(payload, detail));
+				return launcher.removeFolderSidebarFavorite(getSidebarFavoriteItemFromPayload(payload, detail));
 			}
 		});
 

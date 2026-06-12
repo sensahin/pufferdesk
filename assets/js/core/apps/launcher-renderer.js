@@ -283,7 +283,10 @@
 			button.dataset.pdkDocumentId = item.document && item.document.id ? String(item.document.id) : String(item.id || '').replace(/^document-/, '');
 			button.dataset.pdkDocumentKind = item.document && item.document.kind ? String(item.document.kind) : '';
 			if (folderId) {
+				button.dataset.pdkDraggableFolderItem = '1';
 				button.dataset.pdkFolderId = folderId;
+				button.dataset.pdkFolderItemId = button.dataset.pdkDocumentId;
+				button.dataset.pdkFolderItemKind = 'document';
 			}
 			button.setAttribute('aria-label', label);
 			button.setAttribute('aria-pressed', 'false');

@@ -59,7 +59,7 @@
 				return invalid('missing-item', messages.MISSING_ITEM, move);
 			}
 
-			if (![itemTypes.APP, itemTypes.FOLDER].includes(move.itemType)) {
+			if (![itemTypes.APP, itemTypes.DOCUMENT, itemTypes.FOLDER].includes(move.itemType)) {
 				return invalid('unsupported-item-type', messages.UNSUPPORTED_ITEM_TYPE, move);
 			}
 
@@ -158,6 +158,16 @@
 			return null;
 		}
 
+		function validateDocumentRules(move) {
+			if (move.itemType !== itemTypes.DOCUMENT) {
+				return null;
+			}
+
+			return move.toContainerId === containerTypes.FOLDER_SIDEBAR_FAVORITES
+				? null
+				: invalid('target-not-allowed', messages.TARGET_NOT_ALLOWED, move);
+		}
+
 		function validateAllowedTargets(move) {
 			const allowed = move.item && Array.isArray(move.item.allowedDropTargets) ? move.item.allowedDropTargets : [];
 
@@ -195,6 +205,7 @@
 			const failures = [
 				validateFolderRules(move),
 				validateAppRules(move),
+				validateDocumentRules(move),
 				validateAllowedTargets(move)
 			].filter(Boolean);
 
