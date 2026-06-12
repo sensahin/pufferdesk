@@ -44,6 +44,12 @@
 		const titlebarActions = window.PufferDesk.windows && window.PufferDesk.windows.titlebarActions
 			? window.PufferDesk.windows.titlebarActions
 			: null;
+		const commandIds = window.PufferDesk.shell && window.PufferDesk.shell.commands ? window.PufferDesk.shell.commands : {};
+		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object' ? config.menu.labels : {};
+		const menuGroups = config.contracts && config.contracts.menuGroups && typeof config.contracts.menuGroups === 'object'
+			? config.contracts.menuGroups
+			: {};
+		const menuGroupIds = menuGroups.ids && typeof menuGroups.ids === 'object' ? menuGroups.ids : {};
 		const stickyResizeHandles = window.PufferDesk.windows && typeof window.PufferDesk.windows.createResizeHandleController === 'function'
 			? window.PufferDesk.windows.createResizeHandleController({
 				container: desktop,
@@ -143,6 +149,65 @@
 			return app && typeof app.label === 'string' && app.label ? app.label : getLabel('stickyNotes');
 		}
 
+		function getMenuLabel(key, fallback) {
+			return typeof menuLabels[key] === 'string' && menuLabels[key] ? menuLabels[key] : (fallback || key);
+		}
+
+		function cloneMenuItem(item) {
+			const next = item && typeof item === 'object' ? Object.assign({}, item) : item;
+			if (next && Array.isArray(next.items)) {
+				next.items = next.items.map(cloneMenuItem);
+			}
+
+			return next;
+		}
+
+		function createNewNoteMenuItem() {
+			return {
+				command: commandIds.DOCUMENT_NEW_STICKY_NOTE,
+				icon: 'dashicons-sticky',
+				id: 'sticky-notes-new-note',
+				label: getMenuLabel('new_note', getLabel('newStickyNote'))
+			};
+		}
+
+		function getStickyNotesActiveMenu(app) {
+			const menu = app && app.menu && typeof app.menu === 'object' ? app.menu : null;
+			if (!menu || !Array.isArray(menu.groups) || !commandIds.DOCUMENT_NEW_STICKY_NOTE) {
+				return menu;
+			}
+
+			const fileGroupId = menuGroupIds.FILE || 'file';
+			let hasFileGroup = false;
+			let hasNewNoteItem = false;
+			const groups = menu.groups.map((group) => {
+				const nextGroup = Object.assign({}, group);
+				const items = Array.isArray(group.items) ? group.items.map(cloneMenuItem) : [];
+
+				if (group.id === fileGroupId) {
+					hasFileGroup = true;
+					hasNewNoteItem = items.some((item) => item && item.command === commandIds.DOCUMENT_NEW_STICKY_NOTE);
+					nextGroup.items = hasNewNoteItem ? items : [createNewNoteMenuItem()].concat(items);
+				} else {
+					nextGroup.items = items;
+				}
+
+				return nextGroup;
+			});
+
+			if (!hasFileGroup) {
+				groups.push({
+					id: fileGroupId,
+					items: [createNewNoteMenuItem()],
+					label: getMenuLabel('file', 'File')
+				});
+			}
+
+			return Object.assign({}, menu, {
+				groups
+			});
+		}
+
 		function dispatchActiveStickyNoteChange(entry) {
 			const app = getStickyNotesApp();
 
@@ -152,7 +217,7 @@
 					documentId: entry && entry.document ? entry.document.id : '',
 					id: stickyNotesAppId,
 					kind: 'app',
-					menu: app && app.menu ? app.menu : null,
+					menu: getStickyNotesActiveMenu(app),
 					stickyNoteElement: entry && entry.element ? entry.element : null,
 					title: getStickyNotesAppLabel(),
 					windowless: true
@@ -166,6 +231,16 @@
 
 		function hasOpenNotes() {
 			return Array.from(noteMap.values()).some((entry) => entry && entry.element && !entry.element.hidden);
+		}
+
+		function getFirstNoteEntry(options = {}) {
+			const hiddenOnly = options.hiddenOnly === true;
+
+			return Array.from(noteMap.values()).find((entry) => (
+				entry
+				&& entry.element
+				&& (!hiddenOnly || entry.element.hidden)
+			)) || null;
 		}
 
 		function syncRunningState() {
@@ -754,12 +829,16 @@
 			closeNoteOptionsMenu();
 
 			const menu = document.createElement('div');
-			const notesListButton = createOptionsMenuItem('is-notes-list', getLabel('notesList'));
+			const notesListButton = isRedmondTheme() ? createOptionsMenuItem('is-notes-list', getLabel('notesList')) : null;
 			const deleteButton = createOptionsMenuItem('is-delete-note', getLabel('deleteNote'));
 
 			menu.className = 'pdk-sticky-note-options';
 			menu.setAttribute('role', 'menu');
-			menu.append(createColorPalette(entry), notesListButton, deleteButton);
+			menu.append(createColorPalette(entry));
+			if (notesListButton) {
+				menu.appendChild(notesListButton);
+			}
+			menu.appendChild(deleteButton);
 			entry.element.appendChild(menu);
 
 			function onPointerDown(event) {
@@ -776,10 +855,12 @@
 				}
 			}
 
-			notesListButton.addEventListener('click', () => {
-				closeNoteOptionsMenu();
-				openNotesListApp();
-			});
+			if (notesListButton) {
+				notesListButton.addEventListener('click', () => {
+					closeNoteOptionsMenu();
+					openNotesListApp();
+				});
+			}
 			deleteButton.addEventListener('click', () => {
 				closeNoteOptionsMenu();
 				confirmDiscardNote(entry);
@@ -1513,6 +1594,22 @@
 			});
 		}
 
+		function openStickyNotes(state = {}) {
+			return restore().then(() => {
+				const hiddenEntry = getFirstNoteEntry({
+					hiddenOnly: true
+				});
+				const firstEntry = hiddenEntry || getFirstNoteEntry();
+
+				if (firstEntry && firstEntry.document) {
+					showNote(firstEntry.document.id);
+					return firstEntry.document;
+				}
+
+				return createStickyNote(state);
+			});
+		}
+
 		function restore() {
 			if (restorePromise) {
 				return restorePromise;
@@ -1619,6 +1716,7 @@
 			getNotes,
 			hasOpenNotes,
 			hideNote,
+			openStickyNotes,
 			removeRenderedNote,
 			renderNote,
 			restore,

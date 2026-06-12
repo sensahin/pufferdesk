@@ -20,6 +20,7 @@
 		const desktopIconManager = context.desktopIconManager || null;
 		const folderManager = context.folderManager || null;
 		const manager = context.manager || null;
+		const stickyNoteManager = context.stickyNoteManager || window.PufferDesk.stickyNoteManager || null;
 		const providers = new Map();
 		const extensions = new Map();
 		const menuSchema = schema || window.PufferDesk.shell.createMenuSchema();
@@ -183,6 +184,10 @@
 
 		function isRedmondFamily() {
 			return themeFamily === 'redmond';
+		}
+
+		function isPufferDeskFamily() {
+			return themeFamily === 'pufferdesk';
 		}
 
 		function showsCutMenuItems() {
@@ -577,6 +582,10 @@
 				];
 			}
 
+			if (app.id === appIds.STICKY_NOTES && isPufferDeskFamily()) {
+				return getPufferDeskStickyNotesDockItems(app);
+			}
+
 			const state = getAppWindowState(app.id);
 			const items = [];
 
@@ -594,6 +603,49 @@
 					target: app.id
 				}));
 			}
+
+			if (app.url) {
+				items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {
+					title: app.label || '',
+					url: app.url
+				}));
+			}
+
+			if (!isFixedDockApp(app)) {
+				items.push(
+					separator(),
+					getDockOptionsItem(app, state)
+				);
+			}
+
+			items.push(
+				separator(),
+				commandItem(getLabel('about'), commandIds.OPEN_ABOUT, {
+					target: app.id
+				})
+			);
+
+			return items;
+		}
+
+		function getPufferDeskStickyNotesDockItems(app) {
+			const hasVisibleNotes = Boolean(
+				stickyNoteManager
+				&& typeof stickyNoteManager.hasOpenNotes === 'function'
+				&& stickyNoteManager.hasOpenNotes()
+			);
+			const state = getAppWindowState(app.id);
+			const items = [
+				hasVisibleNotes
+					? commandItem(getLabel('new_note', getLabel('new_sticky_note')), commandIds.DOCUMENT_NEW_STICKY_NOTE, {
+						icon: app.icon || defaultDashicon,
+						target: app.id
+					})
+					: commandItem(getLabel('open'), commandIds.DOCUMENT_OPEN_STICKY_NOTES, {
+						icon: app.icon || defaultDashicon,
+						target: app.id
+					})
+			];
 
 			if (app.url) {
 				items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {

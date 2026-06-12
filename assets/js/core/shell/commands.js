@@ -984,6 +984,15 @@
 			}
 		});
 
+		register(commandIds.DOCUMENT_OPEN_STICKY_NOTES, {
+			isEnabled() {
+				return Boolean(stickyNoteManager && typeof stickyNoteManager.openStickyNotes === 'function');
+			},
+			run(payload, detail) {
+				return stickyNoteManager.openStickyNotes(detail && detail.contextPoint ? detail.contextPoint : {});
+			}
+		});
+
 		register(commandIds.DOCUMENT_OPEN, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.openDocumentById === 'function' && getDocumentIdFromPayload(payload, detail));

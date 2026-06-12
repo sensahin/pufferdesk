@@ -162,6 +162,10 @@
 			return getFolderLayout() === 'file-explorer';
 		}
 
+		function isPufferDeskFamily() {
+			return themeFamily === 'pufferdesk';
+		}
+
 		function showsCutFolderActions() {
 			return themeFamily !== 'pufferdesk';
 		}
@@ -542,6 +546,13 @@
 		function openApp(appId, openOptions = {}) {
 			if (appId === appIds.TRASH) {
 				return openTrash();
+			}
+
+			if (appId === appIds.STICKY_NOTES && isPufferDeskFamily()) {
+				const stickyManager = window.PufferDesk.stickyNoteManager || null;
+				return stickyManager && typeof stickyManager.openStickyNotes === 'function'
+					? stickyManager.openStickyNotes(openOptions.nativeContext || {})
+					: null;
 			}
 
 			if (nativeAppOpener && typeof nativeAppOpener.canOpen === 'function' && nativeAppOpener.canOpen(appId)) {

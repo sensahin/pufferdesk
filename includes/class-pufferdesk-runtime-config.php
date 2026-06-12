@@ -1691,6 +1691,7 @@ final class PufferDesk_Runtime_Config {
 				'untitled_item'           => __( 'Untitled', 'pufferdesk-admin-desktop' ),
 				'new'                     => __( 'New', 'pufferdesk-admin-desktop' ),
 				'new_folder'              => __( 'New Folder', 'pufferdesk-admin-desktop' ),
+				'new_note'                => __( 'New Note', 'pufferdesk-admin-desktop' ),
 				'group'                   => __( 'Group', 'pufferdesk-admin-desktop' ),
 				'more'                    => __( 'More', 'pufferdesk-admin-desktop' ),
 				'share'                   => __( 'Share', 'pufferdesk-admin-desktop' ),
