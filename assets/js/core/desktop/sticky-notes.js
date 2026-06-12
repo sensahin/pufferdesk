@@ -650,6 +650,7 @@
 
 			applyNoteColor(entry, nextColor);
 			entry.document.color = nextColor;
+			syncEntryDirtyState(entry);
 
 			if (isUnsavedEntry(entry)) {
 				return Promise.resolve(true);
@@ -665,6 +666,7 @@
 				entry.document = Object.assign({}, documentData, {
 					content: entry.content ? entry.content.value : documentData.content
 				});
+				markEntrySaved(entry);
 				applyNoteColor(entry, documentData.color);
 				return true;
 			}).catch(() => false);
@@ -798,6 +800,39 @@
 			return entry && entry.content ? entry.content.value : '';
 		}
 
+		function getEntrySavedContent(entry) {
+			return entry && typeof entry.savedContent === 'string' ? entry.savedContent : '';
+		}
+
+		function getEntrySavedColor(entry) {
+			return normalizeNoteColor(entry && typeof entry.savedColor === 'string' ? entry.savedColor : '');
+		}
+
+		function syncEntryDirtyState(entry) {
+			if (!entry || !entry.document) {
+				return false;
+			}
+
+			entry.dirty = getNoteContent(entry) !== getEntrySavedContent(entry)
+				|| normalizeNoteColor(entry.document.color) !== getEntrySavedColor(entry);
+
+			return entry.dirty;
+		}
+
+		function hasUnsavedChanges(entry) {
+			return syncEntryDirtyState(entry);
+		}
+
+		function markEntrySaved(entry) {
+			if (!entry || !entry.document) {
+				return;
+			}
+
+			entry.savedContent = getNoteContent(entry);
+			entry.savedColor = normalizeNoteColor(entry.document.color);
+			entry.dirty = false;
+		}
+
 		function syncLocalDocumentContent(entry) {
 			if (!entry || !entry.document) {
 				return;
@@ -805,6 +840,7 @@
 
 			entry.document.content = getNoteContent(entry);
 			entry.document.modified = new Date().toISOString();
+			syncEntryDirtyState(entry);
 		}
 
 		function getNoteText(entry) {
@@ -854,6 +890,8 @@
 			if (Number.isFinite(newId)) {
 				noteMap.set(newId, entry);
 			}
+
+			markEntrySaved(entry);
 		}
 
 		function getSaveDialog() {
@@ -1155,8 +1193,16 @@
 				return Promise.resolve(false);
 			}
 
-			if (!entry.content || !editorHasContent(entry.content)) {
+			if (entry.pendingSave && !isUnsavedEntry(entry)) {
+				return entry.pendingSave.then(() => confirmDiscardNote(entry));
+			}
+
+			if (isUnsavedEntry(entry) && (!entry.content || !editorHasContent(entry.content))) {
 				return deleteNote(entry.document.id);
+			}
+
+			if (!isUnsavedEntry(entry) && !hasUnsavedChanges(entry)) {
+				return Promise.resolve(hideNote(entry.document.id));
 			}
 
 			const dialogs = getDialogs();
@@ -1349,6 +1395,7 @@
 				const existing = noteMap.get(documentId);
 				existing.document = documentData;
 				existing.content.value = documentData.content || '';
+				markEntrySaved(existing);
 				applyNoteColor(existing, documentData.color);
 				applyState(existing.element, normalizeState(state, noteMap.size));
 				syncRunningState();
@@ -1363,9 +1410,12 @@
 			const entry = {
 				content,
 				document: documentData,
+				dirty: false,
 				element: noteElement,
 				formatCleanup: null,
 				saveTask: null,
+				savedColor: normalizeNoteColor(documentData.color),
+				savedContent: content.value || '',
 				unsaved: !isPersistedDocumentId(documentId) || documentData.unsaved === true
 			};
 			const createButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-new', getLabel('newStickyNote'), '+');
