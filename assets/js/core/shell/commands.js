@@ -354,6 +354,71 @@
 			return payload.folderId || payload.target || (detail && detail.folderId) || getFolderTargetFromDetail(detail);
 		}
 
+		function uniqueIds(ids) {
+			return Array.from(new Set((Array.isArray(ids) ? ids : [])
+				.map((id) => String(id || '').trim())
+				.filter(Boolean)));
+		}
+
+		function canMoveFolderToTrash(folderId) {
+			return Boolean(
+				folderManager
+				&& typeof folderManager.isUserFolder === 'function'
+				&& typeof folderManager.moveFolderToTrash === 'function'
+				&& folderManager.isUserFolder(folderId)
+			);
+		}
+
+		function getSelectedDesktopFolderIds(targetId) {
+			if (!desktopIconManager || typeof desktopIconManager.getSelectedIconDetails !== 'function') {
+				return [];
+			}
+
+			const ids = uniqueIds(desktopIconManager.getSelectedIconDetails()
+				.filter((item) => item && (item.kind === 'folder' || item.context === contextTargets.DESKTOP_FOLDER))
+				.map((item) => item.id))
+				.filter(canMoveFolderToTrash);
+
+			return ids.length > 1 && ids.includes(targetId) ? ids : [];
+		}
+
+		function getSelectedFolderWindowFolderIds(targetId, detail = {}) {
+			if (!launcher || typeof launcher.getSelectedFolderItems !== 'function') {
+				return [];
+			}
+
+			const win = detail && detail.windowElement ? detail.windowElement : null;
+			const parentFolderId = detail && detail.folderId
+				? detail.folderId
+				: win && win.dataset
+					? win.dataset.pdkFolderWindow || ''
+					: '';
+			if (!parentFolderId) {
+				return [];
+			}
+
+			const ids = uniqueIds(launcher.getSelectedFolderItems(parentFolderId, win)
+				.filter((item) => item && item.type === 'folder')
+				.map((item) => item.id))
+				.filter(canMoveFolderToTrash);
+
+			return ids.length > 1 && ids.includes(targetId) ? ids : [];
+		}
+
+		function getFolderIdsForTrash(payload = {}, detail = {}) {
+			const targetId = getFolderIdFromPayload(payload, detail);
+
+			if (!targetId || !canMoveFolderToTrash(targetId)) {
+				return [];
+			}
+
+			const selectedIds = (detail && (detail.type === contextTargets.FOLDER || detail.kind === contextTargets.FOLDER))
+				? getSelectedFolderWindowFolderIds(targetId, detail)
+				: getSelectedDesktopFolderIds(targetId);
+
+			return selectedIds.length ? selectedIds : [targetId];
+		}
+
 		function getFolderTabIdFromPayload(payload = {}, detail = {}) {
 			return payload.tabId || payload.target || (detail && detail.id) || '';
 		}
@@ -491,6 +556,41 @@
 				title: isSystemDeleteDialog ? confirmationTitle : fallbackTitle,
 				variant,
 				windowTitle: getLabel('move_folder_to_trash_window_title')
+			};
+		}
+
+		function getMoveFoldersToTrashDialogOptions(folders) {
+			if (!Array.isArray(folders) || folders.length <= 1) {
+				const folder = Array.isArray(folders) && folders.length ? folders[0] : null;
+				const folderLabel = folder && folder.label ? folder.label : getLabel('folder');
+
+				return getMoveFolderToTrashDialogOptions(folder, folderLabel);
+			}
+
+			const policy = getConfirmationPolicy('move_folder_to_trash');
+			const variant = policy.variant || 'move-to-trash';
+			const isSystemDeleteDialog = variant === 'delete-folder';
+			const countLabel = formatLabel('selected_folder_count_format', [folders.length]);
+
+			return {
+				cancelLabel: getLabel('move_folder_to_trash_cancel_label', getLabel('cancel')),
+				confirmLabel: getLabel('move_folders_to_trash_confirm_label', getLabel('move_folder_to_trash_confirm_label', getLabel('move_to_trash'))),
+				defaultAction: getConfirmationDefaultAction(policy),
+				icon: policy.icon || 'dashicons-category',
+				item: {
+					icon: policy.icon || 'dashicons-category',
+					label: countLabel,
+					meta: []
+				},
+				message: isSystemDeleteDialog
+					? ''
+					: getLabel('move_folders_to_trash_message'),
+				soundEventKey: isSystemDeleteDialog ? 'dialogDestructive' : 'dialogWarning',
+				title: isSystemDeleteDialog
+					? getLabel('move_folders_to_trash_confirmation')
+					: formatLabel('move_folders_to_trash_title_format', [folders.length]),
+				variant,
+				windowTitle: getLabel('move_folders_to_trash_window_title', getLabel('move_folder_to_trash_window_title'))
 			};
 		}
 
@@ -1009,29 +1109,28 @@
 
 		register(commandIds.FOLDER_DELETE, {
 			isEnabled(payload, detail) {
-				const folderId = getFolderIdFromPayload(payload, detail);
-				return Boolean(
-					folderManager
-					&& typeof folderManager.isUserFolder === 'function'
-					&& typeof folderManager.moveFolderToTrash === 'function'
-					&& folderManager.isUserFolder(folderId)
-				);
+				return getFolderIdsForTrash(payload, detail).length > 0;
 			},
 			async run(payload, detail) {
-				const folderId = getFolderIdFromPayload(payload, detail);
-				const folder = folderManager.getFolder(folderId);
-				const folderLabel = folder && folder.label ? folder.label : getLabel('folder');
+				const folderIds = getFolderIdsForTrash(payload, detail);
+				const folders = folderIds.map((folderId) => folderManager.getFolder(folderId)).filter(Boolean);
 				let confirmed = true;
 
+				if (!folderIds.length) {
+					return;
+				}
+
 				if (isConfirmationEnabled('move_folder_to_trash', false)) {
-					const dialogOptions = getMoveFolderToTrashDialogOptions(folder, folderLabel);
+					const dialogOptions = getMoveFoldersToTrashDialogOptions(folders);
 					confirmed = dialogs && typeof dialogs.confirm === 'function'
 						? await dialogs.confirm(dialogOptions)
 						: window.confirm(`${dialogOptions.title}\n\n${dialogOptions.message || ''}`);
 				}
 
 				if (confirmed) {
-					folderManager.moveFolderToTrash(folderId);
+					folderIds.forEach((folderId) => {
+						folderManager.moveFolderToTrash(folderId);
+					});
 				}
 			}
 		});

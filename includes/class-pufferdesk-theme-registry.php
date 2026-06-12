@@ -100,6 +100,11 @@ final class PufferDesk_Theme_Registry {
 						'move_folder_to_trash_confirmation' => __( 'Are you sure you want to move this folder to the Recycle Bin?', 'pufferdesk-admin-desktop' ),
 						'move_folder_to_trash_confirm_label' => __( 'Yes', 'pufferdesk-admin-desktop' ),
 						'move_folder_to_trash_cancel_label' => __( 'No', 'pufferdesk-admin-desktop' ),
+						'move_folders_to_trash_window_title' => __( 'Delete Folders', 'pufferdesk-admin-desktop' ),
+						'move_folders_to_trash_confirmation' => __( 'Are you sure you want to move these folders to the Recycle Bin?', 'pufferdesk-admin-desktop' ),
+						'move_folders_to_trash_confirm_label' => __( 'Yes', 'pufferdesk-admin-desktop' ),
+						/* translators: %d: number of selected folders. */
+						'move_folders_to_trash_title_format' => __( 'Move %d folders to the Recycle Bin?', 'pufferdesk-admin-desktop' ),
 					),
 				),
 				'dialogs'        => array(

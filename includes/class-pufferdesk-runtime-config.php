@@ -1853,6 +1853,14 @@ final class PufferDesk_Runtime_Config {
 				'move_folder_to_trash_window_title' => __( 'Move Folder', 'pufferdesk-admin-desktop' ),
 				/* translators: %s: folder label. */
 				'move_folder_to_trash_title_format' => __( 'Move "%s" to Trash?', 'pufferdesk-admin-desktop' ),
+				/* translators: %d: number of selected folders. */
+				'selected_folder_count_format' => __( '%d folders', 'pufferdesk-admin-desktop' ),
+				'move_folders_to_trash_message' => __( 'These PufferDesk folders and their contents will be moved. Apps and plugins inside them stay installed and available.', 'pufferdesk-admin-desktop' ),
+				'move_folders_to_trash_confirmation' => __( 'Are you sure you want to move these folders to Trash?', 'pufferdesk-admin-desktop' ),
+				'move_folders_to_trash_confirm_label' => __( 'Move to Trash', 'pufferdesk-admin-desktop' ),
+				'move_folders_to_trash_window_title' => __( 'Move Folders', 'pufferdesk-admin-desktop' ),
+				/* translators: %d: number of selected folders. */
+				'move_folders_to_trash_title_format' => __( 'Move %d folders to Trash?', 'pufferdesk-admin-desktop' ),
 				'put_back'                => __( 'Put Back', 'pufferdesk-admin-desktop' ),
 				'empty_trash'             => __( 'Empty Trash', 'pufferdesk-admin-desktop' ),
 				'empty_trash_confirmation' => __( 'Empty Trash?', 'pufferdesk-admin-desktop' ),

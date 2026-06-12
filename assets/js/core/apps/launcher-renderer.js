@@ -62,6 +62,22 @@
 			setItemSelected(button, true);
 		}
 
+		function selectItemFromContextMenu(button) {
+			const grid = button ? button.closest('.pdk-finder-grid') : null;
+
+			if (
+				grid
+				&& button
+				&& button.classList.contains('is-selected')
+				&& grid.querySelectorAll('.pdk-app-launcher.is-selected, .pdk-finder-trash-item.is-selected').length > 1
+			) {
+				emitSelectionChange(grid);
+				return;
+			}
+
+			selectItem(button);
+		}
+
 		function clearSelection(root) {
 			const grid = root && root.classList && root.classList.contains('pdk-finder-grid')
 				? root
@@ -128,7 +144,7 @@
 					openApp(app.id);
 				});
 				button.addEventListener('contextmenu', () => {
-					selectItem(button);
+					selectItemFromContextMenu(button);
 				});
 			}
 
@@ -200,7 +216,7 @@
 				}
 			});
 			button.addEventListener('contextmenu', () => {
-				selectItem(button);
+				selectItemFromContextMenu(button);
 			});
 
 			return button;
@@ -241,7 +257,7 @@
 				openDocument(item.document || item);
 			});
 			button.addEventListener('contextmenu', () => {
-				selectItem(button);
+				selectItemFromContextMenu(button);
 			});
 
 			return button;
@@ -275,7 +291,7 @@
 			});
 			button.addEventListener('contextmenu', (event) => {
 				event.preventDefault();
-				selectItem(button);
+				selectItemFromContextMenu(button);
 			});
 
 			return button;
