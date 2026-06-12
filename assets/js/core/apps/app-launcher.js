@@ -60,8 +60,7 @@
 		const homeFolderId = getVirtualFolderId('HOME');
 		const desktopFolderId = getVirtualFolderId('DESKTOP');
 		const defaultFinderFavoriteIds = [
-			getVirtualFolderId('DOCUMENTS'),
-			getVirtualFolderId('STICKIES')
+			getVirtualFolderId('DOCUMENTS')
 		].filter(Boolean);
 		const recentItems = window.PufferDesk.apps.createRecentItemsController
 			? window.PufferDesk.apps.createRecentItemsController(config)
