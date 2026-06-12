@@ -2440,7 +2440,12 @@
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-grid.pdk-folder-list {
 	--pdk-finder-list-name-inset: 44px;
 	--pdk-finder-list-header-height: 24px;
-	--pdk-finder-list-row-height: 21px;
+	--pdk-finder-list-row-band-x: 12px;
+	--pdk-finder-list-row-band-y: 1px;
+	--pdk-finder-list-row-band-height: calc(var(--pdk-finder-list-row-height) - (var(--pdk-finder-list-row-band-y) * 2));
+	--pdk-finder-list-row-band-radius: 7px;
+	--pdk-finder-list-row-cycle-height: calc(var(--pdk-finder-list-row-height) * 2);
+	--pdk-finder-list-row-height: 24px;
 
 	background: var(--pdk-settings-main-bg, var(--pdk-panel));
 	box-sizing: border-box;
@@ -2454,18 +2459,40 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-finder-pane[data-pdk-folder-view-mode="list"] .pdk-app-grid.pdk-folder-list::before {
-	background: repeating-linear-gradient(
-		to bottom,
-		transparent 0,
-		transparent var(--pdk-finder-list-row-height),
-		var(--pdk-finder-list-row-alt-bg) var(--pdk-finder-list-row-height),
-		var(--pdk-finder-list-row-alt-bg) calc(var(--pdk-finder-list-row-height) * 2)
-	);
-	border-radius: 7px;
+	background: var(--pdk-finder-list-row-alt-bg);
+	border-radius: var(--pdk-finder-list-row-band-radius);
+	box-shadow:
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 1) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 2) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 3) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 4) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 5) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 6) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 7) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 8) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 9) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 10) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 11) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 12) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 13) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 14) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 15) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 16) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 17) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 18) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 19) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 20) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 21) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 22) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 23) 0 var(--pdk-finder-list-row-alt-bg),
+		0 calc(var(--pdk-finder-list-row-cycle-height) * 24) 0 var(--pdk-finder-list-row-alt-bg);
 	content: "";
-	inset: var(--pdk-finder-list-header-height) 12px 12px;
+	height: var(--pdk-finder-list-row-band-height);
+	left: var(--pdk-finder-list-row-band-x);
 	pointer-events: none;
 	position: absolute;
+	right: var(--pdk-finder-list-row-band-x);
+	top: calc(var(--pdk-finder-list-header-height) + var(--pdk-finder-list-row-height) + var(--pdk-finder-list-row-band-y));
 	z-index: 0;
 }
 
@@ -2501,8 +2528,9 @@
 	color: var(--pdk-ink);
 	font-size: 12px;
 	font-weight: var(--pdk-weight-regular);
+	height: var(--pdk-finder-list-row-height);
 	line-height: 20px;
-	min-height: 21px;
+	min-height: var(--pdk-finder-list-row-height);
 	padding: 0;
 	position: relative;
 	transform: none;
@@ -2511,9 +2539,9 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-body .pdk-app-launcher.pdk-folder-list-row::before {
 	background: transparent;
-	border-radius: 7px;
+	border-radius: var(--pdk-finder-list-row-band-radius);
 	content: "";
-	inset: 1px 12px;
+	inset: var(--pdk-finder-list-row-band-y) var(--pdk-finder-list-row-band-x);
 	opacity: 0;
 	pointer-events: none;
 	position: absolute;
@@ -2533,13 +2561,17 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-list-cell-name {
+	align-items: flex-end;
+	align-self: stretch;
 	gap: 7px;
+	padding-bottom: 2px;
 	padding-left: var(--pdk-finder-list-name-inset);
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-list-cell-name .pdk-truncated-label {
 	color: var(--pdk-ink);
 	font-weight: var(--pdk-weight-semibold);
+	line-height: 16px;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="finder"] .pdk-folder-list-cell-size {
