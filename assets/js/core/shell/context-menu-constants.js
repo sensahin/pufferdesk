@@ -5,65 +5,12 @@
 	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
 	const fallback = Object.freeze({
-		areas: Object.freeze({
-			DESKTOP: 'desktop',
-			DOCK: 'dock',
-			FOLDER: 'folder',
-			STATUS: 'status',
-			TRASH: 'trash',
-			WIDGET: 'widget',
-			WINDOW: 'window'
-		}),
-		itemTypes: Object.freeze({
-			APP: 'app',
-			DOCUMENT: 'document',
-			FOLDER: 'folder',
-			TRASH_ITEM: 'trash-item',
-			WIDGET: 'widget'
-		}),
-		keys: Object.freeze({
-			DESKTOP_BACKGROUND: 'desktop.background',
-			DESKTOP_ITEM: 'desktop.item',
-			DOCK_BACKGROUND: 'dock.background',
-			DOCK_ITEM: 'dock.item',
-			FOLDER_BACKGROUND: 'folder.background',
-			FOLDER_ITEM: 'folder.item',
-			FOLDER_SIDEBAR: 'folder.sidebar',
-			FOLDER_TAB: 'folder.tab',
-			FOLDER_TOOLBAR: 'folder.toolbar',
-			TRASH_ITEM: 'trash.item',
-			WIDGET_ITEM: 'widget.item',
-			WINDOW_TITLEBAR: 'window.titlebar'
-		}),
-		nonItemDataTargets: Object.freeze(['desktop', 'dock', 'folder-content', 'folder-toolbar', 'folder-tab', 'window']),
-		targets: Object.freeze({
-			DESKTOP: 'desktop',
-			DESKTOP_APP: 'desktop-app',
-			DESKTOP_FOLDER: 'desktop-folder',
-			DOCK: 'dock',
-			DOCK_APP: 'dock-app',
-			DOCUMENT: 'document',
-			FOLDER: 'folder',
-			FOLDER_APP: 'folder-app',
-			FOLDER_CONTENT: 'folder-content',
-			FOLDER_SIDEBAR: 'folder-sidebar-item',
-			FOLDER_TAB: 'folder-tab',
-			FOLDER_TOOLBAR: 'folder-toolbar',
-			SOUND_STATUS: 'sound-status',
-			STICKY_NOTE: 'sticky-note',
-			TRASH_ITEM: 'trash-item',
-			WIDGET: 'widget',
-			WINDOW: 'window'
-		}),
-		targetTypes: Object.freeze({
-			BACKGROUND: 'background',
-			ITEM: 'item',
-			SIDEBAR: 'sidebar',
-			STATUS: 'status',
-			TAB: 'tab',
-			TITLEBAR: 'titlebar',
-			TOOLBAR: 'toolbar'
-		})
+		areas: Object.freeze({}),
+		itemTypes: Object.freeze({}),
+		keys: Object.freeze({}),
+		nonItemDataTargets: Object.freeze([]),
+		targets: Object.freeze({}),
+		targetTypes: Object.freeze({})
 	});
 
 	function getContract() {

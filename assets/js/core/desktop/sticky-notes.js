@@ -78,7 +78,7 @@
 		}
 
 		function getStickyKind() {
-			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note';
+			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
 		}
 
 		function getStickyNotesApp() {
@@ -838,7 +838,7 @@
 				icon: 'dashicons-sticky',
 				message: getLabel('discardNoteMessage'),
 				style: 'floating',
-				title: getLabel('discardNoteTitle', "If you don't save this note, its contents will be lost."),
+				title: getLabel('discardNoteTitle', 'discardNoteTitle'),
 				variant: 'sticky-note-discard'
 			}).then((action) => {
 				if (action === 'delete') {
@@ -1013,7 +1013,7 @@
 			const closeButton = createIconButton('pdk-sticky-note-button pdk-sticky-note-close', getLabel('close'), 'x');
 
 			noteElement.className = 'pdk-sticky-note';
-			noteElement.dataset.pdkContext = contextTargets.STICKY_NOTE || 'sticky-note';
+			noteElement.dataset.pdkContext = contextTargets.STICKY_NOTE;
 			noteElement.dataset.pdkContextId = String(documentId);
 			noteElement.dataset.pdkResizeMode = 'both';
 			noteElement.setAttribute('aria-label', documentData.title || getLabel('stickyNote'));

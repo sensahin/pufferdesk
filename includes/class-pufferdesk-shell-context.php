@@ -110,14 +110,14 @@ final class PufferDesk_Shell_Context {
 		$desktop_trash        = $this->preferences->get_desktop_trash( $apps );
 		$workspace_folders    = array_merge( $folders, $desktop_folders );
 		$workspace_state      = $this->workspace_state->get_state( $theme['id'], $apps, $widgets, $workspace_folders );
-		$dock_apps            = $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'dock', $theme );
+		$dock_apps            = $this->preferences->filter_apps_for_surface( $apps, $app_locations, PufferDesk_User_Preferences::APP_LOCATION_DOCK, $theme );
 
 		return array(
 			'appearance'           => $this->preferences->get_appearance(),
 			'app_locations'        => $app_locations,
 			'app_login_items'      => $this->preferences->get_app_login_items( $apps ),
 			'apps'                 => $apps,
-			'desktop_apps'         => $this->preferences->filter_apps_for_surface( $apps, $app_locations, 'desktop', $theme ),
+			'desktop_apps'         => $this->preferences->filter_apps_for_surface( $apps, $app_locations, PufferDesk_User_Preferences::APP_LOCATION_DESKTOP, $theme ),
 			'desktop_dock'         => $this->preferences->get_desktop_dock(),
 			'desktop_folders'      => $desktop_folders,
 			'desktop_icon_folders' => $desktop_icon_folders,

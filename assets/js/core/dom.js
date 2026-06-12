@@ -10,8 +10,8 @@
 	const iconTypes = iconContract.types && typeof iconContract.types === 'object' ? iconContract.types : {};
 	const iconAppearances = iconContract.appearances && typeof iconContract.appearances === 'object' ? iconContract.appearances : {};
 	const defaultDashicon = typeof iconContract.defaultDashicon === 'string' && iconContract.defaultDashicon ? iconContract.defaultDashicon : 'dashicons-admin-generic';
-	const iconAppearanceBrand = iconAppearances.BRAND || 'brand';
-	const iconAppearanceMonochrome = iconAppearances.MONOCHROME || 'monochrome';
+	const iconAppearanceBrand = iconAppearances.BRAND || '';
+	const iconAppearanceMonochrome = iconAppearances.MONOCHROME || '';
 
 	function escapeAttribute(value) {
 		if (window.CSS && typeof window.CSS.escape === 'function') {
@@ -196,24 +196,24 @@
 	}
 
 	function normalizeIcon(icon) {
-		if (icon && typeof icon === 'object' && icon.type === (iconTypes.IMAGE || 'image') && icon.url) {
+		if (icon && typeof icon === 'object' && icon.type === iconTypes.IMAGE && icon.url) {
 			return {
-				type: iconTypes.IMAGE || 'image',
+				type: iconTypes.IMAGE,
 				url: icon.url,
 				alt: icon.alt || '',
 				appearance: normalizeIconAppearance(icon.appearance)
 			};
 		}
 
-		if (icon && typeof icon === 'object' && icon.type === (iconTypes.DASHICON || 'dashicon')) {
+		if (icon && typeof icon === 'object' && icon.type === iconTypes.DASHICON) {
 			return {
-				type: iconTypes.DASHICON || 'dashicon',
+				type: iconTypes.DASHICON,
 				value: icon.value || icon.dashicon || defaultDashicon,
 				appearance: iconAppearanceMonochrome
 			};
 		}
 
-		if (icon && typeof icon === 'object' && icon.type === (iconTypes.THEME || 'theme')) {
+		if (icon && typeof icon === 'object' && icon.type === iconTypes.THEME) {
 			const name = normalizeIconName(icon.name);
 			const fallback = getDashiconValue(icon.fallback);
 			const iconPackUrl = getThemeIconPackUrl();
@@ -221,7 +221,7 @@
 
 			if (name && iconPackUrl) {
 				return {
-					type: iconTypes.IMAGE || 'image',
+					type: iconTypes.IMAGE,
 					url: `${trailingslash(iconPackUrl)}${encodeURIComponent(name)}`,
 					alt: icon.alt || '',
 					fallback,
@@ -230,14 +230,14 @@
 			}
 
 			return {
-				type: iconTypes.DASHICON || 'dashicon',
+				type: iconTypes.DASHICON,
 				value: fallback,
 				appearance: iconAppearanceMonochrome
 			};
 		}
 
 		return {
-			type: iconTypes.DASHICON || 'dashicon',
+			type: iconTypes.DASHICON,
 			value: typeof icon === 'string' && icon ? icon : defaultDashicon,
 			appearance: iconAppearanceMonochrome
 		};
@@ -255,7 +255,7 @@
 	function createIcon(icon) {
 		const descriptor = normalizeIcon(icon);
 
-		if (descriptor.type === (iconTypes.IMAGE || 'image')) {
+		if (descriptor.type === iconTypes.IMAGE) {
 			if (descriptor.appearance === iconAppearanceMonochrome && isDataImageUrl(descriptor.url)) {
 				return createMaskIcon(descriptor);
 			}

@@ -93,8 +93,8 @@
 			button.type = 'button';
 			button.className = 'pdk-app-launcher';
 			button.dataset.pdkContext = removable
-				? contextTargets.FOLDER_APP || 'folder-app'
-				: contextItemTypes.APP || 'app';
+				? contextTargets.FOLDER_APP
+				: contextItemTypes.APP;
 			button.dataset.pdkContextId = app.id;
 			button.dataset.pdkContextLabel = app.label;
 			if (folderId) {
@@ -141,7 +141,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-app-launcher pdk-folder-launcher';
-			button.dataset.pdkContext = contextTargets.FOLDER || 'folder';
+			button.dataset.pdkContext = contextTargets.FOLDER;
 			button.dataset.pdkContextId = folder.id;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkDraggableFolderItem = '1';
@@ -212,7 +212,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-app-launcher pdk-document-launcher';
-			button.dataset.pdkContext = contextTargets.DOCUMENT || 'document';
+			button.dataset.pdkContext = contextTargets.DOCUMENT;
 			button.dataset.pdkContextId = item.id || '';
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkDocumentId = item.document && item.document.id ? String(item.document.id) : String(item.id || '').replace(/^document-/, '');
@@ -254,7 +254,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-desktop-icon pdk-desktop-folder pdk-finder-trash-item';
-			button.dataset.pdkContext = contextTargets.TRASH_ITEM || 'trash-item';
+			button.dataset.pdkContext = contextTargets.TRASH_ITEM;
 			button.dataset.pdkContextId = item.id;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkTrashItemId = item.id;

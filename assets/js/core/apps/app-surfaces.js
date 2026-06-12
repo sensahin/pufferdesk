@@ -13,15 +13,18 @@
 	const desktopIconPrefixes = window.PufferDesk.session && window.PufferDesk.session.workspace
 		? window.PufferDesk.session.workspace.desktopIconPrefixes || {}
 		: {};
-	const appLocations = window.PufferDesk.config.getContractMap('appLocations', {
-		DOCK: 'dock',
-		DESKTOP: 'desktop',
-		BOTH: 'both',
-		HIDDEN: 'hidden'
-	});
+	const appLocations = window.PufferDesk.config.getContractMap('appLocations');
 
 	function getDesktopAppIconId(appId) {
 		return `${desktopIconPrefixes.app || ''}${appId}`;
+	}
+
+	function getMenuLabel(config, key, fallback = '') {
+		const menu = config && config.menu && typeof config.menu === 'object' ? config.menu : {};
+		const labels = menu.labels && typeof menu.labels === 'object' ? menu.labels : {};
+		const value = labels[key];
+
+		return typeof value === 'string' && value ? value : fallback || key;
 	}
 
 	function createRunningState() {
@@ -274,7 +277,7 @@
 
 			button.type = 'button';
 			button.className = fixed ? 'pdk-dock-item pdk-tooltip-trigger pdk-dock-fixed-item' : 'pdk-dock-item pdk-tooltip-trigger';
-			button.dataset.pdkContext = contextTargets.DOCK_APP || 'dock-app';
+			button.dataset.pdkContext = contextTargets.DOCK_APP;
 			button.dataset.pdkContextId = app.id;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkOpenApp = app.id;
@@ -307,7 +310,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-desktop-icon pdk-desktop-app';
-			button.dataset.pdkContext = contextTargets.DESKTOP_APP || 'desktop-app';
+			button.dataset.pdkContext = contextTargets.DESKTOP_APP;
 			button.dataset.pdkContextId = app.id;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkDesktopIcon = '';
@@ -408,7 +411,7 @@
 
 			if (!layer) {
 				layer = dom.createElement('section', 'pdk-desktop-apps pdk-desktop-icon-layer');
-				layer.setAttribute('aria-label', 'Desktop apps');
+				layer.setAttribute('aria-label', getMenuLabel(config, 'desktop_apps'));
 				const folderLayer = desktop.querySelector('.pdk-desktop-folders');
 				desktop.insertBefore(layer, folderLayer ? folderLayer.nextSibling : desktop.firstChild);
 			}

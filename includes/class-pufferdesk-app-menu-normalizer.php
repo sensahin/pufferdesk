@@ -47,6 +47,24 @@ final class PufferDesk_App_Menu_Normalizer {
 	}
 
 	/**
+	 * Default labels for standard menu groups.
+	 *
+	 * @param string $app_label Optional app group label.
+	 * @return array<string,string>
+	 */
+	public static function get_default_group_labels( $app_label = '' ) {
+		return array(
+			self::GROUP_APP    => '' !== $app_label ? $app_label : __( 'App', 'pufferdesk-admin-desktop' ),
+			self::GROUP_FILE   => __( 'File', 'pufferdesk-admin-desktop' ),
+			self::GROUP_EDIT   => __( 'Edit', 'pufferdesk-admin-desktop' ),
+			self::GROUP_VIEW   => __( 'View', 'pufferdesk-admin-desktop' ),
+			self::GROUP_GO     => __( 'Go', 'pufferdesk-admin-desktop' ),
+			self::GROUP_WINDOW => __( 'Window', 'pufferdesk-admin-desktop' ),
+			self::GROUP_HELP   => __( 'Help', 'pufferdesk-admin-desktop' ),
+		);
+	}
+
+	/**
 	 * Browser menu group contract.
 	 *
 	 * @return array<string,mixed>
@@ -108,6 +126,8 @@ final class PufferDesk_App_Menu_Normalizer {
 	 * @return array<string,array<int,array<string,mixed>>>
 	 */
 	public function get_os_settings_menu() {
+		$group_labels = self::get_default_group_labels();
+
 		return array(
 			'groups' => array(
 				array(
@@ -145,22 +165,22 @@ final class PufferDesk_App_Menu_Normalizer {
 				),
 				array(
 					'id'    => self::GROUP_EDIT,
-					'label' => __( 'Edit', 'pufferdesk-admin-desktop' ),
+					'label' => $group_labels[ self::GROUP_EDIT ],
 					'items' => array(),
 				),
 				array(
 					'id'    => self::GROUP_VIEW,
-					'label' => __( 'View', 'pufferdesk-admin-desktop' ),
+					'label' => $group_labels[ self::GROUP_VIEW ],
 					'items' => array(),
 				),
 				array(
 					'id'    => self::GROUP_WINDOW,
-					'label' => __( 'Window', 'pufferdesk-admin-desktop' ),
+					'label' => $group_labels[ self::GROUP_WINDOW ],
 					'items' => array(),
 				),
 				array(
 					'id'    => self::GROUP_HELP,
-					'label' => __( 'Help', 'pufferdesk-admin-desktop' ),
+					'label' => $group_labels[ self::GROUP_HELP ],
 					'items' => array(),
 				),
 			),
@@ -470,6 +490,12 @@ final class PufferDesk_App_Menu_Normalizer {
 	 * @return array<int,array<string,mixed>>
 	 */
 	private function get_default_app_menu_groups( $app_label ) {
+		$window_chrome        = PufferDesk_Window_Chrome_Contracts::default_config();
+		$window_control_labels = isset( $window_chrome['controls']['labels'] ) && is_array( $window_chrome['controls']['labels'] )
+			? $window_chrome['controls']['labels']
+			: array();
+		$group_labels         = self::get_default_group_labels( $app_label );
+
 		return array(
 			array(
 				'id'    => self::GROUP_APP,
@@ -513,25 +539,25 @@ final class PufferDesk_App_Menu_Normalizer {
 			),
 			array(
 				'id'    => self::GROUP_FILE,
-				'label' => __( 'File', 'pufferdesk-admin-desktop' ),
+				'label' => $group_labels[ self::GROUP_FILE ],
 				'items' => array(),
 			),
 			array(
 				'id'    => self::GROUP_EDIT,
-				'label' => __( 'Edit', 'pufferdesk-admin-desktop' ),
+				'label' => $group_labels[ self::GROUP_EDIT ],
 				'items' => array(),
 			),
 			array(
 				'id'    => self::GROUP_VIEW,
-				'label' => __( 'View', 'pufferdesk-admin-desktop' ),
+				'label' => $group_labels[ self::GROUP_VIEW ],
 				'items' => array(),
 			),
 			array(
 				'id'    => self::GROUP_WINDOW,
-				'label' => __( 'Window', 'pufferdesk-admin-desktop' ),
+				'label' => $group_labels[ self::GROUP_WINDOW ],
 				'items' => array(
 					array(
-						'label'    => __( 'Minimize', 'pufferdesk-admin-desktop' ),
+						'label'    => isset( $window_control_labels[ PufferDesk_Window_Chrome_Contracts::CONTROL_MINIMIZE ] ) ? $window_control_labels[ PufferDesk_Window_Chrome_Contracts::CONTROL_MINIMIZE ] : PufferDesk_Window_Chrome_Contracts::CONTROL_MINIMIZE,
 						'command'  => PufferDesk_Command_Ids::WINDOW_MINIMIZE,
 						'shortcut' => array(
 							'allowReserved'  => true,
@@ -545,7 +571,7 @@ final class PufferDesk_App_Menu_Normalizer {
 						'command' => PufferDesk_Command_Ids::WINDOW_TOGGLE_MAXIMIZE,
 					),
 					array(
-						'label'    => __( 'Close', 'pufferdesk-admin-desktop' ),
+						'label'    => isset( $window_control_labels[ PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ] ) ? $window_control_labels[ PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ] : PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE,
 						'command'  => PufferDesk_Command_Ids::WINDOW_CLOSE,
 						'shortcut' => array(
 							'combo'    => 'primary+w',
@@ -556,7 +582,7 @@ final class PufferDesk_App_Menu_Normalizer {
 			),
 			array(
 				'id'    => self::GROUP_HELP,
-				'label' => __( 'Help', 'pufferdesk-admin-desktop' ),
+				'label' => $group_labels[ self::GROUP_HELP ],
 				'items' => array(),
 			),
 		);
@@ -591,15 +617,7 @@ final class PufferDesk_App_Menu_Normalizer {
 	 * @return string
 	 */
 	private function get_default_menu_group_label( $id, $fallback_label ) {
-		$labels = array(
-			self::GROUP_APP    => $fallback_label,
-			self::GROUP_FILE   => __( 'File', 'pufferdesk-admin-desktop' ),
-			self::GROUP_EDIT   => __( 'Edit', 'pufferdesk-admin-desktop' ),
-			self::GROUP_VIEW   => __( 'View', 'pufferdesk-admin-desktop' ),
-			self::GROUP_GO     => __( 'Go', 'pufferdesk-admin-desktop' ),
-			self::GROUP_WINDOW => __( 'Window', 'pufferdesk-admin-desktop' ),
-			self::GROUP_HELP   => __( 'Help', 'pufferdesk-admin-desktop' ),
-		);
+		$labels = self::get_default_group_labels( $fallback_label );
 
 		return isset( $labels[ $id ] ) ? $labels[ $id ] : sanitize_text_field( $id );
 	}

@@ -264,7 +264,7 @@
 		focusEditor(editor);
 
 		if (definition.command === 'insertImage') {
-			const promptLabel = getLabel(labels, 'imageUrlPrompt', 'Image URL');
+			const promptLabel = getLabel(labels, 'imageUrlPrompt', 'imageUrlPrompt');
 			const url = window.prompt ? window.prompt(promptLabel, '') : '';
 
 			if (!isSafeUrl(url)) {

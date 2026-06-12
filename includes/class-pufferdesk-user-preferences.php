@@ -49,6 +49,15 @@ final class PufferDesk_User_Preferences {
 	const RESET_PROFILE_ERASE_CONTENT_SETTINGS = 'erase_content_settings';
 
 	/**
+	 * Default label for new user-created folders.
+	 *
+	 * @return string
+	 */
+	public static function get_default_folder_label() {
+		return __( 'untitled folder', 'pufferdesk-admin-desktop' );
+	}
+
+	/**
 	 * Default shell appearance preferences.
 	 *
 	 * @var array<string,mixed>
@@ -1289,7 +1298,7 @@ final class PufferDesk_User_Preferences {
 			}
 
 			$parent_id = isset( $folder['parentId'] ) ? sanitize_key( (string) $folder['parentId'] ) : $root_id;
-			if ( '' === $parent_id || 'trash' === $parent_id || $parent_id === $folder['id'] || empty( $ids[ $parent_id ] ) ) {
+			if ( '' === $parent_id || PufferDesk_Virtual_Filesystem::FOLDER_TRASH === $parent_id || $parent_id === $folder['id'] || empty( $ids[ $parent_id ] ) ) {
 				$parent_id = $root_id;
 			}
 
@@ -1311,8 +1320,10 @@ final class PufferDesk_User_Preferences {
 	 * @return array<string,mixed>
 	 */
 		private function sanitize_desktop_trash_restore( $restore ) {
-			$previous_parent = isset( $restore['previousParent'] ) ? sanitize_key( (string) $restore['previousParent'] ) : 'desktop';
-			$previous_parent = ( '' !== $previous_parent && 'trash' !== $previous_parent ) ? $previous_parent : 'desktop';
+			$desktop_id      = PufferDesk_Virtual_Filesystem::FOLDER_DESKTOP;
+			$trash_id        = PufferDesk_Virtual_Filesystem::FOLDER_TRASH;
+			$previous_parent = isset( $restore['previousParent'] ) ? sanitize_key( (string) $restore['previousParent'] ) : $desktop_id;
+			$previous_parent = ( '' !== $previous_parent && $trash_id !== $previous_parent ) ? $previous_parent : $desktop_id;
 			$sanitized = array(
 				'previousParent' => $previous_parent,
 			);
@@ -1349,7 +1360,10 @@ final class PufferDesk_User_Preferences {
 		$sanitized      = array();
 		$folder_ids     = array();
 		$folder_labels  = array();
-		$reserved_ids   = array( 'content', 'desktop', 'documents', 'home', 'notes', 'site', 'stickies', 'system', 'trash' );
+		$reserved_ids   = array_merge(
+			array( 'content', 'site', 'system' ),
+			array_values( PufferDesk_Virtual_Filesystem::get_folder_ids() )
+		);
 		$available_apps = array();
 
 		foreach ( (array) $apps as $app ) {
@@ -1371,10 +1385,10 @@ final class PufferDesk_User_Preferences {
 			}
 
 				$label = isset( $folder['label'] ) ? sanitize_text_field( (string) $folder['label'] ) : '';
-				$label = '' !== $label ? $label : __( 'untitled folder', 'pufferdesk-admin-desktop' );
+				$label = '' !== $label ? $label : self::get_default_folder_label();
 				$label = $this->get_unique_desktop_folder_label( $label, $folder_labels );
-				$parent_id = isset( $folder['parentId'] ) ? sanitize_key( (string) $folder['parentId'] ) : 'desktop';
-				$parent_id = ( '' !== $parent_id && 'trash' !== $parent_id && $parent_id !== $id ) ? $parent_id : 'desktop';
+				$parent_id = isset( $folder['parentId'] ) ? sanitize_key( (string) $folder['parentId'] ) : PufferDesk_Virtual_Filesystem::FOLDER_DESKTOP;
+				$parent_id = ( '' !== $parent_id && PufferDesk_Virtual_Filesystem::FOLDER_TRASH !== $parent_id && $parent_id !== $id ) ? $parent_id : PufferDesk_Virtual_Filesystem::FOLDER_DESKTOP;
 
 				$folder_ids[ $id ] = true;
 				$folder_labels[ strtolower( $label ) ] = true;

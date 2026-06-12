@@ -16,6 +16,7 @@
 		const constants = window.PufferDesk.shell.contextMenuConstants || {};
 		const targets = constants.targets || {};
 		const itemTypes = constants.itemTypes || {};
+		const shortcutContexts = window.PufferDesk.shell.shortcutContexts || {};
 		const desktopIconManager = context.desktopIconManager || null;
 		const folderManager = context.folderManager || null;
 		const manager = context.manager || null;
@@ -1223,7 +1224,7 @@
 							commandItem(getLabel('close_tab'), commandIds.FOLDER_TAB_CLOSE, Object.assign({
 								icon: 'dashicons-no-alt',
 								shortcut: shortcut('primary+w', {
-									contexts: ['folder-tab']
+									contexts: [shortcutContexts.FOLDER_TAB]
 								})
 							}, payload)),
 							commandItem(getLabel('close_other_tabs'), commandIds.FOLDER_TAB_CLOSE_OTHERS, Object.assign({
@@ -1295,7 +1296,7 @@
 								commandItem(getLabel('window_close'), commandIds.WINDOW_CLOSE, {
 									icon: 'dashicons-no-alt',
 									shortcut: shortcut('secondary+f4', {
-										contexts: ['window']
+										contexts: [shortcutContexts.WINDOW]
 									})
 								})
 							]
@@ -1745,7 +1746,7 @@
 				});
 				const menuDefinition = nextDetail.menuDefinition
 					? schema.normalizeDefinition(nextDetail.menuDefinition, {
-						appLabel: nextDetail.label || 'Context Menu'
+						appLabel: nextDetail.label || getLabel('context_menu')
 					})
 					: registry.getMenuForTarget(nextDetail);
 				const filteredMenuDefinition = permissionResolver && typeof permissionResolver.filterMenu === 'function'
@@ -1772,7 +1773,7 @@
 					});
 				}
 				popover.setAttribute('role', 'menu');
-				popover.setAttribute('aria-label', activeDetail.label || 'Context menu');
+				popover.setAttribute('aria-label', activeDetail.label || getLabel('context_menu'));
 				if (activeDetail.menuDataset && typeof activeDetail.menuDataset === 'object') {
 					Object.keys(activeDetail.menuDataset).forEach((key) => {
 						if (typeof key === 'string' && key && activeDetail.menuDataset[key] !== undefined) {

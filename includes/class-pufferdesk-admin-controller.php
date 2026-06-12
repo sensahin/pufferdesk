@@ -48,9 +48,11 @@ final class PufferDesk_Admin_Controller {
 	 * Register the OS shell page.
 	 */
 	public function register_admin_page() {
+		$product_label = PufferDesk_Product_Labels::name();
+
 		add_menu_page(
-			__( 'PufferDesk', 'pufferdesk-admin-desktop' ),
-			__( 'PufferDesk', 'pufferdesk-admin-desktop' ),
+			$product_label,
+			$product_label,
 			'read',
 			PufferDesk_Router::PAGE_SLUG,
 			array( $this->renderer, 'render' ),
@@ -70,7 +72,7 @@ final class PufferDesk_Admin_Controller {
 		}
 
 		$is_shell = $this->router->is_shell_request();
-		$label    = $is_shell ? __( 'Classic Admin', 'pufferdesk-admin-desktop' ) : __( 'PufferDesk', 'pufferdesk-admin-desktop' );
+		$label    = $is_shell ? PufferDesk_Product_Labels::classic_admin() : PufferDesk_Product_Labels::name();
 		$url      = $is_shell ? $this->router->get_toggle_url( false ) : $this->router->get_toggle_url( true );
 		$class    = $is_shell ? 'pufferdesk-active' : '';
 

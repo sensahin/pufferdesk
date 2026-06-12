@@ -20,6 +20,7 @@ define( 'PUFFERDESK_FILE', __FILE__ );
 define( 'PUFFERDESK_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PUFFERDESK_URL', plugin_dir_url( __FILE__ ) );
 
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-product-labels.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-user-preferences.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-router.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-path-normalizer.php';

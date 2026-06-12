@@ -139,11 +139,6 @@ final class PufferDesk_Theme_Registry {
 						'placement' => PufferDesk_Window_Chrome_Contracts::PLACEMENT_RIGHT,
 						'order'     => array( PufferDesk_Window_Chrome_Contracts::CONTROL_MINIMIZE, PufferDesk_Window_Chrome_Contracts::CONTROL_MAXIMIZE, PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ),
 						'style'     => PufferDesk_Window_Chrome_Contracts::STYLE_TOOLBAR,
-						'labels'    => array(
-							PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE    => __( 'Close', 'pufferdesk-admin-desktop' ),
-							PufferDesk_Window_Chrome_Contracts::CONTROL_MINIMIZE => __( 'Minimize', 'pufferdesk-admin-desktop' ),
-							PufferDesk_Window_Chrome_Contracts::CONTROL_MAXIMIZE => __( 'Maximize', 'pufferdesk-admin-desktop' ),
-						),
 					),
 					'title'    => array(
 						'alignment' => PufferDesk_Window_Chrome_Contracts::TITLE_ALIGNMENT_LEFT,
@@ -385,11 +380,6 @@ final class PufferDesk_Theme_Registry {
 						'placement' => PufferDesk_Window_Chrome_Contracts::PLACEMENT_RIGHT,
 						'order'     => array( PufferDesk_Window_Chrome_Contracts::CONTROL_MINIMIZE, PufferDesk_Window_Chrome_Contracts::CONTROL_MAXIMIZE, PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ),
 						'style'     => PufferDesk_Window_Chrome_Contracts::STYLE_TOOLBAR,
-						'labels'    => array(
-							PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE    => __( 'Close', 'pufferdesk-admin-desktop' ),
-							PufferDesk_Window_Chrome_Contracts::CONTROL_MINIMIZE => __( 'Minimize', 'pufferdesk-admin-desktop' ),
-							PufferDesk_Window_Chrome_Contracts::CONTROL_MAXIMIZE => __( 'Maximize', 'pufferdesk-admin-desktop' ),
-						),
 					),
 					'title'    => array(
 						'alignment' => PufferDesk_Window_Chrome_Contracts::TITLE_ALIGNMENT_LEFT,
@@ -2107,7 +2097,7 @@ final class PufferDesk_Theme_Registry {
 			return $normalized;
 		}
 
-		$allowed = array( 'dock', 'desktop', 'both', 'hidden' );
+		$allowed = array_values( PufferDesk_User_Preferences::get_app_location_ids() );
 		foreach ( $locations as $app_id => $location ) {
 			$app_id   = sanitize_key( (string) $app_id );
 			$location = sanitize_key( (string) $location );

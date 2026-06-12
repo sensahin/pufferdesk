@@ -211,7 +211,7 @@
 		}
 
 		if (item.type === 'folder' && (item.target || item.id) === appIds.TRASH) {
-			const trashLabel = getConfigLabel(config, 'trash', item.label || 'Trash');
+			const trashLabel = getConfigLabel(config, 'trash', item.label || 'trash');
 
 			return Object.assign({}, item, {
 				label: trashLabel,

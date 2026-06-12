@@ -20,7 +20,8 @@
 		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.windowKinds || {}
 			: {};
-		const folderWindowKind = windowKinds.FOLDER || 'folder';
+		const folderWindowKind = windowKinds.FOLDER;
+		const shortcutContexts = window.PufferDesk.shell.shortcutContexts || {};
 		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 		const schema = window.PufferDesk.shell.createMenuSchema(labels);
 		const commands = context.commands || window.PufferDesk.shell.createCommandRegistry(shell, context);
@@ -30,20 +31,20 @@
 		const launcher = context.launcher || null;
 		const menuGroupIds = schema.getGroupIds();
 		const standardGroupIds = schema.getStandardGroupIds();
-		let activeDetail = { kind: 'desktop' };
+		let activeDetail = { kind: shortcutContexts.DESKTOP };
 		const persistentDefinition = menuConfig.persistent
 			? schema.normalizeDefinition(menuConfig.persistent, {
-				appLabel: labels.site || config.siteName || 'Site'
+				appLabel: labels.site || config.siteName || getLabel('site')
 			})
 			: { groups: [] };
 		const systemDefinition = menuConfig.system
 			? schema.normalizeDefinition(menuConfig.system, {
-				appLabel: labels.system || 'PufferDesk'
+				appLabel: getLabel('system')
 			})
 			: { groups: [] };
 		const systemGroupBase = {
 			id: 'system',
-			label: systemDefinition.groups[0] && systemDefinition.groups[0].label ? systemDefinition.groups[0].label : 'PufferDesk'
+			label: systemDefinition.groups[0] && systemDefinition.groups[0].label ? systemDefinition.groups[0].label : getLabel('system')
 		};
 		const persistentGroupIds = new Set(persistentDefinition.groups.map((group) => group.id));
 		let activeDefinition = getDesktopDefinition();
@@ -55,12 +56,12 @@
 		function getDesktopDefinition() {
 			return completeDefinition(schema.normalizeDefinition(menuConfig.desktop, {
 				includeGo: true
-			}), { kind: 'desktop' });
+			}), { kind: shortcutContexts.DESKTOP });
 		}
 
 		function getDefaultAppDefinition(detail = {}) {
 			return completeDefinition(schema.getDefaultDefinition({
-				appLabel: detail.title || labels.admin || 'Admin',
+				appLabel: detail.title || getLabel('admin'),
 				includeGo: true
 			}), detail);
 		}
@@ -72,12 +73,12 @@
 				!window.PufferDesk.session ||
 				!window.PufferDesk.session.createSessionStore
 			) {
-				return { kind: 'desktop' };
+				return { kind: shortcutContexts.DESKTOP };
 			}
 
 			const savedWindows = window.PufferDesk.session.createSessionStore(config.storageKey).getSection(workspaceSections.WINDOWS, []);
 			if (!Array.isArray(savedWindows) || !savedWindows.length) {
-				return { kind: 'desktop' };
+				return { kind: shortcutContexts.DESKTOP };
 			}
 
 			const topSavedWindow = savedWindows
@@ -101,10 +102,10 @@
 					const secondZIndex = Number.parseFloat(secondState.zIndex);
 
 					return (Number.isFinite(secondZIndex) ? secondZIndex : 0) - (Number.isFinite(firstZIndex) ? firstZIndex : 0);
-				})[0];
+			})[0];
 
 			if (!topSavedWindow || !appMap.has(topSavedWindow.appId)) {
-				return { kind: 'desktop' };
+				return { kind: shortcutContexts.DESKTOP };
 			}
 
 			const app = appMap.get(topSavedWindow.appId);
@@ -113,7 +114,7 @@
 				appId: app.id,
 				kind: 'app',
 				menu: app.menu || null,
-				title: app.label || labels.admin || 'Admin'
+				title: app.label || getLabel('admin')
 			};
 		}
 
@@ -139,7 +140,7 @@
 		}
 
 		function getGroupLabel(id, detail = {}) {
-			if (id === (menuGroupIds.APP || 'app')) {
+			if (id === menuGroupIds.APP) {
 				return detail.title || getLabel('admin');
 			}
 
@@ -147,7 +148,7 @@
 		}
 
 		function isWindowDetail(detail = {}) {
-			return Boolean(detail.kind && detail.kind !== 'desktop');
+			return Boolean(detail.kind && detail.kind !== shortcutContexts.DESKTOP);
 		}
 
 		function isFolderDetail(detail = {}) {
@@ -207,7 +208,7 @@
 				items.push(commandItem(getLabel('new_folder'), commandIds.FOLDER_CREATE, {
 					icon: 'dashicons-category',
 					shortcut: shortcut('primary+secondary+n', {
-						contexts: ['desktop', 'folder']
+						contexts: [shortcutContexts.DESKTOP, shortcutContexts.FOLDER]
 					})
 				}));
 			}
@@ -216,7 +217,7 @@
 				items.push(commandItem(getLabel('get_info'), commandIds.FOLDER_GET_INFO, {
 					icon: 'dashicons-info-outline',
 					shortcut: shortcut('secondary+enter', {
-						contexts: ['folder']
+						contexts: [shortcutContexts.FOLDER]
 					}),
 					target: folderId
 				}));
@@ -237,7 +238,7 @@
 				items.push(commandItem(getLabel('close_window'), commandIds.WINDOW_CLOSE, {
 					icon: 'dashicons-dismiss',
 					shortcut: shortcut('primary+w', {
-						contexts: ['window']
+						contexts: [shortcutContexts.WINDOW]
 					})
 				}));
 			}
@@ -259,17 +260,17 @@
 				separator(),
 				commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
 					shortcut: shortcut('primary+x', {
-						contexts: ['desktop', 'folder']
+						contexts: [shortcutContexts.DESKTOP, shortcutContexts.FOLDER]
 					})
 				}),
 				commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
 					shortcut: shortcut('primary+c', {
-						contexts: ['desktop', 'folder']
+						contexts: [shortcutContexts.DESKTOP, shortcutContexts.FOLDER]
 					})
 				}),
 				commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
 					shortcut: shortcut('primary+v', {
-						contexts: ['desktop', 'folder']
+						contexts: [shortcutContexts.DESKTOP, shortcutContexts.FOLDER]
 					})
 				}),
 				separator(),
@@ -393,7 +394,7 @@
 			}
 
 			return windows.map((win) => {
-				const title = win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || 'Window';
+				const title = win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || getLabel('window');
 				const id = win.dataset.pdkWindowId || '';
 				return commandItem(title, commandIds.WINDOW_FOCUS_ID, {
 					icon: win.classList.contains('is-active') ? 'dashicons-yes' : '',
@@ -410,8 +411,8 @@
 							icon: 'dashicons-minus',
 							shortcut: shortcut('primary+m', {
 								allowReserved: true,
-								contexts: ['window'],
-								reservedReason: 'Scoped to PufferDesk windows.'
+								contexts: [shortcutContexts.WINDOW],
+								reservedReason: getLabel('shortcut_reserved_window_reason')
 							})
 						}),
 						commandItem(getLabel('zoom'), commandIds.WINDOW_TOGGLE_MAXIMIZE, {
@@ -420,7 +421,7 @@
 						commandItem(getLabel('window_close'), commandIds.WINDOW_CLOSE, {
 							icon: 'dashicons-dismiss',
 							shortcut: shortcut('primary+w', {
-								contexts: ['window']
+								contexts: [shortcutContexts.WINDOW]
 							})
 						})
 					]
@@ -444,7 +445,7 @@
 				commandItem(getLabel('about_this_site'), commandIds.OPEN_SITE_ABOUT, {
 					icon: 'dashicons-info-outline'
 				}),
-				commandItem(getLabel('keyboard_shortcuts', 'Keyboard Shortcuts'), commandIds.HELP_KEYBOARD_SHORTCUTS, {
+				commandItem(getLabel('keyboard_shortcuts'), commandIds.HELP_KEYBOARD_SHORTCUTS, {
 					icon: 'dashicons-keyboard'
 				}),
 				separator(),
@@ -461,17 +462,17 @@
 
 		function getDefaultItemsForGroup(group, detail = {}) {
 			switch (group.id) {
-				case menuGroupIds.FILE || 'file':
+				case menuGroupIds.FILE:
 					return getFileItems(detail);
-				case menuGroupIds.EDIT || 'edit':
+				case menuGroupIds.EDIT:
 					return getEditItems();
-				case menuGroupIds.VIEW || 'view':
+				case menuGroupIds.VIEW:
 					return getViewItems(detail);
-				case menuGroupIds.GO || 'go':
+				case menuGroupIds.GO:
 					return getGoItems(detail);
-				case menuGroupIds.WINDOW || 'window':
+				case menuGroupIds.WINDOW:
 					return getWindowItems(detail, group.items);
-				case menuGroupIds.HELP || 'help':
+				case menuGroupIds.HELP:
 					return getHelpItems(detail);
 				default:
 					return group.items;
@@ -482,7 +483,7 @@
 			const items = Array.isArray(group.items) ? group.items : [];
 
 			if (items.length) {
-				return group.id === (menuGroupIds.WINDOW || 'window') ? getWindowItems(detail, items) : items;
+				return group.id === menuGroupIds.WINDOW ? getWindowItems(detail, items) : items;
 			}
 
 			return getDefaultItemsForGroup(Object.assign({}, group, { items }), detail);
@@ -512,18 +513,18 @@
 			});
 
 			return {
-				groups: ordered.filter((group) => group.id !== (menuGroupIds.APP || 'app') || group.items.length)
+				groups: ordered.filter((group) => group.id !== menuGroupIds.APP || group.items.length)
 			};
 		}
 
 		function getDefinitionForDetail(detail = {}) {
-			if (!detail.kind || detail.kind === 'desktop') {
+			if (!detail.kind || detail.kind === shortcutContexts.DESKTOP) {
 				return getDesktopDefinition();
 			}
 
 			if (detail.menu) {
 				return completeDefinition(schema.normalizeDefinition(detail.menu, {
-					appLabel: detail.title || labels.admin || 'Admin'
+					appLabel: detail.title || getLabel('admin')
 				}), detail);
 			}
 
@@ -531,7 +532,7 @@
 				const app = appMap.get(detail.appId);
 				if (app.menu) {
 					return completeDefinition(schema.normalizeDefinition(app.menu, {
-						appLabel: app.label || detail.title || labels.admin || 'Admin'
+						appLabel: app.label || detail.title || getLabel('admin')
 					}), detail);
 				}
 			}
@@ -1157,7 +1158,7 @@
 				return;
 			}
 
-			activeDetail = detail && typeof detail === 'object' ? detail : { kind: 'desktop' };
+			activeDetail = detail && typeof detail === 'object' ? detail : { kind: shortcutContexts.DESKTOP };
 			commands.setActiveDetail(activeDetail);
 			activeDefinition = getDefinitionForDetail(activeDetail);
 			closePopover();
@@ -1189,7 +1190,7 @@
 			if (menu) {
 				render(getInitialActiveDetail());
 				shell.addEventListener(domEventNames.ACTIVE_WINDOW_CHANGE, (event) => {
-					render(event.detail || { kind: 'desktop' });
+					render(event.detail || { kind: shortcutContexts.DESKTOP });
 				});
 			}
 			document.addEventListener('pointerdown', (event) => {
@@ -1251,7 +1252,7 @@
 			closePopover,
 			commands,
 			getActiveDetail() {
-				return Object.assign({}, activeDetail || { kind: 'desktop' });
+				return Object.assign({}, activeDetail || { kind: shortcutContexts.DESKTOP });
 			},
 			getMenuDefinition,
 			render

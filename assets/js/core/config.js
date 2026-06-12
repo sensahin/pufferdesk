@@ -5,8 +5,13 @@
 
 	function formatTemplate(template, values = []) {
 		let index = 0;
+		let formatted = String(template || '');
 
-		return String(template || '').replace(/%d|%s/g, () => String(values[index++] ?? ''));
+		values.forEach((value, valueIndex) => {
+			formatted = formatted.replace(new RegExp(`%${valueIndex + 1}\\\\$[sd]`, 'g'), String(value ?? ''));
+		});
+
+		return formatted.replace(/%d|%s/g, () => String(values[index++] ?? ''));
 	}
 
 	window.PufferDesk.config = {

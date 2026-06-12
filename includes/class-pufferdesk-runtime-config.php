@@ -84,6 +84,72 @@ final class PufferDesk_Runtime_Config {
 	}
 
 	/**
+	 * Labels consumed by first-paint PHP shell templates.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @return array<string,string>
+	 */
+	public static function get_shell_template_labels( $theme = array() ) {
+		$theme        = is_array( $theme ) ? $theme : array();
+		$shell        = isset( $theme['shell'] ) && is_array( $theme['shell'] ) ? $theme['shell'] : array();
+		$shell_labels = isset( $shell['labels'] ) && is_array( $shell['labels'] ) ? $shell['labels'] : array();
+		$menu         = isset( $theme['menu'] ) && is_array( $theme['menu'] ) ? $theme['menu'] : array();
+		$menu_labels  = isset( $menu['labels'] ) && is_array( $menu['labels'] ) ? $menu['labels'] : array();
+		$group_labels = wp_parse_args( $menu_labels, PufferDesk_App_Menu_Normalizer::get_default_group_labels() );
+
+		return wp_parse_args(
+			$shell_labels,
+			array_merge(
+				$group_labels,
+				array(
+					'desktop_apps'          => __( 'Desktop apps', 'pufferdesk-admin-desktop' ),
+					'desktop_folders'       => __( 'Desktop folders', 'pufferdesk-admin-desktop' ),
+					'desktop_widgets'       => __( 'Desktop widgets', 'pufferdesk-admin-desktop' ),
+					'launcher'              => __( 'Dock', 'pufferdesk-admin-desktop' ),
+					'menu_items'            => __( 'PufferDesk menus', 'pufferdesk-admin-desktop' ),
+					'open_system_menu'      => __( 'Open PufferDesk menu', 'pufferdesk-admin-desktop' ),
+					'pufferdesk_desktop'    => __( 'PufferDesk Desktop', 'pufferdesk-admin-desktop' ),
+					'search'                => __( 'Search', 'pufferdesk-admin-desktop' ),
+					'search_apps'           => __( 'Search apps', 'pufferdesk-admin-desktop' ),
+					'start'                 => __( 'Start', 'pufferdesk-admin-desktop' ),
+					'open_start'            => __( 'Open Start', 'pufferdesk-admin-desktop' ),
+					'status'                => __( 'Status', 'pufferdesk-admin-desktop' ),
+				)
+			)
+		);
+	}
+
+	/**
+	 * Generic label composition format.
+	 *
+	 * @return string
+	 */
+	private static function get_combined_label_format() {
+		/* translators: 1: first label fragment, 2: second label fragment. */
+		return __( '%1$s %2$s', 'pufferdesk-admin-desktop' );
+	}
+
+	/**
+	 * Generic count and noun label format.
+	 *
+	 * @return string
+	 */
+	private static function get_item_count_format() {
+		/* translators: 1: item count, 2: item label. */
+		return __( '%1$d %2$s', 'pufferdesk-admin-desktop' );
+	}
+
+	/**
+	 * Generic window aria label format.
+	 *
+	 * @return string
+	 */
+	private static function get_window_title_format() {
+		/* translators: %s: window title. */
+		return __( '%s window', 'pufferdesk-admin-desktop' );
+	}
+
+	/**
 	 * Runtime data passed from WordPress into the shell.
 	 *
 	 * @param array<string,mixed> $context Resolved shell context.
@@ -107,7 +173,7 @@ final class PufferDesk_Runtime_Config {
 			'desktopDock'    => isset( $context['desktop_dock'] ) && is_array( $context['desktop_dock'] ) ? $context['desktop_dock'] : array(),
 			'desktopFolders' => isset( $context['desktop_folders'] ) && is_array( $context['desktop_folders'] ) ? $context['desktop_folders'] : array(),
 			'desktopTrash'   => isset( $context['desktop_trash'] ) && is_array( $context['desktop_trash'] ) ? $context['desktop_trash'] : array(),
-			'dialogs'        => isset( $theme['dialogs'] ) && is_array( $theme['dialogs'] ) ? $theme['dialogs'] : array(),
+			'dialogs'        => $this->get_dialogs_config( $theme ),
 			'documents'      => $this->get_documents_config(),
 			'logoutUrl'      => $this->get_logout_url(),
 			'media'          => array(
@@ -218,7 +284,9 @@ final class PufferDesk_Runtime_Config {
 				'infoFallbackTitle'         => __( 'Info', 'pufferdesk-admin-desktop' ),
 				'itemPlural'                => __( 'items', 'pufferdesk-admin-desktop' ),
 				'itemSingular'              => __( 'item', 'pufferdesk-admin-desktop' ),
+				'itemCountTemplate'         => self::get_item_count_format(),
 				'kindLabel'                 => __( 'Kind', 'pufferdesk-admin-desktop' ),
+				'pufferdeskFallback'        => PufferDesk_Product_Labels::name(),
 					'lastOpenedLabel'           => __( 'Last opened', 'pufferdesk-admin-desktop' ),
 					'locked'                    => __( 'Locked', 'pufferdesk-admin-desktop' ),
 					'modifiedLabel'             => __( 'Modified', 'pufferdesk-admin-desktop' ),
@@ -239,8 +307,7 @@ final class PufferDesk_Runtime_Config {
 					'sizeLabel'                 => __( 'Size', 'pufferdesk-admin-desktop' ),
 					'sourceLabel'               => __( 'Source', 'pufferdesk-admin-desktop' ),
 					'whereLabel'                => __( 'Where', 'pufferdesk-admin-desktop' ),
-					/* translators: %s: window title. */
-					'windowAriaLabel'           => __( '%s window', 'pufferdesk-admin-desktop' ),
+					'windowAriaLabel'           => self::get_window_title_format(),
 				'wordpressSiteTitle'        => __( 'WordPress Site', 'pufferdesk-admin-desktop' ),
 			),
 		);
@@ -264,6 +331,12 @@ final class PufferDesk_Runtime_Config {
 	 * @return array<string,mixed>
 	 */
 	private function get_documents_config() {
+		$window_chrome = PufferDesk_Window_Chrome_Contracts::default_config();
+		$close_label   = isset( $window_chrome['controls']['labels'][ PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ] )
+			? $window_chrome['controls']['labels'][ PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ]
+			: PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE;
+		$document_labels = PufferDesk_Document_Service::get_default_labels();
+
 		return array(
 			'actions'      => array(
 				'create' => PufferDesk_Document_Controller::ACTION_CREATE,
@@ -281,7 +354,7 @@ final class PufferDesk_Runtime_Config {
 				'text'   => PufferDesk_Document_Service::KIND_TEXT,
 			),
 			'labels'       => array(
-				'close'            => __( 'Close', 'pufferdesk-admin-desktop' ),
+				'close'            => $close_label,
 				'bold'             => __( 'Bold', 'pufferdesk-admin-desktop' ),
 				'bulletList'       => __( 'Bullet list', 'pufferdesk-admin-desktop' ),
 				'couldNotDeleteDocument' => __( 'Could not delete document.', 'pufferdesk-admin-desktop' ),
@@ -321,15 +394,41 @@ final class PufferDesk_Runtime_Config {
 				'search'           => __( 'Search', 'pufferdesk-admin-desktop' ),
 				'searchPlaceholder' => __( 'Search...', 'pufferdesk-admin-desktop' ),
 				'show'             => __( 'Show', 'pufferdesk-admin-desktop' ),
-				'stickyNote'       => __( 'Sticky Note', 'pufferdesk-admin-desktop' ),
+				'stickyNote'       => $document_labels['stickyNote'],
 				'stickyNotes'      => __( 'Sticky Notes', 'pufferdesk-admin-desktop' ),
 				'stickyPlaceholder' => __( 'Take a note...', 'pufferdesk-admin-desktop' ),
 				'strikethrough'    => __( 'Strikethrough', 'pufferdesk-admin-desktop' ),
 				'textEditor'       => __( 'Text Editor', 'pufferdesk-admin-desktop' ),
 				'underline'        => __( 'Underline', 'pufferdesk-admin-desktop' ),
-				'untitledDocument' => __( 'Untitled Document', 'pufferdesk-admin-desktop' ),
+				'untitledDocument' => $document_labels['untitledDocument'],
 			),
 		);
+	}
+
+	/**
+	 * Shared shell dialog runtime metadata.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @return array<string,mixed>
+	 */
+	private function get_dialogs_config( $theme = array() ) {
+		$dialogs       = isset( $theme['dialogs'] ) && is_array( $theme['dialogs'] ) ? $theme['dialogs'] : array();
+		$labels        = isset( $dialogs['labels'] ) && is_array( $dialogs['labels'] ) ? $dialogs['labels'] : array();
+		$window_chrome = PufferDesk_Window_Chrome_Contracts::default_config();
+		$close_label   = isset( $window_chrome['controls']['labels'][ PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ] )
+			? $window_chrome['controls']['labels'][ PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ]
+			: PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE;
+
+		$dialogs['labels'] = wp_parse_args(
+			$labels,
+			array(
+				'cancel'  => __( 'Cancel', 'pufferdesk-admin-desktop' ),
+				'close'   => $close_label,
+				'confirm' => __( 'OK', 'pufferdesk-admin-desktop' ),
+			)
+		);
+
+		return $dialogs;
 	}
 
 	/**
@@ -390,8 +489,7 @@ final class PufferDesk_Runtime_Config {
 		$site_url_label  = preg_replace( '#^https?://#', '', untrailingslashit( $site_url ) );
 		$wp_label        = $wp_release_name
 			? sprintf(
-				/* translators: 1: WordPress release name, 2: WordPress version number. */
-				__( '%1$s %2$s', 'pufferdesk-admin-desktop' ),
+				self::get_combined_label_format(),
 				$wp_release_name,
 				$wp_version
 			)
@@ -427,11 +525,7 @@ final class PufferDesk_Runtime_Config {
 						$wp_release_name
 					)
 					: __( 'WordPress', 'pufferdesk-admin-desktop' ),
-				'value' => sprintf(
-					/* translators: %s: WordPress version number. */
-					__( 'Version %s', 'pufferdesk-admin-desktop' ),
-					$wp_version
-				),
+				'value' => PufferDesk_App_Normalizer::format_about_version( $wp_version ),
 			),
 			'display'       => array(
 				'buttonIcon'  => 'dashicons-admin-appearance',
@@ -441,11 +535,7 @@ final class PufferDesk_Runtime_Config {
 				'icon'        => 'dashicons-desktop',
 				'title'       => $theme_name,
 				'value'       => $theme_version
-					? sprintf(
-						/* translators: %s: theme version number. */
-						__( 'Version %s', 'pufferdesk-admin-desktop' ),
-						$theme_version
-					)
+					? PufferDesk_App_Normalizer::format_about_version( $theme_version )
 					: '',
 			),
 			'rows'          => array_values(
@@ -613,12 +703,11 @@ final class PufferDesk_Runtime_Config {
 	 * @return array<string,string>
 	 */
 	private function get_theme_window_control_labels( $theme = array() ) {
-		$defaults = array(
-			'close'    => __( 'Close', 'pufferdesk-admin-desktop' ),
-			'minimize' => __( 'Minimize', 'pufferdesk-admin-desktop' ),
-			'maximize' => __( 'Maximize', 'pufferdesk-admin-desktop' ),
-		);
-		$labels   = isset( $theme['window_chrome']['controls']['labels'] ) && is_array( $theme['window_chrome']['controls']['labels'] )
+		$default_config = PufferDesk_Window_Chrome_Contracts::default_config();
+		$defaults       = isset( $default_config['controls']['labels'] ) && is_array( $default_config['controls']['labels'] )
+			? $default_config['controls']['labels']
+			: array();
+		$labels         = isset( $theme['window_chrome']['controls']['labels'] ) && is_array( $theme['window_chrome']['controls']['labels'] )
 			? $theme['window_chrome']['controls']['labels']
 			: array();
 
@@ -682,14 +771,17 @@ final class PufferDesk_Runtime_Config {
 	 * @return array<string,mixed>
 	 */
 	private function get_settings_config( $theme = array() ) {
+		$labels         = $this->get_settings_labels_config( $theme );
+		$general_labels = isset( $labels['generalPanel'] ) && is_array( $labels['generalPanel'] ) ? $labels['generalPanel'] : array();
+
 		return array(
 			'capabilities' => $this->get_shell_capabilities_config( $theme ),
 			'domains'      => $this->settings_registry->get_client_domains(),
 			'general' => array(
-				'description' => __( 'Manage site information, updates, language, privacy, and WordPress tools.', 'pufferdesk-admin-desktop' ),
+				'description' => isset( $general_labels['description'] ) ? $general_labels['description'] : '',
 				'groups'      => $this->get_general_settings_groups(),
 			),
-			'labels'  => $this->get_settings_labels_config( $theme ),
+			'labels'  => $labels,
 		);
 	}
 
@@ -720,6 +812,7 @@ final class PufferDesk_Runtime_Config {
 		}
 
 		$labels = array(
+			'appTitle'     => __( 'Settings', 'pufferdesk-admin-desktop' ),
 			'status'       => array(
 				'saving'                 => __( 'Saving...', 'pufferdesk-admin-desktop' ),
 				'removing'               => __( 'Removing...', 'pufferdesk-admin-desktop' ),
@@ -872,6 +965,8 @@ final class PufferDesk_Runtime_Config {
 				'iconWidgetStyleLabel'  => __( 'Icon & widget style', 'pufferdesk-admin-desktop' ),
 				'themeLabel'            => __( 'Theme', 'pufferdesk-admin-desktop' ),
 				'themeFallbackLabel'    => __( 'Theme', 'pufferdesk-admin-desktop' ),
+				/* translators: 1: theme family label, 2: theme version label. */
+				'themeVersionFormat'    => __( '%1$s · %2$s', 'pufferdesk-admin-desktop' ),
 				'modeOptions'           => array(
 					array( 'value' => 'auto', 'label' => __( 'Auto', 'pufferdesk-admin-desktop' ) ),
 					array( 'value' => 'light', 'label' => __( 'Light', 'pufferdesk-admin-desktop' ) ),
@@ -1398,13 +1493,15 @@ final class PufferDesk_Runtime_Config {
 		$user_label            = $current_user->display_name ? $current_user->display_name : $current_user->user_login;
 		$shell_labels          = $this->get_theme_shell_labels( $theme );
 		$window_control_labels = $this->get_theme_window_control_labels( $theme );
+		$group_labels          = PufferDesk_App_Menu_Normalizer::get_default_group_labels();
+		$template_labels       = self::get_shell_template_labels( $theme );
 
 		$config = array(
 			'system'     => array(
 				'groups' => array(
 					array(
 						'id'    => 'system',
-						'label' => __( 'PufferDesk', 'pufferdesk-admin-desktop' ),
+						'label' => PufferDesk_Product_Labels::name(),
 						'items' => array(
 							array(
 								'label'   => __( 'About This Site', 'pufferdesk-admin-desktop' ),
@@ -1502,53 +1599,56 @@ final class PufferDesk_Runtime_Config {
 				'groups' => array(
 					array(
 						'id'    => PufferDesk_App_Menu_Normalizer::GROUP_FILE,
-						'label' => __( 'File', 'pufferdesk-admin-desktop' ),
+						'label' => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_FILE ],
 						'items' => array(),
 					),
 					array(
 						'id'    => PufferDesk_App_Menu_Normalizer::GROUP_EDIT,
-						'label' => __( 'Edit', 'pufferdesk-admin-desktop' ),
+						'label' => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_EDIT ],
 						'items' => array(),
 					),
 					array(
 						'id'    => PufferDesk_App_Menu_Normalizer::GROUP_VIEW,
-						'label' => __( 'View', 'pufferdesk-admin-desktop' ),
+						'label' => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_VIEW ],
 						'items' => array(),
 					),
 					array(
 						'id'    => PufferDesk_App_Menu_Normalizer::GROUP_GO,
-						'label' => __( 'Go', 'pufferdesk-admin-desktop' ),
+						'label' => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_GO ],
 						'items' => array(),
 					),
 					array(
 						'id'    => PufferDesk_App_Menu_Normalizer::GROUP_WINDOW,
-						'label' => __( 'Window', 'pufferdesk-admin-desktop' ),
+						'label' => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_WINDOW ],
 						'items' => array(),
 					),
 					array(
 						'id'    => PufferDesk_App_Menu_Normalizer::GROUP_HELP,
-						'label' => __( 'Help', 'pufferdesk-admin-desktop' ),
+						'label' => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_HELP ],
 						'items' => array(),
 					),
 				),
 			),
 			'labels'     => array(
 				PufferDesk_App_Menu_Normalizer::GROUP_SITE => get_bloginfo( 'name' ),
-				PufferDesk_App_Menu_Normalizer::GROUP_FILE => __( 'File', 'pufferdesk-admin-desktop' ),
-				PufferDesk_App_Menu_Normalizer::GROUP_EDIT => __( 'Edit', 'pufferdesk-admin-desktop' ),
-				PufferDesk_App_Menu_Normalizer::GROUP_VIEW => __( 'View', 'pufferdesk-admin-desktop' ),
-				PufferDesk_App_Menu_Normalizer::GROUP_GO => __( 'Go', 'pufferdesk-admin-desktop' ),
-				PufferDesk_App_Menu_Normalizer::GROUP_WINDOW => __( 'Window', 'pufferdesk-admin-desktop' ),
-				PufferDesk_App_Menu_Normalizer::GROUP_HELP => __( 'Help', 'pufferdesk-admin-desktop' ),
+				PufferDesk_App_Menu_Normalizer::GROUP_FILE => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_FILE ],
+				PufferDesk_App_Menu_Normalizer::GROUP_EDIT => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_EDIT ],
+				PufferDesk_App_Menu_Normalizer::GROUP_VIEW => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_VIEW ],
+				PufferDesk_App_Menu_Normalizer::GROUP_GO => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_GO ],
+				PufferDesk_App_Menu_Normalizer::GROUP_WINDOW => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_WINDOW ],
+				PufferDesk_App_Menu_Normalizer::GROUP_HELP => $group_labels[ PufferDesk_App_Menu_Normalizer::GROUP_HELP ],
+				'system'                  => PufferDesk_Product_Labels::name(),
 				'admin'                   => __( 'Admin', 'pufferdesk-admin-desktop' ),
 				'app'                     => __( 'App', 'pufferdesk-admin-desktop' ),
 				'apps'                    => __( 'Apps', 'pufferdesk-admin-desktop' ),
 				'desktop'                 => __( 'Desktop', 'pufferdesk-admin-desktop' ),
-				'desktop_folders'         => __( 'Desktop folders', 'pufferdesk-admin-desktop' ),
+				'desktop_folders'         => $template_labels['desktop_folders'],
 				'folder'                  => __( 'Folder', 'pufferdesk-admin-desktop' ),
+				'folders'                 => __( 'Folders', 'pufferdesk-admin-desktop' ),
 				'folder_empty'            => __( 'This folder is empty.', 'pufferdesk-admin-desktop' ),
 				'folder_suffix'           => __( 'Folder', 'pufferdesk-admin-desktop' ),
-				'untitled_folder'         => __( 'untitled folder', 'pufferdesk-admin-desktop' ),
+				'untitled_folder'         => PufferDesk_User_Preferences::get_default_folder_label(),
+				'untitled_item'           => __( 'Untitled', 'pufferdesk-admin-desktop' ),
 				'new'                     => __( 'New', 'pufferdesk-admin-desktop' ),
 				'new_folder'              => __( 'New Folder', 'pufferdesk-admin-desktop' ),
 				'group'                   => __( 'Group', 'pufferdesk-admin-desktop' ),
@@ -1565,6 +1665,7 @@ final class PufferDesk_Runtime_Config {
 				'open_in_browser_tab'     => __( 'Open in Browser Tab', 'pufferdesk-admin-desktop' ),
 				'open_in_new_tab'         => __( 'Open in New Tab', 'pufferdesk-admin-desktop' ),
 				'open_in_new_window'      => __( 'Open in New Window', 'pufferdesk-admin-desktop' ),
+				'address'                 => __( 'Address', 'pufferdesk-admin-desktop' ),
 				'pin_to_quick_access'     => __( 'Pin to Quick Access', 'pufferdesk-admin-desktop' ),
 				'pin_to_start'            => __( 'Pin to Start', 'pufferdesk-admin-desktop' ),
 				'properties'              => __( 'Properties', 'pufferdesk-admin-desktop' ),
@@ -1590,6 +1691,9 @@ final class PufferDesk_Runtime_Config {
 				'text_only'               => __( 'Text Only', 'pufferdesk-admin-desktop' ),
 				'show_toolbar'            => __( 'Show Toolbar', 'pufferdesk-admin-desktop' ),
 				'hide_toolbar'            => __( 'Hide Toolbar', 'pufferdesk-admin-desktop' ),
+				'folder_command_bar'      => __( 'Folder Command Bar', 'pufferdesk-admin-desktop' ),
+				'folder_toolbar'          => __( 'Folder Toolbar', 'pufferdesk-admin-desktop' ),
+				'back_forward'            => __( 'Back/Forward', 'pufferdesk-admin-desktop' ),
 				'close_window'            => __( 'Close Window', 'pufferdesk-admin-desktop' ),
 				'system_settings'         => __( 'System Settings...', 'pufferdesk-admin-desktop' ),
 				'start_search_label'      => __( 'Search apps, settings, and commands', 'pufferdesk-admin-desktop' ),
@@ -1610,7 +1714,9 @@ final class PufferDesk_Runtime_Config {
 				'redo'                    => __( 'Redo', 'pufferdesk-admin-desktop' ),
 				'cut'                     => __( 'Cut', 'pufferdesk-admin-desktop' ),
 				'copy'                    => __( 'Copy', 'pufferdesk-admin-desktop' ),
+				'copy_name_format'        => PufferDesk_Document_Service::get_default_label( 'copyNameFormat' ),
 				'paste'                   => __( 'Paste', 'pufferdesk-admin-desktop' ),
+				'save'                    => __( 'Save', 'pufferdesk-admin-desktop' ),
 				'select_all'              => __( 'Select All', 'pufferdesk-admin-desktop' ),
 				'sort_by'                 => __( 'Sort By', 'pufferdesk-admin-desktop' ),
 				'sort_by_sentence'        => __( 'Sort by', 'pufferdesk-admin-desktop' ),
@@ -1651,9 +1757,11 @@ final class PufferDesk_Runtime_Config {
 				'personalize'             => __( 'Personalize', 'pufferdesk-admin-desktop' ),
 				'back'                    => __( 'Back', 'pufferdesk-admin-desktop' ),
 				'forward'                 => __( 'Forward', 'pufferdesk-admin-desktop' ),
+				'up'                      => __( 'Up', 'pufferdesk-admin-desktop' ),
 				'recents'                 => __( 'Recents', 'pufferdesk-admin-desktop' ),
 				'favorites'               => __( 'Favorites', 'pufferdesk-admin-desktop' ),
 				'locations'               => __( 'Locations', 'pufferdesk-admin-desktop' ),
+				'navigation_pane'         => __( 'Navigation pane', 'pufferdesk-admin-desktop' ),
 				'remove_from_sidebar'     => __( 'Remove from Sidebar', 'pufferdesk-admin-desktop' ),
 				'home'                    => __( 'Home', 'pufferdesk-admin-desktop' ),
 				'gallery'                 => __( 'Gallery', 'pufferdesk-admin-desktop' ),
@@ -1662,7 +1770,7 @@ final class PufferDesk_Runtime_Config {
 				'recent_item'             => __( 'Recent Item', 'pufferdesk-admin-desktop' ),
 				'application'             => __( 'Application', 'pufferdesk-admin-desktop' ),
 				'document'                => __( 'Document', 'pufferdesk-admin-desktop' ),
-				'sticky_note'             => __( 'Sticky Note', 'pufferdesk-admin-desktop' ),
+				'sticky_note'             => PufferDesk_Document_Service::get_default_label( 'stickyNote' ),
 				'item_singular'           => __( 'item', 'pufferdesk-admin-desktop' ),
 				'item_plural'             => __( 'items', 'pufferdesk-admin-desktop' ),
 				'reload'                  => __( 'Reload', 'pufferdesk-admin-desktop' ),
@@ -1674,12 +1782,25 @@ final class PufferDesk_Runtime_Config {
 				'clear_menu'              => __( 'Clear Menu', 'pufferdesk-admin-desktop' ),
 				/* translators: %s: active window or app title. */
 				'close_item_format'       => __( 'Close %s', 'pufferdesk-admin-desktop' ),
+				'app_badge_aria_label_format' => PufferDesk_App_Badge_Normalizer::get_aria_label_format(),
+				/* translators: 1: action label, 2: target label. */
+				'combined_label_format'   => self::get_combined_label_format(),
+				/* translators: 1: action label, 2: target label. */
+				'label_colon_format'      => __( '%1$s: %2$s', 'pufferdesk-admin-desktop' ),
+				'item_count_format'       => self::get_item_count_format(),
+				/* translators: %s: window title. */
+				'window_title_format'     => self::get_window_title_format(),
+				/* translators: %s: window title. */
+				'window_restore_format'   => __( 'Restore %s', 'pufferdesk-admin-desktop' ),
+				/* translators: 1: theme family label, 2: theme version label. */
+				'theme_version_format'    => __( '%1$s · %2$s', 'pufferdesk-admin-desktop' ),
 				'bring_to_front'          => __( 'Bring to Front', 'pufferdesk-admin-desktop' ),
 				'show_all'                => __( 'Show All', 'pufferdesk-admin-desktop' ),
 				'show_all_windows'        => __( 'Show All', 'pufferdesk-admin-desktop' ),
 				'hide'                    => __( 'Hide', 'pufferdesk-admin-desktop' ),
 				'hide_others'             => __( 'Hide Others', 'pufferdesk-admin-desktop' ),
 				'hide_widget'             => __( 'Hide Widget', 'pufferdesk-admin-desktop' ),
+				'desktop_apps'            => $template_labels['desktop_apps'],
 				'rename'                  => __( 'Rename', 'pufferdesk-admin-desktop' ),
 				'action'                  => __( 'Action', 'pufferdesk-admin-desktop' ),
 				'context_menu'            => __( 'Context Menu', 'pufferdesk-admin-desktop' ),
@@ -1688,7 +1809,7 @@ final class PufferDesk_Runtime_Config {
 				'trash_item_count'        => __( 'Trash, %d item', 'pufferdesk-admin-desktop' ),
 				/* translators: %d: number of items in the trash. */
 				'trash_item_count_plural' => __( 'Trash, %d items', 'pufferdesk-admin-desktop' ),
-				'pufferdesk_desktop'      => __( 'PufferDesk Desktop', 'pufferdesk-admin-desktop' ),
+				'pufferdesk_desktop'      => $template_labels['pufferdesk_desktop'],
 				'pufferdesk_trash_source' => __( 'PufferDesk Trash', 'pufferdesk-admin-desktop' ),
 				'pufferdesk_user_folder_source' => __( 'PufferDesk user folder', 'pufferdesk-admin-desktop' ),
 				'wordpress_admin_group_source' => __( 'WordPress admin group', 'pufferdesk-admin-desktop' ),
@@ -1705,6 +1826,7 @@ final class PufferDesk_Runtime_Config {
 				'move_folder_to_trash_title_format' => __( 'Move "%s" to Trash?', 'pufferdesk-admin-desktop' ),
 				'put_back'                => __( 'Put Back', 'pufferdesk-admin-desktop' ),
 				'empty_trash'             => __( 'Empty Trash', 'pufferdesk-admin-desktop' ),
+				'empty_trash_confirmation' => __( 'Empty Trash?', 'pufferdesk-admin-desktop' ),
 				'delete'                  => __( 'Delete', 'pufferdesk-admin-desktop' ),
 				'delete_immediately'      => __( 'Delete Immediately', 'pufferdesk-admin-desktop' ),
 				'delete_immediately_title' => __( 'Delete Immediately?', 'pufferdesk-admin-desktop' ),
@@ -1712,6 +1834,26 @@ final class PufferDesk_Runtime_Config {
 				'delete_immediately_fallback_message' => __( 'Delete this PufferDesk folder record immediately?', 'pufferdesk-admin-desktop' ),
 				'about_this_site'         => __( 'About This Site', 'pufferdesk-admin-desktop' ),
 				'about_pufferdesk'        => __( 'About PufferDesk', 'pufferdesk-admin-desktop' ),
+				'move_validator_unavailable' => __( 'The move validator is not available.', 'pufferdesk-admin-desktop' ),
+				'move_not_applied'       => __( 'The move did not change workspace state.', 'pufferdesk-admin-desktop' ),
+				'move_could_not_be_completed' => __( 'The move could not be completed.', 'pufferdesk-admin-desktop' ),
+				'move_missing_item'      => __( 'Move requests must include a supported item id and type.', 'pufferdesk-admin-desktop' ),
+				'move_unsupported_item_type' => __( 'Only apps and folders can be moved by the core move service.', 'pufferdesk-admin-desktop' ),
+				'move_unknown_item'      => __( 'The moved item does not exist in the current workspace.', 'pufferdesk-admin-desktop' ),
+				'move_locked_item'       => __( 'Locked or system items cannot be moved to that container.', 'pufferdesk-admin-desktop' ),
+				'move_missing_source_container' => __( 'Move requests must include a source container.', 'pufferdesk-admin-desktop' ),
+				'move_missing_target_container' => __( 'Move requests must include a target container.', 'pufferdesk-admin-desktop' ),
+				'move_unknown_source_container' => __( 'The source container is not registered.', 'pufferdesk-admin-desktop' ),
+				'move_unknown_target_container' => __( 'The target container is not registered.', 'pufferdesk-admin-desktop' ),
+				'move_source_locked'     => __( 'The item cannot be moved out of its source container.', 'pufferdesk-admin-desktop' ),
+				'move_target_rejected'   => __( 'The target container does not accept this item.', 'pufferdesk-admin-desktop' ),
+				'move_system_folder'     => __( 'Only user-created folders can be moved between containers.', 'pufferdesk-admin-desktop' ),
+				'move_trash_parent'      => __( 'Trash cannot be used as a folder parent.', 'pufferdesk-admin-desktop' ),
+				'move_self_nesting'      => __( 'A folder cannot be moved into itself.', 'pufferdesk-admin-desktop' ),
+				'move_descendant_nesting' => __( 'A folder cannot be moved into one of its descendants.', 'pufferdesk-admin-desktop' ),
+				'move_app_already_on_desktop' => __( 'The app is already available on the desktop.', 'pufferdesk-admin-desktop' ),
+				'move_duplicate_item'    => __( 'The target folder already contains this app.', 'pufferdesk-admin-desktop' ),
+				'move_target_not_allowed' => __( 'The item model does not allow this drop target.', 'pufferdesk-admin-desktop' ),
 				'keyboard_shortcuts'      => __( 'Keyboard Shortcuts', 'pufferdesk-admin-desktop' ),
 				'keyboard_shortcuts_title' => __( 'Keyboard shortcuts', 'pufferdesk-admin-desktop' ),
 				'keyboard_shortcuts_search_placeholder' => __( 'Search shortcuts', 'pufferdesk-admin-desktop' ),
@@ -1727,6 +1869,45 @@ final class PufferDesk_Runtime_Config {
 				'keyboard_shortcuts_dialogs' => __( 'Dialogs', 'pufferdesk-admin-desktop' ),
 				'keyboard_shortcuts_search' => __( 'Search', 'pufferdesk-admin-desktop' ),
 				'keyboard_shortcuts_other' => __( 'Other', 'pufferdesk-admin-desktop' ),
+				'shortcut_key_backspace' => __( 'Backspace', 'pufferdesk-admin-desktop' ),
+				'shortcut_key_delete'    => __( 'Delete', 'pufferdesk-admin-desktop' ),
+				'shortcut_key_enter'     => __( 'Enter', 'pufferdesk-admin-desktop' ),
+				'shortcut_key_escape'    => __( 'Esc', 'pufferdesk-admin-desktop' ),
+				'shortcut_key_space'     => __( 'Space', 'pufferdesk-admin-desktop' ),
+				'shortcut_key_tab'       => __( 'Tab', 'pufferdesk-admin-desktop' ),
+				'shortcut_modifier_alt'  => __( 'Alt', 'pufferdesk-admin-desktop' ),
+				'shortcut_modifier_control' => __( 'Ctrl', 'pufferdesk-admin-desktop' ),
+				'shortcut_modifier_meta' => __( 'Meta', 'pufferdesk-admin-desktop' ),
+				'shortcut_modifier_shift' => __( 'Shift', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_window_scope' => __( 'primary+w is reserved unless scoped to a PufferDesk window or tab.', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_clear_scope' => __( 'primary+n is reserved unless clearly scoped.', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_window_reason' => __( 'Scoped to PufferDesk windows.', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_text_editor_reason' => __( 'Handled intentionally inside the native Text Editor.', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_for_format' => __( '%1$s is reserved for %2$s.', 'pufferdesk-admin-desktop' ),
+				'shortcut_may_conflict_format' => __( '%1$s may conflict with %2$s.', 'pufferdesk-admin-desktop' ),
+				'shortcut_conflicts_with_format' => __( '%1$s conflicts with %2$s.', 'pufferdesk-admin-desktop' ),
+				'shortcut_conflict_console' => __( 'PufferDesk shortcut conflict:', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_back' => __( 'browser back', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_forward' => __( 'browser forward', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_history' => __( 'browser history', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_location_bar' => __( 'browser location bar', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_new_tab' => __( 'browser new tab', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_next_tab' => __( 'browser next tab', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_previous_tab' => __( 'browser previous tab', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_print' => __( 'browser print', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_private_window' => __( 'browser private window', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_quit_application' => __( 'browser quit application', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_reload' => __( 'browser reload', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_reopen_closed_tab' => __( 'browser reopen closed tab', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_browser_save_page' => __( 'browser save page', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_developer_tools' => __( 'developer tools', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_developer_tools_console' => __( 'developer tools console', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_developer_tools_element_picker' => __( 'developer tools element picker', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_system_hide_application' => __( 'system hide application', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_system_hide_other_applications' => __( 'system hide other applications', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_system_minimize_window' => __( 'system minimize window', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_system_screenshot' => __( 'system screenshot', 'pufferdesk-admin-desktop' ),
+				'shortcut_reserved_system_search' => __( 'system search', 'pufferdesk-admin-desktop' ),
 					'wordpress_documentation' => __( 'WordPress Documentation', 'pufferdesk-admin-desktop' ),
 					'support_forums'          => __( 'Support Forums', 'pufferdesk-admin-desktop' ),
 					'launcher'                => $shell_labels['launcher'],

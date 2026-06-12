@@ -23,6 +23,18 @@
 			return config.dialogs && typeof config.dialogs === 'object' ? config.dialogs : {};
 		}
 
+		function getDialogLabel(key) {
+			const dialogs = getDialogConfig();
+			const labels = dialogs.labels && typeof dialogs.labels === 'object' ? dialogs.labels : {};
+			const value = labels[key];
+
+			if (typeof value === 'string' && value) {
+				return value;
+			}
+
+			return getMenuLabel(key);
+		}
+
 		function getMenuLabel(key) {
 			const config = getRuntimeConfig();
 			const menu = config.menu && typeof config.menu === 'object' ? config.menu : {};
@@ -255,8 +267,9 @@
 			label.className = 'pdk-shell-dialog-titlebar-label';
 			label.textContent = title || '';
 
-			const closeButton = createButton(closeLabel || 'Close', 'pdk-shell-dialog-titlebar-close');
-			closeButton.setAttribute('aria-label', closeLabel || 'Close');
+			const labelText = closeLabel || getDialogLabel('close');
+			const closeButton = createButton(labelText, 'pdk-shell-dialog-titlebar-close');
+			closeButton.setAttribute('aria-label', labelText);
 			closeButton.addEventListener('click', onClose);
 
 			titlebar.append(label, closeButton);
@@ -376,9 +389,9 @@
 			return new Promise((resolve) => {
 				const title = options.title || '';
 				const message = options.message || '';
-				const confirmLabel = options.confirmLabel || 'OK';
-				const cancelLabel = options.cancelLabel || 'Cancel';
-				const closeLabel = options.closeLabel || 'Close';
+				const confirmLabel = options.confirmLabel || getDialogLabel('confirm');
+				const cancelLabel = options.cancelLabel || getDialogLabel('cancel');
+				const closeLabel = options.closeLabel || getDialogLabel('close');
 				const windowTitle = options.windowTitle || '';
 				const titleId = `pdk-shell-dialog-title-${Date.now()}`;
 				const messageId = `pdk-shell-dialog-message-${Date.now()}`;
@@ -569,8 +582,8 @@
 				const countdownSeconds = hasTimer && Number.isFinite(secondsTotal) && secondsTotal > 0 ? secondsTotal : 60;
 				const title = options.title || '';
 				const messageTemplate = options.message || '';
-				const confirmLabel = options.confirmLabel || 'OK';
-				const cancelLabel = options.cancelLabel || 'Cancel';
+				const confirmLabel = options.confirmLabel || getDialogLabel('confirm');
+				const cancelLabel = options.cancelLabel || getDialogLabel('cancel');
 				const reopenWindowsLabel = options.reopenWindowsLabel || '';
 				const reopenWindowsDefault = options.reopenWindowsDefault === true;
 				const titleId = `pdk-shell-dialog-title-${Date.now()}`;
@@ -701,8 +714,8 @@
 				const title = options.title || '';
 				const message = options.message || '';
 				const value = typeof options.value === 'string' ? options.value : '';
-				const confirmLabel = options.confirmLabel || 'OK';
-				const cancelLabel = options.cancelLabel || 'Cancel';
+				const confirmLabel = options.confirmLabel || getDialogLabel('confirm');
+				const cancelLabel = options.cancelLabel || getDialogLabel('cancel');
 				const titleId = `pdk-shell-dialog-title-${Date.now()}`;
 				const messageId = `pdk-shell-dialog-message-${Date.now()}`;
 

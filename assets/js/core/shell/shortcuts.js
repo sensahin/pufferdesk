@@ -5,16 +5,11 @@
 	window.PufferDesk.shell = window.PufferDesk.shell || {};
 	window.PufferDesk.shortcuts = window.PufferDesk.shortcuts || {};
 
-	const shortcutContexts = Object.freeze({
-		COMMAND_PALETTE: 'command-palette',
-		DESKTOP: 'desktop',
-		FOLDER: 'folder',
-		FOLDER_TAB: 'folder-tab',
-		GLOBAL: 'global',
-		INPUT_FOCUSED: 'input-focused',
-		MODAL: 'modal',
-		WINDOW: 'window'
-	});
+	const shortcutContexts = window.PufferDesk.shell.shortcutContexts || {};
+	const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
+		? window.PufferDesk.session.workspace.windowKinds || {}
+		: {};
+	const folderWindowKind = windowKinds.FOLDER;
 	const layerWeights = Object.freeze({
 		custom: 1000,
 		default: 0
@@ -60,59 +55,89 @@
 		esc: 'escape',
 		return: 'enter'
 	});
-	const keyLabels = Object.freeze({
+	const keyLabelKeys = Object.freeze({
 		arrowdown: '↓',
 		arrowleft: '←',
 		arrowright: '→',
 		arrowup: '↑',
-		backspace: 'Backspace',
-		delete: 'Delete',
-		enter: 'Enter',
-		escape: 'Esc',
-		space: 'Space',
-		tab: 'Tab'
+		backspace: 'shortcut_key_backspace',
+		delete: 'shortcut_key_delete',
+		enter: 'shortcut_key_enter',
+		escape: 'shortcut_key_escape',
+		space: 'shortcut_key_space',
+		tab: 'shortcut_key_tab'
 	});
 	const editableSelector = 'input, textarea, select, [contenteditable="true"], [contenteditable="plaintext-only"], [role="textbox"]';
-	const blockedShortcutLabels = Object.freeze({
-		f5: 'browser reload',
-		'alt+arrowleft': 'browser back',
-		'alt+arrowright': 'browser forward',
-		'ctrl+r': 'browser reload',
-		'meta+r': 'browser reload',
-		'ctrl+l': 'browser location bar',
-		'meta+l': 'browser location bar',
-		'ctrl+h': 'browser history',
-		'meta+h': 'system hide application',
-		'meta+alt+h': 'system hide other applications',
-		'meta+q': 'browser quit application',
-		'ctrl+t': 'browser new tab',
-		'meta+t': 'browser new tab',
-		'ctrl+p': 'browser print',
-		'meta+p': 'browser print',
-		'ctrl+s': 'browser save page',
-		'meta+s': 'browser save page',
-		'ctrl+shift+n': 'browser private window',
-		'meta+shift+n': 'browser private window',
-		'ctrl+shift+t': 'browser reopen closed tab',
-		'meta+shift+t': 'browser reopen closed tab',
-		'ctrl+shift+i': 'developer tools',
-		'meta+alt+i': 'developer tools',
-		'ctrl+shift+j': 'developer tools console',
-		'meta+alt+j': 'developer tools console',
-		'ctrl+shift+c': 'developer tools element picker',
-		'meta+shift+c': 'developer tools element picker',
-		'ctrl+tab': 'browser next tab',
-		'ctrl+shift+tab': 'browser previous tab',
-		'meta+[': 'browser back',
-		'meta+]': 'browser forward'
+	const blockedShortcutLabelKeys = Object.freeze({
+		f5: 'shortcut_reserved_browser_reload',
+		'alt+arrowleft': 'shortcut_reserved_browser_back',
+		'alt+arrowright': 'shortcut_reserved_browser_forward',
+		'ctrl+r': 'shortcut_reserved_browser_reload',
+		'meta+r': 'shortcut_reserved_browser_reload',
+		'ctrl+l': 'shortcut_reserved_browser_location_bar',
+		'meta+l': 'shortcut_reserved_browser_location_bar',
+		'ctrl+h': 'shortcut_reserved_browser_history',
+		'meta+h': 'shortcut_reserved_system_hide_application',
+		'meta+alt+h': 'shortcut_reserved_system_hide_other_applications',
+		'meta+q': 'shortcut_reserved_browser_quit_application',
+		'ctrl+t': 'shortcut_reserved_browser_new_tab',
+		'meta+t': 'shortcut_reserved_browser_new_tab',
+		'ctrl+p': 'shortcut_reserved_browser_print',
+		'meta+p': 'shortcut_reserved_browser_print',
+		'ctrl+s': 'shortcut_reserved_browser_save_page',
+		'meta+s': 'shortcut_reserved_browser_save_page',
+		'ctrl+shift+n': 'shortcut_reserved_browser_private_window',
+		'meta+shift+n': 'shortcut_reserved_browser_private_window',
+		'ctrl+shift+t': 'shortcut_reserved_browser_reopen_closed_tab',
+		'meta+shift+t': 'shortcut_reserved_browser_reopen_closed_tab',
+		'ctrl+shift+i': 'shortcut_reserved_developer_tools',
+		'meta+alt+i': 'shortcut_reserved_developer_tools',
+		'ctrl+shift+j': 'shortcut_reserved_developer_tools_console',
+		'meta+alt+j': 'shortcut_reserved_developer_tools_console',
+		'ctrl+shift+c': 'shortcut_reserved_developer_tools_element_picker',
+		'meta+shift+c': 'shortcut_reserved_developer_tools_element_picker',
+		'ctrl+tab': 'shortcut_reserved_browser_next_tab',
+		'ctrl+shift+tab': 'shortcut_reserved_browser_previous_tab',
+		'meta+[': 'shortcut_reserved_browser_back',
+		'meta+]': 'shortcut_reserved_browser_forward'
 	});
-	const riskyShortcutLabels = Object.freeze({
-		'meta+m': 'system minimize window',
-		'meta+space': 'system search',
-		'meta+shift+3': 'system screenshot',
-		'meta+shift+4': 'system screenshot',
-		'meta+shift+5': 'system screenshot'
+	const riskyShortcutLabelKeys = Object.freeze({
+		'meta+m': 'shortcut_reserved_system_minimize_window',
+		'meta+space': 'shortcut_reserved_system_search',
+		'meta+shift+3': 'shortcut_reserved_system_screenshot',
+		'meta+shift+4': 'shortcut_reserved_system_screenshot',
+		'meta+shift+5': 'shortcut_reserved_system_screenshot'
 	});
+
+	function getRuntimeConfig() {
+		return window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
+			? window.PufferDesk.config.get()
+			: {};
+	}
+
+	function getMenuLabels(config = getRuntimeConfig()) {
+		const menu = config.menu && typeof config.menu === 'object' ? config.menu : {};
+
+		return menu.labels && typeof menu.labels === 'object' ? menu.labels : {};
+	}
+
+	function getMenuLabel(labels, key, fallback = '') {
+		const value = labels[key];
+
+		return typeof value === 'string' && value ? value : fallback || key;
+	}
+
+	function formatMenuLabel(labels, key, fallback, replacements = []) {
+		let template = getMenuLabel(labels, key, fallback);
+
+		replacements.forEach((replacement, index) => {
+			const value = String(replacement || '');
+			template = template.replace(new RegExp(`%${index + 1}\\\\$s`, 'g'), value);
+			template = template.replace('%s', value);
+		});
+
+		return template;
+	}
 
 	function getPlatform() {
 		const navigatorObject = window.navigator || {};
@@ -326,8 +351,12 @@
 			return fallback;
 		}
 
-		if (keyLabels[normalized]) {
-			return keyLabels[normalized];
+		if (keyLabelKeys[normalized]) {
+			if (/^[←↑→↓]$/.test(keyLabelKeys[normalized])) {
+				return keyLabelKeys[normalized];
+			}
+
+			return getMenuLabel(getMenuLabels(), keyLabelKeys[normalized]);
 		}
 
 		if (normalized.length === 1) {
@@ -357,10 +386,10 @@
 
 		const modifiers = new Set(normalized.modifiers);
 		const modifierLabels = {
-			alt: platform.isMac ? '⌥' : 'Alt',
-			ctrl: platform.isMac ? '⌃' : 'Ctrl',
-			meta: platform.isMac ? '⌘' : 'Meta',
-			shift: platform.isMac ? '⇧' : 'Shift'
+			alt: platform.isMac ? '⌥' : getMenuLabel(getMenuLabels(), 'shortcut_modifier_alt'),
+			ctrl: platform.isMac ? '⌃' : getMenuLabel(getMenuLabels(), 'shortcut_modifier_control'),
+			meta: platform.isMac ? '⌘' : getMenuLabel(getMenuLabels(), 'shortcut_modifier_meta'),
+			shift: platform.isMac ? '⇧' : getMenuLabel(getMenuLabels(), 'shortcut_modifier_shift')
 		};
 		const key = getKeyLabel(normalized.key, normalized.keyLabel || normalized.key);
 
@@ -506,7 +535,7 @@
 		if (definition.combo === 'ctrl+w' || definition.combo === 'meta+w') {
 			return isWindowScoped(definition) ? null : {
 				blocking: true,
-				message: 'primary+w is reserved unless scoped to a PufferDesk window or tab.',
+				message: getMenuLabel(getMenuLabels(), 'shortcut_reserved_window_scope'),
 				type: 'browser-reserved'
 			};
 		}
@@ -518,23 +547,32 @@
 		if ((definition.combo === 'ctrl+n' || definition.combo === 'meta+n') && !isWindowScoped(definition)) {
 			return {
 				blocking: true,
-				message: 'primary+n is reserved unless clearly scoped.',
+				message: getMenuLabel(getMenuLabels(), 'shortcut_reserved_clear_scope'),
 				type: 'browser-reserved'
 			};
 		}
 
-		if (blockedShortcutLabels[definition.combo]) {
+		const labels = getMenuLabels();
+		const blockedLabelKey = blockedShortcutLabelKeys[definition.combo];
+		if (blockedLabelKey) {
 			return {
 				blocking: true,
-				message: `${formatShortcut(definition)} is reserved for ${blockedShortcutLabels[definition.combo]}.`,
+				message: formatMenuLabel(labels, 'shortcut_reserved_for_format', 'shortcut_reserved_for_format', [
+					formatShortcut(definition),
+					getMenuLabel(labels, blockedLabelKey, blockedLabelKey)
+				]),
 				type: 'browser-reserved'
 			};
 		}
 
-		if (riskyShortcutLabels[definition.combo] && !definition.allowReserved) {
+		const riskyLabelKey = riskyShortcutLabelKeys[definition.combo];
+		if (riskyLabelKey && !definition.allowReserved) {
 			return {
 				blocking: false,
-				message: `${formatShortcut(definition)} may conflict with ${riskyShortcutLabels[definition.combo]}.`,
+				message: formatMenuLabel(labels, 'shortcut_may_conflict_format', 'shortcut_may_conflict_format', [
+					formatShortcut(definition),
+					getMenuLabel(labels, riskyLabelKey, riskyLabelKey)
+				]),
 				type: 'os-risk'
 			};
 		}
@@ -567,7 +605,10 @@
 					definitionId: definition.id,
 					existingCommand: existing.command,
 					existingId: existing.id,
-					message: `${formatShortcut(definition)} conflicts with ${existing.id || existing.command}.`,
+					message: formatMenuLabel(getMenuLabels(), 'shortcut_conflicts_with_format', 'shortcut_conflicts_with_format', [
+						formatShortcut(definition),
+						existing.id || existing.command
+					]),
 					type: existing.source === definition.source ? 'duplicate-shortcut' : 'module-conflict'
 				});
 			});
@@ -594,7 +635,7 @@
 				}, conflict));
 
 				if (conflict.type !== 'duplicate-equivalent' && window.console && typeof window.console.warn === 'function') {
-					window.console.warn('PufferDesk shortcut conflict:', conflict.message, {
+					window.console.warn(getMenuLabel(getMenuLabels(), 'shortcut_conflict_console', 'shortcut_conflict_console'), conflict.message, {
 						command: definition.command,
 						id: definition.id,
 						source: definition.source
@@ -769,8 +810,8 @@
 			: {};
 		const selected = manager && typeof manager.getSelectedIconDetails === 'function' ? manager.getSelectedIconDetails() : [];
 		const detail = {
-			kind: constants.DESKTOP || 'desktop',
-			type: constants.DESKTOP || 'desktop'
+			kind: constants.DESKTOP,
+			type: constants.DESKTOP
 		};
 
 		if (selected.length === 1) {
@@ -779,10 +820,10 @@
 			return Object.assign(detail, {
 				iconElement: item.iconElement || null,
 				id: item.id || '',
-				kind: item.context || (item.kind === 'folder' ? constants.DESKTOP_FOLDER || 'desktop-folder' : constants.DESKTOP_APP || 'desktop-app'),
+				kind: item.context || (item.kind === 'folder' ? constants.DESKTOP_FOLDER : constants.DESKTOP_APP),
 				label: item.label || '',
 				targetElement: item.iconElement || null,
-				type: item.context || (item.kind === 'folder' ? constants.DESKTOP_FOLDER || 'desktop-folder' : constants.DESKTOP_APP || 'desktop-app')
+				type: item.context || (item.kind === 'folder' ? constants.DESKTOP_FOLDER : constants.DESKTOP_APP)
 			});
 		}
 
@@ -803,7 +844,7 @@
 				appId: activeWindow.dataset ? activeWindow.dataset.pdkAppWindow || activeDetail.appId || '' : activeDetail.appId || '',
 				folderId: activeWindow.dataset ? activeWindow.dataset.pdkFolderWindow || activeWindow.dataset.pdkFolderInfoWindow || activeDetail.folderId || '' : activeDetail.folderId || '',
 				id: activeWindow.dataset ? activeWindow.dataset.pdkFolderWindow || activeWindow.dataset.pdkFolderInfoWindow || activeWindow.dataset.pdkAppWindow || activeDetail.id || '' : activeDetail.id || '',
-				kind: activeWindow.dataset ? activeWindow.dataset.pdkWindowKind || activeDetail.kind || 'window' : activeDetail.kind || 'window',
+				kind: activeWindow.dataset ? activeWindow.dataset.pdkWindowKind || activeDetail.kind : activeDetail.kind,
 				title: activeWindow.dataset ? activeWindow.dataset.pdkWindowTitle || activeDetail.title || '' : activeDetail.title || '',
 				windowElement: activeWindow,
 				windowId: activeWindow.dataset ? activeWindow.dataset.pdkWindowId || activeDetail.windowId || '' : activeDetail.windowId || ''
@@ -823,7 +864,7 @@
 
 		if (activeWindow) {
 			contexts.add(shortcutContexts.WINDOW);
-			if (detail.folderId || detail.kind === 'folder') {
+			if (detail.folderId || detail.kind === folderWindowKind) {
 				contexts.add(shortcutContexts.FOLDER);
 			}
 			if (target && typeof target.closest === 'function' && target.closest('[data-pdk-folder-tab]')) {
@@ -1014,62 +1055,63 @@
 	function getDefaultShortcutDefinitions(config = {}) {
 		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
 		const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
+		const labels = getMenuLabels(config);
 		const contextTargets = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
 			? window.PufferDesk.shell.contextMenuConstants.targets || {}
 			: {};
-		const trashId = appIds.TRASH || 'trash';
-		const settingsId = appIds.OS_SETTINGS || 'pufferdesk-settings';
+		const trashId = appIds.TRASH;
+		const settingsId = appIds.OS_SETTINGS;
 
 		return [
 			{
 				combo: 'primary+secondary+k',
 				command: commandIds.SHELL_FOCUS_SEARCH,
 				contexts: [shortcutContexts.GLOBAL],
-				id: 'shell.focus-search',
-				label: 'Search'
+				id: commandIds.SHELL_FOCUS_SEARCH,
+				label: getMenuLabel(labels, 'search')
 			},
 			{
 				combo: 'primary+,',
 				command: commandIds.OPEN_APP,
 				contexts: [shortcutContexts.GLOBAL],
 				id: 'settings.open',
-				label: 'System Settings',
+				label: getMenuLabel(labels, 'system_settings'),
 				target: settingsId
 			},
 			{
 				combo: 'primary+secondary+n',
 				command: commandIds.FOLDER_CREATE,
 				contexts: [shortcutContexts.DESKTOP, shortcutContexts.FOLDER],
-				id: 'folder.create',
-				label: 'New Folder'
+				id: commandIds.FOLDER_CREATE,
+				label: getMenuLabel(labels, 'new_folder')
 			},
 			{
 				combo: 'primary+x',
 				command: commandIds.CLIPBOARD_CUT,
 				contexts: [shortcutContexts.DESKTOP, shortcutContexts.FOLDER],
-				id: 'clipboard.cut',
-				label: 'Cut'
+				id: commandIds.CLIPBOARD_CUT,
+				label: getMenuLabel(labels, 'cut')
 			},
 			{
 				combo: 'primary+c',
 				command: commandIds.CLIPBOARD_COPY,
 				contexts: [shortcutContexts.DESKTOP, shortcutContexts.FOLDER],
-				id: 'clipboard.copy',
-				label: 'Copy'
+				id: commandIds.CLIPBOARD_COPY,
+				label: getMenuLabel(labels, 'copy')
 			},
 			{
 				combo: 'primary+v',
 				command: commandIds.CLIPBOARD_PASTE,
 				contexts: [shortcutContexts.DESKTOP, shortcutContexts.FOLDER],
-				id: 'clipboard.paste',
-				label: 'Paste'
+				id: commandIds.CLIPBOARD_PASTE,
+				label: getMenuLabel(labels, 'paste')
 			},
 			{
 				combo: 'delete',
 				command: commandIds.FOLDER_DELETE_SELECTED,
 				contexts: [shortcutContexts.FOLDER],
-				id: 'folder.delete-selected',
-				label: 'Delete',
+				id: commandIds.FOLDER_DELETE_SELECTED,
+				label: getMenuLabel(labels, 'delete'),
 				allowBare: true
 			},
 			{
@@ -1079,10 +1121,10 @@
 				enabledWhen(executionContext) {
 					const detail = executionContext.detail || {};
 
-					return detail.type === (contextTargets.DESKTOP_FOLDER || 'desktop-folder') && detail.id !== trashId;
+					return detail.type === contextTargets.DESKTOP_FOLDER && detail.id !== trashId;
 				},
 				id: 'desktop.delete-selected-folder',
-				label: 'Move to Trash',
+				label: getMenuLabel(labels, 'move_to_trash'),
 				allowBare: true
 			},
 			{
@@ -1090,25 +1132,25 @@
 				combo: 'primary+w',
 				command: commandIds.WINDOW_CLOSE,
 				contexts: [shortcutContexts.WINDOW, shortcutContexts.FOLDER_TAB],
-				id: 'window.close',
-				label: 'Close Window',
-				reservedReason: 'Scoped to PufferDesk windows.'
+				id: commandIds.WINDOW_CLOSE,
+				label: getMenuLabel(labels, 'window_close'),
+				reservedReason: getMenuLabel(labels, 'shortcut_reserved_window_reason')
 			},
 			{
 				allowReserved: true,
 				combo: 'primary+m',
 				command: commandIds.WINDOW_MINIMIZE,
 				contexts: [shortcutContexts.WINDOW],
-				id: 'window.minimize',
-				label: 'Minimize Window',
-				reservedReason: 'Scoped to PufferDesk windows.'
+				id: commandIds.WINDOW_MINIMIZE,
+				label: getMenuLabel(labels, 'window_minimize'),
+				reservedReason: getMenuLabel(labels, 'shortcut_reserved_window_reason')
 			},
 			{
 				combo: 'primary+shift+backspace',
 				command: commandIds.TRASH_EMPTY,
 				contexts: [shortcutContexts.DESKTOP, shortcutContexts.FOLDER],
-				id: 'trash.empty',
-				label: 'Empty Trash'
+				id: commandIds.TRASH_EMPTY,
+				label: getMenuLabel(labels, 'empty_trash')
 			},
 			{
 				allowInTextFields: true,
@@ -1121,9 +1163,9 @@
 
 					return Boolean(root && root.pufferDeskTextEditor && typeof root.pufferDeskTextEditor.save === 'function');
 				},
-				id: 'document.save',
-				label: 'Save',
-				reservedReason: 'Handled intentionally inside the native Text Editor.'
+				id: commandIds.DOCUMENT_SAVE,
+				label: getMenuLabel(labels, 'save'),
+				reservedReason: getMenuLabel(labels, 'shortcut_reserved_text_editor_reason')
 			}
 		].filter((definition) => definition.command);
 	}
@@ -1155,11 +1197,11 @@
 			? menuController.getActiveDetail()
 			: {};
 
-		if (!detail || !detail.kind || detail.kind === 'desktop') {
+		if (!detail || !detail.kind || detail.kind === shortcutContexts.DESKTOP) {
 			return shortcutContexts.DESKTOP;
 		}
 
-		if (detail.folderId || detail.kind === 'folder') {
+		if (detail.folderId || detail.kind === folderWindowKind) {
 			return shortcutContexts.FOLDER;
 		}
 

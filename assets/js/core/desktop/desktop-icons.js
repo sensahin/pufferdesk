@@ -15,7 +15,7 @@
 		const dragDropManager = options.dragDropManager || null;
 		const workspaceSections = window.PufferDesk.session.workspace ? window.PufferDesk.session.workspace.sections || {} : {};
 		const windowKinds = window.PufferDesk.session.workspace ? window.PufferDesk.session.workspace.windowKinds || {} : {};
-		const folderWindowKind = windowKinds.FOLDER || 'folder';
+		const folderWindowKind = windowKinds.FOLDER;
 		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 		const dragDropConstants = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.constants ? window.PufferDesk.dragDrop.constants : {};
 		const containerTypes = dragDropConstants.containerTypes || {};

@@ -71,6 +71,55 @@ final class PufferDesk_App_Normalizer {
 	}
 
 	/**
+	 * Default labels for reusable About metadata.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_default_about_labels() {
+		return array(
+			/* translators: %s: version number. */
+			'versionFormat' => __( 'Version %s', 'pufferdesk-admin-desktop' ),
+			/* translators: %s: author name. */
+			'authorFormat'  => __( 'By %s', 'pufferdesk-admin-desktop' ),
+			/* translators: %s: current year. */
+			'copyright'     => __( 'Copyright (c) %s PufferDesk contributors.', 'pufferdesk-admin-desktop' ),
+			'rights'        => __( 'Licensed under GPLv2 or later.', 'pufferdesk-admin-desktop' ),
+		);
+	}
+
+	/**
+	 * Get a default About label.
+	 *
+	 * @param string $key Label key.
+	 * @return string
+	 */
+	public static function get_default_about_label( $key ) {
+		$labels = self::get_default_about_labels();
+
+		return isset( $labels[ $key ] ) ? $labels[ $key ] : '';
+	}
+
+	/**
+	 * Format an About version line.
+	 *
+	 * @param string $version Version number.
+	 * @return string
+	 */
+	public static function format_about_version( $version ) {
+		return sprintf( self::get_default_about_label( 'versionFormat' ), $version );
+	}
+
+	/**
+	 * Format an About author line.
+	 *
+	 * @param string $author Author name.
+	 * @return string
+	 */
+	public static function format_about_author( $author ) {
+		return sprintf( self::get_default_about_label( 'authorFormat' ), $author );
+	}
+
+	/**
 	 * Badge normalizer.
 	 *
 	 * @var PufferDesk_App_Badge_Normalizer
@@ -271,19 +320,14 @@ final class PufferDesk_App_Normalizer {
 			'name'      => $name,
 			'version'   => array_key_exists( 'version', $about )
 				? sanitize_text_field( (string) $about['version'] )
-				: sprintf(
-					/* translators: %s: plugin version. */
-					__( 'Version %s', 'pufferdesk-admin-desktop' ),
-					PUFFERDESK_VERSION
-				),
+				: self::format_about_version( PUFFERDESK_VERSION ),
 			'copyright' => array_key_exists( 'copyright', $about )
 				? sanitize_text_field( (string) $about['copyright'] )
 				: sprintf(
-					/* translators: %s: current year. */
-					__( 'Copyright (c) %s PufferDesk contributors.', 'pufferdesk-admin-desktop' ),
+					self::get_default_about_label( 'copyright' ),
 					$year
 				),
-			'rights'    => array_key_exists( 'rights', $about ) ? sanitize_text_field( (string) $about['rights'] ) : __( 'Licensed under GPLv2 or later.', 'pufferdesk-admin-desktop' ),
+			'rights'    => array_key_exists( 'rights', $about ) ? sanitize_text_field( (string) $about['rights'] ) : self::get_default_about_label( 'rights' ),
 			'lines'     => $lines,
 			'icon'      => $icon,
 		);

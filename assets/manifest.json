@@ -242,7 +242,9 @@
 		{
 			"handle": "pufferdesk-dragdrop-constants",
 			"path": "assets/js/core/drag-drop/constants.js",
-			"deps": []
+			"deps": [
+				"pufferdesk-config"
+			]
 		},
 		{
 			"handle": "pufferdesk-dragdrop-models",
@@ -864,9 +866,16 @@
 			]
 		},
 		{
+			"handle": "pufferdesk-shortcut-contexts",
+			"path": "assets/js/core/shell/shortcut-contexts.js",
+			"deps": []
+		},
+		{
 			"handle": "pufferdesk-keyboard-shortcuts-app",
 			"path": "assets/js/core/apps/keyboard-shortcuts.js",
-			"deps": []
+			"deps": [
+				"pufferdesk-shortcut-contexts"
+			]
 		},
 		{
 			"handle": "pufferdesk-menu-commands",
@@ -916,6 +925,7 @@
 				"pufferdesk-menu-commands",
 				"pufferdesk-menu-schema",
 				"pufferdesk-menu-renderer",
+				"pufferdesk-shortcut-contexts",
 				"pufferdesk-folder-view-modes",
 				"pufferdesk-transient-surfaces"
 			]
@@ -971,6 +981,7 @@
 				"pufferdesk-menu-renderer",
 				"pufferdesk-folder-view-modes",
 				"pufferdesk-folder-menu-options",
+				"pufferdesk-shortcut-contexts",
 				"pufferdesk-context-menu-resolver",
 				"pufferdesk-context-menu-permissions",
 				"pufferdesk-context-menu-positioner",
@@ -987,7 +998,8 @@
 				"pufferdesk-context-menu-constants",
 				"pufferdesk-storage-keys",
 				"pufferdesk-menu-commands",
-				"pufferdesk-menu"
+				"pufferdesk-menu",
+				"pufferdesk-shortcut-contexts"
 			]
 		},
 		{

@@ -10,6 +10,13 @@
 		return documents.labels && typeof documents.labels === 'object' ? documents.labels : {};
 	}
 
+	function getAppLabel(config = {}, appId = '') {
+		const apps = Array.isArray(config.apps) ? config.apps : [];
+		const app = apps.find((candidate) => candidate && candidate.id === appId);
+
+		return app && typeof app.label === 'string' ? app.label : '';
+	}
+
 	function createButton(className, label, text) {
 		const button = document.createElement('button');
 		button.className = className;
@@ -81,7 +88,7 @@
 		}
 
 		function getStickyKind() {
-			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note';
+			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
 		}
 
 		function noteMatchesQuery(note, query) {
@@ -233,10 +240,11 @@
 		const nativeIds = window.PufferDesk.apps.nativeIds || {};
 		window.PufferDesk.apps.registerNativeAppRenderer(nativeIds.STICKY_NOTES, ({ config }) => {
 			const labels = getLabels(config);
+			const appIds = window.PufferDesk.apps.ids || {};
 			const theme = config && config.theme && typeof config.theme === 'object' ? config.theme : {};
 			const user = config && config.user && typeof config.user === 'object' ? config.user : {};
 			const isRedmond = theme.family === 'redmond' || theme.id === 'redmond/modern' || user.themeId === 'redmond/modern';
-			const title = typeof labels.stickyNotes === 'string' && labels.stickyNotes ? labels.stickyNotes : 'Sticky Notes';
+			const title = getAppLabel(config, appIds.STICKY_NOTES) || (typeof labels.stickyNotes === 'string' && labels.stickyNotes ? labels.stickyNotes : 'stickyNotes');
 
 			return {
 				bodyClass: 'pdk-window-body pdk-sticky-notes-app-body',

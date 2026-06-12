@@ -201,8 +201,8 @@
 			duplicate,
 			get,
 			kinds: {
-				sticky: kinds.sticky || 'sticky_note',
-				text: kinds.text || 'text_document'
+				sticky: kinds.sticky || '',
+				text: kinds.text || ''
 			},
 			list,
 			normalizeDocument,

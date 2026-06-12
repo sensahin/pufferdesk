@@ -9,6 +9,7 @@
 		const constants = window.PufferDesk.dragDrop.constants || {};
 		const containerTypes = constants.containerTypes || {};
 		const itemTypes = constants.itemTypes || {};
+		const messages = constants.messages || {};
 		const containers = options.dropTargets || null;
 		const stateStore = options.stateStore || null;
 
@@ -55,19 +56,19 @@
 
 		function validateItem(move) {
 			if (!move.itemId || !move.itemType) {
-				return invalid('missing-item', 'Move requests must include a supported item id and type.', move);
+				return invalid('missing-item', messages.MISSING_ITEM, move);
 			}
 
 			if (![itemTypes.APP, itemTypes.FOLDER].includes(move.itemType)) {
-				return invalid('unsupported-item-type', 'Only apps and folders can be moved by the core move service.', move);
+				return invalid('unsupported-item-type', messages.UNSUPPORTED_ITEM_TYPE, move);
 			}
 
 			if (!move.item || !move.item.metadata || move.item.metadata.exists === false) {
-				return invalid('unknown-item', 'The moved item does not exist in the current workspace.', move);
+				return invalid('unknown-item', messages.UNKNOWN_ITEM, move);
 			}
 
 			if (move.item.metadata.locked && move.toContainerId !== containerTypes.FOLDER_SIDEBAR_FAVORITES) {
-				return invalid('locked-item', 'Locked or system items cannot be moved to that container.', move);
+				return invalid('locked-item', messages.LOCKED_ITEM, move);
 			}
 
 			return null;
@@ -78,27 +79,27 @@
 			const targetContainer = getContainer(move.toContainerId);
 
 			if (!move.fromContainerId) {
-				return invalid('missing-source-container', 'Move requests must include a source container.', move);
+				return invalid('missing-source-container', messages.MISSING_SOURCE_CONTAINER, move);
 			}
 
 			if (!move.toContainerId) {
-				return invalid('missing-target-container', 'Move requests must include a target container.', move);
+				return invalid('missing-target-container', messages.MISSING_TARGET_CONTAINER, move);
 			}
 
 			if (!sourceContainer) {
-				return invalid('unknown-source-container', 'The source container is not registered.', move);
+				return invalid('unknown-source-container', messages.UNKNOWN_SOURCE_CONTAINER, move);
 			}
 
 			if (!targetContainer) {
-				return invalid('unknown-target-container', 'The target container is not registered.', move);
+				return invalid('unknown-target-container', messages.UNKNOWN_TARGET_CONTAINER, move);
 			}
 
 			if (typeof sourceContainer.canMoveOut === 'function' && !sourceContainer.canMoveOut(move.item, move)) {
-				return invalid('source-locked', 'The item cannot be moved out of its source container.', move);
+				return invalid('source-locked', messages.SOURCE_LOCKED, move);
 			}
 
 			if (typeof targetContainer.accepts === 'function' && !targetContainer.accepts(move.item, move)) {
-				return invalid('target-rejected', 'The target container does not accept this item.', move);
+				return invalid('target-rejected', messages.TARGET_REJECTED, move);
 			}
 
 			return null;
@@ -114,16 +115,16 @@
 			if (!move.item.metadata || !move.item.metadata.user) {
 				return move.toContainerId === containerTypes.FOLDER_SIDEBAR_FAVORITES
 					? null
-					: invalid('system-folder-move', 'Only user-created folders can be moved between containers.', move);
+					: invalid('system-folder-move', messages.SYSTEM_FOLDER_MOVE, move);
 			}
 
 			if (target.type === containerTypes.FOLDER) {
 				if (target.targetId === containerTypes.TRASH) {
-					return invalid('trash-parent', 'Trash cannot be used as a folder parent.', move);
+					return invalid('trash-parent', messages.TRASH_PARENT, move);
 				}
 
 				if (target.targetId === move.itemId) {
-					return invalid('self-nesting', 'A folder cannot be moved into itself.', move);
+					return invalid('self-nesting', messages.SELF_NESTING, move);
 				}
 
 				if (
@@ -131,7 +132,7 @@
 					&& typeof stateStore.isFolderDescendant === 'function'
 					&& stateStore.isFolderDescendant(target.targetId, move.itemId)
 				) {
-					return invalid('descendant-nesting', 'A folder cannot be moved into one of its descendants.', move);
+					return invalid('descendant-nesting', messages.DESCENDANT_NESTING, move);
 				}
 			}
 
@@ -147,11 +148,11 @@
 			}
 
 			if (move.toContainerId === containerTypes.DESKTOP && metadata.actualContainerId === containerTypes.DESKTOP) {
-				return invalid('already-on-desktop', 'The app is already available on the desktop.', move);
+				return invalid('already-on-desktop', messages.ALREADY_ON_DESKTOP, move);
 			}
 
 			if (target.type === containerTypes.FOLDER && metadata.userFolderId && metadata.userFolderId === target.targetId) {
-				return invalid('duplicate-item', 'The target folder already contains this app.', move);
+				return invalid('duplicate-item', messages.DUPLICATE_ITEM, move);
 			}
 
 			return null;
@@ -164,7 +165,7 @@
 				return null;
 			}
 
-			return invalid('target-not-allowed', 'The item model does not allow this drop target.', move);
+			return invalid('target-not-allowed', messages.TARGET_NOT_ALLOWED, move);
 		}
 
 		function validate(request) {

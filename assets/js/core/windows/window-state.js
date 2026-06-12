@@ -78,14 +78,14 @@
 					return;
 				}
 
-				if (win.dataset.pdkWindowKind === (windowKinds.FOLDER || 'folder')) {
+				if (win.dataset.pdkWindowKind === windowKinds.FOLDER) {
 					const folderId = win.dataset.pdkFolderWindow;
 					const tabState = typeof win.pdkSerializeFolderTabs === 'function'
 						? win.pdkSerializeFolderTabs()
 						: null;
 					if (folderId) {
 						const folderWindow = {
-							kind: windowKinds.FOLDER || 'folder',
+							kind: windowKinds.FOLDER,
 							folderId,
 							state: readWindowState(win)
 						};
@@ -103,7 +103,7 @@
 				const appId = win.dataset.pdkAppWindow;
 				if (appId) {
 					windows.push({
-						kind: windowKinds.APP || 'app',
+						kind: windowKinds.APP,
 						appId,
 						state: readWindowState(win)
 					});

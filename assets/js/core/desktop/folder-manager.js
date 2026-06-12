@@ -31,6 +31,9 @@
 		const systemFolderMap = new Map(systemFolders.map((folder) => [folder.id, Object.assign({ kind: 'system', user: false }, folder)]));
 		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object' ? config.menu.labels : {};
 		const trashFolderId = appIds.TRASH;
+		const desktopFolderId = virtualFilesystem && typeof virtualFilesystem.getFolderId === 'function'
+			? virtualFilesystem.getFolderId('DESKTOP')
+			: '';
 		let userFolders = [];
 		let trashItems = [];
 		let sessionSaveDisabled = false;
@@ -52,16 +55,16 @@
 			function normalizeParentId(value) {
 				const id = normalizeId(value);
 
-				return id || 'desktop';
+				return id || desktopFolderId;
 			}
 
 			function getFolderParentId(folder) {
-				return normalizeParentId(folder && folder.parentId ? folder.parentId : 'desktop');
+				return normalizeParentId(folder && folder.parentId ? folder.parentId : desktopFolderId);
 			}
 
 			function getDesktopFolderPath() {
 				return virtualFilesystem && typeof virtualFilesystem.getDefaultPathForKind === 'function'
-					? virtualFilesystem.getDefaultPathForKind('desktop')
+					? virtualFilesystem.getDefaultPathForKind(desktopFolderId)
 					: '';
 			}
 
@@ -78,7 +81,7 @@
 			}
 
 			function isDesktopFolder(folder) {
-				return getFolderParentId(folder) === 'desktop';
+				return getFolderParentId(folder) === desktopFolderId;
 			}
 
 		function getDefaultFolderIcon() {
@@ -216,12 +219,12 @@
 					if (
 						parentId === folder.id
 						|| (
-							parentId !== 'desktop'
+							parentId !== desktopFolderId
 							&& !systemFolderMap.has(parentId)
 							&& !userFolderIds.has(parentId)
 						)
 					) {
-						folder.parentId = 'desktop';
+						folder.parentId = desktopFolderId;
 					}
 				});
 			}
@@ -275,8 +278,8 @@
 					const parentId = getFolderParentId(folder);
 
 					if (!rootId) {
-						folder.parentId = parentId === folder.id ? 'desktop' : parentId;
-					} else if (parentId === folder.id || parentId === 'trash' || !knownIds.has(parentId)) {
+						folder.parentId = parentId === folder.id ? desktopFolderId : parentId;
+					} else if (parentId === folder.id || parentId === trashFolderId || !knownIds.has(parentId)) {
 						folder.parentId = rootId;
 					}
 				});
@@ -423,7 +426,7 @@
 			const button = document.createElement('button');
 			button.type = 'button';
 			button.className = 'pdk-desktop-icon pdk-desktop-folder';
-			button.dataset.pdkContext = contextTargets.DESKTOP_FOLDER || 'desktop-folder';
+			button.dataset.pdkContext = contextTargets.DESKTOP_FOLDER;
 			button.dataset.pdkContextId = folder.id;
 			button.dataset.pdkContextLabel = folder.label;
 			button.dataset.pdkDesktopIcon = '';
@@ -499,7 +502,7 @@
 
 			const count = getTrashCount();
 			const label = count > 0
-				? formatMenuLabel(count === 1 ? 'trash_item_count' : 'trash_item_count_plural', count === 1 ? 'Trash, %d item' : 'Trash, %d items', [count])
+				? formatMenuLabel(count === 1 ? 'trash_item_count' : 'trash_item_count_plural', '', [count])
 				: getMenuLabel('trash');
 
 			shell.querySelectorAll(`[data-pdk-open-app="${dom.escapeAttribute(trashFolderId)}"]`).forEach((button) => {
@@ -759,7 +762,7 @@
 				user: Boolean(userFolder),
 					where: userFolder && parent
 						? parent.label || getMenuLabel('pufferdesk_desktop')
-						: formatMenuLabel('wordpress_admin_menu_format', 'WordPress Admin Menu > %s', [folder.label || getFolderLabel()])
+						: formatMenuLabel('wordpress_admin_menu_format', '', [folder.label || getFolderLabel()])
 				};
 			}
 
@@ -955,8 +958,8 @@
 				const restoredIds = new Set(restoredFolders.map((folder) => folder.id));
 				restored.label = uniqueLabel(restored.label || item.label || getFolderLabel(), restored.id);
 				restored.parentId = normalizeParentId(item.restore && item.restore.previousParent ? item.restore.previousParent : restored.parentId);
-				if (restored.parentId !== 'desktop' && !getFolder(restored.parentId)) {
-					restored.parentId = 'desktop';
+				if (restored.parentId !== desktopFolderId && !getFolder(restored.parentId)) {
+					restored.parentId = desktopFolderId;
 				}
 				markFolderModified(restored);
 				userFolders.push(restored);
@@ -1170,7 +1173,7 @@
 			return true;
 		}
 
-		function canMoveFolderToParent(folderId, parentId = 'desktop') {
+		function canMoveFolderToParent(folderId, parentId = desktopFolderId) {
 			const folder = getUserFolder(folderId);
 			const nextParentId = normalizeParentId(parentId);
 			let currentParentId = nextParentId;
@@ -1179,11 +1182,11 @@
 				return false;
 			}
 
-			if (nextParentId !== 'desktop' && !getFolder(nextParentId)) {
+			if (nextParentId !== desktopFolderId && !getFolder(nextParentId)) {
 				return false;
 			}
 
-			while (currentParentId && currentParentId !== 'desktop') {
+			while (currentParentId && currentParentId !== desktopFolderId) {
 				if (currentParentId === folder.id) {
 					return false;
 				}
@@ -1199,7 +1202,7 @@
 			return true;
 		}
 
-		function moveFolderToParent(folderId, parentId = 'desktop', options = {}) {
+		function moveFolderToParent(folderId, parentId = desktopFolderId, options = {}) {
 			const folder = getUserFolder(folderId);
 			const previousParentId = folder ? getFolderParentId(folder) : '';
 			const nextParentId = normalizeParentId(parentId);
@@ -1209,7 +1212,7 @@
 			}
 
 			if (previousParentId === nextParentId) {
-				if (nextParentId === 'desktop') {
+				if (nextParentId === desktopFolderId) {
 					positionDesktopIcon('folder', folder.id, options.point || options.position || null);
 				}
 				return false;
@@ -1220,7 +1223,7 @@
 			renderUserFolders();
 			syncDesktopAppVisibility();
 			refreshDesktopIcons();
-			if (nextParentId === 'desktop') {
+			if (nextParentId === desktopFolderId) {
 				positionDesktopIcon('folder', folder.id, options.point || options.position || null);
 			}
 			refreshFolderWindows([previousParentId, nextParentId, folder.id]);

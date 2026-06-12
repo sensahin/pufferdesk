@@ -26,6 +26,26 @@
 			: noop;
 		const scheduleSave = typeof options.scheduleSave === 'function' ? options.scheduleSave : noop;
 
+		function getMenuLabel(key, fallback = '') {
+			const config = window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
+				? window.PufferDesk.config.get()
+				: {};
+			const menu = config.menu && typeof config.menu === 'object' ? config.menu : {};
+			const labels = menu.labels && typeof menu.labels === 'object' ? menu.labels : {};
+			const value = labels[key];
+
+			return typeof value === 'string' && value ? value : fallback || key;
+		}
+
+		function formatMenuLabel(key, fallback, values = []) {
+			if (window.PufferDesk.config && typeof window.PufferDesk.config.formatLabel === 'function') {
+				return window.PufferDesk.config.formatLabel(key, fallback || key, values);
+			}
+
+			let index = 0;
+			return String(getMenuLabel(key, fallback)).replace(/%d|%s/g, () => String(values[index++] ?? ''));
+		}
+
 		function setDockRunning(appId, running) {
 			const selector = `[data-pdk-open-app="${dom.escapeAttribute(appId)}"].pdk-dock-item`;
 			const items = shell.querySelectorAll(selector);
@@ -195,20 +215,20 @@
 			}
 
 			const button = document.createElement('button');
-			const title = win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || 'Window';
+			const title = win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || getMenuLabel('window');
 			const dockAppButton = getDockAppButton(win);
 			const icon = dockAppButton ? dockAppButton.querySelector('.pdk-icon-image, .dashicons') : null;
 
 			button.type = 'button';
 			button.className = 'pdk-dock-window-item pdk-tooltip-trigger';
-			button.dataset.pdkContext = contextTargets.WINDOW || 'window';
+			button.dataset.pdkContext = contextTargets.WINDOW;
 			button.dataset.pdkContextId = id;
 			button.dataset.pdkContextLabel = title;
 			button.dataset.pdkRestoreWindowId = id;
 			if (win.dataset.pdkAppWindow) {
 				button.dataset.pdkAppWindow = win.dataset.pdkAppWindow;
 			}
-			button.setAttribute('aria-label', `Restore ${title}`);
+			button.setAttribute('aria-label', formatMenuLabel('window_restore_format', '', [title]));
 			if (icon) {
 				button.appendChild(icon.cloneNode(true));
 			} else {

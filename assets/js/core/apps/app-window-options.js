@@ -45,14 +45,14 @@
 				icon: app.icon,
 				menu: app.menu || null,
 				title: app.label,
-				windowKind: windowKinds.APP || 'app'
+				windowKind: windowKinds.APP
 			};
 
-			if (app.window_persistence === (windowPersistence.NONE || 'none')) {
+			if (app.window_persistence === windowPersistence.NONE) {
 				windowOptions.persist = false;
 			}
 
-			if (app.kind === (appKinds.NATIVE || 'native')) {
+			if (app.kind === appKinds.NATIVE) {
 				return getNativeAppWindowOptions(app, windowOptions, nativeContext);
 			}
 

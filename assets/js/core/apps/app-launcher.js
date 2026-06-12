@@ -22,7 +22,7 @@
 		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.windowKinds || {}
 			: {};
-		const folderWindowKind = windowKinds.FOLDER || 'folder';
+		const folderWindowKind = windowKinds.FOLDER;
 		const eventNames = window.PufferDesk.events && window.PufferDesk.events.names ? window.PufferDesk.events.names : {};
 		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 		const folderViewModes = window.PufferDesk.apps.folderViewModes || null;
@@ -30,6 +30,7 @@
 			? window.PufferDesk.shell.contextMenuConstants
 			: {};
 		const contextAreas = contextConstants.areas || {};
+		const contextKeys = contextConstants.keys || {};
 		const contextTargets = contextConstants.targets || {};
 		const contextTargetTypes = contextConstants.targetTypes || {};
 		const contextItemTypes = contextConstants.itemTypes || {};
@@ -56,6 +57,13 @@
 		const virtualFilesystem = window.PufferDesk.virtualFilesystem && typeof window.PufferDesk.virtualFilesystem.create === 'function'
 			? window.PufferDesk.virtualFilesystem.create(config)
 			: null;
+		const homeFolderId = getVirtualFolderId('HOME');
+		const desktopFolderId = getVirtualFolderId('DESKTOP');
+		const defaultFinderFavoriteIds = [
+			getVirtualFolderId('DOCUMENTS'),
+			getVirtualFolderId('NOTES'),
+			getVirtualFolderId('STICKIES')
+		].filter(Boolean);
 		const recentItems = window.PufferDesk.apps.createRecentItemsController
 			? window.PufferDesk.apps.createRecentItemsController(config)
 			: {
@@ -66,7 +74,6 @@
 			? window.PufferDesk.session.createSessionStore(config.storageKey)
 			: null;
 		const recentsFolderId = 'recents';
-		const defaultFinderFavoriteIds = ['documents', 'notes', 'stickies'];
 		const folderData = window.PufferDesk.apps.createFolderDataProvider
 			? window.PufferDesk.apps.createFolderDataProvider({
 				appMap,
@@ -130,6 +137,12 @@
 			})
 			: null;
 
+		function getVirtualFolderId(key) {
+			return virtualFilesystem && typeof virtualFilesystem.getFolderId === 'function'
+				? virtualFilesystem.getFolderId(key)
+				: '';
+		}
+
 		function getThemeSurface(surface, fallback) {
 			const value = typeof themeSurfaces[surface] === 'string' ? themeSurfaces[surface] : '';
 
@@ -156,6 +169,15 @@
 
 		function getMenuLabel(key, fallback) {
 			return typeof menuLabels[key] === 'string' && menuLabels[key] ? menuLabels[key] : (fallback || key);
+		}
+
+		function formatMenuLabel(key, fallback, values = []) {
+			if (window.PufferDesk.config && typeof window.PufferDesk.config.formatFromLabels === 'function') {
+				return window.PufferDesk.config.formatFromLabels(menuLabels, key, fallback || key, values);
+			}
+
+			let index = 0;
+			return String(getMenuLabel(key, fallback)).replace(/%d|%s/g, () => String(values[index++] ?? ''));
 		}
 
 		function shortcut(combo, shortcutOptions = {}) {
@@ -543,8 +565,8 @@
 
 		function openDocument(documentData) {
 			const documentId = Number.parseInt(documentData && documentData.id, 10);
-			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note';
-			const textKind = documentStore && documentStore.kinds ? documentStore.kinds.text : 'text_document';
+			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
+			const textKind = documentStore && documentStore.kinds ? documentStore.kinds.text : '';
 
 			if (!documentId) {
 				return null;
@@ -648,8 +670,9 @@
 		}
 
 		function openUrl(url, title, icon) {
+			const windowTitle = title || getMenuLabel('admin');
 			const win = manager.createWindow({
-				title: title || 'Admin',
+				title: windowTitle,
 				icon: icon || defaultDashicon,
 				windowKind: 'document',
 				url
@@ -660,8 +683,8 @@
 					command: commandIds.OPEN_URL,
 					icon: icon || defaultDashicon,
 					id: url,
-					label: title || 'Admin',
-					title: title || 'Admin',
+					label: windowTitle,
+					title: windowTitle,
 					type: 'document',
 					url
 				});
@@ -1087,10 +1110,10 @@
 			button.type = 'button';
 			button.className = 'pdk-app-launcher pdk-recent-launcher';
 			button.dataset.pdkContext = item && item.type === 'folder'
-				? contextTargets.FOLDER || 'folder'
+				? contextTargets.FOLDER
 				: item && item.type === 'app'
-					? contextItemTypes.APP || 'app'
-					: contextTargets.DOCUMENT || 'document';
+					? contextItemTypes.APP
+					: contextTargets.DOCUMENT;
 			button.dataset.pdkContextId = item && item.target ? item.target : item && item.id ? item.id : '';
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkRecentItem = item && item.id ? item.id : '';
@@ -1382,7 +1405,7 @@
 				const target = {
 					element: pane,
 					id,
-					kind: 'folder'
+					kind: containerTypes.FOLDER
 				};
 
 				return canDropFolderItem(dragDetail, target) ? target : null;
@@ -1391,8 +1414,8 @@
 			if (desktop && !element.closest('.pdk-window')) {
 				const target = {
 					element: desktop,
-					id: 'desktop',
-					kind: 'desktop'
+					id: desktopFolderId,
+					kind: containerTypes.DESKTOP
 				};
 
 				return canDropFolderItem(dragDetail, target) ? target : null;
@@ -1402,8 +1425,8 @@
 				const desktopElement = shell.querySelector('.pdk-desktop');
 				const target = {
 					element: desktopElement,
-					id: 'desktop',
-					kind: 'desktop'
+					id: desktopFolderId,
+					kind: containerTypes.DESKTOP
 				};
 
 				if (desktopElement && isPointInsideElement(desktopElement, clientX, clientY) && !isPointOverVisibleWindow(clientX, clientY)) {
@@ -1596,7 +1619,7 @@
 			button.type = 'button';
 			button.className = `pdk-settings-history-button pdk-settings-history-button-${direction} pdk-finder-history-button`;
 			button.disabled = !canNavigate;
-			button.setAttribute('aria-label', direction === 'back' ? 'Back' : 'Forward');
+			button.setAttribute('aria-label', direction === 'back' ? getMenuLabel('back') : getMenuLabel('forward'));
 			button.appendChild(dom.createElement('span', 'pdk-settings-history-chevron'));
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
@@ -1610,11 +1633,11 @@
 		function createExplorerNavigationButton(direction, win) {
 			const button = document.createElement('button');
 			const history = getFolderWindowHistoryState(win);
-			const labels = {
-				back: 'Back',
-				forward: 'Forward',
-				up: 'Up',
-				refresh: 'Refresh'
+			const labelKeys = {
+				back: 'back',
+				forward: 'forward',
+				refresh: 'refresh',
+				up: 'up'
 			};
 			const canNavigate = direction === 'back'
 				? history.canBack
@@ -1624,7 +1647,7 @@
 			button.className = `pdk-explorer-nav-button pdk-explorer-nav-button-${direction}`;
 			button.dataset.pdkNoDrag = '';
 			button.disabled = !canNavigate;
-			button.setAttribute('aria-label', labels[direction] || direction);
+			button.setAttribute('aria-label', getMenuLabel(labelKeys[direction] || direction));
 			button.appendChild(dom.createElement('span', 'pdk-explorer-nav-icon'));
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
@@ -1658,9 +1681,9 @@
 				folder,
 				folderId,
 				id: folderId,
-				kind: contextTargets.FOLDER_TOOLBAR || 'folder-toolbar',
+				kind: contextTargets.FOLDER_TOOLBAR,
 				label: folder && folder.label ? folder.label : '',
-				type: contextTargets.FOLDER_TOOLBAR || 'folder-toolbar',
+				type: contextTargets.FOLDER_TOOLBAR,
 				windowElement: win || null
 			};
 		}
@@ -1872,8 +1895,8 @@
 			const contextMenus = window.PufferDesk.contextMenus || window.PufferDesk.contextMenuController || null;
 			const items = getExplorerCommandMenuItems(action, folderId, win);
 			const detail = Object.assign(getExplorerCommandDetail(folderId, win), {
-				area: contextAreas.FOLDER || 'folder',
-				contextKey: 'folder.toolbar',
+				area: contextAreas.FOLDER,
+				contextKey: contextKeys.FOLDER_TOOLBAR,
 				itemType: '',
 				menuClassName: 'pdk-explorer-command-menu',
 				menuDataset: {
@@ -1894,7 +1917,7 @@
 				},
 				autoFocusFirst: options.autoFocusFirst === true,
 				targetElement: button,
-				targetType: contextTargetTypes.TOOLBAR || 'toolbar'
+				targetType: contextTargetTypes.TOOLBAR
 			});
 
 			if (!items.length || !contextMenus || typeof contextMenus.openMenu !== 'function') {
@@ -1994,9 +2017,9 @@
 		function createExplorerCommandBar(folderId, win) {
 			const bar = dom.createElement('div', 'pdk-explorer-commandbar');
 
-			bar.dataset.pdkContext = contextTargets.FOLDER_TOOLBAR || 'folder-toolbar';
+			bar.dataset.pdkContext = contextTargets.FOLDER_TOOLBAR;
 			bar.dataset.pdkContextId = folderId;
-			bar.dataset.pdkContextLabel = 'Folder Command Bar';
+			bar.dataset.pdkContextLabel = getMenuLabel('folder_command_bar');
 			bar.dataset.pdkNoDrag = '';
 			getExplorerCommandGroups(folderId).forEach((group, index, groups) => {
 				const groupElement = dom.createElement('div', index === groups.length - 1 ? 'pdk-explorer-command-group pdk-explorer-command-group-details' : 'pdk-explorer-command-group');
@@ -2072,7 +2095,7 @@
 				createExplorerNavigationButton('refresh', win)
 			);
 
-			address.setAttribute('aria-label', 'Address');
+			address.setAttribute('aria-label', getMenuLabel('address'));
 			crumbs.forEach((crumb, index) => {
 				if (index > 0) {
 					address.appendChild(dom.createElement('span', 'pdk-explorer-address-separator'));
@@ -2082,8 +2105,8 @@
 
 			search.appendChild(dom.createDashicon('dashicons-search'));
 			searchInput.type = 'search';
-			searchInput.placeholder = `${getMenuLabel('search')} ${folderTitle}`;
-			searchInput.setAttribute('aria-label', `${getMenuLabel('search')} ${folderTitle}`);
+			searchInput.placeholder = formatMenuLabel('combined_label_format', '', [getMenuLabel('search'), folderTitle]);
+			searchInput.setAttribute('aria-label', formatMenuLabel('combined_label_format', '', [getMenuLabel('search'), folderTitle]));
 			searchInput.addEventListener('keydown', (event) => {
 				event.stopPropagation();
 			});
@@ -2098,7 +2121,8 @@
 			const bar = dom.createElement('div', 'pdk-explorer-statusbar');
 			const isTrash = isTrashFolderId(folderId);
 			const count = isTrash ? getTrashItems().length : getFolderDisplayItems(folderId, win).length;
-			const summary = dom.createElement('span', 'pdk-explorer-status-summary', `${count} ${count === 1 ? getMenuLabel('item_singular') : getMenuLabel('item_plural')}`);
+			const countLabel = count === 1 ? getMenuLabel('item_singular') : getMenuLabel('item_plural');
+			const summary = dom.createElement('span', 'pdk-explorer-status-summary', formatMenuLabel('item_count_format', '', [count, countLabel]));
 			const viewGroup = dom.createElement('div', 'pdk-explorer-status-view-group');
 			const listButton = document.createElement('button');
 			const detailButton = document.createElement('button');
@@ -2153,7 +2177,7 @@
 				return;
 			}
 
-			pane.dataset.pdkContext = contextTargets.FOLDER_CONTENT || 'folder-content';
+			pane.dataset.pdkContext = contextTargets.FOLDER_CONTENT;
 			pane.dataset.pdkContextId = folderId;
 			pane.dataset.pdkContextLabel = folder && folder.label ? folder.label : getMenuLabel('folder');
 			pane.dataset.pdkFolderId = folderId;
@@ -2667,7 +2691,7 @@
 			button.type = 'button';
 			button.className = 'pdk-finder-tab-close';
 			button.dataset.pdkNoDrag = '';
-			button.setAttribute('aria-label', `${getMenuLabel('close_tab')}: ${label}`);
+			button.setAttribute('aria-label', formatMenuLabel('label_colon_format', '', [getMenuLabel('close_tab'), label]));
 			button.appendChild(dom.createElement('span', 'pdk-finder-tab-close-icon'));
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
@@ -2741,7 +2765,7 @@
 			button.type = 'button';
 			button.className = 'pdk-explorer-titlebar-tab-close';
 			button.dataset.pdkNoDrag = '';
-			button.setAttribute('aria-label', `${getMenuLabel('close_tab')}: ${label}`);
+			button.setAttribute('aria-label', formatMenuLabel('label_colon_format', '', [getMenuLabel('close_tab'), label]));
 			button.appendChild(dom.createElement('span', 'pdk-explorer-titlebar-tab-close-icon'));
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
@@ -2761,7 +2785,7 @@
 			const text = dom.createElement('span', 'pdk-explorer-titlebar-tab-text', label);
 
 			item.setAttribute('role', 'presentation');
-			item.dataset.pdkContext = contextTargets.FOLDER_TAB || 'folder-tab';
+			item.dataset.pdkContext = contextTargets.FOLDER_TAB;
 			item.dataset.pdkContextId = tab.id;
 			item.dataset.pdkContextLabel = label;
 			item.dataset.pdkFolderId = tab.folderId || '';
@@ -2862,7 +2886,7 @@
 			const nodes = [];
 
 			label.classList.add('pdk-explorer-titlebar-tab-active');
-			label.dataset.pdkContext = contextTargets.FOLDER_TAB || 'folder-tab';
+			label.dataset.pdkContext = contextTargets.FOLDER_TAB;
 			label.dataset.pdkContextId = activeTabId || '';
 			label.dataset.pdkContextLabel = activeLabel;
 			label.dataset.pdkFolderId = activeTab && activeTab.folderId ? activeTab.folderId : folderId;
@@ -2933,12 +2957,12 @@
 
 		function createFinderSidebarItem(options = {}) {
 			const button = document.createElement('button');
-			const label = options.label || 'Folder';
+			const label = options.label || getMenuLabel('folder');
 			const folderId = options.id || '';
 
 			button.type = 'button';
 			button.className = `pdk-settings-sidebar-item pdk-finder-sidebar-item${options.active ? ' is-active' : ''}`;
-			button.dataset.pdkContext = options.context || contextTargets.FOLDER || 'folder';
+			button.dataset.pdkContext = options.context || contextTargets.FOLDER;
 			button.dataset.pdkContextId = folderId;
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkFolderSidebarItem = '1';
@@ -3028,7 +3052,7 @@
 				button.setAttribute('aria-current', 'page');
 			}
 			button.appendChild(createExplorerSidebarIcon(options.icon));
-			button.appendChild(dom.createElement('span', 'pdk-settings-sidebar-label', options.label || 'Folder'));
+			button.appendChild(dom.createElement('span', 'pdk-settings-sidebar-label', options.label || getMenuLabel('folder')));
 			button.addEventListener('click', (event) => {
 				event.preventDefault();
 				event.stopPropagation();
@@ -3063,7 +3087,7 @@
 			const dragZone = dom.createElement('div', 'pdk-split-sidebar-drag-zone');
 			const nav = dom.createElement('nav', 'pdk-settings-sidebar-nav pdk-finder-sidebar-nav');
 
-			sidebar.setAttribute('aria-label', isExplorer ? 'Navigation pane' : 'Folders');
+			sidebar.setAttribute('aria-label', isExplorer ? getMenuLabel('navigation_pane') : getMenuLabel('folders'));
 			dragZone.dataset.pdkDragHandle = '';
 			dragZone.setAttribute('aria-hidden', 'true');
 			if (!isExplorer) {
@@ -3079,7 +3103,7 @@
 
 				primaryGroup.appendChild(createExplorerSidebarButton({
 					active: !isTrashFolderId(folderId),
-					context: contextTargets.FOLDER || 'folder',
+					context: contextTargets.FOLDER,
 					icon: currentFolder && currentFolder.icon ? currentFolder.icon : 'dashicons-admin-home',
 					id: folderId,
 					label: getMenuLabel('home'),
@@ -3089,7 +3113,7 @@
 				}));
 				if (mediaApp) {
 					primaryGroup.appendChild(createExplorerSidebarButton({
-						context: contextItemTypes.APP || 'app',
+						context: contextItemTypes.APP,
 						icon: mediaApp.icon || 'dashicons-format-gallery',
 						id: mediaApp.id,
 						label: getMenuLabel('gallery'),
@@ -3104,10 +3128,10 @@
 						return;
 					}
 					folderGroup.appendChild(createExplorerSidebarButton({
-						context: contextTargets.FOLDER || 'folder',
+						context: contextTargets.FOLDER,
 						icon: folder.icon || 'dashicons-category',
 						id: folder.id,
-						label: folder.label || 'Folder',
+						label: folder.label || getMenuLabel('folder'),
 						pinned: true,
 						onClick() {
 							if (win && folder.id !== folderId) {
@@ -3129,7 +3153,7 @@
 
 			primarySection.appendChild(createFinderSidebarItem({
 				active: isRecentsFolderId(folderId),
-				context: contextTargets.FOLDER || 'folder',
+				context: contextTargets.FOLDER,
 				icon: { type: 'theme', name: 'clock.svg', fallback: 'dashicons-clock' },
 				id: recentsFolderId,
 				label: getMenuLabel('recents'),
@@ -3151,7 +3175,7 @@
 
 					return createFinderSidebarItem({
 						active: folder && folder.id === folderId,
-						context: contextTargets.FOLDER_SIDEBAR || 'folder-sidebar-item',
+						context: contextTargets.FOLDER_SIDEBAR,
 						dropTarget: 'folder',
 						icon: folder && folder.icon ? folder.icon : 'dashicons-category',
 						id: folder ? folder.id : favoriteId,
@@ -3174,13 +3198,13 @@
 			nav.appendChild(createFinderSidebarSection(
 				'locations',
 				getMenuLabel('locations'),
-				['home', 'desktop', trashFolderId].map((locationId) => getFolder(locationId)).filter(Boolean).map((folder) => createFinderSidebarItem({
+				[homeFolderId, desktopFolderId, trashFolderId].map((locationId) => getFolder(locationId)).filter(Boolean).map((folder) => createFinderSidebarItem({
 					active: folder.id === folderId,
-					context: contextTargets.FOLDER || 'folder',
+					context: contextTargets.FOLDER,
 					dropTarget: 'folder',
 					icon: folder.icon || (folder.id === trashFolderId ? 'dashicons-trash' : 'dashicons-admin-home'),
 					id: folder.id,
-					label: folder.label || 'Folder',
+					label: folder.label || getMenuLabel('folder'),
 					section: 'locations',
 					onClick() {
 						if (win && folder.id !== folderId) {
@@ -3216,9 +3240,9 @@
 			bindFolderPaneSelectionClear(pane);
 			bindFolderPaneKeyboard(pane, folderId, win);
 			bindFolderPaneItemDrag(pane, folderId);
-			header.dataset.pdkContext = contextTargets.FOLDER_TOOLBAR || 'folder-toolbar';
+			header.dataset.pdkContext = contextTargets.FOLDER_TOOLBAR;
 			header.dataset.pdkContextId = folderId;
-			header.dataset.pdkContextLabel = 'Folder Toolbar';
+			header.dataset.pdkContextLabel = getMenuLabel('folder_toolbar');
 			header.dataset.pdkDragHandle = '';
 			header.dataset.pdkFolderId = folderId;
 			header.dataset.pdkFolderToolbarDisplay = toolbarDisplayMode;
@@ -3226,7 +3250,7 @@
 			history.dataset.pdkNoDrag = '';
 			history.appendChild(createFolderHistoryButton('back', win));
 			history.appendChild(createFolderHistoryButton('forward', win));
-			historyGroup.append(history, dom.createElement('span', 'pdk-finder-toolbar-caption', 'Back/Forward'));
+			historyGroup.append(history, dom.createElement('span', 'pdk-finder-toolbar-caption', getMenuLabel('back_forward')));
 			leading.append(historyGroup, title);
 			header.append(leading, createFolderToolbarActions(folderId, win));
 
@@ -3346,9 +3370,9 @@
 			win.dataset.pdkContextId = folderId;
 			win.dataset.pdkContextLabel = folderTitle;
 			win.dataset.pdkWindowTitle = folderTitle;
-			win.setAttribute('aria-label', `${folderTitle} window`);
+			win.setAttribute('aria-label', formatMenuLabel('window_title_format', '', [folderTitle]));
 			if (titlebar) {
-				titlebar.dataset.pdkContext = contextTargets.WINDOW || 'window';
+				titlebar.dataset.pdkContext = contextTargets.WINDOW;
 				titlebar.dataset.pdkContextId = folderId;
 				titlebar.dataset.pdkContextLabel = folderTitle;
 			}

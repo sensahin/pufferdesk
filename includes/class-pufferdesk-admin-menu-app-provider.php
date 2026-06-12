@@ -573,19 +573,11 @@ final class PufferDesk_Admin_Menu_App_Provider {
 		$lines   = array();
 
 		if ( '' !== $version ) {
-			$lines[] = sprintf(
-				/* translators: %s: plugin version. */
-				__( 'Version %s', 'pufferdesk-admin-desktop' ),
-				$version
-			);
+			$lines[] = PufferDesk_App_Normalizer::format_about_version( $version );
 		}
 
 		if ( '' !== $author ) {
-			$lines[] = sprintf(
-				/* translators: %s: plugin author name. */
-				__( 'By %s', 'pufferdesk-admin-desktop' ),
-				$author
-			);
+			$lines[] = PufferDesk_App_Normalizer::format_about_author( $author );
 		}
 
 		return array(

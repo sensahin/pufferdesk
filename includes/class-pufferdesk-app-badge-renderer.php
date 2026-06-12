@@ -26,12 +26,7 @@ final class PufferDesk_App_Badge_Renderer {
 			return $label;
 		}
 
-		return sprintf(
-			/* translators: 1: app label, 2: app badge accessibility label. */
-			__( '%1$s, %2$s', 'pufferdesk-admin-desktop' ),
-			$label,
-			$badge['aria_label']
-		);
+		return PufferDesk_App_Badge_Normalizer::format_app_aria_label( $label, $badge['aria_label'] );
 	}
 
 	/**

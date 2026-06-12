@@ -129,7 +129,7 @@
 
 			icon.appendChild(dom.createDashicon(options.icon));
 			hero.appendChild(icon);
-			hero.appendChild(dom.createElement('h2', '', options.title || getLabel('generalPanel.title', 'General')));
+			hero.appendChild(dom.createElement('h2', '', options.title || getLabel('generalPanel.title', 'generalPanel.title')));
 			if (options.description) {
 				hero.appendChild(dom.createElement('p', '', options.description));
 			}
@@ -150,7 +150,7 @@
 			}
 			if (hasUrl) {
 				row.dataset.pdkOpenUrl = options.url;
-				row.dataset.pdkTitle = options.windowTitle || options.title || options.label || actions.fallbackWindowTitle || getLabel('generalPanel.fallbackWindowTitle', 'WordPress');
+				row.dataset.pdkTitle = options.windowTitle || options.title || options.label || actions.fallbackWindowTitle || getLabel('generalPanel.fallbackWindowTitle', 'generalPanel.fallbackWindowTitle');
 				row.dataset.pdkIcon = options.icon || dom.getDefaultDashicon();
 			}
 			if (hasCommand && typeof actions.executeCommand === 'function') {
@@ -162,7 +162,7 @@
 
 			row.className = `pdk-settings-action-row ${options.className || ''}`.trim();
 			row.appendChild(createRowIcon(options.icon || dom.getDefaultDashicon(), options.tone || 'gray'));
-			text.appendChild(dom.createElement('strong', '', options.label || getLabel('profile.sectionLabel', 'Profile')));
+			text.appendChild(dom.createElement('strong', '', options.label || getLabel('profile.sectionLabel', 'profile.sectionLabel')));
 			if (options.description) {
 				text.appendChild(dom.createElement('span', '', options.description));
 			}

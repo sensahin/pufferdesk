@@ -7,7 +7,10 @@
 	window.PufferDesk.apps.createAboutWindow = function createAboutWindow(app = {}) {
 		const dom = window.PufferDesk.dom;
 		const about = app.about && typeof app.about === 'object' ? app.about : {};
-		const name = about.name || app.label || 'PufferDesk';
+		const labels = window.PufferDesk.config && typeof window.PufferDesk.config.getLabels === 'function'
+			? window.PufferDesk.config.getLabels()
+			: {};
+		const name = about.name || app.label || labels.system || 'system';
 		const version = about.version || '';
 		const copyright = about.copyright || '';
 		const rights = about.rights || '';

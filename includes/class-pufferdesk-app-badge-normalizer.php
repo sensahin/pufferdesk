@@ -29,6 +29,60 @@ final class PufferDesk_App_Badge_Normalizer {
 	}
 
 	/**
+	 * App badge aria label format shared by PHP and browser renderers.
+	 *
+	 * @return string
+	 */
+	public static function get_aria_label_format() {
+		/* translators: 1: app label, 2: app badge accessibility label. */
+		return __( '%1$s, %2$s', 'pufferdesk-admin-desktop' );
+	}
+
+	/**
+	 * Build an app aria label that includes badge context.
+	 *
+	 * @param string $label App label.
+	 * @param string $badge_label Badge accessibility label.
+	 * @return string
+	 */
+	public static function format_app_aria_label( $label, $badge_label ) {
+		return sprintf(
+			self::get_aria_label_format(),
+			(string) $label,
+			(string) $badge_label
+		);
+	}
+
+	/**
+	 * Build the default aria label for a numeric notification badge.
+	 *
+	 * @param string $text Badge text.
+	 * @param int    $count Badge count.
+	 * @return string
+	 */
+	public static function format_count_label( $text, $count ) {
+		return sprintf(
+			/* translators: %s: Notification count. */
+			_n( '%s notification', '%s notifications', $count, 'pufferdesk-admin-desktop' ),
+			(string) $text
+		);
+	}
+
+	/**
+	 * Build the default aria label for a non-count status badge.
+	 *
+	 * @param string $text Badge text.
+	 * @return string
+	 */
+	public static function format_status_label( $text ) {
+		return sprintf(
+			/* translators: %s: Badge text. */
+			__( '%s status', 'pufferdesk-admin-desktop' ),
+			(string) $text
+		);
+	}
+
+	/**
 	 * Extract a notification badge from WordPress admin menu title HTML.
 	 *
 	 * @param string $menu_title Raw menu title.
@@ -111,16 +165,8 @@ final class PufferDesk_App_Badge_Normalizer {
 		$aria_label = isset( $badge['aria_label'] ) ? $this->sanitize_text( $badge['aria_label'] ) : '';
 		if ( '' === $aria_label ) {
 			$aria_label = $count > 0
-				? sprintf(
-					/* translators: %s: Notification count. */
-					_n( '%s notification', '%s notifications', $count, 'pufferdesk-admin-desktop' ),
-					$text
-				)
-				: sprintf(
-					/* translators: %s: Badge text. */
-					__( '%s status', 'pufferdesk-admin-desktop' ),
-					$text
-				);
+				? self::format_count_label( $text, $count )
+				: self::format_status_label( $text );
 		}
 
 		$normalized = array(

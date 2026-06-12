@@ -47,7 +47,10 @@
 
 		let index = 0;
 
-		return String(getInfoPanelLabel(key, fallback, source)).replace(/%d|%s/g, () => String(values[index++] ?? ''));
+		return String(getInfoPanelLabel(key, fallback, source)).replace(/%(\d+)\$[sd]/g, (match, position) => {
+			const valueIndex = Number(position) - 1;
+			return String(values[valueIndex] ?? '');
+		}).replace(/%d|%s/g, () => String(values[index++] ?? ''));
 	}
 
 	function formatDate(value, labels = null) {
@@ -66,8 +69,8 @@
 		}).format(new Date(timestamp));
 	}
 
-	function plural(count, singular, pluralLabel) {
-		return `${count} ${count === 1 ? singular : pluralLabel}`;
+	function plural(count, singular, pluralLabel, labels = null) {
+		return formatInfoPanelLabel('itemCountTemplate', '', [count, count === 1 ? singular : pluralLabel], labels);
 	}
 
 	function createHeader(options = {}) {
@@ -328,8 +331,8 @@
 	function createFolderInfoWindow(info = {}, actions = {}) {
 		const labels = getInfoPanelLabels();
 		const itemCount = Number.parseInt(info.itemCount, 10) || 0;
-		const itemCountLabel = plural(itemCount, getInfoPanelLabel('itemSingular', '', labels), getInfoPanelLabel('itemPlural', '', labels));
-		const appCountLabel = plural(itemCount, getInfoPanelLabel('applicationSingular', '', labels), getInfoPanelLabel('applicationPlural', '', labels));
+		const itemCountLabel = plural(itemCount, getInfoPanelLabel('itemSingular', '', labels), getInfoPanelLabel('itemPlural', '', labels), labels);
+		const appCountLabel = plural(itemCount, getInfoPanelLabel('applicationSingular', '', labels), getInfoPanelLabel('applicationPlural', '', labels), labels);
 		const folderFallbackTitle = getInfoPanelLabel('folderFallbackTitle', '', labels);
 		const general = createDisclosure(getInfoPanelLabel('generalSection', '', labels));
 		const more = createDisclosure(getInfoPanelLabel('moreInfoSection', '', labels));
@@ -340,8 +343,8 @@
 
 		appendDefinition(general.body, getInfoPanelLabel('kindLabel', '', labels), info.kind || folderFallbackTitle);
 		appendDefinition(general.body, getInfoPanelLabel('sizeLabel', '', labels), formatInfoPanelLabel('folderSizeTemplate', '', [itemCountLabel], labels));
-		appendDefinition(general.body, getInfoPanelLabel('whereLabel', '', labels), info.where || 'PufferDesk');
-		appendDefinition(general.body, getInfoPanelLabel('sourceLabel', '', labels), info.source || 'PufferDesk');
+		appendDefinition(general.body, getInfoPanelLabel('whereLabel', '', labels), info.where || getInfoPanelLabel('pufferdeskFallback', '', labels));
+		appendDefinition(general.body, getInfoPanelLabel('sourceLabel', '', labels), info.source || getInfoPanelLabel('pufferdeskFallback', '', labels));
 		appendDefinition(general.body, getInfoPanelLabel('createdLabel', '', labels), formatDate(info.createdAt, labels));
 		appendDefinition(general.body, getInfoPanelLabel('modifiedLabel', '', labels), formatDate(info.modifiedAt, labels));
 

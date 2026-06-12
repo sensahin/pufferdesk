@@ -76,6 +76,8 @@ $pufferdesk_has_menu_bar  = 'menu-bar' === $pufferdesk_theme_shell['top_bar']
 	|| 'menu-bar' === $pufferdesk_theme_shell['status_area']
 	|| 'mark' === $pufferdesk_theme_shell['system_menu'];
 $pufferdesk_has_launcher  = 'none' !== $pufferdesk_theme_shell['launcher'];
+$pufferdesk_template_labels = PufferDesk_Runtime_Config::get_shell_template_labels( $theme );
+$pufferdesk_notification_labels = PufferDesk_Notification_Registry::get_default_labels();
 $pufferdesk_window_chrome = wp_parse_args(
 	isset( $theme['window_chrome'] ) && is_array( $theme['window_chrome'] ) ? $theme['window_chrome'] : array(),
 	array(
@@ -166,8 +168,10 @@ if ( $pufferdesk_shell_style ) {
 		$this->render_part(
 			'shell/menu-bar.php',
 			array(
-				'site_name' => $site_name,
-				'shell'     => $pufferdesk_theme_shell,
+				'labels'              => $pufferdesk_template_labels,
+				'notification_labels' => $pufferdesk_notification_labels,
+				'site_name'           => $site_name,
+				'shell'               => $pufferdesk_theme_shell,
 			)
 		);
 	}
@@ -180,26 +184,28 @@ if ( $pufferdesk_shell_style ) {
 			'dock_apps'       => isset( $dock_apps ) && is_array( $dock_apps ) ? $dock_apps : $apps,
 			'widgets'         => $widgets,
 			'folders'         => isset( $desktop_icon_folders ) && is_array( $desktop_icon_folders ) ? $desktop_icon_folders : $folders,
+			'labels'          => $pufferdesk_template_labels,
+			'notification_labels' => $pufferdesk_notification_labels,
 			'theme'           => $theme,
 			'shell'           => $pufferdesk_theme_shell,
 			'workspace_state' => isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array(),
 		)
 	);
 	?>
-	<section class="pdk-notification-center" data-pdk-notification-center hidden aria-label="<?php esc_attr_e( 'Notification Center', 'pufferdesk-admin-desktop' ); ?>">
+	<section class="pdk-notification-center" data-pdk-notification-center hidden aria-label="<?php echo esc_attr( $pufferdesk_notification_labels['centerTitle'] ); ?>">
 		<header class="pdk-notification-center-header">
-			<h2><?php esc_html_e( 'Notification Center', 'pufferdesk-admin-desktop' ); ?></h2>
+			<h2><?php echo esc_html( $pufferdesk_notification_labels['centerTitle'] ); ?></h2>
 			<div class="pdk-notification-center-actions">
-				<button type="button" class="pdk-notification-center-refresh" data-pdk-notification-refresh aria-label="<?php esc_attr_e( 'Refresh notifications', 'pufferdesk-admin-desktop' ); ?>">
+				<button type="button" class="pdk-notification-center-refresh" data-pdk-notification-refresh aria-label="<?php echo esc_attr( $pufferdesk_notification_labels['refreshPanel'] ); ?>">
 					<span class="dashicons dashicons-update" aria-hidden="true"></span>
 				</button>
-				<button type="button" class="pdk-notification-center-close" data-pdk-notification-close aria-label="<?php esc_attr_e( 'Close notifications', 'pufferdesk-admin-desktop' ); ?>">
+				<button type="button" class="pdk-notification-center-close" data-pdk-notification-close aria-label="<?php echo esc_attr( $pufferdesk_notification_labels['closePanel'] ); ?>">
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
 		</header>
 		<div class="pdk-notification-center-toolbar">
-			<button type="button" data-pdk-notification-mark-all-read><?php esc_html_e( 'Mark All as Read', 'pufferdesk-admin-desktop' ); ?></button>
+			<button type="button" data-pdk-notification-mark-all-read><?php echo esc_html( $pufferdesk_notification_labels['markAllRead'] ); ?></button>
 		</div>
 		<div class="pdk-notification-list" data-pdk-notification-list></div>
 	</section>

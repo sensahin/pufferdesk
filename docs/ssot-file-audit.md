@@ -1,0 +1,178 @@
+# PufferDesk SSOT File Audit
+
+Generated for the full PHP/JS Single Source of Truth cleanup task.
+
+- PHP files reviewed: 61
+- JS files reviewed: 103
+- Status meanings: `Changed` means implementation was updated; `No change` means reviewed and intentionally left as-is.
+- Correction pass: added direct UI-facing literal searches for labels, titles, aria-labels, placeholders, dialog copy, shortcut display names, and drag/drop messages after the initial contract-ID audit missed hard-coded strings such as `Close`.
+
+## PHP Files
+
+- `assets/media/shared/icons/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
+- `assets/media/shared/sounds/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
+- `assets/media/themes/pufferdesk/default/cursors/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
+- `assets/media/themes/pufferdesk/default/icons/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
+- `assets/media/themes/pufferdesk/default/wallpapers/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
+- `assets/media/themes/redmond/modern/icons/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
+- `assets/media/themes/redmond/modern/wallpapers/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
+- `assets/media/themes/workstation/default/icons/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
+- `assets/media/themes/workstation/default/wallpapers/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
+- `includes/class-pufferdesk-admin-controller.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-admin-menu-app-provider.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-app-badge-normalizer.php` - No change: App registry/normalizer/provider owner logic; consumer-side IDs were cleaned where repeated.
+- `includes/class-pufferdesk-app-badge-renderer.php` - No change: App registry/normalizer/provider owner logic; consumer-side IDs were cleaned where repeated.
+- `includes/class-pufferdesk-app-ids.php` - No change: Domain owner for bundled app IDs; no consumer cleanup needed inside owner.
+- `includes/class-pufferdesk-app-menu-normalizer.php` - Changed: Default app window menu labels now reuse the window chrome control label contract instead of repeating generic control strings.
+- `includes/class-pufferdesk-app-normalizer.php` - No change: App registry/normalizer/provider owner logic; consumer-side IDs were cleaned where repeated.
+- `includes/class-pufferdesk-app-registry.php` - No change: App registry/normalizer/provider owner logic; consumer-side IDs were cleaned where repeated.
+- `includes/class-pufferdesk-asset-manifest.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-assets.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-client-storage-keys.php` - No change: Domain owner for storage key fragments; no duplicate consumer logic found.
+- `includes/class-pufferdesk-command-ids.php` - No change: Domain owner for command IDs; no consumer cleanup needed inside owner.
+- `includes/class-pufferdesk-context-menu-contracts.php` - No change: Domain owner for context-menu contracts; no consumer cleanup needed inside owner.
+- `includes/class-pufferdesk-desktop-layout.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-document-controller.php` - No change: Document service/controller/post-type owner logic; JS consumers were cleaned instead.
+- `includes/class-pufferdesk-document-post-type.php` - No change: Document service/controller/post-type owner logic; JS consumers were cleaned instead.
+- `includes/class-pufferdesk-document-service.php` - No change: Document service/controller/post-type owner logic; JS consumers were cleaned instead.
+- `includes/class-pufferdesk-icon-renderer.php` - No change: Domain owner for icon descriptor contract; no duplicate helper introduced.
+- `includes/class-pufferdesk-notification-controller.php` - No change: Notification owner/controller logic already centralizes labels/actions by domain.
+- `includes/class-pufferdesk-notification-normalizer.php` - No change: Notification owner/controller logic already centralizes labels/actions by domain.
+- `includes/class-pufferdesk-notification-registry.php` - Changed: Extracted shared notification labels for runtime config and first-paint shell template reuse; generic close label now comes from the window chrome contract.
+- `includes/class-pufferdesk-path-normalizer.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-plugin.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-router.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-runtime-config.php` - Changed: Centralized Settings labels, dialog labels, menu/shortcut/folder/drag-drop labels, and reused shared window-control labels where applicable.
+- `includes/class-pufferdesk-settings-controller.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-settings-registry.php` - No change: Domain owner for settings domains/AJAX actions/defaults; no unsafe split cleanup needed.
+- `includes/class-pufferdesk-shell-context.php` - Changed: Replaced app-location literals with preference contract constants.
+- `includes/class-pufferdesk-shell-renderer.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-sound-registry.php` - No change: Sound event registry owner; browser modules already consume semantic sound config.
+- `includes/class-pufferdesk-theme-registry.php` - Changed: Reused app-location IDs from user preferences and removed redundant theme window-control label overrides.
+- `includes/class-pufferdesk-theme-token-renderer.php` - No change: Theme registry/token owner values are metadata schema or visual tokens, not duplicated consumers.
+- `includes/class-pufferdesk-tooltip-renderer.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-user-preferences.php` - Changed: Replaced virtual folder fallback literals with virtual filesystem constants.
+- `includes/class-pufferdesk-virtual-filesystem.php` - Changed: Exposed virtual folder IDs as the PHP-owned runtime contract.
+- `includes/class-pufferdesk-wallpaper-registry.php` - No change: Domain owner for wallpaper type/catalog data; consumers were cleaned instead.
+- `includes/class-pufferdesk-widget-layout.php` - No change: Widget registry/layout owner logic; no duplicate shared constants/helpers found.
+- `includes/class-pufferdesk-widget-registry.php` - No change: Widget registry/layout owner logic; no duplicate shared constants/helpers found.
+- `includes/class-pufferdesk-window-chrome-contracts.php` - No change: Domain owner for window chrome IDs; no consumer cleanup needed inside owner.
+- `includes/class-pufferdesk-workspace-controller.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
+- `includes/class-pufferdesk-workspace-state.php` - No change: Domain owner for workspace sections/window kinds; consumers already use runtime contracts.
+- `pufferdesk-admin-desktop.php` - No change: Reviewed; no safe high-value SSOT cleanup needed.
+- `templates/desktop/apps.php` - No change: Template already uses renderer/contract helpers or contains local markup/classes only.
+- `templates/desktop/folders.php` - No change: Template already uses renderer/contract helpers or contains local markup/classes only.
+- `templates/shell/desktop.php` - Changed: Reused the context-menu desktop target constant for the desktop context ID.
+- `templates/shell/dock.php` - No change: Template already uses renderer/contract helpers or contains local markup/classes only.
+- `templates/shell/menu-bar.php` - No change: Template already uses renderer/contract helpers or contains local markup/classes only.
+- `templates/shell/shell.php` - Changed: Notification center first-paint labels now consume the notification registry label owner.
+- `templates/widgets/clock.php` - No change: Template already uses renderer/contract helpers or contains local markup/classes only.
+- `templates/widgets/desktop.php` - No change: Template already uses renderer/contract helpers or contains local markup/classes only.
+- `templates/widgets/generic.php` - No change: Template already uses renderer/contract helpers or contains local markup/classes only.
+- `templates/windows/titlebar.php` - No change: Template already uses renderer/contract helpers or contains local markup/classes only.
+
+## JS Files
+
+- `assets/dist/js/pufferdesk-admin-desktop.min.js` - Changed: Generated build artifact updated by `npm run build`; not manually edited.
+- `assets/js/core/api/desktop-api.js` - No change: Reviewed; no safe high-value SSOT cleanup needed.
+- `assets/js/core/apps/about-window.js` - Changed: About window fallback title now uses runtime menu labels instead of a local product-name literal.
+- `assets/js/core/apps/app-badges.js` - No change: App module reviewed; unchanged files already use shared helpers or keep local UI-only values.
+- `assets/js/core/apps/app-ids.js` - No change: Browser domain owner/mirror for runtime contract values; no consumer cleanup needed inside owner.
+- `assets/js/core/apps/app-launcher.js` - Changed: Reused existing domain contracts and runtime labels for folder/explorer titles, aria labels, toolbar labels, and fallback IDs.
+- `assets/js/core/apps/app-preferences.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.
+- `assets/js/core/apps/app-surfaces.js` - Changed: Reused existing domain contracts and runtime labels for desktop app surface aria labels.
+- `assets/js/core/apps/app-window-options.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.
+- `assets/js/core/apps/folder-data.js` - Changed: Removed browser copies of document kind IDs and consumed runtime labels for folder info fallback metadata.
+- `assets/js/core/apps/folder-menu-options.js` - No change: App module reviewed; unchanged files already use shared helpers or keep local UI-only values.
+- `assets/js/core/apps/folder-renderer.js` - No change: App module reviewed; unchanged files already use shared helpers or keep local UI-only values.
+- `assets/js/core/apps/folder-view-modes.js` - No change: App module reviewed; unchanged files already use shared helpers or keep local UI-only values.
+- `assets/js/core/apps/folder-window-state.js` - No change: App module reviewed; unchanged files already use shared helpers or keep local UI-only values.
+- `assets/js/core/apps/keyboard-shortcuts.js` - Changed: Reused shared command/context/menu/window/shortcut contracts and runtime labels for shortcut headings/window controls instead of repeated literals.
+- `assets/js/core/apps/launcher-renderer.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.
+- `assets/js/core/apps/native-app-opener.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.
+- `assets/js/core/apps/native-apps.js` - No change: App module reviewed; unchanged files already use shared helpers or keep local UI-only values.
+- `assets/js/core/apps/recent-items.js` - No change: App module reviewed; unchanged files already use shared helpers or keep local UI-only values.
+- `assets/js/core/apps/settings-app.js` - Changed: Removed duplicated wallpaper type fallbacks and consumed runtime contracts.
+- `assets/js/core/apps/settings/labels.js` - Changed: Removed duplicated Settings fallback label tree; this module now reads/formats runtime labels.
+- `assets/js/core/apps/settings/mutations.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-appearance.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-apps.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-desktop-dock.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-general.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-menu-bar.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-notifications.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-profile.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-sounds.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-system.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-wallpaper.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-widgets.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/panel-workspace.js` - No change: Settings panel factory uses shared labels/UI/mutations; no local shared label group remained.
+- `assets/js/core/apps/settings/ui.js` - Changed: Removed English fallback strings behind the Settings label helper.
+- `assets/js/core/apps/site-about-window.js` - Changed: Site info fallback source/location labels now use runtime info panel labels.
+- `assets/js/core/apps/sticky-notes-app.js` - Changed: Removed browser copies of document kind IDs and consumed document/app runtime labels for native app title fallbacks.
+- `assets/js/core/apps/text-editor.js` - Changed: Removed browser copies of document kind IDs and consumed document/app runtime labels for native app title fallbacks.
+- `assets/js/core/boot.js` - No change: Core bootstrap/config/dom helper reviewed; no additional safe cleanup needed.
+- `assets/js/core/config.js` - No change: Core bootstrap/config/dom helper reviewed; no additional safe cleanup needed.
+- `assets/js/core/desktop/desktop-icons.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.
+- `assets/js/core/desktop/folder-manager.js` - Changed: Reused virtual filesystem folder ID contracts for folder parent behavior.
+- `assets/js/core/desktop/sticky-notes.js` - Changed: Removed browser copies of document kind IDs and consumed document runtime kinds.
+- `assets/js/core/dom.js` - Changed: Removed duplicated icon type/appearance fallbacks and consumed icon runtime contracts.
+- `assets/js/core/drag-drop/constants.js` - Changed: Drag/drop container labels and validation messages now consume runtime menu labels.
+- `assets/js/core/drag-drop/drag-drop-manager.js` - No change: Drag/drop platform owner logic; local constants remain domain-owned.
+- `assets/js/core/drag-drop/draggable-registry.js` - No change: Drag/drop platform owner logic; local constants remain domain-owned.
+- `assets/js/core/drag-drop/drop-target-registry.js` - No change: Drag/drop platform owner logic; local constants remain domain-owned.
+- `assets/js/core/drag-drop/item-model.js` - No change: Drag/drop platform owner logic; local constants remain domain-owned.
+- `assets/js/core/drag-drop/move-service.js` - Changed: Move exception fallback now uses the drag/drop message label contract.
+- `assets/js/core/drag-drop/move-state-store.js` - No change: Drag/drop platform owner logic; local constants remain domain-owned.
+- `assets/js/core/drag-drop/move-validator.js` - Changed: Validation failures now use drag/drop runtime message labels instead of repeated English strings.
+- `assets/js/core/events/event-bus.js` - No change: Event bus/name owner logic; no repeated consumer event strings found.
+- `assets/js/core/events/event-names.js` - No change: Browser domain owner/mirror for runtime contract values; no consumer cleanup needed inside owner.
+- `assets/js/core/notifications/notification-center.js` - Changed: Notification panel refresh/close aria labels now use specific registry-owned panel labels.
+- `assets/js/core/notifications/notification-store.js` - No change: Notification UI consumes notification config/store; no one-off toast or label array found.
+- `assets/js/core/notifications/toast-service.js` - No change: Notification UI consumes notification config/store; no one-off toast or label array found.
+- `assets/js/core/preferences/appearance.js` - No change: Preference applier reviewed; values are local CSS/application behavior or runtime-backed.
+- `assets/js/core/preferences/desktop-dock.js` - No change: Preference applier reviewed; values are local CSS/application behavior or runtime-backed.
+- `assets/js/core/preferences/menu-bar.js` - Changed: Trash fallback label now uses the runtime menu label key instead of a local English fallback.
+- `assets/js/core/preferences/wallpaper.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.
+- `assets/js/core/services/api-client.js` - No change: Service helper reviewed; remaining strings are local behavior or owned service defaults.
+- `assets/js/core/services/clipboard-service.js` - Changed: Centralized local clipboard item types, reused drag/drop/document contracts, and moved copied-item fallback labels to runtime menu labels.
+- `assets/js/core/services/debounced-task.js` - No change: Service helper reviewed; remaining strings are local behavior or owned service defaults.
+- `assets/js/core/services/documents.js` - Changed: Removed browser copies of document kind IDs and consumed document runtime kinds.
+- `assets/js/core/services/geometry.js` - No change: Service helper reviewed; remaining strings are local behavior or owned service defaults.
+- `assets/js/core/services/rich-text.js` - Changed: Image URL prompt fallback now uses the document runtime label key.
+- `assets/js/core/services/sound-manager.js` - No change: Service helper reviewed; remaining strings are local behavior or owned service defaults.
+- `assets/js/core/services/storage.js` - No change: Service helper reviewed; remaining strings are local behavior or owned service defaults.
+- `assets/js/core/services/tooltips.js` - No change: Service helper reviewed; remaining strings are local behavior or owned service defaults.
+- `assets/js/core/services/virtual-filesystem.js` - Changed: Consumed PHP-provided virtual folder IDs through the virtual filesystem helper.
+- `assets/js/core/session/reopen-policy.js` - No change: Session helper reviewed; storage/workspace keys already flow through contract helpers.
+- `assets/js/core/session/session-store.js` - No change: Session helper reviewed; storage/workspace keys already flow through contract helpers.
+- `assets/js/core/session/storage-keys.js` - No change: Browser domain owner/mirror for runtime contract values; no consumer cleanup needed inside owner.
+- `assets/js/core/session/workspace-contract.js` - No change: Browser domain owner/mirror for runtime contract values; no consumer cleanup needed inside owner.
+- `assets/js/core/shell/clock.js` - No change: Reviewed; no safe high-value SSOT cleanup needed.
+- `assets/js/core/shell/command-ids.js` - No change: Browser domain owner/mirror for runtime contract values; no consumer cleanup needed inside owner.
+- `assets/js/core/shell/commands.js` - Changed: Reused shared command/context/menu/window/shortcut contracts instead of repeated literals.
+- `assets/js/core/shell/context-menu-constants.js` - Changed: Removed duplicated PHP-owned context-menu fallback maps.
+- `assets/js/core/shell/context-menu-keyboard.js` - No change: Reviewed; no safe high-value SSOT cleanup needed.
+- `assets/js/core/shell/context-menu-permissions.js` - No change: Reviewed; no safe high-value SSOT cleanup needed.
+- `assets/js/core/shell/context-menu-positioner.js` - No change: Reviewed; no safe high-value SSOT cleanup needed.
+- `assets/js/core/shell/context-menu-resolver.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.
+- `assets/js/core/shell/context-menu-theme-adapter.js` - No change: Reviewed; no safe high-value SSOT cleanup needed.
+- `assets/js/core/shell/context-menu.js` - Changed: Reused shared command/context/menu/window/shortcut contracts instead of repeated literals.
+- `assets/js/core/shell/dialogs.js` - Changed: Shared dialog default labels now consume `runtime.dialogs.labels` instead of local English fallbacks.
+- `assets/js/core/shell/menu-renderer.js` - No change: Reviewed; no safe high-value SSOT cleanup needed.
+- `assets/js/core/shell/menu-schema.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.
+- `assets/js/core/shell/menu.js` - Changed: Reused shared command/context/menu/window/shortcut contracts instead of repeated literals.
+- `assets/js/core/shell/search.js` - No change: Reviewed; no safe high-value SSOT cleanup needed.
+- `assets/js/core/shell/shortcut-contexts.js` - Changed: Added the shared browser shortcut context ID source.
+- `assets/js/core/shell/shortcuts.js` - Changed: Reused shared command/context/menu/window/shortcut contracts and runtime labels for default shortcut names, reserved reasons, key names, and modifier labels.
+- `assets/js/core/shell/sound-status.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.
+- `assets/js/core/shell/transient-surfaces.js` - No change: Reviewed; no safe high-value SSOT cleanup needed.
+- `assets/js/core/widgets/widget-manager.js` - No change: Widget manager reviewed; no duplicate shared constants or labels found.
+- `assets/js/core/windows/resize-handles.js` - No change: Window module reviewed; unchanged files already consume window/session contracts or local selectors.
+- `assets/js/core/windows/titlebar-actions.js` - No change: Window module reviewed; unchanged files already consume window/session contracts or local selectors.
+- `assets/js/core/windows/window-dock.js` - Changed: Reused existing domain contracts and runtime menu labels for minimized-window fallback titles.
+- `assets/js/core/windows/window-factory.js` - Changed: Reused existing domain contracts and removed local English window-control fallback labels.
+- `assets/js/core/windows/window-interactions.js` - No change: Window module reviewed; unchanged files already consume window/session contracts or local selectors.
+- `assets/js/core/windows/window-layout.js` - No change: Window module reviewed; unchanged files already consume window/session contracts or local selectors.
+- `assets/js/core/windows/window-manager.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.
+- `assets/js/core/windows/window-state.js` - Changed: Reused existing domain contracts and removed duplicated fallback IDs.

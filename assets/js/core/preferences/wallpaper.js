@@ -12,11 +12,7 @@
 	const storageKeys = window.PufferDesk.session && window.PufferDesk.session.storageKeys
 		? window.PufferDesk.session.storageKeys
 		: {};
-	const wallpaperTypes = window.PufferDesk.config.getContractMap('wallpaperTypes', {
-		COLOR: 'color',
-		THEME: 'theme',
-		UPLOAD: 'upload'
-	});
+	const wallpaperTypes = window.PufferDesk.config.getContractMap('wallpaperTypes');
 
 	function sanitizeContrast(value) {
 		return value === 'dark' || value === 'light' || value === 'auto' ? value : '';

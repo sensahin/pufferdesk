@@ -12,11 +12,7 @@
 		const windowKinds = workspace.windowKinds || {};
 		const fallbackWindowChrome = {
 			controls: {
-				labels: {
-					close: 'Close',
-					maximize: 'Maximize',
-					minimize: 'Minimize'
-				},
+				labels: {},
 				order: ['close', 'minimize', 'maximize'],
 				placement: 'left',
 				style: 'traffic'
@@ -69,6 +65,18 @@
 			return window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
 				? window.PufferDesk.config.get()
 				: {};
+		}
+
+		function formatWindowLabel(key, fallback = '', values = []) {
+			if (window.PufferDesk.config && typeof window.PufferDesk.config.formatLabel === 'function') {
+				return window.PufferDesk.config.formatLabel(key, fallback, values);
+			}
+
+			let index = 0;
+			return String(fallback).replace(/%(\d+)\$[sd]/g, (match, position) => {
+				const valueIndex = Number(position) - 1;
+				return String(values[valueIndex] ?? '');
+			}).replace(/%d|%s/g, () => String(values[index++] ?? ''));
 		}
 
 		function getWindowChromeContract() {
@@ -213,8 +221,8 @@
 			const disabledControls = Array.isArray(options.disabledControls) ? options.disabledControls : [];
 			const titlebar = document.createElement('div');
 			titlebar.className = 'pdk-window-titlebar';
-			titlebar.dataset.pdkContext = contextTargets.WINDOW || 'window';
-			titlebar.dataset.pdkContextId = options.appId || options.windowKind || contextTargets.WINDOW || windowKinds.WINDOW || 'window';
+			titlebar.dataset.pdkContext = contextTargets.WINDOW;
+			titlebar.dataset.pdkContextId = options.appId || options.windowKind || contextTargets.WINDOW;
 			titlebar.dataset.pdkContextLabel = options.title || options.titlebarLabel || '';
 			titlebar.dataset.pdkDragHandle = '';
 			titlebar.dataset.pdkWindowControlsPlacement = chrome.controls.placement;
@@ -224,7 +232,7 @@
 			const controls = document.createElement('div');
 			controls.className = 'pdk-window-controls';
 			chrome.controls.order.forEach((control) => {
-				const button = createWindowControl(control, chrome.controls.labels[control], disabledControls.includes(control));
+				const button = createWindowControl(control, chrome.controls.labels[control] || control, disabledControls.includes(control));
 				bindWindowControl(button, control, titlebar, appId);
 				controls.appendChild(button);
 			});
@@ -250,14 +258,14 @@
 			const win = document.createElement('section');
 			win.className = 'pdk-window pdk-app-window';
 			win.dataset.pdkAppWindow = options.appId || '';
-			win.dataset.pdkContext = contextTargets.WINDOW || 'window';
-			win.dataset.pdkContextId = options.appId || options.windowKind || contextTargets.WINDOW || windowKinds.WINDOW || 'window';
+			win.dataset.pdkContext = contextTargets.WINDOW;
+			win.dataset.pdkContextId = options.appId || options.windowKind || contextTargets.WINDOW;
 			win.dataset.pdkContextLabel = options.title || '';
 			win.dataset.pdkResizeMode = options.resizeMode || 'both';
 			if (options.surfaceLayout) {
 				win.dataset.pdkSurfaceLayout = options.surfaceLayout;
 			}
-			win.dataset.pdkWindowKind = options.windowKind || (options.appId ? windowKinds.APP || 'app' : windowKinds.WINDOW || 'window');
+			win.dataset.pdkWindowKind = options.windowKind || (options.appId ? windowKinds.APP : windowKinds.WINDOW);
 			win.dataset.pdkWindowTitle = options.title || '';
 			win.dataset.pdkWindowControlsPlacement = chrome.controls.placement;
 			win.dataset.pdkWindowControlsStyle = chrome.controls.style;
@@ -275,7 +283,7 @@
 			if (options.menu && typeof options.menu === 'object') {
 				win.pdkMenu = options.menu;
 			}
-			win.setAttribute('aria-label', `${options.title} window`);
+			win.setAttribute('aria-label', formatWindowLabel('window_title_format', '', [options.title || '']));
 			win.style.width = options.width || '860px';
 			win.style.height = options.height || '620px';
 			win.style.left = options.left || '180px';

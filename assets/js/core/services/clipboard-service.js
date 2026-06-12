@@ -22,13 +22,35 @@
 		const itemTypes = constants.itemTypes || {};
 		const dragDropConstants = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.constants ? window.PufferDesk.dragDrop.constants : {};
 		const containerTypes = dragDropConstants.containerTypes || {};
+		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
+			? window.PufferDesk.session.workspace.windowKinds || {}
+			: {};
 		const models = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.models ? window.PufferDesk.dragDrop.models : null;
 		const operations = Object.freeze({
 			COPY: 'copy',
 			CUT: 'cut'
 		});
+		const clipboardItemTypes = Object.freeze({
+			APP: 'app',
+			DOCUMENT: 'document',
+			FOLDER: 'folder'
+		});
+		const supportedItemTypes = Object.freeze([
+			clipboardItemTypes.APP,
+			clipboardItemTypes.DOCUMENT,
+			clipboardItemTypes.FOLDER
+		]);
+		const stickyNoteSource = targets.STICKY_NOTE;
 		const clipboardConfig = config.clipboard && typeof config.clipboard === 'object' ? config.clipboard : {};
 		const copyTtlMs = normalizeTtl(clipboardConfig.copyTtlMs || clipboardConfig.copyTtl, 30 * 60 * 1000);
+
+		function getMenuLabel(key, fallback = '') {
+			const menu = config.menu && typeof config.menu === 'object' ? config.menu : {};
+			const labels = menu.labels && typeof menu.labels === 'object' ? menu.labels : {};
+			const value = labels[key];
+
+			return typeof value === 'string' && value ? value : fallback || key;
+		}
 		const cutTtlMs = normalizeTtl(clipboardConfig.cutTtlMs || clipboardConfig.cutTtl, 15 * 60 * 1000);
 		const appIds = new Set((Array.isArray(config.apps) ? config.apps : []).map((app) => normalizeId(app && app.id)).filter(Boolean));
 		const storageKey = `${config.storageKey || 'pufferdesk'}:clipboard`;
@@ -77,18 +99,18 @@
 		}
 
 		function getFolderContainerId(folderId) {
-			if (!folderId || folderId === (containerTypes.DESKTOP || 'desktop')) {
-				return containerTypes.DESKTOP || 'desktop';
+			if (!folderId || folderId === containerTypes.DESKTOP) {
+				return containerTypes.DESKTOP;
 			}
 
 			return models && typeof models.createContainerId === 'function'
-				? models.createContainerId(containerTypes.FOLDER || 'folder', folderId)
+				? models.createContainerId(containerTypes.FOLDER, folderId)
 				: `folder:${folderId}`;
 		}
 
 		function getDesktopPath() {
 			return virtualFilesystem && typeof virtualFilesystem.getDefaultPathForKind === 'function'
-				? virtualFilesystem.getDefaultPathForKind('desktop')
+				? virtualFilesystem.getDefaultPathForKind(containerTypes.DESKTOP)
 				: '';
 		}
 
@@ -105,7 +127,7 @@
 		}
 
 		function getFolderPath(folderId) {
-			if (!folderId || folderId === (containerTypes.DESKTOP || 'desktop')) {
+			if (!folderId || folderId === containerTypes.DESKTOP) {
 				return getDesktopPath();
 			}
 
@@ -120,9 +142,10 @@
 		}
 
 		function getCopyLabel(label) {
-			const base = String(label || '').trim() || 'Untitled';
+			const base = String(label || '').trim() || getMenuLabel('untitled_item');
+			const template = getMenuLabel('copy_name_format');
 
-			return `${base} copy`;
+			return template.replace('%s', base);
 		}
 
 		function emit(name, detail = {}) {
@@ -154,9 +177,9 @@
 
 		function sanitizeItem(item = {}) {
 			const type = normalizeId(item.type);
-			const id = type === 'document' ? normalizeDocumentId(item.id || item.documentId) : normalizeId(item.id);
+			const id = type === clipboardItemTypes.DOCUMENT ? normalizeDocumentId(item.id || item.documentId) : normalizeId(item.id);
 
-			if (!type || !id || !['app', 'folder', 'document'].includes(type)) {
+			if (!type || !id || !supportedItemTypes.includes(type)) {
 				return null;
 			}
 
@@ -260,15 +283,15 @@
 				return false;
 			}
 
-			if (item.type === 'app') {
+			if (item.type === clipboardItemTypes.APP) {
 				return !appIds.size || appIds.has(item.id);
 			}
 
-			if (item.type === 'folder') {
+			if (item.type === clipboardItemTypes.FOLDER) {
 				return Boolean(getFolder(item.id));
 			}
 
-			if (item.type === 'document') {
+			if (item.type === clipboardItemTypes.DOCUMENT) {
 				if (!documentStore || typeof documentStore.get !== 'function') {
 					return true;
 				}
@@ -318,17 +341,17 @@
 			const type = detail.type || detail.kind || '';
 			const id = detail.id || detail.targetId || '';
 
-			if ([targets.DESKTOP_APP, targets.FOLDER_APP, itemTypes.APP, 'app'].includes(type)) {
+			if ([targets.DESKTOP_APP, targets.FOLDER_APP, itemTypes.APP, clipboardItemTypes.APP].includes(type)) {
 				return sanitizeItem({
 					id,
 					label: detail.label,
 					parentFolderId: detail.folderId || '',
-					sourceContainerId: detail.folderId ? getFolderContainerId(detail.folderId) : (containerTypes.DESKTOP || 'desktop'),
-					type: 'app'
+					sourceContainerId: detail.folderId ? getFolderContainerId(detail.folderId) : containerTypes.DESKTOP,
+					type: clipboardItemTypes.APP
 				});
 			}
 
-			if ([targets.DESKTOP_FOLDER, targets.FOLDER, itemTypes.FOLDER, 'folder'].includes(type)) {
+			if ([targets.DESKTOP_FOLDER, targets.FOLDER, itemTypes.FOLDER, clipboardItemTypes.FOLDER].includes(type)) {
 				const folder = getFolder(id) || detail.folder || {};
 
 				return sanitizeItem({
@@ -336,35 +359,35 @@
 					label: detail.label || folder.label || '',
 					parentFolderId: folder.parentId || detail.folderId || '',
 					parentPath: folder.path || '',
-					sourceContainerId: folder.parentId ? getFolderContainerId(folder.parentId) : (containerTypes.DESKTOP || 'desktop'),
-					type: 'folder'
+					sourceContainerId: folder.parentId ? getFolderContainerId(folder.parentId) : containerTypes.DESKTOP,
+					type: clipboardItemTypes.FOLDER
 				});
 			}
 
-			if (type === targets.DOCUMENT || type === itemTypes.DOCUMENT || type === 'document') {
+			if (type === targets.DOCUMENT || type === itemTypes.DOCUMENT || type === clipboardItemTypes.DOCUMENT) {
 				return sanitizeItem({
 					id: detail.documentId || id,
 					label: detail.label,
 					parentFolderId: detail.folderId || '',
 					sourceContainerId: detail.folderId ? getFolderContainerId(detail.folderId) : '',
-					type: 'document'
+					type: clipboardItemTypes.DOCUMENT
 				});
 			}
 
-			if (type === targets.STICKY_NOTE || type === 'sticky-note') {
+			if (type === targets.STICKY_NOTE) {
 				const documentId = normalizeDocumentId(detail.documentId || id);
 				const snapshot = stickyNoteManager && typeof stickyNoteManager.getNoteSnapshot === 'function'
 					? stickyNoteManager.getNoteSnapshot(documentId)
 					: null;
 
 				return sanitizeItem({
-					documentKind: documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note',
+					documentKind: documentStore && documentStore.kinds ? documentStore.kinds.sticky : '',
 					id: documentId,
 					label: detail.label || (snapshot && snapshot.document ? snapshot.document.title : ''),
 					parentPath: snapshot && snapshot.document ? snapshot.document.parentPath : '',
-					source: 'sticky-note',
-					sourceContainerId: containerTypes.DESKTOP || 'desktop',
-					type: 'document'
+					source: stickyNoteSource,
+					sourceContainerId: containerTypes.DESKTOP,
+					type: clipboardItemTypes.DOCUMENT
 				});
 			}
 
@@ -376,11 +399,11 @@
 				? desktopIconManager.getSelectedIconDetails()
 				: [];
 			const items = selected.map((icon) => detailToItem({
-				folder: icon.kind === 'folder' ? getFolder(icon.id) : null,
+				folder: icon.kind === clipboardItemTypes.FOLDER ? getFolder(icon.id) : null,
 				id: icon.id,
-				kind: icon.context || (icon.kind === 'folder' ? targets.DESKTOP_FOLDER : targets.DESKTOP_APP),
+				kind: icon.context || (icon.kind === clipboardItemTypes.FOLDER ? targets.DESKTOP_FOLDER : targets.DESKTOP_APP),
 				label: icon.label,
-				type: icon.context || (icon.kind === 'folder' ? targets.DESKTOP_FOLDER : targets.DESKTOP_APP)
+				type: icon.context || (icon.kind === clipboardItemTypes.FOLDER ? targets.DESKTOP_FOLDER : targets.DESKTOP_APP)
 			})).filter(Boolean);
 
 			return items.length ? items : [detailToItem(detail)].filter(Boolean);
@@ -408,7 +431,7 @@
 			if (type === targets.STICKY_NOTE || detail.stickyNoteElement) {
 				return [detailToItem(Object.assign({}, detail, {
 					documentId: detail.documentId || detail.id,
-					type: targets.STICKY_NOTE || 'sticky-note'
+					type: targets.STICKY_NOTE
 				}))].filter(Boolean);
 			}
 
@@ -419,7 +442,7 @@
 			if (
 				[targets.FOLDER_CONTENT, targets.FOLDER_TOOLBAR, targets.FOLDER_TAB, targets.FOLDER_APP, targets.FOLDER, targets.DOCUMENT].includes(type)
 				|| detail.folderId
-				|| (detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.pdkWindowKind === 'folder')
+				|| (detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.pdkWindowKind === windowKinds.FOLDER)
 			) {
 				return getFolderSelectedItems(detail);
 			}
@@ -452,32 +475,32 @@
 					parentId: detail.id,
 					parentPath: getFolderPath(detail.id),
 					point: detail.contextPoint || null,
-					type: 'folder'
+					type: containerTypes.FOLDER
 				};
 			}
 
 			if (
 				[targets.FOLDER_CONTENT, targets.FOLDER_TOOLBAR, targets.FOLDER_TAB, targets.FOLDER_APP, targets.DOCUMENT].includes(type)
 				|| detail.folderId
-				|| (detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.pdkWindowKind === 'folder')
+				|| (detail.windowElement && detail.windowElement.dataset && detail.windowElement.dataset.pdkWindowKind === windowKinds.FOLDER)
 			) {
 				const folderId = getActiveFolderId(detail);
 
 				return {
 					folderId,
-					parentId: folderId || (containerTypes.DESKTOP || 'desktop'),
+					parentId: folderId || containerTypes.DESKTOP,
 					parentPath: getFolderPath(folderId),
 					point: detail.contextPoint || null,
-					type: 'folder'
+					type: containerTypes.FOLDER
 				};
 			}
 
 			return {
-				folderId: containerTypes.DESKTOP || 'desktop',
-				parentId: containerTypes.DESKTOP || 'desktop',
+				folderId: containerTypes.DESKTOP,
+				parentId: containerTypes.DESKTOP,
 				parentPath: getDesktopPath(),
 				point: detail.contextPoint || null,
-				type: 'desktop'
+				type: containerTypes.DESKTOP
 			};
 		}
 
@@ -486,11 +509,11 @@
 				return false;
 			}
 
-			if (item.type === 'folder') {
+			if (item.type === clipboardItemTypes.FOLDER) {
 				return Boolean(folderManager && typeof folderManager.isUserFolder === 'function' && folderManager.isUserFolder(item.id));
 			}
 
-			return item.type === 'app' || item.type === 'document';
+			return item.type === clipboardItemTypes.APP || item.type === clipboardItemTypes.DOCUMENT;
 		}
 
 		function canCopy(detail = {}) {
@@ -513,20 +536,20 @@
 				return false;
 			}
 
-			if (item.type === 'app') {
-				if (target.type === 'desktop') {
+			if (item.type === clipboardItemTypes.APP) {
+				if (target.type === containerTypes.DESKTOP) {
 					return operation === operations.CUT;
 				}
 
 				return Boolean(folderManager && folderManager.isUserFolder && folderManager.isUserFolder(target.folderId));
 			}
 
-			if (item.type === 'folder') {
+			if (item.type === clipboardItemTypes.FOLDER) {
 				return Boolean(folderManager && target.parentId);
 			}
 
-			if (item.type === 'document') {
-				return Boolean(target.parentPath || (target.type === 'desktop' && getDefaultStickyPath()));
+			if (item.type === clipboardItemTypes.DOCUMENT) {
+				return Boolean(target.parentPath || (target.type === containerTypes.DESKTOP && getDefaultStickyPath()));
 			}
 
 			return false;
@@ -559,7 +582,7 @@
 				return false;
 			}
 
-			if (target.type === 'desktop') {
+			if (target.type === containerTypes.DESKTOP) {
 				if (operation !== operations.CUT) {
 					return false;
 				}
@@ -601,7 +624,7 @@
 				return false;
 			}
 
-			return folderManager.moveFolderToParent(item.id, target.parentId || (containerTypes.DESKTOP || 'desktop'), {
+			return folderManager.moveFolderToParent(item.id, target.parentId || containerTypes.DESKTOP, {
 				point: target.point
 			});
 		}
@@ -626,7 +649,7 @@
 		async function duplicateFolderRecursive(folderId, targetParentId, options = {}) {
 			const source = getFolder(folderId);
 			const createOptions = {
-				parentId: targetParentId || (containerTypes.DESKTOP || 'desktop')
+				parentId: targetParentId || containerTypes.DESKTOP
 			};
 			const apps = folderManager && typeof folderManager.getFolderApps === 'function'
 				? folderManager.getFolderApps(folderId).slice()
@@ -662,12 +685,12 @@
 
 			emitFolderChange(targetParentId, {
 				id: copy.id,
-				type: 'folder'
+				type: clipboardItemTypes.FOLDER
 			});
-			if ((targetParentId || '') === (containerTypes.DESKTOP || 'desktop')) {
+			if ((targetParentId || '') === containerTypes.DESKTOP) {
 				emitDesktopChange({
 					id: copy.id,
-					type: 'folder'
+					type: clipboardItemTypes.FOLDER
 				});
 			}
 
@@ -679,7 +702,7 @@
 				return moveFolderToTarget(item, target);
 			}
 
-			return Boolean(await duplicateFolderRecursive(item.id, target.parentId || (containerTypes.DESKTOP || 'desktop'), {
+			return Boolean(await duplicateFolderRecursive(item.id, target.parentId || containerTypes.DESKTOP, {
 				point: target.point
 			}));
 		}
@@ -707,9 +730,9 @@
 
 		async function pasteDocument(item, target, operation) {
 			const documentData = await getDocument(item);
-			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note';
+			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
 			const isSticky = Boolean(documentData && documentData.kind === stickyKind);
-			const targetPath = target.type === 'desktop' && isSticky
+			const targetPath = target.type === containerTypes.DESKTOP && isSticky
 				? getDefaultStickyPath()
 				: target.parentPath;
 			let pasted = null;
@@ -727,16 +750,16 @@
 					parentPath: targetPath
 				});
 
-				if (item.source === 'sticky-note' && target.type !== 'desktop' && stickyNoteManager && typeof stickyNoteManager.removeRenderedNote === 'function') {
+				if (item.source === stickyNoteSource && target.type !== containerTypes.DESKTOP && stickyNoteManager && typeof stickyNoteManager.removeRenderedNote === 'function') {
 					stickyNoteManager.removeRenderedNote(item.id);
-				} else if (target.type === 'desktop' && isSticky) {
+				} else if (target.type === containerTypes.DESKTOP && isSticky) {
 					renderStickyDocument(pasted, target);
 				}
 
 				return true;
 			}
 
-			if (target.type === 'desktop' && isSticky && item.source === 'sticky-note' && stickyNoteManager && typeof stickyNoteManager.duplicateStickyNote === 'function') {
+			if (target.type === containerTypes.DESKTOP && isSticky && item.source === stickyNoteSource && stickyNoteManager && typeof stickyNoteManager.duplicateStickyNote === 'function') {
 				pasted = await stickyNoteManager.duplicateStickyNote(item.id, {
 					parentPath: targetPath
 				});
@@ -751,7 +774,7 @@
 				parentPath: targetPath
 			});
 
-			if (target.type === 'desktop' && isSticky) {
+			if (target.type === containerTypes.DESKTOP && isSticky) {
 				renderStickyDocument(pasted, target);
 			}
 
@@ -759,15 +782,15 @@
 		}
 
 		async function pasteItem(item, target, operation) {
-			if (item.type === 'app') {
+			if (item.type === clipboardItemTypes.APP) {
 				return addAppToTarget(item, target, operation);
 			}
 
-			if (item.type === 'folder') {
+			if (item.type === clipboardItemTypes.FOLDER) {
 				return pasteFolder(item, target, operation);
 			}
 
-			if (item.type === 'document') {
+			if (item.type === clipboardItemTypes.DOCUMENT) {
 				return pasteDocument(item, target, operation);
 			}
 
@@ -791,7 +814,7 @@
 				if (target.folderId) {
 					emitFolderChange(target.folderId);
 				}
-				if (target.type === 'desktop') {
+				if (target.type === containerTypes.DESKTOP) {
 					emitDesktopChange();
 				}
 			}

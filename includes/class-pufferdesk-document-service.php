@@ -33,6 +33,32 @@ final class PufferDesk_Document_Service {
 	}
 
 	/**
+	 * Shared document labels used by PHP services and runtime config.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_default_labels() {
+		return array(
+			/* translators: %s: Source document title. */
+			'copyNameFormat'   => __( '%s copy', 'pufferdesk-admin-desktop' ),
+			'stickyNote'       => __( 'Sticky Note', 'pufferdesk-admin-desktop' ),
+			'untitledDocument' => __( 'Untitled Document', 'pufferdesk-admin-desktop' ),
+		);
+	}
+
+	/**
+	 * Get a shared document label.
+	 *
+	 * @param string $key Label key.
+	 * @return string
+	 */
+	public static function get_default_label( $key ) {
+		$labels = self::get_default_labels();
+
+		return isset( $labels[ $key ] ) ? $labels[ $key ] : $key;
+	}
+
+	/**
 	 * Whether the current user can use native document features.
 	 *
 	 * @return bool
@@ -56,7 +82,7 @@ final class PufferDesk_Document_Service {
 		$kind    = $this->normalize_kind( isset( $args['kind'] ) ? $args['kind'] : self::KIND_TEXT );
 		$content = $this->sanitize_content( isset( $args['content'] ) ? $args['content'] : '' );
 		$title   = $this->sanitize_title( isset( $args['title'] ) ? $args['title'] : '' );
-		$title   = $title ? $title : $this->derive_title( $content, self::KIND_STICKY === $kind ? __( 'Sticky Note', 'pufferdesk-admin-desktop' ) : __( 'Untitled Document', 'pufferdesk-admin-desktop' ) );
+		$title   = $title ? $title : $this->derive_title( $content, self::KIND_STICKY === $kind ? self::get_default_label( 'stickyNote' ) : self::get_default_label( 'untitledDocument' ) );
 		$parent_path = $this->normalize_parent_path( isset( $args['parentPath'] ) ? $args['parentPath'] : '', $kind );
 
 		$post_id = wp_insert_post(
@@ -165,7 +191,7 @@ final class PufferDesk_Document_Service {
 				$updates['post_title'] = $title;
 			}
 		} elseif ( self::KIND_STICKY === $kind && array_key_exists( 'content', $args ) ) {
-			$updates['post_title'] = $this->derive_title( $updates['post_content'], __( 'Sticky Note', 'pufferdesk-admin-desktop' ) );
+			$updates['post_title'] = $this->derive_title( $updates['post_content'], self::get_default_label( 'stickyNote' ) );
 		}
 
 		if ( count( $updates ) > 1 ) {
@@ -436,12 +462,11 @@ final class PufferDesk_Document_Service {
 	 */
 	private function get_copy_title( $title ) {
 		$title = $this->sanitize_title( $title );
-		$title = '' !== $title ? $title : __( 'Untitled Document', 'pufferdesk-admin-desktop' );
+		$title = '' !== $title ? $title : self::get_default_label( 'untitledDocument' );
 
 		return sanitize_text_field(
 			sprintf(
-				/* translators: %s: Source document title. */
-				__( '%s copy', 'pufferdesk-admin-desktop' ),
+				self::get_default_label( 'copyNameFormat' ),
 				$title
 			)
 		);

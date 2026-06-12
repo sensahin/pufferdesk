@@ -25,11 +25,7 @@
 		const menuBar = window.PufferDesk.menuBar;
 		const wallpaper = window.PufferDesk.wallpaper;
 		const config = context.config || window.PufferDesk.config.get();
-		const wallpaperTypes = window.PufferDesk.config.getContractMap('wallpaperTypes', {
-			COLOR: 'color',
-			THEME: 'theme',
-			UPLOAD: 'upload'
-		});
+		const wallpaperTypes = window.PufferDesk.config.getContractMap('wallpaperTypes');
 		const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
 		const capabilities = settingsConfig.capabilities && typeof settingsConfig.capabilities === 'object'
 			? settingsConfig.capabilities
@@ -276,7 +272,7 @@
 				return family;
 			}
 
-			return `${family} · ${version}`;
+			return settingsLabels.format(t('appearance.themeVersionFormat'), [family, version]);
 		}
 
 		function getWallpaperPreference() {

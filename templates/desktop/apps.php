@@ -9,6 +9,7 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * @var array<int,array<string,mixed>>  $apps
+ * @var array<string,string>            $labels
  * @var array<string,mixed>             $theme
  * @var array<string,mixed>             $workspace_state
  */
@@ -18,6 +19,7 @@ if ( empty( $apps ) ) {
 }
 
 $pufferdesk_workspace_state      = isset( $workspace_state ) && is_array( $workspace_state ) ? $workspace_state : array();
+$pufferdesk_labels               = isset( $labels ) && is_array( $labels ) ? $labels : PufferDesk_Runtime_Config::get_shell_template_labels( isset( $theme ) && is_array( $theme ) ? $theme : array() );
 $pufferdesk_apps_layer_restored  = PufferDesk_Desktop_Layout::layer_has_saved_icon_positions( $apps, $pufferdesk_workspace_state, 'app' );
 $pufferdesk_apps_layer_class     = 'pdk-desktop-apps pdk-desktop-icon-layer';
 $pufferdesk_apps_layer_class    .= $pufferdesk_apps_layer_restored ? ' is-managed' : '';
@@ -38,7 +40,7 @@ if ( ! empty( $pufferdesk_workspace_state[ PufferDesk_Workspace_State::SECTION_D
 	}
 }
 ?>
-<section class="<?php echo esc_attr( $pufferdesk_apps_layer_class ); ?>" aria-label="<?php esc_attr_e( 'Desktop apps', 'pufferdesk-admin-desktop' ); ?>">
+<section class="<?php echo esc_attr( $pufferdesk_apps_layer_class ); ?>" aria-label="<?php echo esc_attr( isset( $pufferdesk_labels['desktop_apps'] ) ? $pufferdesk_labels['desktop_apps'] : 'desktop_apps' ); ?>">
 	<?php foreach ( $apps as $pufferdesk_app ) : ?>
 		<?php
 		$pufferdesk_app_id                 = isset( $pufferdesk_app['id'] ) ? (string) $pufferdesk_app['id'] : '';

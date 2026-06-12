@@ -16,7 +16,7 @@
 			? config.contracts.appDescriptors
 			: {};
 		const appKinds = descriptorContract.kinds || {};
-		const nativeAppKind = appKinds.NATIVE || 'native';
+		const nativeAppKind = appKinds.NATIVE;
 		const onOpen = typeof options.onOpen === 'function' ? options.onOpen : () => {};
 		const resolveWindowOptions = typeof options.resolveWindowOptions === 'function'
 			? options.resolveWindowOptions

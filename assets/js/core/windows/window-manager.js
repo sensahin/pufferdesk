@@ -96,7 +96,7 @@
 				appId: win && win.dataset ? win.dataset.pdkAppWindow || '' : '',
 				folderId,
 				hidden: Boolean(win && win.classList.contains('is-hidden')),
-				kind: win && win.dataset ? win.dataset.pdkWindowKind || (win.dataset.pdkAppWindow ? windowKinds.APP || 'app' : windowKinds.WINDOW || 'window') : '',
+				kind: win && win.dataset ? win.dataset.pdkWindowKind || (win.dataset.pdkAppWindow ? windowKinds.APP : windowKinds.WINDOW) : '',
 				maximized: Boolean(win && win.classList.contains('is-maximized')),
 				restoring: restoreInProgress,
 				state,
@@ -319,7 +319,7 @@
 				appId: win.dataset.pdkAppWindow || '',
 				folderId,
 				id,
-				kind: win.dataset.pdkWindowKind || (win.dataset.pdkAppWindow ? windowKinds.APP || 'app' : windowKinds.WINDOW || 'window'),
+				kind: win.dataset.pdkWindowKind || (win.dataset.pdkAppWindow ? windowKinds.APP : windowKinds.WINDOW),
 				menu: win.pdkMenu || null,
 				title: win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || '',
 				toolbarDisplay: win.dataset.pdkFolderToolbarDisplay || '',
@@ -623,7 +623,7 @@
 					return;
 				}
 
-				if (item.kind === (windowKinds.FOLDER || 'folder')) {
+				if (item.kind === windowKinds.FOLDER) {
 					if (item.folderId && resolver && typeof resolver.openFolder === 'function') {
 						resolver.openFolder(item.folderId, {
 							activeTabId: item.activeTabId || '',
@@ -637,7 +637,7 @@
 					return;
 				}
 
-				if (item.kind !== (windowKinds.APP || 'app') || !item.appId) {
+				if (item.kind !== windowKinds.APP || !item.appId) {
 					return;
 				}
 

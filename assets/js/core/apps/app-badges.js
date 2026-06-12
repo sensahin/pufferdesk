@@ -48,11 +48,25 @@
 		};
 	}
 
+	function formatLabel(key, fallback, values = []) {
+		if (window.PufferDesk.config && typeof window.PufferDesk.config.formatLabel === 'function') {
+			return window.PufferDesk.config.formatLabel(key, fallback, values);
+		}
+
+		let valueIndex = 0;
+		return String(fallback || '').replace(/%(\d+)\$[sd]/g, (match, position) => {
+			const index = Number(position) - 1;
+			return String(values[index] ?? '');
+		}).replace(/%d|%s/g, () => String(values[valueIndex++] ?? ''));
+	}
+
 	function getAriaLabel(label, source) {
 		const badge = normalize(source);
 		const appLabel = label || '';
 
-		return badge && badge.ariaLabel ? `${appLabel}, ${badge.ariaLabel}` : appLabel;
+		return badge && badge.ariaLabel
+			? formatLabel('app_badge_aria_label_format', '', [appLabel, badge.ariaLabel])
+			: appLabel;
 	}
 
 	function createElement(source) {

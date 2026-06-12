@@ -8,12 +8,7 @@
 		loginItems: window.PufferDesk.config.getSettingAction('APP_LOGIN_ITEMS'),
 		locations: window.PufferDesk.config.getSettingAction('APP_LOCATIONS')
 	};
-	const appLocations = window.PufferDesk.config.getContractMap('appLocations', {
-		DOCK: 'dock',
-		DESKTOP: 'desktop',
-		BOTH: 'both',
-		HIDDEN: 'hidden'
-	});
+	const appLocations = window.PufferDesk.config.getContractMap('appLocations');
 
 	window.PufferDesk.apps.createAppPreferenceStore = function createAppPreferenceStore(config = {}, options = {}) {
 		const api = options.api || (window.PufferDesk.services ? window.PufferDesk.services.api : null);

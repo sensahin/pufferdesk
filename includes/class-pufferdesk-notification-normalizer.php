@@ -191,7 +191,7 @@ final class PufferDesk_Notification_Normalizer {
 				return __( 'Apps', 'pufferdesk-admin-desktop' );
 			case PufferDesk_User_Preferences::NOTIFICATION_SOURCE_PUFFERDESK:
 			default:
-				return __( 'PufferDesk', 'pufferdesk-admin-desktop' );
+				return PufferDesk_Product_Labels::name();
 		}
 	}
 

@@ -36,7 +36,7 @@
 		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.windowKinds || {}
 			: {};
-		const folderWindowKind = windowKinds.FOLDER || 'folder';
+		const folderWindowKind = windowKinds.FOLDER;
 		const dragDropConstants = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.constants ? window.PufferDesk.dragDrop.constants : {};
 		const containerTypes = dragDropConstants.containerTypes || {};
 		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
@@ -62,7 +62,7 @@
 		const folderViewModes = window.PufferDesk.apps && window.PufferDesk.apps.folderViewModes
 			? window.PufferDesk.apps.folderViewModes
 			: null;
-		let activeDetail = { kind: contextTargets.DESKTOP || 'desktop' };
+		let activeDetail = { kind: contextTargets.DESKTOP };
 
 		function getLabel(key, fallback) {
 			const value = labels[key];
@@ -328,7 +328,7 @@
 		}
 
 		function setActiveDetail(detail = {}) {
-			activeDetail = detail && typeof detail === 'object' ? detail : { kind: 'desktop' };
+			activeDetail = detail && typeof detail === 'object' ? detail : { kind: contextTargets.DESKTOP };
 		}
 
 		function refreshActiveMenu(detail = activeDetail) {
@@ -1085,7 +1085,7 @@
 				} else if (dialogs && typeof dialogs.confirm === 'function') {
 					confirmed = await dialogs.confirm(actionConfig);
 				} else {
-					confirmed = window.confirm('Empty Trash?');
+					confirmed = window.confirm(getLabel('empty_trash_confirmation'));
 				}
 
 				if (confirmed) {
@@ -1258,7 +1258,7 @@
 				);
 			},
 			run() {
-				const title = getLabel('keyboard_shortcuts', 'Keyboard Shortcuts');
+				const title = getLabel('keyboard_shortcuts');
 				const modalWidth = Math.max(480, Math.min(640, window.innerWidth - 280));
 				const modalHeight = Math.max(420, Math.min(500, window.innerHeight - 220));
 

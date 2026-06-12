@@ -150,7 +150,7 @@
 			} catch (error) {
 				const normalizedError = {
 					code: 'move-exception',
-					message: error && error.message ? error.message : 'The move could not be completed.',
+					message: error && error.message ? error.message : messages.MOVE_EXCEPTION,
 					move,
 					valid: false
 				};

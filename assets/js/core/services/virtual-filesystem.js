@@ -45,6 +45,9 @@
 		const defaultPaths = filesystemConfig.defaultPaths && typeof filesystemConfig.defaultPaths === 'object'
 			? filesystemConfig.defaultPaths
 			: {};
+		const folderIds = filesystemConfig.folderIds && typeof filesystemConfig.folderIds === 'object'
+			? filesystemConfig.folderIds
+			: {};
 		const display = filesystemConfig.display && typeof filesystemConfig.display === 'object'
 			? filesystemConfig.display
 			: {};
@@ -92,6 +95,12 @@
 			return getFolderIdForPath(getDefaultPathForKind(kind));
 		}
 
+		function getFolderId(key) {
+			const value = folderIds[String(key || '')];
+
+			return typeof value === 'string' ? value : '';
+		}
+
 		function getDisplay(folderId) {
 			const id = String(folderId || '');
 
@@ -131,6 +140,7 @@
 			getDefaultPathForKind,
 			getDisplayPath,
 			getFolder,
+			getFolderId,
 			getFolderIdForPath,
 			getFolders,
 			getLabel,

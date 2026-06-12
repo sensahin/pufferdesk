@@ -4,6 +4,9 @@
 	window.PufferDesk = window.PufferDesk || {};
 	window.PufferDesk.apps = window.PufferDesk.apps || {};
 
+	const shortcutContexts = window.PufferDesk.shell && window.PufferDesk.shell.shortcutContexts
+		? window.PufferDesk.shell.shortcutContexts
+		: {};
 	const contextOrder = [
 		'global',
 		'desktop',
@@ -16,17 +19,17 @@
 		'search',
 		'other'
 	];
-	const contextLabels = {
-		dialogs: 'Dialogs',
-		desktop: 'Desktop',
-		'desktop-folders': 'Desktop & Folders',
-		'folder-tabs': 'Folder Tabs',
-		folders: 'Folders',
-		global: 'Global',
-		other: 'Other',
-		search: 'Search',
-		'text-editing': 'Text Editing',
-		windows: 'Windows'
+	const contextLabelKeys = {
+		dialogs: 'keyboard_shortcuts_dialogs',
+		desktop: 'keyboard_shortcuts_desktop',
+		'desktop-folders': 'keyboard_shortcuts_desktop_folders',
+		'folder-tabs': 'keyboard_shortcuts_folder_tabs',
+		folders: 'keyboard_shortcuts_folders',
+		global: 'keyboard_shortcuts_global',
+		other: 'keyboard_shortcuts_other',
+		search: 'keyboard_shortcuts_search',
+		'text-editing': 'keyboard_shortcuts_text_editing',
+		windows: 'keyboard_shortcuts_windows'
 	};
 
 	function getLabels(config = {}) {
@@ -39,6 +42,10 @@
 		const value = labels[key];
 
 		return typeof value === 'string' && value ? value : fallback;
+	}
+
+	function getContextLabel(labels, groupId) {
+		return getLabel(labels, contextLabelKeys[groupId] || '', groupId);
 	}
 
 	function getShortcutController() {
@@ -120,39 +127,39 @@
 	function getGroupId(item) {
 		const contexts = new Set(item.contexts || []);
 
-		if (contexts.has('input-focused')) {
+		if (contexts.has(shortcutContexts.INPUT_FOCUSED)) {
 			return 'text-editing';
 		}
 
-		if (contexts.has('command-palette')) {
+		if (contexts.has(shortcutContexts.COMMAND_PALETTE)) {
 			return 'search';
 		}
 
-		if (contexts.has('folder-tab')) {
+		if (contexts.has(shortcutContexts.FOLDER_TAB)) {
 			return 'folder-tabs';
 		}
 
-		if (contexts.has('folder') && contexts.has('desktop')) {
+		if (contexts.has(shortcutContexts.FOLDER) && contexts.has(shortcutContexts.DESKTOP)) {
 			return 'desktop-folders';
 		}
 
-		if (contexts.has('folder')) {
+		if (contexts.has(shortcutContexts.FOLDER)) {
 			return 'folders';
 		}
 
-		if (contexts.has('window')) {
+		if (contexts.has(shortcutContexts.WINDOW)) {
 			return 'windows';
 		}
 
-		if (contexts.has('desktop')) {
+		if (contexts.has(shortcutContexts.DESKTOP)) {
 			return 'desktop';
 		}
 
-		if (contexts.has('modal')) {
+		if (contexts.has(shortcutContexts.MODAL)) {
 			return 'dialogs';
 		}
 
-		return contexts.has('global') ? 'global' : 'other';
+		return contexts.has(shortcutContexts.GLOBAL) ? 'global' : 'other';
 	}
 
 	function groupShortcuts(items) {
@@ -287,11 +294,11 @@
 		header.className = 'pdk-keyboard-shortcuts-header';
 		header.dataset.pdkDragHandle = '1';
 		title.className = 'pdk-keyboard-shortcuts-title';
-		title.textContent = getLabel(labels, 'keyboard_shortcuts_title', 'Keyboard shortcuts');
+		title.textContent = getLabel(labels, 'keyboard_shortcuts_title', 'keyboard_shortcuts_title');
 
 		closeButton.className = 'pdk-keyboard-shortcuts-close';
 		closeButton.type = 'button';
-		closeButton.setAttribute('aria-label', getLabel(labels, 'window_close', 'Close'));
+		closeButton.setAttribute('aria-label', getLabel(labels, 'window_close', 'window_close'));
 		closeButton.textContent = '×';
 		closeButton.addEventListener('click', () => closeParentWindow(root));
 
@@ -300,13 +307,13 @@
 		search.type = 'search';
 		search.autocomplete = 'off';
 		search.spellcheck = false;
-		search.placeholder = getLabel(labels, 'keyboard_shortcuts_search_placeholder', 'Search shortcuts');
+		search.placeholder = getLabel(labels, 'keyboard_shortcuts_search_placeholder', 'keyboard_shortcuts_search_placeholder');
 		search.setAttribute('aria-label', search.placeholder);
 
 		clearSearchButton.className = 'pdk-keyboard-shortcuts-search-clear';
 		clearSearchButton.type = 'button';
 		clearSearchButton.hidden = true;
-		clearSearchButton.setAttribute('aria-label', getLabel(labels, 'keyboard_shortcuts_clear_search', 'Clear search'));
+		clearSearchButton.setAttribute('aria-label', getLabel(labels, 'keyboard_shortcuts_clear_search', 'keyboard_shortcuts_clear_search'));
 		clearSearchButton.textContent = '×';
 		clearSearchButton.addEventListener('click', () => {
 			search.value = '';
@@ -318,7 +325,7 @@
 
 		list.className = 'pdk-keyboard-shortcuts-list';
 		empty.className = 'pdk-keyboard-shortcuts-empty';
-		empty.textContent = getLabel(labels, 'keyboard_shortcuts_no_results', 'No shortcuts found.');
+		empty.textContent = getLabel(labels, 'keyboard_shortcuts_no_results', 'keyboard_shortcuts_no_results');
 
 		function render() {
 			const groups = groupShortcuts(shortcuts);
@@ -326,7 +333,7 @@
 
 			list.replaceChildren();
 			contextOrder.forEach((groupId) => {
-				const groupLabel = getLabel(labels, `keyboard_shortcuts_${groupId.replace(/-/g, '_')}`, contextLabels[groupId] || contextLabels.other);
+				const groupLabel = getContextLabel(labels, groupId);
 				const rows = (groups.get(groupId) || []).filter((item) => matchesQuery(item, groupLabel, query));
 
 				if (!rows.length) {

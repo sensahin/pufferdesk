@@ -63,27 +63,45 @@ final class PufferDesk_Notification_Registry {
 			),
 			'sourceIds'   => PufferDesk_User_Preferences::notification_source_ids(),
 			'items'       => $notifications,
-			'labels'      => array(
-				'buttonLabel'     => __( 'Notifications', 'pufferdesk-admin-desktop' ),
-				'centerTitle'     => __( 'Notification Center', 'pufferdesk-admin-desktop' ),
-				'close'           => __( 'Close', 'pufferdesk-admin-desktop' ),
-				'dismiss'         => __( 'Dismiss', 'pufferdesk-admin-desktop' ),
-				'empty'           => __( 'No notifications', 'pufferdesk-admin-desktop' ),
-				'markAllRead'     => __( 'Mark All as Read', 'pufferdesk-admin-desktop' ),
-				'markRead'        => __( 'Mark as Read', 'pufferdesk-admin-desktop' ),
-				'newNotification' => __( 'New notification', 'pufferdesk-admin-desktop' ),
-				'open'            => __( 'Open Notifications', 'pufferdesk-admin-desktop' ),
-				'pufferdeskSource' => __( 'PufferDesk', 'pufferdesk-admin-desktop' ),
-				'commandFailedMessage' => __( 'The command could not be completed.', 'pufferdesk-admin-desktop' ),
-				'commandFailedTitle' => __( 'PufferDesk command failed.', 'pufferdesk-admin-desktop' ),
-				'refresh'         => __( 'Refresh', 'pufferdesk-admin-desktop' ),
-				'refreshFailedTitle' => __( 'Notifications could not be updated.', 'pufferdesk-admin-desktop' ),
-				'runtimeActionFailedTitle' => __( 'A PufferDesk action failed.', 'pufferdesk-admin-desktop' ),
-				'runtimeErrorFallback' => __( 'Unexpected runtime error.', 'pufferdesk-admin-desktop' ),
-				'serviceUnavailable' => __( 'Notification service unavailable.', 'pufferdesk-admin-desktop' ),
-			),
+			'labels'      => self::get_default_labels(),
 			'preferences' => $preferences,
 			'unreadCount' => $this->count_unread( $notifications ),
+		);
+	}
+
+	/**
+	 * Shared notification UI labels.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_default_labels() {
+		$window_chrome = PufferDesk_Window_Chrome_Contracts::default_config();
+		$close_label   = isset( $window_chrome['controls']['labels'][ PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ] )
+			? $window_chrome['controls']['labels'][ PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE ]
+			: PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE;
+
+		return array(
+			'buttonLabel'     => __( 'Notifications', 'pufferdesk-admin-desktop' ),
+			'centerTitle'     => __( 'Notification Center', 'pufferdesk-admin-desktop' ),
+			'close'           => $close_label,
+			'closePanel'      => __( 'Close notifications', 'pufferdesk-admin-desktop' ),
+			'dismiss'         => __( 'Dismiss', 'pufferdesk-admin-desktop' ),
+			'empty'           => __( 'No notifications', 'pufferdesk-admin-desktop' ),
+			'markAllRead'     => __( 'Mark All as Read', 'pufferdesk-admin-desktop' ),
+			'markRead'        => __( 'Mark as Read', 'pufferdesk-admin-desktop' ),
+			'newNotification' => __( 'New notification', 'pufferdesk-admin-desktop' ),
+			'open'            => __( 'Open Notifications', 'pufferdesk-admin-desktop' ),
+			/* translators: 1: notification button label, 2: unread count. */
+			'openCount'       => __( '%1$s, %2$d', 'pufferdesk-admin-desktop' ),
+			'pufferdeskSource' => PufferDesk_Product_Labels::name(),
+			'commandFailedMessage' => __( 'The command could not be completed.', 'pufferdesk-admin-desktop' ),
+			'commandFailedTitle' => __( 'PufferDesk command failed.', 'pufferdesk-admin-desktop' ),
+			'refresh'         => __( 'Refresh', 'pufferdesk-admin-desktop' ),
+			'refreshPanel'    => __( 'Refresh notifications', 'pufferdesk-admin-desktop' ),
+			'refreshFailedTitle' => __( 'Notifications could not be updated.', 'pufferdesk-admin-desktop' ),
+			'runtimeActionFailedTitle' => __( 'A PufferDesk action failed.', 'pufferdesk-admin-desktop' ),
+			'runtimeErrorFallback' => __( 'Unexpected runtime error.', 'pufferdesk-admin-desktop' ),
+			'serviceUnavailable' => __( 'Notification service unavailable.', 'pufferdesk-admin-desktop' ),
 		);
 	}
 

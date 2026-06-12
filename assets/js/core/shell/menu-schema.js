@@ -12,10 +12,10 @@
 		: {};
 	const standardGroupIds = Array.isArray(menuGroupsContract.standard) && menuGroupsContract.standard.length
 		? menuGroupsContract.standard
-		: ['app', 'file', 'edit', 'view', 'go', 'window', 'help'];
+		: [];
 	const recognizedGroupIds = Array.isArray(menuGroupsContract.recognized) && menuGroupsContract.recognized.length
 		? menuGroupsContract.recognized
-		: [menuGroupIds.SITE || 'site'].concat(standardGroupIds);
+		: [menuGroupIds.SITE].concat(standardGroupIds).filter(Boolean);
 
 	window.PufferDesk.shell.createMenuSchema = function createMenuSchema(labels = {}) {
 		function getLabel(key, fallback) {
@@ -23,7 +23,7 @@
 		}
 
 		function getDefaultGroupLabel(id, context = {}) {
-			if (id === (menuGroupIds.APP || 'app')) {
+			if (id === menuGroupIds.APP) {
 				return context.appLabel || context.title || getLabel('admin');
 			}
 
@@ -201,7 +201,7 @@
 
 		function getDefaultDefinition(context = {}) {
 			const groups = standardGroupIds
-				.filter((id) => id !== (menuGroupIds.GO || 'go') || context.includeGo)
+				.filter((id) => id !== menuGroupIds.GO || context.includeGo)
 				.map((id) => ({
 					id,
 					items: [],

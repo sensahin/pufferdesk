@@ -32,8 +32,8 @@ final class PufferDesk_Document_Post_Type {
 			self::POST_TYPE,
 			array(
 				'labels'              => array(
-					'name'          => __( 'PufferDesk Documents', 'pufferdesk-admin-desktop' ),
-					'singular_name' => __( 'PufferDesk Document', 'pufferdesk-admin-desktop' ),
+					'name'          => PufferDesk_Product_Labels::documents_name(),
+					'singular_name' => PufferDesk_Product_Labels::document_name(),
 				),
 				'capability_type'     => 'post',
 				'delete_with_user'    => true,

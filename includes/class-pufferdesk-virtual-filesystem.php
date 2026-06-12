@@ -22,6 +22,22 @@ final class PufferDesk_Virtual_Filesystem {
 	const KIND_TEXT_DOCUMENT = 'text_document';
 
 	/**
+	 * Stable virtual folder IDs exposed to browser runtime.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_folder_ids() {
+		return array(
+			'HOME'      => self::FOLDER_HOME,
+			'DESKTOP'   => self::FOLDER_DESKTOP,
+			'DOCUMENTS' => self::FOLDER_DOCUMENTS,
+			'NOTES'     => self::FOLDER_NOTES,
+			'STICKIES'  => self::FOLDER_STICKIES,
+			'TRASH'     => self::FOLDER_TRASH,
+		);
+	}
+
+	/**
 	 * Return system folder descriptors for the current site/user.
 	 *
 	 * @param array<string,mixed> $theme Current theme.
@@ -147,6 +163,7 @@ final class PufferDesk_Virtual_Filesystem {
 			'scheme'       => self::SCHEME,
 			'siteId'       => get_current_blog_id(),
 			'userId'       => $user_id,
+			'folderIds'    => self::get_folder_ids(),
 			'folders'      => $folders,
 			'defaultPaths' => array(
 				self::KIND_STICKY_NOTE   => $paths[ self::FOLDER_STICKIES ],

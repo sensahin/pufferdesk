@@ -117,7 +117,7 @@
 
 		function normalizeDocumentItem(documentData) {
 			const documentId = Number.parseInt(documentData && documentData.id, 10);
-			const isSticky = documentData && documentData.kind === (documentStore && documentStore.kinds ? documentStore.kinds.sticky : 'sticky_note');
+			const isSticky = documentData && documentData.kind === (documentStore && documentStore.kinds ? documentStore.kinds.sticky : '');
 			const icon = isSticky
 				? { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' }
 				: { type: 'theme', name: 'text-editor.svg', fallback: 'dashicons-media-document' };
@@ -243,13 +243,15 @@
 					type: 'document',
 					url: ''
 				}))),
-				kind: 'Folder',
-				label: folder.label || 'Folder',
+				kind: getMenuLabel('folder'),
+				label: folder.label || getMenuLabel('folder'),
 				lastOpenedAt: '',
 				modifiedAt: '',
-				source: 'WordPress admin group',
+				source: getMenuLabel('wordpress_admin_group_source'),
 				user: false,
-				where: virtualFilesystem && typeof virtualFilesystem.getWhereLabel === 'function' ? virtualFilesystem.getWhereLabel(folder.id) : `WordPress Admin Menu > ${folder.label || 'Folder'}`
+				where: virtualFilesystem && typeof virtualFilesystem.getWhereLabel === 'function'
+					? virtualFilesystem.getWhereLabel(folder.id)
+					: getMenuLabel('wordpress_admin_menu_format').replace('%s', folder.label || getMenuLabel('folder'))
 			} : null);
 		}
 

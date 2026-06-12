@@ -23,7 +23,7 @@
 		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.windowKinds || {}
 			: {};
-		const folderWindowKind = windowKinds.FOLDER || 'folder';
+		const folderWindowKind = windowKinds.FOLDER;
 
 		function toElement(target) {
 			if (!target) {

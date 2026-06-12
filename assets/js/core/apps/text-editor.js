@@ -10,6 +10,13 @@
 		return documents.labels && typeof documents.labels === 'object' ? documents.labels : {};
 	}
 
+	function getAppLabel(config = {}, appId = '') {
+		const apps = Array.isArray(config.apps) ? config.apps : [];
+		const app = apps.find((candidate) => candidate && candidate.id === appId);
+
+		return app && typeof app.label === 'string' ? app.label : '';
+	}
+
 	function createButton(className, label, text) {
 		const button = document.createElement('button');
 		button.className = className;
@@ -101,7 +108,7 @@
 		}
 
 		function getTextKind() {
-			return documentStore && documentStore.kinds ? documentStore.kinds.text : 'text_document';
+			return documentStore && documentStore.kinds ? documentStore.kinds.text : '';
 		}
 
 		function setStatus(message, tone = '') {
@@ -303,7 +310,8 @@
 		window.PufferDesk.apps.registerNativeAppRenderer(nativeIds.TEXT_EDITOR, (context = {}) => {
 			const config = context.config || {};
 			const labels = getLabels(config);
-			const title = typeof labels.textEditor === 'string' && labels.textEditor ? labels.textEditor : 'Text Editor';
+			const appIds = window.PufferDesk.apps.ids || {};
+			const title = getAppLabel(config, appIds.TEXT_EDITOR) || (typeof labels.textEditor === 'string' && labels.textEditor ? labels.textEditor : 'textEditor');
 
 			return {
 				bodyClass: 'pdk-window-body pdk-document-editor-body',

@@ -57,6 +57,7 @@ Root:
 PHP services in `includes/`:
 
 - `class-pufferdesk-plugin.php`: minimal service composition and controller hook delegation.
+- `class-pufferdesk-product-labels.php`: shared product identity and fallback admin labels.
 - `class-pufferdesk-path-normalizer.php`: shared relative template/media/asset path normalization.
 - `class-pufferdesk-admin-controller.php`: admin page and admin bar hook registration.
 - `class-pufferdesk-router.php`: mode toggles, shell URL, iframe/classic routing.
@@ -157,6 +158,7 @@ JavaScript:
 - `assets/js/core/apps/settings/mutations.js`: shared Settings AJAX mutation/status helper.
 - `assets/js/core/shell/`: search, menu bar clock, command registry, top menus, the central context-menu platform, global shell controls.
 - `assets/js/core/shell/shortcuts.js`: central shortcut manager, registry, resolver, conflict checker, platform formatter, and future custom shortcut settings layer.
+- `assets/js/core/shell/shortcut-contexts.js`: shared shortcut context IDs used by shortcut registration, menu shortcut descriptors, and Keyboard Shortcuts Help grouping.
 - `assets/js/core/shell/context-menu-constants.js`: browser accessor for PHP-provided context-menu target, area, item-type, and context-key contracts.
 
 Media:
@@ -202,7 +204,7 @@ Menus:
 - Each group should define `id`, `label`, and `items`; supported group IDs are `site`, `app`, `file`, `edit`, `view`, `go`, `window`, and `help`.
 - Menu group IDs are owned by `PufferDesk_App_Menu_Normalizer`, exposed through `runtime.contracts.menuGroups`, and consumed by `assets/js/core/shell/menu-schema.js`; do not repeat group IDs in browser menu logic when a contract value exists.
 - Menu command items should define `label` plus optional `command`, `target`, `url`, `title`, `icon`, `shortcut`, `payload`, and `disabled`.
-- `shortcut` is executable data, not decorative text. Use a structured descriptor with `combo` or `keys`, symbolic modifiers such as `primary` and `secondary`, `contexts`, optional `allowInTextFields`, and `preventDefault`. `primary` resolves to Cmd on macOS and Ctrl on Windows/Linux; `secondary` resolves to Option/Alt. The keyboard engine lives in `assets/js/core/shell/shortcuts.js` and is documented in `docs/shortcut-platform.md`.
+- `shortcut` is executable data, not decorative text. Use a structured descriptor with `combo` or `keys`, symbolic modifiers such as `primary` and `secondary`, `contexts`, optional `allowInTextFields`, and `preventDefault`. `primary` resolves to Cmd on macOS and Ctrl on Windows/Linux; `secondary` resolves to Option/Alt. Shared context IDs live in `assets/js/core/shell/shortcut-contexts.js`; the keyboard engine lives in `assets/js/core/shell/shortcuts.js` and is documented in `docs/shortcut-platform.md`.
 - Commands are registered in `assets/js/core/shell/commands.js`; schema normalization is in `assets/js/core/shell/menu-schema.js`; shared menu item rendering is in `assets/js/core/shell/menu-renderer.js`; top menu rendering is in `assets/js/core/shell/menu.js`.
 - Context menus are registered and rendered through the central platform documented in `docs/context-menu-platform.md`. Core modules include `assets/js/core/shell/context-menu.js`, `context-menu-resolver.js`, `context-menu-permissions.js`, `context-menu-positioner.js`, `context-menu-keyboard.js`, and `context-menu-theme-adapter.js`. Context targets should use stable `data-pdk-context` and `data-pdk-context-id` attributes rather than one-off event handlers.
 - Context target IDs, context keys, areas, target types, and item types are owned by `PufferDesk_Context_Menu_Contracts`, exposed through `runtime.contracts.contextMenu`, and consumed by `assets/js/core/shell/context-menu-constants.js`. Do not repeat context target strings in templates or JavaScript when a contract value exists.

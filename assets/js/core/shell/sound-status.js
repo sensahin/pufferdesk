@@ -221,7 +221,7 @@
 
 			button.type = 'button';
 			button.className = 'pdk-sound-status-button';
-			button.dataset.pdkContext = contextTargets.SOUND_STATUS || 'sound-status';
+			button.dataset.pdkContext = contextTargets.SOUND_STATUS;
 			button.dataset.pdkContextId = 'sound';
 			button.dataset.pdkContextLabel = t('title');
 			button.setAttribute('aria-haspopup', 'dialog');

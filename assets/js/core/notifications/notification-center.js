@@ -32,6 +32,15 @@
 			return typeof labels[key] === 'string' && labels[key] ? labels[key] : key;
 		}
 
+		function formatLabel(key, fallback, values = []) {
+			if (window.PufferDesk.config && typeof window.PufferDesk.config.formatFromLabels === 'function') {
+				return window.PufferDesk.config.formatFromLabels(labels, key, fallback || key, values);
+			}
+
+			let index = 0;
+			return String(t(key) || fallback || '').replace(/%d|%s/g, () => String(values[index++] ?? ''));
+		}
+
 		function formatTime(timestamp) {
 			const date = new Date((Number.parseInt(timestamp, 10) || 0) * 1000);
 			if (!Number.isFinite(date.getTime())) {
@@ -165,7 +174,7 @@
 				let badge = button.querySelector('.pdk-notification-button-badge');
 				button.hidden = !notificationsEnabled;
 				button.classList.toggle('has-unread', notificationsEnabled && count > 0);
-				button.setAttribute('aria-label', count > 0 ? `${t('open')}, ${count}` : t('open'));
+				button.setAttribute('aria-label', count > 0 ? formatLabel('openCount', '', [t('open'), count]) : t('open'));
 
 				if (!notificationsEnabled || !preferences.show_badges || count <= 0) {
 					if (badge) {
@@ -251,7 +260,7 @@
 		}
 
 		if (refreshButton) {
-			refreshButton.setAttribute('aria-label', t('refresh'));
+			refreshButton.setAttribute('aria-label', t('refreshPanel'));
 			refreshButton.addEventListener('click', () => {
 				if (refreshing || typeof store.refresh !== 'function') {
 					return;
@@ -272,7 +281,7 @@
 		}
 
 		if (closeButton) {
-			closeButton.setAttribute('aria-label', t('close'));
+			closeButton.setAttribute('aria-label', t('closePanel'));
 			closeButton.addEventListener('click', close);
 		}
 
