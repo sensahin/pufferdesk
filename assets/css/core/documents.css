@@ -13,8 +13,8 @@
 	color: var(--pdk-sticky-note-ink, #191919);
 	display: grid;
 	grid-template-rows: var(--pdk-sticky-note-header-height, 38px) minmax(0, 1fr) var(--pdk-sticky-note-toolbar-height, 48px);
-	min-height: 140px;
-	min-width: 180px;
+	min-height: var(--pdk-sticky-note-min-height, 140px);
+	min-width: var(--pdk-sticky-note-min-width, 180px);
 	overflow: hidden;
 	pointer-events: auto;
 	position: absolute;
@@ -87,12 +87,14 @@
 	appearance: none;
 	background: var(--pdk-sticky-note-body-bg, transparent);
 	border: 0;
+	box-sizing: border-box;
+	caret-color: var(--pdk-sticky-note-caret, currentColor);
 	color: inherit;
 	font-family: var(--pdk-sticky-note-font, var(--pdk-font-ui));
 	font-size: var(--pdk-sticky-note-font-size, 18px);
-	font-weight: var(--pdk-weight-regular);
+	font-weight: var(--pdk-sticky-note-font-weight, var(--pdk-weight-regular));
 	height: 100%;
-	line-height: 1.45;
+	line-height: var(--pdk-sticky-note-line-height, 1.45);
 	min-height: 0;
 	outline: none;
 	overflow: auto;

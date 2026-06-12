@@ -58,7 +58,7 @@
 					}
 
 					constrainNoteElement(noteElement);
-					noteElement.dataset.pdkExpandedHeight = String(Math.max(140, Math.round(noteElement.offsetHeight || 0)));
+					noteElement.dataset.pdkExpandedHeight = String(Math.max(getStickyExpandedMinHeight(), Math.round(noteElement.offsetHeight || 0)));
 					saveLayout();
 				},
 				syncSafeArea: () => getStickySafeArea()
@@ -76,6 +76,13 @@
 			const user = config.user && typeof config.user === 'object' ? config.user : {};
 
 			return theme.family === 'redmond' || theme.id === 'redmond/modern' || user.themeId === 'redmond/modern';
+		}
+
+		function isPufferDeskTheme() {
+			const theme = config.theme && typeof config.theme === 'object' ? config.theme : {};
+			const user = config.user && typeof config.user === 'object' ? config.user : {};
+
+			return theme.family === 'pufferdesk' || theme.id === 'pufferdesk/default' || user.themeId === 'pufferdesk/default';
 		}
 
 		function getStickyKind() {
@@ -148,6 +155,36 @@
 			const parsed = Number.parseFloat(raw);
 
 			return Number.isFinite(parsed) ? parsed : fallback;
+		}
+
+		function getStickyDimension(name, fallback) {
+			const value = Math.round(getCssPixelValue(name, fallback));
+
+			return Number.isFinite(value) && value > 0 ? value : fallback;
+		}
+
+		function getDefaultStickyWidth(redmond = isRedmondTheme()) {
+			return getStickyDimension('--pdk-sticky-note-default-width', redmond ? 305 : 360);
+		}
+
+		function getDefaultStickyHeight(redmond = isRedmondTheme()) {
+			return getStickyDimension('--pdk-sticky-note-default-height', redmond ? 254 : 285);
+		}
+
+		function getStickyMinWidth() {
+			return getStickyDimension('--pdk-sticky-note-min-width', 180);
+		}
+
+		function getStickyMinHeight() {
+			return getStickyDimension('--pdk-sticky-note-min-height', 140);
+		}
+
+		function getStickyExpandedMinHeight() {
+			return Math.max(getStickyMinHeight(), getStickyDimension('--pdk-sticky-note-expanded-min-height', 140));
+		}
+
+		function getStickyCollapsedMinHeight() {
+			return getStickyDimension('--pdk-sticky-note-collapsed-min-height', 24);
 		}
 
 		function getMenuBarHeight() {
@@ -317,10 +354,10 @@
 			const redmond = isRedmondTheme();
 
 			return {
-				height: toNumber(overrides.height, redmond ? 254 : 285),
+				height: toNumber(overrides.height, getDefaultStickyHeight(redmond)),
 				left: toNumber(overrides.left, getDefaultLeft(index)),
 				top: toNumber(overrides.top, getDefaultTop(index)),
-				width: toNumber(overrides.width, redmond ? 305 : 360),
+				width: toNumber(overrides.width, getDefaultStickyWidth(redmond)),
 				zIndex: toNumber(overrides.zIndex, highestZ + 1)
 			};
 		}
@@ -329,8 +366,8 @@
 			const defaults = getDefaultState(index, state);
 			const desktopRect = desktop ? desktop.getBoundingClientRect() : { width: 1200, height: 800 };
 			const safeArea = getStickySafeArea();
-			const minWidth = 180;
-			const minHeight = 140;
+			const minWidth = getStickyMinWidth();
+			const minHeight = getStickyMinHeight();
 			const collapsed = Boolean(state.collapsed);
 			const expandedHeight = toNumber(state.expandedHeight, defaults.height);
 			const restoreState = state.restore && typeof state.restore === 'object' ? state.restore : {};
@@ -398,37 +435,37 @@
 			noteElement.dataset.pdkRestoreLeft = `${toNumber(state.restoreLeft, state.left)}px`;
 			noteElement.dataset.pdkRestoreTop = `${toNumber(state.restoreTop, state.top)}px`;
 			noteElement.dataset.pdkRestoreWidth = `${toNumber(state.restoreWidth, state.width)}px`;
-			noteElement.dataset.pdkRestoreHeight = `${toNumber(state.restoreHeight, state.expandedHeight || state.height || 285)}px`;
+			noteElement.dataset.pdkRestoreHeight = `${toNumber(state.restoreHeight, state.expandedHeight || state.height || getDefaultStickyHeight())}px`;
 			noteElement.style.left = `${nextLeft}px`;
 			noteElement.style.top = `${nextTop}px`;
 			noteElement.style.width = `${nextWidth}px`;
 			noteElement.style.height = state.collapsed
 				? `${getCollapsedHeight(noteElement)}px`
 				: `${nextHeight}px`;
-			noteElement.dataset.pdkExpandedHeight = String(Math.max(140, state.expandedHeight || state.height || 285));
+			noteElement.dataset.pdkExpandedHeight = String(Math.max(getStickyExpandedMinHeight(), state.expandedHeight || state.height || getDefaultStickyHeight()));
 		}
 
 		function getCollapsedHeight(noteElement) {
 			const chrome = noteElement ? noteElement.querySelector('.pdk-sticky-note-chrome') : null;
 			const height = chrome ? Math.round(chrome.getBoundingClientRect().height) : 28;
 
-			return Math.max(24, height);
+			return Math.max(getStickyCollapsedMinHeight(), height);
 		}
 
 		function getFullscreenBounds() {
 			const safeArea = getStickyFullscreenSafeArea();
 
 			return {
-				height: Math.max(140, desktop.clientHeight - safeArea.top - safeArea.bottom),
+				height: Math.max(getStickyMinHeight(), desktop.clientHeight - safeArea.top - safeArea.bottom),
 				left: safeArea.left,
 				top: safeArea.top,
-				width: Math.max(180, desktop.clientWidth - safeArea.left - safeArea.right)
+				width: Math.max(getStickyMinWidth(), desktop.clientWidth - safeArea.left - safeArea.right)
 			};
 		}
 
 		function readState(noteElement) {
 			const collapsed = noteElement.classList.contains('is-collapsed');
-			const expandedHeight = toNumber(noteElement.dataset.pdkExpandedHeight, Math.round(noteElement.offsetHeight || 285));
+			const expandedHeight = toNumber(noteElement.dataset.pdkExpandedHeight, Math.round(noteElement.offsetHeight || getDefaultStickyHeight()));
 
 			return {
 				collapsed,
@@ -759,7 +796,7 @@
 
 			entry.element.hidden = false;
 			entry.element.classList.remove('is-collapsed');
-			entry.element.style.height = `${toNumber(entry.element.dataset.pdkExpandedHeight, 285)}px`;
+			entry.element.style.height = `${toNumber(entry.element.dataset.pdkExpandedHeight, getDefaultStickyHeight())}px`;
 			constrainNoteElement(entry.element);
 			bringToFront(entry.element);
 			if (entry.element.classList.contains('is-fullscreen')) {
@@ -810,14 +847,14 @@
 			}
 
 			if (collapsed) {
-				entry.element.dataset.pdkExpandedHeight = String(Math.max(140, Math.round(entry.element.offsetHeight || 285)));
+				entry.element.dataset.pdkExpandedHeight = String(Math.max(getStickyExpandedMinHeight(), Math.round(entry.element.offsetHeight || getDefaultStickyHeight())));
 				entry.element.classList.remove('is-fullscreen');
 				entry.element.classList.add('is-collapsed');
 				entry.element.style.height = `${getCollapsedHeight(entry.element)}px`;
 				syncStickyFullscreenSource(entry.element);
 			} else {
 				entry.element.classList.remove('is-collapsed');
-				entry.element.style.height = `${toNumber(entry.element.dataset.pdkExpandedHeight, 285)}px`;
+				entry.element.style.height = `${toNumber(entry.element.dataset.pdkExpandedHeight, getDefaultStickyHeight())}px`;
 			}
 
 			saveLayout();
@@ -848,7 +885,7 @@
 				entry.element.style.left = entry.element.dataset.pdkRestoreLeft || entry.element.style.left;
 				entry.element.style.top = entry.element.dataset.pdkRestoreTop || entry.element.style.top;
 				entry.element.style.width = entry.element.dataset.pdkRestoreWidth || entry.element.style.width;
-				entry.element.style.height = entry.element.dataset.pdkRestoreHeight || `${toNumber(entry.element.dataset.pdkExpandedHeight, 285)}px`;
+				entry.element.style.height = entry.element.dataset.pdkRestoreHeight || `${toNumber(entry.element.dataset.pdkExpandedHeight, getDefaultStickyHeight())}px`;
 				constrainNoteElement(entry.element);
 			}
 
@@ -936,6 +973,11 @@
 				}
 
 				closeNoteOptionsMenu();
+				if (isPufferDeskTheme()) {
+					setCollapsed(entry, !entry.element.classList.contains('is-collapsed'));
+					return;
+				}
+
 				setFullscreen(entry, !entry.element.classList.contains('is-fullscreen'));
 			};
 
