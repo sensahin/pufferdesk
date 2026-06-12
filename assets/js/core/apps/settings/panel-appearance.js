@@ -19,6 +19,8 @@
 			settingsLabels,
 			status,
 			t,
+			themeMode,
+			themeModes,
 			themes
 		} = ctx;
 		const capabilities = ctx.capabilities && typeof ctx.capabilities === 'object' ? ctx.capabilities : {};
@@ -26,6 +28,12 @@
 		const selectableThemes = Array.isArray(themes) && themes.length
 			? themes
 			: (config.theme && config.theme.id ? [config.theme] : []);
+		const selectableThemeModes = Array.isArray(themeModes) && themeModes.length
+			? themeModes
+			: settingsLabels.getOptions('appearance.themeModeOptions');
+		const currentThemeMode = typeof themeMode === 'string' && themeMode
+			? themeMode
+			: (config.themeMode || (config.theme && config.theme.id) || '');
 		const panel = dom.createElement('div', 'pdk-settings-pane-panel');
 		const appearanceSection = createSection('', 'pdk-settings-section-appearance');
 		const themeSection = createSection('', 'pdk-settings-section-theme');
@@ -36,19 +44,19 @@
 			const control = dom.createElement('span', 'pdk-settings-theme-control');
 			const themePicker = createInlineSelect({
 				className: 'pdk-settings-theme-select',
-				disabled: selectableThemes.length < 2,
-				options: selectableThemes.map((theme) => ({
-					label: getThemeOptionLabel(theme),
-					value: theme.id
+				disabled: selectableThemeModes.length < 2,
+				options: selectableThemeModes.map((mode) => ({
+					label: mode.label || getThemeOptionLabel(selectableThemes.find((theme) => theme.id === mode.value) || {}),
+					value: mode.value
 				})),
-				onChange: (themeId) => {
-					if (!themeId || (config.theme && themeId === config.theme.id)) {
+				onChange: (mode) => {
+					if (!mode || mode === currentThemeMode) {
 						return;
 					}
 
-					ctx.saveTheme(themeId, status);
+					ctx.saveTheme(mode, status);
 				},
-				value: config.theme && config.theme.id ? config.theme.id : ''
+				value: currentThemeMode
 			});
 
 			control.appendChild(themePicker.wrap);
@@ -69,7 +77,7 @@
 			));
 		}
 
-		if (selectableThemes.length) {
+		if (selectableThemeModes.length) {
 			themeSection.appendChild(createSettingsRow(
 				t('appearance.themeLabel'),
 				createThemePicker(),

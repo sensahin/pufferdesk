@@ -24,6 +24,9 @@ final class PufferDesk_User_Preferences {
 	const META_THEME      = 'pufferdesk_theme';
 	const META_WALLPAPER  = 'pufferdesk_wallpaper';
 	const META_WALLPAPER_UPLOADS = 'pufferdesk_wallpaper_uploads';
+	const THEME_MODE_AUTO = 'auto';
+	const THEME_MODE_PUFFERDESK = 'pufferdesk';
+	const THEME_MODE_REDMOND = 'redmond';
 	const NOTIFICATION_SOURCE_WORDPRESS_UPDATES = 'wordpress_updates';
 	const NOTIFICATION_SOURCE_COMMENTS          = 'comments';
 	const NOTIFICATION_SOURCE_SITE_HEALTH       = 'site_health';
@@ -262,6 +265,28 @@ final class PufferDesk_User_Preferences {
 	}
 
 	/**
+	 * Get stable theme mode values for browser contracts.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_theme_mode_ids() {
+		return array(
+			'AUTO'       => self::THEME_MODE_AUTO,
+			'PUFFERDESK' => self::THEME_MODE_PUFFERDESK,
+			'REDMOND'    => self::THEME_MODE_REDMOND,
+		);
+	}
+
+	/**
+	 * Allowed stored theme mode values.
+	 *
+	 * @return array<int,string>
+	 */
+	public function get_theme_mode_options() {
+		return array_values( self::get_theme_mode_ids() );
+	}
+
+	/**
 	 * Allowed app location values.
 	 *
 	 * @return array<int,string>
@@ -353,39 +378,64 @@ final class PufferDesk_User_Preferences {
 	}
 
 	/**
-	 * Get the user's selected theme.
+	 * Get the user's selected theme mode.
+	 *
+	 * @param array<string,array<string,mixed>> $themes Available themes.
+	 * @param int                               $user_id Optional user ID.
+	 * @return string
+	 */
+	public function get_theme_mode( $themes, $user_id = 0 ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$mode    = sanitize_key( (string) get_user_meta( $user_id, self::META_THEME, true ) );
+
+		if ( self::THEME_MODE_AUTO === $mode ) {
+			return self::THEME_MODE_AUTO;
+		}
+
+		if ( $this->is_manual_theme_mode_available( $mode, $themes ) ) {
+			return $mode;
+		}
+
+		$default = sanitize_key( (string) apply_filters( 'pufferdesk_default_theme_mode', self::THEME_MODE_AUTO ) );
+		if ( self::THEME_MODE_AUTO === $default || $this->is_manual_theme_mode_available( $default, $themes ) ) {
+			return $default;
+		}
+
+		return self::THEME_MODE_AUTO;
+	}
+
+	/**
+	 * Get the resolved concrete theme for the user's selected theme mode.
 	 *
 	 * @param array<string,array<string,mixed>> $themes Available themes.
 	 * @param int                               $user_id Optional user ID.
 	 * @return string
 	 */
 	public function get_theme_id( $themes, $user_id = 0 ) {
-		$user_id = $user_id ? (int) $user_id : get_current_user_id();
-		$theme   = sanitize_key( (string) get_user_meta( $user_id, self::META_THEME, true ) );
+		$mode = $this->get_theme_mode( $themes, $user_id );
 
-		if ( $theme && isset( $themes[ $theme ] ) ) {
-			return $theme;
+		if ( self::THEME_MODE_AUTO === $mode ) {
+			return $this->get_auto_theme_id( $themes );
 		}
 
-		$default = sanitize_key( (string) apply_filters( 'pufferdesk_default_theme', 'pufferdesk' ) );
-		if ( isset( $themes[ $default ] ) ) {
-			return $default;
+		if ( $this->is_manual_theme_mode_available( $mode, $themes ) ) {
+			return $mode;
 		}
 
-		return key( $themes );
+		return $this->get_fallback_theme_id( $themes );
 	}
 
 	/**
-	 * Save the selected theme.
+	 * Save the selected theme mode.
 	 *
-	 * @param string                            $theme_id Theme ID.
+	 * @param string                            $theme_mode Theme mode.
 	 * @param array<string,array<string,mixed>> $themes Available themes.
 	 * @param int                               $user_id Optional user ID.
 	 * @return true|WP_Error
 	 */
-	public function set_theme_id( $theme_id, $themes, $user_id = 0 ) {
-		$theme_id = sanitize_key( $theme_id );
-		if ( empty( $themes[ $theme_id ] ) || ! empty( $themes[ $theme_id ]['abstract'] ) ) {
+	public function set_theme_mode( $theme_mode, $themes, $user_id = 0 ) {
+		$theme_mode = sanitize_key( $theme_mode );
+		if ( self::THEME_MODE_AUTO !== $theme_mode && ! $this->is_manual_theme_mode_available( $theme_mode, $themes ) ) {
 			return new WP_Error(
 				'pufferdesk_invalid_theme',
 				__( 'The selected PufferDesk theme is not available.', 'pufferdesk-admin-desktop' )
@@ -393,9 +443,92 @@ final class PufferDesk_User_Preferences {
 		}
 
 		$user_id = $user_id ? (int) $user_id : get_current_user_id();
-		update_user_meta( $user_id, self::META_THEME, $theme_id );
+		update_user_meta( $user_id, self::META_THEME, $theme_mode );
 
 		return true;
+	}
+
+	/**
+	 * Get a default theme from the current request platform hint.
+	 *
+	 * This intentionally remains a suggestion for auto mode only. Manual choices
+	 * are stored as explicit theme modes and bypass request platform detection.
+	 *
+	 * @param array<string,array<string,mixed>> $themes Available themes.
+	 * @return string
+	 */
+	private function get_auto_theme_id( $themes ) {
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) )
+			: '';
+		$platform_theme = $this->get_platform_theme_id( $user_agent );
+
+		if ( isset( $themes[ $platform_theme ] ) && empty( $themes[ $platform_theme ]['abstract'] ) ) {
+			return $platform_theme;
+		}
+
+		return $this->get_fallback_theme_id( $themes );
+	}
+
+	/**
+	 * Map a user-agent platform hint to a bundled theme.
+	 *
+	 * @param string $user_agent Request user agent.
+	 * @return string
+	 */
+	private function get_platform_theme_id( $user_agent ) {
+		$user_agent = strtolower( (string) $user_agent );
+
+		if ( false !== strpos( $user_agent, 'windows' ) ) {
+			return self::THEME_MODE_REDMOND;
+		}
+
+		if (
+			false !== strpos( $user_agent, 'macintosh' )
+			|| false !== strpos( $user_agent, 'mac os x' )
+			|| false !== strpos( $user_agent, 'iphone' )
+			|| false !== strpos( $user_agent, 'ipad' )
+			|| false !== strpos( $user_agent, 'ipod' )
+		) {
+			return self::THEME_MODE_PUFFERDESK;
+		}
+
+		return self::THEME_MODE_PUFFERDESK;
+	}
+
+	/**
+	 * Check whether a manual theme mode maps to an available concrete theme.
+	 *
+	 * @param string                            $mode Theme mode.
+	 * @param array<string,array<string,mixed>> $themes Available themes.
+	 * @return bool
+	 */
+	private function is_manual_theme_mode_available( $mode, $themes ) {
+		if ( ! in_array( $mode, array( self::THEME_MODE_PUFFERDESK, self::THEME_MODE_REDMOND ), true ) ) {
+			return false;
+		}
+
+		return isset( $themes[ $mode ] ) && empty( $themes[ $mode ]['abstract'] );
+	}
+
+	/**
+	 * Get the PufferDesk fallback theme, or the first concrete theme.
+	 *
+	 * @param array<string,array<string,mixed>> $themes Available themes.
+	 * @return string
+	 */
+	private function get_fallback_theme_id( $themes ) {
+		if ( isset( $themes[ self::THEME_MODE_PUFFERDESK ] ) && empty( $themes[ self::THEME_MODE_PUFFERDESK ]['abstract'] ) ) {
+			return self::THEME_MODE_PUFFERDESK;
+		}
+
+		foreach ( $themes as $theme_id => $theme ) {
+			if ( empty( $theme['abstract'] ) ) {
+				return (string) $theme_id;
+			}
+		}
+
+		return (string) key( $themes );
 	}
 
 	/**

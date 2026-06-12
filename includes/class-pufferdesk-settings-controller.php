@@ -335,12 +335,12 @@ final class PufferDesk_Settings_Controller {
 		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_THEME, $this->settings_permission_message() );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
-		$theme_id = isset( $_POST['theme_id'] )
+		$theme_mode = isset( $_POST['theme_mode'] )
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by require_domain_access().
-			? sanitize_key( wp_unslash( $_POST['theme_id'] ) )
+			? sanitize_key( wp_unslash( $_POST['theme_mode'] ) )
 			: '';
 
-		$result = $this->preferences->set_theme_id( $theme_id, $this->theme_registry->get_themes() );
+		$result = $this->preferences->set_theme_mode( $theme_mode, $this->theme_registry->get_themes() );
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error(
 				array(
@@ -353,8 +353,9 @@ final class PufferDesk_Settings_Controller {
 		$theme = $this->theme_registry->get_current_theme( $this->preferences );
 		wp_send_json_success(
 			array(
-				'message' => __( 'Theme saved.', 'pufferdesk-admin-desktop' ),
-				'theme'   => array(
+				'message'   => __( 'Theme saved.', 'pufferdesk-admin-desktop' ),
+				'themeMode' => $this->preferences->get_theme_mode( $this->theme_registry->get_themes() ),
+				'theme'     => array(
 					'id'            => $theme['id'],
 					'label'         => $theme['label'],
 					'family'        => $theme['family'],

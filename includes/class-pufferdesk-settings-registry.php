@@ -173,8 +173,9 @@ final class PufferDesk_Settings_Registry {
 				'handler'      => 'save_theme',
 				'preference_key' => PufferDesk_User_Preferences::META_THEME,
 				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_THEME,
-				'sanitizer'    => 'PufferDesk_User_Preferences::set_theme_id',
-				'default'      => 'pufferdesk',
+				'sanitizer'    => 'PufferDesk_User_Preferences::set_theme_mode',
+				'default'      => PufferDesk_User_Preferences::THEME_MODE_AUTO,
+				'options'      => $this->preferences->get_theme_mode_options(),
 			),
 			self::DOMAIN_WALLPAPER => array(
 				'id'           => self::DOMAIN_WALLPAPER,

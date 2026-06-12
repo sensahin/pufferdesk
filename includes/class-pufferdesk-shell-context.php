@@ -95,6 +95,8 @@ final class PufferDesk_Shell_Context {
 	 * @return array<string,mixed>
 	 */
 	public function get() {
+		$themes               = $this->theme_registry->get_themes();
+		$theme_mode           = $this->preferences->get_theme_mode( $themes );
 		$theme                = $this->theme_registry->get_current_theme( $this->preferences );
 		$apps                 = $this->theme_registry->apply_app_labels( $this->app_registry->get_apps(), $theme );
 		$app_locations        = $this->preferences->get_effective_app_locations( $apps, $theme );
@@ -126,6 +128,7 @@ final class PufferDesk_Shell_Context {
 			'folders'              => $folders,
 			'menu_bar'             => $this->preferences->get_menu_bar(),
 			'theme'                => $theme,
+			'theme_mode'           => $theme_mode,
 			'wallpaper'            => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
 			'widgets'              => $widgets,
 			'workspace_folders'    => $workspace_folders,

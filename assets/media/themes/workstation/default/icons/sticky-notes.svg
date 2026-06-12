@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Sticky Notes">
-  <desc>Glyph based on Tabler Icons v3.44.0 under the MIT License; wrapper by PufferDesk.</desc>
-  <rect width="64" height="64" rx="14" fill="#1f2c3a"/>
-  <g fill="none" stroke="#f0c16d" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" transform="translate(13 13) scale(1.6)">
-    <path d="M9 4v6l-2 4v2h10v-2l-2 -4v-6"/>
-    <path d="M12 16l0 5"/>
-    <path d="M8 4l8 0"/>
-  </g>
-</svg>

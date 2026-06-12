@@ -35,6 +35,7 @@
 		const getSettingAction = window.PufferDesk.config.getSettingAction.bind(window.PufferDesk.config);
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const themes = Array.isArray(config.themes) ? config.themes : [];
+		const themeModes = Array.isArray(config.themeModes) ? config.themeModes : [];
 		const shell = document.querySelector('[data-pufferdesk-shell]');
 		const appSurfaceManager = window.PufferDesk.apps.createAppSurfaceManager(shell, config, {
 			apps
@@ -1553,7 +1554,7 @@
 			return header;
 		}
 
-		function saveTheme(themeId, status) {
+		function saveTheme(themeMode, status) {
 			function showThemeSwitchOverlay() {
 				const dialogs = window.PufferDesk && window.PufferDesk.shellDialogs ? window.PufferDesk.shellDialogs : null;
 
@@ -1574,7 +1575,7 @@
 					return t('status.themeSaved');
 				},
 				payload: {
-					theme_id: themeId
+					theme_mode: themeMode
 				},
 				status
 			});
@@ -1633,6 +1634,8 @@
 				settingsLabels,
 				status,
 				t,
+				themeMode: typeof config.themeMode === 'string' ? config.themeMode : '',
+				themeModes,
 				themes,
 				updateRangeFill
 			};

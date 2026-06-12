@@ -159,6 +159,9 @@ final class PufferDesk_Runtime_Config {
 		$context = is_array( $context ) ? $context : array();
 		$theme   = isset( $context['theme'] ) && is_array( $context['theme'] ) ? $context['theme'] : array();
 		$theme_id = isset( $theme['id'] ) && is_string( $theme['id'] ) && '' !== $theme['id'] ? $theme['id'] : 'pufferdesk';
+		$theme_mode = isset( $context['theme_mode'] ) && is_string( $context['theme_mode'] )
+			? sanitize_key( $context['theme_mode'] )
+			: $this->preferences->get_theme_mode( $this->theme_registry->get_themes() );
 		$current_user = wp_get_current_user();
 		$role_label   = $this->get_user_role_label( $current_user );
 
@@ -189,6 +192,8 @@ final class PufferDesk_Runtime_Config {
 			'siteName'       => get_bloginfo( 'name' ),
 			'sounds'         => $this->get_sounds_config( $theme ),
 			'system'         => $this->get_system_config( $theme ),
+			'themeMode'      => $theme_mode,
+			'themeModes'     => $this->get_theme_mode_options_config(),
 			'themes'         => $this->theme_registry->get_selectable_themes(),
 			'virtualFilesystem' => $this->virtual_filesystem->get_runtime_config( $theme ),
 			'wallpaper'      => isset( $context['wallpaper'] ) && is_array( $context['wallpaper'] ) ? $context['wallpaper'] : array(),
@@ -233,6 +238,7 @@ final class PufferDesk_Runtime_Config {
 			'appIds'       => PufferDesk_App_Ids::all(),
 			'appBadgeTones' => PufferDesk_App_Badge_Normalizer::get_tone_ids(),
 			'appLocations' => PufferDesk_User_Preferences::get_app_location_ids(),
+			'themeModes'   => PufferDesk_User_Preferences::get_theme_mode_ids(),
 			'icons'       => PufferDesk_Icon_Renderer::client_contract(),
 			'menuGroups'  => PufferDesk_App_Menu_Normalizer::client_contract(),
 			'nativeAppIds' => PufferDesk_App_Ids::native_all(),
@@ -786,6 +792,28 @@ final class PufferDesk_Runtime_Config {
 	}
 
 	/**
+	 * Theme mode options used by the Appearance settings panel.
+	 *
+	 * @return array<int,array<string,string>>
+	 */
+	private function get_theme_mode_options_config() {
+		return array(
+			array(
+				'value' => PufferDesk_User_Preferences::THEME_MODE_AUTO,
+				'label' => __( 'Auto', 'pufferdesk-admin-desktop' ),
+			),
+			array(
+				'value' => PufferDesk_User_Preferences::THEME_MODE_PUFFERDESK,
+				'label' => __( 'PufferDesk', 'pufferdesk-admin-desktop' ),
+			),
+			array(
+				'value' => PufferDesk_User_Preferences::THEME_MODE_REDMOND,
+				'label' => __( 'Redmond', 'pufferdesk-admin-desktop' ),
+			),
+		);
+	}
+
+	/**
 	 * Localized labels and option lists used by native System Settings panels.
 	 *
 	 * @param array<string,mixed> $theme Current theme.
@@ -967,6 +995,7 @@ final class PufferDesk_Runtime_Config {
 				'themeFallbackLabel'    => __( 'Theme', 'pufferdesk-admin-desktop' ),
 				/* translators: 1: theme family label, 2: theme version label. */
 				'themeVersionFormat'    => __( '%1$s · %2$s', 'pufferdesk-admin-desktop' ),
+				'themeModeOptions'      => $this->get_theme_mode_options_config(),
 				'modeOptions'           => array(
 					array( 'value' => 'auto', 'label' => __( 'Auto', 'pufferdesk-admin-desktop' ) ),
 					array( 'value' => 'light', 'label' => __( 'Light', 'pufferdesk-admin-desktop' ) ),
@@ -1883,8 +1912,11 @@ final class PufferDesk_Runtime_Config {
 				'shortcut_reserved_clear_scope' => __( 'primary+n is reserved unless clearly scoped.', 'pufferdesk-admin-desktop' ),
 				'shortcut_reserved_window_reason' => __( 'Scoped to PufferDesk windows.', 'pufferdesk-admin-desktop' ),
 				'shortcut_reserved_text_editor_reason' => __( 'Handled intentionally inside the native Text Editor.', 'pufferdesk-admin-desktop' ),
+				/* translators: 1: keyboard shortcut label, 2: reserved browser or shell action label. */
 				'shortcut_reserved_for_format' => __( '%1$s is reserved for %2$s.', 'pufferdesk-admin-desktop' ),
+				/* translators: 1: keyboard shortcut label, 2: conflicting command label. */
 				'shortcut_may_conflict_format' => __( '%1$s may conflict with %2$s.', 'pufferdesk-admin-desktop' ),
+				/* translators: 1: keyboard shortcut label, 2: conflicting command label. */
 				'shortcut_conflicts_with_format' => __( '%1$s conflicts with %2$s.', 'pufferdesk-admin-desktop' ),
 				'shortcut_conflict_console' => __( 'PufferDesk shortcut conflict:', 'pufferdesk-admin-desktop' ),
 				'shortcut_reserved_browser_back' => __( 'browser back', 'pufferdesk-admin-desktop' ),
