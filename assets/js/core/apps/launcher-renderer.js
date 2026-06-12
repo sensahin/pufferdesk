@@ -42,6 +42,39 @@
 			button.setAttribute('aria-pressed', selected ? 'true' : 'false');
 		}
 
+		function getSelectableItems(root) {
+			if (!root || typeof root.querySelectorAll !== 'function') {
+				return [];
+			}
+
+			return Array.from(root.querySelectorAll('.pdk-app-launcher, .pdk-finder-trash-item'))
+				.filter((item) => !item.hidden && !item.classList.contains('is-renaming'));
+		}
+
+		function setItemsSelected(root, selectedItems = [], options = {}) {
+			const selectedSet = selectedItems instanceof Set ? selectedItems : new Set(Array.isArray(selectedItems) ? selectedItems : []);
+			const baseSet = options.baseSelection instanceof Set ? options.baseSelection : new Set();
+			const mode = ['add', 'replace', 'toggle'].includes(options.mode) ? options.mode : (options.additive ? 'add' : 'replace');
+			const nextSelection = mode === 'replace' ? new Set(selectedSet) : new Set(baseSet);
+
+			getSelectableItems(root).forEach((item) => {
+				if (mode === 'add' && selectedSet.has(item)) {
+					nextSelection.add(item);
+				} else if (mode === 'toggle' && selectedSet.has(item)) {
+					if (nextSelection.has(item)) {
+						nextSelection.delete(item);
+					} else {
+						nextSelection.add(item);
+					}
+				}
+
+				setItemSelected(item, nextSelection.has(item));
+			});
+			if (root) {
+				emitSelectionChange(root.classList && root.classList.contains('pdk-finder-grid') ? root : root.querySelector('.pdk-finder-grid'));
+			}
+		}
+
 		function selectItem(button, options = {}) {
 			const grid = button ? button.closest('.pdk-finder-grid') : null;
 			const additive = Boolean(options.additive);
@@ -63,6 +96,22 @@
 		}
 
 		function selectItemFromContextMenu(button) {
+			const grid = button ? button.closest('.pdk-finder-grid') : null;
+
+			if (
+				grid
+				&& button
+				&& button.classList.contains('is-selected')
+				&& grid.querySelectorAll('.pdk-app-launcher.is-selected, .pdk-finder-trash-item.is-selected').length > 1
+			) {
+				emitSelectionChange(grid);
+				return;
+			}
+
+			selectItem(button);
+		}
+
+		function selectItemFromPlainAction(button) {
 			const grid = button ? button.closest('.pdk-finder-grid') : null;
 
 			if (
@@ -232,6 +281,7 @@
 			button.dataset.pdkContextId = item.id || '';
 			button.dataset.pdkContextLabel = label;
 			button.dataset.pdkDocumentId = item.document && item.document.id ? String(item.document.id) : String(item.id || '').replace(/^document-/, '');
+			button.dataset.pdkDocumentKind = item.document && item.document.kind ? String(item.document.kind) : '';
 			if (folderId) {
 				button.dataset.pdkFolderId = folderId;
 			}
@@ -303,7 +353,10 @@
 			createDocumentButton,
 			createFolderButton,
 			createTrashItemButton,
-			selectItem
+			getSelectableItems,
+			selectItem,
+			selectItemFromPlainAction,
+			setItemsSelected
 		};
 	};
 })();

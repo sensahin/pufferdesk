@@ -865,6 +865,13 @@
 					return;
 				}
 
+				if (pane.dataset.pdkSuppressSelectionClearClick === '1') {
+					event.preventDefault();
+					event.stopPropagation();
+					delete pane.dataset.pdkSuppressSelectionClearClick;
+					return;
+				}
+
 				launcherRenderer.clearSelection(pane);
 			});
 		}
@@ -1509,6 +1516,9 @@
 					return;
 				}
 
+				if (launcherRenderer && typeof launcherRenderer.selectItemFromPlainAction === 'function') {
+					launcherRenderer.selectItemFromPlainAction(item);
+				}
 				event.preventDefault();
 				disableNativeFolderItemDrag(item);
 
@@ -1586,6 +1596,171 @@
 				window.addEventListener('pointermove', move);
 				window.addEventListener('pointerup', up);
 				window.addEventListener('pointercancel', cancel);
+			});
+		}
+
+		function isFolderPanePointerTargetBlocked(target) {
+			return Boolean(target && typeof target.closest === 'function' && target.closest('a, button, input, select, textarea, [contenteditable="true"], [contenteditable="plaintext-only"]'));
+		}
+
+		function rectsIntersect(first, second) {
+			return !(
+				first.right < second.left
+				|| first.left > second.right
+				|| first.bottom < second.top
+				|| first.top > second.bottom
+			);
+		}
+
+		function getSelectionMode(event) {
+			if (event && (event.metaKey || event.ctrlKey)) {
+				return 'toggle';
+			}
+
+			return event && event.shiftKey ? 'add' : 'replace';
+		}
+
+		function ensureFolderMarquee(pane) {
+			let marquee = pane
+				? Array.from(pane.children).find((child) => child.classList && child.classList.contains('pdk-folder-marquee'))
+				: null;
+			if (marquee) {
+				return marquee;
+			}
+
+			marquee = document.createElement('div');
+			marquee.className = 'pdk-desktop-marquee pdk-folder-marquee';
+			marquee.setAttribute('aria-hidden', 'true');
+			pane.appendChild(marquee);
+
+			return marquee;
+		}
+
+		function setFolderMarqueeRect(marquee, rect) {
+			marquee.style.left = `${rect.left}px`;
+			marquee.style.top = `${rect.top}px`;
+			marquee.style.width = `${rect.width}px`;
+			marquee.style.height = `${rect.height}px`;
+		}
+
+		function getFolderMarqueeRect(startX, startY, currentX, currentY, paneRect) {
+			const x1 = Math.max(0, Math.min(startX - paneRect.left, paneRect.width));
+			const y1 = Math.max(0, Math.min(startY - paneRect.top, paneRect.height));
+			const x2 = Math.max(0, Math.min(currentX - paneRect.left, paneRect.width));
+			const y2 = Math.max(0, Math.min(currentY - paneRect.top, paneRect.height));
+			const left = Math.min(x1, x2);
+			const top = Math.min(y1, y2);
+
+			return {
+				bottom: Math.max(y1, y2),
+				height: Math.abs(y2 - y1),
+				left,
+				right: Math.max(x1, x2),
+				top,
+				width: Math.abs(x2 - x1)
+			};
+		}
+
+		function getIntersectingFolderItems(pane, marqueeRect, paneRect) {
+			if (!launcherRenderer || typeof launcherRenderer.getSelectableItems !== 'function') {
+				return [];
+			}
+
+			return launcherRenderer.getSelectableItems(pane).filter((item) => {
+				const itemRect = item.getBoundingClientRect();
+				const relativeRect = {
+					bottom: itemRect.bottom - paneRect.top,
+					left: itemRect.left - paneRect.left,
+					right: itemRect.right - paneRect.left,
+					top: itemRect.top - paneRect.top
+				};
+
+				return rectsIntersect(marqueeRect, relativeRect);
+			});
+		}
+
+		function startFolderPaneMarquee(event, pane) {
+			if (
+				!pane
+				|| event.button !== 0
+				|| isFolderPanePointerTargetBlocked(event.target)
+				|| (event.target && typeof event.target.closest === 'function' && event.target.closest('.pdk-app-launcher, .pdk-finder-trash-item'))
+			) {
+				return;
+			}
+
+			const grid = pane.querySelector('.pdk-finder-grid');
+			const mode = getSelectionMode(event);
+			const baseSelection = launcherRenderer && typeof launcherRenderer.getSelectableItems === 'function'
+				? new Set(launcherRenderer.getSelectableItems(pane).filter((item) => item.classList.contains('is-selected')))
+				: new Set();
+			const paneRect = pane.getBoundingClientRect();
+			const startX = event.clientX;
+			const startY = event.clientY;
+			const marquee = ensureFolderMarquee(pane);
+			let moved = false;
+
+			if (mode === 'replace' && launcherRenderer && typeof launcherRenderer.clearSelection === 'function') {
+				launcherRenderer.clearSelection(pane);
+			}
+			event.preventDefault();
+
+			const move = (moveEvent) => {
+				const deltaX = moveEvent.clientX - startX;
+				const deltaY = moveEvent.clientY - startY;
+
+				if (!moved && Math.abs(deltaX) + Math.abs(deltaY) < 4) {
+					return;
+				}
+
+				moved = true;
+				moveEvent.preventDefault();
+				const rect = getFolderMarqueeRect(startX, startY, moveEvent.clientX, moveEvent.clientY, paneRect);
+				setFolderMarqueeRect(marquee, rect);
+				marquee.classList.add('is-active');
+				if (launcherRenderer && typeof launcherRenderer.setItemsSelected === 'function') {
+					launcherRenderer.setItemsSelected(pane, getIntersectingFolderItems(pane, rect, paneRect), {
+						baseSelection,
+						mode
+					});
+				}
+			};
+
+			const up = () => {
+				window.removeEventListener('pointermove', move);
+				window.removeEventListener('pointerup', up);
+				window.removeEventListener('pointercancel', up);
+				marquee.classList.remove('is-active');
+				setFolderMarqueeRect(marquee, {
+					height: 0,
+					left: 0,
+					top: 0,
+					width: 0
+				});
+				if (moved) {
+					pane.dataset.pdkSuppressSelectionClearClick = '1';
+					window.setTimeout(() => {
+						delete pane.dataset.pdkSuppressSelectionClearClick;
+					}, 0);
+				}
+				if (!moved && mode === 'replace' && grid && launcherRenderer && typeof launcherRenderer.clearSelection === 'function') {
+					launcherRenderer.clearSelection(grid);
+				}
+			};
+
+			window.addEventListener('pointermove', move);
+			window.addEventListener('pointerup', up);
+			window.addEventListener('pointercancel', up);
+		}
+
+		function bindFolderPaneSelection(pane) {
+			if (!pane || pane.dataset.pdkFolderSelectionBound === '1') {
+				return;
+			}
+
+			pane.dataset.pdkFolderSelectionBound = '1';
+			pane.addEventListener('pointerdown', (event) => {
+				startFolderPaneMarquee(event, pane);
 			});
 		}
 
@@ -2250,6 +2425,7 @@
 					if (context === 'document') {
 						return {
 							id: parseDocumentId(item.dataset.pdkDocumentId || id),
+							kind: item.dataset.pdkDocumentKind || '',
 							parentFolderId: item.dataset.pdkFolderId || currentFolderId,
 							type: 'document'
 						};
@@ -2274,7 +2450,15 @@
 			}
 
 			if (item.type === 'document') {
-				return Boolean(documentStore && typeof documentStore.remove === 'function' && item.id > 0);
+				const stickyManager = window.PufferDesk.stickyNoteManager || null;
+
+				return Boolean(
+					item.id > 0
+					&& (
+						(documentStore && typeof documentStore.remove === 'function')
+						|| (item.kind && documentStore && documentStore.kinds && item.kind === documentStore.kinds.sticky && stickyManager && typeof stickyManager.deleteNote === 'function')
+					)
+				);
 			}
 
 			return false;
@@ -2300,8 +2484,14 @@
 					changed = provider.moveFolderToTrash(item.id) || changed;
 				} else if (item.type === 'app' && provider && typeof provider.removeAppFromFolder === 'function') {
 					changed = provider.removeAppFromFolder(item.id, item.parentFolderId) || changed;
-				} else if (item.type === 'document' && documentStore && typeof documentStore.remove === 'function') {
-					documentDeletes.push(documentStore.remove(item.id).then((deleted) => {
+				} else if (item.type === 'document') {
+					const stickyManager = window.PufferDesk.stickyNoteManager || null;
+					const isSticky = Boolean(item.kind && documentStore && documentStore.kinds && item.kind === documentStore.kinds.sticky);
+					const removePromise = isSticky && stickyManager && typeof stickyManager.deleteNote === 'function'
+						? stickyManager.deleteNote(item.id)
+						: (documentStore && typeof documentStore.remove === 'function' ? documentStore.remove(item.id) : Promise.resolve(false));
+
+					documentDeletes.push(Promise.resolve(removePromise).then((deleted) => {
 						changed = Boolean(deleted) || changed;
 					}));
 				}
@@ -3248,6 +3438,7 @@
 
 			applyFolderPaneContext(pane, folderId, folder);
 			bindFolderPaneSelectionClear(pane);
+			bindFolderPaneSelection(pane);
 			bindFolderPaneKeyboard(pane, folderId, win);
 			bindFolderPaneItemDrag(pane, folderId);
 			header.dataset.pdkContext = contextTargets.FOLDER_TOOLBAR;
@@ -3298,6 +3489,7 @@
 
 			applyFolderPaneContext(pane, folderId, folder);
 			bindFolderPaneSelectionClear(pane);
+			bindFolderPaneSelection(pane);
 			bindFolderPaneKeyboard(pane, folderId, win);
 			bindFolderPaneItemDrag(pane, folderId);
 			pane.dataset.pdkFolderViewMode = getExplorerViewMode(win);

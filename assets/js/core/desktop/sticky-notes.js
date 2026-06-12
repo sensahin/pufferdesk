@@ -1190,7 +1190,10 @@
 				return Promise.resolve(removeRenderedNote(documentId));
 			}
 
-			return documentStore.remove(documentId).then(() => removeRenderedNote(documentId));
+			return documentStore.remove(documentId).then((deleted) => {
+				removeRenderedNote(documentId);
+				return Boolean(deleted);
+			});
 		}
 
 		function removeRenderedNote(documentId) {
