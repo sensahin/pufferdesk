@@ -15,7 +15,6 @@ final class PufferDesk_Virtual_Filesystem {
 	const FOLDER_HOME        = 'home';
 	const FOLDER_DESKTOP     = 'desktop';
 	const FOLDER_DOCUMENTS   = 'documents';
-	const FOLDER_NOTES       = 'notes';
 	const FOLDER_STICKIES    = 'stickies';
 	const FOLDER_TRASH       = 'trash';
 	const KIND_STICKY_NOTE   = 'sticky_note';
@@ -31,7 +30,6 @@ final class PufferDesk_Virtual_Filesystem {
 			'HOME'      => self::FOLDER_HOME,
 			'DESKTOP'   => self::FOLDER_DESKTOP,
 			'DOCUMENTS' => self::FOLDER_DOCUMENTS,
-			'NOTES'     => self::FOLDER_NOTES,
 			'STICKIES'  => self::FOLDER_STICKIES,
 			'TRASH'     => self::FOLDER_TRASH,
 		);
@@ -73,14 +71,6 @@ final class PufferDesk_Virtual_Filesystem {
 				self::FOLDER_HOME,
 				$this->theme_icon( 'folder.svg', 'dashicons-media-document' ),
 				'documents'
-			),
-			$this->create_folder(
-				self::FOLDER_NOTES,
-				$labels['notes'],
-				$paths[ self::FOLDER_NOTES ],
-				self::FOLDER_HOME,
-				$this->theme_icon( 'folder.svg', 'dashicons-edit-page' ),
-				'notes'
 			),
 			$this->create_folder(
 				self::FOLDER_STICKIES,
@@ -172,7 +162,6 @@ final class PufferDesk_Virtual_Filesystem {
 				'text'                   => $paths[ self::FOLDER_DOCUMENTS ],
 				self::FOLDER_DESKTOP     => $paths[ self::FOLDER_DESKTOP ],
 				self::FOLDER_DOCUMENTS   => $paths[ self::FOLDER_DOCUMENTS ],
-				self::FOLDER_NOTES       => $paths[ self::FOLDER_NOTES ],
 				self::FOLDER_STICKIES    => $paths[ self::FOLDER_STICKIES ],
 			),
 			'display'      => $display,
@@ -269,7 +258,6 @@ final class PufferDesk_Virtual_Filesystem {
 			self::FOLDER_HOME      => $home_path,
 			self::FOLDER_DESKTOP   => $home_path . '/desktop',
 			self::FOLDER_DOCUMENTS => $home_path . '/documents',
-			self::FOLDER_NOTES     => $home_path . '/notes',
 			self::FOLDER_STICKIES  => $home_path . '/stickies',
 			self::FOLDER_TRASH     => 'pdk://site/' . $site_id . '/trash',
 		);
@@ -335,7 +323,6 @@ final class PufferDesk_Virtual_Filesystem {
 			'home'       => $home_label,
 			'desktop'    => __( 'Desktop', 'pufferdesk-admin-desktop' ),
 			'documents'  => __( 'Documents', 'pufferdesk-admin-desktop' ),
-			'notes'      => __( 'Notes', 'pufferdesk-admin-desktop' ),
 			'stickies'   => __( 'Sticky Notes', 'pufferdesk-admin-desktop' ),
 			'trash'      => $trash,
 			'thisPc'     => __( 'This PC', 'pufferdesk-admin-desktop' ),
@@ -406,7 +393,6 @@ final class PufferDesk_Virtual_Filesystem {
 		if ( $this->is_pufferdesk_theme( $theme ) ) {
 			return array(
 				self::FOLDER_DOCUMENTS,
-				self::FOLDER_NOTES,
 			);
 		}
 
@@ -414,7 +400,6 @@ final class PufferDesk_Virtual_Filesystem {
 			return array(
 				self::FOLDER_HOME,
 				self::FOLDER_DOCUMENTS,
-				self::FOLDER_NOTES,
 			);
 		}
 
@@ -422,7 +407,6 @@ final class PufferDesk_Virtual_Filesystem {
 			self::FOLDER_HOME,
 			self::FOLDER_DESKTOP,
 			self::FOLDER_DOCUMENTS,
-			self::FOLDER_NOTES,
 			self::FOLDER_STICKIES,
 		);
 	}
