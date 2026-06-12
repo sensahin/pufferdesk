@@ -788,8 +788,8 @@
 		}
 
 		item.classList.add('is-tooltip-dismissed');
-		if (shouldBlur && typeof item.blur === 'function') {
-			item.blur();
+		if (shouldBlur) {
+			blurTooltipItem(item);
 		}
 	}
 
@@ -797,6 +797,53 @@
 		if (item) {
 			item.classList.remove('is-tooltip-dismissed');
 		}
+	}
+
+	function blurTooltipItem(item) {
+		if (!item) {
+			return;
+		}
+
+		const active = document.activeElement;
+		if (active && item.contains(active) && typeof active.blur === 'function') {
+			active.blur();
+		} else if (typeof item.blur === 'function') {
+			item.blur();
+		}
+	}
+
+	function getTooltipItems(dock) {
+		return dock ? Array.from(dock.querySelectorAll('.pdk-tooltip-trigger')) : [];
+	}
+
+	function tooltipCanBeShown(item) {
+		return Boolean(item
+			&& !item.classList.contains('is-dock-pressing')
+			&& !item.classList.contains('is-dock-reorder-pending')
+			&& !item.classList.contains('is-dock-reordering')
+			&& !item.classList.contains('is-dock-reordering-source')
+			&& !item.classList.contains('pdk-dock-drag-proxy'));
+	}
+
+	function showExclusiveTooltip(dock, activeItem) {
+		if (!dock || !activeItem) {
+			return;
+		}
+
+		getTooltipItems(dock).forEach((item) => {
+			if (item === activeItem && tooltipCanBeShown(item)) {
+				restoreTooltip(item);
+				return;
+			}
+
+			dismissTooltip(item);
+		});
+	}
+
+	function dismissDockTooltips(dock, shouldBlur = false) {
+		getTooltipItems(dock).forEach((item) => {
+			dismissTooltip(item, shouldBlur);
+		});
 	}
 
 	function bindTooltipDismissal(shell) {
@@ -807,11 +854,23 @@
 		}
 
 		dock.dataset.pdkTooltipDismissalBound = '1';
+		dock.addEventListener('pointerover', (event) => {
+			const item = getDockItem(event.target);
+
+			if (!item || (event.relatedTarget && item.contains(event.relatedTarget))) {
+				return;
+			}
+
+			showExclusiveTooltip(dock, item);
+		});
+		dock.addEventListener('focusin', (event) => {
+			showExclusiveTooltip(dock, getDockItem(event.target));
+		});
 		dock.addEventListener('pointerdown', (event) => {
-			dismissTooltip(getDockItem(event.target));
+			dismissDockTooltips(dock);
 		});
 		dock.addEventListener('click', (event) => {
-			dismissTooltip(getDockItem(event.target), true);
+			dismissDockTooltips(dock, true);
 		});
 		dock.addEventListener('keydown', (event) => {
 			if (event.key !== 'Enter' && event.key !== ' ') {
@@ -827,17 +886,16 @@
 				return;
 			}
 
-			restoreTooltip(item);
+			dismissTooltip(item, true);
 		});
 		dock.addEventListener('focusout', (event) => {
-			restoreTooltip(getDockItem(event.target));
+			dismissTooltip(getDockItem(event.target));
 		});
-		document.addEventListener('pointermove', (event) => {
-			dock.querySelectorAll('.is-tooltip-dismissed').forEach((item) => {
-				if (!item.contains(event.target)) {
-					restoreTooltip(item);
-				}
-			});
+		document.addEventListener('pointerup', () => {
+			dismissDockTooltips(dock, true);
+		}, { passive: true });
+		document.addEventListener('pointercancel', () => {
+			dismissDockTooltips(dock, true);
 		}, { passive: true });
 	}
 
@@ -864,7 +922,7 @@
 		function getInsertBeforeItem(event) {
 			const vertical = isVerticalDock();
 			const coordinate = vertical ? event.clientY : event.clientX;
-			const items = getDockAppItems(dock);
+			const items = getDockAppItems(dock).filter((item) => !drag || item !== drag.item);
 
 			return items.find((item) => {
 				const rect = item.getBoundingClientRect();
@@ -879,15 +937,60 @@
 				child.classList
 				&& (
 					child.classList.contains('pdk-dock-item')
-					|| child.classList.contains('pdk-dock-reorder-placeholder')
 				)
 			));
 		}
 
+		function cancelTransformAnimations(item) {
+			if (!item || typeof item.getAnimations !== 'function') {
+				return;
+			}
+
+			item.getAnimations().forEach((animation) => {
+				const transitionProperty = animation && typeof animation.transitionProperty === 'string'
+					? animation.transitionProperty
+					: '';
+				const effect = animation ? animation.effect : null;
+				const keyframes = effect && typeof effect.getKeyframes === 'function'
+					? effect.getKeyframes()
+					: [];
+				const animatesTransform = transitionProperty === 'transform'
+					|| keyframes.some((keyframe) => Object.prototype.hasOwnProperty.call(keyframe, 'transform'));
+
+				if (animatesTransform && typeof animation.cancel === 'function') {
+					animation.cancel();
+				}
+			});
+		}
+
+		function clearLayoutAnimation(item) {
+			if (!item) {
+				return;
+			}
+
+			window.clearTimeout(item.pdkDockLayoutAnimationTimer);
+			window.clearTimeout(item.pdkDockLayoutAnimationFallbackTimer);
+			if (item.pdkDockLayoutAnimationFrame) {
+				window.cancelAnimationFrame(item.pdkDockLayoutAnimationFrame);
+			}
+			cancelTransformAnimations(item);
+			item.style.transition = 'none';
+			item.style.transform = 'none';
+			item.getBoundingClientRect();
+			item.style.transform = '';
+			item.style.transition = '';
+			delete item.pdkDockLayoutAnimationFrame;
+			delete item.pdkDockLayoutAnimationFallbackTimer;
+			delete item.pdkDockLayoutAnimationPlaying;
+			delete item.pdkDockLayoutAnimationTimer;
+		}
+
 		function animateDockLayout(update) {
 			const firstRects = new Map();
+			const layoutItems = getLayoutAnimationItems();
 
-			getLayoutAnimationItems().forEach((item) => {
+			layoutItems.forEach(clearLayoutAnimation);
+			layoutItems.forEach((item) => {
 				firstRects.set(item, item.getBoundingClientRect());
 			});
 			update();
@@ -906,106 +1009,153 @@
 					return;
 				}
 
-				window.clearTimeout(item.pdkDockLayoutAnimationTimer);
+				clearLayoutAnimation(item);
 				item.style.transition = 'none';
 				item.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
 
-				window.requestAnimationFrame(() => {
+				const play = () => {
+					if (item.pdkDockLayoutAnimationPlaying) {
+						return;
+					}
+
+					item.pdkDockLayoutAnimationPlaying = true;
+					window.clearTimeout(item.pdkDockLayoutAnimationFallbackTimer);
 					item.style.transition = `transform ${layoutAnimationDuration}ms cubic-bezier(0.22, 1, 0.36, 1)`;
 					item.style.transform = '';
 					item.pdkDockLayoutAnimationTimer = window.setTimeout(() => {
-						item.style.transition = '';
-						item.style.transform = '';
-						delete item.pdkDockLayoutAnimationTimer;
+						clearLayoutAnimation(item);
 					}, layoutAnimationDuration + 40);
-				});
+				};
+
+				item.pdkDockLayoutAnimationPlaying = false;
+				item.pdkDockLayoutAnimationFrame = window.requestAnimationFrame(play);
+				item.pdkDockLayoutAnimationFallbackTimer = window.setTimeout(play, 40);
 			});
 		}
 
-		function createPlaceholder(item) {
+		function getLayoutRect(item) {
+			const transition = item.style.transition;
+			const transform = item.style.transform;
+
+			item.style.transition = 'none';
+			item.style.transform = 'none';
 			const rect = item.getBoundingClientRect();
-			const placeholder = document.createElement('span');
+			item.style.transition = transition;
+			item.style.transform = transform;
 
-			placeholder.className = 'pdk-dock-reorder-placeholder';
-			placeholder.setAttribute('aria-hidden', 'true');
-			placeholder.style.width = `${rect.width}px`;
-			placeholder.style.height = `${rect.height}px`;
-			placeholder.style.flexBasis = `${isVerticalDock() ? rect.height : rect.width}px`;
-
-			return placeholder;
+			return rect;
 		}
 
 		function positionFloatingItem(event, animate = false) {
+			if (!drag || !drag.proxy) {
+				return;
+			}
+
+			drag.proxy.style.transition = animate
+				? 'left 120ms cubic-bezier(0.22, 1, 0.36, 1), top 120ms cubic-bezier(0.22, 1, 0.36, 1), transform 120ms ease'
+				: 'none';
+			drag.proxy.style.left = `${Math.round(event.clientX - drag.offsetX)}px`;
+			drag.proxy.style.top = `${Math.round(event.clientY - drag.offsetY)}px`;
+		}
+
+		function moveDragSlot(before) {
 			if (!drag || !drag.item) {
 				return;
 			}
 
-			drag.item.style.transition = animate
-				? 'left 120ms cubic-bezier(0.22, 1, 0.36, 1), top 120ms cubic-bezier(0.22, 1, 0.36, 1), transform 120ms ease'
-				: 'none';
-			drag.item.style.left = `${Math.round(event.clientX - drag.offsetX)}px`;
-			drag.item.style.top = `${Math.round(event.clientY - drag.offsetY)}px`;
-		}
-
-		function movePlaceholder(before) {
-			if (!drag || !drag.placeholder) {
-				return;
-			}
-
-			const currentNext = drag.placeholder.nextElementSibling;
-			if (before === drag.placeholder || before === currentNext) {
+			const currentNext = drag.item.nextElementSibling;
+			if (before === drag.item || before === currentNext) {
 				return;
 			}
 
 			animateDockLayout(() => {
-				dock.insertBefore(drag.placeholder, before || getDockEndAnchor(dock) || null);
+				dock.insertBefore(drag.item, before || getDockEndAnchor(dock) || null);
 			});
 		}
 
-		function clearFloatingItemStyles(item) {
+		function createDragProxy(item, rect) {
+			const proxy = item.cloneNode(true);
+
+			proxy.querySelectorAll('.pdk-tooltip').forEach((tooltip) => tooltip.remove());
+			proxy.classList.remove('is-context-menu-active', 'is-dock-pressing', 'is-dock-reorder-pending', 'is-dock-reordering-source');
+			proxy.classList.add('is-dock-reordering', 'pdk-dock-drag-proxy', 'is-tooltip-dismissed');
+			proxy.dataset.pdkDockReorderProxy = '1';
+			proxy.setAttribute('aria-hidden', 'true');
+			proxy.setAttribute('tabindex', '-1');
+			proxy.style.width = `${rect.width}px`;
+			proxy.style.height = `${rect.height}px`;
+			proxy.style.left = `${Math.round(rect.left)}px`;
+			proxy.style.margin = '0';
+			proxy.style.opacity = '1';
+			proxy.style.pointerEvents = 'none';
+			proxy.style.position = 'fixed';
+			proxy.style.top = `${Math.round(rect.top)}px`;
+			proxy.style.transform = 'scale(1.08)';
+			proxy.style.zIndex = 'calc(var(--pdk-layer-dock, 9000) + 1)';
+
+			return proxy;
+		}
+
+		function removeDragProxy(proxy) {
+			if (proxy && proxy.parentNode) {
+				proxy.remove();
+			}
+		}
+
+		function clearDragSourceStyles(item) {
 			if (!item) {
 				return;
 			}
 
-			item.classList.remove('is-dock-reorder-pending', 'is-dock-reordering', 'pdk-dock-drag-proxy', 'is-tooltip-dismissed');
-			item.style.height = '';
-			item.style.left = '';
-			item.style.position = '';
-			item.style.top = '';
-			item.style.transform = '';
-			item.style.transition = '';
-			item.style.width = '';
-			item.style.zIndex = '';
-			item.removeAttribute('data-pdk-dock-reorder-proxy');
+			clearLayoutAnimation(item);
+			item.classList.remove('is-dock-reorder-pending', 'is-dock-reordering-source', 'is-tooltip-dismissed');
 
+			if (typeof item.pdkDockOriginalOpacity === 'string') {
+				item.style.opacity = item.pdkDockOriginalOpacity;
+			} else {
+				item.style.opacity = '';
+			}
+			if (typeof item.pdkDockOriginalPointerEvents === 'string') {
+				item.style.pointerEvents = item.pdkDockOriginalPointerEvents;
+			} else {
+				item.style.pointerEvents = '';
+			}
+			if (typeof item.pdkDockOriginalTransition === 'string') {
+				item.style.transition = item.pdkDockOriginalTransition;
+			} else {
+				item.style.transition = '';
+			}
 			if (item.pdkDockOriginalAriaHidden === null) {
 				item.removeAttribute('aria-hidden');
 			} else if (typeof item.pdkDockOriginalAriaHidden === 'string') {
 				item.setAttribute('aria-hidden', item.pdkDockOriginalAriaHidden);
 			}
 			delete item.pdkDockOriginalAriaHidden;
+			delete item.pdkDockOriginalOpacity;
+			delete item.pdkDockOriginalPointerEvents;
+			delete item.pdkDockOriginalTransition;
 		}
 
 		function startDrag(event) {
 			const itemRect = drag.item.getBoundingClientRect();
-			const placeholder = createPlaceholder(drag.item);
+			const proxy = createDragProxy(drag.item, itemRect);
 
 			drag.dragging = true;
 			drag.offsetX = event.clientX - itemRect.left;
 			drag.offsetY = event.clientY - itemRect.top;
-			drag.placeholder = placeholder;
+			drag.proxy = proxy;
 			drag.item.pdkDockOriginalAriaHidden = drag.item.getAttribute('aria-hidden');
+			drag.item.pdkDockOriginalOpacity = drag.item.style.opacity;
+			drag.item.pdkDockOriginalPointerEvents = drag.item.style.pointerEvents;
+			drag.item.pdkDockOriginalTransition = drag.item.style.transition;
 			drag.item.setAttribute('aria-hidden', 'true');
 			drag.item.classList.remove('is-dock-reorder-pending');
-			drag.item.classList.add('is-dock-reordering', 'pdk-dock-drag-proxy', 'is-tooltip-dismissed');
-			drag.item.dataset.pdkDockReorderProxy = '1';
-			drag.item.style.width = `${itemRect.width}px`;
-			drag.item.style.height = `${itemRect.height}px`;
-			drag.item.style.left = `${Math.round(itemRect.left)}px`;
-			drag.item.style.top = `${Math.round(itemRect.top)}px`;
-			drag.item.style.zIndex = 'var(--pdk-layer-context-menu)';
-			dock.insertBefore(placeholder, drag.item);
-			shell.appendChild(drag.item);
+			drag.item.classList.add('is-dock-reordering-source', 'is-tooltip-dismissed');
+			drag.item.style.transition = 'none';
+			drag.item.style.opacity = '0';
+			drag.item.style.pointerEvents = 'none';
+			drag.item.getBoundingClientRect();
+			shell.appendChild(proxy);
 			dock.classList.add('is-reordering');
 			shell.dataset.pdkDockReordering = '1';
 			positionFloatingItem(event);
@@ -1034,13 +1184,17 @@
 			if (!drag) {
 				return;
 			}
+			if (drag.releasing) {
+				return;
+			}
+			drag.releasing = true;
 
 			const didDrag = drag.dragging;
 			const item = drag.item;
-			const placeholder = drag.placeholder || null;
-			const commit = didDrag && shouldSave && placeholder;
+			const proxy = drag.proxy || null;
+			const commit = didDrag && shouldSave && proxy;
 
-			if (event && typeof item.releasePointerCapture === 'function') {
+			if (event && typeof event.pointerId !== 'undefined' && typeof item.releasePointerCapture === 'function') {
 				try {
 					item.releasePointerCapture(event.pointerId);
 				} catch (error) {
@@ -1052,20 +1206,9 @@
 				config.workspaceState = Object.assign({}, getWorkspaceState(config), {
 					[workspaceSections.DOCK_APPS]: drag.originalOrder
 				});
-				if (placeholder) {
-					dock.insertBefore(item, placeholder);
-				} else {
-					dock.insertBefore(item, getDockEndAnchor(dock) || null);
-				}
-				clearFloatingItemStyles(item);
-				if (placeholder) {
-					placeholder.remove();
-				}
-				applyOrderToDock(shell, config);
-				dock.classList.remove('is-reordering');
-				delete shell.dataset.pdkDockReordering;
-				drag = null;
-				return;
+				animateDockLayout(() => {
+					applyOrderToDock(shell, config);
+				});
 			}
 
 			function finish() {
@@ -1075,29 +1218,24 @@
 					saveDockOrder(config, sessionStore, getDockOrderFromDom(dock));
 				}
 
-				clearFloatingItemStyles(item);
-				if (placeholder) {
-					placeholder.remove();
-				}
+				getLayoutAnimationItems().forEach(clearLayoutAnimation);
+				clearDragSourceStyles(item);
+				removeDragProxy(proxy);
 				dock.classList.remove('is-reordering');
 				delete shell.dataset.pdkDockReordering;
 				drag = null;
 			}
 
-			if (commit && event) {
-				const placeholderRect = placeholder.getBoundingClientRect();
+			if (didDrag && proxy) {
+				const slotRect = getLayoutRect(item);
 
-				item.style.transition = 'left 120ms cubic-bezier(0.22, 1, 0.36, 1), top 120ms cubic-bezier(0.22, 1, 0.36, 1), transform 120ms ease';
-				item.style.left = `${Math.round(placeholderRect.left)}px`;
-				item.style.top = `${Math.round(placeholderRect.top)}px`;
-				item.style.transform = 'scale(1)';
+				proxy.style.transition = 'left 140ms cubic-bezier(0.22, 1, 0.36, 1), top 140ms cubic-bezier(0.22, 1, 0.36, 1), transform 140ms ease';
+				proxy.style.left = `${Math.round(slotRect.left)}px`;
+				proxy.style.top = `${Math.round(slotRect.top)}px`;
+				proxy.style.transform = 'scale(1)';
 				window.setTimeout(() => {
-					dock.insertBefore(item, placeholder);
 					finish();
-				}, 120);
-			} else if (placeholder) {
-				dock.insertBefore(item, placeholder);
-				finish();
+				}, 140);
 			} else {
 				finish();
 			}
@@ -1145,8 +1283,9 @@
 		window.addEventListener('pointermove', (event) => {
 			if (
 				!drag
+				|| drag.releasing
 				|| event.pointerId !== drag.pointerId
-				|| (drag.dragging ? !shell.contains(drag.item) : !dock.contains(drag.item))
+				|| (drag.dragging ? (!dock.contains(drag.item) || !drag.proxy || !shell.contains(drag.proxy)) : !dock.contains(drag.item))
 			) {
 				return;
 			}
@@ -1168,12 +1307,20 @@
 			}
 
 			positionFloatingItem(event);
-			movePlaceholder(getInsertBeforeItem(event));
+			moveDragSlot(getInsertBeforeItem(event));
 			event.preventDefault();
 		});
 
 		window.addEventListener('pointerup', (event) => {
 			if (!drag || event.pointerId !== drag.pointerId) {
+				return;
+			}
+
+			endDrag(event, true);
+		});
+
+		window.addEventListener('mouseup', (event) => {
+			if (!drag) {
 				return;
 			}
 
@@ -1186,6 +1333,14 @@
 			}
 
 			endDrag(event, false);
+		});
+
+		window.addEventListener('blur', () => {
+			if (!drag) {
+				return;
+			}
+
+			endDrag(null, false);
 		});
 
 		shell.addEventListener('click', (event) => {
