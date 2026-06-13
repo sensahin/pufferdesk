@@ -327,6 +327,8 @@
 	padding: 0 18px;
 	position: relative;
 	transition: opacity 120ms ease, transform 140ms ease;
+	-webkit-user-select: none;
+	user-select: none;
 	z-index: var(--pdk-layer-menu);
 }
 
