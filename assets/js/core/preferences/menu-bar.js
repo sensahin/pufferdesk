@@ -178,15 +178,20 @@
 	}
 
 	function syncHiddenState(shell) {
+		const wasHidden = shell.dataset.pdkMenuBarHidden === '1';
+		const wasRevealed = shell.dataset.pdkMenuBarRevealed === '1';
+
 		shell.dataset.pdkMenuBarHidden = '0';
 		setRevealed(shell, false);
 		syncVisibilityStyles(shell);
 
-		shell.dispatchEvent(new window.CustomEvent(domEventNames.MENU_BAR_LAYOUT_CHANGE, {
-			detail: {
-				hidden: false
-			}
-		}));
+		if (wasHidden || wasRevealed) {
+			shell.dispatchEvent(new window.CustomEvent(domEventNames.MENU_BAR_LAYOUT_CHANGE, {
+				detail: {
+					hidden: false
+				}
+			}));
+		}
 	}
 
 	function apply(shell, preferences = {}) {

@@ -1497,7 +1497,7 @@ final class PufferDesk_Theme_Registry {
 				'keep_in_launcher'     => __( 'Keep in Dock', 'pufferdesk-admin-desktop' ),
 				'remove_from_launcher' => __( 'Remove from Dock', 'pufferdesk-admin-desktop' ),
 				'open_at_login'        => __( 'Open at Login', 'pufferdesk-admin-desktop' ),
-				'minimize_animation_genie' => __( 'Genie Effect', 'pufferdesk-admin-desktop' ),
+				'minimize_animation_genie' => __( 'Sweep Effect', 'pufferdesk-admin-desktop' ),
 				'minimize_animation_scale' => __( 'Scale Effect', 'pufferdesk-admin-desktop' ),
 				'menu_bar'             => __( 'Menu Bar', 'pufferdesk-admin-desktop' ),
 				'menu_bar_background'  => __( 'Show menu bar background', 'pufferdesk-admin-desktop' ),

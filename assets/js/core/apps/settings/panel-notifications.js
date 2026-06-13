@@ -266,8 +266,6 @@
 			), control));
 		});
 
-		panel.appendChild(createSectionHeading(t('notifications.title')));
-		panel.appendChild(dom.createElement('p', 'pdk-settings-panel-description', t('notifications.description')));
 		panel.appendChild(createSectionHeading(t('notifications.headings.behavior')));
 		panel.appendChild(behaviorSection);
 		panel.appendChild(createSectionHeading(t('notifications.headings.sources')));

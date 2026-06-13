@@ -759,8 +759,6 @@
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-menu-bar-background="1"] {
-	--pdk-desktop-icon-layer-top: calc(var(--pdk-menu-bar-height) + var(--pdk-window-safe-edge) + var(--pdk-desktop-icon-selection-top-bleed) + var(--pdk-desktop-icon-selection-surface-overhang));
-	--pdk-desktop-object-layer-top: calc(var(--pdk-menu-bar-height) + var(--pdk-window-safe-edge));
 	--pdk-liquid-glass-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.18));
 	--pdk-liquid-glass-bar-border: rgba(255, 255, 255, 0.18);
 	--pdk-liquid-glass-bar-filter: blur(28px) saturate(190%) brightness(1.04);
@@ -2053,6 +2051,64 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-pane {
 	padding-left: var(--pdk-settings-main-edge);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-inline-select {
+	min-height: 22px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-inline-select:hover,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-inline-select:focus-within,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-inline-select:has(.pdk-settings-value-select:hover),
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-inline-select:has(.pdk-settings-value-select:focus) {
+	background: rgba(142, 142, 147, 0.16);
+	box-shadow: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-inline-select .pdk-settings-value-select {
+	height: 22px;
+	line-height: 22px;
+	min-height: 22px;
+	padding-right: 30px !important;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-select-chevrons {
+	background: rgba(255, 255, 255, 0.08);
+	border: 0;
+	border-radius: 50%;
+	box-shadow: none;
+	height: 22px;
+	right: 0;
+	top: 50%;
+	transform: translateY(-50%);
+	transition: background-color 120ms ease;
+	width: 22px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-inline-select:hover .pdk-settings-select-chevrons,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-inline-select:focus-within .pdk-settings-select-chevrons,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-value-select:hover + .pdk-settings-select-chevrons,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-value-select:focus + .pdk-settings-select-chevrons {
+	background: rgba(255, 255, 255, 0.16);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-select-chevrons::before,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-select-chevrons::after {
+	border-right: 1.75px solid rgba(255, 255, 255, 0.95);
+	border-top: 1.75px solid rgba(255, 255, 255, 0.95);
+	height: 3px;
+	left: 8.5px;
+	opacity: 1;
+	transition: none;
+	width: 3px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-select-chevrons::before {
+	top: 6px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-select-chevrons::after {
+	bottom: 6px;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-icon-widget-style="dark"] .pdk-settings-sidebar-icon,

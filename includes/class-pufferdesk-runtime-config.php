@@ -1143,8 +1143,6 @@ final class PufferDesk_Runtime_Config {
 				),
 			),
 			'notifications' => array(
-				'title'       => __( 'Notifications', 'pufferdesk-admin-desktop' ),
-				'description' => __( 'Choose which WordPress and PufferDesk events appear in Notification Center.', 'pufferdesk-admin-desktop' ),
 				'headings'    => array(
 					'behavior' => __( 'Behavior', 'pufferdesk-admin-desktop' ),
 					'sources'  => __( 'Sources', 'pufferdesk-admin-desktop' ),
