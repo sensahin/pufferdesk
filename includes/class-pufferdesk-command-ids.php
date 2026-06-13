@@ -41,8 +41,7 @@ final class PufferDesk_Command_Ids {
 	const FOLDER_SIDEBAR_REMOVE              = 'folder.sidebar-remove';
 	const FOLDER_TAB_CLOSE              = 'folder-tab.close';
 	const FOLDER_TAB_CLOSE_OTHERS       = 'folder-tab.close-others';
-	const FOLDER_TAB_CLOSE_RIGHT        = 'folder-tab.close-right';
-	const FOLDER_TAB_DUPLICATE          = 'folder-tab.duplicate';
+	const FOLDER_TAB_MOVE_TO_NEW_WINDOW = 'folder-tab.move-to-new-window';
 	const FOLDER_TOOLBAR_DISPLAY        = 'folder.toolbar-display';
 	const HELP_KEYBOARD_SHORTCUTS       = 'help.keyboard-shortcuts';
 	const NAVIGATE_URL                  = 'navigate-url';

@@ -1473,12 +1473,9 @@
 							commandItem(getLabel('close_other_tabs'), commandIds.FOLDER_TAB_CLOSE_OTHERS, Object.assign({
 								disabled: tabDetails.tabCount <= 1
 							}, payload)),
-							commandItem(getLabel('close_tabs_to_right'), commandIds.FOLDER_TAB_CLOSE_RIGHT, Object.assign({
-								disabled: tabDetails.index < 0 || tabDetails.index >= tabDetails.tabCount - 1
-							}, payload)),
-							separator(),
-							commandItem(getLabel('duplicate_tab'), commandIds.FOLDER_TAB_DUPLICATE, Object.assign({
-								icon: 'dashicons-admin-page'
+							commandItem(getLabel('move_tab_to_new_window'), commandIds.FOLDER_TAB_MOVE_TO_NEW_WINDOW, Object.assign({
+								disabled: tabDetails.tabCount <= 1,
+								icon: 'dashicons-external'
 							}, payload))
 						]
 					}

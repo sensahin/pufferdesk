@@ -3230,30 +3230,54 @@
 			return rendered;
 		}
 
-		function duplicateFolderTab(win, tabId) {
+		function cloneFolderTabState(tab) {
+			return {
+				entries: Array.isArray(tab.entries) ? tab.entries.slice() : [tab.folderId],
+				folderId: tab.folderId,
+				id: tab.id,
+				index: Number.isInteger(tab.index) ? tab.index : 0
+			};
+		}
+
+		function moveFolderTabToNewWindow(win, tabId) {
 			const state = getFolderWindowTabs(win);
 			const index = state.tabs.findIndex((tab) => tab.id === tabId);
 			const tab = state.tabs[index] || null;
 
-			if (!win || !tab) {
-				return null;
+			if (!win || !tab || state.tabs.length <= 1) {
+				return false;
 			}
 
-			const duplicate = createFolderTab(tab.folderId, {
-				entries: tab.entries.slice(),
-				index: tab.index
-			});
-			state.tabs.splice(index + 1, 0, duplicate);
-			state.activeTabId = duplicate.id;
-
-			if (renderFolderWindow(win, duplicate.folderId, {
-				updateHistory: false,
+			const movedTab = cloneFolderTabState(tab);
+			const newWindow = openFolder(movedTab.folderId, {
+				activeTabId: movedTab.id,
+				forceNewWindow: true,
+				recordRecent: false,
+				tabs: [movedTab],
 				touch: false
-			})) {
-				saveFolderWindowSession();
+			});
+
+			if (!newWindow) {
+				return false;
 			}
 
-			return duplicate;
+			const movingActive = state.activeTabId === tabId;
+			state.tabs.splice(index, 1);
+			if (movingActive) {
+				const nextTab = state.tabs[Math.min(index, state.tabs.length - 1)];
+				state.activeTabId = nextTab ? nextTab.id : '';
+			}
+
+			const activeTab = getActiveFolderTab(win);
+			if (activeTab) {
+				renderFolderWindow(win, activeTab.folderId, {
+					updateHistory: false,
+					touch: false
+				});
+			}
+			saveFolderWindowSession();
+
+			return true;
 		}
 
 		function closeOtherFolderTabs(win, tabId) {
@@ -3268,34 +3292,6 @@
 			state.activeTabId = tab.id;
 
 			if (renderFolderWindow(win, tab.folderId, {
-				updateHistory: false,
-				touch: false
-			})) {
-				saveFolderWindowSession();
-				return true;
-			}
-
-			return false;
-		}
-
-		function closeFolderTabsToRight(win, tabId) {
-			const state = getFolderWindowTabs(win);
-			const index = state.tabs.findIndex((tab) => tab.id === tabId);
-
-			if (!win || index < 0 || index >= state.tabs.length - 1) {
-				return false;
-			}
-
-			const keepTabs = state.tabs.slice(0, index + 1);
-			const activeStillOpen = keepTabs.some((tab) => tab.id === state.activeTabId);
-			const activeTab = activeStillOpen
-				? state.tabs.find((tab) => tab.id === state.activeTabId)
-				: state.tabs[index];
-
-			state.tabs = keepTabs;
-			state.activeTabId = activeTab ? activeTab.id : state.tabs[0] ? state.tabs[0].id : '';
-
-			if (activeTab && renderFolderWindow(win, activeTab.folderId, {
 				updateHistory: false,
 				touch: false
 			})) {
@@ -3351,6 +3347,10 @@
 			const label = getFolderTabTitle(tab);
 
 			item.setAttribute('role', 'presentation');
+			item.dataset.pdkContext = contextTargets.FOLDER_TAB;
+			item.dataset.pdkContextId = tab.id;
+			item.dataset.pdkContextLabel = label;
+			item.dataset.pdkFolderId = tab.folderId || '';
 			button.type = 'button';
 			button.className = 'pdk-finder-tab-button';
 			button.dataset.pdkNoDrag = '';
@@ -4550,18 +4550,17 @@
 			addFolderSidebarFavorite,
 			bindShellClicks,
 			closeFolderInfoWindow,
-				closeFolderTab,
-				closeFolderTabsToRight,
-				closeFolderWindow,
-				closeOtherFolderTabs,
-				deleteSelectedFolderItems,
-				deleteSelectedFolderItemsImmediately,
-				duplicateFolderTab,
-				getActiveFolderWindow,
-				getSelectedFolderItems,
-				getWindowOptions,
-				hasSelectedFolderItems,
-				openAbout,
+			closeFolderTab,
+			closeFolderWindow,
+			closeOtherFolderTabs,
+			deleteSelectedFolderItems,
+			deleteSelectedFolderItemsImmediately,
+			getActiveFolderWindow,
+			getSelectedFolderItems,
+			getWindowOptions,
+			hasSelectedFolderItems,
+			moveFolderTabToNewWindow,
+			openAbout,
 			openApp,
 			openFolder,
 			openFolderWindow(folderId, options = {}) {
@@ -4577,35 +4576,35 @@
 			openDocumentWith,
 			openSettingsPanel,
 			openSiteAbout,
-				openUrl,
-				refreshFolderInfoWindow,
-				refreshDocumentInfoWindow,
-				moveDocumentToTrash,
-				renameDocument,
-				refreshFolderWindow,
-				removeFolderSidebarFavorite,
-				setFolderSortMode(folderId, mode, options = {}) {
-					const win = options.windowElement || getFolderWindow(folderId);
-					return setExplorerSortMode(win, mode, Object.assign({}, options, {
-						folderId
-					}));
-				},
-				setFolderViewMode(folderId, mode, options = {}) {
-					const win = options.windowElement || getFolderWindow(folderId);
-					return setExplorerViewMode(win, mode, Object.assign({}, options, {
-						folderId
-					}));
-				},
-				setFolderGroupMode(folderId, mode, options = {}) {
-					const win = options.windowElement || getFolderWindow(folderId);
-					return setExplorerGroupMode(win, mode, Object.assign({}, options, {
-						folderId
-					}));
-				},
-				setFolderProvider(provider) {
-					folderProvider = provider && typeof provider === 'object' ? provider : null;
-				},
-				startInlineRenameFolderItem,
+			openUrl,
+			refreshFolderInfoWindow,
+			refreshDocumentInfoWindow,
+			moveDocumentToTrash,
+			renameDocument,
+			refreshFolderWindow,
+			removeFolderSidebarFavorite,
+			setFolderSortMode(folderId, mode, options = {}) {
+				const win = options.windowElement || getFolderWindow(folderId);
+				return setExplorerSortMode(win, mode, Object.assign({}, options, {
+					folderId
+				}));
+			},
+			setFolderViewMode(folderId, mode, options = {}) {
+				const win = options.windowElement || getFolderWindow(folderId);
+				return setExplorerViewMode(win, mode, Object.assign({}, options, {
+					folderId
+				}));
+			},
+			setFolderGroupMode(folderId, mode, options = {}) {
+				const win = options.windowElement || getFolderWindow(folderId);
+				return setExplorerGroupMode(win, mode, Object.assign({}, options, {
+					folderId
+				}));
+			},
+			setFolderProvider(provider) {
+				folderProvider = provider && typeof provider === 'object' ? provider : null;
+			},
+			startInlineRenameFolderItem,
 			runSearch
 		};
 	};

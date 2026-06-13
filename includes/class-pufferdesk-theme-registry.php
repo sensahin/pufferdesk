@@ -94,8 +94,7 @@ final class PufferDesk_Theme_Registry {
 						'trash'                   => __( 'Recycle Bin', 'pufferdesk-admin-desktop' ),
 						'close_tab'               => __( 'Close tab', 'pufferdesk-admin-desktop' ),
 						'close_other_tabs'        => __( 'Close other tabs', 'pufferdesk-admin-desktop' ),
-						'close_tabs_to_right'     => __( 'Close tabs to the right', 'pufferdesk-admin-desktop' ),
-						'duplicate_tab'           => __( 'Duplicate tab', 'pufferdesk-admin-desktop' ),
+						'move_tab_to_new_window'  => __( 'Move tab to new window', 'pufferdesk-admin-desktop' ),
 						/* translators: %d: number of items in the Recycle Bin. */
 						'trash_item_count'        => __( 'Recycle Bin, %d item', 'pufferdesk-admin-desktop' ),
 						/* translators: %d: number of items in the Recycle Bin. */

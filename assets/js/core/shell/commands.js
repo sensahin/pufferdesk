@@ -1236,21 +1236,12 @@
 			}
 		});
 
-		register(commandIds.FOLDER_TAB_CLOSE_RIGHT, {
+		register(commandIds.FOLDER_TAB_MOVE_TO_NEW_WINDOW, {
 			isEnabled(payload, detail) {
-				return Boolean(launcher && typeof launcher.closeFolderTabsToRight === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
+				return Boolean(launcher && typeof launcher.moveFolderTabToNewWindow === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
 			},
 			run(payload, detail) {
-				launcher.closeFolderTabsToRight(getTargetWindow(detail), getFolderTabIdFromPayload(payload, detail));
-			}
-		});
-
-		register(commandIds.FOLDER_TAB_DUPLICATE, {
-			isEnabled(payload, detail) {
-				return Boolean(launcher && typeof launcher.duplicateFolderTab === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));
-			},
-			run(payload, detail) {
-				launcher.duplicateFolderTab(getTargetWindow(detail), getFolderTabIdFromPayload(payload, detail));
+				launcher.moveFolderTabToNewWindow(getTargetWindow(detail), getFolderTabIdFromPayload(payload, detail));
 			}
 		});
 
