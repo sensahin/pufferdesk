@@ -189,17 +189,6 @@ final class PufferDesk_App_Registry {
 			),
 		);
 
-		if ( class_exists( 'WooCommerce' ) || current_user_can( 'manage_woocommerce' ) ) {
-			$apps[] = array(
-				'id'    => PufferDesk_App_Ids::WOOCOMMERCE,
-				'label' => __( 'WooCommerce', 'pufferdesk-admin-desktop' ),
-				'url'   => admin_url( 'admin.php?page=wc-admin' ),
-				'icon'  => $this->theme_icon( 'woocommerce.svg', 'dashicons-cart' ),
-				'group' => PufferDesk_App_Normalizer::GROUP_SITE,
-				'cap'   => 'manage_woocommerce',
-			);
-		}
-
 		$apps = $this->admin_menu_provider->merge( $apps );
 		$apps = array_values( array_filter( $apps, array( $this->app_normalizer, 'current_user_can_access_app' ) ) );
 

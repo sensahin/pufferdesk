@@ -280,7 +280,6 @@ final class PufferDesk_Admin_Menu_App_Provider {
 			'tools.php'               => PufferDesk_App_Ids::TOOLS,
 			'upload.php'              => PufferDesk_App_Ids::MEDIA,
 			'users.php'               => PufferDesk_App_Ids::USERS,
-			'admin.php?page=wc-admin' => PufferDesk_App_Ids::WOOCOMMERCE,
 		);
 
 		if ( isset( $core_ids[ $slug ] ) ) {

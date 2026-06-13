@@ -25,7 +25,6 @@ final class PufferDesk_App_Ids {
 	const TOOLS        = 'tools';
 	const TRASH        = 'trash';
 	const USERS        = 'users';
-	const WOOCOMMERCE  = 'woocommerce';
 
 	const NATIVE_SETTINGS     = 'settings';
 	const NATIVE_STICKY_NOTES = 'sticky-notes';
@@ -52,7 +51,6 @@ final class PufferDesk_App_Ids {
 			'TOOLS'        => self::TOOLS,
 			'TRASH'        => self::TRASH,
 			'USERS'        => self::USERS,
-			'WOOCOMMERCE'  => self::WOOCOMMERCE,
 		);
 	}
 
