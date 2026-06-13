@@ -262,7 +262,7 @@ Themes:
 - External theme packs may still use `wallpapers` for theme-managed wallpaper collections. The canonical shape is `array( 'default' => 'wallpaper-id', 'items' => array( array( 'id' => 'wallpaper-id', 'label' => 'Wallpaper Label', 'path' => 'themes/{family}/{version}/wallpapers/file.jpg' ) ) )`.
 - Use `PufferDesk_Wallpaper_Registry` for the shared bundled wallpaper catalog, color backgrounds, theme image wallpapers, upload validation, wallpaper type IDs, and `--pdk-wallpaper-*` CSS-variable resolution. Wallpaper type IDs are exposed through `runtime.contracts.wallpaperTypes`; do not read wallpaper URLs or repeat wallpaper type strings directly from templates or app JS.
 - Keep OS media original, licensed for redistribution, or otherwise release-safe.
-- The public `redmond/modern` theme is Windows-inspired, not a Windows clone. Keep it on the taskbar/Start shell contract, use original CSS/SVG assets, use system font stacks only, and do not add Microsoft-owned logos, wallpapers, icons, font files, or copied trade dress.
+- The public `redmond/default` theme is Windows-inspired, not a Windows clone. Keep it on the taskbar/Start shell contract, use original CSS/SVG assets, use system font stacks only, and do not add Microsoft-owned logos, wallpapers, icons, font files, or copied trade dress.
 - Template override resolution order is:
   1. `templates/themes/{theme_id}/{template}`
   2. `templates/themes/{family}/{template}`

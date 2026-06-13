@@ -91,9 +91,8 @@
 
 		function isRedmondTheme() {
 			const theme = config.theme && typeof config.theme === 'object' ? config.theme : {};
-			const user = config.user && typeof config.user === 'object' ? config.user : {};
 
-			return theme.family === 'redmond' || theme.id === 'redmond/modern' || user.themeId === 'redmond/modern';
+			return theme.family === 'redmond';
 		}
 
 		function isPufferDeskTheme() {

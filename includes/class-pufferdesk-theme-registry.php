@@ -65,10 +65,10 @@ final class PufferDesk_Theme_Registry {
 				'label'          => __( 'Redmond', 'pufferdesk-admin-desktop' ),
 				'family'         => 'redmond',
 				'family_label'   => __( 'Redmond', 'pufferdesk-admin-desktop' ),
-				'version'        => 'modern',
-				'version_label'  => __( 'Modern', 'pufferdesk-admin-desktop' ),
+				'version'        => 'default',
+				'version_label'  => __( 'Default', 'pufferdesk-admin-desktop' ),
 				'parent'         => 'pufferdesk-base',
-				'stylesheet'     => 'redmond/modern.css',
+				'stylesheet'     => 'redmond/default.css',
 				'media'          => array(
 					'wallpapers' => array(
 						'default' => 'pane-light',
@@ -85,7 +85,7 @@ final class PufferDesk_Theme_Registry {
 				'documents'      => array(
 					'stickyNoteSavePolicy' => 'default-location',
 				),
-				'mode_tokens'    => $this->get_redmond_modern_mode_tokens(),
+				'mode_tokens'    => $this->get_redmond_default_mode_tokens(),
 				'app_labels'     => array(
 					'trash' => __( 'Recycle Bin', 'pufferdesk-admin-desktop' ),
 				),
@@ -484,11 +484,11 @@ final class PufferDesk_Theme_Registry {
 	}
 
 	/**
-	 * Get Redmond Modern light/dark surface tokens.
+	 * Get Redmond default light/dark surface tokens.
 	 *
 	 * @return array<string,array<string,array<string,string>>>
 	 */
-	private function get_redmond_modern_mode_tokens() {
+	private function get_redmond_default_mode_tokens() {
 		return array(
 			'light' => array(
 				'context_menu'     => array(

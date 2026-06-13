@@ -244,8 +244,7 @@
 			const labels = getLabels(config);
 			const appIds = window.PufferDesk.apps.ids || {};
 			const theme = config && config.theme && typeof config.theme === 'object' ? config.theme : {};
-			const user = config && config.user && typeof config.user === 'object' ? config.user : {};
-			const isRedmond = theme.family === 'redmond' || theme.id === 'redmond/modern' || user.themeId === 'redmond/modern';
+			const isRedmond = theme.family === 'redmond';
 			const title = getAppLabel(config, appIds.STICKY_NOTES) || (typeof labels.stickyNotes === 'string' && labels.stickyNotes ? labels.stickyNotes : 'stickyNotes');
 
 			return {

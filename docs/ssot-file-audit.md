@@ -14,7 +14,7 @@ Generated for the full PHP/JS Single Source of Truth cleanup task.
 - `assets/media/shared/sounds/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
 - `assets/media/themes/pufferdesk/default/cursors/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
 - `assets/media/themes/pufferdesk/default/wallpapers/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
-- `assets/media/themes/redmond/modern/wallpapers/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
+- `assets/media/themes/redmond/default/wallpapers/index.php` - No change: Media directory index stub only; no SSOT logic or labels to centralize.
 - `includes/class-pufferdesk-admin-controller.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
 - `includes/class-pufferdesk-admin-menu-app-provider.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
 - `includes/class-pufferdesk-app-badge-normalizer.php` - No change: App registry/normalizer/provider owner logic; consumer-side IDs were cleaned where repeated.
