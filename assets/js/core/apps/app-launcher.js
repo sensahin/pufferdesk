@@ -901,8 +901,14 @@
 			const provider = getFolderProvider();
 			const stickyManager = window.PufferDesk.stickyNoteManager || null;
 
-			if (!id || !documentStore || typeof documentStore.get !== 'function' || typeof documentStore.remove !== 'function') {
+			if (!id) {
 				return Promise.resolve(false);
+			}
+
+			if (!documentStore || typeof documentStore.get !== 'function' || typeof documentStore.remove !== 'function') {
+				return stickyManager && typeof stickyManager.deleteNote === 'function'
+					? Promise.resolve(stickyManager.deleteNote(id)).then(Boolean)
+					: Promise.resolve(false);
 			}
 
 			return documentStore.get(id).then((documentData) => documentStore.remove(id).then((deleted) => {
@@ -917,7 +923,11 @@
 				}
 
 				return Boolean(deleted);
-			}));
+			})).catch(() => (
+				stickyManager && typeof stickyManager.deleteNote === 'function'
+					? Promise.resolve(stickyManager.deleteNote(id)).then(Boolean)
+					: false
+			));
 		}
 
 		function openTrash(options = {}) {
@@ -3112,42 +3122,28 @@
 			const win = options.windowElement || getFolderWindow(folderId);
 			const provider = getFolderProvider();
 			const selectedItems = getSelectedFolderItems(folderId, win, options).filter(canDeleteSelectedFolderItem);
-			const documentDeletes = [];
+			const documentItems = selectedItems.filter((item) => item.type === 'document');
+			const folderItems = selectedItems.filter((item) => item.type !== 'document');
 			let changed = false;
 
 			if (!selectedItems.length) {
 				return Promise.resolve(false);
 			}
 
-			selectedItems.forEach((item) => {
-				if (item.type === 'folder' && provider && typeof provider.moveFolderToTrash === 'function') {
-					changed = provider.moveFolderToTrash(item.id) || changed;
-				} else if (item.type === 'app' && provider && typeof provider.removeAppFromFolder === 'function') {
-					changed = provider.removeAppFromFolder(item.id, item.parentFolderId) || changed;
-				} else if (item.type === 'document') {
-					const stickyManager = window.PufferDesk.stickyNoteManager || null;
-					const isSticky = Boolean(item.kind && documentStore && documentStore.kinds && item.kind === documentStore.kinds.sticky);
-					const removePromise = documentStore && typeof documentStore.get === 'function' && typeof documentStore.remove === 'function'
-						? documentStore.get(item.id).then((documentData) => documentStore.remove(item.id).then((deleted) => {
-							if (deleted && provider && typeof provider.moveDocumentToTrash === 'function') {
-								provider.moveDocumentToTrash(documentData);
-							}
-							if (deleted && isSticky && stickyManager && typeof stickyManager.removeRenderedNote === 'function') {
-								stickyManager.removeRenderedNote(item.id);
-							}
-
-							return deleted;
-						}))
-						: Promise.resolve(false);
-
-					documentDeletes.push(Promise.resolve(removePromise).then((deleted) => {
-						changed = Boolean(deleted) || changed;
-					}));
-				}
-			});
+			const documentDeletes = documentItems.map((item) => moveDocumentToTrash(item.id).catch(() => false).then((deleted) => {
+				changed = Boolean(deleted) || changed;
+			}));
 
 			return Promise.all(documentDeletes).then(() => {
 				const activeFolderId = win && win.dataset ? win.dataset.pdkFolderWindow || folderId : folderId;
+
+				folderItems.forEach((item) => {
+					if (item.type === 'folder' && provider && typeof provider.moveFolderToTrash === 'function') {
+						changed = provider.moveFolderToTrash(item.id) || changed;
+					} else if (item.type === 'app' && provider && typeof provider.removeAppFromFolder === 'function') {
+						changed = provider.removeAppFromFolder(item.id, item.parentFolderId) || changed;
+					}
+				});
 
 				if (activeFolderId) {
 					refreshFolderWindow(activeFolderId);
@@ -3165,33 +3161,36 @@
 			const win = options.windowElement || getFolderWindow(folderId);
 			const provider = getFolderProvider();
 			const selectedItems = getSelectedFolderItems(folderId, win, options).filter(canDeleteSelectedFolderItem);
-			const documentDeletes = [];
+			const documentItems = selectedItems.filter((item) => item.type === 'document');
+			const folderItems = selectedItems.filter((item) => item.type !== 'document');
 			let changed = false;
 
 			if (!selectedItems.length) {
 				return Promise.resolve(false);
 			}
 
-			selectedItems.forEach((item) => {
-				if (item.type === 'folder' && provider && typeof provider.deleteFolder === 'function') {
-					changed = provider.deleteFolder(item.id) || changed;
-				} else if (item.type === 'app' && provider && typeof provider.removeAppFromFolder === 'function') {
-					changed = provider.removeAppFromFolder(item.id, item.parentFolderId) || changed;
-				} else if (item.type === 'document') {
-					const stickyManager = window.PufferDesk.stickyNoteManager || null;
-					const isSticky = Boolean(item.kind && documentStore && documentStore.kinds && item.kind === documentStore.kinds.sticky);
-					const removePromise = isSticky && stickyManager && typeof stickyManager.deleteNote === 'function'
-						? stickyManager.deleteNote(item.id, { force: true })
-						: (documentStore && typeof documentStore.remove === 'function' ? documentStore.remove(item.id, { force: true }) : Promise.resolve(false));
+			const documentDeletes = documentItems.map((item) => {
+				const stickyManager = window.PufferDesk.stickyNoteManager || null;
+				const isSticky = Boolean(item.kind && documentStore && documentStore.kinds && item.kind === documentStore.kinds.sticky);
+				const removePromise = isSticky && stickyManager && typeof stickyManager.deleteNote === 'function'
+					? stickyManager.deleteNote(item.id, { force: true })
+					: (documentStore && typeof documentStore.remove === 'function' ? documentStore.remove(item.id, { force: true }) : Promise.resolve(false));
 
-					documentDeletes.push(Promise.resolve(removePromise).then((deleted) => {
-						changed = Boolean(deleted) || changed;
-					}));
-				}
+				return Promise.resolve(removePromise).catch(() => false).then((deleted) => {
+					changed = Boolean(deleted) || changed;
+				});
 			});
 
 			return Promise.all(documentDeletes).then(() => {
 				const activeFolderId = win && win.dataset ? win.dataset.pdkFolderWindow || folderId : folderId;
+
+				folderItems.forEach((item) => {
+					if (item.type === 'folder' && provider && typeof provider.deleteFolder === 'function') {
+						changed = provider.deleteFolder(item.id) || changed;
+					} else if (item.type === 'app' && provider && typeof provider.removeAppFromFolder === 'function') {
+						changed = provider.removeAppFromFolder(item.id, item.parentFolderId) || changed;
+					}
+				});
 
 				if (activeFolderId) {
 					refreshFolderWindow(activeFolderId);

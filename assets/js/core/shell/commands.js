@@ -34,6 +34,9 @@
 		const contextTargets = window.PufferDesk.shell.contextMenuConstants
 			? window.PufferDesk.shell.contextMenuConstants.targets || {}
 			: {};
+		const contextAreas = window.PufferDesk.shell.contextMenuConstants
+			? window.PufferDesk.shell.contextMenuConstants.areas || {}
+			: {};
 		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.windowKinds || {}
 			: {};
@@ -395,6 +398,58 @@
 			return ids.length > 1 && ids.includes(targetId) ? ids : [];
 		}
 
+		function emptyTrashSelection() {
+			return {
+				documentIds: [],
+				folderIds: []
+			};
+		}
+
+		function trashSelectionCount(selection = {}) {
+			return (Array.isArray(selection.folderIds) ? selection.folderIds.length : 0)
+				+ (Array.isArray(selection.documentIds) ? selection.documentIds.length : 0);
+		}
+
+		function getDesktopIconDocumentId(item = {}) {
+			const dataset = item && item.iconElement && item.iconElement.dataset ? item.iconElement.dataset : {};
+
+			return normalizeDocumentId(
+				dataset.pdkDocumentId
+				|| item.documentId
+				|| item.id
+				|| item.key
+				|| ''
+			);
+		}
+
+		function getSelectedDesktopTrashSelection(target = {}) {
+			if (!desktopIconManager || typeof desktopIconManager.getSelectedIconDetails !== 'function') {
+				return emptyTrashSelection();
+			}
+
+			const selectedItems = desktopIconManager.getSelectedIconDetails();
+			const folderIds = uniqueIds(selectedItems
+				.filter((item) => item && (item.kind === 'folder' || item.context === contextTargets.DESKTOP_FOLDER))
+				.map((item) => item.id))
+				.filter(canMoveFolderToTrash);
+			const documentIds = uniqueDocumentIds(selectedItems
+				.filter((item) => item && (item.kind === 'document' || item.context === contextTargets.DOCUMENT))
+				.map(getDesktopIconDocumentId))
+				.filter(canMoveDocumentToTrash);
+			const targetFolderId = target.folderId ? String(target.folderId).trim() : '';
+			const targetDocumentId = normalizeDocumentId(target.documentId || 0);
+			const targetIsSelected = Boolean(
+				(targetFolderId && folderIds.includes(targetFolderId))
+				|| (targetDocumentId && documentIds.includes(targetDocumentId))
+			);
+			const selection = {
+				documentIds,
+				folderIds
+			};
+
+			return targetIsSelected && trashSelectionCount(selection) > 1 ? selection : emptyTrashSelection();
+		}
+
 		function getSelectedFolderWindowFolderIds(targetId, detail = {}) {
 			if (!launcher || typeof launcher.getSelectedFolderItems !== 'function') {
 				return [];
@@ -416,6 +471,56 @@
 				.filter(canMoveFolderToTrash);
 
 			return ids.length > 1 && ids.includes(targetId) ? ids : [];
+		}
+
+		function getFolderWindowParentFolderId(detail = {}) {
+			const win = detail && detail.windowElement ? detail.windowElement : null;
+
+			return detail && detail.folderId
+				? detail.folderId
+				: win && win.dataset
+					? win.dataset.pdkFolderWindow || ''
+					: '';
+		}
+
+		function getSelectedFolderWindowTrashItems(target = {}, detail = {}) {
+			if (!launcher || typeof launcher.getSelectedFolderItems !== 'function') {
+				return [];
+			}
+
+			const win = detail && detail.windowElement ? detail.windowElement : null;
+			const parentFolderId = getFolderWindowParentFolderId(detail);
+			if (!parentFolderId) {
+				return [];
+			}
+
+			const items = launcher.getSelectedFolderItems(parentFolderId, win, {
+				targetElement: detail && detail.targetElement ? detail.targetElement : null,
+				windowElement: win
+			});
+			const selectedItems = Array.isArray(items) ? items : [];
+			const folderId = target.folderId ? String(target.folderId).trim() : '';
+			const documentId = normalizeDocumentId(target.documentId || 0);
+			const targetSelected = selectedItems.some((item) => {
+				if (!item) {
+					return false;
+				}
+
+				if (folderId && item.type === 'folder' && item.id === folderId) {
+					return true;
+				}
+
+				return Boolean(documentId && item.type === 'document' && normalizeDocumentId(item.id) === documentId);
+			});
+
+			return targetSelected && selectedItems.length > 1 ? selectedItems : [];
+		}
+
+		function getFolderWindowSelectionFolderIds(items = []) {
+			return uniqueIds((Array.isArray(items) ? items : [])
+				.filter((item) => item && item.type === 'folder')
+				.map((item) => item.id))
+				.filter(canMoveFolderToTrash);
 		}
 
 		function getFolderIdsForTrash(payload = {}, detail = {}) {
@@ -459,6 +564,23 @@
 			return match ? Number.parseInt(direct ? raw : match[1], 10) || 0 : 0;
 		}
 
+		function uniqueDocumentIds(ids) {
+			return Array.from(new Set((Array.isArray(ids) ? ids : [])
+				.map(normalizeDocumentId)
+				.filter(Boolean)));
+		}
+
+		function canMoveDocumentToTrash(documentId) {
+			return Boolean(
+				normalizeDocumentId(documentId)
+				&& (
+					(launcher && typeof launcher.moveDocumentToTrash === 'function')
+					|| (stickyNoteManager && typeof stickyNoteManager.deleteNote === 'function')
+					|| (documentStore && typeof documentStore.remove === 'function')
+				)
+			);
+		}
+
 		function getDocumentIdFromPayload(payload = {}, detail = {}) {
 			const dataset = getDocumentDataset(detail);
 
@@ -477,6 +599,106 @@
 			const dataset = getDocumentDataset(detail);
 
 			return payload.documentKind || (detail && detail.documentKind) || dataset.pdkDocumentKind || '';
+		}
+
+		function isDesktopFolderCommandDetail(detail = {}) {
+			return Boolean(
+				detail
+				&& (
+					detail.type === contextTargets.DESKTOP_FOLDER
+					|| detail.kind === contextTargets.DESKTOP_FOLDER
+					|| (
+						detail.targetElement
+						&& detail.targetElement.classList
+						&& detail.targetElement.classList.contains('pdk-desktop-folder')
+					)
+				)
+			);
+		}
+
+		function isDesktopDocumentCommandDetail(detail = {}) {
+			const type = detail && (detail.type || detail.kind);
+			const isDocumentTarget = type === contextTargets.DOCUMENT || type === contextTargets.STICKY_NOTE;
+
+			if (!isDocumentTarget) {
+				return false;
+			}
+
+			if (
+				detail.targetElement
+				&& detail.targetElement.classList
+				&& detail.targetElement.classList.contains('pdk-desktop-document')
+			) {
+				return true;
+			}
+
+			return !detail.windowElement || detail.area === contextAreas.DESKTOP;
+		}
+
+		function isFolderWindowFolderCommandDetail(detail = {}) {
+			return Boolean(detail && (detail.type === contextTargets.FOLDER || detail.kind === contextTargets.FOLDER));
+		}
+
+		function isFolderWindowDocumentCommandDetail(detail = {}) {
+			const type = detail && (detail.type || detail.kind);
+
+			return Boolean(
+				type === contextTargets.DOCUMENT
+				&& (
+					detail.area === contextAreas.FOLDER
+					|| (
+						detail.windowElement
+						&& detail.windowElement.dataset
+						&& detail.windowElement.dataset.pdkWindowKind === folderWindowKind
+					)
+				)
+			);
+		}
+
+		function getDesktopTrashSelectionForFolder(payload = {}, detail = {}) {
+			const folderId = getFolderIdFromPayload(payload, detail);
+
+			if (!folderId || !canMoveFolderToTrash(folderId)) {
+				return emptyTrashSelection();
+			}
+
+			const selected = getSelectedDesktopTrashSelection({ folderId });
+
+			return trashSelectionCount(selected) ? selected : {
+				documentIds: [],
+				folderIds: [folderId]
+			};
+		}
+
+		function getDesktopTrashSelectionForDocument(payload = {}, detail = {}) {
+			const documentId = getDocumentIdFromPayload(payload, detail);
+
+			if (!canMoveDocumentToTrash(documentId)) {
+				return emptyTrashSelection();
+			}
+
+			const selected = getSelectedDesktopTrashSelection({ documentId });
+
+			return trashSelectionCount(selected) ? selected : {
+				documentIds: [documentId],
+				folderIds: []
+			};
+		}
+
+		async function moveTrashSelectionToTrash(selection = {}, detail = {}) {
+			const folderIds = uniqueIds(selection.folderIds || []).filter(canMoveFolderToTrash);
+			const documentIds = uniqueDocumentIds(selection.documentIds || []).filter(canMoveDocumentToTrash);
+
+			if (!folderIds.length && !documentIds.length) {
+				return false;
+			}
+
+			await Promise.all(documentIds.map((documentId) => moveDocumentToTrashFromCommand({ documentId }, detail).catch(() => false)));
+			folderIds.forEach((folderId) => {
+				folderManager.moveFolderToTrash(folderId);
+			});
+
+			return true;
 		}
 
 		function getFolderCreateParentId(payload = {}, detail = {}) {
@@ -1193,6 +1415,17 @@
 
 		register(commandIds.DOCUMENT_MOVE_TO_TRASH, {
 			isEnabled(payload, detail) {
+				const desktopSelection = isDesktopDocumentCommandDetail(detail)
+					? getDesktopTrashSelectionForDocument(payload, detail)
+					: emptyTrashSelection();
+				const folderWindowItems = isFolderWindowDocumentCommandDetail(detail)
+					? getSelectedFolderWindowTrashItems({ documentId: getDocumentIdFromPayload(payload, detail) }, detail)
+					: [];
+
+				if (trashSelectionCount(desktopSelection) > 1 || folderWindowItems.length > 1) {
+					return true;
+				}
+
 				return Boolean(
 					getDocumentIdFromPayload(payload, detail)
 					&& (
@@ -1203,6 +1436,28 @@
 				);
 			},
 			run(payload, detail) {
+				if (isDesktopDocumentCommandDetail(detail)) {
+					const selection = getDesktopTrashSelectionForDocument(payload, detail);
+					if (trashSelectionCount(selection) > 1) {
+						return moveTrashSelectionToTrash(selection, detail);
+					}
+				}
+
+				if (
+					isFolderWindowDocumentCommandDetail(detail)
+					&& launcher
+					&& typeof launcher.deleteSelectedFolderItems === 'function'
+				) {
+					const items = getSelectedFolderWindowTrashItems({ documentId: getDocumentIdFromPayload(payload, detail) }, detail);
+					const parentFolderId = getFolderWindowParentFolderId(detail);
+					if (items.length > 1 && parentFolderId) {
+						return launcher.deleteSelectedFolderItems(parentFolderId, {
+							targetElement: detail && detail.targetElement ? detail.targetElement : null,
+							windowElement: detail && detail.windowElement ? detail.windowElement : null
+						});
+					}
+				}
+
 				return moveDocumentToTrashFromCommand(payload, detail);
 			}
 		});
@@ -1314,14 +1569,37 @@
 
 		register(commandIds.FOLDER_DELETE, {
 			isEnabled(payload, detail) {
+				if (isDesktopFolderCommandDetail(detail) && trashSelectionCount(getDesktopTrashSelectionForFolder(payload, detail))) {
+					return true;
+				}
+
+				if (
+					isFolderWindowFolderCommandDetail(detail)
+					&& getSelectedFolderWindowTrashItems({ folderId: getFolderIdFromPayload(payload, detail) }, detail).length > 1
+				) {
+					return true;
+				}
+
 				return getFolderIdsForTrash(payload, detail).length > 0;
 			},
 			async run(payload, detail) {
-				const folderIds = getFolderIdsForTrash(payload, detail);
+				const isDesktopFolder = isDesktopFolderCommandDetail(detail);
+				const desktopSelection = isDesktopFolder
+					? getDesktopTrashSelectionForFolder(payload, detail)
+					: emptyTrashSelection();
+				const folderWindowItems = isFolderWindowFolderCommandDetail(detail)
+					? getSelectedFolderWindowTrashItems({ folderId: getFolderIdFromPayload(payload, detail) }, detail)
+					: [];
+				const folderWindowSelectionParentId = folderWindowItems.length > 1 ? getFolderWindowParentFolderId(detail) : '';
+				const folderIds = folderWindowItems.length > 1
+					? getFolderWindowSelectionFolderIds(folderWindowItems)
+					: isDesktopFolder
+						? desktopSelection.folderIds
+						: getFolderIdsForTrash(payload, detail);
 				const folders = folderIds.map((folderId) => folderManager.getFolder(folderId)).filter(Boolean);
 				let confirmed = true;
 
-				if (!folderIds.length) {
+				if (!folderIds.length && (!isDesktopFolder || !desktopSelection.documentIds.length) && !folderWindowItems.length) {
 					return;
 				}
 
@@ -1333,6 +1611,17 @@
 				}
 
 				if (confirmed) {
+					if (folderWindowItems.length > 1 && folderWindowSelectionParentId && launcher && typeof launcher.deleteSelectedFolderItems === 'function') {
+						return launcher.deleteSelectedFolderItems(folderWindowSelectionParentId, {
+							targetElement: detail && detail.targetElement ? detail.targetElement : null,
+							windowElement: detail && detail.windowElement ? detail.windowElement : null
+						});
+					}
+
+					if (isDesktopFolder) {
+						return moveTrashSelectionToTrash(desktopSelection, detail);
+					}
+
 					folderIds.forEach((folderId) => {
 						folderManager.moveFolderToTrash(folderId);
 					});

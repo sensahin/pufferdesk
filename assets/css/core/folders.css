@@ -901,6 +901,7 @@
 
 .pdk-folder-list-row.is-renaming .pdk-folder-list-cell-name .pdk-truncated-label {
 	overflow: visible;
+	text-align: left;
 	white-space: normal;
 }
 
