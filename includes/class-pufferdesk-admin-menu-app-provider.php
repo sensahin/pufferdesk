@@ -113,17 +113,20 @@ final class PufferDesk_Admin_Menu_App_Provider {
 				continue;
 			}
 
-			$url_key = $this->get_url_key( $url );
-			$about      = $this->get_admin_menu_about( $slug, $label );
-			$navigation = $this->get_admin_menu_navigation( $slug, $id );
-			$index      = isset( $by_id[ $id ] )
+			$url_key     = $this->get_url_key( $url );
+			$plugin_file = $this->get_admin_menu_plugin_file( $slug );
+			$source      = '' !== $plugin_file ? PufferDesk_App_Normalizer::SOURCE_WP_PLUGIN : PufferDesk_App_Normalizer::SOURCE_WP_MENU;
+			$about       = $this->get_admin_menu_about( $slug, $label, $plugin_file );
+			$navigation  = $this->get_admin_menu_navigation( $slug, $id );
+			$index       = isset( $by_id[ $id ] )
 				? $by_id[ $id ]
 				: ( isset( $by_url[ $url_key ] ) ? $by_url[ $url_key ] : null );
 
 			if ( null !== $index ) {
 				if ( ! isset( $used[ $index ] ) ) {
-					$matched_app        = $apps[ $index ];
-					$matched_app['cap'] = $cap;
+					$matched_app           = $apps[ $index ];
+					$matched_app['cap']    = $cap;
+					$matched_app['source'] = $source;
 					if ( ! empty( $about ) && empty( $matched_app['about'] ) ) {
 						$matched_app['about'] = $about;
 					}
@@ -150,7 +153,7 @@ final class PufferDesk_Admin_Menu_App_Provider {
 				'icon'   => $this->get_admin_menu_icon( isset( $item[6] ) ? (string) $item[6] : '', $menu_title ),
 				'group'  => PufferDesk_App_Normalizer::GROUP_SITE,
 				'cap'    => $cap,
-				'source' => 'wp-menu',
+				'source' => $source,
 			);
 
 			if ( ! empty( $about ) ) {
@@ -689,11 +692,12 @@ final class PufferDesk_Admin_Menu_App_Provider {
 	/**
 	 * Build About metadata for a WordPress admin menu item backed by a plugin.
 	 *
-	 * @param string $slug Menu slug.
+	 * @param string $slug        Menu slug.
+	 * @param string $plugin_file Optional plugin basename already resolved for this menu slug.
 	 * @return array<string,mixed>
 	 */
-	private function get_admin_menu_plugin_about( $slug ) {
-		$plugin_file = $this->get_admin_menu_plugin_file( $slug );
+	private function get_admin_menu_plugin_about( $slug, $plugin_file = '' ) {
+		$plugin_file = '' !== $plugin_file ? $plugin_file : $this->get_admin_menu_plugin_file( $slug );
 		if ( '' === $plugin_file ) {
 			return array();
 		}
@@ -733,12 +737,13 @@ final class PufferDesk_Admin_Menu_App_Provider {
 	 * Plugin-owned screens use their plugin headers. WordPress core screens use
 	 * WordPress core metadata instead of the PufferDesk product fallback.
 	 *
-	 * @param string $slug Menu slug.
-	 * @param string $label Menu label.
+	 * @param string $slug        Menu slug.
+	 * @param string $label       Menu label.
+	 * @param string $plugin_file Optional plugin basename already resolved for this menu slug.
 	 * @return array<string,mixed>
 	 */
-	private function get_admin_menu_about( $slug, $label ) {
-		$plugin_about = $this->get_admin_menu_plugin_about( $slug );
+	private function get_admin_menu_about( $slug, $label, $plugin_file = '' ) {
+		$plugin_about = $this->get_admin_menu_plugin_about( $slug, $plugin_file );
 		if ( ! empty( $plugin_about ) ) {
 			return $plugin_about;
 		}

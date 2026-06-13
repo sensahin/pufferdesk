@@ -37,6 +37,12 @@
 			? window.PufferDesk.apps.folderViewModes
 			: null;
 		const appRouteMenuLimit = 8;
+		const appDescriptorContracts = window.PufferDesk.config && typeof window.PufferDesk.config.getContractMap === 'function'
+			? window.PufferDesk.config.getContractMap('appDescriptors', {})
+			: {};
+		const appSources = appDescriptorContracts.sources && typeof appDescriptorContracts.sources === 'object'
+			? appDescriptorContracts.sources
+			: {};
 
 		function commandItem(label, command, options = {}) {
 			return Object.assign({
@@ -121,6 +127,10 @@
 				items: getClipboardItems(options),
 				label: getLabel('clipboard')
 			};
+		}
+
+		function isPluginOwnedApp(app) {
+			return Boolean(app && app.source === appSources.WP_PLUGIN);
 		}
 
 		function actionStrip(items, options = {}) {
@@ -706,6 +716,13 @@
 					target: app.id
 				})
 			];
+
+			if (isPluginOwnedApp(app) && appIds.PLUGINS && appMap.has(appIds.PLUGINS)) {
+				optionItems.push(commandItem(getLabel('uninstall', 'Uninstall'), commandIds.OPEN_APP, {
+					id: 'uninstall-plugin',
+					target: appIds.PLUGINS
+				}));
+			}
 
 			return {
 				id: 'dock-options',

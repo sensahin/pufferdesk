@@ -82,6 +82,7 @@
 		const stickyNotesAppId = appIds.STICKY_NOTES;
 		const stickySavePolicyAsk = 'ask-on-first-save';
 		const noteMap = new Map();
+		let knownDocuments = [];
 		let layer = null;
 		let openOptionsMenu = null;
 		let restorePromise = null;
@@ -470,6 +471,69 @@
 				: null;
 
 			return match && match.state && typeof match.state === 'object' ? Object.assign({}, match.state) : {};
+		}
+
+		function hasSavedState(documentId) {
+			const savedNotes = getSavedNotes();
+
+			return Array.isArray(savedNotes) && savedNotes.some((note) => (
+				Number.parseInt(note.id, 10) === Number.parseInt(documentId, 10)
+			));
+		}
+
+		function isStickyDocument(documentData) {
+			return Boolean(
+				documentData
+				&& documentData.kind === getStickyKind()
+				&& isPersistedDocumentId(documentData.id)
+			);
+		}
+
+		function rememberDocument(documentData) {
+			if (!isStickyDocument(documentData)) {
+				return;
+			}
+
+			const documentId = Number.parseInt(documentData.id, 10);
+			const nextDocument = Object.assign({}, documentData);
+			const existingIndex = knownDocuments.findIndex((documentItem) => (
+				Number.parseInt(documentItem && documentItem.id, 10) === documentId
+			));
+
+			if (existingIndex >= 0) {
+				knownDocuments.splice(existingIndex, 1, nextDocument);
+				return;
+			}
+
+			knownDocuments.push(nextDocument);
+		}
+
+		function rememberDocuments(documents) {
+			knownDocuments = [];
+			if (!Array.isArray(documents)) {
+				return;
+			}
+
+			documents.forEach(rememberDocument);
+		}
+
+		function forgetDocument(documentId) {
+			const id = Number.parseInt(documentId, 10);
+			if (!Number.isFinite(id)) {
+				return;
+			}
+
+			knownDocuments = knownDocuments.filter((documentItem) => (
+				Number.parseInt(documentItem && documentItem.id, 10) !== id
+			));
+		}
+
+		function getKnownDocument(documentId) {
+			const id = Number.parseInt(documentId, 10);
+
+			return knownDocuments.find((documentItem) => (
+				Number.parseInt(documentItem && documentItem.id, 10) === id
+			)) || null;
 		}
 
 		function getDefaultLeft(index = 0) {
@@ -941,6 +1005,7 @@
 				entry.document = Object.assign({}, documentData, {
 					content: entry.content ? entry.content.value : documentData.content
 				});
+				rememberDocument(entry.document);
 				markEntrySaved(entry);
 				applyNoteColor(entry, documentData.color);
 				return true;
@@ -1186,6 +1251,7 @@
 				noteMap.set(newId, entry);
 			}
 
+			rememberDocument(documentData);
 			markEntrySaved(entry);
 		}
 
@@ -1371,9 +1437,18 @@
 		}
 
 		function showNote(documentId) {
-			const entry = noteMap.get(Number.parseInt(documentId, 10));
+			let entry = noteMap.get(Number.parseInt(documentId, 10));
 			if (!entry) {
-				return false;
+				const documentData = getKnownDocument(documentId);
+				if (!documentData) {
+					return false;
+				}
+
+				renderNote(documentData, getSavedState(documentId));
+				entry = noteMap.get(Number.parseInt(documentId, 10));
+				if (!entry) {
+					return false;
+				}
 			}
 
 			entry.element.hidden = false;
@@ -1405,7 +1480,10 @@
 			}
 
 			return documentStore.remove(documentId, options).then((deleted) => {
-				removeRenderedNote(documentId);
+				if (deleted) {
+					forgetDocument(documentId);
+					removeRenderedNote(documentId);
+				}
 				return Boolean(deleted);
 			});
 		}
@@ -1738,6 +1816,7 @@
 				return null;
 			}
 
+			rememberDocument(documentData);
 			if (noteMap.has(documentId)) {
 				const existing = noteMap.get(documentId);
 				existing.document = documentData;
@@ -1894,8 +1973,11 @@
 			restorePromise = documentStore.list(getStickyKind(), {
 				includeAllFolders: true
 			}).then((documents) => {
+				rememberDocuments(documents);
 				documents.forEach((documentData) => {
-					renderNote(documentData, getSavedState(documentData.id));
+					if (hasSavedState(documentData.id)) {
+						renderNote(documentData, getSavedState(documentData.id));
+					}
 				});
 
 				syncRunningState();
@@ -1909,10 +1991,22 @@
 		}
 
 		function getNotes() {
-			return Array.from(noteMap.values()).map((entry) => {
-				syncLocalDocumentContent(entry);
-				return entry.document;
+			const documents = new Map();
+
+			knownDocuments.forEach((documentData) => {
+				if (isStickyDocument(documentData)) {
+					documents.set(Number.parseInt(documentData.id, 10), Object.assign({}, documentData));
+				}
 			});
+
+			Array.from(noteMap.values()).forEach((entry) => {
+				syncLocalDocumentContent(entry);
+				if (entry && entry.document) {
+					documents.set(Number.parseInt(entry.document.id, 10), entry.document);
+				}
+			});
+
+			return Array.from(documents.values());
 		}
 
 		function getNoteSnapshot(documentId) {
@@ -2017,10 +2111,23 @@
 		if (window.PufferDesk.events && typeof window.PufferDesk.events.on === 'function' && eventNames.DOCUMENTS_CHANGED) {
 			window.PufferDesk.events.on(eventNames.DOCUMENTS_CHANGED, (detail = {}) => {
 				const documentData = detail && detail.document ? detail.document : null;
-				const documentId = Number.parseInt(documentData && documentData.id, 10);
+				const documentId = Number.parseInt(documentData && documentData.id ? documentData.id : detail.id, 10);
 				const entry = noteMap.get(documentId);
 
-				if (!entry || !documentData) {
+				if (detail.type === 'delete') {
+					forgetDocument(documentId);
+					if (entry) {
+						removeRenderedNote(documentId);
+					}
+					return;
+				}
+
+				if (!documentData) {
+					return;
+				}
+
+				rememberDocument(documentData);
+				if (!entry) {
 					return;
 				}
 

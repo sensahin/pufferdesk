@@ -17,6 +17,9 @@ final class PufferDesk_App_Normalizer {
 	const GROUP_SYSTEM = 'system';
 	const KIND_IFRAME = 'iframe';
 	const KIND_NATIVE = 'native';
+	const SOURCE_REGISTRY = 'registry';
+	const SOURCE_WP_MENU = 'wp-menu';
+	const SOURCE_WP_PLUGIN = 'wp-plugin';
 	const WINDOW_PERSISTENCE_WORKSPACE = 'workspace';
 	const WINDOW_PERSISTENCE_NONE = 'none';
 
@@ -46,6 +49,19 @@ final class PufferDesk_App_Normalizer {
 	}
 
 	/**
+	 * App source IDs.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_source_ids() {
+		return array(
+			'REGISTRY'  => self::SOURCE_REGISTRY,
+			'WP_MENU'   => self::SOURCE_WP_MENU,
+			'WP_PLUGIN' => self::SOURCE_WP_PLUGIN,
+		);
+	}
+
+	/**
 	 * App window persistence IDs.
 	 *
 	 * @return array<string,string>
@@ -66,6 +82,7 @@ final class PufferDesk_App_Normalizer {
 		return array(
 			'groups'            => self::get_group_ids(),
 			'kinds'             => self::get_kind_ids(),
+			'sources'           => self::get_source_ids(),
 			'windowPersistence' => self::get_window_persistence_ids(),
 		);
 	}
@@ -239,6 +256,7 @@ final class PufferDesk_App_Normalizer {
 			$icon               = isset( $app['icon'] ) ? PufferDesk_Icon_Renderer::normalize( $app['icon'] ) : PufferDesk_Icon_Renderer::normalize( PufferDesk_Icon_Renderer::DEFAULT_DASHICON );
 			$group              = isset( $app['group'] ) ? sanitize_key( $app['group'] ) : self::GROUP_SYSTEM;
 			$kind               = isset( $app['kind'] ) ? sanitize_key( $app['kind'] ) : self::KIND_IFRAME;
+			$source             = isset( $app['source'] ) ? sanitize_key( (string) $app['source'] ) : self::SOURCE_REGISTRY;
 			$window_persistence = isset( $app['window_persistence'] ) ? sanitize_key( (string) $app['window_persistence'] ) : self::WINDOW_PERSISTENCE_WORKSPACE;
 			if ( '' === $id || '' === $label ) {
 				continue;
@@ -248,6 +266,9 @@ final class PufferDesk_App_Normalizer {
 			}
 			if ( ! in_array( $kind, self::get_kind_ids(), true ) ) {
 				$kind = self::KIND_IFRAME;
+			}
+			if ( '' === $source ) {
+				$source = self::SOURCE_REGISTRY;
 			}
 			if ( ! in_array( $window_persistence, self::get_window_persistence_ids(), true ) ) {
 				$window_persistence = self::WINDOW_PERSISTENCE_WORKSPACE;
@@ -284,11 +305,12 @@ final class PufferDesk_App_Normalizer {
 				'url'                => $url,
 				'icon'               => $icon,
 				'about'              => $this->normalize_about( isset( $app['about'] ) ? $app['about'] : array(), $label, $icon ),
-				'group'              => $group,
-				'cap'                => $cap,
-				'kind'               => $kind,
-				'native'             => $native,
-				'dock'               => $dock,
+					'group'              => $group,
+					'cap'                => $cap,
+					'kind'               => $kind,
+					'source'             => $source,
+					'native'             => $native,
+					'dock'               => $dock,
 				'navigation'         => $navigation,
 				'window_persistence' => $window_persistence,
 				'menu'               => $this->menu_normalizer->normalize_definition( isset( $app['menu'] ) ? $app['menu'] : array(), $label ),
