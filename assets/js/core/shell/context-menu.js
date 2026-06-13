@@ -312,7 +312,7 @@
 				return manager.getAppWindowState(appId);
 			}
 
-			const win = appId ? document.querySelector(`[data-pdk-app-window="${window.PufferDesk.dom.escapeAttribute(appId)}"]:not(.is-closed)`) : null;
+			const win = appId ? document.querySelector(`.pdk-window[data-pdk-app-window="${window.PufferDesk.dom.escapeAttribute(appId)}"]:not(.is-closed)`) : null;
 
 			return {
 				hidden: Boolean(win && (win.classList.contains('is-hidden') || win.classList.contains('is-minimizing') || win.classList.contains('is-show-desktop-hidden'))),

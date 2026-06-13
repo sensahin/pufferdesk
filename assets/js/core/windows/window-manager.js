@@ -422,7 +422,7 @@
 
 		function getAppWindow(appId) {
 			return appId
-				? desktop.querySelector(`[data-pdk-app-window="${dom.escapeAttribute(appId)}"]:not(.is-closed)`)
+				? desktop.querySelector(`.pdk-window[data-pdk-app-window="${dom.escapeAttribute(appId)}"]:not(.is-closed)`)
 				: null;
 		}
 
@@ -521,7 +521,7 @@
 
 		function createWindow(windowOptions) {
 			const existing = windowOptions.appId
-				? desktop.querySelector(`[data-pdk-app-window="${dom.escapeAttribute(windowOptions.appId)}"]`)
+				? desktop.querySelector(`.pdk-window[data-pdk-app-window="${dom.escapeAttribute(windowOptions.appId)}"]:not(.is-closed)`)
 				: null;
 
 			if (existing) {
