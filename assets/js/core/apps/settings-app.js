@@ -1054,12 +1054,24 @@
 			return button;
 		}
 
+		function createAppLocationControls(app, status) {
+			const controls = dom.createElement('span', 'pdk-settings-app-controls pdk-settings-app-location-controls');
+			const login = dom.createElement('span', 'pdk-settings-app-login-control');
+
+			controls.appendChild(createAppLocationSelect(app, status));
+			login.appendChild(dom.createElement('span', 'pdk-settings-app-login-label', t('apps.openAtLoginLabel')));
+			login.appendChild(createAppLoginItemToggle(app, status));
+			controls.appendChild(login);
+
+			return controls;
+		}
+
 		function createAppLocationRow(app, status) {
 			const row = dom.createElement('div', 'pdk-settings-row pdk-settings-app-location-row');
 
 			row.appendChild(createAppLocationIcon(app));
 			row.appendChild(dom.createElement('span', 'pdk-settings-label', app.label || app.id));
-			row.appendChild(createAppLocationSelect(app, status));
+			row.appendChild(createAppLocationControls(app, status));
 
 			return row;
 		}
@@ -1598,10 +1610,7 @@
 				capabilities,
 				config,
 				createAccentGroup,
-				createAppLocationIcon,
-				createAppLocationSelect,
 				createAppLocationSection,
-				createAppLoginItemToggle,
 				createButton,
 				createCollapsibleWallpaperSection,
 				createDesktopDockSelectRow,
@@ -1625,8 +1634,6 @@
 				dom,
 				executeMenuCommand,
 				getGeneralSettingsConfig,
-				getAppLocation,
-				getAppLoginItems: () => currentAppLoginItems.slice(),
 				getThemeOptionLabel,
 				getUserProfile,
 				getWallpaperGroup,
@@ -1651,7 +1658,6 @@
 			pane.appendChild(settingsPanels.createSoundsPanel(panelContext));
 			pane.appendChild(settingsPanels.createWallpaperPanel(panelContext));
 			pane.appendChild(settingsPanels.createWidgetsPanel(panelContext));
-			pane.appendChild(settingsPanels.createAppsPanel(panelContext));
 			pane.appendChild(settingsPanels.createWorkspacePanel(panelContext));
 			pane.appendChild(settingsPanels.createSystemPanel(panelContext));
 			pane.appendChild(status);

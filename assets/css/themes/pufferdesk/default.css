@@ -2053,6 +2053,31 @@
 	padding-left: var(--pdk-settings-main-edge);
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-row:has(> .pdk-settings-label-stack .pdk-settings-description):not(.pdk-settings-app-location-row) {
+	grid-template-columns: minmax(0, 1fr) max-content;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-row:has(> .pdk-settings-label-stack .pdk-settings-description) .pdk-settings-description {
+	max-width: none;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-toggle {
+	height: 20px;
+	min-height: 20px;
+	width: 40px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-toggle-knob {
+	height: 18px;
+	left: 1px;
+	top: 1px;
+	width: 18px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-toggle[aria-pressed="true"] .pdk-settings-toggle-knob {
+	transform: translateX(20px);
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-settings-inline-select {
 	min-height: 22px;
 }

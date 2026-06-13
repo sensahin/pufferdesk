@@ -989,12 +989,6 @@ final class PufferDesk_Runtime_Config {
 						'tone'  => 'green',
 					),
 					array(
-						'id'    => 'apps',
-						'label' => __( 'Apps', 'pufferdesk-admin-desktop' ),
-						'icon'  => 'dashicons-grid-view',
-						'tone'  => 'purple',
-					),
-					array(
 						'id'    => 'workspace',
 						'label' => __( 'Workspace', 'pufferdesk-admin-desktop' ),
 						'icon'  => 'dashicons-layout',
@@ -1176,8 +1170,6 @@ final class PufferDesk_Runtime_Config {
 				),
 			),
 			'sounds'        => array(
-				'title'       => __( 'Sound', 'pufferdesk-admin-desktop' ),
-				'description' => __( 'Control system sound effects used by PufferDesk.', 'pufferdesk-admin-desktop' ),
 				'headings'    => array(
 					'behavior' => __( 'Behavior', 'pufferdesk-admin-desktop' ),
 					'output'   => __( 'Output', 'pufferdesk-admin-desktop' ),
@@ -1220,11 +1212,7 @@ final class PufferDesk_Runtime_Config {
 				'showOnDesktopLabel' => __( 'Show on desktop', 'pufferdesk-admin-desktop' ),
 			),
 			'apps'         => array(
-				'title'               => __( 'Apps', 'pufferdesk-admin-desktop' ),
-				'description'         => __( 'Choose where apps appear and which apps open when PufferDesk starts.', 'pufferdesk-admin-desktop' ),
-				'emptyLabel'          => __( 'No apps are available for this account.', 'pufferdesk-admin-desktop' ),
-				'fixedPlacementLabel' => __( 'Fixed', 'pufferdesk-admin-desktop' ),
-				'openAtLoginLabel'    => __( 'Open at login', 'pufferdesk-admin-desktop' ),
+				'openAtLoginLabel' => __( 'Open at login', 'pufferdesk-admin-desktop' ),
 			),
 			'workspace'    => array(
 				'title'                   => __( 'Workspace', 'pufferdesk-admin-desktop' ),
@@ -1257,8 +1245,40 @@ final class PufferDesk_Runtime_Config {
 
 		$theme_settings = isset( $theme['settings'] ) && is_array( $theme['settings'] ) ? $theme['settings'] : array();
 		$theme_labels   = isset( $theme_settings['labels'] ) && is_array( $theme_settings['labels'] ) ? $theme_settings['labels'] : array();
+		$labels         = $this->merge_settings_labels( $labels, $theme_labels );
 
-		return $this->merge_settings_labels( $labels, $theme_labels );
+		if ( isset( $theme['family'] ) && 'pufferdesk' === sanitize_key( $theme['family'] ) ) {
+			$labels = $this->remove_settings_sidebar_items( $labels, array( 'workspace', 'system' ) );
+		}
+
+		return $labels;
+	}
+
+	/**
+	 * Remove Settings sidebar entries by ID.
+	 *
+	 * @param array<string,mixed> $labels Labels config.
+	 * @param array<int,string>   $item_ids Sidebar item IDs to remove.
+	 * @return array<string,mixed>
+	 */
+	private function remove_settings_sidebar_items( $labels, $item_ids ) {
+		if ( ! isset( $labels['sidebar']['items'] ) || ! is_array( $labels['sidebar']['items'] ) ) {
+			return $labels;
+		}
+
+		$item_ids                    = array_fill_keys( array_map( 'sanitize_key', $item_ids ), true );
+		$labels['sidebar']['items'] = array_values(
+			array_filter(
+				$labels['sidebar']['items'],
+				static function ( $item ) use ( $item_ids ) {
+					$id = isset( $item['id'] ) && is_scalar( $item['id'] ) ? sanitize_key( (string) $item['id'] ) : '';
+
+					return '' === $id || ! isset( $item_ids[ $id ] );
+				}
+			)
+		);
+
+		return $labels;
 	}
 
 	/**
@@ -1626,11 +1646,6 @@ final class PufferDesk_Runtime_Config {
 						'id'    => 'system',
 						'label' => PufferDesk_Product_Labels::name(),
 						'items' => array(
-							array(
-								'label'   => __( 'About This Site', 'pufferdesk-admin-desktop' ),
-								'command' => PufferDesk_Command_Ids::OPEN_SITE_ABOUT,
-								'icon'    => 'dashicons-info-outline',
-							),
 							array(
 								'label'   => __( 'System Settings...', 'pufferdesk-admin-desktop' ),
 								'command' => PufferDesk_Command_Ids::OPEN_APP,

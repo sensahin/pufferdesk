@@ -1225,19 +1225,11 @@ button.pdk-settings-profile-hero-avatar:focus .pdk-settings-profile-hero-edit {
 	padding: 7px 16px;
 }
 
-.pdk-settings-app-row {
-	grid-template-columns: 24px minmax(0, 1fr) auto;
-	gap: 12px;
-	min-height: 46px;
-	padding: 7px 16px;
-}
-
 .pdk-settings-app-location-row .pdk-settings-inline-select {
 	min-width: 96px;
 }
 
-.pdk-settings-app-location-row .pdk-settings-value-select,
-.pdk-settings-app-row .pdk-settings-value-select {
+.pdk-settings-app-location-row .pdk-settings-value-select {
 	min-width: 96px;
 }
 

@@ -99,7 +99,6 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/apps/settings/panel-sounds.js
 - assets/js/core/apps/settings/panel-wallpaper.js
 - assets/js/core/apps/settings/panel-widgets.js
-- assets/js/core/apps/settings/panel-apps.js
 - assets/js/core/apps/settings/panel-workspace.js
 - assets/js/core/apps/settings/panel-system.js
 - assets/js/core/apps/settings-app.js

@@ -691,14 +691,6 @@
 			]
 		},
 		{
-			"handle": "pufferdesk-settings-panel-apps",
-			"path": "assets/js/core/apps/settings/panel-apps.js",
-			"deps": [
-				"pufferdesk-settings-labels",
-				"pufferdesk-settings-ui"
-			]
-		},
-		{
 			"handle": "pufferdesk-settings-panel-workspace",
 			"path": "assets/js/core/apps/settings/panel-workspace.js",
 			"deps": [
@@ -746,7 +738,6 @@
 				"pufferdesk-settings-panel-sounds",
 				"pufferdesk-settings-panel-wallpaper",
 				"pufferdesk-settings-panel-widgets",
-				"pufferdesk-settings-panel-apps",
 				"pufferdesk-settings-panel-workspace",
 				"pufferdesk-settings-panel-system"
 			]

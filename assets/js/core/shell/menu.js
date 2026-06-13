@@ -546,6 +546,10 @@
 
 		function getHelpItems() {
 			return [
+				commandItem(getLabel('about'), commandIds.OPEN_SITE_ABOUT, {
+					icon: 'dashicons-info-outline'
+				}),
+				separator(),
 				commandItem(getLabel('keyboard_shortcuts'), commandIds.HELP_KEYBOARD_SHORTCUTS, {
 					icon: 'dashicons-keyboard'
 				}),

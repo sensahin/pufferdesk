@@ -190,8 +190,6 @@
 			});
 		}
 
-		panel.appendChild(createSectionHeading(t('sounds.title')));
-		panel.appendChild(dom.createElement('p', 'pdk-settings-panel-description', t('sounds.description')));
 		panel.appendChild(createSectionHeading(t('sounds.headings.behavior')));
 		panel.appendChild(behaviorSection);
 		panel.appendChild(createSectionHeading(t('sounds.headings.output')));
