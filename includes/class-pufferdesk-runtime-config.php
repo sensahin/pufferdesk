@@ -293,6 +293,7 @@ final class PufferDesk_Runtime_Config {
 				'itemPlural'                => __( 'items', 'pufferdesk-admin-desktop' ),
 				'itemSingular'              => __( 'item', 'pufferdesk-admin-desktop' ),
 				'itemCountTemplate'         => self::get_item_count_format(),
+				'itemsLabel'                => __( 'Items', 'pufferdesk-admin-desktop' ),
 				'kindLabel'                 => __( 'Kind', 'pufferdesk-admin-desktop' ),
 				'pufferdeskFallback'        => PufferDesk_Product_Labels::name(),
 					'lastOpenedLabel'           => __( 'Last opened', 'pufferdesk-admin-desktop' ),
@@ -1934,6 +1935,7 @@ final class PufferDesk_Runtime_Config {
 				'pufferdesk_desktop'      => $template_labels['pufferdesk_desktop'],
 				'pufferdesk_trash_source' => __( 'PufferDesk Trash', 'pufferdesk-admin-desktop' ),
 				'pufferdesk_user_folder_source' => __( 'PufferDesk user folder', 'pufferdesk-admin-desktop' ),
+				'pufferdesk_virtual_filesystem_source' => __( 'PufferDesk virtual filesystem', 'pufferdesk-admin-desktop' ),
 				'wordpress_admin_group_source' => __( 'WordPress admin group', 'pufferdesk-admin-desktop' ),
 				/* translators: %s: WordPress admin menu group label. */
 				'wordpress_admin_menu_format' => __( 'WordPress Admin Menu > %s', 'pufferdesk-admin-desktop' ),

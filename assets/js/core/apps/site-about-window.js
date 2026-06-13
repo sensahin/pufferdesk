@@ -378,8 +378,11 @@
 	function createFolderInfoWindow(info = {}, actions = {}) {
 		const labels = getInfoPanelLabels();
 		const itemCount = Number.parseInt(info.itemCount, 10) || 0;
+		const items = Array.isArray(info.items) ? info.items : [];
+		const hasOnlyApps = Boolean(items.length && items.every((item) => item && item.type === 'app'));
 		const itemCountLabel = plural(itemCount, getInfoPanelLabel('itemSingular', '', labels), getInfoPanelLabel('itemPlural', '', labels), labels);
 		const appCountLabel = plural(itemCount, getInfoPanelLabel('applicationSingular', '', labels), getInfoPanelLabel('applicationPlural', '', labels), labels);
+		const containsCountLabel = hasOnlyApps ? appCountLabel : itemCountLabel;
 		const folderFallbackTitle = getInfoPanelLabel('folderFallbackTitle', '', labels);
 		const general = createDisclosure(getInfoPanelLabel('generalSection', '', labels));
 		const more = createDisclosure(getInfoPanelLabel('moreInfoSection', '', labels));
@@ -402,9 +405,9 @@
 		general.body.appendChild(checks);
 
 		appendDefinition(more.body, getInfoPanelLabel('lastOpenedLabel', '', labels), formatDate(info.lastOpenedAt, labels));
-		appendDefinition(more.body, getInfoPanelLabel('containsLabel', '', labels), appCountLabel);
-		if (Array.isArray(info.items) && info.items.length) {
-			appendDefinition(more.body, getInfoPanelLabel('appsLabel', '', labels), info.items.map((item) => item.label).join(', '));
+		appendDefinition(more.body, getInfoPanelLabel('containsLabel', '', labels), containsCountLabel);
+		if (items.length) {
+			appendDefinition(more.body, getInfoPanelLabel(hasOnlyApps ? 'appsLabel' : 'itemsLabel', '', labels), items.map((item) => item.label).join(', '));
 		}
 
 		const nameInput = document.createElement('input');
@@ -422,7 +425,7 @@
 		const previewText = document.createElement('p');
 		previewText.className = 'pdk-info-panel-muted';
 		previewText.textContent = itemCount
-			? formatInfoPanelLabel('previewAvailableTemplate', '', [appCountLabel], labels)
+			? formatInfoPanelLabel('previewAvailableTemplate', '', [containsCountLabel], labels)
 			: getInfoPanelLabel('noPreviewItems', '', labels);
 		preview.body.appendChild(previewText);
 

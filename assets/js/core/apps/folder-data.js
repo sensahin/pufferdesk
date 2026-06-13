@@ -213,6 +213,20 @@
 			return Boolean(provider && typeof provider.isUserFolder === 'function' && provider.isUserFolder(folderId));
 		}
 
+		function getFolderSourceLabel(folder = {}) {
+			if (isTrashFolderId(folder.id)) {
+				return getMenuLabel('pufferdesk_trash_source');
+			}
+
+			if (typeof folder.source === 'string' && folder.source) {
+				return folder.source;
+			}
+
+			return folder.virtual
+				? getMenuLabel('pufferdesk_virtual_filesystem_source', 'PufferDesk virtual filesystem')
+				: getMenuLabel('wordpress_admin_group_source');
+		}
+
 		function getFolderInfo(folderId) {
 			const provider = getFolderProvider();
 			const targetFolder = getFolder(folderId);
@@ -222,29 +236,36 @@
 			const folderApps = info ? [] : getFolderApps(folderId);
 			const folderDocuments = info ? [] : getFolderDocuments(folderId);
 			const childFolders = info ? [] : getFolderChildFolders(folderId);
+			const trashItems = info || !isTrashFolderId(folderId) ? [] : getTrashItems();
+			const folderItems = childFolders.map((childFolder) => ({
+				id: childFolder.id,
+				label: childFolder.label,
+				type: 'folder',
+				url: ''
+			})).concat(folderApps.map((app) => ({ id: app.id, label: app.label, type: 'app', url: app.url || '' })), folderDocuments.map((item) => ({
+				id: item.id,
+				label: item.label,
+				type: 'document',
+				url: ''
+			})), trashItems.map((item) => ({
+				id: item.id,
+				label: item.label || getMenuLabel(item.type === 'document' ? 'sticky_note' : 'folder'),
+				type: item.type || 'folder',
+				url: ''
+			})));
 
 			return info || (folder ? {
 				canRename: false,
 				createdAt: '',
 				icon: folder.icon || 'dashicons-category',
 				id: folder.id,
-				itemCount: folderApps.length + folderDocuments.length + childFolders.length,
-				items: childFolders.map((childFolder) => ({
-					id: childFolder.id,
-					label: childFolder.label,
-					type: 'folder',
-					url: ''
-				})).concat(folderApps.map((app) => ({ id: app.id, label: app.label, type: 'app', url: app.url || '' })), folderDocuments.map((item) => ({
-					id: item.id,
-					label: item.label,
-					type: 'document',
-					url: ''
-				}))),
-				kind: getMenuLabel('folder'),
+				itemCount: folderItems.length,
+				items: folderItems,
+				kind: isTrashFolderId(folder.id) ? getMenuLabel('trash') : getMenuLabel('folder'),
 				label: folder.label || getMenuLabel('folder'),
 				lastOpenedAt: '',
 				modifiedAt: '',
-				source: getMenuLabel('wordpress_admin_group_source'),
+				source: getFolderSourceLabel(folder),
 				user: false,
 				where: virtualFilesystem && typeof virtualFilesystem.getWhereLabel === 'function'
 					? virtualFilesystem.getWhereLabel(folder.id)

@@ -410,6 +410,57 @@
 				+ (Array.isArray(selection.documentIds) ? selection.documentIds.length : 0);
 		}
 
+		function getTrashItemIdFromPayload(payload = {}, detail = {}) {
+			return String(
+				payload.target
+				|| payload.trashItemId
+				|| (detail && detail.trashItemId)
+				|| (detail && detail.id)
+				|| (detail && detail.targetId)
+				|| ''
+			).trim();
+		}
+
+		function canActOnTrashItem(trashId) {
+			return Boolean(
+				trashId
+				&& folderManager
+				&& typeof folderManager.getTrashItem === 'function'
+				&& folderManager.getTrashItem(trashId)
+			);
+		}
+
+		function getTrashWindowFromDetail(detail = {}) {
+			const target = detail && detail.targetElement ? detail.targetElement : null;
+			const win = detail && detail.windowElement
+				? detail.windowElement
+				: target && typeof target.closest === 'function'
+					? target.closest('.pdk-window')
+					: null;
+
+			return win && win.dataset && win.dataset.pdkFolderWindow === appIds.TRASH ? win : null;
+		}
+
+		function getSelectedTrashItemIds(payload = {}, detail = {}) {
+			const targetId = getTrashItemIdFromPayload(payload, detail);
+			const win = getTrashWindowFromDetail(detail);
+			const selectedIds = win
+				? uniqueIds(Array.from(win.querySelectorAll('.pdk-finder-trash-item.is-selected[data-pdk-trash-item-id]'))
+					.map((item) => item.dataset.pdkTrashItemId || ''))
+					.filter(canActOnTrashItem)
+				: [];
+
+			if (targetId && selectedIds.length > 1 && selectedIds.includes(targetId)) {
+				return selectedIds;
+			}
+
+			if (!targetId && selectedIds.length) {
+				return selectedIds;
+			}
+
+			return targetId && canActOnTrashItem(targetId) ? [targetId] : [];
+		}
+
 		function getDesktopIconDocumentId(item = {}) {
 			const dataset = item && item.iconElement && item.iconElement.dataset ? item.iconElement.dataset : {};
 
@@ -1630,19 +1681,36 @@
 		});
 
 		register(commandIds.TRASH_RESTORE, {
-			isEnabled(payload) {
-				return Boolean(folderManager && typeof folderManager.restoreTrashItem === 'function' && payload.target);
+			isEnabled(payload, detail) {
+				return Boolean(
+					folderManager
+					&& typeof folderManager.restoreTrashItem === 'function'
+					&& getSelectedTrashItemIds(payload, detail).length
+				);
 			},
-			run(payload) {
-				return folderManager.restoreTrashItem(payload.target);
+			async run(payload, detail) {
+				const trashIds = getSelectedTrashItemIds(payload, detail);
+				const results = await Promise.all(trashIds.map((trashId) => Promise.resolve(folderManager.restoreTrashItem(trashId)).catch(() => null)));
+
+				return results.some(Boolean);
 			}
 		});
 
 		register(commandIds.TRASH_DELETE_IMMEDIATELY, {
-			isEnabled(payload) {
-				return Boolean(folderManager && typeof folderManager.deleteTrashItem === 'function' && payload.target);
+			isEnabled(payload, detail) {
+				return Boolean(
+					folderManager
+					&& typeof folderManager.deleteTrashItem === 'function'
+					&& getSelectedTrashItemIds(payload, detail).length
+				);
 			},
-			async run(payload) {
+			async run(payload, detail) {
+				const trashIds = getSelectedTrashItemIds(payload, detail);
+
+				if (!trashIds.length) {
+					return false;
+				}
+
 				const confirmed = dialogs && typeof dialogs.confirm === 'function'
 					? await dialogs.confirm({
 						cancelLabel: getLabel('cancel'),
@@ -1654,8 +1722,12 @@
 					: window.confirm(getLabel('delete_immediately_fallback_message'));
 
 				if (confirmed) {
-					return folderManager.deleteTrashItem(payload.target);
+					const results = await Promise.all(trashIds.map((trashId) => Promise.resolve(folderManager.deleteTrashItem(trashId)).catch(() => false)));
+
+					return results.some(Boolean);
 				}
+
+				return false;
 			}
 		});
 
