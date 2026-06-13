@@ -1560,7 +1560,6 @@
 			});
 			shell.addEventListener(domEventNames.MENU_BAR_CHANGE, () => {
 				config.menuBar = Object.assign({}, config.menuBar || {}, {
-					auto_hide: shell.dataset.pdkMenuBarAutoHide || 'fullscreen',
 					recent_count: Number.parseInt(shell.dataset.pdkMenuBarRecentCount, 10) || 0,
 					show_background: shell.dataset.pdkMenuBarBackground === '1'
 				});

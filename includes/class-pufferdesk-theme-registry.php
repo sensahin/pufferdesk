@@ -223,7 +223,6 @@ final class PufferDesk_Theme_Registry {
 						'minimize_animation_genie' => __( 'Sweep', 'pufferdesk-admin-desktop' ),
 						'minimize_animation_scale' => __( 'Scale', 'pufferdesk-admin-desktop' ),
 						'menu_bar'             => __( 'Top bar', 'pufferdesk-admin-desktop' ),
-						'menu_bar_auto_hide'   => __( 'Automatically hide the top bar', 'pufferdesk-admin-desktop' ),
 						'menu_bar_background'  => __( 'Show top bar background', 'pufferdesk-admin-desktop' ),
 					),
 				),
@@ -1501,7 +1500,6 @@ final class PufferDesk_Theme_Registry {
 				'minimize_animation_genie' => __( 'Genie Effect', 'pufferdesk-admin-desktop' ),
 				'minimize_animation_scale' => __( 'Scale Effect', 'pufferdesk-admin-desktop' ),
 				'menu_bar'             => __( 'Menu Bar', 'pufferdesk-admin-desktop' ),
-				'menu_bar_auto_hide'   => __( 'Automatically hide and show the menu bar', 'pufferdesk-admin-desktop' ),
 				'menu_bar_background'  => __( 'Show menu bar background', 'pufferdesk-admin-desktop' ),
 			),
 		);

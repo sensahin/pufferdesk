@@ -259,7 +259,6 @@ final class PufferDesk_Settings_Controller {
 
 		$menu_bar = $this->preferences->set_menu_bar(
 			array(
-				'auto_hide'       => $this->read_post_value( 'auto_hide' ),
 				'show_background' => $this->read_post_value( 'show_background' ),
 				'recent_count'    => $this->read_post_value( 'recent_count' ),
 			)

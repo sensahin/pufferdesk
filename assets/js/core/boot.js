@@ -87,7 +87,6 @@
 		}
 		if (window.PufferDesk.menuBar) {
 			window.PufferDesk.menuBar.apply(shell, config.menuBar || {});
-			window.PufferDesk.menuBar.bindAutoHide(shell);
 		}
 		const notificationStore = window.PufferDesk.notifications.createStore(config);
 		window.PufferDesk.notificationStore = notificationStore;

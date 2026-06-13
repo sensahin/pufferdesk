@@ -53,7 +53,6 @@ $pufferdesk_desktop_dock = wp_parse_args(
 $pufferdesk_menu_bar     = wp_parse_args(
 	is_array( $menu_bar ) ? $menu_bar : array(),
 	array(
-		'auto_hide'       => 'fullscreen',
 		'show_background' => false,
 		'recent_count'    => 10,
 	)
@@ -102,8 +101,6 @@ $pufferdesk_token_styles      = PufferDesk_Theme_Token_Renderer::get_shell_style
 $pufferdesk_shell_style       = isset( $pufferdesk_token_styles['style'] ) ? $pufferdesk_token_styles['style'] : '';
 $pufferdesk_mode_token_style_rules = isset( $pufferdesk_token_styles['mode_rules'] ) && is_array( $pufferdesk_token_styles['mode_rules'] ) ? $pufferdesk_token_styles['mode_rules'] : array();
 $pufferdesk_effective_appearance = 'dark' === $pufferdesk_appearance['mode'] ? 'dark' : 'light';
-$pufferdesk_menu_bar_auto_hide   = in_array( $pufferdesk_menu_bar['auto_hide'], array( 'always', 'desktop', 'fullscreen', 'never' ), true ) ? $pufferdesk_menu_bar['auto_hide'] : 'fullscreen';
-$pufferdesk_menu_bar_hidden      = in_array( $pufferdesk_menu_bar_auto_hide, array( 'always', 'desktop' ), true );
 $pufferdesk_shell_attributes     = array(
 	'class'                           => 'pdk-shell',
 	'data-pufferdesk-shell'           => '',
@@ -141,9 +138,8 @@ $pufferdesk_shell_attributes     = array(
 	'data-pdk-show-widgets-desktop'   => ! empty( $pufferdesk_desktop_dock['show_widgets_desktop'] ) ? '1' : '0',
 	'data-pdk-dim-widgets'            => $pufferdesk_desktop_dock['dim_widgets'],
 	'data-pdk-fullscreen-window'      => '0',
-	'data-pdk-menu-bar-auto-hide'     => $pufferdesk_menu_bar_auto_hide,
 	'data-pdk-menu-bar-background'    => ! empty( $pufferdesk_menu_bar['show_background'] ) ? '1' : '0',
-	'data-pdk-menu-bar-hidden'        => $pufferdesk_menu_bar_hidden ? '1' : '0',
+	'data-pdk-menu-bar-hidden'        => '0',
 	'data-pdk-menu-bar-recent-count'  => (string) max( 0, min( 50, (int) $pufferdesk_menu_bar['recent_count'] ) ),
 	'data-pdk-menu-bar-revealed'      => '0',
 );

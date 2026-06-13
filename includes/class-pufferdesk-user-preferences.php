@@ -133,7 +133,6 @@ final class PufferDesk_User_Preferences {
 	 * @var array<string,mixed>
 	 */
 	private $default_menu_bar = array(
-		'auto_hide'       => 'fullscreen',
 		'show_background' => false,
 		'recent_count'    => 10,
 	);
@@ -191,15 +190,6 @@ final class PufferDesk_User_Preferences {
 	 * @var array<int,string>
 	 */
 	private $notification_severity_options = array( 'all', 'warnings', 'critical' );
-
-	/**
-	 * Allowed Menu Bar preference values.
-	 *
-	 * @var array<string,array<int,string>>
-	 */
-	private $menu_bar_options = array(
-		'auto_hide' => array( 'always', 'desktop', 'fullscreen', 'never' ),
-	);
 
 	/**
 	 * Default wallpaper preference.
@@ -305,12 +295,12 @@ final class PufferDesk_User_Preferences {
 	}
 
 	/**
-	 * Allowed Menu Bar preference values.
+	 * Menu Bar preference option values.
 	 *
 	 * @return array<string,array<int,string>>
 	 */
 	public function get_menu_bar_options() {
-		return $this->menu_bar_options;
+		return array();
 	}
 
 	/**
@@ -1846,17 +1836,6 @@ final class PufferDesk_User_Preferences {
 	 */
 	public function sanitize_menu_bar( $menu_bar ) {
 		$sanitized = $this->default_menu_bar;
-
-		foreach ( $this->menu_bar_options as $key => $allowed ) {
-			if ( ! array_key_exists( $key, $menu_bar ) ) {
-				continue;
-			}
-
-			$value = sanitize_key( (string) $menu_bar[ $key ] );
-			if ( in_array( $value, $allowed, true ) ) {
-				$sanitized[ $key ] = $value;
-			}
-		}
 
 		if ( array_key_exists( 'show_background', $menu_bar ) ) {
 			$sanitized['show_background'] = $this->sanitize_boolean( $menu_bar['show_background'] );

@@ -720,7 +720,6 @@ final class PufferDesk_Runtime_Config {
 			'remove_from_launcher' => __( 'Remove from Dock', 'pufferdesk-admin-desktop' ),
 			'open_at_login'        => __( 'Open at Login', 'pufferdesk-admin-desktop' ),
 			'menu_bar'             => __( 'Menu Bar', 'pufferdesk-admin-desktop' ),
-			'menu_bar_auto_hide'   => __( 'Automatically hide and show the menu bar', 'pufferdesk-admin-desktop' ),
 			'menu_bar_background'  => __( 'Show menu bar background', 'pufferdesk-admin-desktop' ),
 		);
 		$labels   = isset( $theme['shell']['labels'] ) && is_array( $theme['shell']['labels'] )
@@ -810,7 +809,6 @@ final class PufferDesk_Runtime_Config {
 			),
 			'menuBar'           => array(
 				'enabled'    => $has_menu_bar,
-				'autoHide'   => $has_menu_bar,
 				'background' => $has_menu_bar,
 				'recent'     => 'global' === $app_menu,
 			),
@@ -1129,17 +1127,10 @@ final class PufferDesk_Runtime_Config {
 			),
 			'menuBar'      => array(
 				'rows'          => array(
-					'autoHide'       => $shell_labels['menu_bar_auto_hide'],
 					'showBackground' => $shell_labels['menu_bar_background'],
 					'recentCount'    => __( 'Recent documents, applications, and servers', 'pufferdesk-admin-desktop' ),
 				),
 				'selectOptions' => array(
-					'auto_hide'    => array(
-						array( 'value' => 'always', 'label' => __( 'Always', 'pufferdesk-admin-desktop' ) ),
-						array( 'value' => 'desktop', 'label' => __( 'On Desktop Only', 'pufferdesk-admin-desktop' ) ),
-						array( 'value' => 'fullscreen', 'label' => __( 'In Full Screen Only', 'pufferdesk-admin-desktop' ) ),
-						array( 'value' => 'never', 'label' => __( 'Never', 'pufferdesk-admin-desktop' ) ),
-					),
 					'recent_count' => array(
 						array( 'value' => '0', 'label' => __( 'None', 'pufferdesk-admin-desktop' ) ),
 						array( 'value' => '5', 'label' => '5' ),

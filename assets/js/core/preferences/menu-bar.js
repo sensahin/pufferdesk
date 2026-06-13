@@ -4,7 +4,6 @@
 	window.PufferDesk = window.PufferDesk || {};
 
 	const defaults = window.PufferDesk.config.getSettingDefault('menu_bar') || {};
-	const allowed = window.PufferDesk.config.getSettingOptions('menu_bar') || {};
 	const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
 	const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
 	const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
@@ -13,7 +12,6 @@
 	const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 	const recentLimit = 50;
 	const recentGroupOrder = ['system', 'wordpress', 'plugins', 'documents'];
-	let hideTimer = null;
 	const fullscreenSourcesByShell = new WeakMap();
 
 	function normalizeBoolean(value) {
@@ -35,10 +33,7 @@
 	}
 
 	function normalize(preferences = {}) {
-		const autoHide = String(preferences.auto_hide || '');
-
 		return {
-			auto_hide: Array.isArray(allowed.auto_hide) && allowed.auto_hide.includes(autoHide) ? autoHide : defaults.auto_hide,
 			show_background: Object.prototype.hasOwnProperty.call(preferences, 'show_background')
 				? normalizeBoolean(preferences.show_background)
 				: defaults.show_background,
@@ -157,22 +152,6 @@
 		});
 	}
 
-	function shouldAutoHide(shell, preferences) {
-		const current = normalize(preferences);
-
-		if (current.auto_hide === 'never') {
-			return false;
-		}
-		if (current.auto_hide === 'always') {
-			return true;
-		}
-		if (current.auto_hide === 'fullscreen') {
-			return isFullscreen(shell);
-		}
-
-		return !isFullscreen(shell);
-	}
-
 	function getMenuBar(shell) {
 		return shell ? shell.querySelector('.pdk-menu-bar') : null;
 	}
@@ -198,17 +177,14 @@
 		syncVisibilityStyles(shell);
 	}
 
-	function syncHiddenState(shell, preferences) {
-		const hidden = shouldAutoHide(shell, preferences);
-		shell.dataset.pdkMenuBarHidden = hidden ? '1' : '0';
-		if (!hidden) {
-			setRevealed(shell, false);
-		}
+	function syncHiddenState(shell) {
+		shell.dataset.pdkMenuBarHidden = '0';
+		setRevealed(shell, false);
 		syncVisibilityStyles(shell);
 
 		shell.dispatchEvent(new window.CustomEvent(domEventNames.MENU_BAR_LAYOUT_CHANGE, {
 			detail: {
-				hidden
+				hidden: false
 			}
 		}));
 	}
@@ -219,58 +195,14 @@
 		}
 
 		const current = normalize(preferences);
-		shell.dataset.pdkMenuBarAutoHide = current.auto_hide;
 		shell.dataset.pdkMenuBarBackground = current.show_background ? '1' : '0';
 		shell.dataset.pdkMenuBarRecentCount = String(current.recent_count);
-		syncHiddenState(shell, current);
+		syncHiddenState(shell);
 		shell.dispatchEvent(new window.CustomEvent(domEventNames.MENU_BAR_CHANGE, {
 			detail: current
 		}));
 
 		return current;
-	}
-
-	function bindAutoHide(shell) {
-		const menuBar = shell ? shell.querySelector('.pdk-menu-bar') : null;
-
-		if (!shell || !menuBar || shell.dataset.pdkMenuBarBound === '1') {
-			return;
-		}
-
-		shell.dataset.pdkMenuBarBound = '1';
-
-		const reveal = () => {
-			if (shell.dataset.pdkMenuBarHidden === '1') {
-				window.clearTimeout(hideTimer);
-				setRevealed(shell, true);
-			}
-		};
-		const conceal = () => {
-			if (shell.dataset.pdkMenuBarHidden === '1') {
-				hideTimer = window.setTimeout(() => setRevealed(shell, false), 220);
-			}
-		};
-
-		document.addEventListener('pointermove', (event) => {
-			if (shell.dataset.pdkMenuBarHidden !== '1') {
-				return;
-			}
-
-			if (event.clientY <= 4) {
-				reveal();
-			} else if (!menuBar.contains(event.target) && event.clientY > menuBar.offsetHeight + 10) {
-				conceal();
-			}
-		}, { passive: true });
-		menuBar.addEventListener('pointerenter', reveal);
-		menuBar.addEventListener('pointerleave', conceal);
-		shell.addEventListener(domEventNames.FULLSCREEN_WINDOW_CHANGE, () => {
-			apply(shell, {
-				auto_hide: shell.dataset.pdkMenuBarAutoHide,
-				show_background: shell.dataset.pdkMenuBarBackground === '1',
-				recent_count: shell.dataset.pdkMenuBarRecentCount
-			});
-		});
 	}
 
 	function getSessionStore(config = {}) {
@@ -547,7 +479,6 @@
 	window.PufferDesk.menuBar = {
 		addRecentItem,
 		apply,
-		bindAutoHide,
 		clearRecentItems,
 		clearFullscreenSources,
 		defaults,
