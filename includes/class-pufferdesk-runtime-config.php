@@ -288,7 +288,6 @@ final class PufferDesk_Runtime_Config {
 					/* translators: %s: folder contents count. */
 					'folderSizeTemplate'        => __( '%s in this folder', 'pufferdesk-admin-desktop' ),
 					'generalSection'            => __( 'General:', 'pufferdesk-admin-desktop' ),
-				'hideExtension'             => __( 'Hide extension', 'pufferdesk-admin-desktop' ),
 				'infoFallbackTitle'         => __( 'Info', 'pufferdesk-admin-desktop' ),
 				'itemPlural'                => __( 'items', 'pufferdesk-admin-desktop' ),
 				'itemSingular'              => __( 'item', 'pufferdesk-admin-desktop' ),
@@ -302,7 +301,7 @@ final class PufferDesk_Runtime_Config {
 					'modifiedTemplate'          => __( 'Modified: %s', 'pufferdesk-admin-desktop' ),
 					'moreInfoLabel'             => __( 'More Info...', 'pufferdesk-admin-desktop' ),
 				'moreInfoSection'           => __( 'More Info:', 'pufferdesk-admin-desktop' ),
-				'nameExtensionSection'      => __( 'Name & Extension:', 'pufferdesk-admin-desktop' ),
+				'nameSection'               => __( 'Name:', 'pufferdesk-admin-desktop' ),
 					'noPreviewItems'            => __( 'No items to preview.', 'pufferdesk-admin-desktop' ),
 					'notAvailable'              => __( 'Not available', 'pufferdesk-admin-desktop' ),
 					/* translators: %s: preview item count. */

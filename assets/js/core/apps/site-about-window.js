@@ -328,7 +328,7 @@
 		const labels = getInfoPanelLabels();
 		const documentFallbackTitle = getInfoPanelLabel('documentFallbackTitle', '', labels);
 		const general = createDisclosure(getInfoPanelLabel('generalSection', '', labels));
-		const name = createDisclosure(getInfoPanelLabel('nameExtensionSection', '', labels));
+		const name = createDisclosure(getInfoPanelLabel('nameSection', '', labels));
 		const permissions = createDisclosure(getInfoPanelLabel('sharingPermissionsSection', '', labels), { open: false });
 
 		appendDefinition(general.body, getInfoPanelLabel('kindLabel', '', labels), info.kind || documentFallbackTitle);
@@ -349,9 +349,6 @@
 			}
 		});
 		name.body.appendChild(nameInput);
-		name.body.appendChild(createCheckbox(getInfoPanelLabel('hideExtension', '', labels), {
-			disabledStyle: true
-		}));
 
 		appendDefinition(
 			permissions.body,
@@ -386,7 +383,7 @@
 		const folderFallbackTitle = getInfoPanelLabel('folderFallbackTitle', '', labels);
 		const general = createDisclosure(getInfoPanelLabel('generalSection', '', labels));
 		const more = createDisclosure(getInfoPanelLabel('moreInfoSection', '', labels));
-		const name = createDisclosure(getInfoPanelLabel('nameExtensionSection', '', labels));
+		const name = createDisclosure(getInfoPanelLabel('nameSection', '', labels));
 		const preview = createDisclosure(getInfoPanelLabel('previewSection', '', labels), { open: false });
 		const permissions = createDisclosure(getInfoPanelLabel('sharingPermissionsSection', '', labels), { open: false });
 
@@ -421,9 +418,6 @@
 			}
 		});
 		name.body.appendChild(nameInput);
-		name.body.appendChild(createCheckbox(getInfoPanelLabel('hideExtension', '', labels), {
-			disabledStyle: true
-		}));
 
 		const previewText = document.createElement('p');
 		previewText.className = 'pdk-info-panel-muted';

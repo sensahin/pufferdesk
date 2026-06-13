@@ -1517,10 +1517,44 @@
 	box-shadow: none;
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window:is([data-pdk-window-kind="folder-info"], [data-pdk-window-kind="document-info"]) {
+	--pdk-info-panel-field-bg: rgb(255 255 255 / 0.055);
+	--pdk-info-panel-field-border: rgb(255 255 255 / 0.08);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window:is([data-pdk-window-kind="folder-info"], [data-pdk-window-kind="document-info"]) input.pdk-info-panel-name-input[type="text"] {
+	-webkit-appearance: none;
+	appearance: none;
+	background: var(--pdk-info-panel-field-bg);
+	border-color: var(--pdk-info-panel-field-border);
+	box-shadow: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 0 0 1px rgb(0 0 0 / 0.1) inset;
+	color: var(--pdk-info-panel-ink);
+	font-size: var(--pdk-text-caption);
+	font-weight: var(--pdk-weight-regular);
+	height: 27px;
+	line-height: 1.2;
+	margin: 0;
+	min-height: 27px;
+	padding: 0 8px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window:is([data-pdk-window-kind="folder-info"], [data-pdk-window-kind="document-info"]) input.pdk-info-panel-name-input[type="text"]:focus {
+	background: rgb(255 255 255 / 0.075);
+	border-color: var(--pdk-accent);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window:is([data-pdk-window-kind="folder-info"], [data-pdk-window-kind="document-info"]) input.pdk-info-panel-name-input[type="text"]:disabled {
+	-webkit-text-fill-color: rgb(235 235 245 / 0.32);
+	background: var(--pdk-info-panel-field-bg);
+	border-color: var(--pdk-info-panel-field-border);
+	color: rgb(235 235 245 / 0.32);
+	opacity: 1;
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-desktop-folder .pdk-icon-image,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-finder-sidebar-icon .pdk-icon-image,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder-info"] .pdk-info-panel-icon .pdk-icon-image,
-.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-window-kind="folder-info"] .pdk-window-titlebar-label-icon .pdk-icon-image {
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window:is([data-pdk-window-kind="folder-info"], [data-pdk-window-kind="document-info"]) .pdk-info-panel-icon .pdk-icon-image,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window:is([data-pdk-window-kind="folder-info"], [data-pdk-window-kind="document-info"]) .pdk-window-titlebar-label-icon .pdk-icon-image {
 	filter: var(--pdk-folder-icon-filter);
 	opacity: var(--pdk-folder-icon-opacity);
 }

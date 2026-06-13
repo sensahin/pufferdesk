@@ -10,7 +10,14 @@
 }
 
 .pdk-shell ::selection {
-	background: var(--pdk-highlight);
+	background: var(--pdk-selection-bg, var(--pdk-highlight));
+	color: var(--pdk-selection-ink, inherit);
+}
+
+.pdk-shell :is(.pdk-window, .pdk-shell-dialog)::selection,
+.pdk-shell :is(.pdk-window, .pdk-shell-dialog) ::selection {
+	background: var(--pdk-window-selection-bg, var(--pdk-selection-bg, var(--pdk-accent)));
+	color: var(--pdk-window-selection-ink, var(--pdk-selection-ink, var(--pdk-accent-ink)));
 }
 
 .pdk-shell {
@@ -127,6 +134,10 @@
 	--pdk-focus-ring: rgb(var(--pdk-focus-ring-rgb) / var(--pdk-focus-ring-alpha));
 	--pdk-highlight-alpha: 0.18;
 	--pdk-highlight: rgb(var(--pdk-accent-rgb) / var(--pdk-highlight-alpha));
+	--pdk-selection-bg: var(--pdk-highlight);
+	--pdk-selection-ink: inherit;
+	--pdk-window-selection-bg: var(--pdk-accent);
+	--pdk-window-selection-ink: var(--pdk-accent-ink);
 	--pdk-window-bar-bg: #fff;
 	--pdk-window-bar-border: rgba(0, 0, 0, 0.08);
 	--pdk-window-radius: 8px;
