@@ -746,22 +746,73 @@
 			return item ? serializeTrash().find((trashItem) => trashItem.id === trashId) || null : null;
 		}
 
+		function getTrashIcon(state) {
+			const app = appMap.get(trashFolderId) || {};
+			const baseIcon = app.icon && typeof app.icon === 'object' ? app.icon : {};
+			const fallback = baseIcon.fallback || baseIcon.value || baseIcon.icon || 'dashicons-trash';
+			const icon = Object.assign({}, baseIcon);
+
+			if (icon.type === 'theme') {
+				icon.name = state === 'full' ? 'trash-full.svg' : 'trash-empty.svg';
+				icon.fallback = fallback;
+				return icon;
+			}
+
+			if (state === 'empty' && app.icon) {
+				return app.icon;
+			}
+
+			return {
+				type: 'theme',
+				name: state === 'full' ? 'trash-full.svg' : 'trash-empty.svg',
+				fallback
+			};
+		}
+
+		function syncTrashSurfaceIcon(button, state) {
+			if (!button || !dom || typeof dom.createIcon !== 'function') {
+				return;
+			}
+
+			const container = button.querySelector('.pdk-app-icon') || button;
+
+			if (!container || (container.dataset && container.dataset.pdkTrashIconState === state)) {
+				return;
+			}
+
+			Array.from(container.children).forEach((child) => {
+				if (child.classList && child.classList.contains('pdk-icon')) {
+					child.remove();
+				}
+			});
+			container.insertBefore(dom.createIcon(getTrashIcon(state)), container.firstChild || null);
+			if (container.dataset) {
+				container.dataset.pdkTrashIconState = state;
+			}
+		}
+
 		function syncTrashSurfaceState() {
 			if (!shell) {
 				return;
 			}
 
 			const count = getTrashCount();
+			const state = count > 0 ? 'full' : 'empty';
 			const label = count > 0
 				? formatMenuLabel(count === 1 ? 'trash_item_count' : 'trash_item_count_plural', '', [count])
 				: getMenuLabel('trash');
+			const selector = [
+				`[data-pdk-open-app="${dom.escapeAttribute(trashFolderId)}"]`,
+				`[data-pdk-open-folder="${dom.escapeAttribute(trashFolderId)}"]`
+			].join(',');
 
-			shell.querySelectorAll(`[data-pdk-open-app="${dom.escapeAttribute(trashFolderId)}"]`).forEach((button) => {
+			shell.querySelectorAll(selector).forEach((button) => {
 				const badge = button.querySelector('.pdk-trash-badge');
 
 				button.classList.toggle('is-trash-full', count > 0);
-				button.dataset.pdkTrashState = count > 0 ? 'full' : 'empty';
+				button.dataset.pdkTrashState = state;
 				button.setAttribute('aria-label', label);
+				syncTrashSurfaceIcon(button, state);
 
 				if (badge) {
 					badge.remove();

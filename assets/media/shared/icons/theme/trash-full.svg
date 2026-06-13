@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Trash full">
+  <desc>Original PufferDesk full trash icon.</desc>
+  <defs>
+    <linearGradient id="pdk-trash-full-can" x1="38" y1="34" x2="89" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f9fbff"/>
+      <stop offset=".56" stop-color="#dfe6f1"/>
+      <stop offset="1" stop-color="#b7c1d0"/>
+    </linearGradient>
+    <linearGradient id="pdk-trash-full-lid" x1="29" y1="20" x2="98" y2="42" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d7dfec"/>
+    </linearGradient>
+    <linearGradient id="pdk-trash-full-paper" x1="38" y1="27" x2="88" y2="76" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e8edf6"/>
+    </linearGradient>
+    <linearGradient id="pdk-trash-full-paper-blue" x1="49" y1="24" x2="89" y2="69" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#dff0ff"/>
+      <stop offset="1" stop-color="#a7c8ea"/>
+    </linearGradient>
+  </defs>
+  <path fill="#172033" opacity=".18" d="M38 43h54l-5 62a10 10 0 0 1-10 9H53a10 10 0 0 1-10-9l-5-62Z"/>
+  <path fill="url(#pdk-trash-full-paper)" stroke="#748196" stroke-linejoin="round" stroke-width="3" d="M36 41 49 26l18 13-8 21-21-1Z"/>
+  <path fill="url(#pdk-trash-full-paper-blue)" stroke="#657893" stroke-linejoin="round" stroke-width="3" d="m65 34 20-10 12 20-18 18-17-9Z"/>
+  <path fill="#ffffff" opacity=".58" d="m48 33 10 7-5 12-9-3Z"/>
+  <path fill="#ffffff" opacity=".42" d="m78 31 8 13-10 9-7-4Z"/>
+  <path fill="url(#pdk-trash-full-can)" stroke="#697689" stroke-linejoin="round" stroke-width="3" d="M36 40h56l-5.1 59.5A10.5 10.5 0 0 1 76.4 109H51.6a10.5 10.5 0 0 1-10.5-9.5L36 40Z"/>
+  <path fill="#ffffff" opacity=".37" d="M43 47h42l-1.1 11H44.1L43 47Z"/>
+  <path fill="url(#pdk-trash-full-lid)" stroke="#697689" stroke-linejoin="round" stroke-width="3" d="m27 30 73-8 1 9-73 8Z"/>
+  <path fill="none" stroke="#697689" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="m49.7 27.5-.8-6.9 27.8-3 .8 6.9"/>
+  <path fill="none" stroke="#7f8b9d" stroke-linecap="round" stroke-width="3" d="M52 56l2 37M64 56v37M76 56l-2 37"/>
+  <path fill="none" stroke="#ffffff" stroke-linecap="round" stroke-opacity=".62" stroke-width="2" d="M45 43h38"/>
+</svg>
