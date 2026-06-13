@@ -224,6 +224,116 @@
 			return formatInfoPanelLabel('folderInfoTitle', '', [label]);
 		}
 
+		function getDocumentInfoTitle(info) {
+			const label = info && info.label
+				? info.label
+				: getInfoPanelLabel('documentFallbackTitle', getMenuLabel('document'));
+
+			return formatInfoPanelLabel('documentInfoTitle', '', [label]);
+		}
+
+		function getDocumentOpenWithHandlers() {
+			const documentsConfig = config.documents && typeof config.documents === 'object' ? config.documents : {};
+
+			return Array.isArray(documentsConfig.openWith) ? documentsConfig.openWith : [];
+		}
+
+		function canOpenDocumentWithApp(documentData = {}, appId = '') {
+			if (!appId) {
+				return true;
+			}
+
+			const handler = getDocumentOpenWithHandlers().find((item) => item && (item.appId === appId || item.id === appId));
+			const kinds = handler && Array.isArray(handler.documentKinds) ? handler.documentKinds : [];
+
+			return Boolean(handler && (!kinds.length || kinds.includes(documentData.kind || '')));
+		}
+
+		function formatInfoDate(value) {
+			const timestamp = Date.parse(value);
+			if (!Number.isFinite(timestamp)) {
+				return getInfoPanelLabel('notAvailable', '');
+			}
+
+			return new Intl.DateTimeFormat(undefined, {
+				day: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit',
+				month: 'long',
+				weekday: 'long',
+				year: 'numeric'
+			}).format(new Date(timestamp));
+		}
+
+		function getDocumentContentSize(documentData = {}) {
+			const content = typeof documentData.content === 'string' ? documentData.content : '';
+
+			return typeof window.Blob === 'function' ? new window.Blob([content]).size : content.length;
+		}
+
+		function formatByteSize(bytes) {
+			const size = Number.parseInt(bytes, 10) || 0;
+			const units = [
+				{ key: 'bytes_unit', value: 1 },
+				{ key: 'kb_unit', value: 1024 },
+				{ key: 'mb_unit', value: 1024 * 1024 },
+				{ key: 'gb_unit', value: 1024 * 1024 * 1024 }
+			];
+			let unit = units[0];
+
+			if (size <= 0) {
+				return getMenuLabel('zero_bytes');
+			}
+
+			units.forEach((candidate) => {
+				if (size >= candidate.value) {
+					unit = candidate;
+				}
+			});
+
+			const value = size / unit.value;
+			const rounded = unit.value === 1 ? size : Math.round(value * 10) / 10;
+
+			return `${rounded} ${getMenuLabel(unit.key)}`;
+		}
+
+		function getDocumentKindLabel(documentData = {}) {
+			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
+
+			return documentData.kind === stickyKind ? getMenuLabel('sticky_note') : getMenuLabel('document');
+		}
+
+		function getDocumentWhereLabel(documentData = {}) {
+			const parentPath = typeof documentData.parentPath === 'string' ? documentData.parentPath : '';
+
+			if (virtualFilesystem && typeof virtualFilesystem.getWhereLabel === 'function') {
+				return virtualFilesystem.getWhereLabel(parentPath);
+			}
+
+			return parentPath || getMenuLabel('desktop');
+		}
+
+		function getDocumentInfo(documentData = {}) {
+			const documentId = parseDocumentId(documentData.id);
+			const label = documentData.title || getDocumentKindLabel(documentData);
+
+			return documentId ? {
+				canComment: false,
+				canRename: Boolean(documentStore && typeof documentStore.update === 'function'),
+				comment: '',
+				createdAt: documentData.created || '',
+				icon: getDocumentRecentIcon(documentData),
+				id: documentId,
+				kind: getDocumentKindLabel(documentData),
+				label,
+				modifiedAt: documentData.modified || documentData.created || '',
+				size: formatByteSize(getDocumentContentSize(documentData)),
+				source: getMenuLabel('pufferdesk_user_folder_source'),
+				user: true,
+				where: getDocumentWhereLabel(documentData)
+			} : null;
+		}
+
 		function isHiddenFromLaunchSurfaces(app) {
 			const locations = config.appLocations && typeof config.appLocations === 'object' ? config.appLocations : {};
 
@@ -297,14 +407,12 @@
 		}
 
 		function parseDocumentId(value) {
-			const direct = Number.parseInt(value, 10);
-			const match = String(value || '').match(/(\d+)$/);
+			const raw = String(value || '').trim();
+			const direct = raw.match(/^\d+$/);
+			const prefixed = raw.match(/^document-(\d+)$/);
+			const match = direct ? direct : prefixed;
 
-			if (Number.isFinite(direct) && direct > 0) {
-				return direct;
-			}
-
-			return match ? Number.parseInt(match[1], 10) || 0 : 0;
+			return match ? Number.parseInt(direct ? raw : match[1], 10) || 0 : 0;
 		}
 
 		function getRecentDisplayItems(count = 50) {
@@ -649,8 +757,8 @@
 
 			if (appId === appIds.STICKY_NOTES && isPufferDeskFamily()) {
 				const stickyManager = window.PufferDesk.stickyNoteManager || null;
-				return stickyManager && typeof stickyManager.openStickyNotes === 'function'
-					? stickyManager.openStickyNotes(openOptions.nativeContext || {})
+				return stickyManager && typeof stickyManager.createStickyNote === 'function'
+					? stickyManager.createStickyNote(openOptions.nativeContext || {})
 					: null;
 			}
 
@@ -705,6 +813,64 @@
 			}
 
 			return documentStore.get(id).then((documentData) => openDocument(documentData));
+		}
+
+		function openDocumentWith(documentId, appId = '') {
+			const id = parseDocumentId(documentId);
+
+			if (!id || !documentStore || typeof documentStore.get !== 'function') {
+				return Promise.resolve(false);
+			}
+
+			return documentStore.get(id).then((documentData) => {
+				if (!canOpenDocumentWithApp(documentData, appId)) {
+					return false;
+				}
+
+				return openDocument(documentData);
+			});
+		}
+
+		function renameDocument(documentId, title) {
+			const id = parseDocumentId(documentId);
+			const nextTitle = typeof title === 'string' ? title.trim() : '';
+			const stickyManager = window.PufferDesk.stickyNoteManager || null;
+
+			if (!id || !nextTitle) {
+				return Promise.resolve(false);
+			}
+
+			if (stickyManager && typeof stickyManager.renameNote === 'function') {
+				return Promise.resolve(stickyManager.renameNote(id, nextTitle)).then(Boolean);
+			}
+
+			return documentStore && typeof documentStore.update === 'function'
+				? documentStore.update(id, { title: nextTitle }).then(Boolean)
+				: Promise.resolve(false);
+		}
+
+		function moveDocumentToTrash(documentId) {
+			const id = parseDocumentId(documentId);
+			const provider = getFolderProvider();
+			const stickyManager = window.PufferDesk.stickyNoteManager || null;
+
+			if (!id || !documentStore || typeof documentStore.get !== 'function' || typeof documentStore.remove !== 'function') {
+				return Promise.resolve(false);
+			}
+
+			return documentStore.get(id).then((documentData) => documentStore.remove(id).then((deleted) => {
+				if (deleted && provider && typeof provider.moveDocumentToTrash === 'function') {
+					provider.moveDocumentToTrash(documentData);
+				}
+				if (deleted && stickyManager && typeof stickyManager.removeRenderedNote === 'function') {
+					stickyManager.removeRenderedNote(id);
+				}
+				if (deleted) {
+					closeDocumentInfoWindow(id);
+				}
+
+				return Boolean(deleted);
+			}));
 		}
 
 		function openTrash(options = {}) {
@@ -2557,15 +2723,12 @@
 		}
 
 		function parseDocumentId(value) {
-			const raw = String(value || '');
-			const direct = Number.parseInt(raw, 10);
-			const match = raw.match(/(\d+)$/);
+			const raw = String(value || '').trim();
+			const direct = raw.match(/^\d+$/);
+			const prefixed = raw.match(/^document-(\d+)$/);
+			const match = direct ? direct : prefixed;
 
-			if (Number.isFinite(direct) && direct > 0) {
-				return direct;
-			}
-
-			return match ? Number.parseInt(match[1], 10) || 0 : 0;
+			return match ? Number.parseInt(direct ? raw : match[1], 10) || 0 : 0;
 		}
 
 		function getSelectedDesktopDocumentElements(folderId, options = {}) {
@@ -4091,6 +4254,53 @@
 			return shell.querySelector(`.pdk-window[data-pdk-folder-info-window="${dom.escapeAttribute(folderId)}"]:not(.is-closed)`);
 		}
 
+		function getDocumentInfoWindow(documentId) {
+			const id = parseDocumentId(documentId);
+
+			return id ? shell.querySelector(`.pdk-window[data-pdk-document-info-window="${dom.escapeAttribute(String(id))}"]:not(.is-closed)`) : null;
+		}
+
+		function refreshDocumentInfoWindow(documentId) {
+			const id = parseDocumentId(documentId);
+			const win = getDocumentInfoWindow(id);
+			const body = win ? win.querySelector('.pdk-window-body') : null;
+
+			if (!id || !win || !body || !documentStore || typeof documentStore.get !== 'function') {
+				return Promise.resolve(false);
+			}
+
+			return documentStore.get(id).then((documentData) => {
+				const info = getDocumentInfo(documentData);
+				if (!info || !window.PufferDesk.apps.createDocumentInfoWindow) {
+					return false;
+				}
+
+				const title = getDocumentInfoTitle(info);
+				win.dataset.pdkContextLabel = title;
+				win.dataset.pdkWindowTitle = title;
+				win.setAttribute('aria-label', formatInfoPanelLabel('windowAriaLabel', '', [title]));
+				const titlebarLabel = win.querySelector('.pdk-window-titlebar-label-text');
+				if (titlebarLabel) {
+					titlebarLabel.textContent = title;
+				}
+				body.replaceChildren(createDocumentInfoContent(info));
+				bindFolderInfoAutoSize(win);
+
+				return true;
+			}).catch(() => false);
+		}
+
+		function closeDocumentInfoWindow(documentId) {
+			const win = getDocumentInfoWindow(documentId);
+			if (!win || !manager || typeof manager.closeWindow !== 'function') {
+				return false;
+			}
+
+			manager.closeWindow(win, '');
+
+			return true;
+		}
+
 		function refreshFolderInfoWindow(folderId) {
 			const win = getFolderInfoWindow(folderId);
 			const body = win ? win.querySelector('.pdk-window-body') : null;
@@ -4191,6 +4401,14 @@
 			});
 		}
 
+		function createDocumentInfoContent(info) {
+			return window.PufferDesk.apps.createDocumentInfoWindow(info, {
+				onRename(label) {
+					return renameDocument(info.id, label).then(() => refreshDocumentInfoWindow(info.id));
+				}
+			});
+		}
+
 		function openFolderInfo(folderId) {
 			const info = getFolderInfo(folderId);
 			const existing = getFolderInfoWindow(folderId);
@@ -4228,6 +4446,53 @@
 			}
 
 			return win;
+		}
+
+		function openDocumentInfo(documentId) {
+			const id = parseDocumentId(documentId);
+			const existing = getDocumentInfoWindow(id);
+
+			if (!id || !documentStore || typeof documentStore.get !== 'function' || !window.PufferDesk.apps.createDocumentInfoWindow) {
+				return Promise.resolve(null);
+			}
+
+			if (existing) {
+				refreshDocumentInfoWindow(id);
+				manager.focusWindow(existing);
+				return Promise.resolve(existing);
+			}
+
+			return documentStore.get(id).then((documentData) => {
+				const info = getDocumentInfo(documentData);
+				if (!info) {
+					return null;
+				}
+
+				const title = getDocumentInfoTitle(info);
+				const win = manager.createWindow({
+					appId: `document-info-${info.id}`,
+					bodyClass: 'pdk-window-body pdk-info-panel-body',
+					content: createDocumentInfoContent(info),
+					disabledControls: ['maximize'],
+					height: 'auto',
+					icon: info.icon || 'dashicons-media-document',
+					persist: false,
+					resizeMode: 'none',
+					title,
+					titlebarIcon: info.icon || 'dashicons-media-document',
+					titlebarLabel: title,
+					width: '414px',
+					windowKind: 'document-info'
+				});
+
+				if (win) {
+					win.dataset.pdkDocumentInfoWindow = String(info.id);
+					win.dataset.pdkContextId = String(info.id);
+					bindFolderInfoAutoSize(win);
+				}
+
+				return win;
+			});
 		}
 
 		function runSearch(query) {
@@ -4316,10 +4581,15 @@
 			openFolderInfo,
 			openTrash,
 			openDocumentById,
+			openDocumentInfo,
+			openDocumentWith,
 			openSettingsPanel,
 			openSiteAbout,
 				openUrl,
 				refreshFolderInfoWindow,
+				refreshDocumentInfoWindow,
+				moveDocumentToTrash,
+				renameDocument,
 				refreshFolderWindow,
 				removeFolderSidebarFavorite,
 				setFolderSortMode(folderId, mode, options = {}) {

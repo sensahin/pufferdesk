@@ -159,6 +159,82 @@
 			return folderManager && typeof folderManager.getTrashCount === 'function' ? folderManager.getTrashCount() : 0;
 		}
 
+		function getDocumentsConfig() {
+			return config.documents && typeof config.documents === 'object' ? config.documents : {};
+		}
+
+		function getDocumentDataset(detail = {}) {
+			return detail && detail.metadata && detail.metadata.dataset && typeof detail.metadata.dataset === 'object'
+				? detail.metadata.dataset
+				: {};
+		}
+
+		function normalizeDocumentId(value) {
+			const raw = String(value || '').trim();
+			const direct = raw.match(/^\d+$/);
+			const prefixed = raw.match(/^document-(\d+)$/);
+			const match = direct ? direct : prefixed;
+
+			return match ? Number.parseInt(direct ? raw : match[1], 10) || 0 : 0;
+		}
+
+		function getDocumentId(detail = {}) {
+			const dataset = getDocumentDataset(detail);
+
+			return normalizeDocumentId(detail.documentId || dataset.pdkDocumentId || detail.id || detail.targetId || '');
+		}
+
+		function getDocumentKind(detail = {}) {
+			const dataset = getDocumentDataset(detail);
+
+			return detail.documentKind || dataset.pdkDocumentKind || '';
+		}
+
+		function getDocumentPayload(detail = {}) {
+			const documentId = getDocumentId(detail);
+
+			return {
+				documentId: String(documentId || ''),
+				documentKind: getDocumentKind(detail),
+				folderId: detail.folderId || '',
+				target: String(documentId || '')
+			};
+		}
+
+		function documentHandlerSupportsKind(handler = {}, documentKind = '') {
+			const kinds = Array.isArray(handler.documentKinds) ? handler.documentKinds : [];
+
+			return !kinds.length || kinds.includes(documentKind);
+		}
+
+		function getDocumentOpenWithItems(detail = {}) {
+			const documentsConfig = getDocumentsConfig();
+			const handlers = Array.isArray(documentsConfig.openWith) ? documentsConfig.openWith : [];
+			const payload = getDocumentPayload(detail);
+
+			if (!payload.documentId) {
+				return [];
+			}
+
+			return handlers
+				.filter((handler) => handler && typeof handler === 'object' && documentHandlerSupportsKind(handler, payload.documentKind))
+				.map((handler) => {
+					const appId = handler.appId || handler.id || '';
+					const app = appId ? appMap.get(appId) : null;
+
+					return commandItem(handler.label || (app && app.label) || appId || getLabel('app'), commandIds.OPEN_WITH, {
+						icon: handler.icon || (app && app.icon) || defaultDashicon,
+						id: `open-with-${handler.id || appId || payload.documentKind || 'handler'}`,
+						payload: Object.assign({}, payload, {
+							appId,
+							handlerId: handler.id || appId
+						}),
+						target: payload.documentId
+					});
+				})
+				.filter((item) => item.target);
+		}
+
 		function getFolderTabDetails(detail = {}) {
 			const win = detail.windowElement || null;
 			const tabs = win
@@ -629,23 +705,25 @@
 		}
 
 		function getPufferDeskStickyNotesDockItems(app) {
-			const hasVisibleNotes = Boolean(
+			const hasHiddenNotes = Boolean(
 				stickyNoteManager
-				&& typeof stickyNoteManager.hasOpenNotes === 'function'
-				&& stickyNoteManager.hasOpenNotes()
+				&& typeof stickyNoteManager.hasHiddenNotes === 'function'
+				&& stickyNoteManager.hasHiddenNotes()
 			);
 			const state = getAppWindowState(app.id);
 			const items = [
-				hasVisibleNotes
-					? commandItem(getLabel('new_note', getLabel('new_sticky_note')), commandIds.DOCUMENT_NEW_STICKY_NOTE, {
-						icon: app.icon || defaultDashicon,
-						target: app.id
-					})
-					: commandItem(getLabel('open'), commandIds.DOCUMENT_OPEN_STICKY_NOTES, {
-						icon: app.icon || defaultDashicon,
-						target: app.id
-					})
+				commandItem(getLabel('new_note', getLabel('new_sticky_note')), commandIds.DOCUMENT_NEW_STICKY_NOTE, {
+					icon: app.icon || defaultDashicon,
+					target: app.id
+				})
 			];
+
+			if (hasHiddenNotes) {
+				items.push(commandItem(getLabel('show'), commandIds.DOCUMENT_OPEN_STICKY_NOTES, {
+					icon: app.icon || defaultDashicon,
+					target: app.id
+				}));
+			}
 
 			if (app.url) {
 				items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {
@@ -909,6 +987,130 @@
 					})
 				);
 			}
+
+			return items;
+		}
+
+		function getDocumentIcon(detail = {}) {
+			const stickyKind = getDocumentsConfig().kinds && getDocumentsConfig().kinds.sticky ? getDocumentsConfig().kinds.sticky : '';
+
+			return getDocumentKind(detail) === stickyKind ? 'dashicons-sticky' : 'dashicons-media-document';
+		}
+
+		function getDocumentOpenWithMenu(detail = {}) {
+			const items = getDocumentOpenWithItems(detail);
+
+			return items.length
+				? {
+					icon: 'dashicons-admin-generic',
+					id: 'open-with',
+					items,
+					label: getLabel('open_with')
+				}
+				: null;
+		}
+
+		function getDocumentItems(detail = {}) {
+			const payload = getDocumentPayload(detail);
+			const documentId = payload.documentId;
+			const documentIcon = getDocumentIcon(detail);
+			const openWithMenu = getDocumentOpenWithMenu(detail);
+			const useExplorerMenu = isFileExplorerSurface();
+			const openItem = commandItem(getLabel('open'), commandIds.DOCUMENT_OPEN, {
+				icon: documentIcon,
+				shortcut: useExplorerMenu ? getLabel('enter_key') : '',
+				payload,
+				target: documentId
+			});
+			const renameItem = commandItem(getLabel('rename'), commandIds.DOCUMENT_RENAME, {
+				icon: 'dashicons-edit',
+				id: 'rename',
+				payload,
+				target: documentId
+			});
+			const moveToTrashItem = commandItem(useExplorerMenu ? getLabel('delete') : getLabel('move_to_trash'), commandIds.DOCUMENT_MOVE_TO_TRASH, {
+				icon: 'dashicons-trash',
+				id: useExplorerMenu ? 'delete' : 'move-to-trash',
+				payload,
+				target: documentId
+			});
+			const infoItem = commandItem(useExplorerMenu ? getLabel('properties') : getLabel('get_info'), commandIds.DOCUMENT_GET_INFO, {
+				icon: 'dashicons-info-outline',
+				shortcut: useExplorerMenu ? shortcut('secondary+enter') : '',
+				payload,
+				target: documentId
+			});
+			const items = [];
+
+			if (useExplorerMenu) {
+				items.push(actionStrip([
+					commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
+						hideWhenUnavailable: true,
+						icon: 'dashicons-admin-page',
+						id: 'cut'
+					}),
+					commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
+						icon: 'dashicons-clipboard',
+						id: 'copy'
+					}),
+					commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
+						hideWhenUnavailable: true,
+						icon: 'dashicons-admin-page',
+						id: 'paste'
+					}),
+					renameItem,
+					moveToTrashItem
+				], {
+					id: 'document-actions'
+				}));
+			}
+
+			items.push(openItem);
+			if (openWithMenu) {
+				items.push(openWithMenu);
+			}
+
+			if (!useExplorerMenu) {
+				items.push(
+					commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
+						hideWhenUnavailable: true,
+						icon: 'dashicons-admin-page',
+						id: 'paste',
+						shortcut: shortcut('primary+v')
+					}),
+					separator(),
+					moveToTrashItem,
+					separator(),
+					infoItem,
+					renameItem,
+					separator(),
+					commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
+						icon: 'dashicons-clipboard',
+						id: 'copy',
+						shortcut: shortcut('primary+c')
+					})
+				);
+
+				if (showsCutMenuItems()) {
+					items.push(commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
+						hideWhenUnavailable: true,
+						icon: 'dashicons-admin-page',
+						id: 'cut',
+						shortcut: shortcut('primary+x')
+					}));
+				}
+
+				return items;
+			}
+
+			items.push(
+				infoItem,
+				separator(),
+				disabledItem(getLabel('show_more_options'), {
+					icon: 'dashicons-external',
+					id: 'show-more-options'
+				})
+			);
 
 			return items;
 		}
@@ -1234,29 +1436,18 @@
 		});
 		registerProvider(targets.DOCUMENT, (detail) => ({
 			groups: [
-				getClipboardGroup(),
 				{
 					id: 'primary',
-					items: [
-						commandItem(getLabel('open'), commandIds.DOCUMENT_OPEN, {
-							icon: 'dashicons-media-document',
-							target: detail.id
-						}),
-						commandItem(getLabel('move_to_trash'), commandIds.FOLDER_DELETE_SELECTED, {
-							icon: 'dashicons-trash',
-							payload: {
-								folderId: detail.folderId || '',
-								target: detail.folderId || ''
-							},
-							target: detail.folderId || ''
-						})
-					]
+					items: getDocumentItems(detail)
 				}
 			]
 		}));
-		registerProvider(targets.STICKY_NOTE, () => ({
+		registerProvider(targets.STICKY_NOTE, (detail) => ({
 			groups: [
-				getClipboardGroup()
+				{
+					id: 'primary',
+					items: getDocumentItems(detail)
+				}
 			]
 		}));
 		registerProvider(targets.DESKTOP_FOLDER, (detail) => providers.get(itemTypes.FOLDER)(detail));

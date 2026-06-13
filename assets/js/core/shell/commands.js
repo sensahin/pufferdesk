@@ -12,6 +12,7 @@
 		const desktopIconManager = context.desktopIconManager || null;
 		const folderManager = context.folderManager || null;
 		const stickyNoteManager = context.stickyNoteManager || null;
+		const documentStore = context.documentStore || null;
 		const clipboard = context.clipboard || window.PufferDesk.clipboard || null;
 		const dialogs = context.dialogs || null;
 		const reopenPolicy = context.reopenPolicy || null;
@@ -435,16 +436,39 @@
 			return payload.tabId || payload.target || (detail && detail.id) || '';
 		}
 
+		function getDocumentDataset(detail = {}) {
+			return detail && detail.metadata && detail.metadata.dataset && typeof detail.metadata.dataset === 'object'
+				? detail.metadata.dataset
+				: {};
+		}
+
+		function normalizeDocumentId(value) {
+			const raw = String(value || '').trim();
+			const direct = raw.match(/^\d+$/);
+			const prefixed = raw.match(/^document-(\d+)$/);
+			const match = direct ? direct : prefixed;
+
+			return match ? Number.parseInt(direct ? raw : match[1], 10) || 0 : 0;
+		}
+
 		function getDocumentIdFromPayload(payload = {}, detail = {}) {
-			const raw = payload.documentId || payload.target || (detail && detail.trashItemId) || (detail && detail.id) || '';
-			const direct = Number.parseInt(raw, 10);
-			const match = String(raw || '').match(/(\d+)$/);
+			const dataset = getDocumentDataset(detail);
 
-			if (Number.isFinite(direct) && direct > 0) {
-				return direct;
-			}
+			return normalizeDocumentId(
+				payload.documentId
+				|| payload.target
+				|| (detail && detail.documentId)
+				|| dataset.pdkDocumentId
+				|| (detail && detail.trashItemId)
+				|| (detail && detail.id)
+				|| ''
+			);
+		}
 
-			return match ? Number.parseInt(match[1], 10) || 0 : 0;
+		function getDocumentKindFromPayload(payload = {}, detail = {}) {
+			const dataset = getDocumentDataset(detail);
+
+			return payload.documentKind || (detail && detail.documentKind) || dataset.pdkDocumentKind || '';
 		}
 
 		function getFolderCreateParentId(payload = {}, detail = {}) {
@@ -495,6 +519,84 @@
 			return appPreferences.toggleLoginItem(appId, {
 				errorText: getSettingsLabel('status.loginItemsSaveError')
 			});
+		}
+
+		function getDocumentLabelFromDetail(detail = {}, documentData = null) {
+			const title = documentData && typeof documentData.title === 'string' ? documentData.title.trim() : '';
+
+			return title || (detail && detail.label) || getLabel('document');
+		}
+
+		function getStickyNoteSnapshot(documentId) {
+			return stickyNoteManager && typeof stickyNoteManager.getNoteSnapshot === 'function'
+				? stickyNoteManager.getNoteSnapshot(documentId)
+				: null;
+		}
+
+		function getDocumentForCommand(documentId) {
+			const snapshot = getStickyNoteSnapshot(documentId);
+
+			if (snapshot && snapshot.document) {
+				return Promise.resolve(snapshot.document);
+			}
+
+			return documentStore && typeof documentStore.get === 'function'
+				? documentStore.get(documentId).catch(() => null)
+				: Promise.resolve(null);
+		}
+
+		function renameDocumentFromCommand(payload = {}, detail = {}) {
+			const documentId = getDocumentIdFromPayload(payload, detail);
+
+			if (!documentId) {
+				return Promise.resolve(false);
+			}
+
+			return getDocumentForCommand(documentId).then((documentData) => {
+				const currentTitle = getDocumentLabelFromDetail(detail, documentData);
+				const nextTitle = window.prompt ? window.prompt(getLabel('rename'), currentTitle) : null;
+				const normalizedTitle = typeof nextTitle === 'string' ? nextTitle.trim() : '';
+
+				if (nextTitle === null || !normalizedTitle || normalizedTitle === currentTitle) {
+					return false;
+				}
+
+				if (stickyNoteManager && typeof stickyNoteManager.renameNote === 'function') {
+					return Promise.resolve(stickyNoteManager.renameNote(documentId, normalizedTitle)).then(Boolean);
+				}
+
+				return documentStore && typeof documentStore.update === 'function'
+					? documentStore.update(documentId, { title: normalizedTitle }).then(Boolean)
+					: false;
+			});
+		}
+
+		function moveDocumentToTrashFromCommand(payload = {}, detail = {}) {
+			const documentId = getDocumentIdFromPayload(payload, detail);
+
+			if (!documentId) {
+				return Promise.resolve(false);
+			}
+
+			if (launcher && typeof launcher.moveDocumentToTrash === 'function') {
+				return Promise.resolve(launcher.moveDocumentToTrash(documentId)).then((deleted) => {
+					if (deleted) {
+						return cleanupClipboard({
+							validate: true
+						});
+					}
+
+					return false;
+				});
+			}
+
+			if (stickyNoteManager && typeof stickyNoteManager.deleteNote === 'function') {
+				return stickyNoteManager.deleteNote(documentId).then(Boolean);
+			}
+
+			return documentStore && typeof documentStore.remove === 'function'
+				? documentStore.remove(documentId).then(Boolean)
+				: Promise.resolve(false);
 		}
 
 		function getSystemActions() {
@@ -901,6 +1003,22 @@
 			}
 		});
 
+		register(commandIds.OPEN_WITH, {
+			isEnabled(payload, detail) {
+				return Boolean(
+					launcher
+					&& typeof launcher.openDocumentWith === 'function'
+					&& getDocumentIdFromPayload(payload, detail)
+					&& (payload.appId || payload.handlerId || payload.target)
+				);
+			},
+			run(payload, detail) {
+				return launcher.openDocumentWith(getDocumentIdFromPayload(payload, detail), payload.appId || payload.handlerId || '', {
+					documentKind: getDocumentKindFromPayload(payload, detail)
+				});
+			}
+		});
+
 		register(commandIds.OPEN_FOLDER, {
 			isEnabled(payload) {
 				return Boolean(launcher && typeof launcher.openFolder === 'function' && payload.target);
@@ -1011,6 +1129,46 @@
 			},
 			run(payload, detail) {
 				return launcher.openDocumentById(getDocumentIdFromPayload(payload, detail));
+			}
+		});
+
+		register(commandIds.DOCUMENT_GET_INFO, {
+			isEnabled(payload, detail) {
+				return Boolean(launcher && typeof launcher.openDocumentInfo === 'function' && getDocumentIdFromPayload(payload, detail));
+			},
+			run(payload, detail) {
+				return launcher.openDocumentInfo(getDocumentIdFromPayload(payload, detail));
+			}
+		});
+
+		register(commandIds.DOCUMENT_RENAME, {
+			isEnabled(payload, detail) {
+				return Boolean(
+					getDocumentIdFromPayload(payload, detail)
+					&& (
+						(stickyNoteManager && typeof stickyNoteManager.renameNote === 'function')
+						|| (documentStore && typeof documentStore.update === 'function')
+					)
+				);
+			},
+			run(payload, detail) {
+				return renameDocumentFromCommand(payload, detail);
+			}
+		});
+
+		register(commandIds.DOCUMENT_MOVE_TO_TRASH, {
+			isEnabled(payload, detail) {
+				return Boolean(
+					getDocumentIdFromPayload(payload, detail)
+					&& (
+						(launcher && typeof launcher.moveDocumentToTrash === 'function')
+						|| (stickyNoteManager && typeof stickyNoteManager.deleteNote === 'function')
+						|| (documentStore && typeof documentStore.remove === 'function')
+					)
+				);
+			},
+			run(payload, detail) {
+				return moveDocumentToTrashFromCommand(payload, detail);
 			}
 		});
 

@@ -233,6 +233,10 @@
 			return Array.from(noteMap.values()).some((entry) => entry && entry.element && !entry.element.hidden);
 		}
 
+		function hasHiddenNotes() {
+			return Array.from(noteMap.values()).some((entry) => entry && entry.element && entry.element.hidden);
+		}
+
 		function getFirstNoteEntry(options = {}) {
 			const hiddenOnly = options.hiddenOnly === true;
 
@@ -948,6 +952,21 @@
 			return textTitle ? textTitle.slice(0, 80) : defaultTitle;
 		}
 
+		function syncNoteElementDocumentMetadata(noteElement, documentData = {}) {
+			if (!noteElement) {
+				return;
+			}
+
+			const documentId = Number.parseInt(documentData.id, 10);
+			const label = documentData.title || getLabel('stickyNote');
+
+			noteElement.dataset.pdkContextId = Number.isFinite(documentId) ? String(documentId) : '';
+			noteElement.dataset.pdkDocumentId = Number.isFinite(documentId) ? String(documentId) : '';
+			noteElement.dataset.pdkDocumentKind = documentData.kind || getStickyKind();
+			noteElement.dataset.pdkContextLabel = label;
+			noteElement.setAttribute('aria-label', label);
+		}
+
 		function syncEntryDocument(entry, documentData) {
 			if (!entry || !documentData) {
 				return;
@@ -964,8 +983,7 @@
 			entry.unsaved = false;
 
 			if (entry.element) {
-				entry.element.dataset.pdkContextId = String(newId);
-				entry.element.setAttribute('aria-label', documentData.title || getLabel('stickyNote'));
+				syncNoteElementDocumentMetadata(entry.element, documentData);
 			}
 
 			if (Number.isFinite(newId)) {
@@ -1479,6 +1497,7 @@
 				const existing = noteMap.get(documentId);
 				existing.document = documentData;
 				existing.content.value = documentData.content || '';
+				syncNoteElementDocumentMetadata(existing.element, documentData);
 				markEntrySaved(existing);
 				applyNoteColor(existing, documentData.color);
 				applyState(existing.element, normalizeState(state, noteMap.size));
@@ -1511,9 +1530,8 @@
 
 			noteElement.className = 'pdk-sticky-note';
 			noteElement.dataset.pdkContext = contextTargets.STICKY_NOTE;
-			noteElement.dataset.pdkContextId = String(documentId);
 			noteElement.dataset.pdkResizeMode = 'both';
-			noteElement.setAttribute('aria-label', documentData.title || getLabel('stickyNote'));
+			syncNoteElementDocumentMetadata(noteElement, documentData);
 			applyNoteColor(entry, documentData.color);
 			dragHandle.className = 'pdk-sticky-note-chrome';
 			dragHandle.dataset.pdkStickyNoteDragHandle = '1';
@@ -1660,6 +1678,42 @@
 				: null;
 		}
 
+		function renameNote(documentId, title) {
+			const id = Number.parseInt(documentId, 10);
+			const nextTitle = typeof title === 'string' ? title.trim() : '';
+			const entry = noteMap.get(id);
+
+			if (!Number.isFinite(id) || !nextTitle) {
+				return Promise.resolve(false);
+			}
+
+			if (entry && entry.document) {
+				entry.document.title = nextTitle;
+				syncNoteElementDocumentMetadata(entry.element, entry.document);
+			}
+
+			if (!isPersistedDocumentId(id) || !documentStore || typeof documentStore.update !== 'function') {
+				return Promise.resolve(entry ? entry.document : false);
+			}
+
+			return documentStore.update(id, {
+				title: nextTitle
+			}).then((documentData) => {
+				const liveEntry = noteMap.get(id);
+
+				if (liveEntry && liveEntry.document) {
+					liveEntry.document = Object.assign({}, liveEntry.document, documentData, {
+						content: getNoteContent(liveEntry),
+						title: documentData.title || nextTitle
+					});
+					syncNoteElementDocumentMetadata(liveEntry.element, liveEntry.document);
+					syncEntryDirtyState(liveEntry);
+				}
+
+				return documentData;
+			});
+		}
+
 		function duplicateStickyNote(documentId, options = {}) {
 			const snapshot = getNoteSnapshot(documentId);
 			const offset = Number.isFinite(options.offset) ? options.offset : 28;
@@ -1717,9 +1771,11 @@
 			duplicateStickyNote,
 			getNoteSnapshot,
 			getNotes,
+			hasHiddenNotes,
 			hasOpenNotes,
 			hideNote,
 			openStickyNotes,
+			renameNote,
 			removeRenderedNote,
 			renderNote,
 			restore,

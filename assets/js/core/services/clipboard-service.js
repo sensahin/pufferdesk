@@ -87,15 +87,12 @@
 		}
 
 		function normalizeDocumentId(value) {
-			const raw = String(value || '');
-			const direct = Number.parseInt(raw, 10);
-			const match = raw.match(/(\d+)$/);
+			const raw = String(value || '').trim();
+			const direct = raw.match(/^\d+$/);
+			const prefixed = raw.match(/^document-(\d+)$/);
+			const match = direct ? direct : prefixed;
 
-			if (Number.isFinite(direct) && direct > 0) {
-				return direct;
-			}
-
-			return match ? Number.parseInt(match[1], 10) || 0 : 0;
+			return match ? Number.parseInt(direct ? raw : match[1], 10) || 0 : 0;
 		}
 
 		function getFolderContainerId(folderId) {

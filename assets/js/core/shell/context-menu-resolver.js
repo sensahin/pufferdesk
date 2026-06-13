@@ -147,8 +147,12 @@
 				return areas.DOCK;
 			}
 
-			if (type === targets.WIDGET || type === targets.STICKY_NOTE) {
+			if (type === targets.WIDGET) {
 				return areas.WIDGET;
+			}
+
+			if (type === targets.STICKY_NOTE) {
+				return areas.DESKTOP;
 			}
 
 			if (type === targets.SOUND_STATUS) {
@@ -211,7 +215,7 @@
 				return itemTypes.FOLDER;
 			}
 
-			if (type === targets.DOCUMENT) {
+			if (type === targets.DOCUMENT || type === targets.STICKY_NOTE) {
 				return itemTypes.DOCUMENT;
 			}
 
@@ -293,8 +297,12 @@
 				return contextKeys.WINDOW_TITLEBAR;
 			}
 
-			if (type === targets.WIDGET || type === targets.STICKY_NOTE) {
+			if (type === targets.WIDGET) {
 				return contextKeys.WIDGET_ITEM;
+			}
+
+			if (type === targets.STICKY_NOTE) {
+				return contextKeys.DESKTOP_ITEM;
 			}
 
 			if (type === targets.TRASH_ITEM) {
@@ -337,6 +345,8 @@
 				area,
 				containerId,
 				contextKey: getContextKey(area, targetType, itemType, type),
+				documentId: target.dataset.pdkDocumentId || (type === targets.STICKY_NOTE ? id : ''),
+				documentKind: target.dataset.pdkDocumentKind || '',
 				folder,
 				folderId: target.dataset.pdkFolderId || '',
 				id,
@@ -356,6 +366,7 @@
 				type,
 				trashItem,
 				trashItemId: target.dataset.pdkTrashItemId || '',
+				stickyNoteElement: type === targets.STICKY_NOTE ? target : null,
 				widget,
 				widgetElement: target.dataset.pdkWidget ? target : null,
 				widgetId: target.dataset.pdkWidget || '',

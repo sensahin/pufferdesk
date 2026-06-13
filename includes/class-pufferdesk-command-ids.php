@@ -20,9 +20,12 @@ final class PufferDesk_Command_Ids {
 	const DESKTOP_ICON_RENAME           = 'desktop-icon.rename';
 	const DESKTOP_REFRESH               = 'desktop.refresh';
 	const DESKTOP_SORT_ICONS            = 'desktop.sort-icons';
+	const DOCUMENT_GET_INFO             = 'document.get-info';
+	const DOCUMENT_MOVE_TO_TRASH        = 'document.move-to-trash';
 	const DOCUMENT_NEW_STICKY_NOTE      = 'document.new-sticky-note';
 	const DOCUMENT_OPEN_STICKY_NOTES    = 'document.open-sticky-notes';
 	const DOCUMENT_OPEN                 = 'document.open';
+	const DOCUMENT_RENAME               = 'document.rename';
 	const FOLDER_ADD_APP                = 'folder.add-app';
 	const FOLDER_CREATE                 = 'folder.create';
 	const FOLDER_DELETE                      = 'folder.delete';
@@ -52,6 +55,7 @@ final class PufferDesk_Command_Ids {
 	const OPEN_FOLDER_WINDOW            = 'open-folder-window';
 	const OPEN_SITE_ABOUT               = 'open-site-about';
 	const OPEN_URL                      = 'open-url';
+	const OPEN_WITH                     = 'open-with';
 	const RECENT_ITEMS_CLEAR            = 'recent-items.clear';
 	const SESSION_RESET_LAYOUT          = 'session.reset-layout';
 	const SETTINGS_OPEN_PANEL           = 'settings.open-panel';

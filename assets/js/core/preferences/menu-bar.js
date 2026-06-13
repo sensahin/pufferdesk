@@ -286,14 +286,12 @@
 	}
 
 	function parseDocumentId(value) {
-		const direct = Number.parseInt(value, 10);
-		const match = String(value || '').match(/(\d+)$/);
+		const raw = String(value || '').trim();
+		const direct = raw.match(/^\d+$/);
+		const prefixed = raw.match(/^document-(\d+)$/);
+		const match = direct ? direct : prefixed;
 
-		if (Number.isFinite(direct) && direct > 0) {
-			return direct;
-		}
-
-		return match ? Number.parseInt(match[1], 10) || 0 : 0;
+		return match ? Number.parseInt(direct ? raw : match[1], 10) || 0 : 0;
 	}
 
 	function getDefaultRecentCommand(type, item = {}) {

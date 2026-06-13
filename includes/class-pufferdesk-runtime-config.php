@@ -281,6 +281,9 @@ final class PufferDesk_Runtime_Config {
 					'commentsSection'           => __( 'Comments:', 'pufferdesk-admin-desktop' ),
 					'containsLabel'             => __( 'Contains', 'pufferdesk-admin-desktop' ),
 					'createdLabel'              => __( 'Created', 'pufferdesk-admin-desktop' ),
+					'documentFallbackTitle'     => __( 'Document', 'pufferdesk-admin-desktop' ),
+					/* translators: %s: document label. */
+					'documentInfoTitle'         => __( '%s Info', 'pufferdesk-admin-desktop' ),
 					'folderFallbackTitle'       => __( 'Folder', 'pufferdesk-admin-desktop' ),
 					/* translators: %s: folder label. */
 					'folderInfoTitle'           => __( '%s Info', 'pufferdesk-admin-desktop' ),
@@ -363,6 +366,14 @@ final class PufferDesk_Runtime_Config {
 				),
 				'kinds'        => array(
 					'sticky' => PufferDesk_Document_Service::KIND_STICKY,
+				),
+				'openWith'     => array(
+					array(
+						'appId'         => PufferDesk_App_Ids::STICKY_NOTES,
+						'documentKinds' => array( PufferDesk_Document_Service::KIND_STICKY ),
+						'id'            => PufferDesk_App_Ids::STICKY_NOTES,
+						'label'         => __( 'Sticky Notes', 'pufferdesk-admin-desktop' ),
+					),
 				),
 				'savePolicies' => array(
 					'stickyNote' => $sticky_save_policy,
@@ -1693,6 +1704,7 @@ final class PufferDesk_Runtime_Config {
 				'get_info'                => __( 'Get Info', 'pufferdesk-admin-desktop' ),
 				'cancel'                  => __( 'Cancel', 'pufferdesk-admin-desktop' ),
 				'open'                    => __( 'Open', 'pufferdesk-admin-desktop' ),
+				'open_with'               => __( 'Open With', 'pufferdesk-admin-desktop' ),
 				'show'                    => __( 'Show', 'pufferdesk-admin-desktop' ),
 				'quit'                    => __( 'Quit', 'pufferdesk-admin-desktop' ),
 				'about'                   => __( 'About', 'pufferdesk-admin-desktop' ),

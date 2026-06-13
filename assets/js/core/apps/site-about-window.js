@@ -328,6 +328,69 @@
 		});
 	}
 
+	function createDocumentInfoWindow(info = {}, actions = {}) {
+		const labels = getInfoPanelLabels();
+		const documentFallbackTitle = getInfoPanelLabel('documentFallbackTitle', '', labels);
+		const general = createDisclosure(getInfoPanelLabel('generalSection', '', labels));
+		const name = createDisclosure(getInfoPanelLabel('nameExtensionSection', '', labels));
+		const comments = createDisclosure(getInfoPanelLabel('commentsSection', '', labels));
+		const permissions = createDisclosure(getInfoPanelLabel('sharingPermissionsSection', '', labels), { open: false });
+
+		appendDefinition(general.body, getInfoPanelLabel('kindLabel', '', labels), info.kind || documentFallbackTitle);
+		appendDefinition(general.body, getInfoPanelLabel('sizeLabel', '', labels), info.size || getInfoPanelLabel('notAvailable', '', labels));
+		appendDefinition(general.body, getInfoPanelLabel('whereLabel', '', labels), info.where || getInfoPanelLabel('pufferdeskFallback', '', labels));
+		appendDefinition(general.body, getInfoPanelLabel('sourceLabel', '', labels), info.source || getInfoPanelLabel('pufferdeskFallback', '', labels));
+		appendDefinition(general.body, getInfoPanelLabel('createdLabel', '', labels), formatDate(info.createdAt, labels));
+		appendDefinition(general.body, getInfoPanelLabel('modifiedLabel', '', labels), formatDate(info.modifiedAt, labels));
+
+		const nameInput = document.createElement('input');
+		nameInput.className = 'pdk-info-panel-name-input';
+		nameInput.type = 'text';
+		nameInput.value = info.label || documentFallbackTitle;
+		nameInput.disabled = !info.canRename;
+		nameInput.addEventListener('change', () => {
+			if (info.canRename && typeof actions.onRename === 'function') {
+				actions.onRename(nameInput.value);
+			}
+		});
+		name.body.appendChild(nameInput);
+		name.body.appendChild(createCheckbox(getInfoPanelLabel('hideExtension', '', labels), {
+			disabledStyle: true
+		}));
+
+		const textarea = document.createElement('textarea');
+		textarea.className = 'pdk-info-panel-comments';
+		textarea.value = info.comment || '';
+		textarea.disabled = !info.canComment;
+		comments.body.appendChild(textarea);
+
+		appendDefinition(
+			permissions.body,
+			getInfoPanelLabel('accessLabel', '', labels),
+			info.user
+				? getInfoPanelLabel('privateUserAccess', '', labels)
+				: getInfoPanelLabel('capabilityAccess', '', labels)
+		);
+
+		return createInfoPanelWindow({
+			children: [
+				general.section,
+				name.section,
+				comments.section,
+				permissions.section
+			],
+			header: {
+				icon: info.icon || 'dashicons-media-document',
+				meta: info.size || '',
+				subtitle: formatInfoPanelLabel('modifiedTemplate', '', [formatDate(info.modifiedAt, labels)], labels),
+				title: info.label || documentFallbackTitle
+			},
+			layout: 'inspector',
+			tagsPlaceholder: getInfoPanelLabel('addTags', '', labels),
+			variant: 'document'
+		});
+	}
+
 	function createFolderInfoWindow(info = {}, actions = {}) {
 		const labels = getInfoPanelLabels();
 		const itemCount = Number.parseInt(info.itemCount, 10) || 0;
@@ -425,5 +488,6 @@
 
 	window.PufferDesk.apps.createInfoPanelWindow = createInfoPanelWindow;
 	window.PufferDesk.apps.createSiteAboutWindow = createSiteAboutWindow;
+	window.PufferDesk.apps.createDocumentInfoWindow = createDocumentInfoWindow;
 	window.PufferDesk.apps.createFolderInfoWindow = createFolderInfoWindow;
 })();
