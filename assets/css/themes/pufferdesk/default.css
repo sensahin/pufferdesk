@@ -856,6 +856,10 @@
 	width: max-content;
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover[data-pdk-menu-popover="system"]:not(.pdk-start-panel) {
+	min-width: 280px;
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover {
 	max-width: calc(100vw - 16px);
 	min-width: 0;
@@ -874,7 +878,7 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-badge,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-badge {
-	grid-template-columns: max-content auto auto;
+	grid-template-columns: max-content minmax(32px, 1fr) auto auto;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-icon,
@@ -884,7 +888,52 @@
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-icon.has-badge,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-icon.has-badge {
-	grid-template-columns: 16px max-content auto auto;
+	grid-template-columns: 16px max-content minmax(32px, 1fr) auto auto;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-badge:has(.pdk-menu-item-shortcut:empty),
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-badge:has(.pdk-menu-item-shortcut:empty) {
+	grid-template-columns: max-content minmax(32px, 1fr) auto;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-icon.has-badge:has(.pdk-menu-item-shortcut:empty),
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-icon.has-badge:has(.pdk-menu-item-shortcut:empty) {
+	grid-template-columns: 16px max-content minmax(32px, 1fr) auto;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-badge:not(.has-icon) .pdk-menu-item-badge,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-badge:not(.has-icon) .pdk-menu-item-badge {
+	grid-column: 3;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-badge:not(.has-icon) .pdk-menu-item-shortcut,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-badge:not(.has-icon) .pdk-menu-item-shortcut {
+	grid-column: 4;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-badge:not(.has-icon):has(.pdk-menu-item-shortcut:empty) .pdk-menu-item-badge,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-badge:not(.has-icon):has(.pdk-menu-item-shortcut:empty) .pdk-menu-item-badge {
+	grid-column: 3;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-icon.has-badge .pdk-menu-item-badge,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-icon.has-badge .pdk-menu-item-badge {
+	grid-column: 4;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-icon.has-badge .pdk-menu-item-shortcut,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-icon.has-badge .pdk-menu-item-shortcut {
+	grid-column: 5;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-icon.has-badge:has(.pdk-menu-item-shortcut:empty) .pdk-menu-item-badge,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-icon.has-badge:has(.pdk-menu-item-shortcut:empty) .pdk-menu-item-badge {
+	grid-column: 4;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-badge .pdk-menu-item-shortcut:empty,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-badge .pdk-menu-item-shortcut:empty {
+	display: none;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-context-menu[data-pdk-context-menu="dock-app"] {
