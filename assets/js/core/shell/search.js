@@ -18,6 +18,7 @@
 		const labels = config.menu && config.menu.labels && typeof config.menu.labels === 'object' ? config.menu.labels : {};
 		let panel = null;
 		let panelInput = null;
+		let resultsPanel = null;
 		let resultsList = null;
 		let activeTrigger = null;
 		let activeResults = [];
@@ -54,9 +55,11 @@
 			const field = dom.createElement('label', 'pdk-search-panel-field');
 			const icon = dom.createElement('span', 'pdk-search-panel-icon');
 			const input = document.createElement('input');
-			const list = dom.createElement('div', 'pdk-search-results');
+			const resultPanel = dom.createElement('div', 'pdk-search-results');
+			const list = dom.createElement('div', 'pdk-search-results-scroll');
 
 			nextPanel.hidden = true;
+			resultPanel.hidden = true;
 			nextPanel.dataset.pdkSearchPanel = '';
 			nextPanel.setAttribute('role', 'dialog');
 			nextPanel.setAttribute('aria-label', getLabel('search', 'Search'));
@@ -70,13 +73,15 @@
 			input.setAttribute('role', 'searchbox');
 			input.setAttribute('aria-label', getLabel('start_search_label', getLabel('search_apps', 'Search apps')));
 			list.setAttribute('role', 'listbox');
+			resultPanel.appendChild(list);
 			field.append(icon, input);
-			inner.append(field, list);
+			inner.append(field, resultPanel);
 			nextPanel.appendChild(inner);
 			shell.appendChild(nextPanel);
 
 			panel = nextPanel;
 			panelInput = input;
+			resultsPanel = resultPanel;
 			resultsList = list;
 			bindPanelEvents();
 		}
@@ -149,7 +154,7 @@
 
 			activeResults = Array.isArray(results) ? results : [];
 			panel.classList.toggle('has-query', hasQuery);
-			resultsList.hidden = !hasQuery;
+			resultsPanel.hidden = !hasQuery;
 			if (!hasQuery) {
 				resultsList.replaceChildren();
 				setActiveIndex(-1);
@@ -191,32 +196,32 @@
 			const requestId = searchRequestId + 1;
 
 			searchRequestId = requestId;
-			if (!resultsList) {
+			if (!resultsPanel || !resultsList) {
 				return;
 			}
 
 			if (!query) {
-				resultsList.dataset.pdkSearchLoading = '0';
+				resultsPanel.dataset.pdkSearchLoading = '0';
 				renderResults('', []);
 				return;
 			}
 
 			panel.classList.add('has-query');
-			resultsList.hidden = false;
-			resultsList.dataset.pdkSearchLoading = '1';
+			resultsPanel.hidden = false;
+			resultsPanel.dataset.pdkSearchLoading = '1';
 			searchEngine.search(query, { limit: 18 }).then((results) => {
 				if (requestId !== searchRequestId) {
 					return;
 				}
 
-				resultsList.dataset.pdkSearchLoading = '0';
+				resultsPanel.dataset.pdkSearchLoading = '0';
 				renderResults(query, results);
 			}).catch(() => {
 				if (requestId !== searchRequestId) {
 					return;
 				}
 
-				resultsList.dataset.pdkSearchLoading = '0';
+				resultsPanel.dataset.pdkSearchLoading = '0';
 				renderResults(query, []);
 			});
 		}
@@ -269,7 +274,7 @@
 			delete shell.dataset.pdkSearchOpen;
 			activeResults = [];
 			activeIndex = -1;
-			resultsList.hidden = true;
+			resultsPanel.hidden = true;
 			resultsList.replaceChildren();
 			if (options.clear) {
 				panelInput.value = '';
