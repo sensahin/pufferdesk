@@ -1421,6 +1421,46 @@ final class PufferDesk_Runtime_Config {
 	}
 
 	/**
+	 * Badge descriptor for the WordPress Updates system menu item.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_wordpress_updates_menu_badge() {
+		if ( ! current_user_can( 'update_core' ) && ! current_user_can( 'update_plugins' ) && ! current_user_can( 'update_themes' ) ) {
+			return array();
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/update.php';
+
+		if ( ! function_exists( 'wp_get_update_data' ) ) {
+			return array();
+		}
+
+		$update_data = wp_get_update_data();
+		$counts      = isset( $update_data['counts'] ) && is_array( $update_data['counts'] ) ? $update_data['counts'] : array();
+		$total       = isset( $counts['total'] ) ? absint( $counts['total'] ) : 0;
+		if ( $total <= 0 ) {
+			return array();
+		}
+
+		return array(
+			'text'       => sprintf(
+				/* translators: %d: total WordPress update count. */
+				_n( '%d update', '%d updates', $total, 'pufferdesk-admin-desktop' ),
+				$total
+			),
+			'count'      => $total,
+			'tone'       => PufferDesk_App_Badge_Normalizer::TONE_UPDATE,
+			'aria_label' => sprintf(
+				/* translators: %d: total WordPress update count. */
+				_n( '%d WordPress update available', '%d WordPress updates available', $total, 'pufferdesk-admin-desktop' ),
+				$total
+			),
+			'source'     => 'wordpress-updates',
+		);
+	}
+
+	/**
 	 * Remove rows the current user cannot use.
 	 *
 	 * @param array<int,array<string,mixed>> $rows Rows.
@@ -1571,6 +1611,17 @@ final class PufferDesk_Runtime_Config {
 		$window_control_labels = $this->get_theme_window_control_labels( $theme );
 		$group_labels          = PufferDesk_App_Menu_Normalizer::get_default_group_labels();
 		$template_labels       = self::get_shell_template_labels( $theme );
+		$updates_badge         = $this->get_wordpress_updates_menu_badge();
+		$updates_item          = array(
+			'label'   => __( 'WordPress Updates...', 'pufferdesk-admin-desktop' ),
+			'command' => PufferDesk_Command_Ids::OPEN_URL,
+			'url'     => admin_url( 'update-core.php' ),
+			'title'   => __( 'WordPress Updates', 'pufferdesk-admin-desktop' ),
+			'icon'    => 'dashicons-update',
+		);
+		if ( ! empty( $updates_badge ) ) {
+			$updates_item['badge'] = $updates_badge;
+		}
 
 		$config = array(
 			'system'     => array(
@@ -1590,13 +1641,7 @@ final class PufferDesk_Runtime_Config {
 								'target'  => PufferDesk_App_Ids::OS_SETTINGS,
 								'icon'    => 'dashicons-admin-customizer',
 							),
-							array(
-								'label'   => __( 'WordPress Updates...', 'pufferdesk-admin-desktop' ),
-								'command' => PufferDesk_Command_Ids::OPEN_URL,
-								'url'     => admin_url( 'update-core.php' ),
-								'title'   => __( 'WordPress Updates', 'pufferdesk-admin-desktop' ),
-								'icon'    => 'dashicons-update',
-							),
+							$updates_item,
 							array(
 								'type' => 'separator',
 							),

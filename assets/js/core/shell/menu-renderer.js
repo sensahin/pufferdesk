@@ -50,6 +50,47 @@
 			return '';
 		}
 
+		function normalizeBadge(item) {
+			const badge = item && item.badge && typeof item.badge === 'object' ? item.badge : null;
+			const text = badge && (typeof badge.text === 'string' || typeof badge.text === 'number')
+				? String(badge.text).trim()
+				: '';
+
+			if (!text || text === '0') {
+				return null;
+			}
+
+			return {
+				ariaLabel: typeof badge.ariaLabel === 'string'
+					? badge.ariaLabel.trim()
+					: (typeof badge.aria_label === 'string' ? badge.aria_label.trim() : ''),
+				text,
+				tone: typeof badge.tone === 'string' && badge.tone ? badge.tone : 'neutral'
+			};
+		}
+
+		function formatBadgeAriaLabel(item, badge) {
+			const label = item && typeof item.label === 'string' ? item.label : '';
+
+			if (!badge || !badge.ariaLabel) {
+				return label;
+			}
+
+			if (window.PufferDesk.config && typeof window.PufferDesk.config.formatLabel === 'function') {
+				return window.PufferDesk.config.formatLabel('app_badge_aria_label_format', '%1$s, %2$s', [label, badge.ariaLabel]);
+			}
+
+			return `${label}, ${badge.ariaLabel}`;
+		}
+
+		function applyMenuItemAccessibility(button, item) {
+			const badge = normalizeBadge(item);
+
+			if (badge && badge.ariaLabel) {
+				button.setAttribute('aria-label', formatBadgeAriaLabel(item, badge));
+			}
+		}
+
 		function createMenuItemIcon(item, detail = {}) {
 			if (!shouldRenderIcon(detail) || !hasIcon(item)) {
 				return null;
@@ -60,6 +101,20 @@
 			icon.appendChild(dom.createIcon(item.icon));
 
 			return icon;
+		}
+
+		function createMenuItemBadge(item) {
+			const badge = normalizeBadge(item);
+			if (!badge) {
+				return null;
+			}
+
+			const element = document.createElement('span');
+			element.className = `pdk-menu-item-badge pdk-menu-item-badge-${badge.tone}`;
+			element.textContent = badge.text;
+			element.setAttribute('aria-hidden', 'true');
+
+			return element;
 		}
 
 		function appendMenuItemContent(button, item, submenu = false, detail = {}) {
@@ -73,6 +128,12 @@
 			label.className = 'pdk-menu-item-label';
 			label.textContent = item.label;
 			button.appendChild(label);
+
+			const badge = createMenuItemBadge(item);
+			if (badge) {
+				button.classList.add('has-badge');
+				button.appendChild(badge);
+			}
 
 			const shortcut = document.createElement('span');
 			shortcut.className = 'pdk-menu-item-shortcut';
@@ -146,6 +207,7 @@
 			button.setAttribute('role', 'menuitem');
 			button.setAttribute('aria-haspopup', 'menu');
 			button.setAttribute('aria-expanded', 'false');
+			applyMenuItemAccessibility(button, item);
 			appendMenuItemContent(button, item, true, detail);
 
 			subPopover.className = 'pdk-menu-submenu-popover';
@@ -236,6 +298,7 @@
 			button.dataset.pdkMenuItem = item.id || item.command || item.label;
 			button.setAttribute('role', 'menuitem');
 			button.disabled = disabled;
+			applyMenuItemAccessibility(button, item);
 
 			if (disabled) {
 				button.setAttribute('aria-disabled', 'true');

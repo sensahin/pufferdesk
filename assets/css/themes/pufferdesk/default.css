@@ -872,9 +872,19 @@
 	width: 100%;
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-badge,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-badge {
+	grid-template-columns: max-content auto auto;
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-icon,
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-icon {
 	grid-template-columns: 16px max-content auto;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-popover:not(.pdk-start-panel) .pdk-menu-item.has-icon.has-badge,
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-menu-submenu-popover .pdk-menu-item.has-icon.has-badge {
+	grid-template-columns: 16px max-content auto auto;
 }
 
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-context-menu[data-pdk-context-menu="dock-app"] {

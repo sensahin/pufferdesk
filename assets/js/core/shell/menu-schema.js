@@ -73,6 +73,33 @@
 			return normalized.key || normalized.label || normalized.combo || normalized.keys.length ? normalized : '';
 		}
 
+		function normalizeBadge(badge) {
+			if (typeof badge === 'string' || typeof badge === 'number') {
+				badge = { text: String(badge) };
+			}
+
+			if (!badge || typeof badge !== 'object') {
+				return null;
+			}
+
+			const text = typeof badge.text === 'string' || typeof badge.text === 'number'
+				? String(badge.text).trim()
+				: '';
+			if (!text || text === '0') {
+				return null;
+			}
+
+			return {
+				ariaLabel: typeof badge.ariaLabel === 'string'
+					? badge.ariaLabel.trim()
+					: (typeof badge.aria_label === 'string' ? badge.aria_label.trim() : ''),
+				count: Number.isFinite(Number(badge.count)) ? Math.max(0, Number.parseInt(badge.count, 10)) : 0,
+				source: typeof badge.source === 'string' ? badge.source : '',
+				text,
+				tone: typeof badge.tone === 'string' && badge.tone ? badge.tone : 'neutral'
+			};
+		}
+
 		function normalizeCommandItem(item) {
 			if (typeof item === 'string') {
 				return item ? { label: item } : null;
@@ -100,6 +127,7 @@
 			}
 
 			return {
+				badge: normalizeBadge(item.badge),
 				command: typeof item.command === 'string' ? item.command : '',
 				disabled: Boolean(item.disabled),
 				enabledWhen: typeof item.enabledWhen === 'function' ? item.enabledWhen : null,

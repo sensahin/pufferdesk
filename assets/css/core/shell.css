@@ -85,6 +85,10 @@
 	--pdk-menu-item-hover-bg: var(--pdk-accent);
 	--pdk-menu-item-hover-ink: var(--pdk-accent-ink);
 	--pdk-menu-item-disabled: rgba(23, 33, 43, 0.32);
+	--pdk-menu-item-badge-bg: rgba(104, 112, 122, 0.2);
+	--pdk-menu-item-badge-hover-bg: rgba(255, 255, 255, 0.22);
+	--pdk-menu-item-badge-hover-ink: currentColor;
+	--pdk-menu-item-badge-ink: var(--pdk-menu-popover-ink);
 	--pdk-menu-bar-height: 0px;
 	--pdk-menu-bar-half-height: 0px;
 	--pdk-layer-dock: 9000;
@@ -558,6 +562,14 @@
 	grid-template-columns: 16px minmax(0, 1fr) auto;
 }
 
+.pdk-menu-item.has-badge {
+	grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.pdk-menu-item.has-icon.has-badge {
+	grid-template-columns: 16px minmax(0, 1fr) auto auto;
+}
+
 .pdk-menu-item:not(:disabled):hover,
 .pdk-menu-item:not(:disabled):focus,
 .pdk-menu-item:not(:disabled).is-press-hover {
@@ -598,6 +610,27 @@
 	justify-self: end;
 	min-width: 30px;
 	text-align: right;
+}
+
+.pdk-menu-item.has-badge .pdk-menu-item-shortcut:empty {
+	min-width: 0;
+}
+
+.pdk-menu-item-badge {
+	align-items: center;
+	background: var(--pdk-menu-item-badge-bg);
+	border-radius: 999px;
+	color: var(--pdk-menu-item-badge-ink);
+	display: inline-flex;
+	font-size: var(--pdk-text-caption);
+	font-weight: var(--pdk-weight-semibold);
+	height: 20px;
+	justify-content: center;
+	justify-self: end;
+	line-height: 1;
+	min-width: 20px;
+	padding: 0 9px;
+	white-space: nowrap;
 }
 
 .pdk-menu-section-label {
@@ -679,6 +712,13 @@
 .pdk-menu-item:not(:disabled):focus .pdk-menu-item-shortcut,
 .pdk-menu-item:not(:disabled).is-press-hover .pdk-menu-item-shortcut {
 	color: currentColor;
+}
+
+.pdk-menu-item:not(:disabled):hover .pdk-menu-item-badge,
+.pdk-menu-item:not(:disabled):focus .pdk-menu-item-badge,
+.pdk-menu-item:not(:disabled).is-press-hover .pdk-menu-item-badge {
+	background: var(--pdk-menu-item-badge-hover-bg);
+	color: var(--pdk-menu-item-badge-hover-ink);
 }
 
 .pdk-menu-separator {
