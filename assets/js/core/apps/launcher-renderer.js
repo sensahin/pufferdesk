@@ -232,6 +232,7 @@
 				event.preventDefault();
 				event.stopPropagation();
 				selectItem(button, getSelectionOptions(event));
+				button.focus({ preventScroll: true });
 			});
 			button.addEventListener('dblclick', (event) => {
 				event.preventDefault();
@@ -301,6 +302,7 @@
 				event.preventDefault();
 				event.stopPropagation();
 				selectItem(button, getSelectionOptions(event));
+				button.focus({ preventScroll: true });
 			});
 			button.addEventListener('dblclick', (event) => {
 				event.preventDefault();
