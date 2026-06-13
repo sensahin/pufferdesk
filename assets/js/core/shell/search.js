@@ -61,11 +61,13 @@
 			nextPanel.setAttribute('role', 'dialog');
 			nextPanel.setAttribute('aria-label', getLabel('search', 'Search'));
 			icon.appendChild(dom.createDashicon('dashicons-search'));
-			input.type = 'search';
+			input.type = 'text';
 			input.className = 'pdk-search-panel-input';
 			input.autocomplete = 'off';
+			input.enterKeyHint = 'search';
 			input.spellcheck = false;
 			input.placeholder = getLabel('searchPlaceholder', getLabel('search', 'Search'));
+			input.setAttribute('role', 'searchbox');
 			input.setAttribute('aria-label', getLabel('start_search_label', getLabel('search_apps', 'Search apps')));
 			list.setAttribute('role', 'listbox');
 			field.append(icon, input);
@@ -109,7 +111,7 @@
 		function createEmptyState(query) {
 			const empty = dom.createElement('div', 'pdk-search-empty');
 
-			empty.textContent = query ? getLabel('search_no_results', 'No results found') : getLabel('quick_actions', 'Quick Actions');
+			empty.textContent = getLabel('search_no_results', 'No results found');
 
 			return empty;
 		}
@@ -143,8 +145,17 @@
 		function renderResults(query, results) {
 			const fragment = document.createDocumentFragment();
 			const grouped = new Map();
+			const hasQuery = Boolean(query);
 
 			activeResults = Array.isArray(results) ? results : [];
+			panel.classList.toggle('has-query', hasQuery);
+			resultsList.hidden = !hasQuery;
+			if (!hasQuery) {
+				resultsList.replaceChildren();
+				setActiveIndex(-1);
+				return;
+			}
+
 			activeResults.forEach((result) => {
 				const group = result.type || 'result';
 				if (!grouped.has(group)) {
@@ -184,6 +195,14 @@
 				return;
 			}
 
+			if (!query) {
+				resultsList.dataset.pdkSearchLoading = '0';
+				renderResults('', []);
+				return;
+			}
+
+			panel.classList.add('has-query');
+			resultsList.hidden = false;
 			resultsList.dataset.pdkSearchLoading = '1';
 			searchEngine.search(query, { limit: 18 }).then((results) => {
 				if (requestId !== searchRequestId) {
@@ -246,9 +265,12 @@
 
 			panel.hidden = true;
 			panel.classList.remove('is-open');
+			panel.classList.remove('has-query');
 			delete shell.dataset.pdkSearchOpen;
 			activeResults = [];
 			activeIndex = -1;
+			resultsList.hidden = true;
+			resultsList.replaceChildren();
 			if (options.clear) {
 				panelInput.value = '';
 				clearTriggerValues();

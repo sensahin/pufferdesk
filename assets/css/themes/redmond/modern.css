@@ -1315,37 +1315,52 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-search-panel {
-	bottom: 62px;
-	left: max(12px, calc(50% - 320px));
+	bottom: 70px;
+	left: 50%;
 	top: auto;
-	transform: none;
-	width: min(640px, calc(100vw - 24px));
+	transform: translateX(-50%);
+	width: min(720px, calc(100vw - 48px));
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-search-panel-inner {
-	--pdk-search-panel-bg: rgb(248 248 248 / 0.96);
-	--pdk-search-panel-border: rgb(213 213 213);
+	--pdk-search-panel-field-filter: blur(24px) saturate(135%);
 	--pdk-search-panel-field-bg: rgb(255 255 255);
-	--pdk-search-panel-field-border: rgb(218 218 218);
-	--pdk-search-panel-field-radius: 6px;
+	--pdk-search-panel-field-border: rgb(205 205 205);
+	--pdk-search-panel-field-focus-border: rgb(32 108 211);
+	--pdk-search-panel-field-focus-shadow: 0 0 0 3px rgb(32 108 211 / 0.18), 0 18px 48px rgb(0 0 0 / 0.2);
+	--pdk-search-panel-field-gap: 12px;
+	--pdk-search-panel-field-height: 58px;
+	--pdk-search-panel-field-padding: 0 18px;
+	--pdk-search-panel-field-radius: 10px;
+	--pdk-search-panel-field-shadow: 0 18px 48px rgb(0 0 0 / 0.18);
+	--pdk-search-panel-icon-size: 22px;
+	--pdk-search-panel-input-height: 46px;
+	--pdk-search-panel-input-size: 22px;
+	--pdk-search-panel-ink: rgb(31 31 31);
 	--pdk-search-panel-muted: rgb(92 92 92);
-	--pdk-search-panel-radius: 12px;
+	--pdk-search-results-bg: rgb(248 248 248 / 0.97);
+	--pdk-search-results-border: rgb(213 213 213);
+	--pdk-search-results-filter: blur(24px) saturate(135%);
+	--pdk-search-results-padding: 10px;
+	--pdk-search-results-radius: 12px;
+	--pdk-search-results-shadow: 0 18px 52px rgb(0 0 0 / 0.22);
+	--pdk-search-selection-bg: rgb(0 95 184 / 0.32);
+	--pdk-search-selection-ink: rgb(0 0 0);
 	--pdk-search-result-active-bg: rgb(232 240 254);
 	--pdk-search-result-active-border: rgb(172 201 255);
 	--pdk-search-result-icon-bg: rgb(255 255 255);
 	--pdk-search-result-radius: 6px;
-	backdrop-filter: blur(24px) saturate(130%);
-	box-shadow: 0 18px 52px rgb(0 0 0 / 0.22);
-	padding: 14px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-search-panel-inner {
-	--pdk-search-panel-bg: rgb(31 31 31 / 0.96);
-	--pdk-search-panel-border: rgb(58 58 58);
 	--pdk-search-panel-field-bg: rgb(43 43 43);
 	--pdk-search-panel-field-border: rgb(58 58 58);
 	--pdk-search-panel-ink: rgb(238 238 238);
 	--pdk-search-panel-muted: rgb(168 168 168);
+	--pdk-search-results-bg: rgb(31 31 31 / 0.97);
+	--pdk-search-results-border: rgb(58 58 58);
+	--pdk-search-selection-bg: rgb(80 156 255 / 0.48);
+	--pdk-search-selection-ink: rgb(255 255 255);
 	--pdk-search-result-active-bg: rgb(54 69 96);
 	--pdk-search-result-active-border: rgb(77 104 153);
 	--pdk-search-result-icon-bg: rgb(43 43 43);
