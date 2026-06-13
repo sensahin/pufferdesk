@@ -222,9 +222,7 @@
 			const childFolders = info ? [] : getFolderChildFolders(folderId);
 
 			return info || (folder ? {
-				canComment: false,
 				canRename: false,
-				comment: '',
 				createdAt: '',
 				icon: folder.icon || 'dashicons-category',
 				id: folder.id,

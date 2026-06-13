@@ -318,9 +318,7 @@
 			const label = documentData.title || getDocumentKindLabel(documentData);
 
 			return documentId ? {
-				canComment: false,
 				canRename: Boolean(documentStore && typeof documentStore.update === 'function'),
-				comment: '',
 				createdAt: documentData.created || '',
 				icon: getDocumentRecentIcon(documentData),
 				id: documentId,
@@ -4385,12 +4383,6 @@
 			const provider = getFolderProvider();
 
 			return window.PufferDesk.apps.createFolderInfoWindow(info, {
-				onComment(comment) {
-					if (provider && typeof provider.setFolderComment === 'function') {
-						provider.setFolderComment(info.id, comment);
-						refreshFolderInfoWindow(info.id);
-					}
-				},
 				onRename(label) {
 					if (provider && typeof provider.renameFolder === 'function') {
 						provider.renameFolder(info.id, label);

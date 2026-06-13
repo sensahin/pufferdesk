@@ -250,7 +250,6 @@
 			return {
 				appIds: normalizeAppIds(folder.appIds),
 				appRefs: normalizeAppIds(folder.appRefs),
-				comment: typeof folder.comment === 'string' ? folder.comment : '',
 				createdAt: normalizeTimestamp(folder.createdAt, now),
 				icon: getDefaultFolderIcon(),
 					id,
@@ -303,7 +302,6 @@
 				return {
 					appIds: normalizeAppIds(folder.appIds),
 				appRefs: normalizeAppIds(folder.appRefs),
-				comment: folder.comment || '',
 				createdAt: folder.createdAt || '',
 					icon: getDefaultFolderIcon(),
 					id: folder.id,
@@ -955,9 +953,7 @@
 
 			if (isTrashFolderId(folderId)) {
 				return {
-					canComment: false,
 					canRename: false,
-					comment: '',
 					createdAt: '',
 					icon: folder.icon || 'dashicons-trash',
 					id: folder.id,
@@ -986,9 +982,7 @@
 				const itemCount = folderApps.length + childFolders.length;
 
 				return {
-				canComment: Boolean(userFolder),
 				canRename: Boolean(userFolder),
-				comment: userFolder ? userFolder.comment || '' : '',
 				createdAt: userFolder ? userFolder.createdAt || '' : '',
 				icon: folder.icon || getDefaultFolderIcon(),
 				id: folder.id,
@@ -1060,7 +1054,6 @@
 					const folder = {
 						appIds: normalizeAppIds(appIds),
 					appRefs: [],
-					comment: '',
 					createdAt: now,
 				icon: getDefaultFolderIcon(),
 				id,
@@ -1582,20 +1575,6 @@
 			return true;
 		}
 
-		function setFolderComment(folderId, comment) {
-			const folder = getUserFolder(folderId);
-			if (!folder) {
-				return false;
-			}
-
-			folder.comment = String(comment || '');
-			markFolderModified(folder);
-			refreshFolderWindows([folder.id]);
-			scheduleSave();
-
-			return true;
-		}
-
 		function touchFolderOpened(folderId) {
 			const folder = getUserFolder(folderId);
 			if (!folder) {
@@ -1802,7 +1781,6 @@
 			removeAppFromFolder,
 			renameFolder,
 			restoreTrashItem,
-			setFolderComment,
 			restoreSession,
 			saveSession() {
 				saveFolders();

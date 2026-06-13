@@ -909,6 +909,11 @@
 				const locationLabel = document.createElement('span');
 				locationLabel.className = 'pdk-shell-document-save-label';
 				locationLabel.textContent = getDocumentLabel('where');
+				const locationControl = document.createElement('span');
+				locationControl.className = 'pdk-shell-document-save-location-control';
+				const locationIcon = document.createElement('span');
+				locationIcon.className = 'dashicons dashicons-category pdk-shell-document-save-location-icon';
+				locationIcon.setAttribute('aria-hidden', 'true');
 				const locationSelect = document.createElement('select');
 				locationSelect.className = 'pdk-shell-dialog-select pdk-shell-document-save-select';
 				locationSelect.disabled = !locations.length;
@@ -925,7 +930,8 @@
 					locationSelect.value = locations[0].path;
 				}
 
-				locationRow.append(locationLabel, locationSelect);
+				locationControl.append(locationIcon, locationSelect);
+				locationRow.append(locationLabel, locationControl);
 				form.append(nameRow, locationRow);
 
 				const actions = document.createElement('div');

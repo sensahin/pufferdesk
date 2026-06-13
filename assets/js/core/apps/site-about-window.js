@@ -227,10 +227,6 @@
 			content.appendChild(createHeader(options.header));
 		}
 
-		if (options.tagsPlaceholder) {
-			content.appendChild(dom.createElement('div', 'pdk-info-panel-tags', options.tagsPlaceholder));
-		}
-
 		appendTitle(content, options);
 		appendSpecs(content, Array.isArray(options.specs) ? options.specs : [], options);
 
@@ -333,7 +329,6 @@
 		const documentFallbackTitle = getInfoPanelLabel('documentFallbackTitle', '', labels);
 		const general = createDisclosure(getInfoPanelLabel('generalSection', '', labels));
 		const name = createDisclosure(getInfoPanelLabel('nameExtensionSection', '', labels));
-		const comments = createDisclosure(getInfoPanelLabel('commentsSection', '', labels));
 		const permissions = createDisclosure(getInfoPanelLabel('sharingPermissionsSection', '', labels), { open: false });
 
 		appendDefinition(general.body, getInfoPanelLabel('kindLabel', '', labels), info.kind || documentFallbackTitle);
@@ -358,12 +353,6 @@
 			disabledStyle: true
 		}));
 
-		const textarea = document.createElement('textarea');
-		textarea.className = 'pdk-info-panel-comments';
-		textarea.value = info.comment || '';
-		textarea.disabled = !info.canComment;
-		comments.body.appendChild(textarea);
-
 		appendDefinition(
 			permissions.body,
 			getInfoPanelLabel('accessLabel', '', labels),
@@ -376,7 +365,6 @@
 			children: [
 				general.section,
 				name.section,
-				comments.section,
 				permissions.section
 			],
 			header: {
@@ -386,7 +374,6 @@
 				title: info.label || documentFallbackTitle
 			},
 			layout: 'inspector',
-			tagsPlaceholder: getInfoPanelLabel('addTags', '', labels),
 			variant: 'document'
 		});
 	}
@@ -400,7 +387,6 @@
 		const general = createDisclosure(getInfoPanelLabel('generalSection', '', labels));
 		const more = createDisclosure(getInfoPanelLabel('moreInfoSection', '', labels));
 		const name = createDisclosure(getInfoPanelLabel('nameExtensionSection', '', labels));
-		const comments = createDisclosure(getInfoPanelLabel('commentsSection', '', labels));
 		const preview = createDisclosure(getInfoPanelLabel('previewSection', '', labels), { open: false });
 		const permissions = createDisclosure(getInfoPanelLabel('sharingPermissionsSection', '', labels), { open: false });
 
@@ -439,17 +425,6 @@
 			disabledStyle: true
 		}));
 
-		const textarea = document.createElement('textarea');
-		textarea.className = 'pdk-info-panel-comments';
-		textarea.value = info.comment || '';
-		textarea.disabled = !info.canComment;
-		textarea.addEventListener('change', () => {
-			if (info.canComment && typeof actions.onComment === 'function') {
-				actions.onComment(textarea.value);
-			}
-		});
-		comments.body.appendChild(textarea);
-
 		const previewText = document.createElement('p');
 		previewText.className = 'pdk-info-panel-muted';
 		previewText.textContent = itemCount
@@ -470,7 +445,6 @@
 				general.section,
 				more.section,
 				name.section,
-				comments.section,
 				preview.section,
 				permissions.section
 			],
@@ -481,7 +455,6 @@
 				title: info.label || folderFallbackTitle
 			},
 			layout: 'inspector',
-			tagsPlaceholder: getInfoPanelLabel('addTags', '', labels),
 			variant: 'folder'
 		});
 	}

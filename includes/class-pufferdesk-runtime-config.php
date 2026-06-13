@@ -273,12 +273,10 @@ final class PufferDesk_Runtime_Config {
 			'labels' => array(
 				'aboutSiteTitle'            => __( 'About This Site', 'pufferdesk-admin-desktop' ),
 				'accessLabel'               => __( 'Access', 'pufferdesk-admin-desktop' ),
-				'addTags'                   => __( 'Add Tags...', 'pufferdesk-admin-desktop' ),
 				'applicationPlural'         => __( 'applications', 'pufferdesk-admin-desktop' ),
 				'applicationSingular'       => __( 'application', 'pufferdesk-admin-desktop' ),
 				'appsLabel'                 => __( 'Apps', 'pufferdesk-admin-desktop' ),
 				'capabilityAccess'          => __( 'Visible to users with matching WordPress capabilities', 'pufferdesk-admin-desktop' ),
-					'commentsSection'           => __( 'Comments:', 'pufferdesk-admin-desktop' ),
 					'containsLabel'             => __( 'Contains', 'pufferdesk-admin-desktop' ),
 					'createdLabel'              => __( 'Created', 'pufferdesk-admin-desktop' ),
 					'documentFallbackTitle'     => __( 'Document', 'pufferdesk-admin-desktop' ),

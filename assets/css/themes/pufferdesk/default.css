@@ -538,6 +538,79 @@
 	display: none;
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"] {
+	--pdk-document-save-action-border: rgb(255 255 255 / 0.09);
+	--pdk-document-save-control-bg: rgb(255 255 255 / 0.08);
+	--pdk-document-save-control-border: rgb(255 255 255 / 0.075);
+	--pdk-document-save-control-focus: var(--pdk-accent-vivid, var(--pdk-accent));
+	--pdk-document-save-control-focus-shadow: 0 0 0 3px color-mix(in srgb, var(--pdk-accent-vivid, var(--pdk-accent)) 64%, transparent);
+	--pdk-document-save-control-ink: rgb(232 232 234 / 0.95);
+	--pdk-document-save-control-shadow: 0 1px 0 rgb(255 255 255 / 0.055) inset, 0 0 0 1px rgb(0 0 0 / 0.14) inset;
+	--pdk-document-save-label-ink: rgb(235 235 245 / 0.58);
+	--pdk-document-save-location-icon-ink: rgb(100 178 255);
+	background: linear-gradient(180deg, rgb(28 28 30 / 0.96), rgb(27 27 29 / 0.94));
+	border-color: rgb(255 255 255 / 0.14);
+	border-radius: 18px;
+	box-shadow: 0 22px 74px rgb(0 0 0 / 0.5), 0 1px 0 rgb(255 255 255 / 0.16) inset;
+	color: rgb(235 235 245 / 0.86);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"]::before {
+	opacity: 0.12;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"] .pdk-shell-dialog-title {
+	color: rgb(235 235 245 / 0.56);
+	font-size: 14px;
+	font-weight: var(--pdk-weight-bold);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"] .pdk-shell-document-save-label {
+	color: var(--pdk-document-save-label-ink);
+	font-size: 13px;
+	font-weight: var(--pdk-weight-bold);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"] .pdk-shell-document-save-input[type="text"],
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"] select.pdk-shell-document-save-select {
+	font-size: 14px;
+	font-weight: var(--pdk-weight-bold);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"] .pdk-shell-document-save-input[type="text"] {
+	background: transparent;
+	border-radius: 8px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"] .pdk-shell-document-save-input[type="text"]:focus {
+	background: rgb(255 255 255 / 0.035);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"] .pdk-shell-document-save-input::selection {
+	background: var(--pdk-accent-vivid, var(--pdk-accent));
+	color: var(--pdk-accent-ink);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"] .pdk-shell-dialog-actions {
+	border-top: 1px solid var(--pdk-document-save-action-border);
+	gap: 8px;
+	margin: 14px -34px -4px;
+	padding: 18px 34px 0;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"] .pdk-shell-dialog-button {
+	border-radius: 9px;
+	font-size: 14px;
+	font-weight: var(--pdk-weight-bold);
+	min-height: 28px;
+	min-width: 74px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="document-save"] .pdk-shell-dialog-button-primary {
+	background: var(--pdk-accent-vivid, var(--pdk-accent));
+	border-color: var(--pdk-accent-vivid, var(--pdk-accent));
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-shell-dialog[data-pdk-dialog-variant="sticky-note-discard"] {
 	--pdk-dialog-danger-button-bg: rgb(255 69 58 / 0.16);
 	--pdk-dialog-danger-button-border: rgb(255 69 58 / 0.08);

@@ -1604,7 +1604,6 @@ final class PufferDesk_User_Preferences {
 					isset( $folder['appRefs'] ) && is_array( $folder['appRefs'] ) ? $folder['appRefs'] : array(),
 					$available_apps
 				),
-				'comment'      => isset( $folder['comment'] ) ? sanitize_textarea_field( (string) $folder['comment'] ) : '',
 				'createdAt'    => $this->sanitize_desktop_folder_timestamp( isset( $folder['createdAt'] ) ? $folder['createdAt'] : '', gmdate( 'c' ) ),
 				'icon'         => $this->get_desktop_folder_icon(),
 				'id'           => $id,

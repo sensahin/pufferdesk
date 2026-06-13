@@ -193,41 +193,130 @@
 }
 
 .pdk-shell-document-save-dialog {
-	gap: 12px;
-	max-width: min(480px, calc(100% - 48px));
+	gap: 14px;
+	max-width: min(390px, calc(100% - 32px));
+	padding: 18px 34px 20px;
 	text-align: left;
-	width: 440px;
+	width: 390px;
 }
 
 .pdk-shell-document-save-dialog .pdk-shell-dialog-title {
-	text-align: center;
+	color: var(--pdk-dialog-muted);
+	font-family: var(--pdk-font-ui);
+	font-size: var(--pdk-text-body);
+	line-height: 1.2;
+	text-align: left;
 }
 
 .pdk-shell-document-save-form {
 	display: grid;
-	gap: 10px;
+	gap: 9px;
 	min-width: 0;
 }
 
 .pdk-shell-document-save-row {
 	align-items: center;
 	display: grid;
-	gap: 10px;
-	grid-template-columns: minmax(74px, auto) minmax(0, 1fr);
+	gap: 12px;
+	grid-template-columns: minmax(72px, 72px) minmax(0, 1fr);
 	min-width: 0;
 }
 
 .pdk-shell-document-save-label {
-	color: var(--pdk-dialog-ink);
+	color: var(--pdk-dialog-muted);
 	font-family: var(--pdk-font-ui);
 	font-size: var(--pdk-text-caption);
 	font-weight: var(--pdk-weight-medium);
+	line-height: 1.15;
 	text-align: right;
 	white-space: nowrap;
 }
 
 .pdk-shell-document-save-status {
 	text-align: center;
+}
+
+.pdk-shell-document-save-dialog .pdk-shell-document-save-input[type="text"],
+.pdk-shell-document-save-dialog select.pdk-shell-document-save-select {
+	-webkit-appearance: none;
+	appearance: none;
+	background: var(--pdk-document-save-control-bg, rgba(255, 255, 255, 0.18));
+	border: 1px solid var(--pdk-document-save-control-border, var(--pdk-dialog-button-border));
+	border-radius: 8px;
+	box-shadow: var(--pdk-document-save-control-shadow, 0 1px 0 rgba(255, 255, 255, 0.12) inset);
+	color: var(--pdk-document-save-control-ink, var(--pdk-dialog-ink));
+	font-family: var(--pdk-font-ui);
+	font-size: var(--pdk-text-body);
+	font-weight: var(--pdk-weight-medium);
+	height: 28px;
+	line-height: 1.2;
+	margin: 0;
+	min-height: 28px;
+	outline: none;
+	padding: 3px 10px;
+	width: 100%;
+}
+
+.pdk-shell-document-save-dialog select.pdk-shell-document-save-select {
+	background-color: transparent;
+	border-color: transparent;
+	box-shadow: none;
+	height: 100%;
+	padding: 3px 34px 3px 34px;
+	position: relative;
+	z-index: 1;
+}
+
+.pdk-shell-document-save-dialog .pdk-shell-document-save-input[type="text"]:focus,
+.pdk-shell-document-save-dialog select.pdk-shell-document-save-select:focus {
+	border-color: var(--pdk-document-save-control-focus, var(--pdk-accent));
+	box-shadow: var(--pdk-document-save-control-focus-shadow, 0 0 0 3px var(--pdk-focus-ring, rgba(36, 88, 202, 0.28)));
+}
+
+.pdk-shell-document-save-location-control {
+	background: var(--pdk-document-save-control-bg, rgba(255, 255, 255, 0.18));
+	border: 1px solid var(--pdk-document-save-control-border, var(--pdk-dialog-button-border));
+	border-radius: 8px;
+	box-shadow: var(--pdk-document-save-control-shadow, 0 1px 0 rgba(255, 255, 255, 0.12) inset);
+	color: var(--pdk-document-save-control-ink, var(--pdk-dialog-ink));
+	display: block;
+	height: 28px;
+	min-width: 0;
+	position: relative;
+}
+
+.pdk-shell-document-save-location-control:focus-within {
+	border-color: var(--pdk-document-save-control-focus, var(--pdk-accent));
+	box-shadow: var(--pdk-document-save-control-focus-shadow, 0 0 0 3px var(--pdk-focus-ring, rgba(36, 88, 202, 0.28)));
+}
+
+.pdk-shell-document-save-location-icon {
+	color: var(--pdk-document-save-location-icon-ink, var(--pdk-accent));
+	font-size: 17px;
+	height: 17px;
+	left: 9px;
+	line-height: 17px;
+	pointer-events: none;
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 17px;
+	z-index: 2;
+}
+
+.pdk-shell-document-save-location-control::after {
+	border-bottom: 2px solid currentColor;
+	border-right: 2px solid currentColor;
+	content: "";
+	height: 8px;
+	opacity: 0.86;
+	pointer-events: none;
+	position: absolute;
+	right: 13px;
+	top: 8px;
+	transform: rotate(45deg);
+	width: 8px;
+	z-index: 2;
 }
 
 .pdk-shell-dialog-actions {
