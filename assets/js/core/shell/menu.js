@@ -10,6 +10,7 @@
 		const dom = window.PufferDesk.dom;
 		const geometry = window.PufferDesk.geometry;
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
+		const appNavigation = window.PufferDesk.apps.appNavigation || null;
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
 		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
@@ -41,6 +42,7 @@
 		const launcher = context.launcher || null;
 		const menuGroupIds = schema.getGroupIds();
 		const standardGroupIds = schema.getStandardGroupIds();
+		const appMenuRouteLimit = 8;
 		let activeDetail = { kind: shortcutContexts.DESKTOP };
 		const persistentDefinition = menuConfig.persistent
 			? schema.normalizeDefinition(menuConfig.persistent, {
@@ -504,6 +506,43 @@
 			return baseItems.concat([separator()], openWindowItems);
 		}
 
+		function getAppRouteMenuItems(app, options = {}) {
+			return appNavigation && typeof appNavigation.createMenuItems === 'function'
+				? appNavigation.createMenuItems(app, options)
+				: [];
+		}
+
+		function capRouteMenuItems(items, limit) {
+			if (!items.length || items.length <= limit) {
+				return items;
+			}
+
+			return items.slice(0, Math.max(0, limit - 1)).concat([
+				{
+					id: 'app-routes-more',
+					items,
+					label: getLabel('start_create_more', 'More...')
+				}
+			]);
+		}
+
+		function withActiveAppRouteItems(items, detail = {}) {
+			const app = detail && detail.appId ? appMap.get(detail.appId) : null;
+			const routeItems = capRouteMenuItems(getAppRouteMenuItems(app), appMenuRouteLimit);
+			if (!routeItems.length) {
+				return items;
+			}
+
+			const next = items.slice();
+			const firstSeparator = next.findIndex((item) => item && item.type === 'separator');
+			if (firstSeparator >= 0) {
+				next.splice(firstSeparator + 1, 0, ...routeItems, separator());
+				return next;
+			}
+
+			return next.concat([separator()], routeItems);
+		}
+
 		function getHelpItems() {
 			return [
 				commandItem(getLabel('keyboard_shortcuts'), commandIds.HELP_KEYBOARD_SHORTCUTS, {
@@ -523,6 +562,8 @@
 
 		function getDefaultItemsForGroup(group, detail = {}) {
 			switch (group.id) {
+				case menuGroupIds.APP:
+					return withActiveAppRouteItems(group.items, detail);
 				case menuGroupIds.FILE:
 					return group.items.length ? getCustomFileItems(group.items) : getFileItems(detail);
 				case menuGroupIds.EDIT:
@@ -544,6 +585,10 @@
 			const items = Array.isArray(group.items) ? group.items : [];
 
 			if (items.length) {
+				if (group.id === menuGroupIds.APP) {
+					return withActiveAppRouteItems(items, detail);
+				}
+
 				if (group.id === menuGroupIds.FILE) {
 					return getCustomFileItems(items);
 				}

@@ -109,6 +109,13 @@
 			]
 		},
 		{
+			"handle": "pufferdesk-app-navigation",
+			"path": "assets/js/core/apps/app-navigation.js",
+			"deps": [
+				"pufferdesk-command-ids"
+			]
+		},
+		{
 			"handle": "pufferdesk-context-menu-constants",
 			"path": "assets/js/core/shell/context-menu-constants.js",
 			"deps": [
@@ -766,6 +773,7 @@
 				"pufferdesk-config",
 				"pufferdesk-app-ids",
 				"pufferdesk-command-ids",
+				"pufferdesk-app-navigation",
 				"pufferdesk-context-menu-constants",
 				"pufferdesk-content-search-service",
 				"pufferdesk-documents-service",
@@ -837,6 +845,7 @@
 				"pufferdesk-dom",
 				"pufferdesk-app-ids",
 				"pufferdesk-command-ids",
+				"pufferdesk-app-navigation",
 				"pufferdesk-event-names",
 				"pufferdesk-context-menu-constants",
 				"pufferdesk-dragdrop-models",
@@ -933,6 +942,7 @@
 			"deps": [
 				"pufferdesk-config",
 				"pufferdesk-app-ids",
+				"pufferdesk-app-navigation",
 				"pufferdesk-event-names",
 				"pufferdesk-session-store",
 				"pufferdesk-workspace-contract",
@@ -988,6 +998,7 @@
 				"pufferdesk-config",
 				"pufferdesk-dom",
 				"pufferdesk-app-ids",
+				"pufferdesk-app-navigation",
 				"pufferdesk-context-menu-constants",
 				"pufferdesk-event-names",
 				"pufferdesk-geometry",

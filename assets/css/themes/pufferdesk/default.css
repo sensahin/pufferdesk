@@ -1740,6 +1740,25 @@
 	background: var(--pdk-settings-window-bg, var(--pdk-settings-main-bg, var(--pdk-panel)));
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-app-navigation {
+	-webkit-backdrop-filter: var(--pdk-material-bar-filter);
+	backdrop-filter: var(--pdk-material-bar-filter);
+	background: color-mix(in srgb, var(--pdk-window-bar-bg) 86%, transparent);
+	padding: 7px 10px;
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-app-navigation-item {
+	border-radius: 7px;
+	color: var(--pdk-muted);
+	font-size: var(--pdk-text-caption);
+	font-weight: var(--pdk-weight-medium);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-app-navigation-item.is-active {
+	background: var(--pdk-control-bg-hover);
+	color: var(--pdk-ink);
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-window[data-pdk-app-window="os-settings"] {
 	--pdk-settings-main-edge: 8px;
 	--pdk-settings-sidebar-gap: 0px;

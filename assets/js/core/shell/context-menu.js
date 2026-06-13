@@ -6,6 +6,7 @@
 
 	window.PufferDesk.shell.createContextMenuRegistry = function createContextMenuRegistry(config = {}, schema = null, context = {}) {
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
+		const appNavigation = window.PufferDesk.apps.appNavigation || null;
 		const folderMap = new Map((Array.isArray(config.folders) ? config.folders : []).map((folder) => [folder.id, folder]));
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
@@ -35,6 +36,7 @@
 		const folderViewModes = window.PufferDesk.apps && window.PufferDesk.apps.folderViewModes
 			? window.PufferDesk.apps.folderViewModes
 			: null;
+		const appRouteMenuLimit = 8;
 
 		function commandItem(label, command, options = {}) {
 			return Object.assign({
@@ -533,6 +535,41 @@
 				: [];
 		}
 
+		function getAppRouteItems(app, options = {}) {
+			return appNavigation && typeof appNavigation.createMenuItems === 'function'
+				? appNavigation.createMenuItems(app, options)
+				: [];
+		}
+
+		function capAppRouteItems(items) {
+			if (!items.length || items.length <= appRouteMenuLimit) {
+				return items;
+			}
+
+			return items.slice(0, Math.max(0, appRouteMenuLimit - 1)).concat([
+				{
+					icon: 'dashicons-menu-alt3',
+					id: 'app-routes-more',
+					items,
+					label: getLabel('start_create_more', 'More...')
+				}
+			]);
+		}
+
+		function appendAppRouteItems(items, app, options = {}) {
+			const routeItems = capAppRouteItems(getAppRouteItems(app, options));
+			if (!routeItems.length) {
+				return items;
+			}
+
+			if (items.length) {
+				items.push(separator());
+			}
+			items.push(...routeItems);
+
+			return items;
+		}
+
 		function folderToolbarDisplayItem(label, mode, detail = {}) {
 			const active = getFolderToolbarDisplayMode(detail) === mode;
 
@@ -569,6 +606,9 @@
 					target: app.id
 				})
 			];
+			appendAppRouteItems(items, app, {
+				icon: 'dashicons-admin-links'
+			});
 
 			if (app.url) {
 				items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {
@@ -710,6 +750,7 @@
 					target: app.id
 				}));
 			}
+			appendAppRouteItems(items, app);
 
 			if (app.url) {
 				items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {

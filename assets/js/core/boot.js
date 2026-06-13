@@ -326,7 +326,9 @@
 		manager.bindExistingWindows();
 		if (!manager.isPreservingStoredWindows()) {
 			manager.restoreSession({
-				getAppOptions: (appId) => launcher.getWindowOptions(appId),
+				getAppOptions: (appId, restoreItem = {}) => launcher.getWindowOptions(appId, {
+					url: restoreItem && typeof restoreItem.url === 'string' ? restoreItem.url : ''
+				}),
 				openFolder: (folderId, restoreOptions) => launcher.openFolder(folderId, restoreOptions)
 			});
 		}
@@ -346,6 +348,7 @@
 		window.PufferDesk.appLauncher = {
 			openAbout: launcher.openAbout,
 			openApp: launcher.openApp,
+			openAppRoute: launcher.openAppRoute,
 			openFolder: launcher.openFolder,
 			openFolderTab: launcher.openFolderTab,
 			openFolderInfo: launcher.openFolderInfo,

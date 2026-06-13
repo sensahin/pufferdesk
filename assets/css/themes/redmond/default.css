@@ -1199,6 +1199,35 @@
 	font-weight: var(--pdk-weight-medium);
 }
 
+.pdk-shell[data-pdk-theme="redmond"] .pdk-app-navigation {
+	background: var(--pdk-redmond-explorer-mica-overlay, var(--pdk-window-bar-bg));
+	border-bottom-color: var(--pdk-redmond-explorer-list-divider, var(--pdk-divider));
+	gap: 3px;
+	min-height: 38px;
+	padding: 6px 8px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-app-navigation-item {
+	border-radius: 4px;
+	color: var(--pdk-ink);
+	font-size: var(--pdk-text-small);
+	font-weight: var(--pdk-weight-normal);
+	min-height: 26px;
+	padding-inline: 9px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-app-navigation-item:hover,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-app-navigation-item:focus-visible {
+	background: var(--pdk-redmond-subtle-hover-bg);
+	border-color: transparent;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-app-navigation-item.is-active {
+	background: var(--pdk-accent-soft);
+	border-color: rgb(var(--pdk-accent-rgb) / 0.24);
+	color: var(--pdk-accent-active);
+}
+
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-controls {
 	gap: 0;
 	height: 100%;

@@ -88,6 +88,11 @@
 
 					return win;
 				},
+				openRoute(appId, routeRef) {
+					return appLauncher && typeof appLauncher.openAppRoute === 'function'
+						? appLauncher.openAppRoute(appId, routeRef)
+						: null;
+				},
 				openSettingsPanel(panelId) {
 					return appLauncher && typeof appLauncher.openSettingsPanel === 'function'
 						? appLauncher.openSettingsPanel(panelId)

@@ -32,6 +32,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/dom.js
 - assets/js/core/apps/app-ids.js
 - assets/js/core/shell/command-ids.js
+- assets/js/core/apps/app-navigation.js
 - assets/js/core/shell/context-menu-constants.js
 - assets/js/core/events/event-names.js
 - assets/js/core/services/tooltips.js

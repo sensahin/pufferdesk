@@ -38,7 +38,6 @@ body.pufferdesk-iframe #adminmenumain,
 body.pufferdesk-iframe #wpfooter,
 body.pufferdesk-iframe #screen-meta,
 body.pufferdesk-iframe #screen-meta-links,
-body.pufferdesk-iframe .notice,
 body.pufferdesk-iframe .update-nag {
 	display: none !important;
 }

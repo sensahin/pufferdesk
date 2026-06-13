@@ -575,10 +575,64 @@
 	z-index: 1;
 }
 
+.pdk-window-body-has-app-navigation {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.pdk-app-navigation {
+	align-items: center;
+	background: var(--pdk-window-bar-bg);
+	border-bottom: 1px solid var(--pdk-window-bar-border);
+	display: flex;
+	flex: 0 0 auto;
+	gap: 5px;
+	min-height: 36px;
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding: 6px 8px;
+	scrollbar-width: thin;
+}
+
+.pdk-app-navigation-item {
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	color: var(--pdk-ink);
+	cursor: default;
+	flex: 0 0 auto;
+	font: inherit;
+	font-size: var(--pdk-text-small);
+	font-weight: var(--pdk-weight-medium);
+	line-height: 1.2;
+	max-width: 190px;
+	min-height: 24px;
+	overflow: hidden;
+	padding: 4px 10px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.pdk-app-navigation-item:hover,
+.pdk-app-navigation-item:focus-visible {
+	background: var(--pdk-control-bg-hover);
+	border-color: var(--pdk-line);
+	outline: none;
+}
+
+.pdk-app-navigation-item.is-active {
+	background: var(--pdk-accent-soft);
+	border-color: var(--pdk-accent-medium);
+	color: var(--pdk-accent);
+}
+
 .pdk-app-frame {
 	background: #fff;
 	border: 0;
 	display: block;
+	flex: 1 1 auto;
 	height: 100%;
+	min-height: 0;
 	width: 100%;
 }

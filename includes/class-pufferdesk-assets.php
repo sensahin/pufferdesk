@@ -77,6 +77,10 @@ final class PufferDesk_Assets {
 			? $this->enqueue_dist_core_styles( $is_shell )
 			: $this->enqueue_core_styles( $is_shell );
 
+		if ( $is_iframe ) {
+			$this->enqueue_iframe_script();
+		}
+
 		if ( ! $is_shell ) {
 			return;
 		}
@@ -211,6 +215,34 @@ final class PufferDesk_Assets {
 		}
 
 		return $this->asset_manifest->get_config_script_handle();
+	}
+
+	/**
+	 * Enqueue sticky iframe-mode helpers for embedded admin screens.
+	 */
+	private function enqueue_iframe_script() {
+		$handle = 'pufferdesk-admin-iframe';
+		$path   = 'assets/js/core/admin-iframe.js';
+
+		wp_enqueue_script(
+			$handle,
+			PUFFERDESK_URL . $path,
+			array(),
+			$this->get_asset_version( $path ),
+			true
+		);
+
+		wp_add_inline_script(
+			$handle,
+			'window.pufferDeskIframe = ' . wp_json_encode(
+				array(
+					'adminBase'  => admin_url(),
+					'queryKey'   => PufferDesk_Router::QUERY_IFRAME,
+					'queryValue' => PufferDesk_Router::QUERY_TRUE_VALUE,
+				)
+			) . ';',
+			'before'
+		);
 	}
 
 	/**

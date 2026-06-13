@@ -1360,6 +1360,20 @@
 			}
 		});
 
+		register(commandIds.APP_OPEN_ROUTE, {
+			isEnabled(payload) {
+				return Boolean(
+					launcher
+					&& typeof launcher.openAppRoute === 'function'
+					&& payload.target
+					&& (payload.routeId || payload.url)
+				);
+			},
+			run(payload) {
+				launcher.openAppRoute(payload.target, payload.routeId || payload.url);
+			}
+		});
+
 		register(commandIds.OPEN_WITH, {
 			isEnabled(payload, detail) {
 				return Boolean(

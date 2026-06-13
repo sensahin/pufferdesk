@@ -35,6 +35,25 @@
 			return nativeOptions ? Object.assign({}, baseOptions, nativeOptions) : null;
 		}
 
+		function getNavigationRouteUrl(app, nativeContext = {}) {
+			const routes = app && Array.isArray(app.navigation) ? app.navigation : [];
+			const routeRef = nativeContext && typeof nativeContext === 'object'
+				? String(nativeContext.routeId || nativeContext.url || '').trim()
+				: '';
+
+			if (!routeRef || !routes.length) {
+				return '';
+			}
+
+			const route = routes.find((item) => item && (
+				item.id === routeRef ||
+				item.url === routeRef ||
+				item.slug === routeRef
+			));
+
+			return route && typeof route.url === 'string' ? route.url : '';
+		}
+
 		function getAppWindowOptions(app, nativeContext = {}) {
 			if (!app || typeof app !== 'object') {
 				return null;
@@ -44,6 +63,7 @@
 				appId: app.id,
 				icon: app.icon,
 				menu: app.menu || null,
+				navigation: Array.isArray(app.navigation) ? app.navigation : [],
 				title: app.label,
 				windowKind: windowKinds.APP
 			};
@@ -56,7 +76,7 @@
 				return getNativeAppWindowOptions(app, windowOptions, nativeContext);
 			}
 
-			windowOptions.url = app.url;
+			windowOptions.url = getNavigationRouteUrl(app, nativeContext) || app.url;
 			return windowOptions;
 		}
 

@@ -114,8 +114,9 @@ final class PufferDesk_Admin_Menu_App_Provider {
 			}
 
 			$url_key = $this->get_url_key( $url );
-			$about   = $this->get_admin_menu_about( $slug, $label );
-			$index   = isset( $by_id[ $id ] )
+			$about      = $this->get_admin_menu_about( $slug, $label );
+			$navigation = $this->get_admin_menu_navigation( $slug, $id );
+			$index      = isset( $by_id[ $id ] )
 				? $by_id[ $id ]
 				: ( isset( $by_url[ $url_key ] ) ? $by_url[ $url_key ] : null );
 
@@ -128,6 +129,12 @@ final class PufferDesk_Admin_Menu_App_Provider {
 					}
 					if ( ! empty( $badge ) ) {
 						$matched_app['badge'] = $badge;
+					}
+					if ( ! empty( $navigation ) ) {
+						$matched_app['navigation'] = $this->merge_navigation_items(
+							isset( $matched_app['navigation'] ) ? $matched_app['navigation'] : array(),
+							$navigation
+						);
 					}
 
 					$ordered[]      = $matched_app;
@@ -151,6 +158,9 @@ final class PufferDesk_Admin_Menu_App_Provider {
 			}
 			if ( ! empty( $badge ) ) {
 				$menu_app['badge'] = $badge;
+			}
+			if ( ! empty( $navigation ) ) {
+				$menu_app['navigation'] = $navigation;
 			}
 
 			$ordered[] = $menu_app;
@@ -239,6 +249,119 @@ final class PufferDesk_Admin_Menu_App_Provider {
 		$this->admin_menu_items = is_array( $items ) ? $items : array();
 
 		return $this->admin_menu_items;
+	}
+
+	/**
+	 * Get WordPress admin submenu items for a top-level parent slug.
+	 *
+	 * @param string $parent_slug Parent menu slug.
+	 * @return array<int,array<int,mixed>>
+	 */
+	private function get_admin_submenu_items( $parent_slug ) {
+		global $submenu, $_wp_real_parent_file;
+
+		$this->get_admin_menu_items();
+
+		$submenu = is_array( $submenu ) ? $submenu : array();
+		$parents = array( $parent_slug );
+		if ( is_array( $_wp_real_parent_file ) && ! empty( $_wp_real_parent_file[ $parent_slug ] ) ) {
+			$parents[] = (string) $_wp_real_parent_file[ $parent_slug ];
+		}
+
+		foreach ( array_unique( $parents ) as $parent ) {
+			if ( isset( $submenu[ $parent ] ) && is_array( $submenu[ $parent ] ) ) {
+				return $submenu[ $parent ];
+			}
+		}
+
+		return array();
+	}
+
+	/**
+	 * Build submenu navigation routes for a WordPress admin app.
+	 *
+	 * @param string $parent_slug Parent menu slug.
+	 * @param string $app_id App descriptor ID.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function get_admin_menu_navigation( $parent_slug, $app_id ) {
+		$items = $this->get_admin_submenu_items( $parent_slug );
+		if ( empty( $items ) ) {
+			return array();
+		}
+
+		$navigation = array();
+		$seen       = array();
+
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) || empty( $item[2] ) ) {
+				continue;
+			}
+
+			$cap = PufferDesk_App_Normalizer::normalize_capability( isset( $item[1] ) ? $item[1] : PufferDesk_App_Normalizer::DEFAULT_CAPABILITY );
+			if ( ! current_user_can( $cap ) ) {
+				continue;
+			}
+
+			$slug  = (string) $item[2];
+			$label = $this->get_admin_menu_label( isset( $item[0] ) ? (string) $item[0] : '' );
+			$url   = $this->get_admin_menu_url( $slug );
+			if ( '' === $label || '' === $url || ! $this->is_wordpress_admin_url( $url ) ) {
+				continue;
+			}
+
+			$key = $this->get_url_key( $url ) . '|' . strtolower( $label );
+			if ( isset( $seen[ $key ] ) ) {
+				continue;
+			}
+			$seen[ $key ] = true;
+
+			$navigation[] = array(
+				'id'      => $this->get_admin_menu_route_id( $app_id, $slug, count( $navigation ) ),
+				'label'   => $label,
+				'url'     => $url,
+				'app_id'  => $app_id,
+				'parent'  => $parent_slug,
+				'slug'    => $slug,
+				'cap'     => $cap,
+				'command' => PufferDesk_Command_Ids::APP_OPEN_ROUTE,
+				'target'  => $app_id,
+			);
+		}
+
+		return $navigation;
+	}
+
+	/**
+	 * Build a stable route ID for a submenu item.
+	 *
+	 * @param string $app_id App descriptor ID.
+	 * @param string $slug Submenu slug.
+	 * @param int    $index Route index fallback.
+	 * @return string
+	 */
+	private function get_admin_menu_route_id( $app_id, $slug, $index ) {
+		$id = preg_replace( '/[^a-z0-9]+/', '-', strtolower( (string) $slug ) );
+		$id = is_string( $id ) ? trim( $id, '-' ) : '';
+
+		return sanitize_key( $app_id . '-route-' . ( $id ? $id : ( $index + 1 ) ) );
+	}
+
+	/**
+	 * Merge existing route definitions with provider-discovered routes.
+	 *
+	 * @param mixed $existing Existing navigation value.
+	 * @param array<int,array<string,mixed>> $discovered Discovered navigation items.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function merge_navigation_items( $existing, $discovered ) {
+		$items = is_array( $existing ) ? $existing : array();
+
+		foreach ( $discovered as $item ) {
+			$items[] = $item;
+		}
+
+		return $items;
 	}
 
 	/**
@@ -545,6 +668,22 @@ final class PufferDesk_Admin_Menu_App_Provider {
 	 */
 	private function get_url_key( $url ) {
 		return untrailingslashit( esc_url_raw( $url ) );
+	}
+
+	/**
+	 * Whether a URL belongs to one of the WordPress admin areas.
+	 *
+	 * @param string $url URL to test.
+	 * @return bool
+	 */
+	private function is_wordpress_admin_url( $url ) {
+		foreach ( array( admin_url(), network_admin_url(), user_admin_url() ) as $admin_base ) {
+			if ( 0 === strpos( $url, $admin_base ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

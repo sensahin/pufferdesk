@@ -136,6 +136,84 @@
 			}
 		}
 
+		function withoutIframeParam(url) {
+			if (!url || !iframeQueryKey) {
+				return url || '';
+			}
+
+			try {
+				const next = new URL(url, window.location.origin);
+				next.searchParams.delete(iframeQueryKey);
+				return next.toString();
+			} catch (error) {
+				return url;
+			}
+		}
+
+		function getFrameUrl(frame) {
+			if (!frame) {
+				return '';
+			}
+
+			try {
+				return frame.contentWindow && frame.contentWindow.location
+					? frame.contentWindow.location.href
+					: frame.getAttribute('src') || '';
+			} catch (error) {
+				return frame.getAttribute('src') || '';
+			}
+		}
+
+		function isWordPressAdminFrameUrl(url) {
+			try {
+				const next = new URL(url, window.location.origin);
+				return next.origin === window.location.origin && next.pathname.indexOf('/wp-admin/') !== -1;
+			} catch (error) {
+				return false;
+			}
+		}
+
+		function needsIframeParam(url) {
+			if (!iframeQueryKey || !iframeQueryValue || !isWordPressAdminFrameUrl(url)) {
+				return false;
+			}
+
+			try {
+				const next = new URL(url, window.location.origin);
+				return next.searchParams.get(iframeQueryKey) !== iframeQueryValue;
+			} catch (error) {
+				return false;
+			}
+		}
+
+		function syncIframeUrl(win, frame) {
+			const url = getFrameUrl(frame);
+			if (!url || !isWordPressAdminFrameUrl(url)) {
+				return;
+			}
+
+			if (needsIframeParam(url)) {
+				frame.src = withIframeParam(url);
+				return;
+			}
+
+			win.dataset.pdkWindowUrl = withoutIframeParam(url);
+			scheduleSave();
+		}
+
+		function bindIframeGuard(win) {
+			const frame = win.querySelector('iframe.pdk-app-frame');
+			if (!frame || frame.dataset.pdkIframeGuardBound === '1') {
+				return;
+			}
+
+			frame.dataset.pdkIframeGuardBound = '1';
+			frame.addEventListener('load', () => {
+				syncIframeUrl(win, frame);
+			});
+			syncIframeUrl(win, frame);
+		}
+
 		function setZIndexFloor(value) {
 			zIndex = Math.max(zIndex, value);
 		}
@@ -516,6 +594,7 @@
 			interactions.makeDraggable(win);
 			interactions.ensureResizeHandles(win);
 			observeWindow(win);
+			bindIframeGuard(win);
 			win.addEventListener('pointerdown', () => focusWindow(win));
 		}
 
@@ -606,13 +685,13 @@
 			});
 		}
 
-		function getAppRestoreOptions(resolver, appId) {
+		function getAppRestoreOptions(resolver, appId, restoreItem = {}) {
 			if (typeof resolver === 'function') {
-				return resolver(appId);
+				return resolver(appId, restoreItem);
 			}
 
 			if (resolver && typeof resolver.getAppOptions === 'function') {
-				return resolver.getAppOptions(appId);
+				return resolver.getAppOptions(appId, restoreItem);
 			}
 
 			return null;
@@ -649,7 +728,7 @@
 					return;
 				}
 
-				const appOptions = getAppRestoreOptions(resolver, item.appId);
+				const appOptions = getAppRestoreOptions(resolver, item.appId, item);
 				if (!appOptions) {
 					return;
 				}

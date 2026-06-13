@@ -15,6 +15,7 @@
 		const contentSearchStore = options.contentSearchStore || null;
 		const documentStore = options.documentStore || null;
 		const launcher = options.launcher || window.PufferDesk.appLauncher || null;
+		const appNavigation = window.PufferDesk.apps && window.PufferDesk.apps.appNavigation ? window.PufferDesk.apps.appNavigation : null;
 		const labels = config.menu && config.menu.labels && typeof config.menu.labels === 'object' ? config.menu.labels : {};
 		const settingsLabels = config.settings && config.settings.labels && typeof config.settings.labels === 'object' ? config.settings.labels : {};
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
@@ -152,6 +153,7 @@
 			const recentBoost = recentBoosts.get(getResultKey(result)) || 0;
 			const typeBoosts = {
 				app: 35,
+				app_route: 30,
 				setting: 28,
 				command: 24,
 				folder: 20,
@@ -217,6 +219,36 @@
 				title: app.label,
 				type: 'app'
 			})).filter(Boolean);
+		}
+
+		function collectAppRouteResults() {
+			const locations = config.appLocations && typeof config.appLocations === 'object' ? config.appLocations : {};
+
+			if (!appNavigation || typeof appNavigation.getRoutes !== 'function') {
+				return [];
+			}
+
+			return (Array.isArray(config.apps) ? config.apps : []).filter((app) => (
+				app
+				&& app.id
+				&& app.label
+				&& locations[app.id] !== 'hidden'
+			)).flatMap((app) => appNavigation.getRoutes(app).map((route) => normalizeResult({
+				command: commandIds.APP_OPEN_ROUTE,
+				icon: app.icon,
+				id: `app-route-${route.id}`,
+				keywords: [app.id, app.label, app.group, route.parent, route.slug].filter(Boolean),
+				label: route.label,
+				payload: {
+					appId: app.id,
+					routeId: route.id
+				},
+				subtitle: app.label,
+				target: app.id,
+				title: route.title || route.label,
+				type: 'app_route',
+				url: route.url
+			}))).filter(Boolean);
 		}
 
 		function collectFolderResults() {
@@ -480,6 +512,7 @@
 		function search(query, searchOptions = {}) {
 			const needle = normalizeText(query);
 			const baseResults = collectAppResults()
+				.concat(collectAppRouteResults())
 				.concat(collectFolderResults())
 				.concat(collectSettingsResults())
 				.concat(collectCommandResults());

@@ -11,6 +11,7 @@
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const folders = Array.isArray(config.folders) ? config.folders : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
+		const appNavigation = window.PufferDesk.apps.appNavigation || null;
 		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
 		const appIds = window.PufferDesk.apps.ids || {};
 		const dragDropConstants = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.constants ? window.PufferDesk.dragDrop.constants : {};
@@ -45,6 +46,7 @@
 		let folderProvider = null;
 		let explorerCommandMenuButton = null;
 		let explorerCommandMenuCleanup = null;
+		let appNavigationEventsBound = false;
 		const menuLabels = config.menu && config.menu.labels && typeof config.menu.labels === 'object'
 			? config.menu.labels
 			: {};
@@ -575,6 +577,95 @@
 				: getAppWindowOptions(appMap.get(appId), nativeContext);
 		}
 
+		function getAppNavigationRoutes(app) {
+			return appNavigation && typeof appNavigation.getRoutes === 'function'
+				? appNavigation.getRoutes(app)
+				: [];
+		}
+
+		function getAppNavigationRoute(app, routeRef) {
+			return appNavigation && typeof appNavigation.getRoute === 'function'
+				? appNavigation.getRoute(app, routeRef)
+				: null;
+		}
+
+		function getWindowFrameUrl(url) {
+			return manager && typeof manager.withIframeParam === 'function'
+				? manager.withIframeParam(url)
+				: url;
+		}
+
+		function setAppWindowRoute(win, route) {
+			if (!win || !route || !route.url) {
+				return false;
+			}
+
+			const frame = win.querySelector('iframe.pdk-app-frame');
+			if (!frame) {
+				return false;
+			}
+
+			win.dataset.pdkWindowUrl = route.url;
+			win.dataset.pdkActiveAppRoute = route.id || '';
+			frame.src = getWindowFrameUrl(route.url);
+			win.querySelectorAll('[data-pdk-app-route]').forEach((button) => {
+				const active = button.dataset.pdkAppRoute === route.id;
+				button.classList.toggle('is-active', active);
+				button.setAttribute('aria-current', active ? 'page' : 'false');
+			});
+
+			return true;
+		}
+
+		function ensureAppNavigation(win, app) {
+			const routes = getAppNavigationRoutes(app);
+			const frame = win ? win.querySelector('iframe.pdk-app-frame') : null;
+			const body = frame ? frame.closest('.pdk-window-body') : null;
+			if (!win || !app || !routes.length || !frame || !body) {
+				return false;
+			}
+
+			body.classList.add('pdk-window-body-has-app-navigation');
+
+			let nav = body.querySelector('[data-pdk-app-navigation]');
+			if (!nav) {
+				nav = document.createElement('nav');
+				nav.className = 'pdk-app-navigation';
+				nav.dataset.pdkAppNavigation = app.id;
+				nav.setAttribute('aria-label', app.label || getMenuLabel('app'));
+				body.insertBefore(nav, frame);
+			}
+
+			const currentUrl = win.dataset.pdkWindowUrl || app.url || '';
+			nav.replaceChildren(...routes.map((route) => {
+				const button = document.createElement('button');
+				const active = route.id === win.dataset.pdkActiveAppRoute || route.url === currentUrl;
+
+				button.type = 'button';
+				button.className = 'pdk-app-navigation-item';
+				button.dataset.pdkAppRoute = route.id;
+				button.textContent = route.label;
+				button.setAttribute('aria-current', active ? 'page' : 'false');
+				button.classList.toggle('is-active', active);
+				button.addEventListener('click', () => {
+					openAppRoute(app.id, route.id);
+				});
+
+				return button;
+			}));
+
+			return true;
+		}
+
+		function bindExistingAppNavigation() {
+			shell.querySelectorAll('.pdk-window[data-pdk-app-window]:not(.is-closed)').forEach((win) => {
+				const app = appMap.get(win.dataset.pdkAppWindow || '');
+				if (app) {
+					ensureAppNavigation(win, app);
+				}
+			});
+		}
+
 		function addRecentItem(item) {
 			recentItems.add(item);
 		}
@@ -889,7 +980,32 @@
 
 			const win = manager.createWindow(options);
 			if (app && win) {
+				ensureAppNavigation(win, app);
 				recordAppOpen(app);
+			}
+
+			return win;
+		}
+
+		function openAppRoute(appId, routeRef) {
+			const app = appMap.get(appId);
+			const route = getAppNavigationRoute(app, routeRef);
+			if (!app || !route) {
+				return null;
+			}
+
+			const win = openApp(app.id, {
+				nativeContext: {
+					routeId: route.id,
+					url: route.url
+				}
+			});
+			if (win) {
+				ensureAppNavigation(win, app);
+				setAppWindowRoute(win, route);
+				if (manager && typeof manager.focusWindow === 'function') {
+					manager.focusWindow(win);
+				}
 			}
 
 			return win;
@@ -4888,6 +5004,18 @@
 				event.preventDefault();
 				openFolder(folderButton.dataset.pdkOpenFolder);
 			});
+
+			bindExistingAppNavigation();
+			if (!appNavigationEventsBound && window.PufferDesk.events && typeof window.PufferDesk.events.on === 'function') {
+				appNavigationEventsBound = true;
+				window.PufferDesk.events.on(eventNames.WINDOW_CREATED, (event) => {
+					const win = event && event.detail ? event.detail.windowElement : null;
+					const app = win && win.dataset ? appMap.get(win.dataset.pdkAppWindow || '') : null;
+					if (app) {
+						ensureAppNavigation(win, app);
+					}
+				});
+			}
 		}
 
 		shell.addEventListener(domEventNames.TRASH_CHANGE, refreshTrashWindows);
@@ -4911,6 +5039,7 @@
 			moveFolderTabToNewWindow,
 			openAbout,
 			openApp,
+			openAppRoute,
 			openFolder,
 			openFolderWindow(folderId, options = {}) {
 				return openFolder(folderId, Object.assign({}, options, {

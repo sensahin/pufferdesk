@@ -257,6 +257,7 @@ final class PufferDesk_App_Normalizer {
 			$native = isset( $app['native'] ) ? sanitize_key( $app['native'] ) : '';
 			$dock   = $this->normalize_dock( isset( $app['dock'] ) ? $app['dock'] : array() );
 			$badge  = $this->badge_normalizer->normalize( isset( $app['badge'] ) ? $app['badge'] : array() );
+			$navigation = $this->normalize_navigation( isset( $app['navigation'] ) ? $app['navigation'] : array(), $id );
 
 			/**
 			 * Filter the normalized badge for a shell app.
@@ -288,6 +289,7 @@ final class PufferDesk_App_Normalizer {
 				'kind'               => $kind,
 				'native'             => $native,
 				'dock'               => $dock,
+				'navigation'         => $navigation,
 				'window_persistence' => $window_persistence,
 				'menu'               => $this->menu_normalizer->normalize_definition( isset( $app['menu'] ) ? $app['menu'] : array(), $label ),
 			);
@@ -327,6 +329,68 @@ final class PufferDesk_App_Normalizer {
 			'fixed'     => true,
 			'placement' => $placement,
 		);
+	}
+
+	/**
+	 * Normalize app navigation routes.
+	 *
+	 * @param mixed  $navigation Raw navigation route data.
+	 * @param string $app_id App descriptor ID.
+	 * @return array<int,array<string,mixed>>
+	 */
+	private function normalize_navigation( $navigation, $app_id ) {
+		$routes = array();
+		$seen   = array();
+
+		if ( ! is_array( $navigation ) ) {
+			return $routes;
+		}
+
+		foreach ( $navigation as $index => $route ) {
+			if ( ! is_array( $route ) || empty( $route['label'] ) || empty( $route['url'] ) ) {
+				continue;
+			}
+
+			$cap = self::normalize_capability( isset( $route['cap'] ) ? $route['cap'] : self::DEFAULT_CAPABILITY );
+			if ( ! current_user_can( $cap ) ) {
+				continue;
+			}
+
+			$label = sanitize_text_field( (string) $route['label'] );
+			$url   = esc_url_raw( (string) $route['url'] );
+			if ( '' === $label || '' === $url ) {
+				continue;
+			}
+
+			$id = ! empty( $route['id'] )
+				? sanitize_key( (string) $route['id'] )
+				: sanitize_key( $app_id . '-route-' . ( $index + 1 ) );
+			if ( '' === $id ) {
+				continue;
+			}
+
+			$key = $id . '|' . $url;
+			if ( isset( $seen[ $id ] ) || isset( $seen[ $url ] ) || isset( $seen[ $key ] ) ) {
+				continue;
+			}
+			$seen[ $id ]  = true;
+			$seen[ $url ] = true;
+			$seen[ $key ] = true;
+
+			$routes[] = array(
+				'id'      => $id,
+				'label'   => $label,
+				'url'     => $url,
+				'appId'   => $app_id,
+				'parent'  => ! empty( $route['parent'] ) ? sanitize_text_field( (string) $route['parent'] ) : '',
+				'slug'    => ! empty( $route['slug'] ) ? sanitize_text_field( (string) $route['slug'] ) : '',
+				'cap'     => $cap,
+				'command' => PufferDesk_Command_Ids::APP_OPEN_ROUTE,
+				'target'  => $app_id,
+			);
+		}
+
+		return $routes;
 	}
 
 	/**
