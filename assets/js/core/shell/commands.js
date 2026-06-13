@@ -436,6 +436,14 @@
 			return payload.tabId || payload.target || (detail && detail.id) || '';
 		}
 
+		function getFolderSidebarSectionFromPayload(payload = {}, detail = {}) {
+			const dataset = detail && detail.targetElement && detail.targetElement.dataset
+				? detail.targetElement.dataset
+				: {};
+
+			return payload.section || dataset.pdkFolderSidebarSection || '';
+		}
+
 		function getDocumentDataset(detail = {}) {
 			return detail && detail.metadata && detail.metadata.dataset && typeof detail.metadata.dataset === 'object'
 				? detail.metadata.dataset
@@ -1393,20 +1401,19 @@
 		register(commandIds.FOLDER_SIDEBAR_REMOVE, {
 			isEnabled(payload, detail) {
 				const folderId = getFolderIdFromPayload(payload, detail);
+				const section = getFolderSidebarSectionFromPayload(payload, detail);
 
 				return Boolean(
 					launcher
-					&& typeof launcher.removeFolderSidebarFavorite === 'function'
+					&& typeof launcher.removeFolderSidebarItem === 'function'
 					&& folderId
+					&& ['recents', 'favorites', 'locations'].includes(section)
 					&& detail
 					&& detail.type === contextTargets.FOLDER_SIDEBAR
-					&& detail.targetElement
-					&& detail.targetElement.dataset
-					&& detail.targetElement.dataset.pdkFolderSidebarRemovable === '1'
 				);
 			},
 			run(payload, detail) {
-				return launcher.removeFolderSidebarFavorite(getFolderIdFromPayload(payload, detail));
+				return launcher.removeFolderSidebarItem(getFolderIdFromPayload(payload, detail), getFolderSidebarSectionFromPayload(payload, detail));
 			}
 		});
 

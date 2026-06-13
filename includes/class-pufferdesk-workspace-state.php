@@ -172,6 +172,7 @@ final class PufferDesk_Workspace_State {
 				'collapsed'          => array(),
 				'favoriteIds'        => array(),
 				'removedFavoriteIds' => array(),
+				'removedItemKeys'    => array(),
 			),
 			self::SECTION_RECENT_ITEMS => array(),
 		);
@@ -868,8 +869,10 @@ final class PufferDesk_Workspace_State {
 		$collapsed         = array();
 		$favorite_ids      = array();
 		$removed_ids       = array();
+		$removed_item_keys = array();
 		$seen_favorites    = array();
 		$seen_removed      = array();
+		$seen_removed_keys = array();
 
 		foreach ( isset( $state['collapsed'] ) && is_array( $state['collapsed'] ) ? $state['collapsed'] : array() as $section => $value ) {
 			$section = sanitize_key( (string) $section );
@@ -904,10 +907,37 @@ final class PufferDesk_Workspace_State {
 			}
 		}
 
+		foreach ( isset( $state['removedItemKeys'] ) && is_array( $state['removedItemKeys'] ) ? $state['removedItemKeys'] : array() as $item_key ) {
+			$item_key = sanitize_text_field( (string) $item_key );
+			$parts     = explode( ':', $item_key, 2 );
+			$section   = isset( $parts[0] ) ? sanitize_key( (string) $parts[0] ) : '';
+			$folder_id = isset( $parts[1] ) ? sanitize_key( (string) $parts[1] ) : '';
+
+			if ( ! in_array( $section, array( 'recents', 'locations' ), true ) || isset( $seen_removed_keys[ $section . ':' . $folder_id ] ) ) {
+				continue;
+			}
+
+			if ( 'recents' === $section && 'recents' !== $folder_id ) {
+				continue;
+			}
+
+			if ( 'locations' === $section && ! $this->is_allowed_folder_id( $folder_id, $available_folders ) ) {
+				continue;
+			}
+
+			$normalized_key                        = $section . ':' . $folder_id;
+			$removed_item_keys[]                  = $normalized_key;
+			$seen_removed_keys[ $normalized_key ] = true;
+			if ( count( $removed_item_keys ) >= 50 ) {
+				break;
+			}
+		}
+
 		return array(
 			'collapsed'          => $collapsed,
 			'favoriteIds'        => $favorite_ids,
 			'removedFavoriteIds' => $removed_ids,
+			'removedItemKeys'    => $removed_item_keys,
 		);
 	}
 

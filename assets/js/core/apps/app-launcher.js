@@ -626,7 +626,8 @@
 			return {
 				collapsed: state.collapsed && typeof state.collapsed === 'object' && !Array.isArray(state.collapsed) ? state.collapsed : {},
 				favoriteIds: Array.isArray(state.favoriteIds) ? state.favoriteIds.map(normalizeFolderId).filter(Boolean) : [],
-				removedFavoriteIds: Array.isArray(state.removedFavoriteIds) ? state.removedFavoriteIds.map(normalizeFolderId).filter(Boolean) : []
+				removedFavoriteIds: Array.isArray(state.removedFavoriteIds) ? state.removedFavoriteIds.map(normalizeFolderId).filter(Boolean) : [],
+				removedItemKeys: Array.isArray(state.removedItemKeys) ? state.removedItemKeys.map((key) => String(key || '').trim()).filter(Boolean) : []
 			};
 		}
 
@@ -638,10 +639,24 @@
 			sessionStore.saveSection(workspaceSections.FOLDER_SIDEBAR, {
 				collapsed: state && state.collapsed && typeof state.collapsed === 'object' ? state.collapsed : {},
 				favoriteIds: Array.isArray(state && state.favoriteIds) ? state.favoriteIds : [],
-				removedFavoriteIds: Array.isArray(state && state.removedFavoriteIds) ? state.removedFavoriteIds : []
+				removedFavoriteIds: Array.isArray(state && state.removedFavoriteIds) ? state.removedFavoriteIds : [],
+				removedItemKeys: Array.isArray(state && state.removedItemKeys) ? state.removedItemKeys : []
 			});
 
 			return true;
+		}
+
+		function getFolderSidebarItemKey(sectionId, folderId) {
+			const section = String(sectionId || '').trim();
+			const normalized = normalizeFolderId(folderId);
+
+			return section && normalized ? `${section}:${normalized}` : '';
+		}
+
+		function isFolderSidebarItemRemoved(sectionId, folderId) {
+			const key = getFolderSidebarItemKey(sectionId, folderId);
+
+			return Boolean(key && getFolderSidebarState().removedItemKeys.includes(key));
 		}
 
 		function getDefaultFinderFavorites() {
@@ -742,6 +757,27 @@
 				return false;
 			}
 
+			saveFolderSidebarState(state);
+			refreshOpenFolderSidebars();
+
+			return true;
+		}
+
+		function removeFolderSidebarItem(folderId, sectionId = '') {
+			const section = String(sectionId || '').trim();
+			const normalized = normalizeFolderId(folderId);
+			const key = getFolderSidebarItemKey(section, normalized);
+			const state = getFolderSidebarState();
+
+			if (section === 'favorites') {
+				return removeFolderSidebarFavorite(normalized);
+			}
+
+			if (!key || !['recents', 'locations'].includes(section) || state.removedItemKeys.includes(key)) {
+				return false;
+			}
+
+			state.removedItemKeys = state.removedItemKeys.concat(key);
 			saveFolderSidebarState(state);
 			refreshOpenFolderSidebars();
 
@@ -3794,21 +3830,25 @@
 
 			const primarySection = dom.createElement('div', 'pdk-finder-sidebar-section pdk-finder-sidebar-section-primary');
 
-			primarySection.appendChild(createFinderSidebarItem({
-				active: isRecentsFolderId(folderId),
-				context: contextTargets.FOLDER,
-				icon: { type: 'theme', name: 'clock.svg', fallback: 'dashicons-clock' },
-				id: recentsFolderId,
-				label: getMenuLabel('recents'),
-				outlineIcon: 'clock',
-				section: 'recents',
-				onClick() {
-					if (win && !isRecentsFolderId(folderId)) {
-						renderFolderWindow(win, recentsFolderId);
+			if (!isFolderSidebarItemRemoved('recents', recentsFolderId)) {
+				primarySection.appendChild(createFinderSidebarItem({
+					active: isRecentsFolderId(folderId),
+					context: contextTargets.FOLDER_SIDEBAR,
+					icon: { type: 'theme', name: 'clock.svg', fallback: 'dashicons-clock' },
+					id: recentsFolderId,
+					label: getMenuLabel('recents'),
+					outlineIcon: 'clock',
+					section: 'recents',
+					onClick() {
+						if (win && !isRecentsFolderId(folderId)) {
+							renderFolderWindow(win, recentsFolderId);
+						}
 					}
-				}
-			}));
-			nav.appendChild(primarySection);
+				}));
+			}
+			if (primarySection.children.length) {
+				nav.appendChild(primarySection);
+			}
 
 			nav.appendChild(createFinderSidebarSection(
 				'favorites',
@@ -3841,9 +3881,9 @@
 			nav.appendChild(createFinderSidebarSection(
 				'locations',
 				getMenuLabel('locations'),
-				[homeFolderId, desktopFolderId, trashFolderId].map((locationId) => getFolder(locationId)).filter(Boolean).map((folder) => createFinderSidebarItem({
+				[homeFolderId, desktopFolderId, trashFolderId].map((locationId) => getFolder(locationId)).filter(Boolean).filter((folder) => !isFolderSidebarItemRemoved('locations', folder.id)).map((folder) => createFinderSidebarItem({
 					active: folder.id === folderId,
-					context: contextTargets.FOLDER,
+					context: contextTargets.FOLDER_SIDEBAR,
 					dropTarget: 'folder',
 					icon: folder.icon || (folder.id === trashFolderId ? 'dashicons-trash' : 'dashicons-admin-home'),
 					id: folder.id,
@@ -4582,6 +4622,7 @@
 			moveDocumentToTrash,
 			renameDocument,
 			refreshFolderWindow,
+			removeFolderSidebarItem,
 			removeFolderSidebarFavorite,
 			setFolderSortMode(folderId, mode, options = {}) {
 				const win = options.windowElement || getFolderWindow(folderId);

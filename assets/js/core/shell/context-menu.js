@@ -7,7 +7,6 @@
 	window.PufferDesk.shell.createContextMenuRegistry = function createContextMenuRegistry(config = {}, schema = null, context = {}) {
 		const appMap = new Map((Array.isArray(config.apps) ? config.apps : []).map((app) => [app.id, app]));
 		const folderMap = new Map((Array.isArray(config.folders) ? config.folders : []).map((folder) => [folder.id, folder]));
-		const widgetMap = new Map((Array.isArray(config.widgets) ? config.widgets : []).map((widget) => [widget.id, widget]));
 		const menuConfig = config.menu && typeof config.menu === 'object' ? config.menu : {};
 		const labels = menuConfig.labels && typeof menuConfig.labels === 'object' ? menuConfig.labels : {};
 		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
@@ -248,6 +247,38 @@
 				tabCount: tabs.length,
 				tabId
 			};
+		}
+
+		function getFolderSidebarSection(detail = {}) {
+			const dataset = detail.targetElement && detail.targetElement.dataset
+				? detail.targetElement.dataset
+				: detail.metadata && detail.metadata.dataset && typeof detail.metadata.dataset === 'object'
+					? detail.metadata.dataset
+					: {};
+
+			return dataset.pdkFolderSidebarSection || '';
+		}
+
+		function getFolderSidebarItems(detail = {}) {
+			const section = getFolderSidebarSection(detail);
+			const payload = {
+				section,
+				target: detail.id || ''
+			};
+			const items = [
+				commandItem(getLabel('open_in_new_tab'), commandIds.OPEN_FOLDER_TAB, payload),
+				separator(),
+				commandItem(getLabel('remove_from_sidebar'), commandIds.FOLDER_SIDEBAR_REMOVE, payload)
+			];
+
+			if (section !== 'recents') {
+				items.push(
+					separator(),
+					commandItem(getLabel('get_info'), commandIds.FOLDER_GET_INFO, payload)
+				);
+			}
+
+			return items;
 		}
 
 		function isTrashFolder(folder) {
@@ -1385,12 +1416,7 @@
 			groups: [
 				{
 					id: 'primary',
-					items: [
-						commandItem(getLabel('remove_from_sidebar'), commandIds.FOLDER_SIDEBAR_REMOVE, {
-							icon: 'dashicons-no-alt',
-							target: detail.id
-						})
-					]
+					items: getFolderSidebarItems(detail)
 				}
 			]
 		}));
@@ -1585,15 +1611,17 @@
 		});
 
 		registerProvider(targets.WIDGET, (detail) => {
-			const widget = detail.widget || widgetMap.get(detail.id);
 			return {
 				groups: [
 					{
-					id: 'primary',
-					items: [
-							commandItem(getLabel('hide_widget'), commandIds.WIDGET_HIDE, {
-								icon: widget && widget.icon ? widget.icon : 'dashicons-hidden',
+						id: 'primary',
+						items: [
+							commandItem(getLabel('remove_widget'), commandIds.WIDGET_HIDE, {
 								target: detail.id
+							}),
+							separator(),
+							commandItem(getLabel('edit_widgets'), commandIds.SETTINGS_OPEN_PANEL, {
+								panel: 'widgets'
 							})
 						]
 					}
