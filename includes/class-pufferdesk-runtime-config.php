@@ -61,6 +61,13 @@ final class PufferDesk_Runtime_Config {
 	private $sound_registry;
 
 	/**
+	 * WordPress admin bar menu provider.
+	 *
+	 * @var PufferDesk_Admin_Bar_Menu_Provider
+	 */
+	private $admin_bar_menu_provider;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param PufferDesk_Router            $router Request router.
@@ -70,8 +77,9 @@ final class PufferDesk_Runtime_Config {
 	 * @param PufferDesk_Notification_Registry|null $notification_registry Notification registry.
 	 * @param PufferDesk_User_Preferences|null    $preferences User preferences.
 	 * @param PufferDesk_Sound_Registry|null      $sound_registry Sound event registry.
+	 * @param PufferDesk_Admin_Bar_Menu_Provider|null $admin_bar_menu_provider Admin bar menu provider.
 	 */
-	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry, $virtual_filesystem = null, $notification_registry = null, $preferences = null, $sound_registry = null ) {
+	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry, $virtual_filesystem = null, $notification_registry = null, $preferences = null, $sound_registry = null, $admin_bar_menu_provider = null ) {
 		$this->router             = $router;
 		$this->theme_registry     = $theme_registry;
 		$this->settings_registry  = $settings_registry;
@@ -81,6 +89,9 @@ final class PufferDesk_Runtime_Config {
 			? $notification_registry
 			: new PufferDesk_Notification_Registry( new PufferDesk_User_Preferences(), new PufferDesk_Notification_Normalizer() );
 		$this->sound_registry = $sound_registry instanceof PufferDesk_Sound_Registry ? $sound_registry : new PufferDesk_Sound_Registry();
+		$this->admin_bar_menu_provider = $admin_bar_menu_provider instanceof PufferDesk_Admin_Bar_Menu_Provider
+			? $admin_bar_menu_provider
+			: new PufferDesk_Admin_Bar_Menu_Provider();
 	}
 
 	/**
@@ -1717,6 +1728,7 @@ final class PufferDesk_Runtime_Config {
 					),
 				),
 			),
+			'newContent' => $this->admin_bar_menu_provider->get_new_content_groups(),
 			'desktop'    => array(
 				'groups' => array(
 					array(
@@ -1839,6 +1851,7 @@ final class PufferDesk_Runtime_Config {
 				'search_type_setting'     => __( 'Setting', 'pufferdesk-admin-desktop' ),
 				'search_type_command'     => __( 'Command', 'pufferdesk-admin-desktop' ),
 				'start_pinned'            => __( 'Pinned', 'pufferdesk-admin-desktop' ),
+				'start_create'            => __( 'Create', 'pufferdesk-admin-desktop' ),
 				'start_recommended'       => __( 'Recommended', 'pufferdesk-admin-desktop' ),
 				'start_no_recent_items'   => __( 'No recent items yet', 'pufferdesk-admin-desktop' ),
 				'start_power'             => __( 'Power and session', 'pufferdesk-admin-desktop' ),

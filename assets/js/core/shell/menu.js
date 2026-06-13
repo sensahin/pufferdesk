@@ -27,6 +27,15 @@
 		const commands = context.commands || window.PufferDesk.shell.createCommandRegistry(shell, context);
 		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands);
 		const transientSurfaces = window.PufferDesk.shell.transientSurfaces || null;
+		const newContentConfig = menuConfig.newContent && typeof menuConfig.newContent === 'object'
+			? menuConfig.newContent
+			: {};
+		const wordpressStandardNewContentItems = schema.normalizeCommandItems(
+			Array.isArray(newContentConfig.standard) ? newContentConfig.standard : []
+		);
+		const wordpressOtherNewContentItems = schema.normalizeCommandItems(
+			Array.isArray(newContentConfig.other) ? newContentConfig.other : []
+		);
 		const desktopIconManager = context.desktopIconManager || null;
 		const launcher = context.launcher || null;
 		const menuGroupIds = schema.getGroupIds();
@@ -200,27 +209,83 @@
 			});
 		}
 
+		function appendWordPressNewContentItems(items) {
+			if (!wordpressStandardNewContentItems.length && !wordpressOtherNewContentItems.length) {
+				return items;
+			}
+
+			if (items.length && wordpressStandardNewContentItems.length) {
+				items.push(separator());
+			}
+
+			wordpressStandardNewContentItems.forEach((item) => {
+				items.push(item);
+			});
+
+			if (items.length && wordpressOtherNewContentItems.length) {
+				items.push(separator());
+			}
+
+			wordpressOtherNewContentItems.forEach((item) => {
+				items.push(item);
+			});
+
+			return items;
+		}
+
+		function removeFileMenuIcons(items) {
+			return items.map((item) => {
+				if (!item || typeof item !== 'object') {
+					return item;
+				}
+
+				const next = Object.assign({}, item, {
+					icon: ''
+				});
+				if (Array.isArray(item.items)) {
+					next.items = removeFileMenuIcons(item.items);
+				}
+
+				return next;
+			});
+		}
+
+		function getCustomFileItems(items) {
+			return removeFileMenuIcons(appendWordPressNewContentItems(items.slice()));
+		}
+
 		function getFileItems(detail = {}) {
 			const folderId = getActiveFolderId(detail);
 			const items = [];
+			const folderInfoItems = [];
 
 			if (!isWindowDetail(detail) || isFolderWindowDetail(detail)) {
 				items.push(commandItem(getLabel('new_folder'), commandIds.FOLDER_CREATE, {
-					icon: 'dashicons-category',
 					shortcut: shortcut('primary+secondary+n', {
 						contexts: [shortcutContexts.DESKTOP, shortcutContexts.FOLDER]
 					})
 				}));
+				items.push(commandItem(getLabel('new_sticky_note'), commandIds.DOCUMENT_NEW_STICKY_NOTE));
 			}
 
 			if (folderId) {
-				items.push(commandItem(getLabel('get_info'), commandIds.FOLDER_GET_INFO, {
-					icon: 'dashicons-info-outline',
+				folderInfoItems.push(commandItem(getLabel('get_info'), commandIds.FOLDER_GET_INFO, {
 					shortcut: shortcut('secondary+enter', {
 						contexts: [shortcutContexts.FOLDER]
 					}),
 					target: folderId
 				}));
+			}
+
+			appendWordPressNewContentItems(items);
+
+			if (folderInfoItems.length) {
+				if (items.length) {
+					items.push(separator());
+				}
+				folderInfoItems.forEach((item) => {
+					items.push(item);
+				});
 			}
 
 			if (isWindowDetail(detail)) {
@@ -230,13 +295,11 @@
 
 				if (hasBrowserTabTarget(detail)) {
 					items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {
-						icon: 'dashicons-external'
 					}));
 					items.push(separator());
 				}
 
 				items.push(commandItem(getLabel('close_window'), commandIds.WINDOW_CLOSE, {
-					icon: 'dashicons-dismiss',
 					shortcut: shortcut('primary+w', {
 						contexts: [shortcutContexts.WINDOW]
 					})
@@ -245,12 +308,11 @@
 
 			if (!items.length) {
 				items.push(commandItem(getLabel('system_settings'), commandIds.OPEN_APP, {
-					icon: 'dashicons-admin-customizer',
 					target: appIds.OS_SETTINGS
 				}));
 			}
 
-			return items;
+			return removeFileMenuIcons(items);
 		}
 
 		function getEditItems() {
@@ -460,7 +522,7 @@
 		function getDefaultItemsForGroup(group, detail = {}) {
 			switch (group.id) {
 				case menuGroupIds.FILE:
-					return getFileItems(detail);
+					return group.items.length ? getCustomFileItems(group.items) : getFileItems(detail);
 				case menuGroupIds.EDIT:
 					return getEditItems();
 				case menuGroupIds.VIEW:
@@ -480,6 +542,10 @@
 			const items = Array.isArray(group.items) ? group.items : [];
 
 			if (items.length) {
+				if (group.id === menuGroupIds.FILE) {
+					return getCustomFileItems(items);
+				}
+
 				return group.id === menuGroupIds.WINDOW ? getWindowItems(detail, items) : items;
 			}
 
@@ -743,6 +809,121 @@
 			return button;
 		}
 
+		function createThemeIcon(name, fallback) {
+			return {
+				fallback,
+				name,
+				type: 'theme'
+			};
+		}
+
+		function getStartCreateMappedAppIcon(item) {
+			const appIdByItemId = {
+				'wp-admin-bar-new-media': appIds.MEDIA,
+				'wp-admin-bar-new-page': appIds.PAGES,
+				'wp-admin-bar-new-post': appIds.POSTS,
+				'wp-admin-bar-new-user': appIds.USERS
+			};
+			const appId = item && item.id ? appIdByItemId[item.id] : '';
+			const app = appId ? appMap.get(appId) : null;
+
+			return app && app.icon ? app.icon : '';
+		}
+
+		function decorateStartCreateItem(item) {
+			if (!item || item.type === 'separator') {
+				return null;
+			}
+
+			const icon = getStartCreateMappedAppIcon(item) || item.icon || '';
+
+			return Object.assign({}, item, icon ? { icon } : {});
+		}
+
+		function getStartCreateGroups() {
+			const stickyNotesApp = appMap.get(appIds.STICKY_NOTES);
+			const localCreateItems = [
+				commandItem(getLabel('new_folder'), commandIds.FOLDER_CREATE, {
+					icon: createThemeIcon('folder.svg', 'dashicons-category')
+				}),
+				commandItem(getLabel('new_sticky_note'), commandIds.DOCUMENT_NEW_STICKY_NOTE, {
+					icon: stickyNotesApp && stickyNotesApp.icon ? stickyNotesApp.icon : 'dashicons-sticky'
+				})
+			];
+			const groups = [
+				localCreateItems.concat(wordpressStandardNewContentItems),
+				wordpressOtherNewContentItems
+			];
+
+			return groups
+				.map((group) => group.map(decorateStartCreateItem).filter(Boolean))
+				.filter((group) => group.length);
+		}
+
+		function createStartCreateCard(item) {
+			const button = document.createElement('button');
+			const icon = document.createElement('span');
+			const label = document.createElement('span');
+			const disabled = itemRenderer.getItemDisabled(item, activeDetail);
+
+			button.type = 'button';
+			button.className = 'pdk-start-pinned-item pdk-start-create-card';
+			button.disabled = disabled;
+			button.dataset.pdkMenuItem = item.id || item.command || item.label;
+			button.setAttribute('aria-label', item.label);
+			if (disabled) {
+				button.setAttribute('aria-disabled', 'true');
+			}
+
+			icon.className = 'pdk-start-pinned-icon';
+			icon.appendChild(dom.createIcon(item.icon));
+			label.className = 'pdk-start-pinned-label';
+			label.textContent = item.label;
+			button.append(icon, label);
+
+			if (item.command && !disabled) {
+				button.addEventListener('click', () => {
+					commands.execute(item, activeDetail);
+					closePopover();
+				});
+			}
+
+			return button;
+		}
+
+		function createStartCreateGroup(items) {
+			const grid = document.createElement('div');
+
+			grid.className = 'pdk-start-pinned-grid pdk-start-create-grid';
+			items.forEach((item) => {
+				grid.appendChild(createStartCreateCard(item));
+			});
+
+			return grid;
+		}
+
+		function createStartCreateSection() {
+			const groups = getStartCreateGroups();
+			const section = document.createElement('section');
+			const list = document.createElement('div');
+
+			section.className = 'pdk-start-section pdk-start-section-create';
+			section.appendChild(createStartSectionHeading(getLabel('start_create')));
+			list.className = 'pdk-start-create-list';
+			groups.forEach((group, index) => {
+				if (index > 0) {
+					const divider = document.createElement('span');
+					divider.className = 'pdk-start-create-divider';
+					divider.setAttribute('role', 'separator');
+					list.appendChild(divider);
+				}
+				list.appendChild(createStartCreateGroup(group));
+			});
+			section.appendChild(list);
+
+			return section;
+		}
+
 		function getStartRecommendedItems(group) {
 			const count = Math.min(4, getRecentCount());
 			const recentItems = count && window.PufferDesk.menuBar
@@ -970,6 +1151,7 @@
 			return [
 				createStartSearch(),
 				pinnedSection,
+				createStartCreateSection(),
 				recommendedSection,
 				footer
 			];

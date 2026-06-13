@@ -1269,7 +1269,7 @@
 	box-shadow: 0 16px 48px rgb(0 0 0 / 0.18);
 	display: grid;
 	gap: 18px;
-	grid-template-rows: auto auto minmax(0, 1fr) auto;
+	grid-template-rows: auto auto auto minmax(0, 1fr) auto;
 	height: min(864px, calc(100vh - 74px));
 	left: 50% !important;
 	max-height: min(864px, calc(100vh - 74px));
@@ -1435,6 +1435,22 @@
 	text-align: center;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-start-section-create .pdk-start-section-heading {
+	margin-bottom: 8px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-start-create-list {
+	display: grid;
+	gap: 10px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-start-create-divider {
+	background: rgb(0 0 0 / 0.12);
+	display: block;
+	height: 1px;
+	width: 100%;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-recommended-list {
@@ -4381,6 +4397,10 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-start-search-icon,
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-start-recommended-empty {
 	color: var(--pdk-muted);
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-start-create-divider {
+	background: rgb(255 255 255 / 0.16);
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-controls-style="toolbar"] .pdk-window-control:hover,

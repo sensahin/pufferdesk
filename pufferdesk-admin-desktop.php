@@ -25,6 +25,7 @@ require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-user-preferences.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-router.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-path-normalizer.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-admin-screen-availability.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-admin-bar-menu-provider.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-icon-renderer.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-tooltip-renderer.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-app-ids.php';
