@@ -1985,7 +1985,7 @@ final class PufferDesk_Runtime_Config {
 				'move_duplicate_item'    => __( 'The target folder already contains this app.', 'pufferdesk-admin-desktop' ),
 				'move_target_not_allowed' => __( 'The item model does not allow this drop target.', 'pufferdesk-admin-desktop' ),
 				'keyboard_shortcuts'      => __( 'Keyboard Shortcuts', 'pufferdesk-admin-desktop' ),
-				'keyboard_shortcuts_title' => __( 'Keyboard shortcuts', 'pufferdesk-admin-desktop' ),
+				'keyboard_shortcuts_title' => __( 'Keyboard Shortcuts', 'pufferdesk-admin-desktop' ),
 				'keyboard_shortcuts_search_placeholder' => __( 'Search shortcuts', 'pufferdesk-admin-desktop' ),
 				'keyboard_shortcuts_clear_search' => __( 'Clear search', 'pufferdesk-admin-desktop' ),
 				'keyboard_shortcuts_no_results' => __( 'No shortcuts found.', 'pufferdesk-admin-desktop' ),

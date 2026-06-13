@@ -1053,7 +1053,7 @@
 				command: commandIds.SHELL_FOCUS_SEARCH,
 				contexts: [shortcutContexts.GLOBAL],
 				id: commandIds.SHELL_FOCUS_SEARCH,
-				label: getMenuLabel(labels, 'search')
+				label: getMenuLabel(labels, 'keyboard_shortcuts_search', getMenuLabel(labels, 'search', 'Search'))
 			},
 			{
 				combo: 'primary+,',
