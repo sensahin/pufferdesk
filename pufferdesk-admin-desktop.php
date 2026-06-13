@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       PufferDesk - Admin Desktop
- * Description:       A safe, opt-out desktop-style workspace for WordPress admin with a dock, desktop folders, and windowed admin apps.
+ * Description:       Turn your WordPress admin into a desktop.
  * Version:           0.1.0
  * Requires at least: 6.0
  * Requires PHP:      7.4

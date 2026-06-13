@@ -210,14 +210,17 @@
 
 .pdk-site-about-subtitle {
 	color: var(--pdk-muted);
+	display: -webkit-box;
 	font-size: var(--pdk-text-caption);
 	font-weight: var(--pdk-weight-meta);
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	line-clamp: 3;
 	line-height: 1.18;
 	margin: 6px 0 25px;
 	max-width: 100%;
 	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
+	white-space: normal;
 }
 
 .pdk-site-about-specs {

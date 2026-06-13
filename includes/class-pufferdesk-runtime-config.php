@@ -202,6 +202,7 @@ final class PufferDesk_Runtime_Config {
 			'shellUrl'       => $this->router->get_shell_url(),
 			'siteInfo'       => $this->get_site_info_config(),
 			'siteName'       => get_bloginfo( 'name' ),
+			'productInfo'    => $this->get_product_info_config(),
 			'sounds'         => $this->get_sounds_config( $theme ),
 			'system'         => $this->get_system_config( $theme ),
 			'themeMode'      => $theme_mode,
@@ -634,6 +635,72 @@ final class PufferDesk_Runtime_Config {
 				__( 'PufferDesk %s · Built for WordPress admin.', 'pufferdesk-admin-desktop' ),
 				PUFFERDESK_VERSION
 			),
+		);
+	}
+
+	/**
+	 * Safe product details for the About PufferDesk window.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_product_info_config() {
+		return array(
+			'title'         => __( 'About PufferDesk', 'pufferdesk-admin-desktop' ),
+			'name'          => PufferDesk_Product_Labels::name(),
+			'url'           => 'pufferdesk.com',
+			'tagline'       => __( 'Turn your WordPress admin into a desktop.', 'pufferdesk-admin-desktop' ),
+			'aboutSubtitle' => __( 'Turn your WordPress admin into a desktop.', 'pufferdesk-admin-desktop' ),
+			'iconUrl'       => $this->get_product_identity_image_url(),
+			'aboutRows'     => array(
+				array(
+					'label' => __( 'Version', 'pufferdesk-admin-desktop' ),
+					'value' => PufferDesk_App_Normalizer::format_about_version( PUFFERDESK_VERSION ),
+				),
+				array(
+					'label' => __( 'Author', 'pufferdesk-admin-desktop' ),
+					'value' => 'Senol Sahin',
+				),
+				array(
+					'label' => __( 'License', 'pufferdesk-admin-desktop' ),
+					'value' => __( 'GPLv2 or later', 'pufferdesk-admin-desktop' ),
+				),
+			),
+			'moreInfoLabel'   => __( 'More Info...', 'pufferdesk-admin-desktop' ),
+			'moreInfoCommand' => PufferDesk_Command_Ids::OPEN_EXTERNAL_URL,
+			'moreInfoTitle'   => PufferDesk_Product_Labels::name(),
+			'moreInfoUrl'     => 'https://pufferdesk.com/',
+			'footer'          => sprintf(
+				/* translators: %s: PufferDesk plugin version. */
+				__( 'PufferDesk %s · Built for WordPress admin.', 'pufferdesk-admin-desktop' ),
+				PUFFERDESK_VERSION
+			),
+		);
+	}
+
+	/**
+	 * Original PufferDesk mark URL for product About surfaces.
+	 *
+	 * @return string
+	 */
+	private function get_product_identity_image_url() {
+		$path = 'shared/icons/pufferdesk-mark.svg';
+		$file = PUFFERDESK_DIR . 'assets/media/' . $path;
+
+		if ( ! file_exists( $file ) ) {
+			return '';
+		}
+
+		$version = filemtime( $file );
+		if ( false === $version ) {
+			$version = PUFFERDESK_VERSION;
+		}
+
+		return esc_url_raw(
+			add_query_arg(
+				'ver',
+				(string) $version,
+				PUFFERDESK_URL . 'assets/media/' . $path
+			)
 		);
 	}
 
@@ -1647,6 +1714,11 @@ final class PufferDesk_Runtime_Config {
 						'label' => PufferDesk_Product_Labels::name(),
 						'items' => array(
 							array(
+								'label'   => __( 'About PufferDesk', 'pufferdesk-admin-desktop' ),
+								'command' => PufferDesk_Command_Ids::OPEN_SYSTEM_ABOUT,
+								'icon'    => 'dashicons-info-outline',
+							),
+							array(
 								'label'   => __( 'System Settings...', 'pufferdesk-admin-desktop' ),
 								'command' => PufferDesk_Command_Ids::OPEN_APP,
 								'target'  => PufferDesk_App_Ids::OS_SETTINGS,
@@ -1927,6 +1999,8 @@ final class PufferDesk_Runtime_Config {
 				'preview_pane'            => __( 'Preview pane', 'pufferdesk-admin-desktop' ),
 				'preview'                 => __( 'Preview', 'pufferdesk-admin-desktop' ),
 				'show'                    => __( 'Show', 'pufferdesk-admin-desktop' ),
+				'auto_arrange_icons'      => __( 'Auto arrange icons', 'pufferdesk-admin-desktop' ),
+				'align_icons_to_grid'     => __( 'Align icons to grid', 'pufferdesk-admin-desktop' ),
 				'reset_layout'            => __( 'Reset Layout...', 'pufferdesk-admin-desktop' ),
 				'refresh'                 => __( 'Refresh', 'pufferdesk-admin-desktop' ),
 				'change_wallpaper'        => __( 'Change Wallpaper...', 'pufferdesk-admin-desktop' ),

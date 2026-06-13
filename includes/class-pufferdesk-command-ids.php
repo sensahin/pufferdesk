@@ -20,6 +20,7 @@ final class PufferDesk_Command_Ids {
 	const CLIPBOARD_PASTE               = 'clipboard.paste';
 	const DESKTOP_ICON_RENAME           = 'desktop-icon.rename';
 	const DESKTOP_REFRESH               = 'desktop.refresh';
+	const DESKTOP_SET_ICON_SIZE         = 'desktop.set-icon-size';
 	const DESKTOP_SORT_ICONS            = 'desktop.sort-icons';
 	const DOCUMENT_GET_INFO             = 'document.get-info';
 	const DOCUMENT_MOVE_TO_TRASH        = 'document.move-to-trash';
@@ -54,6 +55,7 @@ final class PufferDesk_Command_Ids {
 	const OPEN_FOLDER_TAB               = 'open-folder-tab';
 	const OPEN_FOLDER_WINDOW            = 'open-folder-window';
 	const OPEN_SITE_ABOUT               = 'open-site-about';
+	const OPEN_SYSTEM_ABOUT             = 'open-system-about';
 	const OPEN_URL                      = 'open-url';
 	const OPEN_WITH                     = 'open-with';
 	const RECENT_ITEMS_CLEAR            = 'recent-items.clear';
@@ -71,6 +73,7 @@ final class PufferDesk_Command_Ids {
 	const TRASH_EMPTY                   = 'trash.empty';
 	const TRASH_RESTORE                 = 'trash.restore';
 	const USER_LOGOUT                   = 'user.logout';
+	const WALLPAPER_NEXT                = 'wallpaper.next';
 	const WIDGET_HIDE                   = 'widget.hide';
 	const WINDOW_CLOSE                  = 'window.close';
 	const WINDOW_FOCUS                  = 'window.focus';

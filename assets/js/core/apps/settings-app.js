@@ -340,6 +340,10 @@
 		}
 
 		function getWallpaperCssVariables(item = {}) {
+			if (wallpaper && typeof wallpaper.getItemCssVariables === 'function') {
+				return wallpaper.getItemCssVariables(item);
+			}
+
 			const cssValue = item.css_value || 'none';
 			const layerCount = countWallpaperImageLayers(cssValue);
 			const fit = item.fit || 'cover';

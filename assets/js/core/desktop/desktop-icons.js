@@ -25,8 +25,14 @@
 		let sessionSaveDisabled = false;
 		let activeDropTarget = null;
 		let currentSortMode = 'none';
+		let currentIconSize = 'medium';
 		const selectedIcons = new Set();
 		let primarySelectedIcon = null;
+		const iconSizes = [
+			'large',
+			'medium',
+			'small'
+		];
 		const sortModes = [
 			'none',
 			'snap-to-grid',
@@ -126,10 +132,22 @@
 			return sortModes.includes(mode) ? mode : 'none';
 		}
 
+		function normalizeIconSize(size) {
+			return iconSizes.includes(size) ? size : 'medium';
+		}
+
+		function applyIconSize() {
+			if (shell && shell.dataset) {
+				shell.dataset.pdkDesktopIconSize = currentIconSize;
+			}
+		}
+
 		function loadSortMode() {
 			const stored = sessionStore.getSection(workspaceSections.DESKTOP_SORT, {});
 
 			currentSortMode = normalizeSortMode(stored && typeof stored === 'object' ? stored.mode : stored);
+			currentIconSize = normalizeIconSize(stored && typeof stored === 'object' ? stored.iconSize : '');
+			applyIconSize();
 			return currentSortMode;
 		}
 
@@ -139,6 +157,7 @@
 			}
 
 			sessionStore.saveSection(workspaceSections.DESKTOP_SORT, {
+				iconSize: currentIconSize,
 				mode: currentSortMode
 			});
 		}
@@ -787,6 +806,24 @@
 			currentSortMode = normalizeSortMode(mode);
 			saveSortMode();
 			arrangeIcons(currentSortMode);
+		}
+
+		function setIconSize(size) {
+			const nextIconSize = normalizeIconSize(size);
+
+			if (nextIconSize === currentIconSize) {
+				return;
+			}
+
+			currentIconSize = nextIconSize;
+			applyIconSize();
+			saveSortMode();
+
+			if (currentSortMode === 'none') {
+				clampToDesktop();
+			} else {
+				arrangeIcons(currentSortMode);
+			}
 		}
 
 		function getStoredIconMap() {
@@ -1527,14 +1564,19 @@
 				sessionSaveTask.cancel();
 				clampToDesktopTask.cancel();
 			},
+			getIconSize() {
+				return currentIconSize;
+			},
 			getSortMode() {
 				return currentSortMode;
 			},
 			getSelectedIconDetails,
+			iconSizes: iconSizes.slice(),
 			positionIcon,
 			rebind,
 			restoreSession,
 			saveSession,
+			setIconSize,
 			setSortMode,
 			startInlineRename: startInlineRenameIcon,
 			sortModes: sortModes.slice()

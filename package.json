@@ -2,7 +2,7 @@
   "name": "pufferdesk-admin-desktop",
   "version": "0.1.0",
   "private": true,
-  "description": "Desktop-style WordPress admin workspace plugin.",
+  "description": "Turn your WordPress admin into a desktop.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build-assets.mjs",

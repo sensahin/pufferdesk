@@ -31,6 +31,9 @@
 		const settingsLabels = settingsConfig.labels && typeof settingsConfig.labels === 'object' ? settingsConfig.labels : {};
 		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
 		const appIds = window.PufferDesk.apps && window.PufferDesk.apps.ids ? window.PufferDesk.apps.ids : {};
+		const wallpaperTypes = window.PufferDesk.config && typeof window.PufferDesk.config.getContractMap === 'function'
+			? window.PufferDesk.config.getContractMap('wallpaperTypes')
+			: {};
 		const contextTargets = window.PufferDesk.shell.contextMenuConstants
 			? window.PufferDesk.shell.contextMenuConstants.targets || {}
 			: {};
@@ -1241,6 +1244,129 @@
 			}
 		}
 
+		function getWallpaperService() {
+			return window.PufferDesk.wallpaper || null;
+		}
+
+		function getWallpaperConfig() {
+			return config.wallpaper && typeof config.wallpaper === 'object' ? config.wallpaper : {};
+		}
+
+		function getBuiltInWallpaperItems() {
+			const wallpaperConfig = getWallpaperConfig();
+			const groups = wallpaperConfig.groups && typeof wallpaperConfig.groups === 'object' ? wallpaperConfig.groups : {};
+			const groupItems = Array.isArray(groups.wallpapers) ? groups.wallpapers : [];
+			const fallbackItems = Array.isArray(wallpaperConfig.items)
+				? wallpaperConfig.items.filter((item) => item && item.type !== wallpaperTypes.COLOR && item.type !== wallpaperTypes.UPLOAD)
+				: [];
+			const items = groupItems.length ? groupItems : fallbackItems;
+
+			return items.filter((item) => item && item.type && item.id);
+		}
+
+		function getWallpaperPreferenceKey(preference = {}) {
+			const wallpaper = getWallpaperService();
+
+			if (wallpaper && typeof wallpaper.getPreferenceKey === 'function') {
+				return wallpaper.getPreferenceKey(preference);
+			}
+
+			if (preference.type === wallpaperTypes.UPLOAD) {
+				return `${wallpaperTypes.UPLOAD}:${Number.parseInt(preference.attachment_id, 10) || 0}`;
+			}
+
+			return `${preference.type || ''}:${preference.id || ''}`;
+		}
+
+		function getWallpaperItemPreference(item = {}) {
+			const wallpaper = getWallpaperService();
+
+			if (wallpaper && typeof wallpaper.getItemPreference === 'function') {
+				return wallpaper.getItemPreference(item);
+			}
+
+			return {
+				type: item.type || '',
+				id: item.type === wallpaperTypes.UPLOAD ? '' : item.id || '',
+				attachment_id: item.type === wallpaperTypes.UPLOAD ? Number.parseInt(item.attachment_id, 10) || 0 : 0,
+				fit: item.fit || 'cover',
+				position: item.position || 'center center'
+			};
+		}
+
+		function getWallpaperItemCssVariables(item = {}) {
+			const wallpaper = getWallpaperService();
+
+			return wallpaper && typeof wallpaper.getItemCssVariables === 'function'
+				? wallpaper.getItemCssVariables(item)
+				: {};
+		}
+
+		function getCurrentWallpaperPreference() {
+			const wallpaper = getWallpaperService();
+			const wallpaperConfig = getWallpaperConfig();
+
+			return wallpaper && typeof wallpaper.getPreference === 'function'
+				? wallpaper.getPreference(wallpaperConfig)
+				: wallpaperConfig.preference || {};
+		}
+
+		function getNextWallpaperItem() {
+			const items = getBuiltInWallpaperItems();
+			if (items.length < 2) {
+				return null;
+			}
+
+			const currentKey = getWallpaperPreferenceKey(getCurrentWallpaperPreference());
+			const currentIndex = items.findIndex((item) => getWallpaperPreferenceKey(getWallpaperItemPreference(item)) === currentKey);
+
+			return items[(currentIndex + 1) % items.length];
+		}
+
+		function applyWallpaper(nextWallpaper) {
+			const wallpaper = getWallpaperService();
+
+			config.wallpaper = nextWallpaper && typeof nextWallpaper === 'object' ? nextWallpaper : getWallpaperConfig();
+			if (wallpaper && typeof wallpaper.apply === 'function') {
+				wallpaper.apply(shell, config.wallpaper);
+			}
+
+			return config.wallpaper;
+		}
+
+		async function showNextWallpaper() {
+			const item = getNextWallpaperItem();
+			const action = getSettingsDomainAction('WALLPAPER');
+			if (!item || !api || typeof api.post !== 'function' || !action) {
+				throw new Error(getSettingsLabel('status.serviceUnavailable'));
+			}
+
+			const fallbackWallpaper = getWallpaperConfig();
+			const preference = getWallpaperItemPreference(item);
+			const nextWallpaper = Object.assign({}, fallbackWallpaper, {
+				preference,
+				current: item,
+				css_variables: getWallpaperItemCssVariables(item)
+			});
+
+			applyWallpaper(nextWallpaper);
+
+			try {
+				const result = await api.post(action, preference);
+				if (!result || !result.success) {
+					const message = result && result.data && result.data.message
+						? result.data.message
+						: getSettingsLabel('status.wallpaperSaveError');
+					throw new Error(message);
+				}
+
+				return applyWallpaper(result.data && result.data.wallpaper ? result.data.wallpaper : nextWallpaper);
+			} catch (error) {
+				applyWallpaper(fallbackWallpaper);
+				throw error;
+			}
+		}
+
 		async function confirmAction(actionConfig) {
 			if (dialogs && typeof dialogs.confirmTimedAction === 'function') {
 				return dialogs.confirmTimedAction(actionConfig);
@@ -1490,6 +1616,25 @@
 				return cleanupClipboard({
 					validate: true
 				});
+			}
+		});
+
+		register(commandIds.DESKTOP_SET_ICON_SIZE, {
+			isEnabled(payload) {
+				return Boolean(desktopIconManager && typeof desktopIconManager.setIconSize === 'function' && payload.size);
+			},
+			run(payload) {
+				desktopIconManager.setIconSize(payload.size);
+				refreshActiveMenu(activeDetail);
+			}
+		});
+
+		register(commandIds.WALLPAPER_NEXT, {
+			isEnabled() {
+				return Boolean(getNextWallpaperItem());
+			},
+			run() {
+				return showNextWallpaper();
 			}
 		});
 
@@ -2040,6 +2185,15 @@
 			},
 			run() {
 				launcher.openSiteAbout();
+			}
+		});
+
+		register(commandIds.OPEN_SYSTEM_ABOUT, {
+			isEnabled() {
+				return Boolean(launcher && typeof launcher.openSystemAbout === 'function');
+			},
+			run() {
+				launcher.openSystemAbout();
 			}
 		});
 

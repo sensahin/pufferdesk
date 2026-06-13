@@ -58,6 +58,7 @@
 				[sectionIds.STICKY_NOTES]: [],
 				[sectionIds.DESKTOP_ICONS]: [],
 				[sectionIds.DESKTOP_SORT]: {
+					iconSize: 'medium',
 					mode: 'none'
 				},
 				[sectionIds.FOLDER_DISPLAY]: {

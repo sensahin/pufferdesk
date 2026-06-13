@@ -355,6 +355,7 @@
 			openDocumentWith: launcher.openDocumentWith,
 			openTrash: launcher.openTrash,
 			openSiteAbout: launcher.openSiteAbout,
+			openSystemAbout: launcher.openSystemAbout,
 			openUrl: launcher.openUrl
 		};
 		window.PufferDesk.contextMenuController = contextMenuController;

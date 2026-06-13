@@ -1190,6 +1190,31 @@
 			});
 		}
 
+		function openSystemAbout() {
+			const productInfo = config.productInfo && typeof config.productInfo === 'object' ? config.productInfo : {};
+			const title = productInfo.title || productInfo.name || getMenuLabel('about_pufferdesk');
+
+			if (!window.PufferDesk.apps.createSiteAboutWindow) {
+				return;
+			}
+
+			manager.createWindow({
+				appId: 'about-pufferdesk',
+				bodyClass: 'pdk-window-body pdk-site-about-body',
+				centered: true,
+				contextMenu: false,
+				content: window.PufferDesk.apps.createSiteAboutWindow(productInfo),
+				disabledControls: ['minimize', 'maximize'],
+				height: '500px',
+				icon: 'dashicons-info-outline',
+				persist: false,
+				resizeMode: 'none',
+				title,
+				width: '286px',
+				windowKind: 'site-about'
+			});
+		}
+
 		function openUrl(url, title, icon) {
 			const windowTitle = title || getMenuLabel('admin');
 			const win = manager.createWindow({
@@ -5054,6 +5079,7 @@
 			openDocumentWith,
 			openSettingsPanel,
 			openSiteAbout,
+			openSystemAbout,
 			openUrl,
 			refreshFolderInfoWindow,
 			refreshDocumentInfoWindow,

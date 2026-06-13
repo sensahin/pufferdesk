@@ -1002,6 +1002,7 @@
 	backdrop-filter: none;
 	background: var(--pdk-redmond-taskbar-bg);
 	border: 0;
+	border-radius: 0;
 	border-top: 1px solid var(--pdk-redmond-taskbar-border);
 	box-shadow: none;
 	gap: 4px;
@@ -2010,40 +2011,37 @@
 	width: 4px;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="desktop"] [data-pdk-menu-item="desktop-open-terminal"] .pdk-menu-item-icon::before {
-	border: 1.4px solid currentColor;
-	border-radius: 2px;
-	height: 13px;
-	left: 2px;
-	top: 3px;
-	width: 14px;
+.pdk-shell[data-pdk-theme="redmond"] {
+	--pdk-desktop-icon-grid-left-inset: 0px;
+	--pdk-desktop-icon-grid-top-inset: 0px;
+	--pdk-redmond-desktop-icon-box-height: 100px;
+	--pdk-redmond-desktop-icon-box-width: 86px;
+	--pdk-redmond-desktop-icon-glyph-size: 56px;
+	--pdk-redmond-desktop-icon-label-gap: 6px;
+	--pdk-redmond-desktop-icon-media-height: 58px;
+	--pdk-redmond-desktop-icon-media-width: 64px;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="desktop"] [data-pdk-menu-item="desktop-open-terminal"] .pdk-menu-item-icon::after {
-	background:
-		linear-gradient(45deg, transparent 35%, currentColor 36% 47%, transparent 48%) 1px 2px / 6px 6px no-repeat,
-		linear-gradient(currentColor 0 0) 8px 9px / 5px 1.4px no-repeat;
-	inset: 0;
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-desktop-icon-size="large"] {
+	--pdk-redmond-desktop-icon-box-height: 118px;
+	--pdk-redmond-desktop-icon-box-width: 106px;
+	--pdk-redmond-desktop-icon-glyph-size: 72px;
+	--pdk-redmond-desktop-icon-label-gap: 7px;
+	--pdk-redmond-desktop-icon-media-height: 72px;
+	--pdk-redmond-desktop-icon-media-width: 78px;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="desktop"] [data-pdk-menu-item="desktop-show-more-options"] .pdk-menu-item-icon::before {
-	border: 1.4px solid currentColor;
-	border-radius: 2px;
-	height: 13px;
-	left: 3px;
-	top: 3px;
-	width: 13px;
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-desktop-icon-size="small"] {
+	--pdk-redmond-desktop-icon-box-height: 82px;
+	--pdk-redmond-desktop-icon-box-width: 74px;
+	--pdk-redmond-desktop-icon-glyph-size: 42px;
+	--pdk-redmond-desktop-icon-label-gap: 4px;
+	--pdk-redmond-desktop-icon-media-height: 46px;
+	--pdk-redmond-desktop-icon-media-width: 48px;
 }
 
-.pdk-shell[data-pdk-theme="redmond"] .pdk-context-menu[data-pdk-context-menu="desktop"] [data-pdk-menu-item="desktop-show-more-options"] .pdk-menu-item-icon::after {
-	border-color: currentColor;
-	border-style: solid;
-	border-width: 1.4px 1.4px 0 0;
-	height: 6px;
-	left: 7px;
-	top: 5px;
-	transform: rotate(45deg);
-	width: 6px;
+.pdk-shell[data-pdk-theme="redmond"] .pdk-desktop-icon-layer.is-managed {
+	inset: 0 24px 112px 0;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-desktop-app-label {
@@ -2088,8 +2086,8 @@
 	border: 0;
 	border-radius: 0;
 	box-shadow: none;
-	height: 58px;
-	width: 64px;
+	height: var(--pdk-redmond-desktop-icon-media-height);
+	width: var(--pdk-redmond-desktop-icon-media-width);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-desktop-icon .pdk-app-icon::before {
@@ -2097,20 +2095,21 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-desktop-app,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-desktop-folder {
-	gap: 6px;
-	grid-template-rows: 58px minmax(0, auto);
-	height: 100px;
-	width: 86px;
+.pdk-shell[data-pdk-theme="redmond"] .pdk-desktop-folder,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-desktop-document {
+	gap: var(--pdk-redmond-desktop-icon-label-gap);
+	grid-template-rows: var(--pdk-redmond-desktop-icon-media-height) minmax(0, auto);
+	height: var(--pdk-redmond-desktop-icon-box-height);
+	width: var(--pdk-redmond-desktop-icon-box-width);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-desktop-icon .pdk-app-icon .dashicons,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-desktop-icon .pdk-icon-image,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-desktop-icon .pdk-icon-mask {
-	font-size: 56px;
-	height: 56px;
-	line-height: 56px;
-	width: 56px;
+	font-size: var(--pdk-redmond-desktop-icon-glyph-size);
+	height: var(--pdk-redmond-desktop-icon-glyph-size);
+	line-height: var(--pdk-redmond-desktop-icon-glyph-size);
+	width: var(--pdk-redmond-desktop-icon-glyph-size);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-desktop-icon.is-selected .pdk-desktop-app-label,
@@ -4216,6 +4215,7 @@
 
 @media (max-width: 720px) {
 	.pdk-shell[data-pdk-theme="redmond"][data-pdk-shell-launcher="taskbar"] .pdk-dock {
+		border-radius: 0;
 		justify-content: flex-start;
 		overflow-x: auto;
 		padding: 6px 10px;

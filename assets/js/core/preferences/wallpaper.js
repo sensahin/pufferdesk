@@ -231,6 +231,58 @@
 		return wallpaper;
 	}
 
+	function countWallpaperImageLayers(cssValue) {
+		const value = String(cssValue || '').trim();
+		if (!value || value.toLowerCase() === 'none') {
+			return 1;
+		}
+
+		let depth = 0;
+		let layers = 1;
+		for (let index = 0; index < value.length; index += 1) {
+			const character = value[index];
+			if (character === '(') {
+				depth += 1;
+			} else if (character === ')') {
+				depth = Math.max(0, depth - 1);
+			} else if (character === ',' && depth === 0) {
+				layers += 1;
+			}
+		}
+
+		return Math.max(1, layers);
+	}
+
+	function repeatWallpaperLayerValue(value, count) {
+		return Array(Math.max(1, count)).fill(value).join(', ');
+	}
+
+	function getItemCssVariables(item = {}) {
+		const cssValue = item.css_value || 'none';
+		const layerCount = countWallpaperImageLayers(cssValue);
+		const fit = item.fit || 'cover';
+		const position = item.position || 'center center';
+
+		return {
+			'--pdk-wallpaper-image': cssValue,
+			'--pdk-wallpaper-position': repeatWallpaperLayerValue(position, layerCount),
+			'--pdk-wallpaper-repeat': repeatWallpaperLayerValue('no-repeat', layerCount),
+			'--pdk-wallpaper-size': repeatWallpaperLayerValue(fit, layerCount)
+		};
+	}
+
+	function getItemPreference(item = {}) {
+		const type = item.type || '';
+
+		return {
+			type,
+			id: type === wallpaperTypes.UPLOAD ? '' : item.id || '',
+			attachment_id: type === wallpaperTypes.UPLOAD ? Number.parseInt(item.attachment_id, 10) || 0 : 0,
+			fit: item.fit || 'cover',
+			position: item.position || 'center center'
+		};
+	}
+
 	function getPreferenceKey(preference = {}) {
 		if (preference.type === wallpaperTypes.UPLOAD) {
 			return `${wallpaperTypes.UPLOAD}:${Number.parseInt(preference.attachment_id, 10) || 0}`;
@@ -241,6 +293,8 @@
 
 	window.PufferDesk.wallpaper = {
 		apply,
+		getItemCssVariables,
+		getItemPreference,
 		getCurrent,
 		getPreference,
 		getPreferenceKey

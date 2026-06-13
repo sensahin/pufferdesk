@@ -319,6 +319,12 @@
 				: 'none';
 		}
 
+		function getDesktopIconSize() {
+			return desktopIconManager && typeof desktopIconManager.getIconSize === 'function'
+				? desktopIconManager.getIconSize()
+				: 'medium';
+		}
+
 		function getAppWindowState(appId) {
 			if (manager && typeof manager.getAppWindowState === 'function') {
 				return manager.getAppWindowState(appId);
@@ -349,6 +355,18 @@
 			});
 		}
 
+		function desktopIconSizeItem(label, size) {
+			const active = getDesktopIconSize() === size;
+
+			return commandItem(label, commandIds.DESKTOP_SET_ICON_SIZE, {
+				icon: active ? 'dashicons-yes' : '',
+				id: `desktop-view-${size}-icons`,
+				payload: {
+					size
+				}
+			});
+		}
+
 		function getSortByItems() {
 			return [
 				sortByItem(getLabel('sort_none'), 'none'),
@@ -367,21 +385,29 @@
 		}
 
 		function getRedmondDesktopViewItems() {
+			const sortMode = getDesktopSortMode();
+			const autoArrangeActive = sortMode !== 'none' && sortMode !== 'snap-to-grid';
+			const alignToGridActive = sortMode === 'snap-to-grid';
+
 			return [
-				disabledItem(getLabel('large_icons'), {
-					icon: 'dashicons-screenoptions',
-					id: 'desktop-view-large-icons'
-				}),
-				disabledItem(getLabel('medium_icons'), {
-					icon: 'dashicons-screenoptions',
-					id: 'desktop-view-medium-icons'
-				}),
-				disabledItem(getLabel('small_icons'), {
-					icon: 'dashicons-screenoptions',
-					id: 'desktop-view-small-icons'
-				}),
+				desktopIconSizeItem(getLabel('large_icons'), 'large'),
+				desktopIconSizeItem(getLabel('medium_icons'), 'medium'),
+				desktopIconSizeItem(getLabel('small_icons'), 'small'),
 				separator(),
-				sortByItem(getLabel('sort_snap_to_grid'), 'snap-to-grid')
+				commandItem(getLabel('auto_arrange_icons'), commandIds.DESKTOP_SORT_ICONS, {
+					icon: autoArrangeActive ? 'dashicons-yes' : '',
+					id: 'desktop-view-auto-arrange-icons',
+					payload: {
+						mode: autoArrangeActive ? 'none' : 'name'
+					}
+				}),
+				commandItem(getLabel('align_icons_to_grid'), commandIds.DESKTOP_SORT_ICONS, {
+					icon: alignToGridActive ? 'dashicons-yes' : '',
+					id: 'desktop-view-align-icons-to-grid',
+					payload: {
+						mode: alignToGridActive ? 'none' : 'snap-to-grid'
+					}
+				})
 			];
 		}
 
@@ -453,7 +479,7 @@
 								id: 'desktop-explore-background',
 								panel: 'wallpaper'
 							}),
-							disabledItem(getLabel('next_background'), {
+							commandItem(getLabel('next_background'), commandIds.WALLPAPER_NEXT, {
 								icon: 'dashicons-format-gallery',
 								id: 'desktop-next-background'
 							}),
@@ -466,24 +492,6 @@
 								icon: 'dashicons-edit',
 								id: 'desktop-personalize',
 								panel: 'appearance'
-							})
-						]
-					},
-					{
-						id: 'system',
-						items: [
-							disabledItem(getLabel('open_in_terminal'), {
-								icon: 'dashicons-editor-code',
-								id: 'desktop-open-terminal'
-							})
-						]
-					},
-					{
-						id: 'more-options',
-						items: [
-							disabledItem(getLabel('show_more_options'), {
-								icon: 'dashicons-external',
-								id: 'desktop-show-more-options'
 							})
 						]
 					}

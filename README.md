@@ -8,11 +8,11 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-PufferDesk turns the WordPress dashboard entry point into a desktop-style admin workspace.
+Turn your WordPress admin into a desktop.
 
 == Description ==
 
-PufferDesk wraps existing WordPress admin screens in a desktop-style shell. The current foundation focuses on one primary, release-safe PufferDesk experience: a top menu bar, generated and user-created desktop folders, a dock-style launcher, app search, draggable windows, desktop widgets, and iframe-based admin apps.
+Turn your WordPress admin into a desktop. PufferDesk wraps existing WordPress admin screens in a desktop-style shell with a top menu bar, generated and user-created desktop folders, a dock-style launcher, app search, draggable windows, desktop widgets, and iframe-based admin apps.
 
 == Current foundation features ==
 

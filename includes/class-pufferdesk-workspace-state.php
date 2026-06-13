@@ -163,7 +163,8 @@ final class PufferDesk_Workspace_State {
 			self::SECTION_STICKY_NOTES => array(),
 			self::SECTION_DESKTOP_ICONS => array(),
 			self::SECTION_DESKTOP_SORT => array(
-				'mode' => 'none',
+				'iconSize' => 'medium',
+				'mode'     => 'none',
 			),
 			self::SECTION_FOLDER_DISPLAY => array(
 				'folders' => array(),
@@ -766,8 +767,9 @@ final class PufferDesk_Workspace_State {
 	 * @return array<string,string>
 	 */
 	private function sanitize_desktop_sort( $sort ) {
-		$mode    = is_array( $sort ) && isset( $sort['mode'] ) ? sanitize_key( (string) $sort['mode'] ) : '';
-		$allowed = array(
+		$mode       = is_array( $sort ) && isset( $sort['mode'] ) ? sanitize_key( (string) $sort['mode'] ) : '';
+		$icon_size  = is_array( $sort ) && isset( $sort['iconSize'] ) ? sanitize_key( (string) $sort['iconSize'] ) : '';
+		$modes      = array(
 			'none',
 			'snap-to-grid',
 			'name',
@@ -779,9 +781,15 @@ final class PufferDesk_Workspace_State {
 			'date-created',
 			'size',
 		);
+		$icon_sizes = array(
+			'large',
+			'medium',
+			'small',
+		);
 
 		return array(
-			'mode' => in_array( $mode, $allowed, true ) ? $mode : 'none',
+			'iconSize' => in_array( $icon_size, $icon_sizes, true ) ? $icon_size : 'medium',
+			'mode'     => in_array( $mode, $modes, true ) ? $mode : 'none',
 		);
 	}
 
