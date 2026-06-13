@@ -297,7 +297,6 @@ final class PufferDesk_Runtime_Config {
 				'kindLabel'                 => __( 'Kind', 'pufferdesk-admin-desktop' ),
 				'pufferdeskFallback'        => PufferDesk_Product_Labels::name(),
 					'lastOpenedLabel'           => __( 'Last opened', 'pufferdesk-admin-desktop' ),
-					'locked'                    => __( 'Locked', 'pufferdesk-admin-desktop' ),
 					'modifiedLabel'             => __( 'Modified', 'pufferdesk-admin-desktop' ),
 					/* translators: %s: formatted modified date. */
 					'modifiedTemplate'          => __( 'Modified: %s', 'pufferdesk-admin-desktop' ),
@@ -310,7 +309,6 @@ final class PufferDesk_Runtime_Config {
 					'previewAvailableTemplate'  => __( '%s available.', 'pufferdesk-admin-desktop' ),
 					'previewSection'            => __( 'Preview:', 'pufferdesk-admin-desktop' ),
 				'privateUserAccess'         => __( 'Private to this WordPress user', 'pufferdesk-admin-desktop' ),
-				'sharedFolder'              => __( 'Shared folder', 'pufferdesk-admin-desktop' ),
 				'sharingPermissionsSection' => __( 'Sharing & Permissions:', 'pufferdesk-admin-desktop' ),
 				'siteHealthInfoTitle'       => __( 'Site Health Info', 'pufferdesk-admin-desktop' ),
 					'sizeLabel'                 => __( 'Size', 'pufferdesk-admin-desktop' ),

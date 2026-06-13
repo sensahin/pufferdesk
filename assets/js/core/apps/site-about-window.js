@@ -185,26 +185,6 @@
 		body.appendChild(row);
 	}
 
-	function createCheckbox(label, options = {}) {
-		const item = document.createElement('label');
-		item.className = 'pdk-info-panel-checkbox';
-		if (options.disabledStyle) {
-			item.classList.add('is-disabled');
-		}
-
-		const checkbox = document.createElement('input');
-		checkbox.type = 'checkbox';
-		checkbox.disabled = options.disabled !== false;
-		checkbox.checked = Boolean(options.checked);
-
-		const text = document.createElement('span');
-		text.textContent = label;
-
-		item.append(checkbox, text);
-
-		return item;
-	}
-
 	function createInfoPanelWindow(options = {}) {
 		const dom = window.PufferDesk.dom;
 		const content = dom.createElement('div', 'pdk-info-panel');
@@ -396,13 +376,6 @@
 		appendDefinition(general.body, getInfoPanelLabel('sourceLabel', '', labels), info.source || getInfoPanelLabel('pufferdeskFallback', '', labels));
 		appendDefinition(general.body, getInfoPanelLabel('createdLabel', '', labels), formatDate(info.createdAt, labels));
 		appendDefinition(general.body, getInfoPanelLabel('modifiedLabel', '', labels), formatDate(info.modifiedAt, labels));
-
-		const checks = document.createElement('div');
-		checks.className = 'pdk-info-panel-checks';
-		[getInfoPanelLabel('sharedFolder', '', labels), getInfoPanelLabel('locked', '', labels)].forEach((label) => {
-			checks.appendChild(createCheckbox(label));
-		});
-		general.body.appendChild(checks);
 
 		appendDefinition(more.body, getInfoPanelLabel('lastOpenedLabel', '', labels), formatDate(info.lastOpenedAt, labels));
 		appendDefinition(more.body, getInfoPanelLabel('containsLabel', '', labels), containsCountLabel);

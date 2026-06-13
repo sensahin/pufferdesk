@@ -800,13 +800,32 @@
 			const virtualFilesystem = window.PufferDesk.virtualFilesystem && typeof window.PufferDesk.virtualFilesystem.create === 'function'
 				? window.PufferDesk.virtualFilesystem.create(config)
 				: null;
+			const folderManager = window.PufferDesk.desktopFolderManager && typeof window.PufferDesk.desktopFolderManager.getFolders === 'function'
+				? window.PufferDesk.desktopFolderManager
+				: null;
 			const folders = virtualFilesystem && typeof virtualFilesystem.getFolders === 'function'
 				? virtualFilesystem.getFolders()
 				: [];
 			const seen = new Set();
 			const locations = [];
 
-			folders.forEach((folder) => {
+			function getFolderWhereLabel(path, options = {}) {
+				if (typeof options.where === 'string' && options.where) {
+					return options.where;
+				}
+
+				return virtualFilesystem && typeof virtualFilesystem.getWhereLabel === 'function'
+					? virtualFilesystem.getWhereLabel(path)
+					: path;
+			}
+
+			function getLocationOptionLabel(location) {
+				return location.label && location.label !== location.path
+					? location.label
+					: location.where || location.path;
+			}
+
+			function addLocation(folder, options = {}) {
 				const path = folder && typeof folder.path === 'string' ? folder.path : '';
 
 				if (!path || seen.has(path) || folder.special === 'trash') {
@@ -817,11 +836,21 @@
 				locations.push({
 					label: folder.label || path,
 					path,
-					where: virtualFilesystem && typeof virtualFilesystem.getWhereLabel === 'function'
-						? virtualFilesystem.getWhereLabel(path)
-						: path
+					where: getFolderWhereLabel(path, options)
 				});
+			}
+
+			folders.forEach((folder) => {
+				addLocation(folder);
 			});
+
+			if (folderManager) {
+				folderManager.getFolders().forEach((folder) => {
+					addLocation(folder, {
+						where: folder && typeof folder.label === 'string' && folder.label ? folder.label : ''
+					});
+				});
+			}
 
 			if (
 				options.parentPath
@@ -921,7 +950,7 @@
 				locations.forEach((location) => {
 					const option = document.createElement('option');
 					option.value = location.path;
-					option.textContent = location.label;
+					option.textContent = getLocationOptionLabel(location);
 					option.selected = location.path === defaultParentPath;
 					locationSelect.appendChild(option);
 				});

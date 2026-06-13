@@ -66,6 +66,7 @@
 		const folderViewModes = window.PufferDesk.apps && window.PufferDesk.apps.folderViewModes
 			? window.PufferDesk.apps.folderViewModes
 			: null;
+		const recentsFolderId = 'recents';
 		let activeDetail = { kind: contextTargets.DESKTOP };
 
 		function getLabel(key, fallback) {
@@ -814,6 +815,12 @@
 			return '';
 		}
 
+		function isReadOnlyCreateFolderId(folderId) {
+			const normalized = String(folderId || '').trim();
+
+			return Boolean(normalized && (normalized === appIds.TRASH || normalized === recentsFolderId));
+		}
+
 		function getAppIdFromPayload(payload = {}, detail = {}) {
 			return payload.target || payload.appId || getAppTargetFromDetail(detail) || (detail && detail.id) || '';
 		}
@@ -1407,11 +1414,15 @@
 				return Boolean(
 					folderManager
 					&& typeof folderManager.createFolder === 'function'
-					&& parentId !== appIds.TRASH
+					&& !isReadOnlyCreateFolderId(parentId)
 				);
 			},
 			run(payload, detail) {
 				const parentId = getFolderCreateParentId(payload, detail);
+				if (isReadOnlyCreateFolderId(parentId)) {
+					return false;
+				}
+
 				const folder = folderManager.createFolder(getLabel('untitled_folder'), [], {
 					parentId: parentId || containerTypes.DESKTOP,
 					point: detail && detail.contextPoint ? detail.contextPoint : null
@@ -1456,10 +1467,18 @@
 		});
 
 		register(commandIds.DOCUMENT_NEW_STICKY_NOTE, {
-			isEnabled() {
-				return Boolean(stickyNoteManager && typeof stickyNoteManager.createStickyNote === 'function');
+			isEnabled(payload, detail) {
+				return Boolean(
+					stickyNoteManager
+					&& typeof stickyNoteManager.createStickyNote === 'function'
+					&& !isReadOnlyCreateFolderId(getStickyNoteCreateFolderId(payload, detail))
+				);
 			},
 			run(payload, detail) {
+				if (isReadOnlyCreateFolderId(getStickyNoteCreateFolderId(payload, detail))) {
+					return false;
+				}
+
 				return stickyNoteManager.createStickyNote(getStickyNoteCreateState(payload, detail));
 			}
 		});

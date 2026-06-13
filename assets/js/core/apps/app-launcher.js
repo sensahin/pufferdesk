@@ -529,7 +529,37 @@
 			return folderData ? folderData.isUserFolder(folderId) : false;
 		}
 
+		function getRecentsFolderInfo() {
+			const folder = getRecentsFolder();
+			const items = getRecentFolderDisplayItems().map((item) => ({
+				id: item.id,
+				label: item.label || getMenuLabel('recent_item'),
+				type: item.type || 'document',
+				url: item.recentItem && item.recentItem.url ? item.recentItem.url : ''
+			}));
+
+			return {
+				canRename: false,
+				createdAt: '',
+				icon: folder.icon || 'dashicons-clock',
+				id: folder.id,
+				itemCount: items.length,
+				items,
+				kind: getMenuLabel('folder'),
+				label: folder.label || getMenuLabel('recents'),
+				lastOpenedAt: '',
+				modifiedAt: '',
+				source: getMenuLabel('pufferdesk_virtual_filesystem_source', 'PufferDesk virtual filesystem'),
+				user: false,
+				where: getMenuLabel('recents')
+			};
+		}
+
 		function getFolderInfo(folderId) {
+			if (isRecentsFolderId(folderId)) {
+				return getRecentsFolderInfo();
+			}
+
 			return folderData ? folderData.getFolderInfo(folderId) : null;
 		}
 
