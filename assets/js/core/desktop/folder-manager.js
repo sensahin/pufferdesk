@@ -115,7 +115,9 @@
 		}
 
 		function getDocumentTrashIcon(documentData = {}) {
-			return { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' };
+			return window.PufferDesk.documents && typeof window.PufferDesk.documents.getStickyNoteDocumentIcon === 'function'
+				? window.PufferDesk.documents.getStickyNoteDocumentIcon()
+				: 'dashicons-media-text';
 		}
 
 		function getStickyKind() {
@@ -399,7 +401,7 @@
 					title: documentData.title || label
 				}),
 				documentId,
-				icon: item && item.icon ? item.icon : getDocumentTrashIcon(documentData),
+				icon: getDocumentTrashIcon(documentData),
 				id: normalizeId(item && item.id ? item.id : '') || `document-${documentId}`,
 				label,
 				restore: {

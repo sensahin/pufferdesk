@@ -18,6 +18,24 @@
 		return stickyNoteColors.includes(value) ? value : 'yellow';
 	}
 
+	function getIconType(typeKey, fallback) {
+		const runtimeConfig = getConfig();
+		const contracts = runtimeConfig.contracts && typeof runtimeConfig.contracts === 'object' ? runtimeConfig.contracts : {};
+		const icons = contracts.icons && typeof contracts.icons === 'object' ? contracts.icons : {};
+		const types = icons.types && typeof icons.types === 'object' ? icons.types : {};
+		const type = types[typeKey];
+
+		return typeof type === 'string' && type ? type : fallback;
+	}
+
+	function getStickyNoteDocumentIcon() {
+		return {
+			type: getIconType('THEME', 'theme'),
+			name: 'sticky-note-document.svg',
+			fallback: 'dashicons-media-text'
+		};
+	}
+
 	function getDocumentLabels(config) {
 		const runtimeConfig = getConfig(config);
 		const documentConfig = runtimeConfig.documents && typeof runtimeConfig.documents === 'object' ? runtimeConfig.documents : {};
@@ -232,5 +250,6 @@
 	};
 
 	window.PufferDesk.documents.stickyNoteColors = stickyNoteColors.slice();
+	window.PufferDesk.documents.getStickyNoteDocumentIcon = getStickyNoteDocumentIcon;
 	window.PufferDesk.documents.normalizeStickyNoteColor = normalizeStickyNoteColor;
 })();

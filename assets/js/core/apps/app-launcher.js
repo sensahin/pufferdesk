@@ -522,7 +522,9 @@
 			const stickyKind = documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
 
 			if (documentData.kind === stickyKind) {
-				return { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' };
+				return window.PufferDesk.documents && typeof window.PufferDesk.documents.getStickyNoteDocumentIcon === 'function'
+					? window.PufferDesk.documents.getStickyNoteDocumentIcon()
+					: 'dashicons-media-text';
 			}
 
 			return 'dashicons-media-document';

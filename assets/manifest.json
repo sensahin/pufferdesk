@@ -488,6 +488,7 @@
 				"pufferdesk-config",
 				"pufferdesk-dom",
 				"pufferdesk-app-ids",
+				"pufferdesk-documents-service",
 				"pufferdesk-event-names",
 				"pufferdesk-context-menu-constants",
 				"pufferdesk-workspace-contract",
@@ -755,6 +756,7 @@
 			"path": "assets/js/core/apps/folder-data.js",
 			"deps": [
 				"pufferdesk-app-ids",
+				"pufferdesk-documents-service",
 				"pufferdesk-event-bus"
 			]
 		},

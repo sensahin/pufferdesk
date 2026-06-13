@@ -125,7 +125,9 @@
 
 			return {
 				document: documentData,
-				icon: { type: 'theme', name: 'sticky-notes.svg', fallback: 'dashicons-sticky' },
+				icon: window.PufferDesk.documents && typeof window.PufferDesk.documents.getStickyNoteDocumentIcon === 'function'
+					? window.PufferDesk.documents.getStickyNoteDocumentIcon()
+					: 'dashicons-media-text',
 				id: `document-${documentId}`,
 				kindLabel: getMenuLabel('sticky_note'),
 				label: documentData.title || getMenuLabel('sticky_note'),

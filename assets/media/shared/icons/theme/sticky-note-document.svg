@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Sticky Note Document">
+  <desc>File Text document glyph based on Tabler Icons v3.44.0 under the MIT License; document wrapper by PufferDesk.</desc>
+  <defs>
+    <linearGradient id="pdk-document-paper" x1="25" y1="9" x2="100" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#edf3fb"/>
+    </linearGradient>
+    <linearGradient id="pdk-document-fold" x1="73" y1="8" x2="106" y2="41" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#dceaff"/>
+      <stop offset="1" stop-color="#b8d1f0"/>
+    </linearGradient>
+    <linearGradient id="pdk-document-accent" x1="42" y1="64" x2="88" y2="86" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#facc15"/>
+      <stop offset="1" stop-color="#e5a800"/>
+    </linearGradient>
+  </defs>
+  <path d="M37 12h39l30 30v69c0 7.2-5.8 13-13 13H37c-7.2 0-13-5.8-13-13V25c0-7.2 5.8-13 13-13z" fill="#14203a" opacity=".14"/>
+  <path d="M34 8h41l31 31v69c0 7.2-5.8 13-13 13H34c-7.2 0-13-5.8-13-13V21C21 13.8 26.8 8 34 8z" fill="url(#pdk-document-paper)" stroke="#c8d4e4" stroke-width="2"/>
+  <path d="M75 8v22c0 5 4 9 9 9h22L75 8z" fill="url(#pdk-document-fold)"/>
+  <path d="M75 9v21c0 5 4 9 9 9h20" fill="none" stroke="#97b4d9" stroke-width="2"/>
+  <path d="M42 58h44" fill="none" stroke="url(#pdk-document-accent)" stroke-linecap="round" stroke-width="8"/>
+  <path d="M42 76h44M42 94h31" fill="none" stroke="#52627a" stroke-linecap="round" stroke-width="7"/>
+  <circle cx="42" cy="39" r="4.5" fill="#52627a"/>
+  <path d="M55 39h12" fill="none" stroke="#52627a" stroke-linecap="round" stroke-width="7"/>
+</svg>
