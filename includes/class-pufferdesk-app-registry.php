@@ -178,16 +178,19 @@ final class PufferDesk_App_Registry {
 				'kind'   => PufferDesk_App_Normalizer::KIND_NATIVE,
 				'native' => PufferDesk_App_Ids::NATIVE_TRASH,
 			),
-			array(
+		);
+
+		if ( PufferDesk_Admin_Screen_Availability::is_site_health_available() ) {
+			$apps[] = array(
 				'id'    => PufferDesk_App_Ids::SITE_HEALTH,
 				'label' => __( 'Site Health', 'pufferdesk-admin-desktop' ),
 				'url'   => admin_url( 'site-health.php' ),
 				'icon'  => $this->theme_icon( 'site-health.svg', 'dashicons-heart' ),
 				'about' => $this->wordpress_core_about( __( 'Site Health', 'pufferdesk-admin-desktop' ) ),
 				'group' => PufferDesk_App_Normalizer::GROUP_SYSTEM,
-				'cap'   => 'view_site_health_checks',
-			),
-		);
+				'cap'   => PufferDesk_Admin_Screen_Availability::site_health_capability(),
+			);
+		}
 
 		$apps = $this->admin_menu_provider->merge( $apps );
 		$apps = array_values( array_filter( $apps, array( $this->app_normalizer, 'current_user_can_access_app' ) ) );

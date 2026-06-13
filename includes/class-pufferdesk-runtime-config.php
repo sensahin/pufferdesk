@@ -617,7 +617,7 @@ final class PufferDesk_Runtime_Config {
 			'moreInfoCommand' => PufferDesk_Command_Ids::SETTINGS_OPEN_PANEL,
 			'moreInfoPanel'   => 'general-about',
 			'moreInfoTitle'   => __( 'Site Health Info', 'pufferdesk-admin-desktop' ),
-			'moreInfoUrl'     => current_user_can( 'view_site_health_checks' ) ? admin_url( 'site-health.php?tab=debug' ) : '',
+			'moreInfoUrl'     => PufferDesk_Admin_Screen_Availability::can_view_site_health() ? admin_url( 'site-health.php?tab=debug' ) : '',
 			'footer'          => sprintf(
 				/* translators: %s: PufferDesk plugin version. */
 				__( 'PufferDesk %s · Built for WordPress admin.', 'pufferdesk-admin-desktop' ),
@@ -1307,41 +1307,44 @@ final class PufferDesk_Runtime_Config {
 	 * @return array<int,array<string,mixed>>
 	 */
 	private function get_general_settings_groups() {
+		$system_rows = array(
+			array(
+				'id'          => 'about',
+				'label'       => __( 'About', 'pufferdesk-admin-desktop' ),
+				'description' => __( 'Site and WordPress environment details', 'pufferdesk-admin-desktop' ),
+				'icon'        => 'dashicons-info-outline',
+				'tone'        => 'gray',
+				'panel'       => 'general-about',
+			),
+			array(
+				'id'     => 'software-update',
+				'label'  => __( 'Software Update', 'pufferdesk-admin-desktop' ),
+				'icon'   => 'dashicons-update',
+				'tone'   => 'gray',
+				'url'    => admin_url( 'update-core.php' ),
+				'title'  => __( 'WordPress Updates', 'pufferdesk-admin-desktop' ),
+				'capany' => array( 'update_core', 'update_plugins', 'update_themes' ),
+			),
+		);
+
+		if ( PufferDesk_Admin_Screen_Availability::is_site_health_available() ) {
+			$system_rows[] = array(
+				'id'    => 'site-health',
+				'label' => __( 'Site Health', 'pufferdesk-admin-desktop' ),
+				'icon'  => 'dashicons-heart',
+				'tone'  => 'gray',
+				'url'   => admin_url( 'site-health.php' ),
+				'title' => __( 'Site Health', 'pufferdesk-admin-desktop' ),
+				'cap'   => PufferDesk_Admin_Screen_Availability::site_health_capability(),
+			);
+		}
+
 		return array_values(
 			array_filter(
 				array(
 					array(
 						'id'    => 'system',
-						'items' => $this->filter_settings_rows(
-							array(
-								array(
-									'id'          => 'about',
-									'label'       => __( 'About', 'pufferdesk-admin-desktop' ),
-									'description' => __( 'Site and WordPress environment details', 'pufferdesk-admin-desktop' ),
-									'icon'        => 'dashicons-info-outline',
-									'tone'        => 'gray',
-									'panel'       => 'general-about',
-								),
-								array(
-									'id'     => 'software-update',
-									'label'  => __( 'Software Update', 'pufferdesk-admin-desktop' ),
-									'icon'   => 'dashicons-update',
-									'tone'   => 'gray',
-									'url'    => admin_url( 'update-core.php' ),
-									'title'  => __( 'WordPress Updates', 'pufferdesk-admin-desktop' ),
-									'capany' => array( 'update_core', 'update_plugins', 'update_themes' ),
-								),
-								array(
-									'id'    => 'site-health',
-									'label' => __( 'Site Health', 'pufferdesk-admin-desktop' ),
-									'icon'  => 'dashicons-heart',
-									'tone'  => 'gray',
-									'url'   => admin_url( 'site-health.php' ),
-									'title' => __( 'Site Health', 'pufferdesk-admin-desktop' ),
-									'cap'   => 'view_site_health_checks',
-								),
-							)
-						),
+						'items' => $this->filter_settings_rows( $system_rows ),
 					),
 					array(
 						'id'    => 'site',

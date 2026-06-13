@@ -665,7 +665,7 @@ final class PufferDesk_Notification_Registry {
 	 * @return array<int,array<string,mixed>>
 	 */
 	private function get_site_health_notifications() {
-		if ( ! current_user_can( 'view_site_health_checks' ) ) {
+		if ( ! PufferDesk_Admin_Screen_Availability::can_view_site_health() ) {
 			return array();
 		}
 
@@ -707,7 +707,7 @@ final class PufferDesk_Notification_Registry {
 				),
 				'timestamp'    => time(),
 				'priority'     => $critical > 0 ? 'critical' : 'high',
-				'capability'   => 'view_site_health_checks',
+				'capability'   => PufferDesk_Admin_Screen_Availability::site_health_capability(),
 				'icon'         => 'dashicons-heart',
 				'actions'      => array(
 					array(
