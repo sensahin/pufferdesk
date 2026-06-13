@@ -435,6 +435,10 @@
 		display: none;
 	}
 
+	.pdk-finder-toolbar-actions > .pdk-finder-toolbar-button:first-child {
+		margin-left: auto;
+	}
+
 	.pdk-window:not([data-pdk-folder-toolbar-display="text-only"]) .pdk-finder-toolbar-caption,
 	.pdk-window:not([data-pdk-folder-toolbar-display="text-only"]) .pdk-finder-toolbar-label {
 		display: none;
