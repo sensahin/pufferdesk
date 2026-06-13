@@ -861,7 +861,10 @@
 
 			const key = detail.key || (detail.kind && detail.id ? `${detail.kind}:${detail.id}` : '');
 			if (key) {
-				return getIcons().find((icon) => getIconKey(icon) === key) || null;
+				const icon = getIcons().find((item) => getIconKey(item) === key);
+				if (icon) {
+					return icon;
+				}
 			}
 
 			if (detail.id) {

@@ -437,13 +437,22 @@
 				id: itemId,
 				type: itemTypes.DOCUMENT
 			};
-			const position = () => positionDesktopItem(item, point);
+			let attempts = 0;
+			const maxAttempts = 16;
+			const retryDelay = 100;
 
-			window.setTimeout(() => {
-				if (!position()) {
-					window.setTimeout(position, 80);
+			function position() {
+				attempts += 1;
+				if (positionDesktopItem(item, point)) {
+					return;
 				}
-			}, 0);
+
+				if (attempts < maxAttempts) {
+					window.setTimeout(position, retryDelay);
+				}
+			}
+
+			window.setTimeout(position, 0);
 		}
 
 		function moveDocumentToContainer(item, toContainerId, point = null) {
