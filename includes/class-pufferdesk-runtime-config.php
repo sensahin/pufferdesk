@@ -1852,6 +1852,7 @@ final class PufferDesk_Runtime_Config {
 				'search_type_command'     => __( 'Command', 'pufferdesk-admin-desktop' ),
 				'start_pinned'            => __( 'Pinned', 'pufferdesk-admin-desktop' ),
 				'start_create'            => __( 'Create', 'pufferdesk-admin-desktop' ),
+				'start_create_more'       => __( 'More...', 'pufferdesk-admin-desktop' ),
 				'start_recommended'       => __( 'Recommended', 'pufferdesk-admin-desktop' ),
 				'start_no_recent_items'   => __( 'No recent items yet', 'pufferdesk-admin-desktop' ),
 				'start_power'             => __( 'Power and session', 'pufferdesk-admin-desktop' ),

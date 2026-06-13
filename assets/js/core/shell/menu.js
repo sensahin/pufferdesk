@@ -27,6 +27,7 @@
 		const commands = context.commands || window.PufferDesk.shell.createCommandRegistry(shell, context);
 		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands);
 		const transientSurfaces = window.PufferDesk.shell.transientSurfaces || null;
+		const startCreatePluginCardLimit = 6;
 		const newContentConfig = menuConfig.newContent && typeof menuConfig.newContent === 'object'
 			? menuConfig.newContent
 			: {};
@@ -60,6 +61,7 @@
 		let activeButton = null;
 		let popover = null;
 		let startFooterFlyout = null;
+		let startCreateFlyout = null;
 		let openGroupId = '';
 
 		function getDesktopDefinition() {
@@ -850,14 +852,90 @@
 					icon: stickyNotesApp && stickyNotesApp.icon ? stickyNotesApp.icon : 'dashicons-sticky'
 				})
 			];
+			const pluginCreateItems = wordpressOtherNewContentItems
+				.map(decorateStartCreateItem)
+				.filter(Boolean);
+			const visiblePluginItems = pluginCreateItems.length > startCreatePluginCardLimit
+				? pluginCreateItems.slice(0, Math.max(0, startCreatePluginCardLimit - 1)).concat([
+					{
+						id: 'start-create-more',
+						icon: 'dashicons-ellipsis',
+						label: getLabel('start_create_more', 'More...'),
+						startCreateMoreItems: pluginCreateItems
+					}
+				])
+				: pluginCreateItems;
 			const groups = [
 				localCreateItems.concat(wordpressStandardNewContentItems),
-				wordpressOtherNewContentItems
+				visiblePluginItems
 			];
 
 			return groups
 				.map((group) => group.map(decorateStartCreateItem).filter(Boolean))
 				.filter((group) => group.length);
+		}
+
+		function closeStartCreateFlyout() {
+			if (!startCreateFlyout) {
+				return;
+			}
+
+			const trigger = startCreateFlyout.pdkTrigger || null;
+			if (trigger) {
+				trigger.classList.remove('is-active');
+				trigger.setAttribute('aria-expanded', 'false');
+			}
+
+			startCreateFlyout.remove();
+			startCreateFlyout = null;
+		}
+
+		function positionStartCreateFlyout(flyout, trigger) {
+			if (!popover || !flyout || !trigger || typeof trigger.getBoundingClientRect !== 'function') {
+				return;
+			}
+
+			const triggerRect = trigger.getBoundingClientRect();
+			const popoverRect = popover.getBoundingClientRect();
+			const gap = 8;
+			const min = 8;
+			const maxLeft = Math.max(min, popover.clientWidth - flyout.offsetWidth - min);
+			const rightSideLeft = Math.round(triggerRect.right - popoverRect.left + gap);
+			const leftSideLeft = Math.round(triggerRect.left - popoverRect.left - flyout.offsetWidth - gap);
+			const preferredLeft = rightSideLeft <= maxLeft ? rightSideLeft : leftSideLeft;
+			const maxTop = Math.max(min, popover.clientHeight - flyout.offsetHeight - min);
+			const top = geometry.clamp(Math.round(triggerRect.top - popoverRect.top - 6), min, maxTop);
+
+			flyout.style.left = `${geometry.clamp(preferredLeft, min, maxLeft)}px`;
+			flyout.style.top = `${top}px`;
+		}
+
+		function openStartCreateFlyout(trigger, items) {
+			if (startCreateFlyout && startCreateFlyout.pdkTrigger === trigger) {
+				closeStartCreateFlyout();
+				return;
+			}
+
+			closeStartFooterFlyout();
+			closeStartCreateFlyout();
+
+			if (!popover || !items.length) {
+				return;
+			}
+
+			const flyout = document.createElement('div');
+			flyout.className = 'pdk-start-footer-flyout pdk-start-create-more-menu';
+			flyout.dataset.pdkStartCreateFlyout = 'more';
+			flyout.pdkTrigger = trigger;
+			flyout.setAttribute('role', 'menu');
+			flyout.setAttribute('aria-label', getLabel('start_create_more', 'More...'));
+			flyout.replaceChildren(...items.map(createStartFooterMenuItem));
+
+			trigger.classList.add('is-active');
+			trigger.setAttribute('aria-expanded', 'true');
+			popover.appendChild(flyout);
+			positionStartCreateFlyout(flyout, trigger);
+			startCreateFlyout = flyout;
 		}
 
 		function createStartCreateCard(item) {
@@ -871,6 +949,11 @@
 			button.disabled = disabled;
 			button.dataset.pdkMenuItem = item.id || item.command || item.label;
 			button.setAttribute('aria-label', item.label);
+			if (Array.isArray(item.startCreateMoreItems)) {
+				button.dataset.pdkStartCreateMoreTrigger = '1';
+				button.setAttribute('aria-haspopup', 'menu');
+				button.setAttribute('aria-expanded', 'false');
+			}
 			if (disabled) {
 				button.setAttribute('aria-disabled', 'true');
 			}
@@ -881,7 +964,11 @@
 			label.textContent = item.label;
 			button.append(icon, label);
 
-			if (item.command && !disabled) {
+			if (Array.isArray(item.startCreateMoreItems) && !disabled) {
+				button.addEventListener('click', () => {
+					openStartCreateFlyout(button, item.startCreateMoreItems);
+				});
+			} else if (item.command && !disabled) {
 				button.addEventListener('click', () => {
 					commands.execute(item, activeDetail);
 					closePopover();
@@ -1050,6 +1137,7 @@
 				return;
 			}
 
+			closeStartCreateFlyout();
 			closeStartFooterFlyout();
 
 			const footer = trigger.closest('.pdk-start-footer');
@@ -1178,6 +1266,7 @@
 
 		function closePopover() {
 			closeStartFooterFlyout();
+			closeStartCreateFlyout();
 
 			if (popover) {
 				popover.remove();
@@ -1382,6 +1471,15 @@
 					&& (!target || !target.closest('[data-pdk-start-footer-menu-trigger]'))
 				) {
 					closeStartFooterFlyout();
+				}
+				if (
+					popover
+					&& startCreateFlyout
+					&& popover.contains(event.target)
+					&& !startCreateFlyout.contains(event.target)
+					&& (!target || !target.closest('[data-pdk-start-create-more-trigger]'))
+				) {
+					closeStartCreateFlyout();
 				}
 
 				if (

@@ -1401,7 +1401,8 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-pinned-item:hover,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-start-pinned-item:focus-visible {
+.pdk-shell[data-pdk-theme="redmond"] .pdk-start-pinned-item:focus-visible,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-start-pinned-item.is-active {
 	background: var(--pdk-redmond-control-hover-bg);
 	outline: none;
 }
@@ -1451,6 +1452,12 @@
 	display: block;
 	height: 1px;
 	width: 100%;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-start-create-more-menu {
+	max-height: min(320px, calc(100% - 16px));
+	min-width: 224px;
+	overflow-y: auto;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-start-recommended-list {
