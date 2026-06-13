@@ -2741,14 +2741,16 @@
 			const icon = button.classList && button.classList.contains('pdk-finder-toolbar-button')
 				? button.querySelector('.pdk-finder-toolbar-icon')
 				: null;
-			const anchorRect = icon && typeof icon.getBoundingClientRect === 'function'
+			const iconRect = icon && typeof icon.getBoundingClientRect === 'function'
 				? icon.getBoundingClientRect()
-				: buttonRect;
+				: null;
+			const hasIconAnchor = Boolean(iconRect && iconRect.width > 0 && iconRect.height > 0);
+			const anchorRect = hasIconAnchor ? iconRect : buttonRect;
 			let y = buttonRect.bottom + 4;
 
-			if (placement === 'icon-top') {
+			if (hasIconAnchor && placement === 'icon-top') {
 				y = anchorRect.top;
-			} else if (placement === 'icon-bottom') {
+			} else if (hasIconAnchor && placement === 'icon-bottom') {
 				y = anchorRect.bottom + 2;
 			}
 
