@@ -120,6 +120,7 @@
 				openDocument,
 				openFolder,
 				renderFolderWindow,
+				startDocumentRename: startInlineRenameDocumentItem,
 				startFolderRename: startInlineRenameFolderItem
 			})
 			: null;
@@ -875,11 +876,23 @@
 			}
 
 			if (stickyManager && typeof stickyManager.renameNote === 'function') {
-				return Promise.resolve(stickyManager.renameNote(id, nextTitle)).then(Boolean);
+				return Promise.resolve(stickyManager.renameNote(id, nextTitle)).then((renamed) => {
+					if (renamed) {
+						syncVisibleDocumentLabels(id, nextTitle);
+					}
+
+					return Boolean(renamed);
+				});
 			}
 
 			return documentStore && typeof documentStore.update === 'function'
-				? documentStore.update(id, { title: nextTitle }).then(Boolean)
+				? documentStore.update(id, { title: nextTitle }).then((renamed) => {
+					if (renamed) {
+						syncVisibleDocumentLabels(id, nextTitle);
+					}
+
+					return Boolean(renamed);
+				})
 				: Promise.resolve(false);
 		}
 
@@ -1404,6 +1417,209 @@
 			return true;
 		}
 
+		function findDocumentItemRenameButton(documentId, options = {}) {
+			const id = parseDocumentId(documentId);
+			const explicit = options.buttonElement || options.targetElement || null;
+			const explicitButton = explicit && typeof explicit.closest === 'function'
+				? explicit.closest('.pdk-document-launcher, .pdk-desktop-document')
+				: explicit;
+
+			if (
+				id
+				&& explicitButton
+				&& explicitButton.matches
+				&& explicitButton.matches(`.pdk-document-launcher[data-pdk-document-id="${dom.escapeAttribute(id)}"], .pdk-desktop-document[data-pdk-document-id="${dom.escapeAttribute(id)}"]`)
+			) {
+				return explicitButton;
+			}
+
+			const root = options.windowElement && options.windowElement.querySelector
+				? options.windowElement
+				: shell;
+
+			return id && root && root.querySelector
+				? root.querySelector(`.pdk-document-launcher[data-pdk-document-id="${dom.escapeAttribute(id)}"], .pdk-desktop-document[data-pdk-document-id="${dom.escapeAttribute(id)}"]`)
+				: null;
+		}
+
+		function getDocumentItemLabelElement(button) {
+			return button && button.querySelector
+				? button.querySelector('.pdk-app-launcher-label, .pdk-desktop-app-label')
+				: null;
+		}
+
+		function syncVisibleDocumentLabels(documentId, labelText) {
+			const id = parseDocumentId(documentId);
+			const label = typeof labelText === 'string' ? labelText.trim() : '';
+
+			if (!id || !label || !shell || typeof shell.querySelectorAll !== 'function') {
+				return;
+			}
+
+			shell.querySelectorAll(`.pdk-document-launcher[data-pdk-document-id="${dom.escapeAttribute(id)}"], .pdk-desktop-document[data-pdk-document-id="${dom.escapeAttribute(id)}"]`).forEach((item) => {
+				const itemLabel = getDocumentItemLabelElement(item);
+
+				if (itemLabel) {
+					if (dom.setTruncatedLabelText) {
+						dom.setTruncatedLabelText(itemLabel, label);
+					} else {
+						itemLabel.textContent = label;
+					}
+				}
+				item.dataset.pdkContextLabel = label;
+				item.setAttribute('aria-label', label);
+			});
+		}
+
+		function startInlineRenameDocumentItem(documentId, options = {}) {
+			const id = parseDocumentId(documentId);
+			const button = findDocumentItemRenameButton(id, options);
+			const win = options.windowElement || (button && button.closest ? button.closest('.pdk-window') : null);
+			const label = getDocumentItemLabelElement(button);
+
+			if (
+				!id
+				|| !button
+				|| !label
+				|| button.dataset.pdkInlineRename === '1'
+				|| label.dataset.pdkInlineRename === '1'
+			) {
+				return false;
+			}
+
+			const originalLabel = (dom.getFullLabel && dom.getFullLabel(label))
+				|| button.dataset.pdkContextLabel
+				|| getMenuLabel('sticky_note');
+			let finished = false;
+			let blurRefocusTimer = 0;
+
+			function cleanup() {
+				window.clearTimeout(blurRefocusTimer);
+				label.removeEventListener('blur', onBlur);
+				label.removeEventListener('keydown', onKeyDown);
+				label.removeEventListener('click', stopEditingEvent);
+				label.removeEventListener('pointerdown', stopEditingEvent);
+				document.removeEventListener('pointerdown', onDocumentPointerDown, true);
+				label.removeAttribute('contenteditable');
+				label.removeAttribute('spellcheck');
+				delete button.dataset.pdkInlineRename;
+				delete label.dataset.pdkInlineRename;
+				button.classList.remove('is-renaming');
+			}
+
+			function restoreLabel(text) {
+				syncVisibleDocumentLabels(id, text);
+			}
+
+			function finish(commit) {
+				if (finished) {
+					return;
+				}
+
+				finished = true;
+				const nextLabel = String(label.textContent || '').trim();
+				const committedLabel = nextLabel || originalLabel;
+				cleanup();
+
+				if (!commit) {
+					restoreLabel(originalLabel);
+					return;
+				}
+
+				restoreLabel(committedLabel);
+				if (committedLabel === originalLabel) {
+					return;
+				}
+
+				renameDocument(id, committedLabel).then((renamed) => {
+					if (!renamed) {
+						restoreLabel(originalLabel);
+						return;
+					}
+
+					syncVisibleDocumentLabels(id, committedLabel);
+					refreshDocumentInfoWindow(id);
+					if (win && win.dataset && win.dataset.pdkFolderWindow) {
+						refreshFolderWindow(win.dataset.pdkFolderWindow);
+					}
+				}).catch(() => {
+					restoreLabel(originalLabel);
+				});
+			}
+
+			function stopEditingEvent(event) {
+				event.stopPropagation();
+			}
+
+			function onBlur() {
+				window.clearTimeout(blurRefocusTimer);
+				blurRefocusTimer = window.setTimeout(() => {
+					blurRefocusTimer = 0;
+					if (finished) {
+						return;
+					}
+					if (!button.isConnected || !label.isConnected) {
+						finish(true);
+						return;
+					}
+					if (document.activeElement === label || label.contains(document.activeElement)) {
+						return;
+					}
+					label.focus({ preventScroll: true });
+				}, 0);
+			}
+
+			function onDocumentPointerDown(event) {
+				if (finished || (event.target && label.contains(event.target))) {
+					return;
+				}
+
+				finish(true);
+			}
+
+			function onKeyDown(event) {
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					finish(true);
+				} else if (event.key === 'Escape') {
+					event.preventDefault();
+					finish(false);
+				} else if (event.key === 'Tab') {
+					finish(true);
+				}
+			}
+
+			if (launcherRenderer && typeof launcherRenderer.selectItem === 'function' && button.classList.contains('pdk-app-launcher')) {
+				launcherRenderer.selectItem(button);
+			}
+			button.classList.add('is-renaming');
+			button.dataset.pdkInlineRename = '1';
+			label.dataset.pdkInlineRename = '1';
+			if (dom.setEditableLabelText) {
+				dom.setEditableLabelText(label, originalLabel);
+			} else {
+				label.textContent = originalLabel;
+			}
+			label.setAttribute('contenteditable', 'plaintext-only');
+			label.setAttribute('spellcheck', 'false');
+			label.addEventListener('blur', onBlur);
+			label.addEventListener('keydown', onKeyDown);
+			label.addEventListener('click', stopEditingEvent);
+			label.addEventListener('pointerdown', stopEditingEvent);
+			document.addEventListener('pointerdown', onDocumentPointerDown, true);
+			label.focus({ preventScroll: true });
+
+			const selection = window.getSelection();
+			const range = document.createRange();
+			range.selectNodeContents(label);
+			if (selection) {
+				selection.removeAllRanges();
+				selection.addRange(range);
+			}
+
+			return true;
+		}
+
 		function bindFolderPaneKeyboard(pane, folderId, win) {
 			if (!pane || pane.dataset.pdkFolderKeyboardBound === '1') {
 				return;
@@ -1423,18 +1639,29 @@
 					return;
 				}
 
-				const button = event.target && typeof event.target.closest === 'function'
-					? event.target.closest('.pdk-folder-launcher')
+				const eventButton = event.target && typeof event.target.closest === 'function'
+					? event.target.closest('.pdk-folder-launcher, .pdk-document-launcher')
 					: null;
+				const button = eventButton && pane.contains(eventButton)
+					? eventButton
+					: pane.querySelector('.pdk-folder-launcher.is-selected, .pdk-document-launcher.is-selected');
 				if (!button || !pane.contains(button) || !button.classList.contains('is-selected')) {
 					return;
 				}
 
-				if (startInlineRenameFolderItem(button.dataset.pdkContextId || button.dataset.pdkOpenFolder || '', {
-					buttonElement: button,
-					parentFolderId: folderId,
-					windowElement: win
-				})) {
+				const renamed = button.classList.contains('pdk-document-launcher')
+					? startInlineRenameDocumentItem(button.dataset.pdkDocumentId || button.dataset.pdkContextId || '', {
+						buttonElement: button,
+						parentFolderId: folderId,
+						windowElement: win
+					})
+					: startInlineRenameFolderItem(button.dataset.pdkContextId || button.dataset.pdkOpenFolder || '', {
+						buttonElement: button,
+						parentFolderId: folderId,
+						windowElement: win
+					});
+
+				if (renamed) {
 					event.preventDefault();
 					event.stopPropagation();
 				}
@@ -4645,6 +4872,7 @@
 			setFolderProvider(provider) {
 				folderProvider = provider && typeof provider === 'object' ? provider : null;
 			},
+			startInlineRenameDocumentItem,
 			startInlineRenameFolderItem,
 			runSearch
 		};

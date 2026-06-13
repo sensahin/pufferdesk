@@ -560,22 +560,49 @@
 				return Promise.resolve(false);
 			}
 
+			if (
+				launcher
+				&& typeof launcher.startInlineRenameDocumentItem === 'function'
+				&& launcher.startInlineRenameDocumentItem(documentId, {
+					parentFolderId: detail && detail.folderId ? detail.folderId : '',
+					targetElement: detail && detail.targetElement ? detail.targetElement : null,
+					windowElement: getTargetWindow(detail)
+				})
+			) {
+				return Promise.resolve(true);
+			}
+
 			return getDocumentForCommand(documentId).then((documentData) => {
 				const currentTitle = getDocumentLabelFromDetail(detail, documentData);
-				const nextTitle = window.prompt ? window.prompt(getLabel('rename'), currentTitle) : null;
-				const normalizedTitle = typeof nextTitle === 'string' ? nextTitle.trim() : '';
 
-				if (nextTitle === null || !normalizedTitle || normalizedTitle === currentTitle) {
+				if (!dialogs || typeof dialogs.prompt !== 'function') {
 					return false;
 				}
 
-				if (stickyNoteManager && typeof stickyNoteManager.renameNote === 'function') {
-					return Promise.resolve(stickyNoteManager.renameNote(documentId, normalizedTitle)).then(Boolean);
-				}
+				return dialogs.prompt({
+					confirmLabel: getLabel('rename'),
+					message: '',
+					title: getLabel('rename'),
+					value: currentTitle
+				}).then((nextTitle) => {
+					const normalizedTitle = typeof nextTitle === 'string' ? nextTitle.trim() : '';
 
-				return documentStore && typeof documentStore.update === 'function'
-					? documentStore.update(documentId, { title: normalizedTitle }).then(Boolean)
-					: false;
+					if (nextTitle === null || !normalizedTitle || normalizedTitle === currentTitle) {
+						return false;
+					}
+
+					if (launcher && typeof launcher.renameDocument === 'function') {
+						return Promise.resolve(launcher.renameDocument(documentId, normalizedTitle)).then(Boolean);
+					}
+
+					if (stickyNoteManager && typeof stickyNoteManager.renameNote === 'function') {
+						return Promise.resolve(stickyNoteManager.renameNote(documentId, normalizedTitle)).then(Boolean);
+					}
+
+					return documentStore && typeof documentStore.update === 'function'
+						? documentStore.update(documentId, { title: normalizedTitle }).then(Boolean)
+						: false;
+				});
 			});
 		}
 

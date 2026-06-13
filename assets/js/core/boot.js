@@ -179,6 +179,18 @@
 			},
 			onRenameIcon(detail) {
 				if (
+					launcher
+					&& detail
+					&& detail.kind === 'document'
+					&& typeof launcher.startInlineRenameDocumentItem === 'function'
+				) {
+					return launcher.startInlineRenameDocumentItem(detail.iconElement && detail.iconElement.dataset ? detail.iconElement.dataset.pdkDocumentId || detail.id : detail.id, {
+						buttonElement: detail.iconElement || null,
+						targetElement: detail.iconElement || null
+					});
+				}
+
+				if (
 					!folderManager
 					|| !detail
 					|| detail.kind !== 'folder'
