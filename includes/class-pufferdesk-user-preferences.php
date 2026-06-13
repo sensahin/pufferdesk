@@ -1245,6 +1245,8 @@ final class PufferDesk_User_Preferences {
 		$default_map      = isset( $theme['shell']['default_app_locations'] ) && is_array( $theme['shell']['default_app_locations'] )
 			? $theme['shell']['default_app_locations']
 			: array();
+		$plugin_limit     = $this->get_theme_default_plugin_app_limit( $theme );
+		$plugin_count     = 0;
 
 		foreach ( (array) $apps as $app ) {
 			if ( ! is_array( $app ) || empty( $app['id'] ) ) {
@@ -1252,13 +1254,25 @@ final class PufferDesk_User_Preferences {
 			}
 
 			$app_id = sanitize_key( (string) $app['id'] );
+			$is_plugin_app = $this->is_wordpress_plugin_app( $app );
+			$is_wp_menu_app = $this->is_wordpress_menu_app( $app );
+			if ( $is_plugin_app && null !== $plugin_limit ) {
+				++$plugin_count;
+			}
+
 			if ( isset( $locations[ $app_id ] ) ) {
 				continue;
 			}
 
-			$location = isset( $default_map[ $app_id ] )
-				? sanitize_key( (string) $default_map[ $app_id ] )
-				: $default_location;
+			if ( isset( $default_map[ $app_id ] ) ) {
+				$location = sanitize_key( (string) $default_map[ $app_id ] );
+			} elseif ( $is_plugin_app && null !== $plugin_limit ) {
+				$location = $plugin_count <= $plugin_limit ? self::APP_LOCATION_DOCK : self::APP_LOCATION_HIDDEN;
+			} elseif ( $is_wp_menu_app ) {
+				$location = self::APP_LOCATION_HIDDEN;
+			} else {
+				$location = $default_location;
+			}
 
 			$locations[ $app_id ] = in_array( $location, $this->app_location_options, true ) ? $location : $default_location;
 		}
@@ -1321,6 +1335,44 @@ final class PufferDesk_User_Preferences {
 			: self::APP_LOCATION_DOCK;
 
 		return in_array( $location, $this->app_location_options, true ) ? $location : self::APP_LOCATION_DOCK;
+	}
+
+	/**
+	 * Get the maximum number of plugin-derived apps that receive default launcher placement.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @return int|null
+	 */
+	private function get_theme_default_plugin_app_limit( $theme ) {
+		if ( ! isset( $theme['shell']['default_plugin_app_limit'] ) || ! is_numeric( $theme['shell']['default_plugin_app_limit'] ) ) {
+			return null;
+		}
+
+		return max( 0, min( 50, absint( $theme['shell']['default_plugin_app_limit'] ) ) );
+	}
+
+	/**
+	 * Whether an app came from a third-party WordPress plugin admin menu.
+	 *
+	 * @param array<string,mixed> $app App data.
+	 * @return bool
+	 */
+	private function is_wordpress_plugin_app( $app ) {
+		$source = isset( $app['source'] ) ? sanitize_key( (string) $app['source'] ) : '';
+
+		return PufferDesk_App_Normalizer::SOURCE_WP_PLUGIN === $source;
+	}
+
+	/**
+	 * Whether an app came from a native WordPress admin menu item.
+	 *
+	 * @param array<string,mixed> $app App data.
+	 * @return bool
+	 */
+	private function is_wordpress_menu_app( $app ) {
+		$source = isset( $app['source'] ) ? sanitize_key( (string) $app['source'] ) : '';
+
+		return PufferDesk_App_Normalizer::SOURCE_WP_MENU === $source;
 	}
 
 	/**

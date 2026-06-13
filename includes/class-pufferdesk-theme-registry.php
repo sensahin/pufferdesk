@@ -59,7 +59,18 @@ final class PufferDesk_Theme_Registry {
 					'stickyNoteSavePolicy' => 'ask-on-first-save',
 				),
 				'shell'          => array(
-					'default_app_location' => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+					'default_app_location'     => PufferDesk_User_Preferences::APP_LOCATION_HIDDEN,
+					'default_plugin_app_limit' => 5,
+					'default_app_locations'    => array(
+						PufferDesk_App_Ids::DASHBOARD    => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::POSTS        => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::PAGES        => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::MEDIA        => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::COMMENTS     => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::PLUGINS      => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::STICKY_NOTES => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::OS_SETTINGS  => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+					),
 				),
 				'mode_tokens'    => $this->get_pufferdesk_default_mode_tokens(),
 			),
@@ -74,7 +85,7 @@ final class PufferDesk_Theme_Registry {
 				'stylesheet'     => 'redmond/default.css',
 				'media'          => array(
 					'wallpapers' => array(
-						'default' => 'pane-light',
+						'default' => 'aurora-flow',
 					),
 					'icon_pack'  => 'shared/icons/theme',
 				),
@@ -179,9 +190,10 @@ final class PufferDesk_Theme_Registry {
 					'status_area'         => 'taskbar',
 					'launcher_search'     => true,
 					'system_menu_icon'    => 'theme',
-					'launcher_separator'  => false,
-					'default_app_location' => PufferDesk_User_Preferences::APP_LOCATION_HIDDEN,
-					'default_app_locations' => array(
+					'launcher_separator'      => false,
+					'default_plugin_app_limit' => 5,
+					'default_app_location'     => PufferDesk_User_Preferences::APP_LOCATION_HIDDEN,
+					'default_app_locations'    => array(
 						PufferDesk_App_Ids::DASHBOARD    => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
 						PufferDesk_App_Ids::POSTS        => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
 						PufferDesk_App_Ids::PAGES        => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
@@ -1571,6 +1583,10 @@ final class PufferDesk_Theme_Registry {
 
 		if ( isset( $shell['default_app_locations'] ) && is_array( $shell['default_app_locations'] ) ) {
 			$normalized['default_app_locations'] = $this->normalize_app_location_map( $shell['default_app_locations'] );
+		}
+
+		if ( array_key_exists( 'default_plugin_app_limit', $shell ) && is_numeric( $shell['default_plugin_app_limit'] ) ) {
+			$normalized['default_plugin_app_limit'] = max( 0, min( 50, absint( $shell['default_plugin_app_limit'] ) ) );
 		}
 
 		if ( isset( $shell['fixed_app_locations'] ) && is_array( $shell['fixed_app_locations'] ) ) {

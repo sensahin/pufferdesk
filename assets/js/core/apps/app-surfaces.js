@@ -14,6 +14,8 @@
 		? window.PufferDesk.session.workspace.desktopIconPrefixes || {}
 		: {};
 	const appLocations = window.PufferDesk.config.getContractMap('appLocations');
+	const appDescriptors = window.PufferDesk.config.getContractMap('appDescriptors');
+	const appSources = appDescriptors.sources && typeof appDescriptors.sources === 'object' ? appDescriptors.sources : {};
 
 	function getDesktopAppIconId(appId) {
 		return `${desktopIconPrefixes.app || ''}${appId}`;
@@ -181,15 +183,65 @@
 			return normalizeLocationForShell(location, hasLauncher, fallback);
 		}
 
+		function getDefaultPluginAppLimit() {
+			const shellChrome = getShellChrome();
+			const limit = Number.parseInt(shellChrome.default_plugin_app_limit, 10);
+
+			return Number.isFinite(limit) ? Math.max(0, Math.min(50, limit)) : null;
+		}
+
+		function isWordPressPluginApp(app) {
+			const pluginSource = appSources.WP_PLUGIN || 'wp-plugin';
+
+			return Boolean(app && app.source === pluginSource);
+		}
+
+		function isWordPressMenuApp(app) {
+			const menuSource = appSources.WP_MENU || 'wp-menu';
+
+			return Boolean(app && app.source === menuSource);
+		}
+
+		function getDefaultPluginAppRank(app) {
+			if (!isWordPressPluginApp(app)) {
+				return 0;
+			}
+
+			let rank = 0;
+			for (const candidate of apps) {
+				if (!isWordPressPluginApp(candidate)) {
+					continue;
+				}
+
+				rank += 1;
+				if (candidate && candidate.id === app.id) {
+					return rank;
+				}
+			}
+
+			return 0;
+		}
+
 		function getDefaultAppLocation(app, hasLauncher) {
 			const shellChrome = getShellChrome();
 			const defaultLocations = shellChrome.default_app_locations && typeof shellChrome.default_app_locations === 'object'
 				? shellChrome.default_app_locations
 				: {};
 			const fallback = getThemeDefaultAppLocation(hasLauncher);
-			const location = app && app.id && typeof defaultLocations[app.id] === 'string'
-				? defaultLocations[app.id]
-				: fallback;
+			let location = fallback;
+
+			if (app && app.id && typeof defaultLocations[app.id] === 'string') {
+				location = defaultLocations[app.id];
+			} else if (isWordPressPluginApp(app)) {
+				const pluginLimit = getDefaultPluginAppLimit();
+				const pluginRank = getDefaultPluginAppRank(app);
+
+				if (pluginLimit !== null && pluginRank > 0) {
+					location = pluginRank <= pluginLimit ? appLocations.DOCK : appLocations.HIDDEN;
+				}
+			} else if (isWordPressMenuApp(app)) {
+				location = appLocations.HIDDEN;
+			}
 
 			return normalizeLocationForShell(location, hasLauncher, fallback);
 		}

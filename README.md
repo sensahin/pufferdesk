@@ -286,9 +286,17 @@ Theme shell chrome is data-driven. A theme can declare its shell model and runti
 	'launcher_search'       => false,
 	'system_menu_icon'      => 'pufferdesk-mark',
 	'launcher_separator'    => true,
-	'default_app_location'  => 'dock',
-	'default_app_locations' => array(
-		'posts' => 'dock',
+	'default_app_location'     => 'hidden',
+	'default_plugin_app_limit' => 5,
+	'default_app_locations'    => array(
+		'dashboard'    => 'dock',
+		'posts'        => 'dock',
+		'pages'        => 'dock',
+		'media'        => 'dock',
+		'comments'     => 'dock',
+		'plugins'      => 'dock',
+		'sticky-notes' => 'dock',
+		'os-settings'  => 'dock',
 	),
 	'fixed_app_locations'   => array(
 		'trash' => 'dock',
@@ -303,7 +311,8 @@ Theme shell chrome is data-driven. A theme can declare its shell model and runti
 ),
 ```
 
-`default_app_location` and `default_app_locations` let a theme decide where apps appear after a fresh install or layout/settings reset, before a user has saved their own app-placement preference. Use the singular value as the fallback for apps not listed in the map. For example, Redmond keeps the taskbar curated by defaulting unlisted apps to `hidden`, while Start/search can still discover registered apps.
+`default_app_location` and `default_app_locations` let a theme decide where apps appear after a fresh install or layout/settings reset, before a user has saved their own app-placement preference. Use the singular value as the fallback for apps not listed in the map. Native WordPress admin menu apps with source `wp-menu`, such as Users or Tools, default to `hidden` unless a theme explicitly lists them. For example, Redmond keeps the taskbar curated by defaulting unlisted apps to `hidden`, while Start/search can still discover registered apps.
+`default_plugin_app_limit` caps how many third-party plugin-derived WordPress admin apps are placed in the Dock/taskbar by default. It follows the normalized app registry order, which mirrors WordPress admin menu order, applies only to apps with source `wp-plugin`, and does not override saved user placement choices. Plugin apps beyond the cap default to `hidden` so they stay out of pinned surfaces while remaining available through launcher/search.
 `fixed_app_locations` lets a theme place fixed system apps on the surface that fits its shell model without changing the user's stored app-location preference. For example, Redmond keeps the fixed Trash app on the desktop and disables `launcher_separator` so taskbar items stay in one continuous run.
 `launcher_search` and `system_menu_icon` let taskbar themes add a search field or theme-drawn Start icon through the shared launcher template instead of replacing the launcher markup.
 `app_labels` and `menu.labels` let a theme adapt OS-family vocabulary such as Trash versus Recycle Bin while keeping app IDs and command IDs stable.

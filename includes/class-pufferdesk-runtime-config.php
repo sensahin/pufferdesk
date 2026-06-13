@@ -1246,13 +1246,13 @@ final class PufferDesk_Runtime_Config {
 				'resetCurrentConfirmLabel' => __( 'Reset', 'pufferdesk-admin-desktop' ),
 				'resetCurrentDescription' => __( 'Reset saved windows, sticky-note windows, widget positions, desktop icon positions, folder views, recent items, and launcher order for the active theme.', 'pufferdesk-admin-desktop' ),
 				'resetCurrentLabel'       => __( 'Current theme layout', 'pufferdesk-admin-desktop' ),
-				'resetCurrentMessage'     => __( 'This resets saved windows, sticky-note windows, widget positions, desktop icon positions, folder views, recent items, and launcher order for the current theme. Sticky-note documents and WordPress content are not deleted.', 'pufferdesk-admin-desktop' ),
+				'resetCurrentMessage'     => __( 'This will reset the current theme layout. Your content will not be deleted.', 'pufferdesk-admin-desktop' ),
 				'resetCurrentTitle'       => __( 'Reset Current Theme Layout?', 'pufferdesk-admin-desktop' ),
 				'resetAllButton'          => __( 'Reset Layouts for All Themes', 'pufferdesk-admin-desktop' ),
 				'resetAllConfirmLabel'    => __( 'Reset All', 'pufferdesk-admin-desktop' ),
 				'resetAllDescription'     => __( 'Clear saved workspace layouts across every theme for this WordPress account.', 'pufferdesk-admin-desktop' ),
 				'resetAllLabel'           => __( 'All theme layouts', 'pufferdesk-admin-desktop' ),
-				'resetAllMessage'         => __( 'This resets saved workspace layouts for every PufferDesk theme for this WordPress account. PufferDesk settings, sticky-note documents, and WordPress content are not deleted.', 'pufferdesk-admin-desktop' ),
+				'resetAllMessage'         => __( 'This will reset layouts for every theme. Your content will not be deleted.', 'pufferdesk-admin-desktop' ),
 				'resetAllTitle'           => __( 'Reset Layouts for All Themes?', 'pufferdesk-admin-desktop' ),
 			),
 			'system'       => array(
@@ -1511,7 +1511,6 @@ final class PufferDesk_Runtime_Config {
 	private function get_system_config( $theme = array() ) {
 		$current_user = wp_get_current_user();
 		$user_label   = $current_user->display_name ? $current_user->display_name : $current_user->user_login;
-		$shell_labels = $this->get_theme_shell_labels( $theme );
 
 		return array(
 			'actions' => array(
@@ -1590,11 +1589,7 @@ final class PufferDesk_Runtime_Config {
 				),
 				'eraseContentSettings' => array(
 					'title'          => __( 'Reset PufferDesk Settings?', 'pufferdesk-admin-desktop' ),
-					'message'        => sprintf(
-						/* translators: %s: theme-specific launcher label, such as Dock or Taskbar. */
-						__( 'This will reset PufferDesk settings, wallpaper, app placement, desktop folders, %s, windows, widgets, and layouts for this WordPress account. WordPress content and sticky-note documents are not deleted.', 'pufferdesk-admin-desktop' ),
-						$shell_labels['launcher']
-					),
+					'message'        => __( 'This will reset PufferDesk settings and layout. Your content will not be deleted.', 'pufferdesk-admin-desktop' ),
 					'confirmLabel'   => __( 'Reset', 'pufferdesk-admin-desktop' ),
 					'cancelLabel'    => __( 'Cancel', 'pufferdesk-admin-desktop' ),
 					'overlayMessage' => __( 'Resetting PufferDesk settings...', 'pufferdesk-admin-desktop' ),
