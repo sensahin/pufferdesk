@@ -103,6 +103,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/apps/settings-app.js
 - assets/js/core/apps/sticky-notes-app.js
 - assets/js/core/apps/recent-items.js
+- assets/js/core/search/search-engine.js
 - assets/js/core/apps/folder-data.js
 - assets/js/core/apps/folder-window-state.js
 - assets/js/core/apps/folder-view-modes.js

@@ -52,6 +52,8 @@
 			!window.PufferDesk.shell.createContextMenuController ||
 			!window.PufferDesk.shell.createSoundStatus ||
 			!window.PufferDesk.shell.createShortcutController ||
+			!window.PufferDesk.search ||
+			!window.PufferDesk.search.createSearchEngine ||
 			!window.PufferDesk.api ||
 			!window.PufferDesk.api.createDesktopApi ||
 			!window.PufferDesk.events
@@ -254,6 +256,11 @@
 			stickyNoteManager,
 			widgetManager
 		});
+		const searchEngine = window.PufferDesk.search.createSearchEngine(config, {
+			commands,
+			documentStore,
+			launcher
+		});
 		const menuController = window.PufferDesk.shell.createMenuController(shell, config, {
 			commands,
 			desktopIconManager,
@@ -325,7 +332,11 @@
 			}
 		});
 		launcher.bindShellClicks();
-		window.PufferDesk.shell.bindSearch(shell, launcher, config);
+		window.PufferDesk.shell.bindSearch(shell, launcher, config, {
+			commands,
+			documentStore,
+			searchEngine
+		});
 		window.PufferDesk.shell.bindClock(shell, config);
 
 		window.PufferDesk.appLauncher = {
@@ -358,6 +369,7 @@
 		window.PufferDesk.menuCommands = commands;
 		window.PufferDesk.notificationCenter = notificationCenter;
 		window.PufferDesk.notificationToasts = notificationToasts;
+		window.PufferDesk.searchEngine = searchEngine;
 		window.PufferDesk.soundStatus = soundStatus;
 		window.PufferDesk.desktop.api = desktopApi;
 		window.PufferDesk.desktopApi = desktopApi;

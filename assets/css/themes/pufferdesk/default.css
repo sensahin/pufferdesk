@@ -968,6 +968,32 @@
 	color: rgba(255, 255, 255, 0.74);
 }
 
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search-panel {
+	top: calc(var(--pdk-menu-bar-height, 0px) + 18px);
+	width: min(620px, calc(100vw - 32px));
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"] .pdk-search-panel-inner {
+	--pdk-search-panel-bg: rgba(246, 250, 252, 0.78);
+	--pdk-search-panel-border: rgba(255, 255, 255, 0.5);
+	--pdk-search-panel-field-bg: rgba(255, 255, 255, 0.42);
+	--pdk-search-panel-field-border: rgba(255, 255, 255, 0.42);
+	--pdk-search-panel-muted: rgba(32, 43, 56, 0.58);
+	--pdk-search-result-active-bg: var(--pdk-accent-medium);
+	--pdk-search-result-active-border: var(--pdk-accent-soft);
+	--pdk-search-result-icon-bg: rgba(255, 255, 255, 0.34);
+}
+
+.pdk-shell[data-pdk-theme="pufferdesk"][data-pdk-effective-appearance="dark"] .pdk-search-panel-inner {
+	--pdk-search-panel-bg: rgba(31, 34, 39, 0.82);
+	--pdk-search-panel-border: rgba(255, 255, 255, 0.13);
+	--pdk-search-panel-field-bg: rgba(255, 255, 255, 0.08);
+	--pdk-search-panel-field-border: rgba(255, 255, 255, 0.12);
+	--pdk-search-panel-ink: rgba(255, 255, 255, 0.92);
+	--pdk-search-panel-muted: rgba(255, 255, 255, 0.58);
+	--pdk-search-result-icon-bg: rgba(255, 255, 255, 0.08);
+}
+
 .pdk-shell[data-pdk-theme="pufferdesk"] .pdk-clock {
 	color: var(--pdk-menu-ink);
 	font-size: var(--pdk-text-caption);

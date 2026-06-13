@@ -752,6 +752,18 @@
 			"deps": []
 		},
 		{
+			"handle": "pufferdesk-search-engine",
+			"path": "assets/js/core/search/search-engine.js",
+			"deps": [
+				"pufferdesk-config",
+				"pufferdesk-app-ids",
+				"pufferdesk-command-ids",
+				"pufferdesk-context-menu-constants",
+				"pufferdesk-documents-service",
+				"pufferdesk-event-bus"
+			]
+		},
+		{
 			"handle": "pufferdesk-folder-data",
 			"path": "assets/js/core/apps/folder-data.js",
 			"deps": [
@@ -844,6 +856,8 @@
 			"path": "assets/js/core/shell/search.js",
 			"deps": [
 				"pufferdesk-config",
+				"pufferdesk-dom",
+				"pufferdesk-search-engine",
 				"pufferdesk-transient-surfaces"
 			]
 		},
@@ -1025,6 +1039,7 @@
 				"pufferdesk-sticky-notes",
 				"pufferdesk-desktop-api",
 				"pufferdesk-app-launcher",
+				"pufferdesk-search-engine",
 				"pufferdesk-search",
 				"pufferdesk-shell-dialogs",
 				"pufferdesk-menu",
