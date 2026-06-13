@@ -546,6 +546,10 @@
 			return state;
 		}
 
+		function getCreateParentPath(state = {}) {
+			return typeof state.parentPath === 'string' ? state.parentPath.trim() : '';
+		}
+
 		function applyState(noteElement, state) {
 			const collapsed = Boolean(state.collapsed);
 			const fullscreen = !collapsed && Boolean(state.fullscreen);
@@ -1828,8 +1832,11 @@
 				return Promise.resolve(null);
 			}
 
+			const parentPath = getCreateParentPath(state);
+
 			if (shouldAskOnFirstSave()) {
 				const documentData = createTransientDocument({
+					parentPath,
 					unsaved: true
 				});
 				const noteElement = renderNote(documentData, normalizeCreateState(state));
@@ -1844,6 +1851,7 @@
 			return documentStore.create({
 				content: '',
 				kind: getStickyKind(),
+				parentPath,
 				title: getLabel('stickyNote')
 			}).then((documentData) => {
 				const noteElement = renderNote(documentData, normalizeCreateState(state));

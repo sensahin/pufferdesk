@@ -127,6 +127,17 @@
 			return [
 				menuItem(getMenuLabel('new_folder'), commandIds.FOLDER_CREATE, {
 					icon: 'dashicons-category',
+					id: 'folder-content-new-folder',
+					payload: {
+						folderId,
+						parentId: folderId,
+						target: folderId
+					},
+					target: folderId
+				}),
+				menuItem(getMenuLabel('new_sticky_note'), commandIds.DOCUMENT_NEW_STICKY_NOTE, {
+					icon: 'dashicons-sticky',
+					id: 'folder-content-new-sticky-note',
 					payload: {
 						folderId,
 						parentId: folderId,

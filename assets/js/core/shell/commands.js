@@ -370,6 +370,48 @@
 			return payload.folderId || payload.target || (detail && detail.folderId) || getFolderTargetFromDetail(detail);
 		}
 
+		function getFolderPathFromId(folderId) {
+			const folder = folderId && folderManager && typeof folderManager.getFolder === 'function'
+				? folderManager.getFolder(folderId)
+				: null;
+
+			return folder && typeof folder.path === 'string' ? folder.path : '';
+		}
+
+		function getStickyNoteCreateFolderId(payload = {}, detail = {}) {
+			if (payload.folderId) {
+				return payload.folderId;
+			}
+			if (payload.parentId) {
+				return payload.parentId;
+			}
+			if (detail && detail.folderId) {
+				return detail.folderId;
+			}
+			if (detail && detail.kind === contextTargets.FOLDER_CONTENT && detail.id) {
+				return detail.id;
+			}
+
+			return '';
+		}
+
+		function getStickyNoteCreateState(payload = {}, detail = {}) {
+			const state = detail && detail.contextPoint ? Object.assign({}, detail.contextPoint) : {};
+			const folderId = getStickyNoteCreateFolderId(payload, detail);
+			const parentPath = typeof payload.parentPath === 'string' && payload.parentPath
+				? payload.parentPath
+				: getFolderPathFromId(folderId);
+
+			if (folderId) {
+				state.folderId = folderId;
+			}
+			if (parentPath) {
+				state.parentPath = parentPath;
+			}
+
+			return state;
+		}
+
 		function uniqueIds(ids) {
 			return Array.from(new Set((Array.isArray(ids) ? ids : [])
 				.map((id) => String(id || '').trim())
@@ -1418,7 +1460,7 @@
 				return Boolean(stickyNoteManager && typeof stickyNoteManager.createStickyNote === 'function');
 			},
 			run(payload, detail) {
-				stickyNoteManager.createStickyNote(detail && detail.contextPoint ? detail.contextPoint : {});
+				return stickyNoteManager.createStickyNote(getStickyNoteCreateState(payload, detail));
 			}
 		});
 

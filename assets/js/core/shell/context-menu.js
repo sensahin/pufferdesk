@@ -1440,14 +1440,15 @@
 				? pasteItems.concat(refreshItem, separator(), contentItems)
 				: [
 					contentItems[0],
+					contentItems[1],
 					...pasteItems,
 					separator(),
-					contentItems[1],
+					contentItems[2],
 					separator(),
 					refreshItem,
 					separator(),
-					contentItems[2],
 					contentItems[3],
+					contentItems[4],
 					separator()
 				];
 
