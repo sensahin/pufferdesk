@@ -54,14 +54,32 @@
 			return edge;
 		}
 
+		function getMaximizedTop() {
+			return getMenuBarHeight();
+		}
+
+		function getMaximizedBottom() {
+			if (!dock || shell.dataset.pdkDockAutoHide === '1') {
+				return 0;
+			}
+
+			if (shell.dataset.pdkShellLauncher === 'taskbar') {
+				return Math.ceil(dock.getBoundingClientRect().height);
+			}
+
+			return 0;
+		}
+
 		function syncWindowSafeArea() {
 			const edge = getWindowSafeEdge();
 			const top = getWindowSafeTop();
 			const bottom = getWindowSafeBottom();
+			const maximizedTop = getMaximizedTop();
+			const maximizedBottom = getMaximizedBottom();
 
-			shell.style.setProperty('--pdk-window-maximized-edge', `${edge}px`);
-			shell.style.setProperty('--pdk-window-maximized-top', `${top}px`);
-			shell.style.setProperty('--pdk-window-maximized-height', `calc(100% - ${top + bottom}px)`);
+			shell.style.setProperty('--pdk-window-maximized-edge', '0px');
+			shell.style.setProperty('--pdk-window-maximized-top', `${maximizedTop}px`);
+			shell.style.setProperty('--pdk-window-maximized-height', `calc(100% - ${maximizedTop + maximizedBottom}px)`);
 
 			return {
 				bottom,

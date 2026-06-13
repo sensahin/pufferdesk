@@ -146,9 +146,9 @@
 	--pdk-window-bar-border: rgba(0, 0, 0, 0.08);
 	--pdk-window-radius: 8px;
 	--pdk-window-maximized-radius: 0;
-	--pdk-window-maximized-edge: 9px;
-	--pdk-window-maximized-height: calc(100% - 18px);
-	--pdk-window-maximized-top: 9px;
+	--pdk-window-maximized-edge: 0px;
+	--pdk-window-maximized-height: 100%;
+	--pdk-window-maximized-top: 0px;
 	--pdk-window-safe-edge: 9px;
 	--pdk-card-bg: var(--pdk-material-card-bg);
 	--pdk-card-border: var(--pdk-material-card-border);

@@ -51,7 +51,7 @@ final class PufferDesk_Theme_Registry {
 				'tokens'         => array(
 					'radius' => array(
 						'window'           => '24px',
-						'window_maximized' => '12px',
+						'window_maximized' => '0',
 						'menu_popover'     => '18px',
 					),
 				),
