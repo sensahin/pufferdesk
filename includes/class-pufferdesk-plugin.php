@@ -108,6 +108,11 @@ final class PufferDesk_Plugin {
 		$virtual_filesystem = new PufferDesk_Virtual_Filesystem();
 		$content_search_service = new PufferDesk_Content_Search_Service();
 		$document_service   = new PufferDesk_Document_Service( $virtual_filesystem );
+		$onboarding_note    = new PufferDesk_Onboarding_Note(
+			$workspace_state,
+			$document_service,
+			$virtual_filesystem
+		);
 		$notification_registry = new PufferDesk_Notification_Registry(
 			$preferences,
 			new PufferDesk_Notification_Normalizer()
@@ -123,7 +128,8 @@ final class PufferDesk_Plugin {
 			$theme_registry,
 			$wallpaper_registry,
 			$workspace_state,
-			$virtual_filesystem
+			$virtual_filesystem,
+			$onboarding_note
 		);
 		$runtime_config     = new PufferDesk_Runtime_Config(
 			$this->router,

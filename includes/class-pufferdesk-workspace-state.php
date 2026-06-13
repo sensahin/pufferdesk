@@ -664,6 +664,12 @@ final class PufferDesk_Workspace_State {
 					'z_index'    => true,
 				)
 			);
+			if ( isset( $raw_note_state['right'] ) && ! isset( $note_state['left'] ) ) {
+				$right = $this->sanitize_number( $raw_note_state['right'], 0, 5000 );
+				if ( null !== $right ) {
+					$note_state['right'] = $right;
+				}
+			}
 			if ( isset( $raw_note_state['expandedHeight'] ) ) {
 				$expanded_height = $this->sanitize_number( $raw_note_state['expandedHeight'], 140, 5000 );
 				if ( null !== $expanded_height ) {

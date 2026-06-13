@@ -26,7 +26,7 @@ PufferDesk treats drag/drop as a core platform service. UI modules may own point
 | Dock/taskbar | Dock/taskbar reorder | app | `assets/js/core/preferences/desktop-dock.js` | Yes | Separate domain | No | app location preferences | Left as specialized launcher ordering until app-location moves are migrated |
 | Trash command | Trash | folder | `assets/js/core/shell/commands.js`, `folder-manager.js` | Yes by command/context menu | No | Confirmation policy is theme metadata only | `desktopTrash` | Trash registered as a distinct container; generic Trash-as-parent drops are blocked |
 
-Window dragging, widget dragging, and split-sidebar resizing are not content move flows. Open sticky note titlebar movement remains owned by the Sticky Notes manager for layout, but when released over a validated folder target it delegates the document-location move to `DragDropManager`.
+Window dragging, widget dragging, and split-sidebar resizing are not content move flows. Open sticky note titlebar movement remains owned by the Sticky Notes manager for layout. Releasing a sticky note over empty desktop must not change the saved document location or create a desktop document icon; only explicit document icons or validated folder targets delegate document-location moves to `DragDropManager`.
 
 ## Item model
 

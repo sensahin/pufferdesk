@@ -52,6 +52,7 @@ require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-content-search-controll
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-document-post-type.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-document-service.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-document-controller.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-onboarding-note.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-notification-normalizer.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-notification-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-notification-controller.php';

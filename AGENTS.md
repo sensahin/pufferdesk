@@ -79,6 +79,7 @@ PHP services in `includes/`:
 - `class-pufferdesk-theme-token-renderer.php`: theme typography/token/wallpaper/preference CSS-variable emission for shell first paint.
 - `class-pufferdesk-wallpaper-registry.php`: shared bundled/theme/upload wallpaper options and CSS-variable resolution.
 - `class-pufferdesk-workspace-state.php`: per-user/per-site/per-theme workspace layout persistence and sanitization.
+- `class-pufferdesk-onboarding-note.php`: one-time per-user welcome Sticky Note seeding and bundled-theme layout placement.
 - `class-pufferdesk-shell-context.php`: shared resolved shell state for templates and runtime config.
 - `class-pufferdesk-runtime-config.php`: browser runtime payload, menu labels, settings labels, and system actions.
 - `class-pufferdesk-notification-normalizer.php`: canonical notification descriptor normalization.

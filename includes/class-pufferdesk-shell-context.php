@@ -61,6 +61,13 @@ final class PufferDesk_Shell_Context {
 	private $virtual_filesystem;
 
 	/**
+	 * First-run onboarding note service.
+	 *
+	 * @var PufferDesk_Onboarding_Note|null
+	 */
+	private $onboarding_note;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param PufferDesk_User_Preferences   $preferences Preferences.
@@ -70,6 +77,7 @@ final class PufferDesk_Shell_Context {
 	 * @param PufferDesk_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
 	 * @param PufferDesk_Workspace_State    $workspace_state Workspace state service.
 	 * @param PufferDesk_Virtual_Filesystem $virtual_filesystem Virtual filesystem service.
+	 * @param PufferDesk_Onboarding_Note|null $onboarding_note First-run onboarding note service.
 	 */
 	public function __construct(
 		PufferDesk_User_Preferences $preferences,
@@ -78,7 +86,8 @@ final class PufferDesk_Shell_Context {
 		PufferDesk_Theme_Registry $theme_registry,
 		PufferDesk_Wallpaper_Registry $wallpaper_registry,
 		PufferDesk_Workspace_State $workspace_state,
-		PufferDesk_Virtual_Filesystem $virtual_filesystem
+		PufferDesk_Virtual_Filesystem $virtual_filesystem,
+		$onboarding_note = null
 	) {
 		$this->preferences        = $preferences;
 		$this->app_registry       = $app_registry;
@@ -87,6 +96,7 @@ final class PufferDesk_Shell_Context {
 		$this->wallpaper_registry = $wallpaper_registry;
 		$this->workspace_state    = $workspace_state;
 		$this->virtual_filesystem = $virtual_filesystem;
+		$this->onboarding_note    = $onboarding_note instanceof PufferDesk_Onboarding_Note ? $onboarding_note : null;
 	}
 
 	/**
@@ -111,6 +121,9 @@ final class PufferDesk_Shell_Context {
 		$desktop_folders      = $this->preferences->get_desktop_folders( $apps );
 		$desktop_trash        = $this->preferences->get_desktop_trash( $apps );
 		$workspace_folders    = array_merge( $folders, $desktop_folders );
+		if ( $this->onboarding_note ) {
+			$this->onboarding_note->maybe_seed( $themes, $apps, $widgets, $workspace_folders );
+		}
 		$workspace_state      = $this->workspace_state->get_state( $theme['id'], $apps, $widgets, $workspace_folders );
 		$dock_apps            = $this->preferences->filter_apps_for_surface( $apps, $app_locations, PufferDesk_User_Preferences::APP_LOCATION_DOCK, $theme );
 

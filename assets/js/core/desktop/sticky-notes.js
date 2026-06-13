@@ -540,23 +540,36 @@
 			return 110 + (index % 5) * 34;
 		}
 
+		function getRightAnchoredLeft(width, right = 24) {
+			const desktopRect = desktop ? desktop.getBoundingClientRect() : { width: 1200 };
+			const safeArea = getStickySafeArea();
+			const offset = Math.max(0, toNumber(right, 24));
+			const maxLeft = Math.max(safeArea.left, desktopRect.width - width - safeArea.right);
+
+			return clamp(desktopRect.width - width - offset, safeArea.left, maxLeft);
+		}
+
 		function getDefaultTop(index = 0) {
 			return (isRedmondTheme() ? 76 : getStickySafeArea().top) + (index % 5) * 34;
 		}
 
 		function getDefaultState(index = 0, overrides = {}) {
 			const redmond = isRedmondTheme();
+			const width = toNumber(overrides.width, getDefaultStickyWidth(redmond));
+			const hasRightAnchor = Object.prototype.hasOwnProperty.call(overrides, 'right') && !Object.prototype.hasOwnProperty.call(overrides, 'left');
+			const left = hasRightAnchor ? getRightAnchoredLeft(width, overrides.right) : getDefaultLeft(index);
 
 			return {
 				height: toNumber(overrides.height, getDefaultStickyHeight(redmond)),
-				left: toNumber(overrides.left, getDefaultLeft(index)),
+				left: toNumber(overrides.left, left),
 				top: toNumber(overrides.top, getDefaultTop(index)),
-				width: toNumber(overrides.width, getDefaultStickyWidth(redmond)),
+				width,
 				zIndex: toNumber(overrides.zIndex, highestZ + 1)
 			};
 		}
 
 		function normalizeState(state = {}, index = 0) {
+			const hasRightAnchor = Object.prototype.hasOwnProperty.call(state, 'right') && !Object.prototype.hasOwnProperty.call(state, 'left');
 			const defaults = getDefaultState(index, state);
 			const desktopRect = desktop ? desktop.getBoundingClientRect() : { width: 1200, height: 800 };
 			const safeArea = getStickySafeArea();
@@ -575,7 +588,7 @@
 
 			highestZ = Math.max(highestZ, zIndex);
 
-			return {
+			const normalized = {
 				collapsed,
 				expandedHeight,
 				fullscreen: !collapsed && Boolean(state.fullscreen),
@@ -590,6 +603,12 @@
 				width,
 				zIndex
 			};
+
+			if (hasRightAnchor) {
+				normalized.right = Math.max(0, toNumber(state.right, 24));
+			}
+
+			return normalized;
 		}
 
 		function normalizeCreateState(state = {}) {
@@ -634,6 +653,11 @@
 			noteElement.dataset.pdkRestoreTop = `${toNumber(state.restoreTop, state.top)}px`;
 			noteElement.dataset.pdkRestoreWidth = `${toNumber(state.restoreWidth, state.width)}px`;
 			noteElement.dataset.pdkRestoreHeight = `${toNumber(state.restoreHeight, state.expandedHeight || state.height || getDefaultStickyHeight())}px`;
+			if (Number.isFinite(state.right)) {
+				noteElement.dataset.pdkRightAnchor = String(Math.max(0, Math.round(state.right)));
+			} else {
+				delete noteElement.dataset.pdkRightAnchor;
+			}
 			noteElement.style.left = `${nextLeft}px`;
 			noteElement.style.top = `${nextTop}px`;
 			noteElement.style.width = `${nextWidth}px`;
@@ -664,14 +688,13 @@
 		function readState(noteElement) {
 			const collapsed = noteElement.classList.contains('is-collapsed');
 			const expandedHeight = toNumber(noteElement.dataset.pdkExpandedHeight, Math.round(noteElement.offsetHeight || getDefaultStickyHeight()));
-
-			return {
+			const rightAnchor = toNumber(noteElement.dataset.pdkRightAnchor, null);
+			const state = {
 				collapsed,
 				expandedHeight,
 				fullscreen: noteElement.classList.contains('is-fullscreen'),
 				height: collapsed ? expandedHeight : Math.round(noteElement.offsetHeight || 0),
 				hidden: noteElement.hidden,
-				left: toNumber(noteElement.style.left, Math.round(noteElement.offsetLeft || 0)),
 				restoreHeight: toNumber(noteElement.dataset.pdkRestoreHeight, expandedHeight),
 				restoreLeft: toNumber(noteElement.dataset.pdkRestoreLeft, toNumber(noteElement.style.left, Math.round(noteElement.offsetLeft || 0))),
 				restoreTop: toNumber(noteElement.dataset.pdkRestoreTop, toNumber(noteElement.style.top, Math.round(noteElement.offsetTop || 0))),
@@ -680,6 +703,14 @@
 				width: Math.round(noteElement.offsetWidth || 0),
 				zIndex: toNumber(noteElement.style.zIndex, highestZ)
 			};
+
+			if (Number.isFinite(rightAnchor)) {
+				state.right = Math.max(0, rightAnchor);
+			} else {
+				state.left = toNumber(noteElement.style.left, Math.round(noteElement.offsetLeft || 0));
+			}
+
+			return state;
 		}
 
 		function serializeNotes() {
@@ -846,12 +877,7 @@
 			const pane = element && typeof element.closest === 'function'
 				? element.closest('.pdk-finder-pane')
 				: null;
-			const desktopElement = element && typeof element.closest === 'function'
-				? element.closest('.pdk-desktop')
-				: null;
-			const desktopContainerId = containerTypes.DESKTOP || 'desktop';
 			let targetElement = null;
-			let targetContainerId = '';
 			let folderId = '';
 
 			if (!item || !element) {
@@ -866,16 +892,13 @@
 
 				targetElement = pane;
 				folderId = win && win.dataset ? win.dataset.pdkFolderWindow || '' : '';
-			} else if (desktopElement && !element.closest('.pdk-window') && item.sourceContainerId !== desktopContainerId) {
-				targetElement = desktopElement;
-				targetContainerId = desktopContainerId;
 			}
 
-			if (!targetElement || (!folderId && !targetContainerId)) {
+			if (!targetElement || !folderId) {
 				return null;
 			}
 
-			const toContainerId = targetContainerId || dragDropModels.createContainerId(containerTypes.FOLDER, folderId);
+			const toContainerId = dragDropModels.createContainerId(containerTypes.FOLDER, folderId);
 			const move = {
 				fromContainerId: item.sourceContainerId,
 				item,
@@ -1696,6 +1719,7 @@
 
 					dragState.started = true;
 					noteElement.classList.add('is-dragging');
+					delete noteElement.dataset.pdkRightAnchor;
 					elevateForDrag(noteElement);
 					if (dragDropManager && typeof dragDropManager.startDrag === 'function') {
 						platformDragStarted = Boolean(dragDropManager.startDrag(getStickyDocumentDragItem(entry), {
