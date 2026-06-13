@@ -788,8 +788,7 @@ button.pdk-settings-profile-hero-avatar:focus .pdk-settings-profile-hero-edit {
 	min-width: 0;
 }
 
-.pdk-settings-theme-select,
-.pdk-settings-theme-select .pdk-settings-value-select {
+.pdk-settings-theme-select {
 	min-width: 190px;
 }
 
@@ -1314,6 +1313,10 @@ button.pdk-settings-profile-hero-avatar:focus .pdk-settings-profile-hero-edit {
 	text-align: right;
 	text-align-last: right;
 	z-index: 1;
+}
+
+.pdk-shell .pdk-settings-inline-select.pdk-settings-theme-select .pdk-settings-value-select {
+	min-width: 190px;
 }
 
 .pdk-shell .pdk-settings-inline-select .pdk-settings-value-select:hover,
