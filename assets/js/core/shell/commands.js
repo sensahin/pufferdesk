@@ -1347,6 +1347,19 @@
 			}
 		}
 
+		async function confirmResetCurrentLayout() {
+			const actionConfig = {
+				cancelLabel: getSettingsLabel('workspace.cancelLabel'),
+				confirmLabel: getSettingsLabel('workspace.resetCurrentConfirmLabel'),
+				message: getSettingsLabel('workspace.resetCurrentMessage'),
+				title: getSettingsLabel('workspace.resetCurrentTitle')
+			};
+
+			return dialogs && typeof dialogs.confirm === 'function'
+				? dialogs.confirm(actionConfig)
+				: window.confirm(`${actionConfig.title}\n\n${actionConfig.message}`);
+		}
+
 		register(commandIds.NOOP, {
 			run() {}
 		});
@@ -2223,7 +2236,12 @@
 			isEnabled() {
 				return Boolean(config.storageKey && window.PufferDesk.session && window.PufferDesk.session.createSessionStore);
 			},
-			run() {
+			async run() {
+				const confirmed = await confirmResetCurrentLayout();
+				if (!confirmed) {
+					return false;
+				}
+
 				clearClipboard();
 				skipWindowRestoreOnce();
 				return clearSessionStore().finally(reloadShell);

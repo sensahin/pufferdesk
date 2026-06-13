@@ -202,13 +202,10 @@
 		}
 
 		function collectAppResults() {
-			const locations = config.appLocations && typeof config.appLocations === 'object' ? config.appLocations : {};
-
 			return (Array.isArray(config.apps) ? config.apps : []).filter((app) => (
 				app
 				&& app.id
 				&& app.label
-				&& locations[app.id] !== 'hidden'
 			)).map((app) => normalizeResult({
 				command: commandIds.OPEN_APP,
 				icon: app.icon,
@@ -222,8 +219,6 @@
 		}
 
 		function collectAppRouteResults() {
-			const locations = config.appLocations && typeof config.appLocations === 'object' ? config.appLocations : {};
-
 			if (!appNavigation || typeof appNavigation.getRoutes !== 'function') {
 				return [];
 			}
@@ -232,7 +227,6 @@
 				app
 				&& app.id
 				&& app.label
-				&& locations[app.id] !== 'hidden'
 			)).flatMap((app) => appNavigation.getRoutes(app).map((route) => normalizeResult({
 				command: commandIds.APP_OPEN_ROUTE,
 				icon: app.icon,

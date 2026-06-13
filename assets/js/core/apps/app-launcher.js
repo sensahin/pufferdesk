@@ -4958,7 +4958,7 @@
 				return null;
 			}
 
-			return apps.find((app) => !isHiddenFromLaunchSurfaces(app) && (app.label.toLowerCase().includes(needle) || app.id.includes(needle))) || null;
+			return apps.find((app) => app.label.toLowerCase().includes(needle) || app.id.includes(needle)) || null;
 		}
 
 		function bindShellClicks() {

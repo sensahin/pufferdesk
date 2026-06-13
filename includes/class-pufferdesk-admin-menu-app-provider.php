@@ -443,8 +443,32 @@ final class PufferDesk_Admin_Menu_App_Provider {
 	 * @return string
 	 */
 	private function get_admin_menu_label( $label ) {
-		$label = preg_replace( '#<span[^>]*>.*?</span>#is', '', $label );
-		$label = wp_strip_all_tags( is_string( $label ) ? $label : '' );
+		$label = is_string( $label ) ? $label : '';
+		$label = preg_replace_callback(
+			'#<span\b([^>]*)>(.*?)</span>#is',
+			static function ( $matches ) {
+				$classes = array();
+				$attrs   = isset( $matches[1] ) ? (string) $matches[1] : '';
+
+				if ( preg_match( '/\bclass\s*=\s*([\'"])(.*?)\1/is', $attrs, $class_match ) ) {
+					$classes = preg_split( '/\s+/', strtolower( (string) $class_match[2] ) );
+					$classes = is_array( $classes ) ? array_filter( $classes ) : array();
+				}
+
+				foreach ( $classes as $class ) {
+					if (
+						in_array( $class, array( 'awaiting-mod', 'menu-counter', 'plugin-count', 'screen-reader-text', 'update-count', 'update-plugins' ), true ) ||
+						preg_match( '/^count-\d+$/', $class )
+					) {
+						return '';
+					}
+				}
+
+				return isset( $matches[2] ) ? (string) $matches[2] : '';
+			},
+			$label
+		);
+		$label = html_entity_decode( wp_strip_all_tags( $label ), ENT_QUOTES, get_bloginfo( 'charset' ) );
 
 		return sanitize_text_field( trim( $label ) );
 	}

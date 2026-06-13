@@ -1244,15 +1244,15 @@ final class PufferDesk_Runtime_Config {
 				'resetError'              => __( 'Workspace layout could not be reset.', 'pufferdesk-admin-desktop' ),
 				'resetCurrentButton'      => __( 'Reset Current Theme Layout', 'pufferdesk-admin-desktop' ),
 				'resetCurrentConfirmLabel' => __( 'Reset', 'pufferdesk-admin-desktop' ),
-				'resetCurrentDescription' => __( 'Reset windows, widgets, desktop icons, and launcher order for the active theme.', 'pufferdesk-admin-desktop' ),
+				'resetCurrentDescription' => __( 'Reset saved windows, sticky-note windows, widget positions, desktop icon positions, folder views, recent items, and launcher order for the active theme.', 'pufferdesk-admin-desktop' ),
 				'resetCurrentLabel'       => __( 'Current theme layout', 'pufferdesk-admin-desktop' ),
-				'resetCurrentMessage'     => __( 'This resets the saved windows, widgets, desktop icons, and launcher order for the current theme.', 'pufferdesk-admin-desktop' ),
+				'resetCurrentMessage'     => __( 'This resets saved windows, sticky-note windows, widget positions, desktop icon positions, folder views, recent items, and launcher order for the current theme. Sticky-note documents and WordPress content are not deleted.', 'pufferdesk-admin-desktop' ),
 				'resetCurrentTitle'       => __( 'Reset Current Theme Layout?', 'pufferdesk-admin-desktop' ),
 				'resetAllButton'          => __( 'Reset Layouts for All Themes', 'pufferdesk-admin-desktop' ),
 				'resetAllConfirmLabel'    => __( 'Reset All', 'pufferdesk-admin-desktop' ),
 				'resetAllDescription'     => __( 'Clear saved workspace layouts across every theme for this WordPress account.', 'pufferdesk-admin-desktop' ),
 				'resetAllLabel'           => __( 'All theme layouts', 'pufferdesk-admin-desktop' ),
-				'resetAllMessage'         => __( 'This resets saved workspace layouts for every PufferDesk theme for this WordPress account.', 'pufferdesk-admin-desktop' ),
+				'resetAllMessage'         => __( 'This resets saved workspace layouts for every PufferDesk theme for this WordPress account. PufferDesk settings, sticky-note documents, and WordPress content are not deleted.', 'pufferdesk-admin-desktop' ),
 				'resetAllTitle'           => __( 'Reset Layouts for All Themes?', 'pufferdesk-admin-desktop' ),
 			),
 			'system'       => array(
@@ -1261,8 +1261,8 @@ final class PufferDesk_Runtime_Config {
 				'restartDescription' => __( 'Reload PufferDesk and start a fresh shell session.', 'pufferdesk-admin-desktop' ),
 				'classicLabel'       => __( 'Switch to Classic Admin...', 'pufferdesk-admin-desktop' ),
 				'classicDescription' => __( 'Leave the shell and open the standard WordPress admin.', 'pufferdesk-admin-desktop' ),
-				'eraseLabel'         => __( 'Erase All Content and Settings...', 'pufferdesk-admin-desktop' ),
-				'eraseDescription'   => __( 'Reset PufferDesk preferences, wallpaper, apps, windows, widgets, and layout for this account.', 'pufferdesk-admin-desktop' ),
+				'eraseLabel'         => __( 'Reset PufferDesk Settings...', 'pufferdesk-admin-desktop' ),
+				'eraseDescription'   => __( 'Reset PufferDesk preferences, wallpaper, app placement, desktop folders, windows, widgets, and layouts for this account. WordPress content and sticky-note documents are not deleted.', 'pufferdesk-admin-desktop' ),
 			),
 		);
 
@@ -1415,8 +1415,8 @@ final class PufferDesk_Runtime_Config {
 							array(
 								array(
 									'id'          => 'erase-content-settings',
-									'label'       => __( 'Erase All Content and Settings...', 'pufferdesk-admin-desktop' ),
-									'description' => __( 'Reset PufferDesk preferences and layout for this account', 'pufferdesk-admin-desktop' ),
+									'label'       => __( 'Reset PufferDesk Settings...', 'pufferdesk-admin-desktop' ),
+									'description' => __( 'Reset PufferDesk preferences, desktop folders, and layouts for this account. WordPress content is not deleted.', 'pufferdesk-admin-desktop' ),
 									'icon'        => 'dashicons-trash',
 									'tone'        => 'red',
 									'command'     => PufferDesk_Command_Ids::SYSTEM_ERASE_CONTENT_SETTINGS,
@@ -1589,15 +1589,15 @@ final class PufferDesk_Runtime_Config {
 					'overlayMessage'       => __( 'Shutting down PufferDesk...', 'pufferdesk-admin-desktop' ),
 				),
 				'eraseContentSettings' => array(
-					'title'          => __( 'Erase All Content and Settings?', 'pufferdesk-admin-desktop' ),
+					'title'          => __( 'Reset PufferDesk Settings?', 'pufferdesk-admin-desktop' ),
 					'message'        => sprintf(
 						/* translators: %s: theme-specific launcher label, such as Dock or Taskbar. */
-						__( 'This will reset PufferDesk settings, wallpaper, %s, windows, and layout for this WordPress account. WordPress site content will not be affected.', 'pufferdesk-admin-desktop' ),
+						__( 'This will reset PufferDesk settings, wallpaper, app placement, desktop folders, %s, windows, widgets, and layouts for this WordPress account. WordPress content and sticky-note documents are not deleted.', 'pufferdesk-admin-desktop' ),
 						$shell_labels['launcher']
 					),
-					'confirmLabel'   => __( 'Erase', 'pufferdesk-admin-desktop' ),
+					'confirmLabel'   => __( 'Reset', 'pufferdesk-admin-desktop' ),
 					'cancelLabel'    => __( 'Cancel', 'pufferdesk-admin-desktop' ),
-					'overlayMessage' => __( 'Erasing PufferDesk settings...', 'pufferdesk-admin-desktop' ),
+					'overlayMessage' => __( 'Resetting PufferDesk settings...', 'pufferdesk-admin-desktop' ),
 				),
 				'emptyTrash' => array(
 					'title'        => $this->get_theme_menu_label( $theme, 'empty_trash_title', __( 'Empty Trash?', 'pufferdesk-admin-desktop' ) ),
@@ -1928,7 +1928,7 @@ final class PufferDesk_Runtime_Config {
 				'preview_pane'            => __( 'Preview pane', 'pufferdesk-admin-desktop' ),
 				'preview'                 => __( 'Preview', 'pufferdesk-admin-desktop' ),
 				'show'                    => __( 'Show', 'pufferdesk-admin-desktop' ),
-				'reset_layout'            => __( 'Reset Layout', 'pufferdesk-admin-desktop' ),
+				'reset_layout'            => __( 'Reset Layout...', 'pufferdesk-admin-desktop' ),
 				'refresh'                 => __( 'Refresh', 'pufferdesk-admin-desktop' ),
 				'change_wallpaper'        => __( 'Change Wallpaper...', 'pufferdesk-admin-desktop' ),
 				'explore_background'      => __( 'Explore background', 'pufferdesk-admin-desktop' ),

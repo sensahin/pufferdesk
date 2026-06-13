@@ -594,17 +594,18 @@ final class PufferDesk_User_Preferences {
 	 *
 	 * @param array<int,array<string,mixed>> $apps Available apps.
 	 * @param int                            $user_id Optional user ID.
+	 * @param bool                           $with_defaults Whether absent app locations should use the generic fallback.
 	 * @return array<string,string>
 	 */
-	public function get_app_locations( $apps, $user_id = 0 ) {
+	public function get_app_locations( $apps, $user_id = 0, $with_defaults = true ) {
 		$user_id       = $user_id ? (int) $user_id : get_current_user_id();
 		$app_locations = get_user_meta( $user_id, self::META_APP_LOCATIONS, true );
 
-		return $this->sanitize_app_locations( is_array( $app_locations ) ? $app_locations : array(), $apps );
+		return $this->sanitize_app_locations( is_array( $app_locations ) ? $app_locations : array(), $apps, $with_defaults );
 	}
 
 	/**
-	 * Get app placement preferences after applying theme-fixed app placement.
+	 * Get app placement preferences after applying theme defaults and fixed app placement.
 	 *
 	 * @param array<int,array<string,mixed>> $apps Available apps.
 	 * @param array<string,mixed>            $theme Current theme.
@@ -612,7 +613,10 @@ final class PufferDesk_User_Preferences {
 	 * @return array<string,string>
 	 */
 	public function get_effective_app_locations( $apps, $theme = array(), $user_id = 0 ) {
-		return $this->apply_theme_fixed_app_locations( $this->get_app_locations( $apps, $user_id ), $apps, $theme );
+		$locations = $this->get_app_locations( $apps, $user_id, false );
+		$locations = $this->apply_theme_default_app_locations( $locations, $apps, $theme );
+
+		return $this->apply_theme_fixed_app_locations( $locations, $apps, $theme );
 	}
 
 	/**
@@ -1184,9 +1188,10 @@ final class PufferDesk_User_Preferences {
 	 *
 	 * @param array<string,mixed>             $app_locations Raw app location data.
 	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param bool                           $with_defaults Whether absent app locations should use the generic fallback.
 	 * @return array<string,string>
 	 */
-	private function sanitize_app_locations( $app_locations, $apps ) {
+	private function sanitize_app_locations( $app_locations, $apps, $with_defaults = true ) {
 		$sanitized = array();
 
 		foreach ( (array) $apps as $app ) {
@@ -1194,7 +1199,11 @@ final class PufferDesk_User_Preferences {
 				continue;
 			}
 
-			$id       = sanitize_key( (string) $app['id'] );
+			$id = sanitize_key( (string) $app['id'] );
+			if ( ! array_key_exists( $id, $app_locations ) && ! $with_defaults ) {
+				continue;
+			}
+
 			$location = isset( $app_locations[ $id ] ) ? sanitize_key( (string) $app_locations[ $id ] ) : self::APP_LOCATION_DOCK;
 
 			if ( ! in_array( $location, $this->app_location_options, true ) ) {
@@ -1220,6 +1229,41 @@ final class PufferDesk_User_Preferences {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Apply theme-defined default locations before user-fixed launchers are enforced.
+	 *
+	 * @param array<string,string>           $app_locations Sanitized app locations.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param array<string,mixed>            $theme Current theme.
+	 * @return array<string,string>
+	 */
+	private function apply_theme_default_app_locations( $app_locations, $apps, $theme ) {
+		$locations        = is_array( $app_locations ) ? $app_locations : array();
+		$default_location = $this->get_theme_default_app_location( $theme );
+		$default_map      = isset( $theme['shell']['default_app_locations'] ) && is_array( $theme['shell']['default_app_locations'] )
+			? $theme['shell']['default_app_locations']
+			: array();
+
+		foreach ( (array) $apps as $app ) {
+			if ( ! is_array( $app ) || empty( $app['id'] ) ) {
+				continue;
+			}
+
+			$app_id = sanitize_key( (string) $app['id'] );
+			if ( isset( $locations[ $app_id ] ) ) {
+				continue;
+			}
+
+			$location = isset( $default_map[ $app_id ] )
+				? sanitize_key( (string) $default_map[ $app_id ] )
+				: $default_location;
+
+			$locations[ $app_id ] = in_array( $location, $this->app_location_options, true ) ? $location : $default_location;
+		}
+
+		return $locations;
 	}
 
 	/**
@@ -1261,6 +1305,20 @@ final class PufferDesk_User_Preferences {
 			? $theme['shell']['fixed_app_locations']
 			: array();
 		$location  = isset( $locations[ $app_id ] ) ? sanitize_key( (string) $locations[ $app_id ] ) : self::APP_LOCATION_DOCK;
+
+		return in_array( $location, $this->app_location_options, true ) ? $location : self::APP_LOCATION_DOCK;
+	}
+
+	/**
+	 * Get the theme's generic default location for apps without an explicit saved preference.
+	 *
+	 * @param array<string,mixed> $theme Current theme.
+	 * @return string
+	 */
+	private function get_theme_default_app_location( $theme ) {
+		$location = isset( $theme['shell']['default_app_location'] )
+			? sanitize_key( (string) $theme['shell']['default_app_location'] )
+			: self::APP_LOCATION_DOCK;
 
 		return in_array( $location, $this->app_location_options, true ) ? $location : self::APP_LOCATION_DOCK;
 	}

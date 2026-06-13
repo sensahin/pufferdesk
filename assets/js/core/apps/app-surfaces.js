@@ -152,12 +152,51 @@
 			return !(config.shellChrome && typeof config.shellChrome === 'object' && config.shellChrome.launcher === 'none');
 		}
 
-		function normalizeLocations(locations = {}) {
-			const hasLauncher = hasLauncherSurface();
-			const allowedLocations = hasLauncher
+		function getShellChrome() {
+			return config.shellChrome && typeof config.shellChrome === 'object' ? config.shellChrome : {};
+		}
+
+		function getAllowedLocations(hasLauncher) {
+			return hasLauncher
 				? [appLocations.DOCK, appLocations.DESKTOP, appLocations.BOTH, appLocations.HIDDEN]
 				: [appLocations.DESKTOP, appLocations.HIDDEN];
-			const defaultLocation = hasLauncher ? appLocations.DOCK : appLocations.DESKTOP;
+		}
+
+		function normalizeLocationForShell(location, hasLauncher, fallback) {
+			const allowedLocations = getAllowedLocations(hasLauncher);
+			if (!hasLauncher && (location === appLocations.DOCK || location === appLocations.BOTH)) {
+				return appLocations.DESKTOP;
+			}
+
+			return allowedLocations.includes(location) ? location : fallback;
+		}
+
+		function getThemeDefaultAppLocation(hasLauncher) {
+			const shellChrome = getShellChrome();
+			const location = typeof shellChrome.default_app_location === 'string'
+				? shellChrome.default_app_location
+				: appLocations.DOCK;
+			const fallback = hasLauncher ? appLocations.DOCK : appLocations.DESKTOP;
+
+			return normalizeLocationForShell(location, hasLauncher, fallback);
+		}
+
+		function getDefaultAppLocation(app, hasLauncher) {
+			const shellChrome = getShellChrome();
+			const defaultLocations = shellChrome.default_app_locations && typeof shellChrome.default_app_locations === 'object'
+				? shellChrome.default_app_locations
+				: {};
+			const fallback = getThemeDefaultAppLocation(hasLauncher);
+			const location = app && app.id && typeof defaultLocations[app.id] === 'string'
+				? defaultLocations[app.id]
+				: fallback;
+
+			return normalizeLocationForShell(location, hasLauncher, fallback);
+		}
+
+		function normalizeLocations(locations = {}) {
+			const hasLauncher = hasLauncherSurface();
+			const allowedLocations = getAllowedLocations(hasLauncher);
 			const normalized = {};
 
 			apps.forEach((app) => {
@@ -171,13 +210,10 @@
 					return;
 				}
 
+				const defaultLocation = getDefaultAppLocation(app, hasLauncher);
 				const location = typeof locations[app.id] === 'string' ? locations[app.id] : defaultLocation;
-				if (!hasLauncher && (location === appLocations.DOCK || location === appLocations.BOTH)) {
-					normalized[app.id] = appLocations.DESKTOP;
-					return;
-				}
 
-				normalized[app.id] = allowedLocations.includes(location) ? location : defaultLocation;
+				normalized[app.id] = normalizeLocationForShell(location, hasLauncher, defaultLocation);
 			});
 
 			if (preserveUnknown) {
@@ -205,7 +241,9 @@
 				return fixedLocation === appLocations.BOTH || fixedLocation === surface;
 			}
 
-			const location = app && app.id ? locations[app.id] || appLocations.DOCK : appLocations.DOCK;
+			const location = app && app.id
+				? locations[app.id] || getDefaultAppLocation(app, hasLauncherSurface())
+				: getThemeDefaultAppLocation(hasLauncherSurface());
 
 			return location === appLocations.BOTH || location === surface;
 		}

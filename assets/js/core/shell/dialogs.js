@@ -795,6 +795,12 @@
 			});
 		}
 
+		function getLocationOptionLabel(location) {
+			return location.label && location.label !== location.path
+				? location.label
+				: location.where || location.path;
+		}
+
 		function getSaveDialogLocations(options = {}) {
 			const config = getRuntimeConfig();
 			const virtualFilesystem = window.PufferDesk.virtualFilesystem && typeof window.PufferDesk.virtualFilesystem.create === 'function'
@@ -817,12 +823,6 @@
 				return virtualFilesystem && typeof virtualFilesystem.getWhereLabel === 'function'
 					? virtualFilesystem.getWhereLabel(path)
 					: path;
-			}
-
-			function getLocationOptionLabel(location) {
-				return location.label && location.label !== location.path
-					? location.label
-					: location.where || location.path;
 			}
 
 			function addLocation(folder, options = {}) {

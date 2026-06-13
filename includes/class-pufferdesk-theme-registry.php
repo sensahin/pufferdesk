@@ -58,6 +58,9 @@ final class PufferDesk_Theme_Registry {
 				'documents'      => array(
 					'stickyNoteSavePolicy' => 'ask-on-first-save',
 				),
+				'shell'          => array(
+					'default_app_location' => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+				),
 				'mode_tokens'    => $this->get_pufferdesk_default_mode_tokens(),
 			),
 			'redmond' => array(
@@ -177,6 +180,17 @@ final class PufferDesk_Theme_Registry {
 					'launcher_search'     => true,
 					'system_menu_icon'    => 'theme',
 					'launcher_separator'  => false,
+					'default_app_location' => PufferDesk_User_Preferences::APP_LOCATION_HIDDEN,
+					'default_app_locations' => array(
+						PufferDesk_App_Ids::DASHBOARD    => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::POSTS        => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::PAGES        => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::MEDIA        => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::COMMENTS     => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::PLUGINS      => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::STICKY_NOTES => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+						PufferDesk_App_Ids::OS_SETTINGS  => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+					),
 					'fixed_app_locations' => array(
 						'trash' => 'desktop',
 					),
@@ -1455,6 +1469,8 @@ final class PufferDesk_Theme_Registry {
 			'launcher_search'     => false,
 			'system_menu_icon'    => 'pufferdesk-mark',
 			'launcher_separator'  => true,
+			'default_app_location' => PufferDesk_User_Preferences::APP_LOCATION_DOCK,
+			'default_app_locations' => array(),
 			'fixed_app_locations' => array(),
 			'labels'              => array(
 				'launcher'             => __( 'Dock', 'pufferdesk-admin-desktop' ),
@@ -1543,6 +1559,18 @@ final class PufferDesk_Theme_Registry {
 
 		if ( array_key_exists( 'launcher_search', $shell ) ) {
 			$normalized['launcher_search'] = $this->normalize_boolean( $shell['launcher_search'] );
+		}
+
+		if ( isset( $shell['default_app_location'] ) ) {
+			$location = sanitize_key( (string) $shell['default_app_location'] );
+			$allowed  = array_values( PufferDesk_User_Preferences::get_app_location_ids() );
+			if ( in_array( $location, $allowed, true ) ) {
+				$normalized['default_app_location'] = $location;
+			}
+		}
+
+		if ( isset( $shell['default_app_locations'] ) && is_array( $shell['default_app_locations'] ) ) {
+			$normalized['default_app_locations'] = $this->normalize_app_location_map( $shell['default_app_locations'] );
 		}
 
 		if ( isset( $shell['fixed_app_locations'] ) && is_array( $shell['fixed_app_locations'] ) ) {

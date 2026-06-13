@@ -409,6 +409,7 @@
 			return [
 				appIds.DASHBOARD,
 				appIds.POSTS,
+				appIds.STICKY_NOTES,
 				appIds.PAGES,
 				appIds.MEDIA,
 				appIds.COMMENTS,
@@ -726,15 +727,26 @@
 		}
 
 		function isVisibleStartApp(app) {
-			const appLocations = config.appLocations && typeof config.appLocations === 'object' ? config.appLocations : {};
+			return Boolean(app && app.id && app.label);
+		}
 
-			return Boolean(app && app.id && app.label && appLocations[app.id] !== 'hidden');
+		function getStartApps() {
+			return Array.isArray(config.apps) ? config.apps.filter(isVisibleStartApp) : [];
+		}
+
+		function findStartApp(query) {
+			const needle = String(query || '').trim().toLowerCase();
+			if (!needle) {
+				return null;
+			}
+
+			return getStartApps().find((app) => app.label.toLowerCase().includes(needle) || app.id.includes(needle)) || null;
 		}
 
 		function getPinnedStartApps() {
 			const preferredIds = getPreferredAppIds();
 			const byId = new Map();
-			const apps = Array.isArray(config.apps) ? config.apps.filter(isVisibleStartApp) : [];
+			const apps = getStartApps();
 
 			preferredIds.forEach((appId) => {
 				const app = appMap.get(appId);
@@ -779,9 +791,9 @@
 				}
 
 				const query = input.value.trim();
-				const foundApp = launcher && typeof launcher.runSearch === 'function'
+				const foundApp = findStartApp(query) || (launcher && typeof launcher.runSearch === 'function'
 					? launcher.runSearch(query)
-					: getPinnedStartApps().find((app) => app.label.toLowerCase().includes(query.toLowerCase()) || app.id.includes(query.toLowerCase()));
+					: null);
 
 				if (!foundApp || !launcher || typeof launcher.openApp !== 'function') {
 					return;
