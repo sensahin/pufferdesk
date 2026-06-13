@@ -10,6 +10,7 @@
 		const openApp = typeof options.openApp === 'function' ? options.openApp : () => null;
 		const openDocument = typeof options.openDocument === 'function' ? options.openDocument : () => null;
 		const openFolder = typeof options.openFolder === 'function' ? options.openFolder : () => null;
+		const openRecentItem = typeof options.openRecentItem === 'function' ? options.openRecentItem : () => null;
 		const renderFolderWindow = typeof options.renderFolderWindow === 'function' ? options.renderFolderWindow : () => false;
 		const startDocumentRename = typeof options.startDocumentRename === 'function' ? options.startDocumentRename : () => false;
 		const startFolderRename = typeof options.startFolderRename === 'function' ? options.startFolderRename : () => false;
@@ -342,6 +343,48 @@
 			return button;
 		}
 
+		function createRecentItemButton(item) {
+			const button = document.createElement('button');
+			const label = item && item.label ? item.label : getMenuLabel('recent_item');
+			const appIcon = document.createElement('span');
+			const itemLabel = dom.createTruncatedLabel('pdk-app-launcher-label', label);
+
+			button.type = 'button';
+			button.className = 'pdk-app-launcher pdk-recent-launcher';
+			button.dataset.pdkContext = item && item.type === 'folder'
+				? contextTargets.FOLDER
+				: item && item.type === 'app'
+					? contextItemTypes.APP
+					: contextTargets.DOCUMENT;
+			button.dataset.pdkContextId = item && item.target ? item.target : item && item.id ? item.id : '';
+			button.dataset.pdkContextLabel = label;
+			button.dataset.pdkRecentItem = item && item.id ? item.id : '';
+			button.setAttribute('aria-label', label);
+			button.setAttribute('aria-pressed', 'false');
+			button.setAttribute('aria-selected', 'false');
+
+			appIcon.className = 'pdk-app-icon';
+			appIcon.appendChild(dom.createIcon(item && item.icon ? item.icon : 'dashicons-admin-generic'));
+
+			button.append(appIcon, itemLabel);
+			button.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				selectItem(button, getSelectionOptions(event));
+				button.focus({ preventScroll: true });
+			});
+			button.addEventListener('dblclick', (event) => {
+				event.preventDefault();
+				event.stopPropagation();
+				openRecentItem(item);
+			});
+			button.addEventListener('contextmenu', () => {
+				selectItemFromContextMenu(button);
+			});
+
+			return button;
+		}
+
 		function createTrashItemButton(item) {
 			const button = document.createElement('button');
 			const label = item && item.label ? item.label : getMenuLabel('folder');
@@ -390,6 +433,7 @@
 			createAppButton,
 			createDocumentButton,
 			createFolderButton,
+			createRecentItemButton,
 			createTrashItemButton,
 			getSelectableItems,
 			selectItem,

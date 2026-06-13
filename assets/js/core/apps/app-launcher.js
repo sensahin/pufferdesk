@@ -120,6 +120,7 @@
 				openApp,
 				openDocument,
 				openFolder,
+				openRecentItem: openRecentDisplayItem,
 				renderFolderWindow,
 				startDocumentRename: startInlineRenameDocumentItem,
 				startFolderRename: startInlineRenameFolderItem
@@ -434,6 +435,22 @@
 					} : null;
 				}
 
+				if (type === 'folder') {
+					const folder = getFolder(target);
+					const label = folder && folder.label ? folder.label : item.label || item.title || getMenuLabel('folder');
+
+					return folder ? {
+						command: item.command || commandIds.OPEN_FOLDER,
+						folder,
+						icon: folder.icon || item.icon || defaultDashicon,
+						id: folder.id,
+						label,
+						target: folder.id,
+						title: item.title || label,
+						type: 'folder'
+					} : null;
+				}
+
 				if (type === 'document' && item && (item.url || item.target)) {
 					const documentId = parseDocumentId(item.target || item.id);
 					const isNativeDocument = Boolean(documentId && (!item.url || item.command === commandIds.DOCUMENT_OPEN));
@@ -453,6 +470,36 @@
 
 				return null;
 			}).filter(Boolean) : [];
+		}
+
+		function getRecentDisplayListMeta(item = {}) {
+			const documentId = item.type === 'document' ? parseDocumentId(item.target || item.id) : 0;
+			const kindLabels = {
+				app: getMenuLabel('application'),
+				document: item.command === commandIds.DOCUMENT_OPEN ? getMenuLabel('sticky_note') : getMenuLabel('document'),
+				folder: getMenuLabel('folder')
+			};
+
+			return {
+				dateAdded: 0,
+				dateModified: 0,
+				documentId,
+				kindLabel: kindLabels[item.type] || getMenuLabel('recent_item'),
+				size: 0
+			};
+		}
+
+		function getRecentFolderDisplayItems() {
+			return getRecentDisplayItems(50).map((recentItem) => ({
+				app: recentItem.app || null,
+				folder: recentItem.folder || null,
+				icon: recentItem.icon || defaultDashicon,
+				id: recentItem.id || '',
+				label: recentItem.label || getMenuLabel('recent_item'),
+				listMeta: getRecentDisplayListMeta(recentItem),
+				recentItem,
+				type: recentItem.type || 'document'
+			}));
 		}
 
 		function getTrashItems() {
@@ -1203,7 +1250,7 @@
 
 		function getFolderDisplayItems(folderId, win = null) {
 			if (isRecentsFolderId(folderId)) {
-				return getRecentDisplayItems();
+				return getRecentFolderDisplayItems();
 			}
 
 			return folderRenderer && typeof folderRenderer.getDisplayItems === 'function'
@@ -1213,7 +1260,12 @@
 
 		function createFolderItemGrid(folderId, win = null, options = {}) {
 			if (isRecentsFolderId(folderId)) {
-				return createRecentItemGrid(folderId);
+				return folderRenderer && typeof folderRenderer.createItemGrid === 'function'
+					? folderRenderer.createItemGrid(folderId, win, Object.assign({}, options, {
+						gridClassName: 'pdk-recent-grid',
+						items: getRecentFolderDisplayItems()
+					}))
+					: document.createElement('div');
 			}
 
 			return folderRenderer && typeof folderRenderer.createItemGrid === 'function'
@@ -1681,16 +1733,6 @@
 			});
 		}
 
-		function selectRecentItem(button, event) {
-			if (!button || !launcherRenderer || typeof launcherRenderer.selectItem !== 'function') {
-				return;
-			}
-
-			launcherRenderer.selectItem(button, {
-				additive: Boolean(event && (event.metaKey || event.ctrlKey || event.shiftKey))
-			});
-		}
-
 		function openRecentDisplayItem(item) {
 			if (!item) {
 				return null;
@@ -1719,59 +1761,6 @@
 
 			return null;
 		}
-
-		function createRecentItemButton(item) {
-			const button = document.createElement('button');
-			const label = item && item.label ? item.label : getMenuLabel('recent_item');
-			const appIcon = document.createElement('span');
-			const itemLabel = dom.createTruncatedLabel('pdk-app-launcher-label', label);
-
-			button.type = 'button';
-			button.className = 'pdk-app-launcher pdk-recent-launcher';
-			button.dataset.pdkContext = item && item.type === 'folder'
-				? contextTargets.FOLDER
-				: item && item.type === 'app'
-					? contextItemTypes.APP
-					: contextTargets.DOCUMENT;
-			button.dataset.pdkContextId = item && item.target ? item.target : item && item.id ? item.id : '';
-			button.dataset.pdkContextLabel = label;
-			button.dataset.pdkRecentItem = item && item.id ? item.id : '';
-			button.setAttribute('aria-label', label);
-			button.setAttribute('aria-pressed', 'false');
-			button.setAttribute('aria-selected', 'false');
-
-			appIcon.className = 'pdk-app-icon';
-			appIcon.appendChild(dom.createIcon(item && item.icon ? item.icon : defaultDashicon));
-
-			button.append(appIcon, itemLabel);
-			button.addEventListener('click', (event) => {
-				event.preventDefault();
-				event.stopPropagation();
-				selectRecentItem(button, event);
-			});
-			button.addEventListener('dblclick', (event) => {
-				event.preventDefault();
-				event.stopPropagation();
-				openRecentDisplayItem(item);
-			});
-			button.addEventListener('contextmenu', () => {
-				selectRecentItem(button);
-			});
-
-			return button;
-		}
-
-		function createRecentItemGrid() {
-			const grid = document.createElement('div');
-
-			grid.className = 'pdk-app-grid pdk-finder-grid pdk-recent-grid';
-			getRecentDisplayItems().forEach((item) => {
-				grid.appendChild(createRecentItemButton(item));
-			});
-
-			return grid;
-		}
-
 		let activeFolderItemDropTarget = null;
 
 		function clearFolderItemDropTarget() {
@@ -4073,7 +4062,7 @@
 				primaryGroup.appendChild(createExplorerSidebarButton({
 					active: !isTrashFolderId(folderId),
 					context: contextTargets.FOLDER,
-					icon: currentFolder && currentFolder.icon ? currentFolder.icon : 'dashicons-admin-home',
+					icon: currentFolder && currentFolder.icon ? currentFolder.icon : 'dashicons-category',
 					id: folderId,
 					label: getMenuLabel('home'),
 					onClick() {
@@ -4175,7 +4164,7 @@
 					active: folder.id === folderId,
 					context: contextTargets.FOLDER_SIDEBAR,
 					dropTarget: 'folder',
-					icon: folder.icon || (folder.id === trashFolderId ? 'dashicons-trash' : 'dashicons-admin-home'),
+					icon: folder.icon || (folder.id === trashFolderId ? 'dashicons-trash' : 'dashicons-category'),
 					id: folder.id,
 					label: folder.label || getMenuLabel('folder'),
 					section: 'locations',

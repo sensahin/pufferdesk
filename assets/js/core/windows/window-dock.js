@@ -66,6 +66,14 @@
 			return shell.dataset.pdkMinimizeAnimation === 'scale' ? 'scale' : 'genie';
 		}
 
+		function getWindowAnimationFallbackDuration(className) {
+			if (className === 'is-opening') {
+				return 220;
+			}
+
+			return getMinimizeAnimation() === 'scale' ? 300 : 500;
+		}
+
 		function shouldMinimizeIntoAppIcon() {
 			return shell.dataset.pdkMinimizeIntoAppIcon === '1';
 		}
@@ -156,7 +164,9 @@
 			win.addEventListener('animationend', finish);
 		}
 
-		function playWindowAnimation(win, className, target, duration = 280) {
+		function playWindowAnimation(win, className, target, duration = null) {
+			const fallbackDuration = Number.isFinite(duration) ? duration : getWindowAnimationFallbackDuration(className);
+
 			cancelWindowAnimation(win);
 			setWindowAnimationTarget(win, target);
 			win.dataset.pdkMinimizeAnimation = getMinimizeAnimation();
@@ -167,7 +177,7 @@
 				win.classList.remove(className);
 				win.removeAttribute('data-pdk-minimize-animation');
 				clearWindowAnimationTarget(win);
-			}, duration);
+			}, fallbackDuration);
 		}
 
 		function revealWindow(win, revealOptions = {}) {
@@ -313,7 +323,7 @@
 				clearWindowAnimationTarget(win);
 				emitWindowStateChanged(win, 'minimized');
 				scheduleSave();
-			});
+			}, getWindowAnimationFallbackDuration('is-minimizing'));
 		}
 
 		return {

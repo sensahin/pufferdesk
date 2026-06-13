@@ -553,7 +553,7 @@
 			if (!windowOptions.skipFocus) {
 				focusWindow(win);
 				if (!restoreInProgress && windowDock.shouldAnimateOpeningApps() && !(windowOptions.state && windowOptions.state.hidden)) {
-					windowDock.playWindowAnimation(win, 'is-opening', windowDock.getWindowAnimationTarget(win), 220);
+					windowDock.playWindowAnimation(win, 'is-opening', windowDock.getWindowAnimationTarget(win), 180);
 				}
 			}
 

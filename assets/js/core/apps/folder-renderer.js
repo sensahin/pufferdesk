@@ -608,6 +608,10 @@
 				return renderer.createTrashItemButton(item.trashItem);
 			}
 
+			if (item && item.recentItem && typeof renderer.createRecentItemButton === 'function') {
+				return renderer.createRecentItemButton(item.recentItem);
+			}
+
 			if (item && item.type === 'folder' && typeof renderer.createFolderButton === 'function') {
 				return renderer.createFolderButton(item.folder, folderId, win);
 			}
@@ -716,7 +720,10 @@
 			const grid = document.createElement('div');
 			const isTrash = Boolean(options.trash);
 			const removable = Boolean(options.removable);
-			const items = isTrash ? getTrashDisplayItems(win) : getDisplayItems(folderId, win);
+			const suppliedItems = Array.isArray(options.items) ? options.items : null;
+			const items = suppliedItems
+				? sortExplorerFolderItems(suppliedItems, win)
+				: isTrash ? getTrashDisplayItems(win) : getDisplayItems(folderId, win);
 			const layout = normalizeLayout(win);
 			const listView = isColumnListView(win);
 			const groupMode = getGroupMode(win);
@@ -726,6 +733,7 @@
 				'pdk-app-grid',
 				'pdk-finder-grid',
 				isTrash ? 'pdk-finder-trash-grid' : '',
+				options.gridClassName || '',
 				listView ? `pdk-folder-list pdk-folder-list-layout-${layout}` : '',
 				grouped ? 'pdk-folder-grid-grouped' : ''
 			].filter(Boolean).join(' ');

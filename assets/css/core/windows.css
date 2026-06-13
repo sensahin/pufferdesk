@@ -31,23 +31,28 @@
 }
 
 .pdk-window.is-opening {
-	animation: pdk-window-open 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+	animation: pdk-window-open 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+	transform-origin: center center;
 }
 
 .pdk-window.is-restoring {
-	animation: pdk-window-restore 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+	animation: pdk-window-restore 420ms cubic-bezier(0.18, 0.82, 0.22, 1) both;
 }
 
 .pdk-window.is-minimizing {
-	animation: pdk-window-minimize-genie 260ms cubic-bezier(0.3, 0.8, 0.2, 1) both;
+	animation: pdk-window-minimize-genie 420ms cubic-bezier(0.18, 0.82, 0.22, 1) both;
 }
 
 .pdk-window.is-minimizing[data-pdk-minimize-animation="scale"] {
+	animation-duration: 240ms;
 	animation-name: pdk-window-minimize-scale;
+	animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .pdk-window.is-restoring[data-pdk-minimize-animation="scale"] {
+	animation-duration: 240ms;
 	animation-name: pdk-window-restore-scale;
+	animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .pdk-window.is-show-desktop-hidden {
@@ -59,7 +64,7 @@
 @keyframes pdk-window-open {
 	from {
 		opacity: 0;
-		transform: translate(var(--pdk-window-animation-x, 0), var(--pdk-window-animation-y, 28px)) scale(0.92);
+		transform: scale(0.975);
 	}
 	to {
 		opacity: 1;
@@ -69,14 +74,19 @@
 
 @keyframes pdk-window-restore {
 	from {
-		clip-path: inset(42% 46% 0 46% round 18px);
-		opacity: 0.2;
-		transform: translate(var(--pdk-window-animation-x, 0), var(--pdk-window-animation-y, 96px)) scale(0.18, 0.28);
+		clip-path: inset(46% 47% 0 47% round 18px);
+		opacity: 0.14;
+		transform: translate(var(--pdk-window-animation-x, 0), var(--pdk-window-animation-y, 96px)) scale(0.12, 0.2);
 	}
-	55% {
-		clip-path: inset(10% 12% 0 12% round 14px);
-		opacity: 0.86;
-		transform: translateY(18px) scale(0.82, 0.96);
+	42% {
+		clip-path: inset(26% 32% 0 32% round 16px);
+		opacity: 0.68;
+		transform: translateY(42px) scale(0.54, 0.76);
+	}
+	76% {
+		clip-path: inset(6% 8% 0 8% round 12px);
+		opacity: 0.94;
+		transform: translateY(6px) scale(0.94, 0.99);
 	}
 	to {
 		clip-path: inset(0 round 8px);
@@ -102,14 +112,19 @@
 		opacity: 1;
 		transform: none;
 	}
-	45% {
-		clip-path: inset(8% 12% 0 12% round 14px);
-		opacity: 0.86;
-		transform: translateY(18px) scale(0.76, 0.94);
+	28% {
+		clip-path: inset(5% 7% 0 7% round 12px);
+		opacity: 0.95;
+		transform: translateY(6px) scale(0.94, 0.99);
+	}
+	68% {
+		clip-path: inset(26% 32% 0 32% round 16px);
+		opacity: 0.58;
+		transform: translateY(42px) scale(0.54, 0.76);
 	}
 	to {
-		clip-path: inset(44% 46% 0 46% round 18px);
-		opacity: 0.12;
+		clip-path: inset(46% 47% 0 47% round 18px);
+		opacity: 0.08;
 		transform: translate(var(--pdk-window-animation-x, 0), var(--pdk-window-animation-y, 96px)) scale(0.12, 0.22);
 	}
 }

@@ -50,7 +50,7 @@ final class PufferDesk_Virtual_Filesystem {
 				$labels['home'],
 				$paths[ self::FOLDER_HOME ],
 				'',
-				$this->theme_icon( 'home.svg', 'dashicons-admin-home' ),
+				$this->theme_icon( 'folder.svg', 'dashicons-category' ),
 				'home'
 			),
 			$this->create_folder(
