@@ -68,6 +68,7 @@
 		}),
 		itemTypes: Object.freeze({
 			APP: 'app',
+			DOCUMENT: 'document',
 			FOLDER: 'folder'
 		}),
 		reasons: Object.freeze({

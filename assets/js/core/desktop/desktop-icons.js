@@ -336,6 +336,18 @@
 			};
 		}
 
+		function getSourceIconsFromDragItems(dragItems = []) {
+			return Array.isArray(dragItems)
+				? dragItems.map((item) => item && item.icon).filter(Boolean)
+				: [];
+		}
+
+		function getDropDetails(sourceIcons, targetIcon) {
+			return (Array.isArray(sourceIcons) ? sourceIcons : [])
+				.filter(Boolean)
+				.map((sourceIcon) => getDropDetail(sourceIcon, targetIcon));
+		}
+
 		function canDropOnFolder(sourceIcon, targetIcon) {
 			if (!sourceIcon || !targetIcon || sourceIcon === targetIcon) {
 				return false;
@@ -350,6 +362,16 @@
 			}
 
 			return false;
+		}
+
+		function canDropIconsOnFolder(sourceIcons, targetIcon) {
+			const icons = Array.isArray(sourceIcons) ? sourceIcons.filter(Boolean) : [];
+
+			if (!icons.length || icons.includes(targetIcon)) {
+				return false;
+			}
+
+			return icons.every((sourceIcon) => canDropOnFolder(sourceIcon, targetIcon));
 		}
 
 		function clearDropTarget() {
@@ -546,9 +568,11 @@
 			}
 		}
 
-		function getFolderDropTarget(sourceIcon, clientX, clientY) {
+		function getFolderDropTarget(sourceIcon, clientX, clientY, dragItems = null) {
+			const sourceIcons = getSourceIconsFromDragItems(dragItems);
+			const icons = sourceIcons.length ? sourceIcons : [sourceIcon].filter(Boolean);
 			const desktopFolderTarget = getIcons().find((targetIcon) => {
-				if (!canDropOnFolder(sourceIcon, targetIcon)) {
+				if (!canDropIconsOnFolder(icons, targetIcon)) {
 					return false;
 				}
 
@@ -585,15 +609,15 @@
 				? element.closest('.pdk-finder-pane')
 				: null;
 
-			if (nextSidebarTarget && canDropOnFolder(sourceIcon, nextSidebarTarget)) {
+			if (nextSidebarTarget && canDropIconsOnFolder(icons, nextSidebarTarget)) {
 				return nextSidebarTarget;
 			}
 
-			if (nextFolderItemTarget && canDropOnFolder(sourceIcon, nextFolderItemTarget)) {
+			if (nextFolderItemTarget && canDropIconsOnFolder(icons, nextFolderItemTarget)) {
 				return nextFolderItemTarget;
 			}
 
-			if (nextPaneTarget && canDropOnFolder(sourceIcon, nextPaneTarget)) {
+			if (nextPaneTarget && canDropIconsOnFolder(icons, nextPaneTarget)) {
 				return nextPaneTarget;
 			}
 
@@ -1325,7 +1349,7 @@
 					}
 
 					moveDragItems(dragItems, deltaX, deltaY);
-					const nextDropTarget = dragItems.length === 1 ? getFolderDropTarget(icon, moveEvent.clientX, moveEvent.clientY) : null;
+					const nextDropTarget = getFolderDropTarget(icon, moveEvent.clientX, moveEvent.clientY, dragItems);
 					setDropTarget(nextDropTarget);
 					if (platformDragStarted && dragDropManager) {
 						if (nextDropTarget && typeof dragDropManager.hoverLegacy === 'function') {
@@ -1355,8 +1379,12 @@
 					}
 
 					if (moved) {
-						if (dragItems.length === 1 && dropTarget && typeof options.onDropOnFolder === 'function') {
-							options.onDropOnFolder(getDropDetail(icon, dropTarget));
+						if (dropTarget && typeof options.onDropOnFolder === 'function') {
+							const sourceIcons = getSourceIconsFromDragItems(dragItems);
+							const dropDetails = getDropDetails(sourceIcons.length ? sourceIcons : [icon], dropTarget);
+							options.onDropOnFolder(Object.assign({}, dropDetails[0] || getDropDetail(icon, dropTarget), {
+								details: dropDetails
+							}));
 						} else if (platformDragStarted && dragDropManager && typeof dragDropManager.cancel === 'function') {
 							dragDropManager.cancel('no-drop-target');
 						}

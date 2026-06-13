@@ -1917,7 +1917,7 @@ final class PufferDesk_Runtime_Config {
 				'move_not_applied'       => __( 'The move did not change workspace state.', 'pufferdesk-admin-desktop' ),
 				'move_could_not_be_completed' => __( 'The move could not be completed.', 'pufferdesk-admin-desktop' ),
 				'move_missing_item'      => __( 'Move requests must include a supported item id and type.', 'pufferdesk-admin-desktop' ),
-				'move_unsupported_item_type' => __( 'Only apps and folders can be moved by the core move service.', 'pufferdesk-admin-desktop' ),
+				'move_unsupported_item_type' => __( 'Only apps, folders, and documents can be moved by the core move service.', 'pufferdesk-admin-desktop' ),
 				'move_unknown_item'      => __( 'The moved item does not exist in the current workspace.', 'pufferdesk-admin-desktop' ),
 				'move_locked_item'       => __( 'Locked or system items cannot be moved to that container.', 'pufferdesk-admin-desktop' ),
 				'move_missing_source_container' => __( 'Move requests must include a source container.', 'pufferdesk-admin-desktop' ),

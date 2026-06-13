@@ -59,7 +59,7 @@
 				return invalid('missing-item', messages.MISSING_ITEM, move);
 			}
 
-			if (![itemTypes.APP, itemTypes.FOLDER].includes(move.itemType)) {
+			if (![itemTypes.APP, itemTypes.DOCUMENT, itemTypes.FOLDER].includes(move.itemType)) {
 				return invalid('unsupported-item-type', messages.UNSUPPORTED_ITEM_TYPE, move);
 			}
 

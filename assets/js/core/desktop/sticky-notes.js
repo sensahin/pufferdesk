@@ -21,6 +21,14 @@
 		const labels = getLabels(config);
 		const desktop = shell ? shell.querySelector('.pdk-desktop') : null;
 		const documentStore = options.documentStore || (window.PufferDesk.documents ? window.PufferDesk.documents.createDocumentStore(config) : null);
+		const dragDropManager = options.dragDropManager || window.PufferDesk.dragDropManager || null;
+		const dragDropConstants = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.constants ? window.PufferDesk.dragDrop.constants : {};
+		const dragDropModels = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.models ? window.PufferDesk.dragDrop.models : null;
+		const containerTypes = dragDropConstants.containerTypes || {};
+		const itemTypes = dragDropConstants.itemTypes || {};
+		const virtualFilesystem = window.PufferDesk.virtualFilesystem && typeof window.PufferDesk.virtualFilesystem.create === 'function'
+			? window.PufferDesk.virtualFilesystem.create(config)
+			: null;
 		const sessionStore = window.PufferDesk.session && typeof window.PufferDesk.session.createSessionStore === 'function'
 			? window.PufferDesk.session.createSessionStore(options.storageKey || config.storageKey || '')
 			: null;
@@ -35,6 +43,7 @@
 		const contextTargets = window.PufferDesk.shell && window.PufferDesk.shell.contextMenuConstants
 			? window.PufferDesk.shell.contextMenuConstants.targets || {}
 			: {};
+		const eventNames = window.PufferDesk.events && window.PufferDesk.events.names ? window.PufferDesk.events.names : {};
 		const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.sections || {}
 			: {};
@@ -78,6 +87,7 @@
 		let restorePromise = null;
 		let highestZ = 40;
 		let transientNoteId = 0;
+		let activeDocumentDropTarget = null;
 
 		function isRedmondTheme() {
 			const theme = config.theme && typeof config.theme === 'object' ? config.theme : {};
@@ -629,6 +639,189 @@
 			}
 			syncStickyFullscreenSource(noteElement);
 			saveLayout();
+		}
+
+		function readLayerIndex(name, fallback) {
+			const styles = shell && typeof window.getComputedStyle === 'function'
+				? window.getComputedStyle(shell)
+				: null;
+			const parsed = styles ? Number.parseFloat(styles.getPropertyValue(name)) : Number.NaN;
+
+			return Number.isFinite(parsed) ? parsed : fallback;
+		}
+
+		function readElementZIndex(element) {
+			if (!element) {
+				return 0;
+			}
+
+			const inline = Number.parseFloat(element.style.zIndex);
+			if (Number.isFinite(inline)) {
+				return inline;
+			}
+
+			const styles = typeof window.getComputedStyle === 'function'
+				? window.getComputedStyle(element)
+				: null;
+			const computed = styles ? Number.parseFloat(styles.zIndex) : Number.NaN;
+
+			return Number.isFinite(computed) ? computed : 0;
+		}
+
+		function getHighestWindowZIndex() {
+			return Array.from(shell.querySelectorAll('.pdk-window:not(.is-closed):not(.is-hidden)'))
+				.reduce((highest, win) => Math.max(highest, readElementZIndex(win)), 0);
+		}
+
+		function elevateForDrag(noteElement) {
+			const menuLayer = readLayerIndex('--pdk-layer-menu', 10000);
+			const dragZ = Math.max(highestZ + 1, getHighestWindowZIndex() + 1, menuLayer - 1);
+
+			highestZ = dragZ;
+			if (layer) {
+				layer.style.zIndex = String(dragZ);
+			}
+			noteElement.style.zIndex = String(dragZ);
+			syncStickyFullscreenSource(noteElement);
+		}
+
+		function clearDocumentDropTarget() {
+			if (activeDocumentDropTarget) {
+				activeDocumentDropTarget.classList.remove('is-drop-target');
+				activeDocumentDropTarget = null;
+			}
+		}
+
+		function setDocumentDropTarget(target) {
+			if (activeDocumentDropTarget === target) {
+				return;
+			}
+
+			clearDocumentDropTarget();
+			activeDocumentDropTarget = target || null;
+			if (activeDocumentDropTarget) {
+				activeDocumentDropTarget.classList.add('is-drop-target');
+			}
+		}
+
+		function getDocumentSourceFolderId(entry) {
+			const parentPath = entry && entry.document && typeof entry.document.parentPath === 'string'
+				? entry.document.parentPath
+				: '';
+
+			return parentPath && virtualFilesystem && typeof virtualFilesystem.getFolderIdForPath === 'function'
+				? virtualFilesystem.getFolderIdForPath(parentPath)
+				: '';
+		}
+
+		function getDocumentSourceContainerId(entry) {
+			const folderId = getDocumentSourceFolderId(entry);
+			const desktopFolderId = virtualFilesystem && typeof virtualFilesystem.getFolderId === 'function'
+				? virtualFilesystem.getFolderId('DESKTOP')
+				: '';
+
+			return folderId && folderId !== desktopFolderId && dragDropModels
+				? dragDropModels.createContainerId(containerTypes.FOLDER, folderId)
+				: containerTypes.DESKTOP || 'desktop';
+		}
+
+		function getStickyDocumentDragItem(entry) {
+			const documentId = entry && entry.document ? Number.parseInt(entry.document.id, 10) : 0;
+
+			if (!isPersistedDocumentId(documentId)) {
+				return null;
+			}
+
+			return {
+				id: `document-${documentId}`,
+				label: entry.document.title || getLabel('stickyNote'),
+				metadata: {
+					documentId,
+					parentPath: entry.document.parentPath || '',
+					source: 'sticky-note',
+					sourceFolderId: getDocumentSourceFolderId(entry)
+				},
+				sourceContainerId: getDocumentSourceContainerId(entry),
+				type: itemTypes.DOCUMENT || 'document'
+			};
+		}
+
+		function getFolderDropIdFromElement(element) {
+			return element && element.dataset
+				? element.dataset.pdkOpenFolder || element.dataset.pdkContextId || ''
+				: '';
+		}
+
+		function getElementBelowNote(noteElement, clientX, clientY) {
+			if (typeof document.elementFromPoint !== 'function' || !noteElement) {
+				return null;
+			}
+
+			const previousPointerEvents = noteElement.style.pointerEvents;
+
+			noteElement.style.pointerEvents = 'none';
+			const element = document.elementFromPoint(clientX, clientY);
+			noteElement.style.pointerEvents = previousPointerEvents || '';
+
+			return element;
+		}
+
+		function getStickyNoteDropTarget(noteElement, entry, clientX, clientY) {
+			if (!dragDropManager || !dragDropModels || typeof dragDropManager.validateDrop !== 'function') {
+				return null;
+			}
+
+			const item = getStickyDocumentDragItem(entry);
+			const element = getElementBelowNote(noteElement, clientX, clientY);
+			const folderElement = element && typeof element.closest === 'function'
+				? element.closest('.pdk-folder-launcher, [data-pdk-desktop-icon-kind="folder"]')
+				: null;
+			const pane = element && typeof element.closest === 'function'
+				? element.closest('.pdk-finder-pane')
+				: null;
+			const desktopElement = element && typeof element.closest === 'function'
+				? element.closest('.pdk-desktop')
+				: null;
+			const desktopContainerId = containerTypes.DESKTOP || 'desktop';
+			let targetElement = null;
+			let targetContainerId = '';
+			let folderId = '';
+
+			if (!item || !element) {
+				return null;
+			}
+
+			if (folderElement && !noteElement.contains(folderElement)) {
+				targetElement = folderElement;
+				folderId = getFolderDropIdFromElement(folderElement);
+			} else if (pane) {
+				const win = pane.closest('.pdk-window[data-pdk-window-kind="folder"]');
+
+				targetElement = pane;
+				folderId = win && win.dataset ? win.dataset.pdkFolderWindow || '' : '';
+			} else if (desktopElement && !element.closest('.pdk-window') && item.sourceContainerId !== desktopContainerId) {
+				targetElement = desktopElement;
+				targetContainerId = desktopContainerId;
+			}
+
+			if (!targetElement || (!folderId && !targetContainerId)) {
+				return null;
+			}
+
+			const toContainerId = targetContainerId || dragDropModels.createContainerId(containerTypes.FOLDER, folderId);
+			const move = {
+				fromContainerId: item.sourceContainerId,
+				item,
+				toContainerId
+			};
+			const validation = dragDropManager.validateDrop(move, {
+				emit: false
+			});
+
+			return validation && validation.valid ? {
+				element: targetElement,
+				move
+			} : null;
 		}
 
 		function createIconButton(className, label, text) {
@@ -1402,6 +1595,8 @@
 
 		function bindDrag(noteElement, dragHandle, entry) {
 			let dragState = null;
+			let currentDropTarget = null;
+			let platformDragStarted = false;
 			const dragThreshold = 3;
 
 			bindNoteTitlebarDoubleClick(entry, dragHandle);
@@ -1420,6 +1615,13 @@
 
 					dragState.started = true;
 					noteElement.classList.add('is-dragging');
+					elevateForDrag(noteElement);
+					if (dragDropManager && typeof dragDropManager.startDrag === 'function') {
+						platformDragStarted = Boolean(dragDropManager.startDrag(getStickyDocumentDragItem(entry), {
+							element: noteElement,
+							source: 'sticky-note'
+						}));
+					}
 				}
 
 				const desktopRect = desktop.getBoundingClientRect();
@@ -1431,22 +1633,62 @@
 
 				noteElement.style.left = `${Math.round(nextLeft)}px`;
 				noteElement.style.top = `${Math.round(nextTop)}px`;
+
+				currentDropTarget = getStickyNoteDropTarget(noteElement, entry, event.clientX, event.clientY);
+				setDocumentDropTarget(currentDropTarget ? currentDropTarget.element : null);
+				if (platformDragStarted && dragDropManager) {
+					if (currentDropTarget && typeof dragDropManager.hover === 'function') {
+						dragDropManager.hover(Object.assign({}, currentDropTarget.move, {
+							position: {
+								clientX: event.clientX,
+								clientY: event.clientY
+							}
+						}));
+					} else if (typeof dragDropManager.leave === 'function') {
+						dragDropManager.leave();
+					}
+				}
 			}
 
-			function onPointerUp() {
+			function finishDrag(event, commitDrop) {
 				if (!dragState) {
 					return;
 				}
 
 				const didDrag = dragState.started;
+				const dropTarget = currentDropTarget;
 				dragState = null;
+				currentDropTarget = null;
 				noteElement.classList.remove('is-dragging');
+				if (layer) {
+					layer.style.zIndex = '';
+				}
+				clearDocumentDropTarget();
+				if (didDrag && commitDrop && dropTarget && dragDropManager && typeof dragDropManager.completeDrop === 'function') {
+					dragDropManager.completeDrop(Object.assign({}, dropTarget.move, {
+						position: {
+							clientX: event && Number.isFinite(event.clientX) ? event.clientX : 0,
+							clientY: event && Number.isFinite(event.clientY) ? event.clientY : 0
+						}
+					}));
+				} else if (platformDragStarted && dragDropManager && typeof dragDropManager.cancel === 'function') {
+					dragDropManager.cancel('no-drop-target');
+				}
+				platformDragStarted = false;
 				if (didDrag) {
 					saveLayout();
 				}
 				window.removeEventListener('pointermove', onPointerMove);
 				window.removeEventListener('pointerup', onPointerUp);
-				window.removeEventListener('pointercancel', onPointerUp);
+				window.removeEventListener('pointercancel', onPointerCancel);
+			}
+
+			function onPointerUp(event) {
+				finishDrag(event, true);
+			}
+
+			function onPointerCancel(event) {
+				finishDrag(event, false);
 			}
 
 			dragHandle.addEventListener('pointerdown', (event) => {
@@ -1466,7 +1708,7 @@
 				dragHandle.setPointerCapture(event.pointerId);
 				window.addEventListener('pointermove', onPointerMove);
 				window.addEventListener('pointerup', onPointerUp);
-				window.addEventListener('pointercancel', onPointerUp);
+				window.addEventListener('pointercancel', onPointerCancel);
 			});
 		}
 
@@ -1762,6 +2004,23 @@
 				}
 
 				return documentData;
+			});
+		}
+
+		if (window.PufferDesk.events && typeof window.PufferDesk.events.on === 'function' && eventNames.DOCUMENTS_CHANGED) {
+			window.PufferDesk.events.on(eventNames.DOCUMENTS_CHANGED, (detail = {}) => {
+				const documentData = detail && detail.document ? detail.document : null;
+				const documentId = Number.parseInt(documentData && documentData.id, 10);
+				const entry = noteMap.get(documentId);
+
+				if (!entry || !documentData) {
+					return;
+				}
+
+				entry.document = Object.assign({}, entry.document || {}, documentData, {
+					content: getNoteContent(entry)
+				});
+				syncNoteElementDocumentMetadata(entry.element, entry.document);
 			});
 		}
 

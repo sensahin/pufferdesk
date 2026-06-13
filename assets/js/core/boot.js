@@ -116,9 +116,11 @@
 		let folderManager = null;
 		let launcher = null;
 		let desktopIconManager = null;
+		const documentStore = window.PufferDesk.documents.createDocumentStore(config);
 		const moveStateStore = window.PufferDesk.dragDrop.createMoveStateStore(shell, {
 			config,
 			getDesktopIconManager: () => desktopIconManager,
+			getDocumentStore: () => documentStore,
 			getFolderManager: () => folderManager,
 			getLauncher: () => launcher
 		});
@@ -173,8 +175,14 @@
 				}));
 			},
 			onDropOnFolder(detail) {
-				dragDropManager.dropLegacy(detail, {
-					source: dragDropContainerTypes.DESKTOP
+				const details = Array.isArray(detail && detail.details) && detail.details.length
+					? detail.details
+					: [detail];
+
+				details.forEach((dropDetail) => {
+					dragDropManager.dropLegacy(dropDetail, {
+						source: dragDropContainerTypes.DESKTOP
+					});
 				});
 			},
 			onRenameIcon(detail) {
@@ -207,11 +215,11 @@
 			storageKey: config.storageKey || ''
 		});
 		const dialogs = window.PufferDesk.shell.createShellDialogs(shell);
-		const documentStore = window.PufferDesk.documents.createDocumentStore(config);
 		const stickyNoteManager = window.PufferDesk.desktop.createStickyNoteManager(shell, {
 			config,
 			dialogs,
 			documentStore,
+			dragDropManager,
 			storageKey: config.storageKey || ''
 		});
 		window.PufferDesk.stickyNoteManager = stickyNoteManager;

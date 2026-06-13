@@ -282,8 +282,11 @@
 			button.dataset.pdkContext = contextTargets.DOCUMENT;
 			button.dataset.pdkContextId = item.id || '';
 			button.dataset.pdkContextLabel = label;
+			button.dataset.pdkDraggableFolderItem = '1';
 			button.dataset.pdkDocumentId = item.document && item.document.id ? String(item.document.id) : String(item.id || '').replace(/^document-/, '');
 			button.dataset.pdkDocumentKind = item.document && item.document.kind ? String(item.document.kind) : '';
+			button.dataset.pdkFolderItemId = item.id || `document-${button.dataset.pdkDocumentId || ''}`;
+			button.dataset.pdkFolderItemKind = 'document';
 			if (folderId) {
 				button.dataset.pdkFolderId = folderId;
 			}

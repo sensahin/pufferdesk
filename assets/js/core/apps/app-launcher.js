@@ -16,6 +16,7 @@
 		const dragDropConstants = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.constants ? window.PufferDesk.dragDrop.constants : {};
 		const dragDropModels = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.models ? window.PufferDesk.dragDrop.models : null;
 		const containerTypes = dragDropConstants.containerTypes || {};
+		const dragDropItemTypes = dragDropConstants.itemTypes || {};
 		const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.sections || {}
 			: {};
@@ -1870,8 +1871,9 @@
 		function getFolderDragDetail(item, sourceFolderId) {
 			const kind = item && item.dataset ? item.dataset.pdkFolderItemKind || '' : '';
 			const id = item && item.dataset ? item.dataset.pdkFolderItemId || item.dataset.pdkContextId || item.dataset.pdkOpenFolder || '' : '';
+			const supportedKinds = [dragDropItemTypes.APP || 'app', dragDropItemTypes.DOCUMENT || 'document', dragDropItemTypes.FOLDER || 'folder'];
 
-			if (!id || !['app', 'folder'].includes(kind)) {
+			if (!id || !supportedKinds.includes(kind)) {
 				return null;
 			}
 
@@ -1881,6 +1883,20 @@
 				kind,
 				sourceFolderId
 			};
+		}
+
+		function getFolderDragItems(item, pane) {
+			const selected = launcherRenderer && typeof launcherRenderer.getSelectableItems === 'function'
+				? launcherRenderer.getSelectableItems(pane).filter((selectedItem) => selectedItem.classList.contains('is-selected'))
+				: [];
+
+			return selected.includes(item) ? selected : [item].filter(Boolean);
+		}
+
+		function getFolderDragDetails(items, sourceFolderId) {
+			return (Array.isArray(items) ? items : [])
+				.map((dragItem) => getFolderDragDetail(dragItem, sourceFolderId))
+				.filter(Boolean);
 		}
 
 		function getFolderDropIdFromElement(element) {
@@ -1981,7 +1997,15 @@
 			return Boolean(validation && validation.valid);
 		}
 
-		function getFolderItemDropTarget(dragDetail, clientX, clientY) {
+		function canDropFolderItems(dragDetails, dropTarget) {
+			const details = Array.isArray(dragDetails) ? dragDetails.filter(Boolean) : [dragDetails].filter(Boolean);
+
+			return Boolean(details.length && details.every((detail) => canDropFolderItem(detail, dropTarget)));
+		}
+
+		function getFolderItemDropTarget(dragDetails, clientX, clientY) {
+			const details = Array.isArray(dragDetails) ? dragDetails.filter(Boolean) : [dragDetails].filter(Boolean);
+			const draggedItems = new Set(details.map((detail) => detail.item).filter(Boolean));
 			const element = typeof document.elementFromPoint === 'function'
 				? document.elementFromPoint(clientX, clientY)
 				: null;
@@ -2000,11 +2024,15 @@
 				return null;
 			}
 
-			if (sidebarTarget && sidebarTarget.element !== dragDetail.item) {
-				return canDropFolderItem(dragDetail, sidebarTarget) ? sidebarTarget : null;
+			if (!details.length) {
+				return null;
 			}
 
-			if (folderElement && folderElement !== dragDetail.item) {
+			if (sidebarTarget && !draggedItems.has(sidebarTarget.element)) {
+				return canDropFolderItems(details, sidebarTarget) ? sidebarTarget : null;
+			}
+
+			if (folderElement && !draggedItems.has(folderElement)) {
 				const id = getFolderDropIdFromElement(folderElement);
 				const target = {
 					element: folderElement,
@@ -2012,10 +2040,10 @@
 					kind: 'folder'
 				};
 
-				return canDropFolderItem(dragDetail, target) ? target : null;
+				return canDropFolderItems(details, target) ? target : null;
 			}
 
-			if (pane && !pane.contains(dragDetail.item)) {
+			if (pane && !details.some((detail) => pane.contains(detail.item))) {
 				const win = pane.closest(`.pdk-window[data-pdk-window-kind="${dom.escapeAttribute(folderWindowKind)}"]`);
 				const id = win && win.dataset ? win.dataset.pdkFolderWindow || '' : '';
 				const target = {
@@ -2024,7 +2052,7 @@
 					kind: containerTypes.FOLDER
 				};
 
-				return canDropFolderItem(dragDetail, target) ? target : null;
+				return canDropFolderItems(details, target) ? target : null;
 			}
 
 			if (desktop && !element.closest('.pdk-window')) {
@@ -2034,7 +2062,7 @@
 					kind: containerTypes.DESKTOP
 				};
 
-				return canDropFolderItem(dragDetail, target) ? target : null;
+				return canDropFolderItems(details, target) ? target : null;
 			}
 
 			if (!desktop && shell) {
@@ -2046,21 +2074,44 @@
 				};
 
 				if (desktopElement && isPointInsideElement(desktopElement, clientX, clientY) && !isPointOverVisibleWindow(clientX, clientY)) {
-					return canDropFolderItem(dragDetail, target) ? target : null;
+					return canDropFolderItems(details, target) ? target : null;
 				}
 			}
 
 			return null;
 		}
 
-		function dropFolderItem(dragDetail, dropTarget, point) {
+		function dropFolderItem(dragDetails, dropTarget, point) {
 			if (!dragDropManager || typeof dragDropManager.completeDrop !== 'function') {
 				return false;
 			}
 
-			const result = dragDropManager.completeDrop(getFolderMoveRequest(dragDetail, dropTarget, point));
+			const details = Array.isArray(dragDetails) ? dragDetails.filter(Boolean) : [dragDetails].filter(Boolean);
+			let changed = false;
 
-			return Boolean(result && result.success);
+			function getBatchPoint(index) {
+				const shouldOffset = dropTarget && dropTarget.kind === containerTypes.DESKTOP && point && index > 0;
+				const offset = 18;
+
+				if (!shouldOffset) {
+					return point;
+				}
+
+				return Object.assign({}, point, {
+					clientX: Number.isFinite(point.clientX) ? point.clientX + (index % 4) * offset : point.clientX,
+					clientY: Number.isFinite(point.clientY) ? point.clientY + Math.floor(index / 4) * offset : point.clientY,
+					left: Number.isFinite(point.left) ? point.left + (index % 4) * offset : point.left,
+					top: Number.isFinite(point.top) ? point.top + Math.floor(index / 4) * offset : point.top
+				});
+			}
+
+			details.forEach((dragDetail, index) => {
+				const result = dragDropManager.completeDrop(getFolderMoveRequest(dragDetail, dropTarget, getBatchPoint(index)));
+
+				changed = Boolean(result && result.success) || changed;
+			});
+
+			return changed;
 		}
 
 		function bindFolderPaneItemDrag(pane, folderId) {
@@ -2095,9 +2146,11 @@
 				const item = event.target && typeof event.target.closest === 'function'
 					? event.target.closest('[data-pdk-draggable-folder-item="1"]')
 					: null;
-				const dragDetail = getFolderDragDetail(item, folderId);
+				const initialDragDetail = getFolderDragDetail(item, folderId);
 				const startX = event.clientX;
 				const startY = event.clientY;
+				let dragItems = [];
+				let dragDetails = [];
 				let moved = false;
 				let currentDropTarget = null;
 				let dragProxy = null;
@@ -2110,7 +2163,7 @@
 					|| event.shiftKey
 					|| !item
 					|| !pane.contains(item)
-					|| !dragDetail
+					|| !initialDragDetail
 				) {
 					return;
 				}
@@ -2118,8 +2171,13 @@
 				if (launcherRenderer && typeof launcherRenderer.selectItemFromPlainAction === 'function') {
 					launcherRenderer.selectItemFromPlainAction(item);
 				}
+				dragItems = getFolderDragItems(item, pane);
+				dragDetails = getFolderDragDetails(dragItems, folderId);
+				if (!dragDetails.length) {
+					return;
+				}
 				event.preventDefault();
-				disableNativeFolderItemDrag(item);
+				dragItems.forEach(disableNativeFolderItemDrag);
 
 				if (typeof item.setPointerCapture === 'function') {
 					item.setPointerCapture(event.pointerId);
@@ -2146,12 +2204,12 @@
 						platformDragStarted = true;
 					}
 					moveFolderItemDragProxy(dragProxy, moveEvent.clientX, moveEvent.clientY);
-					item.classList.add('is-dragging');
-					currentDropTarget = getFolderItemDropTarget(dragDetail, moveEvent.clientX, moveEvent.clientY);
+					dragItems.forEach((dragItem) => dragItem.classList.add('is-dragging'));
+					currentDropTarget = getFolderItemDropTarget(dragDetails, moveEvent.clientX, moveEvent.clientY);
 					setFolderItemDropTarget(currentDropTarget ? currentDropTarget.element : null);
 					if (platformDragStarted && dragDropManager) {
 						if (currentDropTarget && typeof dragDropManager.hover === 'function') {
-							dragDropManager.hover(getFolderMoveRequest(dragDetail, currentDropTarget, {
+							dragDropManager.hover(getFolderMoveRequest(dragDetails[0], currentDropTarget, {
 								clientX: moveEvent.clientX,
 								clientY: moveEvent.clientY
 							}));
@@ -2165,7 +2223,7 @@
 					window.removeEventListener('pointermove', move);
 					window.removeEventListener('pointerup', up);
 					window.removeEventListener('pointercancel', cancel);
-					item.classList.remove('is-dragging');
+					dragItems.forEach((dragItem) => dragItem.classList.remove('is-dragging'));
 					removeFolderItemDragProxy(dragProxy);
 					clearFolderItemDropTarget();
 
@@ -2176,9 +2234,9 @@
 					if (moved && commitDrop) {
 						const clientX = Number.isFinite(upEvent.clientX) ? upEvent.clientX : startX;
 						const clientY = Number.isFinite(upEvent.clientY) ? upEvent.clientY : startY;
-						const dropTarget = currentDropTarget || getFolderItemDropTarget(dragDetail, clientX, clientY);
+						const dropTarget = currentDropTarget || getFolderItemDropTarget(dragDetails, clientX, clientY);
 						if (dropTarget) {
-							dropFolderItem(dragDetail, dropTarget, {
+							dropFolderItem(dragDetails, dropTarget, {
 								clientX,
 								clientY
 							});
@@ -2186,7 +2244,9 @@
 							dragDropManager.cancel('no-drop-target');
 						}
 
-						item.dataset.pdkSuppressFolderItemClick = '1';
+						dragItems.forEach((dragItem) => {
+							dragItem.dataset.pdkSuppressFolderItemClick = '1';
+						});
 					}
 				};
 				const up = (upEvent) => finish(upEvent, true);

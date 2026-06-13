@@ -14,6 +14,9 @@
 		const config = options.config && typeof options.config === 'object' ? options.config : {};
 		const apps = Array.isArray(config.apps) ? config.apps : [];
 		const appMap = new Map(apps.map((app) => [app.id, app]));
+		const virtualFilesystem = window.PufferDesk.virtualFilesystem && typeof window.PufferDesk.virtualFilesystem.create === 'function'
+			? window.PufferDesk.virtualFilesystem.create(config)
+			: null;
 
 		function getFolderManager() {
 			return typeof options.getFolderManager === 'function'
@@ -31,6 +34,12 @@
 			return typeof options.getDesktopIconManager === 'function'
 				? options.getDesktopIconManager()
 				: options.desktopIconManager || window.PufferDesk.desktopIconManager || null;
+		}
+
+		function getDocumentStore() {
+			return typeof options.getDocumentStore === 'function'
+				? options.getDocumentStore()
+				: options.documentStore || null;
 		}
 
 		function getApp(appId) {
@@ -69,8 +78,72 @@
 			return parentId && parentId !== containerTypes.TRASH ? parentId : containerTypes.DESKTOP;
 		}
 
+		function parseDocumentId(value) {
+			const raw = String(value || '').trim();
+			const direct = raw.match(/^\d+$/);
+			const prefixed = raw.match(/^document-(\d+)$/);
+			const match = direct ? direct : prefixed;
+
+			return match ? Number.parseInt(direct ? raw : match[1], 10) || 0 : 0;
+		}
+
 		function getFolderContainerId(folderId) {
 			return folderId && folderId !== containerTypes.DESKTOP ? models.createContainerId(containerTypes.FOLDER, folderId) : containerTypes.DESKTOP;
+		}
+
+		function getDesktopFolderId() {
+			return virtualFilesystem && typeof virtualFilesystem.getFolderId === 'function'
+				? virtualFilesystem.getFolderId('DESKTOP')
+				: containerTypes.DESKTOP;
+		}
+
+		function getDesktopDocumentPath() {
+			const desktopFolderId = getDesktopFolderId();
+			const byFolder = virtualFilesystem && typeof virtualFilesystem.getPathForFolder === 'function'
+				? virtualFilesystem.getPathForFolder(desktopFolderId)
+				: '';
+
+			return byFolder || (
+				virtualFilesystem && typeof virtualFilesystem.getDefaultPathForKind === 'function'
+					? virtualFilesystem.getDefaultPathForKind(desktopFolderId)
+					: ''
+			);
+		}
+
+		function getFolderPath(folderId) {
+			const id = models.normalizeId(folderId);
+			const virtualPath = virtualFilesystem && typeof virtualFilesystem.getPathForFolder === 'function'
+				? virtualFilesystem.getPathForFolder(id)
+				: '';
+			const folder = virtualPath ? null : getFolder(id);
+
+			return virtualPath || (folder && typeof folder.path === 'string' ? folder.path : '');
+		}
+
+		function getContainerDocumentPath(containerId) {
+			const parsed = models.parseContainerId(containerId);
+
+			if (containerId === containerTypes.DESKTOP) {
+				return getDesktopDocumentPath();
+			}
+
+			return parsed.type === containerTypes.FOLDER && parsed.targetId !== containerTypes.TRASH
+				? getFolderPath(parsed.targetId)
+				: '';
+		}
+
+		function getDocumentCurrentContainerId(item) {
+			const metadata = item && item.metadata ? item.metadata : {};
+			const sourceFolderId = models.normalizeId(metadata.sourceFolderId || metadata.folderId || '');
+			const parentPath = typeof metadata.parentPath === 'string' ? metadata.parentPath : '';
+			const pathFolderId = parentPath && virtualFilesystem && typeof virtualFilesystem.getFolderIdForPath === 'function'
+				? virtualFilesystem.getFolderIdForPath(parentPath)
+				: '';
+			const folderId = sourceFolderId || pathFolderId;
+
+			return folderId && folderId !== getDesktopFolderId()
+				? models.createContainerId(containerTypes.FOLDER, folderId)
+				: containerTypes.DESKTOP;
 		}
 
 		function getAppCurrentContainerId(appId) {
@@ -134,6 +207,24 @@
 			}));
 		}
 
+		function enrichDocument(item) {
+			const documentId = parseDocumentId(item.id);
+			const currentContainerId = item.currentContainerId || item.sourceContainerId || getDocumentCurrentContainerId(item);
+
+			return models.normalizeItem(Object.assign({}, item, {
+				currentContainerId,
+				id: documentId ? `document-${documentId}` : item.id,
+				label: item.label || item.id,
+				metadata: Object.assign({}, item.metadata, {
+					documentId,
+					exists: Boolean(documentId),
+					locked: false,
+					system: false,
+					user: Boolean(documentId)
+				})
+			}));
+		}
+
 		function getItem(item) {
 			const normalized = models.normalizeItem(item);
 
@@ -147,6 +238,10 @@
 
 			if (normalized.type === itemTypes.FOLDER) {
 				return enrichFolder(normalized);
+			}
+
+			if (normalized.type === itemTypes.DOCUMENT) {
+				return enrichDocument(normalized);
 			}
 
 			return normalized;
@@ -208,6 +303,10 @@
 						return Boolean(isUserFolder(parsed.targetId));
 					}
 
+					if (item.type === itemTypes.DOCUMENT) {
+						return Boolean(parsed.targetId !== containerTypes.TRASH && getContainerDocumentPath(parsed.id));
+					}
+
 					if (item.type === itemTypes.FOLDER) {
 						return Boolean(
 							item.metadata
@@ -244,7 +343,11 @@
 			if (id === containerTypes.DESKTOP) {
 				return {
 					accepts(item) {
-						return Boolean(item && (item.type === itemTypes.APP || (item.type === itemTypes.FOLDER && item.metadata && item.metadata.user)));
+						return Boolean(item && (
+							item.type === itemTypes.APP
+							|| item.type === itemTypes.DOCUMENT
+							|| (item.type === itemTypes.FOLDER && item.metadata && item.metadata.user)
+						));
 					},
 					canContainFolders: true,
 					canMoveOut: () => true,
@@ -302,7 +405,7 @@
 			if (id === containerTypes.TRASH) {
 				return {
 					accepts(item, move) {
-						return Boolean(item && item.type === itemTypes.FOLDER && item.metadata && item.metadata.user && move && move.reason === dragReasons.TRASH);
+					return Boolean(item && item.type === itemTypes.FOLDER && item.metadata && item.metadata.user && move && move.reason === dragReasons.TRASH);
 					},
 					canContainFolders: false,
 					canMoveOut: () => false,
@@ -325,6 +428,49 @@
 			return getStaticContainer(id) || getDynamicFolderContainer(id);
 		}
 
+		function scheduleDesktopDocumentPosition(itemId, point = null) {
+			if (!point) {
+				return;
+			}
+
+			const item = {
+				id: itemId,
+				type: itemTypes.DOCUMENT
+			};
+			const position = () => positionDesktopItem(item, point);
+
+			window.setTimeout(() => {
+				if (!position()) {
+					window.setTimeout(position, 80);
+				}
+			}, 0);
+		}
+
+		function moveDocumentToContainer(item, toContainerId, point = null) {
+			const documentStore = getDocumentStore();
+			const documentId = parseDocumentId(item && item.metadata ? item.metadata.documentId || item.id : item && item.id);
+			const itemId = documentId ? `document-${documentId}` : item && item.id ? item.id : '';
+			const parentPath = getContainerDocumentPath(toContainerId);
+
+			if (!documentId || !parentPath || !documentStore || typeof documentStore.update !== 'function') {
+				return false;
+			}
+
+			documentStore.update(documentId, {
+				parentPath
+			}).then(() => {
+				if (toContainerId === containerTypes.DESKTOP) {
+					scheduleDesktopDocumentPosition(itemId, point);
+				}
+			}).catch(() => false);
+
+			if (toContainerId === containerTypes.DESKTOP) {
+				scheduleDesktopDocumentPosition(itemId, point);
+			}
+
+			return true;
+		}
+
 		function applyMove(move) {
 			const manager = getFolderManager();
 			const launcher = getLauncher();
@@ -332,7 +478,15 @@
 			const item = move.item;
 			const point = move.position || null;
 
-			if (!manager || !item || !item.id) {
+			if (!item || !item.id) {
+				return false;
+			}
+
+			if (item.type === itemTypes.DOCUMENT) {
+				return moveDocumentToContainer(item, move.toContainerId, point);
+			}
+
+			if (!manager) {
 				return false;
 			}
 
