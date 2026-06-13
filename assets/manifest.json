@@ -156,6 +156,14 @@
 			]
 		},
 		{
+			"handle": "pufferdesk-content-search-service",
+			"path": "assets/js/core/services/content-search.js",
+			"deps": [
+				"pufferdesk-config",
+				"pufferdesk-api-client"
+			]
+		},
+		{
 			"handle": "pufferdesk-sound-manager",
 			"path": "assets/js/core/services/sound-manager.js",
 			"deps": [
@@ -759,6 +767,7 @@
 				"pufferdesk-app-ids",
 				"pufferdesk-command-ids",
 				"pufferdesk-context-menu-constants",
+				"pufferdesk-content-search-service",
 				"pufferdesk-documents-service",
 				"pufferdesk-event-bus"
 			]
@@ -857,6 +866,7 @@
 			"deps": [
 				"pufferdesk-config",
 				"pufferdesk-dom",
+				"pufferdesk-debounced-task",
 				"pufferdesk-search-engine",
 				"pufferdesk-transient-surfaces"
 			]

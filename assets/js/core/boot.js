@@ -16,6 +16,8 @@
 			!window.PufferDesk.session.createReopenPolicy ||
 			!window.PufferDesk.documents ||
 			!window.PufferDesk.documents.createDocumentStore ||
+			!window.PufferDesk.contentSearch ||
+			!window.PufferDesk.contentSearch.createStore ||
 			!window.PufferDesk.windows ||
 			!window.PufferDesk.widgets ||
 			!window.PufferDesk.desktop ||
@@ -119,6 +121,7 @@
 		let launcher = null;
 		let desktopIconManager = null;
 		const documentStore = window.PufferDesk.documents.createDocumentStore(config);
+		const contentSearchStore = window.PufferDesk.contentSearch.createStore(config);
 		const moveStateStore = window.PufferDesk.dragDrop.createMoveStateStore(shell, {
 			config,
 			getDesktopIconManager: () => desktopIconManager,
@@ -258,6 +261,7 @@
 		});
 		const searchEngine = window.PufferDesk.search.createSearchEngine(config, {
 			commands,
+			contentSearchStore,
 			documentStore,
 			launcher
 		});

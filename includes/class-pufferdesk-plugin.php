@@ -68,6 +68,13 @@ final class PufferDesk_Plugin {
 	private $document_controller;
 
 	/**
+	 * WordPress content search controller.
+	 *
+	 * @var PufferDesk_Content_Search_Controller
+	 */
+	private $content_search_controller;
+
+	/**
 	 * Notification controller.
 	 *
 	 * @var PufferDesk_Notification_Controller
@@ -99,6 +106,7 @@ final class PufferDesk_Plugin {
 		$wallpaper_registry = new PufferDesk_Wallpaper_Registry();
 		$workspace_state    = new PufferDesk_Workspace_State();
 		$virtual_filesystem = new PufferDesk_Virtual_Filesystem();
+		$content_search_service = new PufferDesk_Content_Search_Service();
 		$document_service   = new PufferDesk_Document_Service( $virtual_filesystem );
 		$notification_registry = new PufferDesk_Notification_Registry(
 			$preferences,
@@ -155,6 +163,7 @@ final class PufferDesk_Plugin {
 			$workspace_state
 		);
 		$this->document_post_type = new PufferDesk_Document_Post_Type();
+		$this->content_search_controller = new PufferDesk_Content_Search_Controller( $content_search_service );
 		$this->document_controller = new PufferDesk_Document_Controller( $document_service );
 		$this->notification_controller = new PufferDesk_Notification_Controller( $notification_registry );
 	}
@@ -172,6 +181,7 @@ final class PufferDesk_Plugin {
 		$this->admin_controller->hooks();
 		$this->settings_controller->hooks();
 		$this->workspace_controller->hooks();
+		$this->content_search_controller->hooks();
 		$this->document_controller->hooks();
 		$this->notification_controller->hooks();
 	}

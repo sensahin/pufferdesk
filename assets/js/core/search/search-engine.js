@@ -12,6 +12,7 @@
 			: {};
 		const contextTargets = contextConstants.targets || {};
 		const commands = options.commands || window.PufferDesk.menuCommands || null;
+		const contentSearchStore = options.contentSearchStore || null;
 		const documentStore = options.documentStore || null;
 		const launcher = options.launcher || window.PufferDesk.appLauncher || null;
 		const labels = config.menu && config.menu.labels && typeof config.menu.labels === 'object' ? config.menu.labels : {};
@@ -155,6 +156,9 @@
 				command: 24,
 				folder: 20,
 				document: 18,
+				wp_post: 16,
+				wp_page: 16,
+				wp_attachment: 16,
 				recent: 36
 			};
 			let score = recentBoost + (typeBoosts[result.type] || 0);
@@ -432,6 +436,14 @@
 			}).filter(Boolean);
 		}
 
+		function loadContentResults(query, searchOptions = {}) {
+			if (!contentSearchStore || typeof contentSearchStore.search !== 'function') {
+				return Promise.resolve([]);
+			}
+
+			return contentSearchStore.search(query, searchOptions).catch(() => []);
+		}
+
 		function mergeAndRank(results, query, options = {}) {
 			const recentBoosts = getRecentBoosts();
 			const byKey = new Map();
@@ -476,7 +488,16 @@
 				return Promise.resolve(mergeAndRank(collectSuggestionResults(), '', searchOptions));
 			}
 
-			return loadDocuments().then((documents) => mergeAndRank(baseResults.concat(collectDocumentResults(documents)), needle, searchOptions));
+			return Promise.all([
+				loadDocuments(),
+				loadContentResults(query, searchOptions)
+			]).then(([documents, contentResults]) => mergeAndRank(
+				baseResults
+					.concat(collectDocumentResults(documents))
+					.concat(Array.isArray(contentResults) ? contentResults : []),
+				needle,
+				searchOptions
+			));
 		}
 
 		if (window.PufferDesk.events && typeof window.PufferDesk.events.on === 'function') {

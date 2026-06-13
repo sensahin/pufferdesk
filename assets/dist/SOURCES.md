@@ -39,6 +39,7 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/js/core/shell/transient-surfaces.js
 - assets/js/core/services/storage.js
 - assets/js/core/services/api-client.js
+- assets/js/core/services/content-search.js
 - assets/js/core/services/sound-manager.js
 - assets/js/core/notifications/notification-store.js
 - assets/js/core/notifications/toast-service.js

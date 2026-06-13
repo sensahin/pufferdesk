@@ -11,15 +11,22 @@
 		const searchEngine = options.searchEngine || (window.PufferDesk.search && typeof window.PufferDesk.search.createSearchEngine === 'function'
 			? window.PufferDesk.search.createSearchEngine(config, {
 				commands: options.commands || window.PufferDesk.menuCommands || null,
+				contentSearchStore: options.contentSearchStore || null,
 				documentStore: options.documentStore || null,
 				launcher
 			})
 			: null);
 		const labels = config.menu && config.menu.labels && typeof config.menu.labels === 'object' ? config.menu.labels : {};
+		const contentSearchConfig = config.contentSearch && typeof config.contentSearch === 'object' ? config.contentSearch : {};
+		const createDebouncedTask = window.PufferDesk.services && typeof window.PufferDesk.services.createDebouncedTask === 'function'
+			? window.PufferDesk.services.createDebouncedTask
+			: null;
+		const searchDebounceMs = Number.parseInt(contentSearchConfig.debounceMs, 10) || 160;
 		let panel = null;
 		let panelInput = null;
 		let resultsPanel = null;
 		let resultsList = null;
+		let resultsTask = null;
 		let activeTrigger = null;
 		let activeResults = [];
 		let activeIndex = -1;
@@ -226,6 +233,40 @@
 			});
 		}
 
+		function getResultsTask() {
+			if (!resultsTask && createDebouncedTask) {
+				resultsTask = createDebouncedTask(updateResults, {
+					wait: searchDebounceMs,
+					shouldRun: () => Boolean(panel && !panel.hidden)
+				});
+			}
+
+			return resultsTask;
+		}
+
+		function scheduleUpdateResults(options = {}) {
+			const task = getResultsTask();
+			const query = panelInput ? panelInput.value.trim() : '';
+
+			if (!task || options.immediate || !query) {
+				if (task && typeof task.cancel === 'function') {
+					task.cancel();
+				}
+				updateResults();
+				return;
+			}
+
+			task.schedule();
+		}
+
+		function cancelPendingResults() {
+			const task = getResultsTask();
+
+			if (task && typeof task.cancel === 'function') {
+				task.cancel();
+			}
+		}
+
 		function executeResult(index = activeIndex) {
 			const result = activeResults[index];
 
@@ -254,7 +295,7 @@
 			panel.hidden = false;
 			panel.classList.add('is-open');
 			shell.dataset.pdkSearchOpen = '1';
-			updateResults();
+			scheduleUpdateResults();
 			window.requestAnimationFrame(() => {
 				panelInput.focus();
 				if (typeof panelInput.select === 'function') {
@@ -272,6 +313,7 @@
 			panel.classList.remove('is-open');
 			panel.classList.remove('has-query');
 			delete shell.dataset.pdkSearchOpen;
+			cancelPendingResults();
 			activeResults = [];
 			activeIndex = -1;
 			resultsPanel.hidden = true;
@@ -286,7 +328,7 @@
 		}
 
 		function bindPanelEvents() {
-			panelInput.addEventListener('input', updateResults);
+			panelInput.addEventListener('input', scheduleUpdateResults);
 			panelInput.addEventListener('keydown', (event) => {
 				if (event.key === 'Escape') {
 					event.preventDefault();

@@ -173,6 +173,7 @@ final class PufferDesk_Runtime_Config {
 			'ajaxUrl'        => admin_url( 'admin-ajax.php' ),
 			'classicUrl'     => $this->router->get_toggle_url( false ),
 			'contracts'      => $this->get_contracts_config(),
+			'contentSearch'  => $this->get_content_search_config(),
 			'desktopDock'    => isset( $context['desktop_dock'] ) && is_array( $context['desktop_dock'] ) ? $context['desktop_dock'] : array(),
 			'desktopFolders' => isset( $context['desktop_folders'] ) && is_array( $context['desktop_folders'] ) ? $context['desktop_folders'] : array(),
 			'desktopTrash'   => isset( $context['desktop_trash'] ) && is_array( $context['desktop_trash'] ) ? $context['desktop_trash'] : array(),
@@ -348,79 +349,112 @@ final class PufferDesk_Runtime_Config {
 			? $theme_documents['stickyNoteSavePolicy']
 			: 'default-location';
 
-			return array(
-				'actions'      => array(
-					'create'    => PufferDesk_Document_Controller::ACTION_CREATE,
-					'delete'    => PufferDesk_Document_Controller::ACTION_DELETE,
-					'duplicate' => PufferDesk_Document_Controller::ACTION_DUPLICATE,
-					'get'       => PufferDesk_Document_Controller::ACTION_GET,
-					'list'      => PufferDesk_Document_Controller::ACTION_LIST,
-					'restore'   => PufferDesk_Document_Controller::ACTION_RESTORE,
-					'update'    => PufferDesk_Document_Controller::ACTION_UPDATE,
+		return array(
+			'actions'      => array(
+				'create'    => PufferDesk_Document_Controller::ACTION_CREATE,
+				'delete'    => PufferDesk_Document_Controller::ACTION_DELETE,
+				'duplicate' => PufferDesk_Document_Controller::ACTION_DUPLICATE,
+				'get'       => PufferDesk_Document_Controller::ACTION_GET,
+				'list'      => PufferDesk_Document_Controller::ACTION_LIST,
+				'restore'   => PufferDesk_Document_Controller::ACTION_RESTORE,
+				'update'    => PufferDesk_Document_Controller::ACTION_UPDATE,
+			),
+			'capabilities' => array(
+				'canEdit' => current_user_can( PufferDesk_Document_Service::CAPABILITY ),
+			),
+			'kinds'        => array(
+				'sticky' => PufferDesk_Document_Service::KIND_STICKY,
+			),
+			'openWith'     => array(
+				array(
+					'appId'         => PufferDesk_App_Ids::STICKY_NOTES,
+					'documentKinds' => array( PufferDesk_Document_Service::KIND_STICKY ),
+					'id'            => PufferDesk_App_Ids::STICKY_NOTES,
+					'label'         => __( 'Sticky Notes', 'pufferdesk-admin-desktop' ),
 				),
-				'capabilities' => array(
-					'canEdit' => current_user_can( PufferDesk_Document_Service::CAPABILITY ),
+			),
+			'savePolicies' => array(
+				'stickyNote' => $sticky_save_policy,
+			),
+			'labels'       => array(
+				'bold'                         => __( 'Bold', 'pufferdesk-admin-desktop' ),
+				'bulletList'                   => __( 'Bullet list', 'pufferdesk-admin-desktop' ),
+				'cancel'                       => __( 'Cancel', 'pufferdesk-admin-desktop' ),
+				'close'                        => $close_label,
+				'couldNotLoadStickyNotes'      => __( 'Could not load sticky notes.', 'pufferdesk-admin-desktop' ),
+				'delete'                       => __( 'Delete', 'pufferdesk-admin-desktop' ),
+				'deleteNote'                   => __( 'Delete Note', 'pufferdesk-admin-desktop' ),
+				'deleteStickyNote'             => __( 'Delete this note?', 'pufferdesk-admin-desktop' ),
+				'deleted'                      => __( 'Deleted', 'pufferdesk-admin-desktop' ),
+				'discardNote'                  => __( 'Discard Note', 'pufferdesk-admin-desktop' ),
+				'discardNoteMessage'           => __( 'Are you sure you want to discard this sticky note?', 'pufferdesk-admin-desktop' ),
+				'discardNoteTitle'             => __( "If you don't save this note, its contents will be lost.", 'pufferdesk-admin-desktop' ),
+				'formatting'                   => __( 'Formatting', 'pufferdesk-admin-desktop' ),
+				'fullscreenNote'               => __( 'Make Full Screen', 'pufferdesk-admin-desktop' ),
+				'hideNote'                     => __( 'Hide Note', 'pufferdesk-admin-desktop' ),
+				'imageUrlPrompt'               => __( 'Image URL', 'pufferdesk-admin-desktop' ),
+				'insertImage'                  => __( 'Insert image', 'pufferdesk-admin-desktop' ),
+				'italic'                       => __( 'Italic', 'pufferdesk-admin-desktop' ),
+				'loading'                      => __( 'Loading...', 'pufferdesk-admin-desktop' ),
+				'newNote'                      => __( 'New Note', 'pufferdesk-admin-desktop' ),
+				'newStickyNote'                => __( 'New Sticky Note', 'pufferdesk-admin-desktop' ),
+				'noSearchResults'              => __( 'No matching notes', 'pufferdesk-admin-desktop' ),
+				'noStickyNotes'                => __( 'No sticky notes', 'pufferdesk-admin-desktop' ),
+				'noteOptions'                  => __( 'Note options', 'pufferdesk-admin-desktop' ),
+				'notesList'                    => __( 'Notes list', 'pufferdesk-admin-desktop' ),
+				'save'                         => __( 'Save', 'pufferdesk-admin-desktop' ),
+				'saveAs'                       => __( 'Save As:', 'pufferdesk-admin-desktop' ),
+				'saveStickyNoteTitle'          => __( 'Save Sticky Note', 'pufferdesk-admin-desktop' ),
+				'saveEllipsis'                 => __( 'Save...', 'pufferdesk-admin-desktop' ),
+				'saveLocationUnavailable'      => __( 'No save locations available.', 'pufferdesk-admin-desktop' ),
+				'saved'                        => __( 'Saved', 'pufferdesk-admin-desktop' ),
+				'saving'                       => __( 'Saving...', 'pufferdesk-admin-desktop' ),
+				'search'                       => __( 'Search', 'pufferdesk-admin-desktop' ),
+				'searchPlaceholder'            => __( 'Search...', 'pufferdesk-admin-desktop' ),
+				'show'                         => __( 'Show', 'pufferdesk-admin-desktop' ),
+				'stickyNote'                   => $document_labels['stickyNote'],
+				'stickyNotes'                  => __( 'Sticky Notes', 'pufferdesk-admin-desktop' ),
+				'stickyPlaceholder'            => __( 'Take a note...', 'pufferdesk-admin-desktop' ),
+				'stickyNotesServiceUnavailable' => __( 'Sticky Notes service unavailable.', 'pufferdesk-admin-desktop' ),
+				'strikethrough'                => __( 'Strikethrough', 'pufferdesk-admin-desktop' ),
+				'underline'                    => __( 'Underline', 'pufferdesk-admin-desktop' ),
+				'untitledStickyNote'           => $document_labels['untitledStickyNote'],
+				'where'                        => __( 'Where:', 'pufferdesk-admin-desktop' ),
+			),
+		);
+	}
+
+	/**
+	 * WordPress content search runtime endpoints.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_content_search_config() {
+		return array(
+			'actions'    => array(
+				'search' => PufferDesk_Content_Search_Controller::ACTION_SEARCH,
+			),
+			'debounceMs' => 160,
+			'enabled'   => current_user_can( 'read' ),
+			'limit'     => PufferDesk_Content_Search_Service::DEFAULT_LIMIT,
+			'types'     => array(
+				'attachment' => array(
+					'groupLabel' => __( 'Media', 'pufferdesk-admin-desktop' ),
+					'label'      => __( 'Media', 'pufferdesk-admin-desktop' ),
+					'resultType' => 'wp_attachment',
 				),
-				'kinds'        => array(
-					'sticky' => PufferDesk_Document_Service::KIND_STICKY,
+				'page'       => array(
+					'groupLabel' => __( 'Pages', 'pufferdesk-admin-desktop' ),
+					'label'      => __( 'Page', 'pufferdesk-admin-desktop' ),
+					'resultType' => 'wp_page',
 				),
-				'openWith'     => array(
-					array(
-						'appId'         => PufferDesk_App_Ids::STICKY_NOTES,
-						'documentKinds' => array( PufferDesk_Document_Service::KIND_STICKY ),
-						'id'            => PufferDesk_App_Ids::STICKY_NOTES,
-						'label'         => __( 'Sticky Notes', 'pufferdesk-admin-desktop' ),
-					),
+				'post'       => array(
+					'groupLabel' => __( 'Posts', 'pufferdesk-admin-desktop' ),
+					'label'      => __( 'Post', 'pufferdesk-admin-desktop' ),
+					'resultType' => 'wp_post',
 				),
-				'savePolicies' => array(
-					'stickyNote' => $sticky_save_policy,
-				),
-				'labels'       => array(
-					'bold'                         => __( 'Bold', 'pufferdesk-admin-desktop' ),
-					'bulletList'                   => __( 'Bullet list', 'pufferdesk-admin-desktop' ),
-					'cancel'                       => __( 'Cancel', 'pufferdesk-admin-desktop' ),
-					'close'                        => $close_label,
-					'couldNotLoadStickyNotes'      => __( 'Could not load sticky notes.', 'pufferdesk-admin-desktop' ),
-					'delete'                       => __( 'Delete', 'pufferdesk-admin-desktop' ),
-					'deleteNote'                   => __( 'Delete Note', 'pufferdesk-admin-desktop' ),
-					'deleteStickyNote'             => __( 'Delete this note?', 'pufferdesk-admin-desktop' ),
-					'deleted'                      => __( 'Deleted', 'pufferdesk-admin-desktop' ),
-					'discardNote'                  => __( 'Discard Note', 'pufferdesk-admin-desktop' ),
-					'discardNoteMessage'           => __( 'Are you sure you want to discard this sticky note?', 'pufferdesk-admin-desktop' ),
-					'discardNoteTitle'             => __( "If you don't save this note, its contents will be lost.", 'pufferdesk-admin-desktop' ),
-					'formatting'                   => __( 'Formatting', 'pufferdesk-admin-desktop' ),
-					'fullscreenNote'               => __( 'Make Full Screen', 'pufferdesk-admin-desktop' ),
-					'hideNote'                     => __( 'Hide Note', 'pufferdesk-admin-desktop' ),
-					'imageUrlPrompt'               => __( 'Image URL', 'pufferdesk-admin-desktop' ),
-					'insertImage'                  => __( 'Insert image', 'pufferdesk-admin-desktop' ),
-					'italic'                       => __( 'Italic', 'pufferdesk-admin-desktop' ),
-					'loading'                      => __( 'Loading...', 'pufferdesk-admin-desktop' ),
-					'newNote'                      => __( 'New Note', 'pufferdesk-admin-desktop' ),
-					'newStickyNote'                => __( 'New Sticky Note', 'pufferdesk-admin-desktop' ),
-					'noSearchResults'              => __( 'No matching notes', 'pufferdesk-admin-desktop' ),
-					'noStickyNotes'                => __( 'No sticky notes', 'pufferdesk-admin-desktop' ),
-					'noteOptions'                  => __( 'Note options', 'pufferdesk-admin-desktop' ),
-					'notesList'                    => __( 'Notes list', 'pufferdesk-admin-desktop' ),
-					'save'                         => __( 'Save', 'pufferdesk-admin-desktop' ),
-					'saveAs'                       => __( 'Save As:', 'pufferdesk-admin-desktop' ),
-					'saveStickyNoteTitle'          => __( 'Save Sticky Note', 'pufferdesk-admin-desktop' ),
-					'saveEllipsis'                 => __( 'Save...', 'pufferdesk-admin-desktop' ),
-					'saveLocationUnavailable'      => __( 'No save locations available.', 'pufferdesk-admin-desktop' ),
-					'saved'                        => __( 'Saved', 'pufferdesk-admin-desktop' ),
-					'saving'                       => __( 'Saving...', 'pufferdesk-admin-desktop' ),
-					'search'                       => __( 'Search', 'pufferdesk-admin-desktop' ),
-					'searchPlaceholder'            => __( 'Search...', 'pufferdesk-admin-desktop' ),
-					'show'                         => __( 'Show', 'pufferdesk-admin-desktop' ),
-					'stickyNote'                   => $document_labels['stickyNote'],
-					'stickyNotes'                  => __( 'Sticky Notes', 'pufferdesk-admin-desktop' ),
-					'stickyPlaceholder'            => __( 'Take a note...', 'pufferdesk-admin-desktop' ),
-					'stickyNotesServiceUnavailable' => __( 'Sticky Notes service unavailable.', 'pufferdesk-admin-desktop' ),
-					'strikethrough'                => __( 'Strikethrough', 'pufferdesk-admin-desktop' ),
-					'underline'                    => __( 'Underline', 'pufferdesk-admin-desktop' ),
-					'untitledStickyNote'           => $document_labels['untitledStickyNote'],
-					'where'                        => __( 'Where:', 'pufferdesk-admin-desktop' ),
-				),
-			);
+			),
+		);
 	}
 
 	/**
@@ -1744,11 +1778,17 @@ final class PufferDesk_Runtime_Config {
 				'search_group_app'        => __( 'Apps', 'pufferdesk-admin-desktop' ),
 				'search_group_folder'     => __( 'Folders', 'pufferdesk-admin-desktop' ),
 				'search_group_document'   => __( 'Documents', 'pufferdesk-admin-desktop' ),
+				'search_group_wp_post'    => __( 'Posts', 'pufferdesk-admin-desktop' ),
+				'search_group_wp_page'    => __( 'Pages', 'pufferdesk-admin-desktop' ),
+				'search_group_wp_attachment' => __( 'Media', 'pufferdesk-admin-desktop' ),
 				'search_group_setting'    => __( 'Settings', 'pufferdesk-admin-desktop' ),
 				'search_group_command'    => __( 'Commands', 'pufferdesk-admin-desktop' ),
 				'search_type_app'         => __( 'App', 'pufferdesk-admin-desktop' ),
 				'search_type_folder'      => __( 'Folder', 'pufferdesk-admin-desktop' ),
 				'search_type_document'    => __( 'Document', 'pufferdesk-admin-desktop' ),
+				'search_type_wp_post'     => __( 'Post', 'pufferdesk-admin-desktop' ),
+				'search_type_wp_page'     => __( 'Page', 'pufferdesk-admin-desktop' ),
+				'search_type_wp_attachment' => __( 'Media', 'pufferdesk-admin-desktop' ),
 				'search_type_setting'     => __( 'Setting', 'pufferdesk-admin-desktop' ),
 				'search_type_command'     => __( 'Command', 'pufferdesk-admin-desktop' ),
 				'start_pinned'            => __( 'Pinned', 'pufferdesk-admin-desktop' ),

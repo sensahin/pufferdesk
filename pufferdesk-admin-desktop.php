@@ -45,6 +45,8 @@ require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-theme-token-renderer.ph
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-wallpaper-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-workspace-state.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-virtual-filesystem.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-content-search-service.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-content-search-controller.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-document-post-type.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-document-service.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-document-controller.php';
