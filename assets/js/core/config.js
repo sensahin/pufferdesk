@@ -4,14 +4,16 @@
 	window.PufferDesk = window.PufferDesk || {};
 
 	function formatTemplate(template, values = []) {
+		const replacements = Array.isArray(values) ? values : [values];
 		let index = 0;
-		let formatted = String(template || '');
 
-		values.forEach((value, valueIndex) => {
-			formatted = formatted.replace(new RegExp(`%${valueIndex + 1}\\\\$[sd]`, 'g'), String(value ?? ''));
-		});
+		return String(template || '')
+			.replace(/%(\d+)\$[sd]/g, (match, position) => {
+				const valueIndex = Number.parseInt(position, 10) - 1;
 
-		return formatted.replace(/%d|%s/g, () => String(values[index++] ?? ''));
+				return valueIndex >= 0 ? String(replacements[valueIndex] ?? '') : '';
+			})
+			.replace(/%d|%s/g, () => String(replacements[index++] ?? ''));
 	}
 
 	window.PufferDesk.config = {
