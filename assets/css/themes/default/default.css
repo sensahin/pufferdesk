@@ -43,8 +43,9 @@
 	--pdk-material-dialog-shadow: 0 28px 76px rgba(17, 35, 42, 0.25), 0 1px 0 rgba(255, 255, 255, 0.72) inset;
 	--pdk-divider: rgba(72, 88, 92, 0.18);
 	--pdk-divider-soft: rgba(72, 88, 92, 0.1);
-	--pdk-menu-bg: linear-gradient(180deg, rgba(252, 253, 249, 0.92), rgba(237, 245, 241, 0.84));
+	--pdk-menu-bg: linear-gradient(180deg, rgba(255, 255, 251, 0.36), rgba(238, 246, 242, 0.16));
 	--pdk-menu-border: rgba(72, 88, 92, 0.14);
+	--pdk-menu-glass-filter: blur(26px) saturate(160%) brightness(1.04);
 	--pdk-menu-shadow: 0 10px 26px rgba(17, 35, 42, 0.1);
 	--pdk-menu-active-bg: var(--pdk-accent-active-strong);
 	--pdk-menu-selection-active-bg: var(--pdk-menu-active-bg);
@@ -126,12 +127,12 @@
 	--pdk-card-bg: var(--pdk-material-card-bg);
 	--pdk-card-border: var(--pdk-material-card-border);
 	--pdk-card-shadow: var(--pdk-material-card-shadow);
-	--pdk-dock-bg: rgba(248, 251, 247, 0.88);
+	--pdk-dock-bg: rgba(248, 251, 247, 0.58);
 	--pdk-dock-glass-bg:
-		linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.12)),
-		rgba(235, 245, 239, 0.76);
-	--pdk-dock-glass-filter: blur(18px) saturate(140%);
-	--pdk-dock-border: rgba(248, 252, 249, 0.58);
+		linear-gradient(135deg, rgba(255, 255, 255, 0.46), rgba(247, 252, 249, 0.24) 48%, rgba(222, 241, 233, 0.16)),
+		rgba(235, 245, 239, 0.34);
+	--pdk-dock-glass-filter: blur(28px) saturate(160%) brightness(1.04);
+	--pdk-dock-border: rgba(248, 252, 249, 0.46);
 	--pdk-dock-bottom-border: rgba(72, 88, 92, 0.12);
 	--pdk-dock-separator: rgba(57, 72, 77, 0.2);
 	--pdk-dock-shadow: 0 18px 42px rgba(16, 34, 40, 0.18), 0 1px 0 rgba(255, 255, 255, 0.68) inset;
@@ -271,8 +272,9 @@
 	--pdk-material-dialog-shadow: 0 30px 80px rgba(0, 0, 0, 0.56), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 	--pdk-divider: rgba(178, 207, 199, 0.14);
 	--pdk-divider-soft: rgba(178, 207, 199, 0.08);
-	--pdk-menu-bg: linear-gradient(180deg, rgba(31, 43, 47, 0.92), rgba(24, 35, 39, 0.86));
+	--pdk-menu-bg: linear-gradient(180deg, rgba(36, 50, 53, 0.34), rgba(24, 35, 39, 0.18));
 	--pdk-menu-border: rgba(178, 207, 199, 0.12);
+	--pdk-menu-glass-filter: blur(28px) saturate(150%) brightness(0.98);
 	--pdk-menu-popover-ink: rgba(237, 245, 243, 0.96);
 	--pdk-menu-popover-muted: rgba(237, 245, 243, 0.52);
 	--pdk-menu-popover-separator: rgba(178, 207, 199, 0.12);
@@ -302,10 +304,11 @@
 		var(--pdk-accent-active-strong);
 	--pdk-app-navigation-item-active-border: rgb(var(--pdk-accent-rgb) / 0.7);
 	--pdk-app-navigation-item-active-ink: var(--pdk-accent-ink);
-	--pdk-dock-bg: rgba(25, 37, 41, 0.88);
+	--pdk-dock-bg: rgba(25, 37, 41, 0.58);
 	--pdk-dock-glass-bg:
-		linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
-		rgba(24, 37, 41, 0.78);
+		linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025) 52%, rgb(var(--pdk-accent-rgb) / 0.06)),
+		rgba(16, 28, 32, 0.36);
+	--pdk-dock-glass-filter: blur(30px) saturate(150%) brightness(0.98);
 	--pdk-dock-border: rgba(178, 207, 199, 0.12);
 	--pdk-dock-bottom-border: rgba(0, 0, 0, 0.28);
 	--pdk-dock-separator: rgba(178, 207, 199, 0.16);
@@ -351,6 +354,9 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-menu-bar {
+	-webkit-backdrop-filter: var(--pdk-menu-glass-filter, var(--pdk-material-bar-filter));
+	backdrop-filter: var(--pdk-menu-glass-filter, var(--pdk-material-bar-filter));
+	background: var(--pdk-menu-bg);
 	border-bottom: 1px solid var(--pdk-menu-border);
 	box-shadow: var(--pdk-menu-shadow);
 	gap: 8px;
@@ -521,10 +527,15 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-dock {
+	-webkit-backdrop-filter: var(--pdk-dock-glass-filter, var(--pdk-material-clear-filter));
+	backdrop-filter: var(--pdk-dock-glass-filter, var(--pdk-material-clear-filter));
+	background: var(--pdk-dock-glass-bg, var(--pdk-dock-bg));
+	background-clip: padding-box;
 	border: 1px solid var(--pdk-dock-border);
 	border-bottom-color: var(--pdk-dock-bottom-border);
 	border-radius: 16px;
 	box-shadow: var(--pdk-dock-shadow);
+	isolation: isolate;
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-dock-item,
