@@ -17,6 +17,7 @@
 		const dragDropConstants = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.constants ? window.PufferDesk.dragDrop.constants : {};
 		const dragDropModels = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.models ? window.PufferDesk.dragDrop.models : null;
 		const containerTypes = dragDropConstants.containerTypes || {};
+		const dragReasons = dragDropConstants.reasons || {};
 		const dragDropItemTypes = dragDropConstants.itemTypes || {};
 		const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.sections || {}
@@ -172,6 +173,10 @@
 			return themeFamily === 'pufferdesk';
 		}
 
+		function isRedmondFamily() {
+			return themeFamily === 'redmond';
+		}
+
 		function showsCutFolderActions() {
 			return themeFamily !== 'pufferdesk';
 		}
@@ -226,6 +231,10 @@
 				? info.label
 				: getInfoPanelLabel('folderFallbackTitle', '');
 
+			if (isRedmondFamily()) {
+				return `${label} ${getMenuLabel('properties', 'Properties')}`;
+			}
+
 			return formatInfoPanelLabel('folderInfoTitle', '', [label]);
 		}
 
@@ -233,6 +242,10 @@
 			const label = info && info.label
 				? info.label
 				: getInfoPanelLabel('documentFallbackTitle', getMenuLabel('document'));
+
+			if (isRedmondFamily()) {
+				return `${label} ${getMenuLabel('properties', 'Properties')}`;
+			}
 
 			return formatInfoPanelLabel('documentInfoTitle', '', [label]);
 		}
@@ -2111,6 +2124,10 @@
 				return containerTypes.FOLDER_SIDEBAR_FAVORITES;
 			}
 
+			if (dropTarget.kind === containerTypes.TRASH) {
+				return containerTypes.TRASH;
+			}
+
 			if (dropTarget.kind === containerTypes.FOLDER) {
 				return dragDropModels && typeof dragDropModels.createContainerId === 'function'
 					? dragDropModels.createContainerId(containerTypes.FOLDER, dropTarget.id || '')
@@ -2124,6 +2141,12 @@
 			return folderId && dragDropModels && typeof dragDropModels.createContainerId === 'function'
 				? dragDropModels.createContainerId(containerTypes.FOLDER, folderId)
 				: '';
+		}
+
+		function getFolderMoveReason(dropTarget) {
+			return dropTarget && dropTarget.kind === containerTypes.TRASH
+				? dragReasons.TRASH || 'trash'
+				: dragReasons.DRAG_DROP || 'drag-drop';
 		}
 
 		function getFolderMoveRequest(dragDetail, dropTarget, point = null) {
@@ -2142,7 +2165,7 @@
 					type: dragDetail && dragDetail.kind ? dragDetail.kind : ''
 				},
 				position: point,
-				reason: 'drag-drop',
+				reason: getFolderMoveReason(dropTarget),
 				toContainerId: getFolderMoveTargetContainerId(dropTarget)
 			};
 		}
@@ -2171,6 +2194,9 @@
 			const element = typeof document.elementFromPoint === 'function'
 				? document.elementFromPoint(clientX, clientY)
 				: null;
+			const trashElement = element && typeof element.closest === 'function'
+				? element.closest(`[data-pdk-desktop-icon-kind="app"][data-pdk-open-app="${dom.escapeAttribute(trashFolderId)}"], [data-pdk-desktop-icon-kind="app"][data-pdk-context-id="${dom.escapeAttribute(trashFolderId)}"]`)
+				: null;
 			const folderElement = element && typeof element.closest === 'function'
 				? element.closest('.pdk-folder-launcher, [data-pdk-desktop-icon-kind="folder"]')
 				: null;
@@ -2192,6 +2218,16 @@
 
 			if (sidebarTarget && !draggedItems.has(sidebarTarget.element)) {
 				return canDropFolderItems(details, sidebarTarget) ? sidebarTarget : null;
+			}
+
+			if (trashElement && !draggedItems.has(trashElement)) {
+				const target = {
+					element: trashElement,
+					id: trashFolderId,
+					kind: containerTypes.TRASH
+				};
+
+				return canDropFolderItems(details, target) ? target : null;
 			}
 
 			if (folderElement && !draggedItems.has(folderElement)) {
@@ -2762,42 +2798,15 @@
 			return { type: 'separator' };
 		}
 
-		function disabledExplorerMenuItem(label, options = {}) {
-			return explorerMenuItem(label, '', Object.assign({}, options, {
-				disabled: true
-			}));
-		}
-
 		function getFolderViewModeMenuItems(folderId, win) {
 			const layout = getFolderViewLayout(win);
 			const viewMode = getExplorerViewMode(win);
-			const items = folderMenuOptions
+			return folderMenuOptions
 				? folderMenuOptions.getViewModeItems(folderId, {
 					activeMode: viewMode,
 					layout
 				})
 				: [];
-
-			if (layout === 'file-explorer') {
-				items.push(
-					explorerMenuSeparator(),
-					explorerMenuItem(getMenuLabel('details_pane'), '', {
-						icon: ''
-					}),
-					explorerMenuItem(getMenuLabel('preview_pane'), '', {
-						icon: 'dashicons-yes'
-					}),
-					explorerMenuSeparator(),
-					explorerMenuItem(getMenuLabel('show'), '', {
-						id: 'show',
-						items: [
-							disabledExplorerMenuItem(getMenuLabel('show_view_options'))
-						]
-					})
-				);
-			}
-
-			return items;
 		}
 
 		function getExplorerCommandMenuItems(action, folderId, win) {
@@ -2845,21 +2854,10 @@
 						target: folderId
 					}),
 					explorerMenuSeparator(),
-					disabledExplorerMenuItem(getMenuLabel('pin_to_quick_access'), {
-						icon: 'dashicons-admin-links'
-					}),
-					disabledExplorerMenuItem(getMenuLabel('copy_as_path'), {
-						icon: 'dashicons-clipboard',
-						shortcut: 'Ctrl+Shift+C'
-					}),
-					explorerMenuSeparator(),
 					explorerMenuItem(getMenuLabel('properties'), commandIds.FOLDER_GET_INFO, {
 						icon: 'dashicons-info-outline',
 						shortcut: shortcut('secondary+enter'),
 						target: folderId
-					}),
-					disabledExplorerMenuItem(getMenuLabel('show_more_options'), {
-						icon: 'dashicons-external'
 					})
 				];
 			}
@@ -2984,6 +2982,7 @@
 			button.dataset.pdkExplorerCommand = action.id;
 			button.dataset.pdkNoDrag = '';
 			button.disabled = !canRun;
+			button.hidden = action.hideWhenUnavailable === true && !canRun;
 			button.setAttribute('aria-label', action.label);
 			if (hasExplorerCommandMenu(action)) {
 				button.setAttribute('aria-haspopup', 'menu');
@@ -3022,14 +3021,13 @@
 		function getExplorerCommandGroups(folderId) {
 			return [
 				[
-					{ id: 'new', label: getMenuLabel('new'), icon: 'dashicons-plus-alt2', command: commandIds.FOLDER_CREATE, disclosure: true }
+					{ id: 'new', label: getMenuLabel('new'), icon: 'dashicons-plus-alt2', command: commandIds.FOLDER_CREATE, disclosure: true, hideWhenUnavailable: true }
 				],
 				[
 					{ id: 'cut', label: getMenuLabel('cut'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_CUT, hideWhenUnavailable: true, showLabel: false },
 					{ id: 'copy', label: getMenuLabel('copy'), icon: 'dashicons-clipboard', command: commandIds.CLIPBOARD_COPY, showLabel: false },
 					{ id: 'paste', label: getMenuLabel('paste'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_PASTE, hideWhenUnavailable: true, showLabel: false },
-					{ id: 'rename', label: getMenuLabel('rename'), icon: 'dashicons-edit', command: isUserFolder(folderId) ? commandIds.FOLDER_RENAME : '', showLabel: false },
-					{ id: 'share', label: getMenuLabel('share'), icon: 'dashicons-share', showLabel: false },
+					{ id: 'rename', label: getMenuLabel('rename'), icon: 'dashicons-edit', command: isUserFolder(folderId) ? commandIds.FOLDER_RENAME : '', hideWhenUnavailable: true, showLabel: false },
 					{ id: 'delete', label: getMenuLabel('delete'), icon: 'dashicons-trash', command: commandIds.FOLDER_DELETE_SELECTED, showLabel: false }
 				],
 				[
@@ -3037,9 +3035,6 @@
 					{ id: 'group', label: getMenuLabel('group'), icon: 'dashicons-screenoptions', disclosure: true },
 					{ id: 'view', label: getMenuLabel('view'), icon: 'dashicons-grid-view', disclosure: true },
 					{ id: 'more', label: getMenuLabel('more'), icon: 'dashicons-ellipsis', showLabel: false }
-				],
-				[
-					{ id: 'details', label: getMenuLabel('preview'), icon: 'dashicons-list-view', command: commandIds.FOLDER_GET_INFO }
 				]
 			];
 		}
@@ -3051,8 +3046,8 @@
 			bar.dataset.pdkContextId = folderId;
 			bar.dataset.pdkContextLabel = getMenuLabel('folder_command_bar');
 			bar.dataset.pdkNoDrag = '';
-			getExplorerCommandGroups(folderId).forEach((group, index, groups) => {
-				const groupElement = dom.createElement('div', index === groups.length - 1 ? 'pdk-explorer-command-group pdk-explorer-command-group-details' : 'pdk-explorer-command-group');
+			getExplorerCommandGroups(folderId).forEach((group) => {
+				const groupElement = dom.createElement('div', 'pdk-explorer-command-group');
 				group.forEach((action) => {
 					groupElement.appendChild(createExplorerCommandButton(action, folderId, win));
 				});
@@ -3082,6 +3077,7 @@
 				}
 
 				button.disabled = !canRunExplorerCommand(action, folderId, win);
+				button.hidden = action.hideWhenUnavailable === true && button.disabled;
 			});
 		}
 
@@ -4909,7 +4905,7 @@
 				appId: `folder-info-${info.id}`,
 				bodyClass: 'pdk-window-body pdk-info-panel-body',
 				content: createFolderInfoContent(info),
-				disabledControls: ['maximize'],
+				disabledControls: isRedmondFamily() ? ['minimize', 'maximize'] : ['maximize'],
 				height: 'auto',
 				icon: info.icon || 'dashicons-category',
 				persist: false,
@@ -4917,7 +4913,7 @@
 				title,
 				titlebarIcon: info.icon || 'dashicons-category',
 				titlebarLabel: title,
-				width: '414px',
+				width: isRedmondFamily() ? '640px' : '414px',
 				windowKind: 'folder-info'
 			});
 
@@ -4955,7 +4951,7 @@
 					appId: `document-info-${info.id}`,
 					bodyClass: 'pdk-window-body pdk-info-panel-body',
 					content: createDocumentInfoContent(info),
-					disabledControls: ['maximize'],
+					disabledControls: isRedmondFamily() ? ['minimize', 'maximize'] : ['maximize'],
 					height: 'auto',
 					icon: info.icon || 'dashicons-media-document',
 					persist: false,
@@ -4963,7 +4959,7 @@
 					title,
 					titlebarIcon: info.icon || 'dashicons-media-document',
 					titlebarLabel: title,
-					width: '414px',
+					width: isRedmondFamily() ? '640px' : '414px',
 					windowKind: 'document-info'
 				});
 

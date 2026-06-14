@@ -528,6 +528,26 @@
 			return Boolean(current.items.length && target && current.items.some((item) => canPasteItem(item, target, current.operation)));
 		}
 
+		function isDesktopPasteTarget(target = {}) {
+			return target.type === containerTypes.DESKTOP;
+		}
+
+		function getMutableFolderPasteTargetId(target = {}) {
+			const folderId = target.folderId && target.folderId !== containerTypes.DESKTOP ? target.folderId : target.parentId;
+
+			return folderId && folderId !== containerTypes.DESKTOP ? folderId : '';
+		}
+
+		function canPasteToMutableTarget(target = {}) {
+			if (isDesktopPasteTarget(target)) {
+				return true;
+			}
+
+			const folderId = getMutableFolderPasteTargetId(target);
+
+			return Boolean(folderManager && folderId && typeof folderManager.isUserFolder === 'function' && folderManager.isUserFolder(folderId));
+		}
+
 		function canPasteItem(item, target, operation) {
 			if (!item || !target) {
 				return false;
@@ -542,11 +562,11 @@
 			}
 
 			if (item.type === clipboardItemTypes.FOLDER) {
-				return Boolean(folderManager && target.parentId);
+				return Boolean(folderManager && canPasteToMutableTarget(target));
 			}
 
 			if (item.type === clipboardItemTypes.DOCUMENT) {
-				return Boolean(target.parentPath || (target.type === containerTypes.DESKTOP && getDefaultStickyPath()));
+				return Boolean(canPasteToMutableTarget(target) && (target.parentPath || (isDesktopPasteTarget(target) && getDefaultStickyPath())));
 			}
 
 			return false;
@@ -804,6 +824,10 @@
 			}
 
 			for (const item of current.items) {
+				if (!canPasteItem(item, target, current.operation)) {
+					continue;
+				}
+
 				changed = Boolean(await pasteItem(item, target, current.operation)) || changed;
 			}
 

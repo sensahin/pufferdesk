@@ -262,12 +262,6 @@ final class PufferDesk_Theme_Registry {
 									'tone'  => 'orange',
 								),
 								array(
-									'id'    => 'apps',
-									'label' => __( 'Apps', 'pufferdesk-admin-desktop' ),
-									'icon'  => 'dashicons-grid-view',
-									'tone'  => 'blue',
-								),
-								array(
 									'id'    => 'profile',
 									'label' => __( 'Accounts', 'pufferdesk-admin-desktop' ),
 									'icon'  => 'dashicons-admin-users',

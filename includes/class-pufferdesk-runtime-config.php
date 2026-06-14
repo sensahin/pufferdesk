@@ -284,53 +284,75 @@ final class PufferDesk_Runtime_Config {
 	private function get_info_panel_config() {
 		return array(
 			'labels' => array(
-				'aboutSiteTitle'            => __( 'About This Site', 'pufferdesk-admin-desktop' ),
-				'accessLabel'               => __( 'Access', 'pufferdesk-admin-desktop' ),
-				'applicationPlural'         => __( 'applications', 'pufferdesk-admin-desktop' ),
-				'applicationSingular'       => __( 'application', 'pufferdesk-admin-desktop' ),
-				'appsLabel'                 => __( 'Apps', 'pufferdesk-admin-desktop' ),
-				'capabilityAccess'          => __( 'Visible to users with matching WordPress capabilities', 'pufferdesk-admin-desktop' ),
-					'containsLabel'             => __( 'Contains', 'pufferdesk-admin-desktop' ),
-					'createdLabel'              => __( 'Created', 'pufferdesk-admin-desktop' ),
-					'documentFallbackTitle'     => __( 'Document', 'pufferdesk-admin-desktop' ),
-					/* translators: %s: document label. */
-					'documentInfoTitle'         => __( '%s Info', 'pufferdesk-admin-desktop' ),
-					'folderFallbackTitle'       => __( 'Folder', 'pufferdesk-admin-desktop' ),
-					/* translators: %s: folder label. */
-					'folderInfoTitle'           => __( '%s Info', 'pufferdesk-admin-desktop' ),
-					/* translators: %s: folder contents count. */
-					'folderSizeTemplate'        => __( '%s in this folder', 'pufferdesk-admin-desktop' ),
-					'generalSection'            => __( 'General:', 'pufferdesk-admin-desktop' ),
-				'infoFallbackTitle'         => __( 'Info', 'pufferdesk-admin-desktop' ),
-				'itemPlural'                => __( 'items', 'pufferdesk-admin-desktop' ),
-				'itemSingular'              => __( 'item', 'pufferdesk-admin-desktop' ),
-				'itemCountTemplate'         => self::get_item_count_format(),
-				'itemsLabel'                => __( 'Items', 'pufferdesk-admin-desktop' ),
-				'kindLabel'                 => __( 'Kind', 'pufferdesk-admin-desktop' ),
-				'pufferdeskFallback'        => PufferDesk_Product_Labels::name(),
-					'lastOpenedLabel'           => __( 'Last opened', 'pufferdesk-admin-desktop' ),
-					'modifiedLabel'             => __( 'Modified', 'pufferdesk-admin-desktop' ),
-					/* translators: %s: formatted modified date. */
-					'modifiedTemplate'          => __( 'Modified: %s', 'pufferdesk-admin-desktop' ),
+					'aboutSiteTitle'            => __( 'About This Site', 'pufferdesk-admin-desktop' ),
+					'accessLabel'               => __( 'Access', 'pufferdesk-admin-desktop' ),
+					'applicationPlural'         => __( 'applications', 'pufferdesk-admin-desktop' ),
+					'applicationSingular'       => __( 'application', 'pufferdesk-admin-desktop' ),
+					'applyLabel'                => __( 'Apply', 'pufferdesk-admin-desktop' ),
+					'archiveAttribute'          => __( 'Archive', 'pufferdesk-admin-desktop' ),
+					'appsLabel'                 => __( 'Apps', 'pufferdesk-admin-desktop' ),
+					'attributesLabel'           => __( 'Attributes', 'pufferdesk-admin-desktop' ),
+					'cancelLabel'               => __( 'Cancel', 'pufferdesk-admin-desktop' ),
+					'capabilityAccess'          => __( 'Visible to users with matching WordPress capabilities', 'pufferdesk-admin-desktop' ),
+						'containsLabel'             => __( 'Contains', 'pufferdesk-admin-desktop' ),
+						'createdLabel'              => __( 'Created', 'pufferdesk-admin-desktop' ),
+						'documentFallbackTitle'     => __( 'Document', 'pufferdesk-admin-desktop' ),
+						/* translators: %s: document label. */
+						'documentInfoTitle'         => __( '%s Info', 'pufferdesk-admin-desktop' ),
+					'fileFolderTypeLabel'       => __( 'File folder', 'pufferdesk-admin-desktop' ),
+					'filePlural'                => __( 'Files', 'pufferdesk-admin-desktop' ),
+					'fileSingular'              => __( 'File', 'pufferdesk-admin-desktop' ),
+						'folderFallbackTitle'       => __( 'Folder', 'pufferdesk-admin-desktop' ),
+						/* translators: %s: folder label. */
+						'folderInfoTitle'           => __( '%s Info', 'pufferdesk-admin-desktop' ),
+					'folderPlural'              => __( 'Folders', 'pufferdesk-admin-desktop' ),
+					'folderSingular'            => __( 'Folder', 'pufferdesk-admin-desktop' ),
+						/* translators: %s: folder contents count. */
+						'folderSizeTemplate'        => __( '%s in this folder', 'pufferdesk-admin-desktop' ),
+						'generalSection'            => __( 'General:', 'pufferdesk-admin-desktop' ),
+					'hiddenAttribute'           => __( 'Hidden', 'pufferdesk-admin-desktop' ),
+					'infoFallbackTitle'         => __( 'Info', 'pufferdesk-admin-desktop' ),
+					'itemPlural'                => __( 'items', 'pufferdesk-admin-desktop' ),
+					'itemSingular'              => __( 'item', 'pufferdesk-admin-desktop' ),
+					'itemCountTemplate'         => self::get_item_count_format(),
+					'itemsLabel'                => __( 'Items', 'pufferdesk-admin-desktop' ),
+					'kindLabel'                 => __( 'Kind', 'pufferdesk-admin-desktop' ),
+					'locationLabel'             => __( 'Location', 'pufferdesk-admin-desktop' ),
+					'okLabel'                   => __( 'OK', 'pufferdesk-admin-desktop' ),
+					'pufferdeskFallback'        => PufferDesk_Product_Labels::name(),
+						'lastOpenedLabel'           => __( 'Last opened', 'pufferdesk-admin-desktop' ),
+						'modifiedLabel'             => __( 'Modified', 'pufferdesk-admin-desktop' ),
+						/* translators: %s: formatted modified date. */
+						'modifiedTemplate'          => __( 'Modified: %s', 'pufferdesk-admin-desktop' ),
 					'moreInfoLabel'             => __( 'More Info...', 'pufferdesk-admin-desktop' ),
 				'moreInfoSection'           => __( 'More Info:', 'pufferdesk-admin-desktop' ),
 				'nameSection'               => __( 'Name:', 'pufferdesk-admin-desktop' ),
 					'noPreviewItems'            => __( 'No items to preview.', 'pufferdesk-admin-desktop' ),
-					'notAvailable'              => __( 'Not available', 'pufferdesk-admin-desktop' ),
-					/* translators: %s: preview item count. */
-					'previewAvailableTemplate'  => __( '%s available.', 'pufferdesk-admin-desktop' ),
-					'previewSection'            => __( 'Preview:', 'pufferdesk-admin-desktop' ),
-				'privateUserAccess'         => __( 'Private to this WordPress user', 'pufferdesk-admin-desktop' ),
-				'sharingPermissionsSection' => __( 'Sharing & Permissions:', 'pufferdesk-admin-desktop' ),
-				'siteHealthInfoTitle'       => __( 'Site Health Info', 'pufferdesk-admin-desktop' ),
-					'sizeLabel'                 => __( 'Size', 'pufferdesk-admin-desktop' ),
-					'sourceLabel'               => __( 'Source', 'pufferdesk-admin-desktop' ),
-					'whereLabel'                => __( 'Where', 'pufferdesk-admin-desktop' ),
-					'windowAriaLabel'           => self::get_window_title_format(),
-				'wordpressSiteTitle'        => __( 'WordPress Site', 'pufferdesk-admin-desktop' ),
-			),
-		);
-	}
+						'notAvailable'              => __( 'Not available', 'pufferdesk-admin-desktop' ),
+						/* translators: %s: preview item count. */
+						'previewAvailableTemplate'  => __( '%s available.', 'pufferdesk-admin-desktop' ),
+						'previewSection'            => __( 'Preview:', 'pufferdesk-admin-desktop' ),
+					'propertiesContainsTemplate' => __( '%1$d %2$s, %3$d %4$s', 'pufferdesk-admin-desktop' ),
+					'propertiesCustomizeTab'     => __( 'Customize', 'pufferdesk-admin-desktop' ),
+					'propertiesGeneralTab'       => __( 'General', 'pufferdesk-admin-desktop' ),
+					'propertiesPreviousVersionsTab' => __( 'Previous Versions', 'pufferdesk-admin-desktop' ),
+					'propertiesSharingTab'       => __( 'Sharing', 'pufferdesk-admin-desktop' ),
+					'propertiesTabsLabel'        => __( 'Properties tabs', 'pufferdesk-admin-desktop' ),
+					'privateUserAccess'         => __( 'Private to this WordPress user', 'pufferdesk-admin-desktop' ),
+					'readOnlyAttribute'         => __( 'Read-only (Only applies to files in folder)', 'pufferdesk-admin-desktop' ),
+					'sharingPermissionsSection' => __( 'Sharing & Permissions:', 'pufferdesk-admin-desktop' ),
+					'siteHealthInfoTitle'       => __( 'Site Health Info', 'pufferdesk-admin-desktop' ),
+						'sizeLabel'                 => __( 'Size', 'pufferdesk-admin-desktop' ),
+					'sizeOnDiskLabel'           => __( 'Size on disk', 'pufferdesk-admin-desktop' ),
+						'sourceLabel'               => __( 'Source', 'pufferdesk-admin-desktop' ),
+					'typeLabel'                 => __( 'Type', 'pufferdesk-admin-desktop' ),
+						'whereLabel'                => __( 'Where', 'pufferdesk-admin-desktop' ),
+						'windowAriaLabel'           => self::get_window_title_format(),
+					'wordpressSiteTitle'        => __( 'WordPress Site', 'pufferdesk-admin-desktop' ),
+					'zeroBytesLabel'            => __( '0 bytes', 'pufferdesk-admin-desktop' ),
+				),
+			);
+		}
 
 	/**
 	 * Build a logout URL suitable for runtime command data.
@@ -1313,6 +1335,7 @@ final class PufferDesk_Runtime_Config {
 		$theme_settings = isset( $theme['settings'] ) && is_array( $theme['settings'] ) ? $theme['settings'] : array();
 		$theme_labels   = isset( $theme_settings['labels'] ) && is_array( $theme_settings['labels'] ) ? $theme_settings['labels'] : array();
 		$labels         = $this->merge_settings_labels( $labels, $theme_labels );
+		$labels         = $this->remove_settings_sidebar_items( $labels, array( 'apps' ) );
 
 		if ( isset( $theme['family'] ) && 'pufferdesk' === sanitize_key( $theme['family'] ) ) {
 			$labels = $this->remove_settings_sidebar_items( $labels, array( 'workspace', 'system' ) );
@@ -1859,7 +1882,6 @@ final class PufferDesk_Runtime_Config {
 				'new_note'                => __( 'New Note', 'pufferdesk-admin-desktop' ),
 				'group'                   => __( 'Group', 'pufferdesk-admin-desktop' ),
 				'more'                    => __( 'More', 'pufferdesk-admin-desktop' ),
-				'share'                   => __( 'Share', 'pufferdesk-admin-desktop' ),
 				'sort'                    => __( 'Sort', 'pufferdesk-admin-desktop' ),
 				'new_sticky_note'         => __( 'New Sticky Note', 'pufferdesk-admin-desktop' ),
 				'get_info'                => __( 'Get Info', 'pufferdesk-admin-desktop' ),
@@ -1873,15 +1895,7 @@ final class PufferDesk_Runtime_Config {
 				'open_in_new_tab'         => __( 'Open in New Tab', 'pufferdesk-admin-desktop' ),
 				'open_in_new_window'      => __( 'Open in New Window', 'pufferdesk-admin-desktop' ),
 				'address'                 => __( 'Address', 'pufferdesk-admin-desktop' ),
-				'pin_to_quick_access'     => __( 'Pin to Quick Access', 'pufferdesk-admin-desktop' ),
-				'pin_to_start'            => __( 'Pin to Start', 'pufferdesk-admin-desktop' ),
 				'properties'              => __( 'Properties', 'pufferdesk-admin-desktop' ),
-				'compress_to'             => __( 'Compress to...', 'pufferdesk-admin-desktop' ),
-				'zip_file'                => __( 'ZIP file', 'pufferdesk-admin-desktop' ),
-				'compressed_folder'       => __( 'Compressed folder', 'pufferdesk-admin-desktop' ),
-				'copy_as_path'            => __( 'Copy as path', 'pufferdesk-admin-desktop' ),
-				'open_in_terminal'        => __( 'Open in Terminal', 'pufferdesk-admin-desktop' ),
-				'show_more_options'       => __( 'Show more options', 'pufferdesk-admin-desktop' ),
 				'enter_key'               => __( 'Enter', 'pufferdesk-admin-desktop' ),
 				'new_tab'                 => __( 'New Tab', 'pufferdesk-admin-desktop' ),
 				'close_tab'               => __( 'Close Tab', 'pufferdesk-admin-desktop' ),
@@ -1982,7 +1996,6 @@ final class PufferDesk_Runtime_Config {
 					'group_size_medium'       => __( 'Medium', 'pufferdesk-admin-desktop' ),
 					'group_size_large'        => __( 'Large', 'pufferdesk-admin-desktop' ),
 					'group_size_huge'         => __( 'Huge', 'pufferdesk-admin-desktop' ),
-					'show_view_options'       => __( 'Show View Options', 'pufferdesk-admin-desktop' ),
 				'extra_large_icons'       => __( 'Extra large icons', 'pufferdesk-admin-desktop' ),
 				'large_icons'             => __( 'Large icons', 'pufferdesk-admin-desktop' ),
 				'medium_icons'            => __( 'Medium icons', 'pufferdesk-admin-desktop' ),
@@ -1995,9 +2008,6 @@ final class PufferDesk_Runtime_Config {
 				'content_view'            => __( 'Content', 'pufferdesk-admin-desktop' ),
 				'as_icons'                => __( 'as Icons', 'pufferdesk-admin-desktop' ),
 				'as_list'                 => __( 'as List', 'pufferdesk-admin-desktop' ),
-				'details_pane'            => __( 'Details pane', 'pufferdesk-admin-desktop' ),
-				'preview_pane'            => __( 'Preview pane', 'pufferdesk-admin-desktop' ),
-				'preview'                 => __( 'Preview', 'pufferdesk-admin-desktop' ),
 				'show'                    => __( 'Show', 'pufferdesk-admin-desktop' ),
 				'auto_arrange_icons'      => __( 'Auto arrange icons', 'pufferdesk-admin-desktop' ),
 				'align_icons_to_grid'     => __( 'Align icons to grid', 'pufferdesk-admin-desktop' ),

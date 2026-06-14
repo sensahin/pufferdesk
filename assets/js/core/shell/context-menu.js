@@ -82,12 +82,6 @@
 			return { type: 'separator' };
 		}
 
-		function disabledItem(label, options = {}) {
-			return commandItem(label, '', Object.assign({}, options, {
-				disabled: true
-			}));
-		}
-
 		function getClipboardItems(options = {}) {
 			const includeCut = options.includeCut !== false && showsCutMenuItems();
 			const includeCopy = options.includeCopy !== false;
@@ -280,7 +274,9 @@
 			const items = [
 				commandItem(getLabel('open_in_new_tab'), commandIds.OPEN_FOLDER_TAB, payload),
 				separator(),
-				commandItem(getLabel('remove_from_sidebar'), commandIds.FOLDER_SIDEBAR_REMOVE, payload)
+				commandItem(getLabel('remove_from_sidebar'), commandIds.FOLDER_SIDEBAR_REMOVE, Object.assign({}, payload, {
+					hideWhenUnavailable: true
+				}))
 			];
 
 			if (section !== 'recents') {
@@ -494,6 +490,15 @@
 								panel: 'appearance'
 							})
 						]
+					},
+					{
+						id: 'layout',
+						items: [
+							commandItem(getLabel('reset_layout'), commandIds.SESSION_RESET_LAYOUT, {
+								icon: 'dashicons-update',
+								id: 'desktop-reset-layout'
+							})
+						]
 					}
 				]
 			};
@@ -665,19 +670,19 @@
 			return items;
 		}
 
+		function shouldShowAppClipboardGroup(app, detail = {}) {
+			return !(
+				app
+				&& app.id === appIds.TRASH
+				&& detail.type === targets.DESKTOP_APP
+				&& isRedmondFamily()
+			);
+		}
+
 		function getRedmondRecycleBinItems(app) {
 			const hasTrashItems = getTrashCount() > 0;
 
 			return [
-				actionStrip([
-					commandItem(getLabel('rename'), commandIds.DESKTOP_ICON_RENAME, {
-						icon: 'dashicons-edit',
-						id: 'rename',
-						target: app.id
-					})
-				], {
-					id: 'recycle-bin-actions'
-				}),
 				commandItem(getLabel('open'), commandIds.OPEN_APP, {
 					icon: app.icon || 'dashicons-trash',
 					id: 'recycle-bin-open',
@@ -689,24 +694,12 @@
 					icon: 'dashicons-trash',
 					id: 'recycle-bin-empty'
 				}),
-				disabledItem(getLabel('pin_to_quick_access'), {
-					icon: 'dashicons-admin-links',
-					id: 'recycle-bin-pin-quick-access'
-				}),
-				disabledItem(getLabel('pin_to_start'), {
-					icon: 'dashicons-admin-links',
-					id: 'recycle-bin-pin-start'
-				}),
+				separator(),
 				commandItem(getLabel('properties'), commandIds.FOLDER_GET_INFO, {
 					icon: 'dashicons-admin-tools',
 					id: 'recycle-bin-properties',
 					shortcut: shortcut('secondary+enter'),
 					target: appIds.TRASH
-				}),
-				separator(),
-				disabledItem(getLabel('show_more_options'), {
-					icon: 'dashicons-external',
-					id: 'recycle-bin-show-more-options'
 				})
 			];
 		}
@@ -971,7 +964,7 @@
 				return items;
 			}
 
-			if (useExplorerMenu) {
+			if (useExplorerMenu && canMutateFolder) {
 				items.push(actionStrip([
 					commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
 						hideWhenUnavailable: true,
@@ -987,14 +980,12 @@
 						icon: 'dashicons-admin-page',
 						id: 'paste'
 					}),
-					commandItem(getLabel('rename'), canMutateFolder ? commandIds.FOLDER_RENAME : '', {
-						disabled: !canMutateFolder,
+					commandItem(getLabel('rename'), commandIds.FOLDER_RENAME, {
 						icon: 'dashicons-edit',
 						id: 'rename',
 						target: folder.id
 					}),
-					commandItem(getLabel('delete'), canMutateFolder ? commandIds.FOLDER_DELETE : '', {
-						disabled: !canMutateFolder,
+					commandItem(getLabel('delete'), commandIds.FOLDER_DELETE, {
 						icon: 'dashicons-trash',
 						id: 'delete',
 						target: folder.id
@@ -1022,28 +1013,6 @@
 						icon: 'dashicons-external',
 						id: 'open-in-new-window',
 						target: folder.id
-					}),
-					disabledItem(getLabel('pin_to_quick_access'), {
-						icon: 'dashicons-admin-links',
-						id: 'pin-to-quick-access'
-					}),
-					disabledItem(getLabel('pin_to_start'), {
-						icon: 'dashicons-admin-links',
-						id: 'pin-to-start'
-					}),
-					{
-						icon: 'dashicons-archive',
-						id: 'compress-to',
-						items: [
-							disabledItem(getLabel('zip_file')),
-							disabledItem(getLabel('compressed_folder'))
-						],
-						label: getLabel('compress_to')
-					},
-					disabledItem(getLabel('copy_as_path'), {
-						icon: 'dashicons-media-code',
-						id: 'copy-as-path',
-						shortcut: 'Ctrl+Shift+C'
 					})
 				);
 			}
@@ -1057,18 +1026,7 @@
 			);
 
 			if (useExplorerMenu) {
-				items.push(
-					separator(),
-					disabledItem(getLabel('open_in_terminal'), {
-						icon: 'dashicons-editor-code',
-						id: 'open-in-terminal'
-					}),
-					separator(),
-					disabledItem(getLabel('show_more_options'), {
-						icon: 'dashicons-external',
-						id: 'show-more-options'
-					})
-				);
+				return items;
 			}
 
 			if (canMutateFolder && !useExplorerMenu) {
@@ -1200,14 +1158,7 @@
 				return items;
 			}
 
-			items.push(
-				infoItem,
-				separator(),
-				disabledItem(getLabel('show_more_options'), {
-					icon: 'dashicons-external',
-					id: 'show-more-options'
-				})
-			);
+			items.push(infoItem);
 
 			return items;
 		}
@@ -1421,15 +1372,21 @@
 			};
 		});
 
-		registerProvider(itemTypes.APP, (detail) => ({
-			groups: [
-				getClipboardGroup(),
-				{
-					id: 'primary',
-					items: getAppItems(detail.app || appMap.get(detail.id), detail)
-				}
-			]
-		}));
+		registerProvider(itemTypes.APP, (detail) => {
+			const app = detail.app || appMap.get(detail.id);
+			const groups = [];
+
+			if (shouldShowAppClipboardGroup(app, detail)) {
+				groups.push(getClipboardGroup());
+			}
+
+			groups.push({
+				id: 'primary',
+				items: getAppItems(app, detail)
+			});
+
+			return { groups };
+		});
 		registerProvider(targets.DESKTOP_APP, (detail) => providers.get(itemTypes.APP)(detail));
 		registerProvider(targets.FOLDER_APP, (detail) => providers.get(itemTypes.APP)(detail));
 
@@ -1612,12 +1569,6 @@
 								commandItem(getLabel('window_restore'), commandIds.WINDOW_FOCUS, {
 									disabled: !isHidden,
 									icon: 'dashicons-image-rotate'
-								}),
-								disabledItem(getLabel('window_move'), {
-									icon: 'dashicons-move'
-								}),
-								disabledItem(getLabel('window_size'), {
-									icon: 'dashicons-editor-expand'
 								}),
 								commandItem(getLabel('window_minimize'), commandIds.WINDOW_MINIMIZE, {
 									icon: 'dashicons-minus'

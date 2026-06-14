@@ -62,8 +62,19 @@
 
 		function createWidgetToggle(widget) {
 			const button = document.createElement('button');
+			const shell = document.querySelector('.pdk-shell');
+			const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
+			const widgetsChangeEvent = domEventNames.WIDGETS_CHANGE || '';
 			const sync = () => {
 				button.setAttribute('aria-pressed', isWidgetVisible(widget.id) ? 'true' : 'false');
+			};
+			const syncSoon = () => {
+				if (typeof window.requestAnimationFrame === 'function') {
+					window.requestAnimationFrame(sync);
+					return;
+				}
+
+				window.setTimeout(sync, 0);
 			};
 
 			button.type = 'button';
@@ -73,7 +84,11 @@
 			button.addEventListener('click', () => {
 				setWidgetVisible(widget.id, !isWidgetVisible(widget.id));
 				sync();
+				syncSoon();
 			});
+			if (shell && widgetsChangeEvent) {
+				shell.addEventListener(widgetsChangeEvent, sync);
+			}
 			sync();
 
 			return button;

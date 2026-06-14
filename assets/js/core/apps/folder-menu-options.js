@@ -20,12 +20,6 @@
 			return { type: 'separator' };
 		}
 
-		function disabledItem(label, itemOptions = {}) {
-			return menuItem(label, '', Object.assign({}, itemOptions, {
-				disabled: true
-			}));
-		}
-
 		function modeItem(label, command, mode, activeMode, folderId, itemOptions = {}) {
 			return menuItem(label, command, Object.assign({
 				icon: mode === activeMode ? 'dashicons-yes' : '',
@@ -126,6 +120,7 @@
 
 			return [
 				menuItem(getMenuLabel('new_folder'), commandIds.FOLDER_CREATE, {
+					hideWhenUnavailable: true,
 					icon: 'dashicons-category',
 					id: 'folder-content-new-folder',
 					payload: {
@@ -136,6 +131,7 @@
 					target: folderId
 				}),
 				menuItem(getMenuLabel('new_sticky_note'), commandIds.DOCUMENT_NEW_STICKY_NOTE, {
+					hideWhenUnavailable: true,
 					icon: 'dashicons-sticky',
 					id: 'folder-content-new-sticky-note',
 					payload: {
@@ -176,7 +172,6 @@
 		}
 
 		return {
-			disabledItem,
 			getFolderContentItems,
 			getGroupModeItems,
 			getSortModeItems,

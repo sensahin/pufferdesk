@@ -18,7 +18,6 @@ final class PufferDesk_Command_Ids {
 	const CLIPBOARD_COPY                = 'clipboard.copy';
 	const CLIPBOARD_CUT                 = 'clipboard.cut';
 	const CLIPBOARD_PASTE               = 'clipboard.paste';
-	const DESKTOP_ICON_RENAME           = 'desktop-icon.rename';
 	const DESKTOP_REFRESH               = 'desktop.refresh';
 	const DESKTOP_SET_ICON_SIZE         = 'desktop.set-icon-size';
 	const DESKTOP_SORT_ICONS            = 'desktop.sort-icons';

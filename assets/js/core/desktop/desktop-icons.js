@@ -315,6 +315,20 @@
 				};
 			}
 
+			if (
+				targetIcon.dataset.pdkDesktopIconKind === itemTypes.APP
+				&& (
+					targetIcon.dataset.pdkOpenApp === containerTypes.TRASH
+					|| targetIcon.dataset.pdkContextId === containerTypes.TRASH
+				)
+			) {
+				return {
+					id: containerTypes.TRASH,
+					kind: containerTypes.TRASH,
+					key: containerTypes.TRASH
+				};
+			}
+
 			if (targetIcon.classList && targetIcon.classList.contains('pdk-finder-pane')) {
 				const win = targetIcon.closest(`.pdk-window[data-pdk-window-kind="${dom.escapeAttribute(folderWindowKind)}"]`);
 				const folderId = win && win.dataset ? win.dataset.pdkFolderWindow || '' : '';
@@ -372,7 +386,7 @@
 				return false;
 			}
 
-			if (targetIcon.hidden || ![itemTypes.FOLDER, targetKinds.FOLDER_SIDEBAR_FAVORITES].includes(getDropTargetDetail(targetIcon).kind)) {
+			if (targetIcon.hidden || ![itemTypes.FOLDER, targetKinds.FOLDER_SIDEBAR_FAVORITES, containerTypes.TRASH].includes(getDropTargetDetail(targetIcon).kind)) {
 				return false;
 			}
 

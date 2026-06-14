@@ -1773,25 +1773,6 @@
 			}
 		});
 
-		register(commandIds.DESKTOP_ICON_RENAME, {
-			isEnabled(payload, detail) {
-				return Boolean(
-					desktopIconManager
-					&& typeof desktopIconManager.startInlineRename === 'function'
-					&& detail
-					&& detail.type === contextTargets.DESKTOP_APP
-					&& (payload.target || detail.id) === appIds.TRASH
-				);
-			},
-			run(payload, detail) {
-				desktopIconManager.startInlineRename({
-					iconElement: detail && detail.targetElement ? detail.targetElement : null,
-					id: payload.target || (detail && detail.id) || '',
-					kind: 'app'
-				});
-			}
-		});
-
 		register(commandIds.FOLDER_TAB_CLOSE, {
 			isEnabled(payload, detail) {
 				return Boolean(launcher && typeof launcher.closeFolderTab === 'function' && getTargetWindow(detail) && getFolderTabIdFromPayload(payload, detail));

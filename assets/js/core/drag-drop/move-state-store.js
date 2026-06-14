@@ -405,7 +405,14 @@
 			if (id === containerTypes.TRASH) {
 				return {
 					accepts(item, move) {
-					return Boolean(item && item.type === itemTypes.FOLDER && item.metadata && item.metadata.user && move && move.reason === dragReasons.TRASH);
+						if (!item || !move || move.reason !== dragReasons.TRASH) {
+							return false;
+						}
+
+						return Boolean(
+							item.type === itemTypes.DOCUMENT
+							|| (item.type === itemTypes.FOLDER && item.metadata && item.metadata.user)
+						);
 					},
 					canContainFolders: false,
 					canMoveOut: () => false,
@@ -480,6 +487,44 @@
 			return true;
 		}
 
+		function moveDocumentToTrash(item) {
+			const manager = getFolderManager();
+			const documentStore = getDocumentStore();
+			const launcher = getLauncher();
+			const stickyManager = window.PufferDesk.stickyNoteManager || null;
+			const documentId = parseDocumentId(item && item.metadata ? item.metadata.documentId || item.id : item && item.id);
+
+			if (documentId && launcher && typeof launcher.moveDocumentToTrash === 'function') {
+				launcher.moveDocumentToTrash(documentId).catch(() => false);
+
+				return true;
+			}
+
+			if (
+				!documentId
+				|| !manager
+				|| typeof manager.moveDocumentToTrash !== 'function'
+				|| !documentStore
+				|| typeof documentStore.get !== 'function'
+				|| typeof documentStore.remove !== 'function'
+			) {
+				return false;
+			}
+
+			documentStore.get(documentId).then((documentData) => documentStore.remove(documentId).then((deleted) => {
+				if (deleted) {
+					manager.moveDocumentToTrash(documentData);
+					if (stickyManager && typeof stickyManager.removeRenderedNote === 'function') {
+						stickyManager.removeRenderedNote(documentId);
+					}
+				}
+
+				return Boolean(deleted);
+			})).catch(() => false);
+
+			return true;
+		}
+
 		function applyMove(move) {
 			const manager = getFolderManager();
 			const launcher = getLauncher();
@@ -492,6 +537,10 @@
 			}
 
 			if (item.type === itemTypes.DOCUMENT) {
+				if (move.toContainerId === containerTypes.TRASH && move.reason === dragReasons.TRASH) {
+					return moveDocumentToTrash(item);
+				}
+
 				return moveDocumentToContainer(item, move.toContainerId, point);
 			}
 

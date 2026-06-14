@@ -69,6 +69,7 @@
 		const eventNames = window.PufferDesk.events.names || {};
 		const dragDropConstants = window.PufferDesk.dragDrop.constants || {};
 		const dragDropContainerTypes = dragDropConstants.containerTypes || {};
+		const dragDropReasons = dragDropConstants.reasons || {};
 		if (window.PufferDesk.appearance) {
 			window.PufferDesk.appearance.apply(shell, config.appearance || {});
 			window.PufferDesk.appearance.bindSystemMode(shell);
@@ -150,6 +151,14 @@
 			moveService,
 			stateStore: moveStateStore
 		});
+		function getDesktopDropOptions(detail) {
+			return {
+				reason: detail && detail.targetKind === dragDropContainerTypes.TRASH
+					? dragDropReasons.TRASH || 'trash'
+					: dragDropReasons.DRAG_DROP || 'drag-drop',
+				source: dragDropContainerTypes.DESKTOP
+			};
+		}
 		[
 			dragDropContainerTypes.DESKTOP,
 			dragDropContainerTypes.FOLDER_SIDEBAR_FAVORITES,
@@ -162,21 +171,10 @@
 			}
 		});
 		desktopIconManager = window.PufferDesk.desktop.createDesktopIconManager(shell, {
-			canRenameIcon(detail) {
-				return Boolean(
-					config
-					&& config.theme
-					&& config.theme.family === 'redmond'
-					&& detail
-					&& detail.kind === 'app'
-					&& detail.id === dragDropContainerTypes.TRASH
-				);
-			},
 			canDropOnFolder(detail) {
-				return Boolean(dragDropManager.canDropLegacy(detail, {
-					emit: false,
-					source: dragDropContainerTypes.DESKTOP
-				}));
+				return Boolean(dragDropManager.canDropLegacy(detail, Object.assign({
+					emit: false
+				}, getDesktopDropOptions(detail))));
 			},
 			onDropOnFolder(detail) {
 				const details = Array.isArray(detail && detail.details) && detail.details.length
@@ -184,9 +182,7 @@
 					: [detail];
 
 				details.forEach((dropDetail) => {
-					dragDropManager.dropLegacy(dropDetail, {
-						source: dragDropContainerTypes.DESKTOP
-					});
+					dragDropManager.dropLegacy(dropDetail, getDesktopDropOptions(dropDetail));
 				});
 			},
 			onRenameIcon(detail) {
