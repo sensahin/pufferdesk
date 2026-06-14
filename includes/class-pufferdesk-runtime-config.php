@@ -1710,9 +1710,9 @@ final class PufferDesk_Runtime_Config {
 		return array(
 			'actions' => array(
 				'restart'       => array(
-					'title'                => __( 'Are you sure you want to restart PufferDesk?', 'pufferdesk-admin-desktop' ),
+					'title'                => __( 'Restart PufferDesk?', 'pufferdesk-admin-desktop' ),
 					/* translators: {seconds}: seconds remaining before PufferDesk restarts automatically. */
-					'message'              => __( 'If you do nothing, PufferDesk will restart automatically in {seconds} seconds.', 'pufferdesk-admin-desktop' ),
+					'message'              => __( 'Reloads PufferDesk only. Your site content is unchanged. Auto-restarts in {seconds}s.', 'pufferdesk-admin-desktop' ),
 					'confirmLabel'         => __( 'Restart', 'pufferdesk-admin-desktop' ),
 					'cancelLabel'          => __( 'Cancel', 'pufferdesk-admin-desktop' ),
 					'reopenWindowsLabel'   => __( 'Reopen windows after restarting', 'pufferdesk-admin-desktop' ),
@@ -1722,9 +1722,9 @@ final class PufferDesk_Runtime_Config {
 					'overlayMessage'       => __( 'Restarting PufferDesk...', 'pufferdesk-admin-desktop' ),
 				),
 				'switchClassic' => array(
-					'title'                => __( 'Are you sure you want to switch to Classic Admin?', 'pufferdesk-admin-desktop' ),
+					'title'                => __( 'Switch to Classic Admin?', 'pufferdesk-admin-desktop' ),
 					/* translators: {seconds}: seconds remaining before Classic Admin opens automatically. */
-					'message'              => __( 'If you do nothing, Classic Admin will open automatically in {seconds} seconds.', 'pufferdesk-admin-desktop' ),
+					'message'              => __( 'Leaves PufferDesk and opens the normal WordPress admin in {seconds}s.', 'pufferdesk-admin-desktop' ),
 					'confirmLabel'         => __( 'Switch', 'pufferdesk-admin-desktop' ),
 					'cancelLabel'          => __( 'Cancel', 'pufferdesk-admin-desktop' ),
 					'reopenWindowsLabel'   => __( 'Reopen windows when returning to PufferDesk', 'pufferdesk-admin-desktop' ),
@@ -1736,11 +1736,11 @@ final class PufferDesk_Runtime_Config {
 				'logout'        => array(
 					'title'                => sprintf(
 						/* translators: %s: current user display name. */
-						__( 'Are you sure you want to log out %s?', 'pufferdesk-admin-desktop' ),
+						__( 'Log out %s?', 'pufferdesk-admin-desktop' ),
 						$user_label
 					),
 					/* translators: {seconds}: seconds remaining before the user is logged out automatically. */
-					'message'              => __( 'If you do nothing, you will be logged out automatically in {seconds} seconds.', 'pufferdesk-admin-desktop' ),
+					'message'              => __( 'Ends your WordPress session and opens the login screen in {seconds}s.', 'pufferdesk-admin-desktop' ),
 					'confirmLabel'         => __( 'Log Out', 'pufferdesk-admin-desktop' ),
 					'cancelLabel'          => __( 'Cancel', 'pufferdesk-admin-desktop' ),
 					'reopenWindowsLabel'   => __( 'Reopen windows when logging back in', 'pufferdesk-admin-desktop' ),
