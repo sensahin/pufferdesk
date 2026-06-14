@@ -3306,8 +3306,8 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-pane-header h1 {
-	font-size: 28px;
-	font-weight: var(--pdk-weight-semibold);
+	font-size: 30px;
+	font-weight: var(--pdk-weight-medium);
 	line-height: 1.12;
 }
 
@@ -3373,8 +3373,8 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-device-text strong {
 	color: var(--pdk-ink);
-	font-size: 17px;
-	font-weight: var(--pdk-weight-semibold);
+	font-size: 16px;
+	font-weight: var(--pdk-weight-medium);
 	letter-spacing: 0;
 	line-height: 1.2;
 	overflow: hidden;
@@ -3415,10 +3415,6 @@
 	padding: 3px 6px;
 	text-align: left;
 	width: fit-content;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-inline-link {
-	margin-left: -6px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-inline-link:hover,
@@ -3470,7 +3466,7 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-tile-text strong {
 	font-size: 14px;
-	font-weight: var(--pdk-weight-semibold);
+	font-weight: var(--pdk-weight-regular);
 	line-height: 1.2;
 }
 
@@ -3546,7 +3542,7 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-text strong {
 	font-size: 20px;
-	font-weight: var(--pdk-weight-semibold);
+	font-weight: var(--pdk-weight-medium);
 	line-height: 1.18;
 }
 
@@ -3633,6 +3629,61 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-recommended-row + .pdk-settings-home-recommended-row {
 	border-top: 1px solid var(--pdk-redmond-settings-border);
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended {
+	border-radius: 8px;
+	padding: 0;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-card-header {
+	display: block;
+	padding: 34px 36px 32px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-card-text {
+	gap: 16px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-card-text strong {
+	font-size: 25px;
+	font-weight: var(--pdk-weight-medium);
+	line-height: 1.12;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-card-text span {
+	color: #626262;
+	font-size: 18px;
+	line-height: 1.28;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-recommended-list {
+	margin: 0;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-recommended-row {
+	gap: 22px;
+	grid-template-columns: 44px minmax(0, 1fr) 12px;
+	min-height: 88px;
+	padding: 0 34px 0 36px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-recommended-row .pdk-settings-row-icon {
+	height: 34px;
+	width: 34px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-recommended-row .pdk-settings-row-icon .dashicons {
+	font-size: 27px;
+	height: 27px;
+	line-height: 27px;
+	width: 27px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-panel-text strong {
+	font-size: 17px;
+	font-weight: var(--pdk-weight-regular);
+	line-height: 1.22;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-footer {
@@ -5396,6 +5447,10 @@
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-update-notice {
 	background: var(--pdk-redmond-settings-card-bg);
 	border-color: var(--pdk-redmond-settings-border);
+}
+
+.pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-card-text span {
+	color: #c7c7c7;
 }
 
 .pdk-shell[data-pdk-theme="redmond"][data-pdk-effective-appearance="dark"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-inline-link,

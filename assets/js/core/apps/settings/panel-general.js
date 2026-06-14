@@ -199,19 +199,16 @@
 		const list = dom.createElement('div', 'pdk-settings-home-recommended-list');
 		const rows = [
 			{
-				description: ctx.t('generalPanel.home.systemDescription'),
 				icon: 'dashicons-desktop',
 				id: 'desktop-dock',
 				label: getSidebarLabel(ctx, 'desktop-dock', ctx.t('desktopDock.title'))
 			},
 			{
-				description: ctx.t('generalPanel.home.notificationsDescription'),
 				icon: 'dashicons-bell',
 				id: 'notifications',
 				label: getSidebarLabel(ctx, 'notifications', ctx.t('notifications.title'))
 			},
 			{
-				description: ctx.t('generalPanel.home.appearanceDescription'),
 				icon: 'dashicons-admin-appearance',
 				id: 'appearance',
 				label: getSidebarLabel(ctx, 'appearance', ctx.t('appearance.title'))
@@ -221,7 +218,6 @@
 		rows.forEach((row) => {
 			list.appendChild(createHomePanelButton(ctx, {
 				className: 'pdk-settings-home-recommended-row',
-				description: row.description,
 				icon: row.icon,
 				label: row.label,
 				panel: row.id
