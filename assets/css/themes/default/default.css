@@ -154,7 +154,8 @@
 	--pdk-dock-tooltip-border: rgba(255, 255, 255, 0.08);
 	--pdk-dock-tooltip-color: rgba(255, 255, 255, 0.94);
 	--pdk-dock-tooltip-shadow: 0 8px 18px rgba(17, 35, 42, 0.22);
-	--pdk-running-indicator: #f0a65e;
+	--pdk-running-indicator: var(--pdk-accent);
+	--pdk-running-indicator-shadow: 0 0 0 1px rgba(255, 255, 255, 0.62), 0 0 8px rgb(var(--pdk-accent-rgb) / 0.34);
 	--pdk-app-badge-bg: #d65d4d;
 	--pdk-app-badge-ink: #fff;
 	--pdk-app-badge-neutral-bg: rgba(57, 72, 77, 0.92);
@@ -212,11 +213,16 @@
 	--pdk-sound-flyout-ink: #17242b;
 	--pdk-sound-flyout-radius: 12px;
 	--pdk-sound-flyout-shadow: var(--pdk-material-popover-shadow);
-	--pdk-clock-widget-bg: linear-gradient(145deg, rgba(252, 253, 249, 0.84), rgba(225, 241, 235, 0.66));
-	--pdk-clock-widget-border: rgba(255, 255, 255, 0.52);
-	--pdk-clock-widget-shadow: 0 18px 44px rgba(17, 35, 42, 0.14), 0 1px 0 rgba(255, 255, 255, 0.62) inset;
+	--pdk-clock-widget-bg:
+		linear-gradient(145deg, rgba(255, 255, 255, 0.38), rgba(247, 252, 249, 0.2) 48%, rgb(var(--pdk-accent-rgb) / 0.08)),
+		rgba(236, 245, 239, 0.24);
+	--pdk-clock-widget-border: rgba(248, 252, 249, 0.44);
+	--pdk-clock-widget-filter: blur(26px) saturate(155%) brightness(1.04);
+	--pdk-clock-widget-shadow: 0 14px 32px rgba(16, 34, 40, 0.16), 0 1px 0 rgba(255, 255, 255, 0.46) inset;
+	--pdk-clock-widget-sheen: linear-gradient(150deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.1) 34%, rgba(255, 255, 255, 0) 68%);
 	--pdk-clock-widget-time: #17242b;
-	--pdk-clock-widget-date: rgba(23, 36, 43, 0.6);
+	--pdk-clock-widget-date: rgba(23, 36, 43, 0.64);
+	--pdk-clock-widget-text-shadow: 0 1px 1px rgba(255, 255, 255, 0.34);
 	--pdk-sticky-note-bg: rgb(255 248 166);
 	--pdk-sticky-note-body-bg: transparent;
 	--pdk-sticky-note-border: rgb(20 20 20 / 0.96);
@@ -326,7 +332,8 @@
 	--pdk-dock-item-running-border: rgb(var(--pdk-accent-rgb) / 0.22);
 	--pdk-dock-separator: rgba(178, 207, 199, 0.16);
 	--pdk-dock-shadow: 0 20px 48px rgba(0, 0, 0, 0.38), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
-	--pdk-running-indicator: #f0a65e;
+	--pdk-running-indicator: var(--pdk-accent);
+	--pdk-running-indicator-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16), 0 0 9px rgb(var(--pdk-accent-rgb) / 0.48);
 	--pdk-dock-tooltip-bg: rgba(237, 245, 243, 0.94);
 	--pdk-dock-tooltip-border: transparent;
 	--pdk-dock-tooltip-color: #17242b;
@@ -360,10 +367,16 @@
 	--pdk-notification-toast-border: rgba(178, 207, 199, 0.16);
 	--pdk-notification-toast-ink: rgba(237, 245, 243, 0.96);
 	--pdk-sound-flyout-ink: rgba(237, 245, 243, 0.96);
-	--pdk-clock-widget-bg: linear-gradient(145deg, rgba(38, 52, 55, 0.84), rgba(29, 47, 48, 0.74));
-	--pdk-clock-widget-border: rgba(178, 207, 199, 0.16);
+	--pdk-clock-widget-bg:
+		linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025) 52%, rgb(var(--pdk-accent-rgb) / 0.08)),
+		rgba(16, 28, 32, 0.32);
+	--pdk-clock-widget-border: rgba(178, 207, 199, 0.14);
+	--pdk-clock-widget-filter: blur(28px) saturate(145%) brightness(0.98);
+	--pdk-clock-widget-shadow: 0 18px 42px rgba(0, 0, 0, 0.34), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+	--pdk-clock-widget-sheen: linear-gradient(150deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04) 34%, rgba(255, 255, 255, 0) 66%);
 	--pdk-clock-widget-time: rgba(237, 245, 243, 0.96);
-	--pdk-clock-widget-date: rgba(237, 245, 243, 0.6);
+	--pdk-clock-widget-date: rgba(237, 245, 243, 0.64);
+	--pdk-clock-widget-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.28);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-menu-bar {
@@ -418,6 +431,23 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-status-area {
 	gap: 5px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-status-area .pdk-search-icon,
+.pdk-shell[data-pdk-theme="default"] .pdk-status-area .pdk-notification-button-icon,
+.pdk-shell[data-pdk-theme="default"] .pdk-status-area .pdk-sound-status-icon {
+	color: currentColor;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-clock {
+	color: var(--pdk-menu-ink);
+	font-size: var(--pdk-text-menu);
+	font-weight: var(--pdk-weight-medium);
+	height: var(--pdk-top-bar-item-height);
+	line-height: 1;
+	min-width: 0;
+	padding: 0 5px;
+	text-shadow: var(--pdk-menu-text-shadow);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-system-mark:hover,
@@ -580,6 +610,10 @@
 	box-shadow: var(--pdk-dock-item-shadow);
 }
 
+.pdk-shell[data-pdk-theme="default"] .pdk-dock-item.is-running::after {
+	box-shadow: var(--pdk-running-indicator-shadow, none);
+}
+
 .pdk-shell[data-pdk-theme="default"] .pdk-desktop-icon-button {
 	border-radius: 10px;
 }
@@ -593,6 +627,42 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-widget,
 .pdk-shell[data-pdk-theme="default"] .pdk-clock-widget {
 	border-radius: 14px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-clock-widget {
+	-webkit-backdrop-filter: var(--pdk-clock-widget-filter);
+	backdrop-filter: var(--pdk-clock-widget-filter);
+	background: var(--pdk-clock-widget-bg);
+	background-clip: padding-box;
+	border-color: var(--pdk-clock-widget-border);
+	box-shadow: var(--pdk-clock-widget-shadow);
+	color: var(--pdk-clock-widget-time);
+	isolation: isolate;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-clock-widget::before {
+	background: var(--pdk-clock-widget-sheen);
+	border-radius: inherit;
+	content: "";
+	inset: 0;
+	pointer-events: none;
+	position: absolute;
+	z-index: 0;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-clock-widget > * {
+	position: relative;
+	z-index: 1;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-clock-widget .pdk-widget-clock-time {
+	color: var(--pdk-clock-widget-time);
+	text-shadow: var(--pdk-clock-widget-text-shadow);
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-clock-widget .pdk-widget-clock-date {
+	color: var(--pdk-clock-widget-date);
+	text-shadow: var(--pdk-clock-widget-text-shadow);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-window-kind="folder"] .pdk-window-titlebar,
@@ -1857,6 +1927,15 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-personalization-card {
 	background: rgba(255, 255, 251, 0.54);
 	border-radius: 8px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-notifications-panel .pdk-settings-notification-row {
+	grid-template-columns: minmax(0, 1fr) max-content;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-notifications-panel .pdk-settings-label,
+.pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-notifications-panel .pdk-settings-description {
+	white-space: nowrap;
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-section,

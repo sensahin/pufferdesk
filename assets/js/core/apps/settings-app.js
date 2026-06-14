@@ -1780,8 +1780,6 @@
 			pane.appendChild(settingsPanels.createSoundsPanel(panelContext));
 			pane.appendChild(settingsPanels.createWallpaperPanel(panelContext));
 			pane.appendChild(settingsPanels.createWidgetsPanel(panelContext));
-			pane.appendChild(settingsPanels.createWorkspacePanel(panelContext));
-			pane.appendChild(settingsPanels.createSystemPanel(panelContext));
 			pane.appendChild(status);
 
 		main.appendChild(createPaneHeader(t('generalPanel.title')));

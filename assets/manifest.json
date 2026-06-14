@@ -691,27 +691,6 @@
 			]
 		},
 		{
-			"handle": "pufferdesk-settings-panel-workspace",
-			"path": "assets/js/core/apps/settings/panel-workspace.js",
-			"deps": [
-				"pufferdesk-settings-labels",
-				"pufferdesk-settings-ui",
-				"pufferdesk-session-store",
-				"pufferdesk-reopen-policy",
-				"pufferdesk-storage-keys",
-				"pufferdesk-api-client"
-			]
-		},
-		{
-			"handle": "pufferdesk-settings-panel-system",
-			"path": "assets/js/core/apps/settings/panel-system.js",
-			"deps": [
-				"pufferdesk-command-ids",
-				"pufferdesk-settings-labels",
-				"pufferdesk-settings-ui"
-			]
-		},
-		{
 			"handle": "pufferdesk-settings-app",
 			"path": "assets/js/core/apps/settings-app.js",
 			"deps": [
@@ -737,9 +716,7 @@
 				"pufferdesk-settings-panel-notifications",
 				"pufferdesk-settings-panel-sounds",
 				"pufferdesk-settings-panel-wallpaper",
-				"pufferdesk-settings-panel-widgets",
-				"pufferdesk-settings-panel-workspace",
-				"pufferdesk-settings-panel-system"
+				"pufferdesk-settings-panel-widgets"
 			]
 		},
 		{

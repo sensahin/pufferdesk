@@ -464,18 +464,6 @@ final class PufferDesk_Theme_Registry {
 									'icon'  => 'dashicons-screenoptions',
 									'tone'  => 'purple',
 								),
-								array(
-									'id'    => 'workspace',
-									'label' => __( 'Workspace', 'pufferdesk-admin-desktop' ),
-									'icon'  => 'dashicons-layout',
-									'tone'  => 'indigo',
-								),
-								array(
-									'id'    => 'system',
-									'label' => __( 'Recovery', 'pufferdesk-admin-desktop' ),
-									'icon'  => 'dashicons-admin-tools',
-									'tone'  => 'gray',
-								),
 							),
 						),
 						'profile'      => array(

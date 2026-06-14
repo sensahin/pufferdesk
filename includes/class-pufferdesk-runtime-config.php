@@ -1109,18 +1109,6 @@ final class PufferDesk_Runtime_Config {
 						'icon'  => 'dashicons-screenoptions',
 						'tone'  => 'green',
 					),
-					array(
-						'id'    => 'workspace',
-						'label' => __( 'Workspace', 'pufferdesk-admin-desktop' ),
-						'icon'  => 'dashicons-layout',
-						'tone'  => 'orange',
-					),
-					array(
-						'id'    => 'system',
-						'label' => __( 'System', 'pufferdesk-admin-desktop' ),
-						'icon'  => 'dashicons-admin-tools',
-						'tone'  => 'red',
-					),
 				),
 			),
 			'profile'      => array(
@@ -1388,43 +1376,12 @@ final class PufferDesk_Runtime_Config {
 			'apps'         => array(
 				'openAtLoginLabel' => __( 'Open at login', 'pufferdesk-admin-desktop' ),
 			),
-			'workspace'    => array(
-				'title'                   => __( 'Workspace', 'pufferdesk-admin-desktop' ),
-				'cancelLabel'             => __( 'Cancel', 'pufferdesk-admin-desktop' ),
-				'resettingLabel'          => __( 'Resetting...', 'pufferdesk-admin-desktop' ),
-				'resetError'              => __( 'Workspace layout could not be reset.', 'pufferdesk-admin-desktop' ),
-				'resetCurrentButton'      => __( 'Reset Current Layout', 'pufferdesk-admin-desktop' ),
-				'resetCurrentConfirmLabel' => __( 'Reset', 'pufferdesk-admin-desktop' ),
-				'resetCurrentDescription' => __( 'Reset saved windows, sticky-note windows, widget positions, desktop icon positions, folder views, recent items, and launcher order for this layout.', 'pufferdesk-admin-desktop' ),
-				'resetCurrentLabel'       => __( 'Current layout', 'pufferdesk-admin-desktop' ),
-				'resetCurrentMessage'     => __( 'This will reset the current layout. Your content will not be deleted.', 'pufferdesk-admin-desktop' ),
-				'resetCurrentTitle'       => __( 'Reset Current Layout?', 'pufferdesk-admin-desktop' ),
-				'resetAllButton'          => __( 'Reset Saved Layouts', 'pufferdesk-admin-desktop' ),
-				'resetAllConfirmLabel'    => __( 'Reset All', 'pufferdesk-admin-desktop' ),
-				'resetAllDescription'     => __( 'Clear saved workspace layouts for this WordPress account.', 'pufferdesk-admin-desktop' ),
-				'resetAllLabel'           => __( 'All saved layouts', 'pufferdesk-admin-desktop' ),
-				'resetAllMessage'         => __( 'This will reset saved layouts. Your content will not be deleted.', 'pufferdesk-admin-desktop' ),
-				'resetAllTitle'           => __( 'Reset Saved Layouts?', 'pufferdesk-admin-desktop' ),
-			),
-			'system'       => array(
-				'title'              => __( 'System', 'pufferdesk-admin-desktop' ),
-				'restartLabel'       => __( 'Restart PufferDesk...', 'pufferdesk-admin-desktop' ),
-				'restartDescription' => __( 'Reload PufferDesk and start a fresh shell session.', 'pufferdesk-admin-desktop' ),
-				'classicLabel'       => __( 'Switch to Classic Admin...', 'pufferdesk-admin-desktop' ),
-				'classicDescription' => __( 'Leave the shell and open the standard WordPress admin.', 'pufferdesk-admin-desktop' ),
-				'eraseLabel'         => __( 'Reset PufferDesk Settings...', 'pufferdesk-admin-desktop' ),
-				'eraseDescription'   => __( 'Reset PufferDesk preferences, wallpaper, app placement, desktop folders, windows, widgets, and layouts for this account. WordPress content and sticky-note documents are not deleted.', 'pufferdesk-admin-desktop' ),
-			),
 		);
 
 		$theme_settings = isset( $theme['settings'] ) && is_array( $theme['settings'] ) ? $theme['settings'] : array();
 		$theme_labels   = isset( $theme_settings['labels'] ) && is_array( $theme_settings['labels'] ) ? $theme_settings['labels'] : array();
 		$labels         = $this->merge_settings_labels( $labels, $theme_labels );
-		$labels         = $this->remove_settings_sidebar_items( $labels, array( 'apps' ) );
-
-		if ( isset( $theme['family'] ) && 'pufferdesk' === sanitize_key( $theme['family'] ) ) {
-			$labels = $this->remove_settings_sidebar_items( $labels, array( 'workspace', 'system' ) );
-		}
+		$labels         = $this->remove_settings_sidebar_items( $labels, array( 'apps', 'workspace', 'system' ) );
 
 		return $labels;
 	}
