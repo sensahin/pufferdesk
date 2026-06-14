@@ -3306,8 +3306,8 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-pane-header h1 {
-	font-size: 30px;
-	font-weight: var(--pdk-weight-medium);
+	font-size: 32px;
+	font-weight: var(--pdk-weight-semibold);
 	line-height: 1.12;
 }
 
@@ -3367,16 +3367,16 @@
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-panel-text {
 	display: flex;
 	flex-direction: column;
-	gap: 3px;
+	gap: 4px;
 	min-width: 0;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-device-text strong {
 	color: var(--pdk-ink);
-	font-size: 16px;
-	font-weight: var(--pdk-weight-medium);
+	font-size: 20px;
+	font-weight: var(--pdk-weight-semibold);
 	letter-spacing: 0;
-	line-height: 1.2;
+	line-height: 1.18;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -3387,9 +3387,19 @@
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-text span,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-panel-text span {
 	color: var(--pdk-muted);
-	font-size: 13px;
+	font-size: 14px;
 	font-weight: var(--pdk-weight-regular);
 	line-height: 1.32;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-device-text span {
+	font-size: 15px;
+	line-height: 1.3;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-text span {
+	font-size: 15px;
+	line-height: 1.34;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-device-text > span {
@@ -3410,7 +3420,7 @@
 	color: #174ea6;
 	cursor: pointer;
 	font: inherit;
-	font-size: 13px;
+	font-size: 14px;
 	line-height: 1.25;
 	padding: 3px 6px;
 	text-align: left;
@@ -3465,8 +3475,8 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-tile-text strong {
-	font-size: 14px;
-	font-weight: var(--pdk-weight-regular);
+	font-size: 16px;
+	font-weight: var(--pdk-weight-semibold);
 	line-height: 1.2;
 }
 
@@ -3506,7 +3516,7 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-update-text > span:last-child {
 	color: var(--pdk-ink);
-	font-size: 14px;
+	font-size: 15px;
 	line-height: 1.35;
 }
 
@@ -3541,8 +3551,8 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-text strong {
-	font-size: 20px;
-	font-weight: var(--pdk-weight-medium);
+	font-size: 22px;
+	font-weight: var(--pdk-weight-semibold);
 	line-height: 1.18;
 }
 
@@ -3612,7 +3622,7 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-panel-text strong {
-	font-size: 14px;
+	font-size: 15px;
 	font-weight: var(--pdk-weight-regular);
 	line-height: 1.25;
 }
@@ -3646,15 +3656,15 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-card-text strong {
-	font-size: 25px;
-	font-weight: var(--pdk-weight-medium);
+	font-size: 24px;
+	font-weight: var(--pdk-weight-semibold);
 	line-height: 1.12;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-card-text span {
 	color: #626262;
-	font-size: 18px;
-	line-height: 1.28;
+	font-size: 16px;
+	line-height: 1.35;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-recommended-list {
@@ -3681,7 +3691,7 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-panel-text strong {
-	font-size: 17px;
+	font-size: 16px;
 	font-weight: var(--pdk-weight-regular);
 	line-height: 1.22;
 }

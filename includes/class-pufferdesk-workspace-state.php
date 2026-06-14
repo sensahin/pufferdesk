@@ -19,6 +19,7 @@ final class PufferDesk_Workspace_State {
 	const SECTION_FOLDER_DISPLAY = 'folderDisplay';
 	const SECTION_FOLDER_SIDEBAR = 'folderSidebar';
 	const SECTION_RECENT_ITEMS = 'recentItems';
+	const SECTION_SETTINGS_USAGE = 'settingsUsage';
 	const SECTION_STICKY_NOTES = 'stickyNotes';
 	const SECTION_WIDGETS = 'widgets';
 	const SECTION_WINDOWS = 'windows';
@@ -176,6 +177,9 @@ final class PufferDesk_Workspace_State {
 				'removedItemKeys'    => array(),
 			),
 			self::SECTION_RECENT_ITEMS => array(),
+			self::SECTION_SETTINGS_USAGE => array(
+				'panels' => array(),
+			),
 		);
 	}
 
@@ -192,6 +196,7 @@ final class PufferDesk_Workspace_State {
 			'FOLDER_DISPLAY' => self::SECTION_FOLDER_DISPLAY,
 			'FOLDER_SIDEBAR' => self::SECTION_FOLDER_SIDEBAR,
 			'RECENT_ITEMS'   => self::SECTION_RECENT_ITEMS,
+			'SETTINGS_USAGE' => self::SECTION_SETTINGS_USAGE,
 			'STICKY_NOTES'   => self::SECTION_STICKY_NOTES,
 			'WIDGETS'        => self::SECTION_WIDGETS,
 			'WINDOWS'        => self::SECTION_WINDOWS,
@@ -235,6 +240,7 @@ final class PufferDesk_Workspace_State {
 			self::SECTION_FOLDER_DISPLAY => $this->sanitize_folder_display( isset( $state[ self::SECTION_FOLDER_DISPLAY ] ) ? $state[ self::SECTION_FOLDER_DISPLAY ] : array(), $folders ),
 			self::SECTION_FOLDER_SIDEBAR => $this->sanitize_folder_sidebar( isset( $state[ self::SECTION_FOLDER_SIDEBAR ] ) ? $state[ self::SECTION_FOLDER_SIDEBAR ] : array(), $folders ),
 			self::SECTION_RECENT_ITEMS => $this->sanitize_recent_items( isset( $state[ self::SECTION_RECENT_ITEMS ] ) ? $state[ self::SECTION_RECENT_ITEMS ] : array(), $apps, $folders ),
+			self::SECTION_SETTINGS_USAGE => $this->sanitize_settings_usage( isset( $state[ self::SECTION_SETTINGS_USAGE ] ) ? $state[ self::SECTION_SETTINGS_USAGE ] : array() ),
 		);
 	}
 
@@ -1020,6 +1026,44 @@ final class PufferDesk_Workspace_State {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Sanitize Settings panel usage records.
+	 *
+	 * @param mixed $usage Raw usage payload.
+	 * @return array<string,array<string,array<string,int>>>
+	 */
+	private function sanitize_settings_usage( $usage ) {
+		$panels = array();
+		$raw    = is_array( $usage ) && isset( $usage['panels'] ) && is_array( $usage['panels'] ) ? $usage['panels'] : array();
+
+		foreach ( $raw as $panel_id => $record ) {
+			$panel_id = sanitize_key( (string) $panel_id );
+			if ( '' === $panel_id || ! is_array( $record ) ) {
+				continue;
+			}
+
+			$count           = isset( $record['count'] ) ? $this->sanitize_number( $record['count'], 0, 9999 ) : 0;
+			$last_visited_at = isset( $record['lastVisitedAt'] ) ? $this->sanitize_timestamp( $record['lastVisitedAt'] ) : 0;
+
+			if ( ! $count && ! $last_visited_at ) {
+				continue;
+			}
+
+			$panels[ $panel_id ] = array(
+				'count'         => null === $count ? 0 : $count,
+				'lastVisitedAt' => $last_visited_at,
+			);
+
+			if ( count( $panels ) >= 50 ) {
+				break;
+			}
+		}
+
+		return array(
+			'panels' => $panels,
+		);
 	}
 
 	/**

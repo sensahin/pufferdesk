@@ -45,12 +45,18 @@
 		const general = ctx.getGeneralSettingsConfig();
 		const home = general.home && typeof general.home === 'object' ? general.home : {};
 		const siteInfo = ctx.config.siteInfo && typeof ctx.config.siteInfo === 'object' ? ctx.config.siteInfo : {};
+		const cards = createWindowsHomeCards(ctx);
 
 		panel.dataset.pdkSettingsPanel = 'general';
 		panel.appendChild(createWindowsHomeTop(ctx, home, siteInfo));
 		panel.appendChild(createWindowsHomeUpdateNotice(ctx, home));
-		panel.appendChild(createWindowsHomeCards(ctx));
+		panel.appendChild(cards);
 		panel.appendChild(createWindowsHomeFooter(ctx, home));
+		panel.pdkRefreshSettingsHome = () => {
+			if (cards && typeof cards.pdkRefreshSettingsRecommendations === 'function') {
+				cards.pdkRefreshSettingsRecommendations();
+			}
+		};
 
 		return panel;
 	}
@@ -143,9 +149,15 @@
 	function createWindowsHomeCards(ctx) {
 		const dom = ctx.dom;
 		const grid = dom.createElement('div', 'pdk-settings-home-grid');
+		const recommendedCard = createWindowsHomeRecommendedCard(ctx);
 
-		grid.appendChild(createWindowsHomeRecommendedCard(ctx));
+		grid.appendChild(recommendedCard);
 		grid.appendChild(createWindowsHomePersonalizeCard(ctx));
+		grid.pdkRefreshSettingsRecommendations = () => {
+			if (recommendedCard && typeof recommendedCard.pdkRefreshSettingsRecommendations === 'function') {
+				recommendedCard.pdkRefreshSettingsRecommendations();
+			}
+		};
 
 		return grid;
 	}
@@ -197,32 +209,22 @@
 			title: ctx.t('generalPanel.home.recommendedTitle')
 		});
 		const list = dom.createElement('div', 'pdk-settings-home-recommended-list');
-		const rows = [
-			{
-				icon: 'dashicons-desktop',
-				id: 'desktop-dock',
-				label: getSidebarLabel(ctx, 'desktop-dock', ctx.t('desktopDock.title'))
-			},
-			{
-				icon: 'dashicons-bell',
-				id: 'notifications',
-				label: getSidebarLabel(ctx, 'notifications', ctx.t('notifications.title'))
-			},
-			{
-				icon: 'dashicons-admin-appearance',
-				id: 'appearance',
-				label: getSidebarLabel(ctx, 'appearance', ctx.t('appearance.title'))
-			}
-		];
 
-		rows.forEach((row) => {
-			list.appendChild(createHomePanelButton(ctx, {
-				className: 'pdk-settings-home-recommended-row',
-				icon: row.icon,
-				label: row.label,
-				panel: row.id
-			}));
-		});
+		function renderRows() {
+			list.textContent = '';
+			getRecommendedSettingsRows(ctx).forEach((row) => {
+				list.appendChild(createHomePanelButton(ctx, {
+					className: 'pdk-settings-home-recommended-row',
+					icon: row.icon,
+					label: row.label,
+					panel: row.id,
+					tone: row.tone
+				}));
+			});
+		}
+
+		renderRows();
+		card.pdkRefreshSettingsRecommendations = renderRows;
 		card.appendChild(list);
 
 		return card;
@@ -342,12 +344,63 @@
 	}
 
 	function getSidebarLabel(ctx, id, fallback) {
-		const items = ctx.settingsLabels && typeof ctx.settingsLabels.getOptions === 'function'
-			? ctx.settingsLabels.getOptions('sidebar.items')
-			: [];
-		const item = items.find((option) => option && option.id === id);
+		const item = getSidebarItem(ctx, id);
 
 		return item && item.label ? item.label : fallback;
+	}
+
+	function getSidebarItems(ctx) {
+		return ctx.settingsLabels && typeof ctx.settingsLabels.getOptions === 'function'
+			? ctx.settingsLabels.getOptions('sidebar.items').filter((item) => item && item.visible !== false && !item.disabled)
+			: [];
+	}
+
+	function getSidebarItem(ctx, id) {
+		return getSidebarItems(ctx).find((option) => option && option.id === id) || null;
+	}
+
+	function getRecommendedSettingsRows(ctx) {
+		const defaults = ['desktop-dock', 'notifications', 'appearance'];
+		const items = getSidebarItems(ctx).filter((item) => item.id && !['general', 'profile'].includes(item.id));
+		const byId = new Map(items.map((item) => [item.id, item]));
+		const usage = typeof ctx.getSettingsUsage === 'function' ? ctx.getSettingsUsage() : { panels: {} };
+		const panels = usage && usage.panels && typeof usage.panels === 'object' ? usage.panels : {};
+		const ids = Object.keys(panels)
+			.filter((id) => byId.has(id))
+			.sort((a, b) => {
+				const left = panels[a] || {};
+				const right = panels[b] || {};
+				const recent = (Number.parseInt(right.lastVisitedAt, 10) || 0) - (Number.parseInt(left.lastVisitedAt, 10) || 0);
+
+				if (recent) {
+					return recent;
+				}
+
+				return (Number.parseInt(right.count, 10) || 0) - (Number.parseInt(left.count, 10) || 0);
+			});
+
+		defaults.forEach((id) => {
+			if (byId.has(id) && !ids.includes(id)) {
+				ids.push(id);
+			}
+		});
+
+		items.forEach((item) => {
+			if (ids.length < 3 && !ids.includes(item.id)) {
+				ids.push(item.id);
+			}
+		});
+
+		return ids.slice(0, 3).map((id) => {
+			const item = byId.get(id);
+
+			return {
+				icon: item.icon || ctx.dom.getDefaultDashicon(),
+				id,
+				label: item.label || id,
+				tone: item.tone || 'gray'
+			};
+		});
 	}
 
 	function getHomeWallpaperItems(ctx) {

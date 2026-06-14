@@ -96,6 +96,16 @@
 		const t = settingsLabels.get;
 		const settingsLayout = getSettingsLayout(config);
 		const isWindowsSettingsLayout = settingsLayout === 'windows-settings';
+		const activeTheme = config.theme && typeof config.theme === 'object' ? config.theme : {};
+		const isRedmondSettingsLayout = isWindowsSettingsLayout
+			&& (activeTheme.family === 'redmond' || activeTheme.id === 'redmond/default');
+		const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
+			? window.PufferDesk.session.workspace.sections || {}
+			: {};
+		const sessionStore = config.storageKey && window.PufferDesk.session && typeof window.PufferDesk.session.createSessionStore === 'function'
+			? window.PufferDesk.session.createSessionStore(config.storageKey)
+			: null;
+		const settingsUsageSection = workspaceSections.SETTINGS_USAGE || 'settingsUsage';
 
 		const accentOptions = settingsLabels.getOptions('appearance.accentOptions');
 		const desktopDockSelectOptions = t('desktopDock.selectOptions', {});
@@ -174,6 +184,91 @@
 			return sidebarItems.find((item) => item.id === id) || sidebarItems[0] || { id, label: id };
 		}
 
+		function normalizeSettingsUsage(raw = {}) {
+			const source = raw && typeof raw === 'object' && raw.panels && typeof raw.panels === 'object'
+				? raw.panels
+				: {};
+			const panels = {};
+
+			Object.keys(source).forEach((panelId) => {
+				const record = source[panelId];
+				const count = record && Number.parseInt(record.count, 10);
+				const lastVisitedAt = record && Number.parseInt(record.lastVisitedAt, 10);
+
+				if (!panelId || !record || typeof record !== 'object') {
+					return;
+				}
+
+				panels[panelId] = {
+					count: Number.isFinite(count) ? Math.max(0, Math.min(9999, count)) : 0,
+					lastVisitedAt: Number.isFinite(lastVisitedAt) ? Math.max(0, lastVisitedAt) : 0
+				};
+			});
+
+			return { panels };
+		}
+
+		function getSettingsUsage() {
+			if (!isRedmondSettingsLayout || !sessionStore || typeof sessionStore.getSection !== 'function') {
+				return { panels: {} };
+			}
+
+			return normalizeSettingsUsage(sessionStore.getSection(settingsUsageSection, { panels: {} }));
+		}
+
+		function saveSettingsUsage(usage) {
+			if (!isRedmondSettingsLayout || !sessionStore || typeof sessionStore.saveSection !== 'function') {
+				return false;
+			}
+
+			const normalized = normalizeSettingsUsage(usage);
+			const entries = Object.entries(normalized.panels)
+				.sort((a, b) => (b[1].lastVisitedAt || 0) - (a[1].lastVisitedAt || 0))
+				.slice(0, 50);
+			const panels = {};
+
+			entries.forEach((entry) => {
+				panels[entry[0]] = entry[1];
+			});
+
+			sessionStore.saveSection(settingsUsageSection, {
+				panels
+			});
+
+			return true;
+		}
+
+		function getTrackableSettingsPanelId(panelId, panel) {
+			const sectionId = panel && panel.dataset
+				? panel.dataset.pdkSettingsSidebar || panel.dataset.pdkSettingsPanel || panelId
+				: panelId;
+			const item = sidebarItems.find((sidebarItem) => sidebarItem && sidebarItem.id === sectionId);
+
+			if (!isRedmondSettingsLayout || !item || item.disabled || sectionId === 'general' || sectionId === profileItem.id) {
+				return '';
+			}
+
+			return sectionId;
+		}
+
+		function recordSettingsPanelVisit(panelId, panel, previousPanel) {
+			const trackablePanelId = getTrackableSettingsPanelId(panelId, panel);
+
+			if (!trackablePanelId || previousPanel === panelId) {
+				return;
+			}
+
+			const usage = getSettingsUsage();
+			const previous = usage.panels[trackablePanelId] || {};
+			const previousCount = Number.parseInt(previous.count, 10);
+
+			usage.panels[trackablePanelId] = {
+				count: Math.min(9999, (Number.isFinite(previousCount) ? previousCount : 0) + 1),
+				lastVisitedAt: Date.now()
+			};
+			saveSettingsUsage(usage);
+		}
+
 		function updateSidebarSelection(sectionId) {
 			sidebarButtons.forEach((entry) => {
 				const selected = entry.id === sectionId;
@@ -226,6 +321,7 @@
 			if (!panel) {
 				return;
 			}
+			const previousPanel = activePanel;
 
 			if (options.pushHistory && activePanel !== panelId) {
 				panelHistory.push(activePanel);
@@ -248,6 +344,10 @@
 				paneTitle.textContent = panel.dataset.pdkSettingsTitle || getSidebarItem(activeSection).label;
 			}
 			updateHistoryControls();
+			recordSettingsPanelVisit(panelId, panel, previousPanel);
+			if (panelId === 'general' && typeof panel.pdkRefreshSettingsHome === 'function') {
+				panel.pdkRefreshSettingsHome();
+			}
 		}
 
 		function setActiveSection(sectionId) {
@@ -1639,6 +1739,7 @@
 				executeMenuCommand,
 				getCurrentWallpaper: getWallpaperCurrent,
 				getGeneralSettingsConfig,
+				getSettingsUsage,
 				getThemeOptionLabel,
 				getUserProfile,
 				getWallpaperGroup,

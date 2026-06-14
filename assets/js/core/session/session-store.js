@@ -22,6 +22,7 @@
 			FOLDER_DISPLAY: workspaceSections.FOLDER_DISPLAY,
 			FOLDER_SIDEBAR: workspaceSections.FOLDER_SIDEBAR,
 			RECENT_ITEMS: workspaceSections.RECENT_ITEMS,
+			SETTINGS_USAGE: workspaceSections.SETTINGS_USAGE || 'settingsUsage',
 			STICKY_NOTES: workspaceSections.STICKY_NOTES,
 			WIDGETS: workspaceSections.WIDGETS,
 			WINDOWS: workspaceSections.WINDOWS
@@ -69,7 +70,10 @@
 					favoriteIds: [],
 					removedFavoriteIds: []
 				},
-				[sectionIds.RECENT_ITEMS]: []
+				[sectionIds.RECENT_ITEMS]: [],
+				[sectionIds.SETTINGS_USAGE]: {
+					panels: {}
+				}
 			};
 			const defaults = Object.assign({}, fallbackDefaults, isObject(contractDefaults) ? contractDefaults : {});
 			const version = Number.parseInt(defaults.version || workspace.version, 10);
@@ -114,6 +118,7 @@
 				[sectionIds.FOLDER_DISPLAY]: isObject(session[sectionIds.FOLDER_DISPLAY]) ? session[sectionIds.FOLDER_DISPLAY] : defaults[sectionIds.FOLDER_DISPLAY],
 				[sectionIds.FOLDER_SIDEBAR]: isObject(session[sectionIds.FOLDER_SIDEBAR]) ? session[sectionIds.FOLDER_SIDEBAR] : defaults[sectionIds.FOLDER_SIDEBAR],
 				[sectionIds.RECENT_ITEMS]: Array.isArray(session[sectionIds.RECENT_ITEMS]) ? session[sectionIds.RECENT_ITEMS] : [],
+				[sectionIds.SETTINGS_USAGE]: isObject(session[sectionIds.SETTINGS_USAGE]) ? session[sectionIds.SETTINGS_USAGE] : defaults[sectionIds.SETTINGS_USAGE],
 				[sectionIds.STICKY_NOTES]: Array.isArray(session[sectionIds.STICKY_NOTES]) ? session[sectionIds.STICKY_NOTES] : [],
 				[sectionIds.WIDGETS]: Array.isArray(session[sectionIds.WIDGETS]) ? session[sectionIds.WIDGETS] : [],
 				[sectionIds.WINDOWS]: Array.isArray(session[sectionIds.WINDOWS]) ? session[sectionIds.WINDOWS] : []
