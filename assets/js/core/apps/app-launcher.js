@@ -4276,6 +4276,7 @@
 
 		function createFolderSidebar(folderId, win, layout = getFolderLayout()) {
 			const isExplorer = layout === 'file-explorer';
+			const useStandardFolderSidebarIcons = layout === 'pufferdesk-files';
 			const sidebar = dom.createElement('aside', `pdk-settings-sidebar pdk-finder-sidebar${isExplorer ? ' pdk-explorer-sidebar' : ''}`);
 			const dragZone = dom.createElement('div', 'pdk-split-sidebar-drag-zone');
 			const nav = dom.createElement('nav', 'pdk-settings-sidebar-nav pdk-finder-sidebar-nav');
@@ -4348,10 +4349,12 @@
 				primarySection.appendChild(createFinderSidebarItem({
 					active: isRecentsFolderId(folderId),
 					context: contextTargets.FOLDER_SIDEBAR,
-					icon: { type: 'theme', name: 'clock.svg', fallback: 'dashicons-clock' },
+					icon: useStandardFolderSidebarIcons
+						? { type: 'theme', name: 'folder.svg', fallback: 'dashicons-category' }
+						: { type: 'theme', name: 'clock.svg', fallback: 'dashicons-clock' },
 					id: recentsFolderId,
 					label: getMenuLabel('recents'),
-					outlineIcon: 'clock',
+					outlineIcon: useStandardFolderSidebarIcons ? '' : 'clock',
 					section: 'recents',
 					onClick() {
 						if (win) {
@@ -4377,7 +4380,7 @@
 						icon: folder && folder.icon ? folder.icon : 'dashicons-category',
 						id: folder ? folder.id : favoriteId,
 						label: folder && folder.label ? folder.label : getMenuLabel('folder'),
-						outlineIcon: 'folder',
+						outlineIcon: useStandardFolderSidebarIcons ? '' : 'folder',
 						removable: true,
 						section: 'favorites',
 						onClick() {
