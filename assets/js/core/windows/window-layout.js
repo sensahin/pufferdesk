@@ -54,6 +54,18 @@
 			return edge;
 		}
 
+		function getWindowBottomVisibleHeight(win) {
+			const height = win ? win.offsetHeight || 0 : 0;
+
+			if (getCssPixelValue('--pdk-window-contain-block-end', 0) > 0) {
+				return Math.max(1, height);
+			}
+
+			const visible = getCssPixelValue('--pdk-window-bottom-visible-height', 64);
+
+			return clamp(visible, 1, Math.max(1, height));
+		}
+
 		function getMaximizedTop() {
 			return getMenuBarHeight();
 		}
@@ -91,7 +103,7 @@
 		function getWindowBounds(win) {
 			const safeArea = syncWindowSafeArea();
 			const maxLeft = Math.max(0, desktop.clientWidth - win.offsetWidth);
-			const maxTop = Math.max(safeArea.top, desktop.clientHeight - safeArea.bottom - 64);
+			const maxTop = Math.max(safeArea.top, desktop.clientHeight - safeArea.bottom - getWindowBottomVisibleHeight(win));
 
 			return {
 				maxLeft,

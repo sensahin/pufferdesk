@@ -121,6 +121,7 @@
 	--pdk-window-radius: 12px;
 	--pdk-window-maximized-radius: 0;
 	--pdk-window-safe-edge: 2px;
+	--pdk-window-contain-block-end: 1;
 	--pdk-desktop-icon-grid-top-inset: 0px;
 	--pdk-desktop-icon-layer-top: calc(var(--pdk-menu-bar-height) + 8px);
 	--pdk-desktop-object-layer-top: 28px;
@@ -520,11 +521,11 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-desktop-apps,
 .pdk-shell[data-pdk-theme="default"] .pdk-desktop-documents,
 .pdk-shell[data-pdk-theme="default"] .pdk-desktop-folders {
-	inset: var(--pdk-desktop-icon-layer-top) auto 112px 24px;
+	inset: var(--pdk-desktop-icon-layer-top) auto 0 24px;
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-desktop-icon-layer.is-managed {
-	inset: var(--pdk-desktop-icon-layer-top) 24px 112px 24px;
+	inset: var(--pdk-desktop-icon-layer-top) 0 0;
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-widget-layer {

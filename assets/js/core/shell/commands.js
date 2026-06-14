@@ -27,6 +27,9 @@
 		const notificationSourceIds = config.notifications && config.notifications.sourceIds && typeof config.notifications.sourceIds === 'object'
 			? config.notifications.sourceIds
 			: {};
+		const dialogLabels = config.dialogs && config.dialogs.labels && typeof config.dialogs.labels === 'object'
+			? config.dialogs.labels
+			: {};
 		const settingsConfig = config.settings && typeof config.settings === 'object' ? config.settings : {};
 		const settingsLabels = settingsConfig.labels && typeof settingsConfig.labels === 'object' ? settingsConfig.labels : {};
 		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
@@ -127,12 +130,18 @@
 			return typeof value === 'string' && value ? value : key;
 		}
 
-		function getSettingsLabel(path) {
+		function getDialogLabel(key, fallback) {
+			const value = dialogLabels[key];
+
+			return typeof value === 'string' && value ? value : (fallback || key);
+		}
+
+		function getSettingsLabel(path, fallback) {
 			const value = String(path || '').split('.').reduce((current, key) => (
 				current && Object.prototype.hasOwnProperty.call(current, key) ? current[key] : undefined
 			), settingsLabels);
 
-			return typeof value === 'string' && value ? value : path;
+			return typeof value === 'string' && value ? value : (fallback || path);
 		}
 
 		function getSettingsDomainAction(domainKey) {
@@ -1475,10 +1484,10 @@
 
 		async function confirmResetCurrentLayout() {
 			const actionConfig = {
-				cancelLabel: getSettingsLabel('workspace.cancelLabel'),
-				confirmLabel: getSettingsLabel('workspace.resetCurrentConfirmLabel'),
-				message: getSettingsLabel('workspace.resetCurrentMessage'),
-				title: getSettingsLabel('workspace.resetCurrentTitle')
+				cancelLabel: getSettingsLabel('workspace.cancelLabel', getDialogLabel('cancel', 'Cancel')),
+				confirmLabel: getSettingsLabel('workspace.resetCurrentConfirmLabel', 'Reset Layout'),
+				message: getSettingsLabel('workspace.resetCurrentMessage', 'This will reset windows, desktop icons, widgets, and folders for the current theme.'),
+				title: getSettingsLabel('workspace.resetCurrentTitle', 'Reset layout?')
 			};
 
 			return dialogs && typeof dialogs.confirm === 'function'

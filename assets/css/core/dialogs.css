@@ -81,6 +81,8 @@
 	letter-spacing: var(--pdk-letter-spacing-default);
 	line-height: var(--pdk-line-height-body);
 	margin: 0;
+	max-width: 100%;
+	overflow-wrap: anywhere;
 }
 
 .pdk-shell-dialog-message {
@@ -90,6 +92,8 @@
 	font-weight: var(--pdk-weight-medium);
 	line-height: 1.3;
 	margin: 0;
+	max-width: 100%;
+	overflow-wrap: anywhere;
 }
 
 .pdk-shell-dialog-icon {
@@ -321,9 +325,11 @@
 
 .pdk-shell-dialog-actions {
 	display: flex;
+	flex-wrap: wrap;
 	gap: 8px;
 	justify-content: flex-end;
 	margin-top: 5px;
+	min-width: 0;
 }
 
 .pdk-shell-dialog-button {
@@ -337,10 +343,13 @@
 	font-family: var(--pdk-font-ui);
 	font-size: var(--pdk-text-caption);
 	font-weight: var(--pdk-weight-medium);
-	line-height: 1;
+	line-height: 1.12;
+	max-width: 100%;
 	min-height: 28px;
 	min-width: 76px;
-	padding: 0 12px;
+	overflow-wrap: anywhere;
+	padding: 5px 12px;
+	white-space: normal;
 }
 
 .pdk-shell-dialog-button:hover,

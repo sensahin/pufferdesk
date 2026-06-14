@@ -1,6 +1,6 @@
 === PufferDesk - Admin Desktop ===
 Contributors: senols
-Tags: desktop, admin, ui, productivity, ai
+Tags: admin, desktop, ui, productivity, dashboard
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4

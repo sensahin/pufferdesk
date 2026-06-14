@@ -1055,6 +1055,12 @@ final class PufferDesk_Runtime_Config {
 				'back'    => __( 'Back', 'pufferdesk-admin-desktop' ),
 				'forward' => __( 'Forward', 'pufferdesk-admin-desktop' ),
 			),
+			'workspace'    => array(
+				'cancelLabel'                  => __( 'Cancel', 'pufferdesk-admin-desktop' ),
+				'resetCurrentConfirmLabel'     => __( 'Reset Layout', 'pufferdesk-admin-desktop' ),
+				'resetCurrentMessage'          => __( 'This will reset windows, desktop icons, widgets, and folders for the current theme.', 'pufferdesk-admin-desktop' ),
+				'resetCurrentTitle'            => __( 'Reset layout?', 'pufferdesk-admin-desktop' ),
+			),
 			'sidebar'      => array(
 				'searchPlaceholder' => __( 'Search', 'pufferdesk-admin-desktop' ),
 				'searchLabel'       => __( 'Search settings', 'pufferdesk-admin-desktop' ),
