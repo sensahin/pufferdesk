@@ -1,4 +1,4 @@
-=== PufferDesk - Admin Desktop ===
+=== PufferDesk ===
 Contributors: senols
 Tags: admin, desktop, ui, productivity, dashboard
 Requires at least: 6.0
