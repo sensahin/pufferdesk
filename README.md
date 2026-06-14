@@ -21,17 +21,17 @@ Turn your WordPress admin into a desktop. PufferDesk wraps existing WordPress ad
 - Dashboard entry redirects to PufferDesk by default.
 - Emergency one-request classic override: `/wp-admin/index.php?pufferdesk_classic=1`.
 - PufferDesk shell with system menu, site title menu, app menu bar, right-click context menus, internal clipboard cut/copy/paste for folders, app references, sticky notes, a one-time first-run welcome Sticky Note, notifications, generated and user-created desktop folders, desktop widgets, theme-driven launcher surfaces, search, draggable windows, iframe-based admin apps, and native Sticky Notes.
-- Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave more like OS windows.
+- Embedded admin apps hide the regular WordPress sidebar/top chrome so they behave like shell windows.
 
 == Notes ==
 
 PufferDesk intentionally wraps existing WordPress admin screens instead of replacing them. That keeps plugin compatibility high and makes Classic Admin a reliable fallback.
 
-The bundled PufferDesk family uses original plugin CSS and release-safe media. Visual polish may use familiar desktop conventions, but the product identity, assets, and naming must remain PufferDesk. Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
+The bundled Default theme uses original plugin CSS and release-safe media. Visual polish may use familiar desktop conventions, but the product identity, assets, and naming must remain PufferDesk. Do not ship third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled font files in this plugin. When third-party media is used, keep source and license details in `THIRD-PARTY-ASSETS.txt`.
 
 Pre-release internal refactors should be clean breaks. If an old internal icon filename, option, DOM attribute, layout value, module path, or helper has not shipped as a public contract with real user state depending on it, replace the single source of truth and remove the old path. Do not add compatibility aliases, legacy lookup paths, duplicate assets, or migration branches for unreleased/internal changes. Compatibility code belongs only to real shipped public contracts or existing user data that cannot be safely normalized at the source.
 
-The foundation separates shell behavior from OS appearance:
+The foundation separates shell behavior from theme appearance:
 
 - `includes/` owns routing, preferences, shared path normalization, virtual filesystem paths, app/widget/theme registries, stable app and command IDs, app descriptor contracts, client storage key contracts, context-menu target contracts, icon descriptor contracts, window chrome contracts, wallpaper type contracts, app badge rendering, theme token CSS-variable rendering, shared shell context, runtime config, asset manifests/enqueueing, controllers, widget layout attributes, and rendering.
 - `templates/` owns shell markup through semantic folders:
@@ -52,10 +52,10 @@ The foundation separates shell behavior from OS appearance:
   - `documents.css` for Sticky Notes surfaces, sticky note desktop objects, and shared document controls.
   - `dock.css` for dock behavior and states.
   - `apps.css` for generic app grids and app launcher tiles.
-  - `folders.css` for folder windows, Finder-style surfaces, Trash, and folder info panels.
+  - `folders.css` for folder windows, theme-specific folder surfaces, Trash, and folder info panels.
   - `about.css` for PufferDesk and site About windows.
   - `settings.css` for native System Settings surfaces and controls.
-  - `explorer.css` for Explorer-style folder/settings shared surfaces.
+  - `explorer.css` for alternate folder/settings shared surfaces.
   - `responsive.css` for core viewport adaptations.
 - `assets/js/core/` owns reusable shell behavior through purpose-specific modules:
   - `api/` exposes stable facades such as the Desktop API over existing shell managers.
@@ -111,17 +111,17 @@ Apps are registered through `PufferDesk_App_Registry` or the `pufferdesk_apps` f
 
 The browser runtime exposes `window.PufferDesk.desktopApi` and `window.PufferDesk.desktop.api` as a facade over the current window manager, app launcher, command registry, and native app renderer registry. Extensions should prefer this facade for opening apps, creating/focusing/minimizing/closing/moving windows, registering command-backed behavior, and registering native renderers instead of reaching into lower-level managers. Stable command IDs live in `PufferDesk_Command_Ids`, flow through `runtime.contracts.commandIds`, and are exposed as `window.PufferDesk.shell.commands`; menu definitions, context menus, settings action rows, shortcut definitions, and browser command registration should use those IDs instead of repeating command strings. Client-side storage key fragments live in `PufferDesk_Client_Storage_Keys`, flow through `runtime.contracts.storageKeys`, and are consumed by `window.PufferDesk.session.storageKeys`; workspace cache, broadcast channel, reopen skip, custom shortcut override storage, and wallpaper menu contrast keys should use that helper instead of repeating string formats. Router query keys live in `PufferDesk_Router::client_contract()` and are exposed through `window.PufferDesk.config.getRouterQueryKey()` and `getRouterValue()`, so iframe/classic/mode URLs stay aligned with PHP routing. Shared browser event names live in `assets/js/core/events/event-names.js`; shared app descriptor, icon, context-menu, window chrome, wallpaper type, shortcut, and workspace contracts flow through `runtime.contracts`. `window.PufferDesk.events` provides a small internal event bus with `on`, `once`, `off`, and `emit`. Shell boot emits `desktop:ready` with the facade and runtime context. The window manager emits `window:created`, `window:focused`, `window:closed`, and `window:stateChanged`; handlers receive a `CustomEvent` and should read state from `event.detail`.
 
-Shell search is centralized through `assets/js/core/search/search-engine.js` and rendered by `assets/js/core/shell/search.js`. Search providers produce normalized command-backed results for registered apps, app navigation routes, virtual and user folders, Sticky Notes documents, WordPress content from the async `PufferDesk_Content_Search_Controller` endpoint, Settings panels, recent items, and shell commands. Result execution should use `window.PufferDesk.menuCommands` and stable command IDs instead of opening windows directly, so search respects the same app, document, folder, Settings, WordPress admin URL, and shell action contracts as menus and shortcuts. Theme CSS owns presentation: PufferDesk renders the shared panel as a centered Spotlight-style surface, while Redmond anchors the same results as a taskbar search panel.
+Shell search is centralized through `assets/js/core/search/search-engine.js` and rendered by `assets/js/core/shell/search.js`. Search providers produce normalized command-backed results for registered apps, app navigation routes, virtual and user folders, Sticky Notes documents, WordPress content from the async `PufferDesk_Content_Search_Controller` endpoint, Settings panels, recent items, and shell commands. Result execution should use `window.PufferDesk.menuCommands` and stable command IDs instead of opening windows directly, so search respects the same app, document, folder, Settings, WordPress admin URL, and shell action contracts as menus and shortcuts. Theme CSS owns presentation, while command execution and result schemas stay shared.
 
-Keyboard shortcuts are centralized in `assets/js/core/shell/shortcuts.js`, with shared shortcut context IDs owned by `assets/js/core/shell/shortcut-contexts.js`; see `docs/shortcut-platform.md`. Users can open Help > Keyboard Shortcuts to view the active shortcut registry with platform-formatted labels. Feature shortcuts are declarative data that resolve to command IDs, use `primary` for Cmd/Ctrl and `secondary` for Option/Alt, declare valid contexts such as `desktop`, `window`, `folder`, or `input-focused`, and pass through conflict checks before registration. Do not add feature-level `keydown` listeners to components; local key handlers should be limited to focused navigation and editing behavior such as Escape in dialogs, menu arrow navigation, or inline rename confirmation.
+Keyboard shortcuts are centralized in `assets/js/core/shell/shortcuts.js`, with shared shortcut context IDs owned by `assets/js/core/shell/shortcut-contexts.js`; see `docs/shortcut-platform.md`. Users can open Help > Keyboard Shortcuts to view the active shortcut registry with host-formatted labels. Feature shortcuts are declarative data that resolve to command IDs, use symbolic modifiers such as `primary` and `secondary`, declare valid contexts such as `desktop`, `window`, `folder`, or `input-focused`, and pass through conflict checks before registration. Do not add feature-level `keydown` listeners to components; local key handlers should be limited to focused navigation and editing behavior such as Escape in dialogs, menu arrow navigation, or inline rename confirmation.
 
-Context menus are centralized as a shell platform contract; see `docs/context-menu-platform.md`. Context target IDs, area IDs, target types, item types, and context keys live in `PufferDesk_Context_Menu_Contracts`, flow through `runtime.contracts.contextMenu`, and are exposed in JavaScript by `assets/js/core/shell/context-menu-constants.js`. Menu group IDs live in `PufferDesk_App_Menu_Normalizer`, flow through `runtime.contracts.menuGroups`, and drive the browser menu schema. Targets resolve through the shared resolver into normalized area/item/window context, menus compose through the shared registry and schema, and actions execute through `window.PufferDesk.menuCommands`. Runtime create surfaces such as PufferDesk File and Redmond Start adapt WordPress admin bar `+ New` children through `PufferDesk_Admin_Bar_Menu_Provider`, so core and plugin-provided create links remain command-backed menu items without hard-coding content types. Extensions can add menu items with `window.PufferDesk.contextMenus.register( contextKey, itemOrDefinition )` after shell boot, while themes only style the shared `.pdk-context-menu` presentation hooks.
+Context menus are centralized as a shell platform contract; see `docs/context-menu-platform.md`. Context target IDs, area IDs, target types, item types, and context keys live in `PufferDesk_Context_Menu_Contracts`, flow through `runtime.contracts.contextMenu`, and are exposed in JavaScript by `assets/js/core/shell/context-menu-constants.js`. Menu group IDs live in `PufferDesk_App_Menu_Normalizer`, flow through `runtime.contracts.menuGroups`, and drive the browser menu schema. Targets resolve through the shared resolver into normalized area/item/window context, menus compose through the shared registry and schema, and actions execute through `window.PufferDesk.menuCommands`. Runtime create surfaces adapt WordPress admin bar `+ New` children through `PufferDesk_Admin_Bar_Menu_Provider`, so core and plugin-provided create links remain command-backed menu items without hard-coding content types. Extensions can add menu items with `window.PufferDesk.contextMenus.register( contextKey, itemOrDefinition )` after shell boot, while themes only style the shared `.pdk-context-menu` presentation hooks.
 
 Drag/drop item moves flow through the core drag/drop platform in `assets/js/core/drag-drop/`; see `docs/drag-drop-platform.md` for the current behavior matrix and contracts. UI modules may own pointer tracking, drag proxies, and drop highlight classes, but validation and state mutation belong to `DragDropManager` and `MoveService`. The platform emits stable `drag:*`, `drop:validate`, `item:move:*`, `desktop:layout:changed`, and `folder:contents:changed` events through `window.PufferDesk.events`.
 
 Notifications are centralized through `PufferDesk_Notification_Registry`, `PufferDesk_Notification_Controller`, `assets/js/core/notifications/`, and the Desktop API notification facade. Server-side providers can add capability-aware notifications with the `pufferdesk_notifications` filter; browser modules should call `window.PufferDesk.desktopApi.notifications.notify()` for runtime notifications instead of creating standalone toast UI. Notification settings live in the `notifications` settings domain and control source visibility, severity, badges, toasts, quiet mode, notification-specific sound preference, and history retention. Stable notification source IDs live on `PufferDesk_User_Preferences` and are exposed as `notifications.sourceIds`; Settings source rows and runtime PufferDesk notifications should use those IDs instead of hard-coded source names. Provider-backed notifications are retained per user and pruned by the saved retention window. Notification sounds flow through `PufferDesk_Sound_Registry`, `assets/js/core/services/sound-manager.js`, and the runtime `sounds.events` map so future theme sound packs can replace semantic events without notification-specific playback code. Extensions can add semantic events with the `pufferdesk_sound_events` filter. `sounds.eventIds` exposes stable client aliases, `sounds.eventList` drives the multi-event preview list in Settings > Sound, and `sounds.notificationEvents` maps notification types to semantic sound IDs. Shared shell dialogs, Trash empty success, command failures, and runtime app errors use those aliases through the Desktop API sound facade. Global sound enable and output volume live in the separate `sounds` settings domain. Core CSS owns notification structure, while theme CSS owns the visual variables for notification buttons, centers, items, and toasts.
 
-Sticky Notes use one private WordPress post type (`pufferdesk_note`) and the shared `PufferDesk_Document_Service` for create, duplicate, list, update, and trash behavior. Sticky-note content is stored in `post_content`, while user-visible note/window layout is stored separately in the workspace state. New users with no existing PufferDesk workspace state or Sticky Notes receive one welcome Sticky Note seeded by `PufferDesk_Onboarding_Note`; it is a normal document and is laid out under the Clock widget for the bundled PufferDesk and Redmond themes, so deleting it does not respawn it. Document organization uses `PufferDesk_Virtual_Filesystem` canonical paths such as `pdk://site/{site}/home/{user}/documents`; the stored `_pufferdesk_document_parent_path` meta is the source of truth for where a saved sticky note appears in virtual folders. Moving the visible note only changes its workspace layout; saved-document moves should go through document icons or explicit folder targets so a normal note drag does not create a desktop file twin. Document Open With handlers are exposed through `runtime.documents.openWith`, where each handler declares its app/handler ID and supported document kinds; folders do not receive Open With actions. Do not store sticky-note content or document folder placement in `workspaceState`, browser storage, widgets, or app-specific user meta. Browser code should use `assets/js/core/services/documents.js` and `assets/js/core/services/virtual-filesystem.js` instead of posting directly to document AJAX actions or hard-coding folder paths.
+Sticky Notes use one private WordPress post type (`pufferdesk_note`) and the shared `PufferDesk_Document_Service` for create, duplicate, list, update, and trash behavior. Sticky-note content is stored in `post_content`, while user-visible note/window layout is stored separately in the workspace state. New users with no existing PufferDesk workspace state or Sticky Notes receive one welcome Sticky Note seeded by `PufferDesk_Onboarding_Note`; it is a normal document and is laid out for the active bundled theme, so deleting it does not respawn it. Document organization uses `PufferDesk_Virtual_Filesystem` canonical paths such as `pdk://site/{site}/home/{user}/documents`; the stored `_pufferdesk_document_parent_path` meta is the source of truth for where a saved sticky note appears in virtual folders. Moving the visible note only changes its workspace layout; saved-document moves should go through document icons or explicit folder targets so a normal note drag does not create a desktop file twin. Document Open With handlers are exposed through `runtime.documents.openWith`, where each handler declares its app/handler ID and supported document kinds; folders do not receive Open With actions. Do not store sticky-note content or document folder placement in `workspaceState`, browser storage, widgets, or app-specific user meta. Browser code should use `assets/js/core/services/documents.js` and `assets/js/core/services/virtual-filesystem.js` instead of posting directly to document AJAX actions or hard-coding folder paths.
 
 Theme sticky-note document metadata can define save behavior. Sticky Notes currently use `theme.documents.stickyNoteSavePolicy`: `default-location` creates notes directly in the virtual filesystem default path, while `ask-on-first-save` keeps a new note client-side until the first explicit Save opens the shared document save dialog and stores the selected virtual parent path.
 
@@ -253,7 +253,7 @@ Use the level of testing that matches the change:
 - CSS, JavaScript, template, theme, Settings, menu, window, workspace-state, asset-loading, or runtime-config changes should be tested in the local PufferDesk shell.
 - Broad architecture or release-impacting changes should run `npm run check`, Plugin Check, `npm run package`, and a browser smoke pass.
 
-For meaningful UI/runtime changes, verify the shell loads, menus/context menus are readable, System Settings opens, the Appearance panel shows theme selection, folder windows render correctly, Dock/taskbar behavior still works, and Classic Admin remains available through `/wp-admin/index.php?pufferdesk_classic=1`. When testing theme or mode work, check PufferDesk and Redmond in light and dark modes and restore the user's original preferences afterward. Do not test destructive reset/delete actions unless the task explicitly requires it.
+For meaningful UI/runtime changes, verify the shell loads, menus/context menus are readable, System Settings opens, the Appearance panel renders correctly, folder windows render correctly, launcher behavior still works, and Classic Admin remains available through `/wp-admin/index.php?pufferdesk_classic=1`. When testing theme or mode work, check Default in light and dark appearance modes and restore the user's original preferences afterward. Do not test destructive reset/delete actions unless the task explicitly requires it.
 
 Template resolution supports theme-specific overrides. The renderer checks paths in this order:
 
@@ -263,17 +263,26 @@ Template resolution supports theme-specific overrides. The renderer checks paths
 
 Use template overrides only when theme metadata, template data, or scoped CSS cannot describe the required structural difference. Bundled themes should prefer shared templates plus theme shell/surface metadata; external theme packs can still provide override files at those paths.
 
-Theme shell chrome is data-driven. A theme can declare its shell model and runtime labels without changing core behavior. Core currently consumes these fields to render or omit the menu bar, render no launcher, or render the app launcher as the default Dock or as a taskbar-style surface:
+Theme shell chrome is data-driven. A theme can declare its shell model and runtime labels without changing core behavior. Core currently consumes these fields to render or omit the menu bar, render no launcher, or render the app launcher in a compact or full-width surface:
 
 ```php
 'app_labels' => array(
-	'trash' => __( 'Recycle Bin', 'pufferdesk-admin-desktop' ),
+	'trash' => __( 'Removed Items', 'pufferdesk-admin-desktop' ),
 ),
 'menu' => array(
 	'labels' => array(
-		'trash'             => __( 'Recycle Bin', 'pufferdesk-admin-desktop' ),
-		'empty_trash'       => __( 'Empty Recycle Bin', 'pufferdesk-admin-desktop' ),
-		'empty_trash_title' => __( 'Empty Recycle Bin?', 'pufferdesk-admin-desktop' ),
+		'trash'             => __( 'Removed Items', 'pufferdesk-admin-desktop' ),
+		'empty_trash'       => __( 'Empty Removed Items', 'pufferdesk-admin-desktop' ),
+		'empty_trash_title' => __( 'Empty Removed Items?', 'pufferdesk-admin-desktop' ),
+		'get_info'          => __( 'Details', 'pufferdesk-admin-desktop' ),
+	),
+),
+'info_panel' => array(
+	'labels' => array(
+		'kindLabel'     => __( 'Item type', 'pufferdesk-admin-desktop' ),
+		'whereLabel'    => __( 'Path', 'pufferdesk-admin-desktop' ),
+		'modifiedLabel' => __( 'Updated', 'pufferdesk-admin-desktop' ),
+		'moreInfoLabel' => __( 'Open details', 'pufferdesk-admin-desktop' ),
 	),
 ),
 'shell' => array(
@@ -299,30 +308,30 @@ Theme shell chrome is data-driven. A theme can declare its shell model and runti
 		'os-settings'  => 'dock',
 	),
 	'fixed_app_locations'   => array(
-		'trash' => 'dock',
+		'trash' => 'desktop',
 	),
 	'labels'                => array(
-		'launcher'             => __( 'Dock', 'pufferdesk-admin-desktop' ),
-		'desktop_launcher'     => __( 'Desktop & Dock', 'pufferdesk-admin-desktop' ),
-		'launcher_and_desktop' => __( 'Dock & Desktop', 'pufferdesk-admin-desktop' ),
-		'keep_in_launcher'     => __( 'Keep in Dock', 'pufferdesk-admin-desktop' ),
-		'remove_from_launcher' => __( 'Remove from Dock', 'pufferdesk-admin-desktop' ),
+		'launcher'             => __( 'Launcher', 'pufferdesk-admin-desktop' ),
+		'desktop_launcher'     => __( 'Desktop & Launcher', 'pufferdesk-admin-desktop' ),
+		'launcher_and_desktop' => __( 'Launcher & Desktop', 'pufferdesk-admin-desktop' ),
+		'keep_in_launcher'     => __( 'Keep in Launcher', 'pufferdesk-admin-desktop' ),
+		'remove_from_launcher' => __( 'Remove from Launcher', 'pufferdesk-admin-desktop' ),
 	),
 ),
 ```
 
-`default_app_location` and `default_app_locations` let a theme decide where apps appear after a fresh install or layout/settings reset, before a user has saved their own app-placement preference. Use the singular value as the fallback for apps not listed in the map. Native WordPress admin menu apps with source `wp-menu`, such as Users or Tools, default to `hidden` unless a theme explicitly lists them. For example, Redmond keeps the taskbar curated by defaulting unlisted apps to `hidden`, while Start/search can still discover registered apps.
-`default_plugin_app_limit` caps how many third-party plugin-derived WordPress admin apps are placed in the Dock/taskbar by default. It follows the normalized app registry order, which mirrors WordPress admin menu order, applies only to apps with source `wp-plugin`, and does not override saved user placement choices. Plugin apps beyond the cap default to `hidden` so they stay out of pinned surfaces while remaining available through launcher/search.
-`fixed_app_locations` lets a theme place fixed system apps on the surface that fits its shell model without changing the user's stored app-location preference. For example, Redmond keeps the fixed Trash app on the desktop and disables `launcher_separator` so taskbar items stay in one continuous run.
-`launcher_search` and `system_menu_icon` let taskbar themes add a search field or theme-drawn Start icon through the shared launcher template instead of replacing the launcher markup.
-`app_labels` and `menu.labels` let a theme adapt OS-family vocabulary such as Trash versus Recycle Bin while keeping app IDs and command IDs stable.
+`default_app_location` and `default_app_locations` let a theme decide where apps appear after a fresh install or layout/settings reset, before a user has saved their own app-placement preference. Use the singular value as the fallback for apps not listed in the map. Native WordPress admin menu apps with source `wp-menu`, such as Users or Tools, default to `hidden` unless a theme explicitly lists them.
+`default_plugin_app_limit` caps how many third-party plugin-derived WordPress admin apps are placed in the launcher by default. It follows the normalized app registry order, which mirrors WordPress admin menu order, applies only to apps with source `wp-plugin`, and does not override saved user placement choices. Plugin apps beyond the cap default to `hidden` so they stay out of pinned surfaces while remaining available through launcher/search.
+`fixed_app_locations` lets a theme place fixed system apps on the surface that fits its shell model without changing the user's stored app-location preference.
+`launcher_search` and `system_menu_icon` let themes add a search field or theme-drawn system icon through the shared launcher template instead of replacing the launcher markup.
+`app_labels`, `menu.labels`, and `info_panel.labels` let a theme adapt display vocabulary while keeping app IDs, command IDs, and native info/about renderers stable.
 
-Native app surface layout is theme metadata too. Use this when another OS family needs a different Settings or folder structure rather than a reskin of the PufferDesk defaults:
+Native app surface layout is theme metadata too. Use this when another theme family needs a different Settings or folder structure rather than a reskin of the PufferDesk defaults:
 
 ```php
 'surfaces' => array(
-	'settings' => 'pufferdesk-settings', // Or windows-settings.
-	'folder'   => 'finder',           // Or file-explorer.
+	'settings' => 'pufferdesk-hub',
+	'folder'   => 'pufferdesk-files',
 ),
 ```
 
@@ -352,9 +361,9 @@ Typography is theme metadata and resolves to shell CSS variables before first pa
 ```php
 'typography' => array(
 	'fonts' => array(
-		'ui'      => '-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif',
-		'display' => '-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif',
-		'mono'    => 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+		'ui'      => 'system-ui, "Helvetica Neue", Arial, sans-serif',
+		'display' => 'system-ui, "Helvetica Neue", Arial, sans-serif',
+		'mono'    => 'ui-monospace, Menlo, Consolas, monospace',
 	),
 	'scale' => array(
 		'caption'        => '12px',
@@ -402,31 +411,29 @@ Use `mode_tokens.light` and `mode_tokens.dark` for visual values that vary by ap
 Themes support family/version inheritance. A concrete theme can declare a parent theme and receives its stylesheet stack before its own styles are loaded:
 
 ```php
-'pufferdesk' => array(
-	'id'            => 'pufferdesk',
-	'family'        => 'pufferdesk',
+'default' => array(
+	'id'            => 'default',
+	'family'        => 'default',
 	'version'       => 'default',
 	'parent'        => 'pufferdesk-base',
-	'stylesheet'    => 'pufferdesk/default.css',
+	'stylesheet'    => 'default/default.css',
 	'version_label' => 'Default',
 	'media'         => array(
 		'wallpapers'  => array(
-			'default' => 'aurora-flow',
+			'default' => 'lagoon-glow',
 		),
 		'icon_pack'   => 'shared/icons/theme',
 	),
 );
 ```
 
-Theme media fields are normalized to local `assets/media/` descriptors with `path` and `url` values, then exposed in the runtime theme config. Directory-backed media packs such as `icon_pack` also expose direct-child file `versions` so browser-rendered theme icons can append cache-busting filemtime query strings just like PHP-rendered shell icons. Bundled themes share `assets/media/shared/icons/theme/` for app, document, folder, and Trash icons; add a theme-specific icon pack only when the artwork is genuinely different, not when SVG sizing alone can handle a smaller surface. Keep OS media original or licensed for redistribution. Theme mode can be `auto`, `pufferdesk`, or `redmond`; auto mode uses the request platform hint only to choose the initial concrete theme, with PufferDesk as the Linux/unknown fallback, while explicit manual selections remain stored and are not overridden by platform detection.
-
-`redmond` is a public `redmond/default` theme inspired by modern Windows desktop patterns without bundling Microsoft-owned assets or clone artwork. Its shell contract uses a bottom full-width taskbar, Start system menu, compact taskbar search field, no global menu bar, no global app menu, taskbar status controls, fixed Trash on the desktop, no taskbar separator, and right-aligned window controls ordered minimize, maximize, close. Its surface contract uses `windows-settings` for the native Settings app and `file-explorer` for folder windows, so those areas render Windows-style navigation, command, address, and list surfaces instead of inheriting PufferDesk/Finder layouts. The Redmond Start surface is rendered from registered apps and `menu.system` command data by the shared menu controller, while taskbar search and the Start glyph are declared in theme shell metadata and rendered by the shared launcher template. Typography prefers local system stacks such as `"Segoe UI Variable"` and `"Segoe UI"` without shipping font files. App, document, and virtual folder icons come from the shared PufferDesk SVG icon pack with selected Tabler Icons glyphs under the MIT License; bundled wallpapers and theme wrappers remain PufferDesk assets.
+Theme media fields are normalized to local `assets/media/` descriptors with `path` and `url` values, then exposed in the runtime theme config. Directory-backed media packs such as `icon_pack` also expose direct-child file `versions` so browser-rendered theme icons can append cache-busting filemtime query strings just like PHP-rendered shell icons. Bundled themes share `assets/media/shared/icons/theme/` for app, document, folder, and Trash icons; add a theme-specific icon pack only when the artwork is genuinely different, not when SVG sizing alone can handle a smaller surface. Keep theme media original or licensed for redistribution. The initial public release exposes only the `default` theme. Additional registered themes can remain private by setting `public => false`; local development builds can opt into those internal themes with the `pufferdesk_allow_internal_themes` filter.
 
 Wallpapers are managed by `PufferDesk_Wallpaper_Registry`. It combines one shared bundled wallpaper catalog, bundled original color backgrounds, optional theme-declared wallpaper collections, and user-selected Media Library uploads, then resolves the active choice into `--pdk-wallpaper-*` CSS variables for the shell. Wallpaper type IDs live in the registry, flow through `runtime.contracts.wallpaperTypes`, and should be used by preference sanitizers or browser modules instead of repeated `color`, `theme`, or `upload` strings. Bundled themes should set `media.wallpapers.default` to choose their starting wallpaper from the shared catalog instead of exposing different wallpaper lists per theme. Bundled gradient wallpapers use `css_value` instead of image files to keep plugin size small. Image wallpapers remain supported through `path` or `file` fields for original/licensed assets that need texture or detail. The older single `wallpaper` field remains a fallback for one-image themes, but new public bundled themes should normally declare only a default wallpaper id. Theme icon descriptors resolve against `theme.media.icon_pack.url` and keep Dashicons as fallback when the icon file is missing. Third-party icon notices are tracked in `THIRD-PARTY-NOTICES.txt`.
 
 Future phases can add optional alternate theme packs such as classic desktop, Linux desktop, and other skins by registering a theme and adding a stylesheet, plus native custom app windows for posts, media, analytics, and other plugin-provided screens. The bundled default should remain the PufferDesk identity rather than depending on another platform owner’s brand assets.
 
-Workspace layout is persisted in WordPress user meta per site, user, and selected theme through `PufferDesk_Workspace_State`. Fresh shell loads treat WordPress user meta as the authoritative workspace state and refresh the browser `localStorage` cache from that server payload. Workspace saves send the last known server `updatedAt` revision; stale browser saves receive a conflict response with the newer server state instead of overwriting it. Same-browser tabs share accepted workspace updates through `BroadcastChannel`, while cross-browser sessions such as Chrome to Safari pick up changes on reload unless a future remote polling/push sync is added. `sessionStorage` is reserved for tab-session shell state such as skipping window restore once and the transient clipboard payload. Browser modules derive workspace cache keys, workspace broadcast channel names, and one-time reopen keys through `window.PufferDesk.session.storageKeys`, backed by `PufferDesk_Client_Storage_Keys`, so key formats stay aligned with the PHP runtime contract. Core stores layout in named sections owned by `PufferDesk_Workspace_State::get_section_ids()` and exposed as `runtime.contracts.workspace.sections`: `windows`, `widgets`, `desktopIcons`, `desktopSort`, `dockApps`, `folderDisplay`, `folderSidebar`, `stickyNotes`, `recentItems`, and `settingsUsage`. Desktop icon app/folder ID prefixes and persisted window kind IDs are owned by `PufferDesk_Workspace_State`, exposed as `runtime.contracts.workspace.desktopIconPrefixes` and `runtime.contracts.workspace.windowKinds`, and consumed by `window.PufferDesk.session.workspace`. Future spaces or theme-specific surfaces can join without replacing the whole payload. Windows track app and folder windows, position, size, maximized/minimized state, and restore stable open windows when the shell loads. Folder display preferences track view, sort, and grouping mode per folder within the same per-user, per-site, per-theme workspace scope; new folders without a saved record use the active theme layout defaults. Widgets track widget position, size, and hidden state. Redmond Settings tracks recent panel visits in `settingsUsage` so its Home recommendations can become user-specific while other themes keep static Settings surfaces. User-created desktop folder definitions and membership are persisted separately in WordPress user meta, and their icon positions live in the workspace layout state. System Settings exposes current-theme layout reset and all-theme layout reset through the same workspace state controller; Reset PufferDesk Settings additionally clears PufferDesk preference domains such as app locations, login items, desktop folders, wallpaper, and selected theme. These reset actions do not delete WordPress content or Sticky Notes documents.
+Workspace layout is persisted in WordPress user meta per site, user, and selected theme through `PufferDesk_Workspace_State`. Fresh shell loads treat WordPress user meta as the authoritative workspace state and refresh the browser `localStorage` cache from that server payload. Workspace saves send the last known server `updatedAt` revision; stale browser saves receive a conflict response with the newer server state instead of overwriting it. Same-browser tabs share accepted workspace updates through `BroadcastChannel`, while separate browser sessions pick up changes on reload unless a future remote polling/push sync is added. `sessionStorage` is reserved for tab-session shell state such as skipping window restore once and the transient clipboard payload. Browser modules derive workspace cache keys, workspace broadcast channel names, and one-time reopen keys through `window.PufferDesk.session.storageKeys`, backed by `PufferDesk_Client_Storage_Keys`, so key formats stay aligned with the PHP runtime contract. Core stores layout in named sections owned by `PufferDesk_Workspace_State::get_section_ids()` and exposed as `runtime.contracts.workspace.sections`: `windows`, `widgets`, `desktopIcons`, `desktopSort`, `dockApps`, `folderDisplay`, `folderSidebar`, `stickyNotes`, `recentItems`, and `settingsUsage`. Desktop icon app/folder ID prefixes and persisted window kind IDs are owned by `PufferDesk_Workspace_State`, exposed as `runtime.contracts.workspace.desktopIconPrefixes` and `runtime.contracts.workspace.windowKinds`, and consumed by `window.PufferDesk.session.workspace`. Future spaces or theme-specific surfaces can join without replacing the whole payload. Window records track app and folder windows, position, size, maximized/minimized state, and restore stable open windows when the shell loads. Folder display preferences track view, sort, and grouping mode per folder within the same per-user, per-site, per-theme workspace scope; new folders without a saved record use the active theme layout defaults. Widgets track widget position, size, and hidden state. Settings usage tracks recent panel visits so recommendations can become user-specific while other themes keep static Settings surfaces. User-created desktop folder definitions and membership are persisted separately in WordPress user meta, and their icon positions live in the workspace layout state. System Settings exposes current layout reset and saved layout reset through the same workspace state controller; Reset PufferDesk Settings additionally clears PufferDesk preference domains such as app locations, login items, desktop folders, wallpaper, and selected theme. These reset actions do not delete WordPress content or Sticky Notes documents.
 
 Widgets are registered through `PufferDesk_Widget_Registry` and can be extended with the `pufferdesk_widgets` filter. A widget declares an id, label, icon, capability, kind/native type, semantic template, default position, default size, and refresh interval. Missing, empty, or non-scalar widget capabilities normalize to `read`; widgets that expose privileged WordPress data should use the exact WordPress capability needed for that data. Default positions can use `left` or `right`, plus `top` or `bottom`, so widgets can anchor to either desktop edge before JavaScript persists their exact dragged position. System Settings includes a Widgets panel that can show or hide registered widgets through the existing `widgets` workspace section. The current foundation includes a native Clock widget; future weather, analytics, system monitor, or note widgets can use the same registry, templates, CSS layer, settings panel, and session section.
 

@@ -12,40 +12,7 @@
 	grid-template-columns: 16px minmax(0, 1fr) auto;
 }
 
-.pdk-context-menu[data-pdk-context-menu="dock-app"] {
-	border-radius: 20px;
-	max-width: min(320px, calc(100vw - 16px));
-	min-width: 246px;
-	padding: 10px;
-	width: max-content;
-}
-
-.pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-item {
-	border-radius: 8px;
-	font-size: var(--pdk-text-context-menu);
-	height: 34px;
-	grid-template-columns: minmax(0, 1fr) auto;
-	padding: 0 20px;
-}
-
-.pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-item-shortcut {
-	font-size: var(--pdk-text-context-menu-shortcut);
-	min-width: 18px;
-}
-
 .pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-item-label {
 	overflow: visible;
 	text-overflow: clip;
-}
-
-.pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-separator {
-	margin: 8px 20px;
-}
-
-.pdk-context-menu[data-pdk-context-menu="dock-app"] .pdk-menu-submenu-popover {
-	border-radius: 18px;
-	max-width: min(320px, calc(100vw - 16px));
-	min-width: 246px;
-	padding: 10px;
-	width: max-content;
 }

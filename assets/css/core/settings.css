@@ -780,18 +780,6 @@ button.pdk-settings-profile-hero-avatar:focus .pdk-settings-profile-hero-edit {
 	min-width: 150px;
 }
 
-.pdk-settings-theme-control {
-	align-items: center;
-	display: inline-flex;
-	gap: 8px;
-	justify-self: end;
-	min-width: 0;
-}
-
-.pdk-settings-theme-select {
-	min-width: 190px;
-}
-
 .pdk-settings-button {
 	cursor: default;
 	justify-self: start;
@@ -1305,10 +1293,6 @@ button.pdk-settings-profile-hero-avatar:focus .pdk-settings-profile-hero-edit {
 	text-align: right;
 	text-align-last: right;
 	z-index: 1;
-}
-
-.pdk-shell .pdk-settings-inline-select.pdk-settings-theme-select .pdk-settings-value-select {
-	min-width: 190px;
 }
 
 .pdk-shell .pdk-settings-inline-select .pdk-settings-value-select:hover,
@@ -1977,8 +1961,8 @@ button.pdk-settings-action-row:active {
 	box-shadow: 0 0 0 3px var(--pdk-accent);
 }
 
-.pdk-settings-swatch-multicolor {
-	--pdk-swatch-color: conic-gradient(#ff3b30, #ff9500, #ffcc00, #34c759, #2458ca, #af52de, #ff3b30);
+.pdk-settings-swatch-default {
+	--pdk-swatch-color: var(--pdk-theme-default-accent-swatch, var(--pdk-accent));
 }
 
 .pdk-settings-swatch-blue {

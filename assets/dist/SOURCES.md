@@ -24,7 +24,8 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/css/core/responsive.css
 
 ## Theme CSS
-- assets/css/themes/pufferdesk/default.css -> assets/dist/css/themes/pufferdesk/default.min.css
+- assets/css/themes/cupertino/default.css -> assets/dist/css/themes/cupertino/default.min.css
+- assets/css/themes/default/default.css -> assets/dist/css/themes/default/default.min.css
 - assets/css/themes/redmond/default.css -> assets/dist/css/themes/redmond/default.min.css
 
 ## JavaScript

@@ -17,11 +17,6 @@
 		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-general-panel');
 
 		panel.dataset.pdkSettingsPanel = 'general';
-		panel.appendChild(ctx.createSettingsHero({
-			description: general.description || ctx.t('generalPanel.description'),
-			icon: 'dashicons-admin-generic',
-			title: ctx.t('generalPanel.title')
-		}));
 
 		groups.forEach((group) => {
 			const items = Array.isArray(group.items) ? group.items : [];

@@ -29,7 +29,7 @@ $pufferdesk_appearance = wp_parse_args(
 	array(
 		'mode'              => 'auto',
 		'window_material'   => 'clear',
-		'accent_color'      => 'multicolor',
+		'accent_color'      => 'blue',
 		'icon_widget_style' => 'default',
 	)
 );

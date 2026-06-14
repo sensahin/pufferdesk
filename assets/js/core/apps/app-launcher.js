@@ -37,6 +37,9 @@
 		const contextTargets = contextConstants.targets || {};
 		const contextTargetTypes = contextConstants.targetTypes || {};
 		const contextItemTypes = contextConstants.itemTypes || {};
+		const iconTypes = config.contracts && config.contracts.icons && config.contracts.icons.types
+			? config.contracts.icons.types
+			: {};
 		const dragDropManager = options.dragDropManager || window.PufferDesk.dragDropManager || null;
 		const folderMenuOptions = window.PufferDesk.apps.createFolderMenuOptions
 			? window.PufferDesk.apps.createFolderMenuOptions({
@@ -156,7 +159,7 @@
 		}
 
 		function getFolderLayout() {
-			return getThemeSurface('folder', 'finder');
+			return getThemeSurface('folder', 'pufferdesk-files');
 		}
 
 		function getFolderViewLayout(win = null) {
@@ -169,8 +172,16 @@
 			return getFolderLayout() === 'file-explorer';
 		}
 
-		function isPufferDeskFamily() {
-			return themeFamily === 'pufferdesk';
+		function isPufferDeskFilesLayout() {
+			return getFolderLayout() === 'pufferdesk-files';
+		}
+
+		function usesFolderTitlebarLayout() {
+			return isFileExplorerLayout() || isPufferDeskFilesLayout();
+		}
+
+		function usesDefaultProductPanels() {
+			return themeFamily === 'default';
 		}
 
 		function isRedmondFamily() {
@@ -178,7 +189,11 @@
 		}
 
 		function showsCutFolderActions() {
-			return themeFamily !== 'pufferdesk';
+			return !['default', 'cupertino'].includes(themeFamily);
+		}
+
+		function usesInlineFolderActions() {
+			return ['default', 'cupertino'].includes(themeFamily);
 		}
 
 		function getMenuLabel(key, fallback) {
@@ -974,7 +989,7 @@
 				return openTrash();
 			}
 
-			if (appId === appIds.STICKY_NOTES && isPufferDeskFamily()) {
+			if (appId === appIds.STICKY_NOTES && usesInlineFolderActions()) {
 				const stickyManager = window.PufferDesk.stickyNoteManager || null;
 				return stickyManager && typeof stickyManager.createStickyNote === 'function'
 					? stickyManager.createStickyNote(openOptions.nativeContext || {})
@@ -1156,6 +1171,7 @@
 
 		function openAbout(appId) {
 			const app = appMap.get(appId);
+			const useDefaultPanel = usesDefaultProductPanels();
 			if (!app || !window.PufferDesk.apps.createAboutWindow) {
 				return;
 			}
@@ -1167,20 +1183,61 @@
 				contextMenu: false,
 				content: window.PufferDesk.apps.createAboutWindow(app),
 				disabledControls: ['minimize', 'maximize'],
-				height: '206px',
+				height: useDefaultPanel ? '276px' : '206px',
 				icon: app.icon,
 				menu: app.menu || null,
 				persist: false,
 				resizeMode: 'none',
 				title: app.label,
-				width: '286px',
+				width: useDefaultPanel ? '500px' : '286px',
 				windowKind: 'about'
 			});
+		}
+
+		function createImageIcon(url, alt = '') {
+			if (!url) {
+				return '';
+			}
+
+			return {
+				type: iconTypes.IMAGE || 'image',
+				url: String(url),
+				alt
+			};
+		}
+
+		function getProductAboutRowValue(row = {}) {
+			const value = row && row.value ? String(row.value).trim() : '';
+
+			return value;
+		}
+
+		function createProductAboutApp(productInfo = {}, title = '') {
+			const name = productInfo.name || title || getMenuLabel('about_pufferdesk');
+			const description = productInfo.aboutSubtitle || productInfo.tagline || '';
+			const rows = Array.isArray(productInfo.aboutRows) ? productInfo.aboutRows : [];
+			const lines = Array.isArray(productInfo.aboutLines) && productInfo.aboutLines.length
+				? productInfo.aboutLines.map((line) => String(line || '').trim()).filter(Boolean)
+				: rows.map(getProductAboutRowValue).filter(Boolean);
+			const icon = createImageIcon(productInfo.iconUrl, name) || 'dashicons-info-outline';
+
+			return {
+				id: 'pufferdesk',
+				label: name,
+				icon,
+				about: {
+					name,
+					description,
+					lines,
+					icon
+				}
+			};
 		}
 
 		function openSiteAbout() {
 			const siteInfo = config.siteInfo && typeof config.siteInfo === 'object' ? config.siteInfo : {};
 			const title = siteInfo.title || getInfoPanelLabel('aboutSiteTitle', '');
+			const useDefaultPanel = usesDefaultProductPanels();
 
 			if (!window.PufferDesk.apps.createSiteAboutWindow) {
 				return;
@@ -1193,12 +1250,12 @@
 				contextMenu: false,
 				content: window.PufferDesk.apps.createSiteAboutWindow(siteInfo),
 				disabledControls: ['minimize', 'maximize'],
-				height: '500px',
 				icon: 'dashicons-admin-site-alt3',
 				persist: false,
 				resizeMode: 'none',
 				title,
-				width: '286px',
+				height: useDefaultPanel ? '424px' : '500px',
+				width: useDefaultPanel ? '560px' : '286px',
 				windowKind: 'site-about'
 			});
 		}
@@ -1206,25 +1263,28 @@
 		function openSystemAbout() {
 			const productInfo = config.productInfo && typeof config.productInfo === 'object' ? config.productInfo : {};
 			const title = productInfo.title || productInfo.name || getMenuLabel('about_pufferdesk');
+			const useDefaultPanel = usesDefaultProductPanels();
 
-			if (!window.PufferDesk.apps.createSiteAboutWindow) {
+			if (!window.PufferDesk.apps.createAboutWindow) {
 				return;
 			}
 
+			const aboutApp = createProductAboutApp(productInfo, title);
+
 			manager.createWindow({
 				appId: 'about-pufferdesk',
-				bodyClass: 'pdk-window-body pdk-site-about-body',
+				bodyClass: 'pdk-window-body pdk-about-body',
 				centered: true,
 				contextMenu: false,
-				content: window.PufferDesk.apps.createSiteAboutWindow(productInfo),
+				content: window.PufferDesk.apps.createAboutWindow(aboutApp),
 				disabledControls: ['minimize', 'maximize'],
-				height: '500px',
-				icon: 'dashicons-info-outline',
+				icon: aboutApp.icon,
 				persist: false,
 				resizeMode: 'none',
-				title,
-				width: '286px',
-				windowKind: 'site-about'
+				title: aboutApp.label || title,
+				height: useDefaultPanel ? '276px' : '206px',
+				width: useDefaultPanel ? '500px' : '286px',
+				windowKind: 'about'
 			});
 		}
 
@@ -3501,7 +3561,7 @@
 
 		function getFolderToolbarActions(folderId = '') {
 			const canCreateFolder = folderId && !isTrashFolderId(folderId);
-			const deleteCommand = themeFamily === 'pufferdesk'
+			const deleteCommand = usesInlineFolderActions()
 				? commandIds.FOLDER_DELETE_SELECTED_IMMEDIATELY
 				: commandIds.FOLDER_DELETE_SELECTED;
 			const actions = [
@@ -3510,11 +3570,11 @@
 				{ id: 'get-info', label: getMenuLabel('get_info'), icon: 'dashicons-info-outline', command: commandIds.FOLDER_GET_INFO }
 			];
 
-			if (isPufferDeskFamily()) {
+			if (usesInlineFolderActions()) {
 				actions.splice(1, 0, { id: 'group', label: getMenuLabel('group'), icon: 'dashicons-screenoptions', disclosure: true });
 			}
 
-			if (!isPufferDeskFamily()) {
+			if (!usesInlineFolderActions()) {
 				actions.splice(
 					1,
 					0,
@@ -3850,12 +3910,12 @@
 			return item;
 		}
 
-		function createFolderTabs(win) {
+		function createFolderTabs(win, options = {}) {
 			const state = getFolderWindowTabs(win, win && win.dataset ? win.dataset.pdkFolderWindow : '');
-			const tabBar = dom.createElement('div', 'pdk-finder-tabs');
+			const tabBarClass = options.className ? `pdk-finder-tabs ${options.className}` : 'pdk-finder-tabs';
+			const showAddButton = options.showAddButton !== false;
+			const tabBar = dom.createElement('div', tabBarClass);
 			const list = dom.createElement('div', 'pdk-finder-tab-list');
-			const addButton = document.createElement('button');
-			const activeTab = getActiveFolderTab(win);
 
 			if (isFileExplorerLayout() || state.tabs.length < 2) {
 				return null;
@@ -3868,18 +3928,26 @@
 				list.appendChild(createFolderTabButton(win, tab, state.activeTabId));
 			});
 
-			addButton.type = 'button';
-			addButton.className = 'pdk-finder-tab-add';
-			addButton.dataset.pdkNoDrag = '';
-			addButton.setAttribute('aria-label', getMenuLabel('new_tab'));
-			addButton.appendChild(dom.createElement('span', 'pdk-finder-tab-add-icon'));
-			addButton.addEventListener('click', (event) => {
-				event.preventDefault();
-				event.stopPropagation();
-				addFolderTab(win, activeTab && activeTab.folderId ? activeTab.folderId : state.tabs[0] ? state.tabs[0].folderId : '');
-			});
+			if (showAddButton) {
+				const addButton = document.createElement('button');
+				const activeTab = getActiveFolderTab(win);
 
-			tabBar.append(list, addButton);
+				addButton.type = 'button';
+				addButton.className = 'pdk-finder-tab-add';
+				addButton.dataset.pdkNoDrag = '';
+				addButton.setAttribute('aria-label', getMenuLabel('new_tab'));
+				addButton.appendChild(dom.createElement('span', 'pdk-finder-tab-add-icon'));
+				addButton.addEventListener('click', (event) => {
+					event.preventDefault();
+					event.stopPropagation();
+					addFolderTab(win, activeTab && activeTab.folderId ? activeTab.folderId : state.tabs[0] ? state.tabs[0].folderId : '');
+				});
+				tabBar.append(list, addButton);
+
+				return tabBar;
+			}
+
+			tabBar.appendChild(list);
 
 			return tabBar;
 		}
@@ -4286,7 +4354,7 @@
 					outlineIcon: 'clock',
 					section: 'recents',
 					onClick() {
-						if (win && !isRecentsFolderId(folderId)) {
+						if (win) {
 							renderFolderWindow(win, recentsFolderId);
 						}
 					}
@@ -4313,7 +4381,7 @@
 						removable: true,
 						section: 'favorites',
 						onClick() {
-							if (win && folder && folder.id !== folderId) {
+							if (win && folder) {
 								renderFolderWindow(win, folder.id);
 							}
 						}
@@ -4336,7 +4404,7 @@
 					label: folder.label || getMenuLabel('folder'),
 					section: 'locations',
 					onClick() {
-						if (win && folder.id !== folderId) {
+						if (win) {
 							renderFolderWindow(win, folder.id);
 						}
 					}
@@ -4354,15 +4422,7 @@
 			const folderItems = isTrash ? [] : getFolderDisplayItems(folderId, win);
 			const trashItems = isTrash ? getTrashItems() : [];
 			const removable = isUserFolder(folderId);
-			const toolbarDisplayMode = getFolderToolbarDisplayMode(win);
 			const main = dom.createElement('main', 'pdk-settings-main pdk-finder-main');
-			const header = dom.createElement('header', 'pdk-settings-pane-header pdk-finder-toolbar');
-			const leading = dom.createElement('div', 'pdk-finder-toolbar-leading');
-			const historyGroup = dom.createElement('div', 'pdk-finder-toolbar-history-group');
-			const history = dom.createElement('div', 'pdk-settings-history pdk-finder-history');
-			const title = dom.createElement('h1', 'pdk-finder-title', folder && folder.label ? folder.label : getMenuLabel('admin'));
-			const tabs = createFolderTabs(win);
-			const subbar = isTrash ? createTrashSubbar() : null;
 			const pane = dom.createElement('div', 'pdk-settings-pane pdk-finder-pane');
 
 			applyFolderPaneContext(pane, folderId, folder);
@@ -4370,13 +4430,39 @@
 			bindFolderPaneSelection(pane);
 			bindFolderPaneKeyboard(pane, folderId, win);
 			bindFolderPaneItemDrag(pane, folderId);
+			pane.dataset.pdkFolderViewMode = getExplorerViewMode(win);
+
+			if (getFolderLayout() === 'pufferdesk-files') {
+				if (isTrash && trashItems.length) {
+					pane.appendChild(createFolderItemGrid(folderId, win, {
+						trash: true
+					}));
+				} else if (!isTrash && folderItems.length) {
+					pane.appendChild(createFolderItemGrid(folderId, win, {
+						removable
+					}));
+				} else if (!isTrash) {
+					pane.appendChild(createFolderEmptyState());
+				}
+				main.appendChild(pane);
+				return main;
+			}
+
+			const toolbarDisplayMode = getFolderToolbarDisplayMode(win);
+			const header = dom.createElement('header', 'pdk-settings-pane-header pdk-finder-toolbar');
+			const leading = dom.createElement('div', 'pdk-finder-toolbar-leading');
+			const historyGroup = dom.createElement('div', 'pdk-finder-toolbar-history-group');
+			const history = dom.createElement('div', 'pdk-settings-history pdk-finder-history');
+			const title = dom.createElement('h1', 'pdk-finder-title', folder && folder.label ? folder.label : getMenuLabel('admin'));
+			const tabs = createFolderTabs(win);
+			const subbar = isTrash ? createTrashSubbar() : null;
+
 			header.dataset.pdkContext = contextTargets.FOLDER_TOOLBAR;
 			header.dataset.pdkContextId = folderId;
 			header.dataset.pdkContextLabel = getMenuLabel('folder_toolbar');
 			header.dataset.pdkDragHandle = '';
 			header.dataset.pdkFolderId = folderId;
 			header.dataset.pdkFolderToolbarDisplay = toolbarDisplayMode;
-			pane.dataset.pdkFolderViewMode = getExplorerViewMode(win);
 			history.dataset.pdkNoDrag = '';
 			history.appendChild(createFolderHistoryButton('back', win));
 			history.appendChild(createFolderHistoryButton('forward', win));
@@ -4395,6 +4481,9 @@
 			}
 
 			if (!folderItems.length) {
+				if (getFolderLayout() === 'pufferdesk-files') {
+					pane.appendChild(createFolderEmptyState());
+				}
 				main.append(...[header, tabs, pane].filter(Boolean));
 				return main;
 			}
@@ -4479,6 +4568,24 @@
 			content.className = `pdk-folder-content${layout === 'file-explorer' ? ' pdk-folder-content-explorer' : ''}`;
 			content.dataset.pdkFolderLayout = layout;
 			applyFolderPaneContext(content, folderId, folder);
+			if (layout === 'pufferdesk-files') {
+				const tabs = createFolderTabs(win, {
+					className: 'pdk-folder-simple-tabs',
+					showAddButton: false
+				});
+				const workarea = dom.createElement('div', 'pdk-folder-workarea');
+
+				if (tabs) {
+					content.classList.add('has-folder-tabs');
+				}
+				workarea.append(
+					createFolderSidebar(folderId, win, layout),
+					createFolderMain(folderId, win)
+				);
+				content.append(...[tabs, workarea].filter(Boolean));
+
+				return content;
+			}
 			content.append(
 				createFolderSidebar(folderId, win, layout),
 				createFolderMain(folderId, win)
@@ -4689,12 +4796,13 @@
 			}
 
 			const placeholder = document.createElement('div');
+			const showFolderTitlebar = usesFolderTitlebarLayout();
 			const win = manager.createWindow({
 				appId: isTrashFolderId(folderId) ? appIds.TRASH : '',
 				title: folderTitle,
 				icon: folder && folder.icon ? folder.icon : defaultDashicon,
-				titlebarIcon: isFileExplorerLayout() && folder && folder.icon ? folder.icon : '',
-				titlebarLabel: isFileExplorerLayout() ? folderTitle : '',
+				titlebarIcon: showFolderTitlebar && folder && folder.icon ? folder.icon : '',
+				titlebarLabel: showFolderTitlebar ? folderTitle : '',
 				content: placeholder,
 				bodyClass: `pdk-window-body pdk-folder-body ${isFileExplorerLayout() ? 'pdk-explorer-body' : 'pdk-finder-body'}`,
 				windowKind: folderWindowKind,
@@ -4901,6 +5009,7 @@
 			}
 
 			const title = getFolderInfoTitle(info);
+			const width = isRedmondFamily() ? '640px' : (usesDefaultProductPanels() ? '468px' : '414px');
 			const win = manager.createWindow({
 				appId: `folder-info-${info.id}`,
 				bodyClass: 'pdk-window-body pdk-info-panel-body',
@@ -4913,7 +5022,7 @@
 				title,
 				titlebarIcon: info.icon || 'dashicons-category',
 				titlebarLabel: title,
-				width: isRedmondFamily() ? '640px' : '414px',
+				width,
 				windowKind: 'folder-info'
 			});
 
@@ -4947,6 +5056,7 @@
 				}
 
 				const title = getDocumentInfoTitle(info);
+				const width = isRedmondFamily() ? '640px' : (usesDefaultProductPanels() ? '468px' : '414px');
 				const win = manager.createWindow({
 					appId: `document-info-${info.id}`,
 					bodyClass: 'pdk-window-body pdk-info-panel-body',
@@ -4959,7 +5069,7 @@
 					title,
 					titlebarIcon: info.icon || 'dashicons-media-document',
 					titlebarLabel: title,
-					width: isRedmondFamily() ? '640px' : '414px',
+					width,
 					windowKind: 'document-info'
 				});
 

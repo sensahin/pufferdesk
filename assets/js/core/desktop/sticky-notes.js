@@ -96,11 +96,16 @@
 			return theme.family === 'redmond';
 		}
 
-		function isPufferDeskTheme() {
+		function usesCollapsingTitlebar() {
 			const theme = config.theme && typeof config.theme === 'object' ? config.theme : {};
 			const user = config.user && typeof config.user === 'object' ? config.user : {};
+			const themeFamily = typeof theme.family === 'string' ? theme.family : '';
+			const themeId = typeof theme.id === 'string' ? theme.id : '';
+			const userThemeId = typeof user.themeId === 'string' ? user.themeId : '';
 
-			return theme.family === 'pufferdesk' || theme.id === 'pufferdesk/default' || user.themeId === 'pufferdesk/default';
+			return ['default', 'cupertino'].includes(themeFamily)
+				|| ['default', 'cupertino', 'cupertino/default'].includes(themeId)
+				|| ['default', 'cupertino', 'cupertino/default'].includes(userThemeId);
 		}
 
 		function getStickyKind() {
@@ -1040,6 +1045,10 @@
 				return;
 			}
 
+			if (openOptionsMenu.trigger) {
+				openOptionsMenu.trigger.setAttribute('aria-expanded', 'false');
+			}
+
 			if (typeof openOptionsMenu.cleanup === 'function') {
 				openOptionsMenu.cleanup();
 			}
@@ -1049,6 +1058,32 @@
 			}
 
 			openOptionsMenu = null;
+		}
+
+		function positionNoteOptionsMenu(menu, trigger) {
+			if (!menu || !trigger) {
+				return;
+			}
+
+			const margin = 8;
+			const offset = 6;
+			const triggerRect = trigger.getBoundingClientRect();
+			const viewportWidth = document.documentElement.clientWidth || window.innerWidth || 0;
+			const viewportHeight = document.documentElement.clientHeight || window.innerHeight || 0;
+
+			menu.style.left = '0px';
+			menu.style.top = '0px';
+
+			const menuRect = menu.getBoundingClientRect();
+			const maxLeft = Math.max(margin, viewportWidth - menuRect.width - margin);
+			const maxTop = Math.max(margin, viewportHeight - menuRect.height - margin);
+			const preferredLeft = Math.round(triggerRect.right - menuRect.width);
+			const belowTop = Math.round(triggerRect.bottom + offset);
+			const aboveTop = Math.round(triggerRect.top - menuRect.height - offset);
+			const preferredTop = belowTop + menuRect.height + margin <= viewportHeight ? belowTop : aboveTop;
+
+			menu.style.left = `${Math.round(clamp(preferredLeft, margin, maxLeft))}px`;
+			menu.style.top = `${Math.round(clamp(preferredTop, margin, maxTop))}px`;
 		}
 
 		function openNotesListApp() {
@@ -1121,13 +1156,18 @@
 			const deleteButton = createOptionsMenuItem('is-delete-note', getLabel('deleteNote'));
 
 			menu.className = 'pdk-sticky-note-options';
+			menu.dataset.pdkStickyNoteFloating = '1';
 			menu.setAttribute('role', 'menu');
 			menu.append(createColorPalette(entry));
 			if (notesListButton) {
 				menu.appendChild(notesListButton);
 			}
 			menu.appendChild(deleteButton);
-			entry.element.appendChild(menu);
+			(shell || document.body).appendChild(menu);
+			if (trigger) {
+				trigger.setAttribute('aria-expanded', 'true');
+			}
+			positionNoteOptionsMenu(menu, trigger);
 
 			function onPointerDown(event) {
 				if (menu.contains(event.target) || (trigger && trigger.contains(event.target))) {
@@ -1143,6 +1183,10 @@
 				}
 			}
 
+			function onWindowResize() {
+				closeNoteOptionsMenu();
+			}
+
 			if (notesListButton) {
 				notesListButton.addEventListener('click', () => {
 					closeNoteOptionsMenu();
@@ -1155,10 +1199,12 @@
 			});
 			document.addEventListener('pointerdown', onPointerDown, true);
 			document.addEventListener('keydown', onKeyDown, true);
+			window.addEventListener('resize', onWindowResize, true);
 			openOptionsMenu = {
 				cleanup() {
 					document.removeEventListener('pointerdown', onPointerDown, true);
 					document.removeEventListener('keydown', onKeyDown, true);
+					window.removeEventListener('resize', onWindowResize, true);
 				},
 				element: menu,
 				trigger
@@ -1674,7 +1720,7 @@
 				}
 
 				closeNoteOptionsMenu();
-				if (isPufferDeskTheme()) {
+				if (usesCollapsingTitlebar()) {
 					setCollapsed(entry, !entry.element.classList.contains('is-collapsed'));
 					return;
 				}
@@ -1886,6 +1932,8 @@
 			actionGroup.className = 'pdk-sticky-note-actions';
 			content.dataset.pdkContextMenuDisabled = '1';
 			content.dataset.pdkNativeContextMenu = '1';
+			menuButton.setAttribute('aria-haspopup', 'menu');
+			menuButton.setAttribute('aria-expanded', 'false');
 
 			actionGroup.append(menuButton, fullscreenButton, collapseButton, closeButton);
 			dragHandle.append(createButton, discardButton, actionGroup);

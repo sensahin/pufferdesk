@@ -6,7 +6,7 @@ This project is not a throwaway MVP. Treat it as a long-term WordPress plugin fo
 
 ## Project Purpose
 
-PufferDesk wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding an OS shell with themes, windows, apps, widgets, desktop surfaces, one primary PufferDesk identity, and optional theme families such as Redmond-style, Linux desktop, and nostalgic retro systems.
+PufferDesk wraps the existing WordPress admin in a desktop-style workspace. It should preserve WordPress compatibility by embedding existing admin screens where practical, while adding a shell with themes, windows, apps, widgets, desktop surfaces, one primary PufferDesk identity, and optional private or future theme families.
 
 The foundation matters more than short-term visual hacks.
 
@@ -38,7 +38,7 @@ Never:
 - Do not remove or weaken the Classic Admin escape path.
 - Do not introduce external dependencies casually.
 - Do not ship minified assets without keeping readable source files and source references.
-- Do not ship Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled platform font files. OS theme assets must be original, licensed for redistribution, or otherwise release-safe.
+- Do not ship third-party platform icons, wallpapers, logos, app artwork, trade dress, or bundled platform font files. Theme assets must be original, licensed for redistribution, or otherwise release-safe.
 - Do not commit `node_modules/`, `release/`, `.DS_Store`, undocumented local credentials, production credentials, or machine-specific state. The documented local WordPress login in the validation section is for this private development machine only; `AGENTS.md` is excluded from release packaging.
 
 ## Directory Map
@@ -102,7 +102,7 @@ Templates in `templates/`:
 - `templates/desktop/`: desktop icons and desktop object surfaces.
 - `templates/widgets/`: widget layer and widget templates.
 - `templates/themes/{theme_id}/...`: theme/version-specific overrides.
-- `templates/themes/{family}/...`: OS-family overrides.
+- `templates/themes/{family}/...`: theme-family overrides.
 - Native app content currently renders through purpose-specific JavaScript modules in `assets/js/core/apps/`; add PHP app templates only when server-rendered native app markup exists.
 
 CSS:
@@ -117,10 +117,10 @@ CSS:
 - `assets/css/core/windows.css`: reusable window chrome.
 - `assets/css/core/apps.css`: generic app grid and app launcher tiles.
 - `assets/css/core/shortcuts.css`: Keyboard Shortcuts Help window surface.
-- `assets/css/core/folders.css`: folder windows, Finder-style surfaces, Trash, and folder info panels.
+- `assets/css/core/folders.css`: folder windows, theme-specific folder surfaces, Trash, and folder info panels.
 - `assets/css/core/about.css`: PufferDesk and site About windows.
 - `assets/css/core/settings.css`: native System Settings surfaces and controls.
-- `assets/css/core/explorer.css`: Explorer-style folder/settings shared surfaces.
+- `assets/css/core/explorer.css`: alternate folder/settings shared surfaces.
 - `assets/css/core/dock.css`: dock.
 - `assets/css/core/responsive.css`: responsive rules.
 - `assets/css/themes/{family}/base.css`: optional theme-family visual base when a family truly has shared CSS.
@@ -205,7 +205,7 @@ Menus:
 - Each group should define `id`, `label`, and `items`; supported group IDs are `site`, `app`, `file`, `edit`, `view`, `go`, `window`, and `help`.
 - Menu group IDs are owned by `PufferDesk_App_Menu_Normalizer`, exposed through `runtime.contracts.menuGroups`, and consumed by `assets/js/core/shell/menu-schema.js`; do not repeat group IDs in browser menu logic when a contract value exists.
 - Menu command items should define `label` plus optional `command`, `target`, `url`, `title`, `icon`, `shortcut`, `payload`, and `disabled`.
-- `shortcut` is executable data, not decorative text. Use a structured descriptor with `combo` or `keys`, symbolic modifiers such as `primary` and `secondary`, `contexts`, optional `allowInTextFields`, and `preventDefault`. `primary` resolves to Cmd on macOS and Ctrl on Windows/Linux; `secondary` resolves to Option/Alt. Shared context IDs live in `assets/js/core/shell/shortcut-contexts.js`; the keyboard engine lives in `assets/js/core/shell/shortcuts.js` and is documented in `docs/shortcut-platform.md`.
+- `shortcut` is executable data, not decorative text. Use a structured descriptor with `combo` or `keys`, symbolic modifiers such as `primary` and `secondary`, `contexts`, optional `allowInTextFields`, and `preventDefault`. `primary` resolves to the host primary modifier; `secondary` resolves to the host alternate modifier. Shared context IDs live in `assets/js/core/shell/shortcut-contexts.js`; the keyboard engine lives in `assets/js/core/shell/shortcuts.js` and is documented in `docs/shortcut-platform.md`.
 - Commands are registered in `assets/js/core/shell/commands.js`; schema normalization is in `assets/js/core/shell/menu-schema.js`; shared menu item rendering is in `assets/js/core/shell/menu-renderer.js`; top menu rendering is in `assets/js/core/shell/menu.js`.
 - Context menus are registered and rendered through the central platform documented in `docs/context-menu-platform.md`. Core modules include `assets/js/core/shell/context-menu.js`, `context-menu-resolver.js`, `context-menu-permissions.js`, `context-menu-positioner.js`, `context-menu-keyboard.js`, and `context-menu-theme-adapter.js`. Context targets should use stable `data-pdk-context` and `data-pdk-context-id` attributes rather than one-off event handlers.
 - Context target IDs, context keys, areas, target types, and item types are owned by `PufferDesk_Context_Menu_Contracts`, exposed through `runtime.contracts.contextMenu`, and consumed by `assets/js/core/shell/context-menu-constants.js`. Do not repeat context target strings in templates or JavaScript when a contract value exists.
@@ -246,15 +246,16 @@ Themes:
 - Themes are organized by family and version.
 - Use parent/child theme inheritance for common theme-family styling.
 - Put visual language in theme CSS. Put behavior in core JS/PHP.
-- Use theme `shell` metadata for OS-family shell surfaces. Supported fields include `chrome`, `top_bar`, `launcher`, `system_menu`, `app_menu`, `status_area`, `launcher_search`, `system_menu_icon`, `launcher_separator`, `default_app_location`, `default_app_locations`, `fixed_app_locations`, and `labels`; these normalize into shell runtime config and shell `data-pdk-*` attributes.
+- Use theme `shell` metadata for theme-family shell surfaces. Supported fields include `chrome`, `top_bar`, `launcher`, `system_menu`, `app_menu`, `status_area`, `launcher_search`, `system_menu_icon`, `launcher_separator`, `default_app_location`, `default_app_locations`, `fixed_app_locations`, and `labels`; these normalize into shell runtime config and shell `data-pdk-*` attributes.
 - Use theme `window_chrome` metadata for reusable window chrome. Supported fields include `controls.placement`, `controls.order`, `controls.style`, `controls.labels`, `title.alignment`, and `title.show_icon`; supported control IDs, placements, styles, title alignments, dataset actions, modifiers, and defaults are owned by `PufferDesk_Window_Chrome_Contracts` and exposed through `runtime.contracts.windowChrome`. Do not hard-code family-specific window controls in JS.
-- Use theme `surfaces` metadata for native app layout families. Supported fields include `settings` (`pufferdesk-settings`, `windows-settings`) and `folder` (`finder`, `file-explorer`). Do not make other OS families inherit PufferDesk/Finder-specific Settings, folder toolbar, sidebar, or titlebar layouts by styling alone.
-- Use theme `dialogs` metadata for confirmation dialog style and confirmation policy. Supported fields include `style` (`floating`, `system-window`) and `confirmations.{action_id}` with `enabled`, `variant`, `icon`, and `default_action`. For example, `move_folder_to_trash` may be disabled for PufferDesk-style move-to-Trash behavior and enabled for Redmond-style delete confirmations. Keep dialog behavior in the shared shell dialog service and command policy; keep visual skin in theme CSS using `data-pdk-dialog-style` and `data-pdk-dialog-variant`.
-- Use theme shell labels for family-specific vocabulary such as Dock versus Taskbar. Do not hard-code launcher labels in settings panels, menus, or context menus when a runtime label exists.
+- Use theme `surfaces` metadata for native app layout families. Supported fields include `settings` (`pufferdesk-hub`, `pufferdesk-settings`, `windows-settings`) and `folder` (`pufferdesk-files`, `finder`, `file-explorer`). Do not make one theme family inherit another family's Settings, folder toolbar, sidebar, or titlebar layouts by styling alone.
+- Use theme `dialogs` metadata for confirmation dialog style and confirmation policy. Supported fields include `style` (`floating`, `system-window`) and `confirmations.{action_id}` with `enabled`, `variant`, `icon`, and `default_action`. Keep dialog behavior in the shared shell dialog service and command policy; keep visual skin in theme CSS using `data-pdk-dialog-style` and `data-pdk-dialog-variant`.
+- Use theme shell labels for family-specific launcher vocabulary. Do not hard-code launcher labels in settings panels, menus, or context menus when a runtime label exists.
 - Use theme `app_labels` and `menu.labels` for family-specific app/menu vocabulary such as Trash versus Recycle Bin. Keep app IDs and command IDs stable.
+- Use theme `info_panel.labels` for family-specific info/about/details vocabulary such as Get Info versus Details, Kind versus Item type, Where versus Path, and More Info versus Open details. Do not hard-code those labels in info-panel renderers, folder toolbars, context menus, or About surfaces when a runtime label exists.
 - Use theme shell labels for family-specific minimize animation option labels when a theme should not expose another OS family's vocabulary. Keep stored option values stable.
 - Shell metadata is executable, not decorative. `top_bar`, `launcher`, `system_menu`, `app_menu`, and `status_area` must match rendered shell surfaces and settings capability visibility.
-- Use theme `sounds` metadata for OS-family sound packs. Supported fields include `enabled`, `rateLimitMs`, and `events.{event_id}` descriptors with local `path`/`file`/`src`, `volume`, and optional `playbackRate`; playback must stay in the shared sound manager.
+- Use theme `sounds` metadata for theme-family sound packs. Supported fields include `enabled`, `rateLimitMs`, and `events.{event_id}` descriptors with local `path`/`file`/`src`, `volume`, and optional `playbackRate`; playback must stay in the shared sound manager.
 - Use theme `typography` metadata for font stacks, type scale, line heights, weights, and neutral letter spacing. Typography normalizes into shell CSS variables; do not hard-code family-specific fonts or type sizes into component CSS when a token exists.
 - Use theme `tokens` metadata for shared colors, material/glass effects, spacing, radii, borders, and shadows. Explicit tokens normalize into shell CSS variables before first paint; do not fill missing tokens from generic defaults because emitted inline variables override concrete theme CSS such as dark-mode colors and family-specific window radii. Use `mode_tokens.light` and `mode_tokens.dark` for appearance-dependent surface values such as context menus, Settings panels/sidebar chrome, reusable window chrome, and Explorer/Finder rows or toolbars; mode tokens emit as scoped CSS rules so material and accessibility overrides can still win through specificity. Core CSS can keep fallback values, but new reusable visual constants should flow through the token contract when future theme families may need to change them. Derived accent values such as soft, medium, active, active gradient, focus ring, and highlight should flow from `--pdk-accent-rgb` and alpha tokens instead of being repeated in every accent variant. Current shared radius tokens include `window`, `window_maximized`, and `menu_popover`.
 - Do not bundle Apple-owned, Microsoft-owned, Canonical-owned, or other third-party platform font files. Use system font stacks or original/licensed font assets only.
@@ -263,7 +264,7 @@ Themes:
 - External theme packs may still use `wallpapers` for theme-managed wallpaper collections. The canonical shape is `array( 'default' => 'wallpaper-id', 'items' => array( array( 'id' => 'wallpaper-id', 'label' => 'Wallpaper Label', 'path' => 'themes/{family}/{version}/wallpapers/file.jpg' ) ) )`.
 - Use `PufferDesk_Wallpaper_Registry` for the shared bundled wallpaper catalog, color backgrounds, theme image wallpapers, upload validation, wallpaper type IDs, and `--pdk-wallpaper-*` CSS-variable resolution. Wallpaper type IDs are exposed through `runtime.contracts.wallpaperTypes`; do not read wallpaper URLs or repeat wallpaper type strings directly from templates or app JS.
 - Keep OS media original, licensed for redistribution, or otherwise release-safe.
-- The public `redmond/default` theme is Windows-inspired, not a Windows clone. Keep it on the taskbar/Start shell contract, use original CSS/SVG assets, use system font stacks only, and do not add Microsoft-owned logos, wallpapers, icons, font files, or copied trade dress.
+- The public bundled theme is `default/default`. Keep private bundled themes marked `public => false` unless a release explicitly exposes them, and do not add public theme selection UI until multiple release-ready themes are intentionally supported.
 - Template override resolution order is:
   1. `templates/themes/{theme_id}/{template}`
   2. `templates/themes/{family}/{template}`
@@ -308,7 +309,7 @@ Session:
 - Same-browser workspace sync may use `BroadcastChannel`; do not imply cross-browser live sync unless a remote polling or push mechanism exists.
 - Do not overwrite the whole session blob from one module.
 - New desktop object types should add their own section instead of hijacking `windows` or `widgets`.
-- Keep workspace state scoped by site, user, and theme. Theme-specific layouts are expected because OS families can use different shell geometry.
+- Keep workspace state scoped by site, user, and theme. Theme-specific layouts are expected because theme families can use different shell geometry.
 
 Settings:
 
@@ -345,7 +346,7 @@ JavaScript:
 CSS:
 
 - Core CSS defines structural behavior and shared components.
-- Theme CSS defines visual skin and OS personality.
+- Theme CSS defines visual skin and theme-family personality.
 - Avoid one-note palettes and unmaintainable selector sprawl.
 - Keep selectors semantic and aligned with template structure.
 - Do not add visual polish by hard-coding theme-specific values into core component files.
@@ -479,9 +480,9 @@ Minimum browser smoke matrix for meaningful UI/runtime changes:
 
 - Log in at `https://newwp:7890/wp-admin/` if needed, then open `https://newwp:7890/wp-admin/admin.php?page=pufferdesk-admin-desktop`.
 - Confirm the shell loads without visible PHP errors or blocking console errors.
-- Test the current theme and, when theme tokens/chrome changed, both PufferDesk and Redmond in light and dark modes. Restore the user's original theme and appearance afterward.
+- Test the current theme and, when theme tokens/chrome changed, Default in light and dark modes. Restore the user's original appearance afterward.
 - Open the system/site menu, top menus, and a desktop/context menu; check readability, hover/disabled states, separators, and z-index.
-- Open System Settings; verify the sidebar, General panel, Appearance panel, theme selector, and any panel touched by the change.
+- Open System Settings; verify the sidebar, General panel, Appearance panel, and any panel touched by the change.
 - Open at least one folder window; check sidebar, toolbar, content surface, titlebar controls, focus state, and dark/light styling.
 - For Dock/taskbar changes, check launcher items, fixed items, badges, running indicators, tooltips, context menus, and minimized windows.
 - For window manager changes, check create/open, focus, close, minimize, maximize/restore, drag, resize, and workspace restoration when relevant.
@@ -550,7 +551,7 @@ No dead code. No abandoned experiments. No duplicate implementations.
 
 ## Process Cleanup
 
-Before finishing a task, stop any long-running process, watcher, local server, browser automation tab, or temporary background job started for that task. Re-check for stale processes when browser automation, dev servers, package scripts, WP-CLI, or visual smoke tests were used. Do not kill unrelated user apps, WordPress/MAMP services, Codex infrastructure, or macOS system services unless the project owner explicitly asks for that specific process to be stopped. Report any process intentionally left running.
+Before finishing a task, stop any long-running process, watcher, local server, browser automation tab, or temporary background job started for that task. Re-check for stale processes when browser automation, dev servers, package scripts, WP-CLI, or visual smoke tests were used. Do not kill unrelated user apps, WordPress/MAMP services, Codex infrastructure, or system services unless the project owner explicitly asks for that specific process to be stopped. Report any process intentionally left running.
 
 ## When Unsure
 

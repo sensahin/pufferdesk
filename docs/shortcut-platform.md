@@ -31,7 +31,7 @@ Use platform-aware modifiers:
 }
 ```
 
-`primary` resolves to Cmd on macOS and Ctrl on Windows/Linux. `secondary` resolves to Option/Alt. Explicit `ctrl`, `meta`, `alt`, and `shift` are available when a shortcut intentionally needs that exact modifier.
+`primary` resolves to the host primary modifier, and `secondary` resolves to the host alternate modifier. Explicit `ctrl`, `meta`, `alt`, and `shift` are available when a shortcut intentionally needs that exact modifier.
 
 Shortcut descriptors may also use:
 

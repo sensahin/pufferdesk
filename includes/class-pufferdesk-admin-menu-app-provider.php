@@ -736,6 +736,7 @@ final class PufferDesk_Admin_Menu_App_Provider {
 		$author  = isset( $plugin['AuthorName'] ) && '' !== $plugin['AuthorName']
 			? $this->sanitize_plugin_header( $plugin['AuthorName'] )
 			: ( isset( $plugin['Author'] ) ? $this->sanitize_plugin_header( $plugin['Author'] ) : '' );
+		$description = isset( $plugin['Description'] ) ? $this->sanitize_plugin_header( $plugin['Description'] ) : '';
 		$lines   = array();
 
 		if ( '' !== $version ) {
@@ -747,11 +748,12 @@ final class PufferDesk_Admin_Menu_App_Provider {
 		}
 
 		return array(
-			'name'      => $name,
-			'version'   => isset( $lines[0] ) ? $lines[0] : '',
-			'copyright' => isset( $lines[1] ) ? $lines[1] : '',
-			'rights'    => '',
-			'lines'     => $lines,
+			'name'        => $name,
+			'description' => $description,
+			'version'     => isset( $lines[0] ) ? $lines[0] : '',
+			'copyright'   => isset( $lines[1] ) ? $lines[1] : '',
+			'rights'      => '',
+			'lines'       => $lines,
 		);
 	}
 

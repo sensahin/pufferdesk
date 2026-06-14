@@ -374,7 +374,7 @@ final class PufferDesk_Virtual_Filesystem {
 	 * @return array<int,string>
 	 */
 	private function get_desktop_system_folder_ids( $theme ) {
-		if ( $this->is_pufferdesk_theme( $theme ) ) {
+		if ( $this->is_cupertino_theme( $theme ) ) {
 			return array(
 				self::FOLDER_DOCUMENTS,
 			);
@@ -421,14 +421,14 @@ final class PufferDesk_Virtual_Filesystem {
 	}
 
 	/**
-	 * Whether the active theme uses the bundled PufferDesk filesystem desktop.
+	 * Whether the active theme uses the Cupertino filesystem desktop.
 	 *
 	 * @param array<string,mixed> $theme Current theme.
 	 * @return bool
 	 */
-	private function is_pufferdesk_theme( $theme ) {
+	private function is_cupertino_theme( $theme ) {
 		$family = isset( $theme['family'] ) ? sanitize_key( (string) $theme['family'] ) : '';
 
-		return 'pufferdesk' === $family;
+		return 'cupertino' === $family;
 	}
 }

@@ -205,7 +205,7 @@ final class PufferDesk_App_Registry {
 		 * array( 'type' => 'dashicon', 'value' => 'dashicons-admin-post' )
 		 * array( 'type' => 'image', 'src' => 'shared/icons/theme/posts.svg' )
 		 * array( 'type' => 'theme', 'name' => 'posts.svg', 'fallback' => 'dashicons-admin-post' )
-		 * About windows may define about name, version, copyright, rights, and icon.
+		 * About windows may define about name, description, version, copyright, rights, and icon.
 		 * Menus use array( 'groups' => array( ... ) ) with command-backed items.
 		 *
 		 * @param array<int,array<string,mixed>> $apps Registered apps.

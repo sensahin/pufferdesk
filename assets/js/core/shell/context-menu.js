@@ -301,12 +301,12 @@
 			return themeFamily === 'redmond';
 		}
 
-		function isPufferDeskFamily() {
-			return themeFamily === 'pufferdesk';
+		function showsCutMenuItems() {
+			return !['default', 'cupertino'].includes(themeFamily);
 		}
 
-		function showsCutMenuItems() {
-			return themeFamily !== 'pufferdesk';
+		function usesInlineStickyNoteActions() {
+			return ['default', 'cupertino'].includes(themeFamily);
 		}
 
 		function getDesktopSortMode() {
@@ -747,8 +747,8 @@
 				];
 			}
 
-			if (app.id === appIds.STICKY_NOTES && isPufferDeskFamily()) {
-				return getPufferDeskStickyNotesDockItems(app);
+			if (app.id === appIds.STICKY_NOTES && usesInlineStickyNoteActions()) {
+				return getInlineStickyNotesDockItems(app);
 			}
 
 			const state = getAppWindowState(app.id);
@@ -794,7 +794,7 @@
 			return items;
 		}
 
-		function getPufferDeskStickyNotesDockItems(app) {
+		function getInlineStickyNotesDockItems(app) {
 			const hasHiddenNotes = Boolean(
 				stickyNoteManager
 				&& typeof stickyNoteManager.hasHiddenNotes === 'function'
@@ -943,14 +943,16 @@
 					}));
 				}
 
-				items.push(
-					separator(),
-					commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
-						icon: 'dashicons-clipboard',
-						id: 'copy',
-						shortcut: shortcut('primary+c')
-					})
-				);
+				if (canMutateFolder) {
+					items.push(
+						separator(),
+						commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
+							icon: 'dashicons-clipboard',
+							id: 'copy',
+							shortcut: shortcut('primary+c')
+						})
+					);
+				}
 
 				if (showsCutMenuItems()) {
 					items.push(commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {

@@ -77,8 +77,10 @@
 	--pdk-menu-muted: var(--pdk-muted);
 	--pdk-menu-placeholder: rgba(23, 33, 43, 0.48);
 	--pdk-menu-selection-active-bg: var(--pdk-accent-active-strong);
+	--pdk-menu-selection-active-ink: var(--pdk-menu-selection-ink);
 	--pdk-menu-selection-bg: var(--pdk-accent-medium);
 	--pdk-menu-selection-border: var(--pdk-accent-soft);
+	--pdk-menu-selection-ink: var(--pdk-accent-ink);
 	--pdk-menu-selection-shadow: none;
 	--pdk-menu-text-shadow: none;
 	--pdk-menu-mark-filter: none;
@@ -186,9 +188,9 @@
 	--pdk-traffic-disabled: rgba(0, 0, 0, 0.18);
 	--pdk-traffic-minimize: rgb(242, 202, 68);
 	--pdk-traffic-zoom: rgb(101, 196, 102);
-	--pdk-font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-	--pdk-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-	--pdk-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+	--pdk-font-ui: system-ui, "Helvetica Neue", Arial, sans-serif;
+	--pdk-font-display: system-ui, "Helvetica Neue", Arial, sans-serif;
+	--pdk-font-mono: ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
 	--pdk-text-micro: 10px;
 	--pdk-text-small: 11px;
 	--pdk-text-fine-print: 9px;
@@ -236,6 +238,10 @@
 	--pdk-weight-widget-clock: var(--pdk-weight-strong);
 	--pdk-letter-spacing-default: 0;
 	--pdk-letter-spacing-tight: 0;
+	background: var(--pdk-wallpaper-image), var(--pdk-desktop-bg);
+	background-position: var(--pdk-wallpaper-position), center, 0 0, 0 0, center;
+	background-repeat: var(--pdk-wallpaper-repeat), no-repeat, repeat, repeat, no-repeat;
+	background-size: var(--pdk-wallpaper-size), auto, 42px 42px, 42px 42px, auto;
 	color: var(--pdk-ink);
 	font-family: var(--pdk-font-ui);
 	height: calc(100vh - 32px);
@@ -322,7 +328,7 @@
 	box-shadow: var(--pdk-menu-shadow);
 	display: grid;
 	gap: 16px;
-	grid-template-columns: auto auto minmax(220px, 420px) minmax(48px, 1fr);
+	grid-template-columns: auto auto minmax(48px, 1fr);
 	height: 48px;
 	padding: 0 18px;
 	position: relative;
@@ -333,7 +339,7 @@
 }
 
 .pdk-menu-bar-no-search {
-	grid-template-columns: auto minmax(220px, 1fr) minmax(48px, auto);
+	grid-template-columns: auto auto minmax(48px, 1fr);
 }
 
 .pdk-menu-bar-no-status {
@@ -345,7 +351,7 @@
 }
 
 .pdk-menu-bar-no-app-menu {
-	grid-template-columns: auto minmax(220px, 1fr) minmax(48px, auto);
+	grid-template-columns: auto minmax(48px, 1fr);
 }
 
 .pdk-menu-bar-no-app-menu.pdk-menu-bar-no-search {
@@ -418,7 +424,7 @@
 	backdrop-filter: var(--pdk-material-control-filter);
 	background: var(--pdk-menu-selection-bg);
 	box-shadow: inset 0 0 0 1px var(--pdk-menu-selection-border), var(--pdk-menu-selection-shadow);
-	color: var(--pdk-accent-ink);
+	color: var(--pdk-menu-selection-ink);
 	outline: none;
 }
 
@@ -463,12 +469,13 @@
 	backdrop-filter: var(--pdk-material-control-filter);
 	background: var(--pdk-menu-selection-bg);
 	box-shadow: inset 0 0 0 1px var(--pdk-menu-selection-border), var(--pdk-menu-selection-shadow);
-	color: var(--pdk-accent-ink);
+	color: var(--pdk-menu-selection-ink);
 	outline: none;
 }
 
 .pdk-menu-items button.is-active {
 	background: var(--pdk-menu-selection-active-bg);
+	color: var(--pdk-menu-selection-active-ink);
 }
 
 .pdk-menu-popover {

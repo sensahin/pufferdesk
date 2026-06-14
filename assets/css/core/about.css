@@ -62,6 +62,14 @@
 	line-height: 56px;
 }
 
+.pdk-about-content {
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	max-width: 100%;
+	min-width: 0;
+}
+
 .pdk-about h1 {
 	color: var(--pdk-about-title-color, var(--pdk-ink));
 	font-size: var(--pdk-text-body);
@@ -70,11 +78,21 @@
 	margin: 0 0 6px;
 }
 
+.pdk-about-description {
+	color: var(--pdk-about-text-color, var(--pdk-muted));
+	font-size: var(--pdk-text-fine-print);
+	font-weight: var(--pdk-weight-meta);
+	line-height: 1.25;
+	margin: 0 0 8px;
+	max-width: 100%;
+}
+
 .pdk-about-lines {
 	color: var(--pdk-about-text-color, var(--pdk-ink));
 	font-size: var(--pdk-text-fine-print);
 	font-weight: var(--pdk-weight-fine-print);
 	line-height: 1.14;
+	max-width: 100%;
 }
 
 .pdk-about-lines p {

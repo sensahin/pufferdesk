@@ -11,6 +11,7 @@
 	--pdk-accent: #2563eb;
 	--pdk-accent-rgb: 37 99 235;
 	--pdk-accent-ink: #fff;
+	--pdk-theme-default-accent-swatch: #2563eb;
 	--pdk-accent-soft: rgb(37 99 235 / 0.12);
 	--pdk-accent-medium: rgb(37 99 235 / 0.22);
 	--pdk-accent-active: #0f6cbd;
@@ -462,6 +463,14 @@
 	top: var(--pdk-sticky-note-header-height);
 	width: min(306px, 100%);
 	z-index: 4;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options[data-pdk-sticky-note-floating="1"] {
+	position: fixed;
+	right: auto;
+	top: auto;
+	width: min(306px, calc(100vw - 16px));
+	z-index: var(--pdk-layer-menu, 200);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-sticky-note-options-palette {

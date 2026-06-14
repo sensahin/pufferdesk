@@ -1,8 +1,5 @@
 .pdk-desktop {
-	background: var(--pdk-wallpaper-image), var(--pdk-desktop-bg);
-	background-position: var(--pdk-wallpaper-position), center, 0 0, 0 0, center;
-	background-repeat: var(--pdk-wallpaper-repeat), no-repeat, repeat, repeat, no-repeat;
-	background-size: var(--pdk-wallpaper-size), auto, 42px 42px, 42px 42px, auto;
+	background: transparent;
 	height: calc(100% - 48px);
 	overflow: hidden;
 	position: relative;

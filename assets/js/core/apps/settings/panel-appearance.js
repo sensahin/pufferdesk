@@ -7,7 +7,6 @@
 
 	const PERSONALIZATION_PANEL = 'appearance';
 	const COLORS_PANEL = 'personalization-colors';
-	const THEMES_PANEL = 'personalization-themes';
 	const TASKBAR_PANEL = 'personalization-taskbar';
 
 	window.PufferDesk.apps.settings.createAppearancePanel = function createAppearancePanel(ctx) {
@@ -22,72 +21,29 @@
 		return createWindowsColorsPanel(ctx);
 	};
 
-	window.PufferDesk.apps.settings.createPersonalizationThemesPanel = function createPersonalizationThemesPanel(ctx) {
-		return createWindowsThemesPanel(ctx);
-	};
-
 	function isWindowsSettings(ctx) {
 		return ctx.isWindowsSettingsLayout || ctx.settingsLayout === 'windows-settings';
 	}
 
 	function createClassicAppearancePanel(ctx) {
 		const {
-			config,
 			createAccentGroup,
-			createInlineSelect,
 			createOptionGroup,
 			createSection,
 			createSectionHeading,
 			createSettingsRow,
 			dom,
-			getThemeOptionLabel,
 			settingsLabels,
 			status,
-			t,
-			themeMode,
-			themeModes,
-			themes
+			t
 		} = ctx;
 		const capabilities = ctx.capabilities && typeof ctx.capabilities === 'object' ? ctx.capabilities : {};
 		const appearanceCapabilities = capabilities.appearance && typeof capabilities.appearance === 'object' ? capabilities.appearance : {};
-		const selectableThemes = Array.isArray(themes) && themes.length
-			? themes
-			: (config.theme && config.theme.id ? [config.theme] : []);
-		const selectableThemeModes = Array.isArray(themeModes) && themeModes.length
-			? themeModes
-			: settingsLabels.getOptions('appearance.themeModeOptions');
-		const currentThemeMode = typeof themeMode === 'string' && themeMode
-			? themeMode
-			: (config.themeMode || (config.theme && config.theme.id) || '');
 		const panel = dom.createElement('div', 'pdk-settings-pane-panel');
 		const appearanceSection = createSection('', 'pdk-settings-section-appearance');
-		const themeSection = createSection('', 'pdk-settings-section-theme');
+		const styleSection = createSection('', 'pdk-settings-section-theme');
 
 		panel.dataset.pdkSettingsPanel = PERSONALIZATION_PANEL;
-
-		function createThemePicker() {
-			const control = dom.createElement('span', 'pdk-settings-theme-control');
-			const themePicker = createInlineSelect({
-				className: 'pdk-settings-theme-select',
-				disabled: selectableThemeModes.length < 2,
-				options: selectableThemeModes.map((mode) => ({
-					label: mode.label || getThemeOptionLabel(selectableThemes.find((theme) => theme.id === mode.value) || {}),
-					value: mode.value
-				})),
-				onChange: (mode) => {
-					if (!mode || mode === currentThemeMode) {
-						return;
-					}
-
-					ctx.saveTheme(mode, status);
-				},
-				value: currentThemeMode
-			});
-
-			control.appendChild(themePicker.wrap);
-
-			return control;
-		}
 
 		appearanceSection.appendChild(createSettingsRow(
 			t('appearance.appearanceLabel'),
@@ -102,28 +58,20 @@
 			));
 		}
 
-		if (selectableThemeModes.length) {
-			themeSection.appendChild(createSettingsRow(
-				t('appearance.themeLabel'),
-				createThemePicker(),
-				'',
-				'pdk-settings-theme-row'
-			));
-		}
 		if (appearanceCapabilities.accentColor !== false) {
-			themeSection.appendChild(createSettingsRow(t('appearance.colorLabel'), createAccentGroup(status)));
+			styleSection.appendChild(createSettingsRow(t('appearance.colorLabel'), createAccentGroup(status)));
 		}
 		if (appearanceCapabilities.iconWidgetStyle !== false) {
-			themeSection.appendChild(createSettingsRow(
+			styleSection.appendChild(createSettingsRow(
 				t('appearance.iconWidgetStyleLabel'),
 				createOptionGroup('icon_widget_style', settingsLabels.getOptions('appearance.iconWidgetStyleOptions'), status, 'pdk-settings-icon-option', 'pdk-settings-icon-preview')
 			));
 		}
 
 		panel.appendChild(appearanceSection);
-		if (themeSection.children.length) {
+		if (styleSection.children.length) {
 			panel.appendChild(createSectionHeading(t('appearance.themeHeading')));
-			panel.appendChild(themeSection);
+			panel.appendChild(styleSection);
 		}
 
 		return panel;
@@ -147,15 +95,9 @@
 				panel: COLORS_PANEL
 			},
 			{
-				description: t(ctx, 'personalization.themesDescription', 'Install, create, manage'),
-				icon: 'dashicons-admin-appearance',
-				label: t(ctx, 'personalization.themesTitle', 'Themes'),
-				panel: THEMES_PANEL
-			},
-			{
-				description: t(ctx, 'personalization.taskbarDescription', 'Taskbar behaviors, system pins'),
+				description: t(ctx, 'personalization.taskbarDescription', 'Launcher behaviors, system pins'),
 				icon: 'dashicons-desktop',
-				label: t(ctx, 'personalization.taskbarTitle', 'Taskbar'),
+				label: t(ctx, 'personalization.taskbarTitle', 'Launcher'),
 				panel: TASKBAR_PANEL
 			}
 		];
@@ -194,7 +136,7 @@
 		if (appearanceCapabilities.windowMaterial !== false) {
 			section.appendChild(createPersonalizationControlRow(ctx, {
 				control: createAppearanceSelect(ctx, 'window_material', getOptions(ctx, 'appearance.materialOptions'), 'pdk-settings-personalization-select'),
-				description: t(ctx, 'appearance.materialDescription', 'Windows and surfaces appear translucent'),
+				description: t(ctx, 'appearance.materialDescription', 'Surfaces appear translucent'),
 				icon: 'dashicons-admin-customizer',
 				label: t(ctx, 'appearance.materialLabel', 'Transparency effects')
 			}));
@@ -207,28 +149,6 @@
 			}));
 		}
 
-		panel.appendChild(section);
-
-		return panel;
-	}
-
-	function createWindowsThemesPanel(ctx) {
-		const dom = ctx.dom;
-		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-personalization-panel pdk-settings-personalization-detail-panel pdk-settings-personalization-themes-panel');
-		const section = dom.createElement('section', 'pdk-settings-personalization-card pdk-settings-personalization-controls');
-
-		panel.dataset.pdkSettingsPanel = THEMES_PANEL;
-		panel.dataset.pdkSettingsSidebar = PERSONALIZATION_PANEL;
-		panel.dataset.pdkSettingsTitle = `${t(ctx, 'appearance.title', 'Personalization')} > ${t(ctx, 'personalization.themesTitle', 'Themes')}`;
-		panel.dataset.pdkSettingsTitleParent = t(ctx, 'appearance.title', 'Personalization');
-		panel.dataset.pdkSettingsTitleCurrent = t(ctx, 'personalization.themesTitle', 'Themes');
-		panel.appendChild(createPersonalizationPreview(ctx));
-		section.appendChild(createPersonalizationControlRow(ctx, {
-			control: createThemeSelect(ctx),
-			description: t(ctx, 'personalization.currentThemeDescription', 'Choose the theme used by this desktop.'),
-			icon: 'dashicons-admin-appearance',
-			label: t(ctx, 'personalization.currentThemeLabel', 'Current theme')
-		}));
 		panel.appendChild(section);
 
 		return panel;
@@ -317,37 +237,6 @@
 		});
 
 		return select.wrap;
-	}
-
-	function createThemeSelect(ctx) {
-		const selectableThemes = Array.isArray(ctx.themes) && ctx.themes.length
-			? ctx.themes
-			: (ctx.config.theme && ctx.config.theme.id ? [ctx.config.theme] : []);
-		const selectableThemeModes = Array.isArray(ctx.themeModes) && ctx.themeModes.length
-			? ctx.themeModes
-			: getOptions(ctx, 'appearance.themeModeOptions');
-		const currentThemeMode = typeof ctx.themeMode === 'string' && ctx.themeMode
-			? ctx.themeMode
-			: (ctx.config.themeMode || (ctx.config.theme && ctx.config.theme.id) || '');
-		const themePicker = ctx.createInlineSelect({
-			className: 'pdk-settings-personalization-select pdk-settings-theme-select',
-			disabled: selectableThemeModes.length < 2,
-			options: selectableThemeModes.map((mode) => ({
-				label: mode.label || ctx.getThemeOptionLabel(selectableThemes.find((theme) => theme.id === mode.value) || {}),
-				value: mode.value
-			})),
-			onChange: (mode, control) => {
-				if (!mode || mode === currentThemeMode) {
-					return;
-				}
-
-				ctx.saveTheme(mode, ctx.status);
-				control.blur();
-			},
-			value: currentThemeMode
-		});
-
-		return themePicker.wrap;
 	}
 
 	function applyWallpaperPreview(ctx, element) {

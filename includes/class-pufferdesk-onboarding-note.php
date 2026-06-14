@@ -178,7 +178,7 @@ final class PufferDesk_Onboarding_Note {
 			}
 
 			$family = isset( $theme['family'] ) ? sanitize_key( (string) $theme['family'] ) : '';
-			if ( in_array( $family, array( 'pufferdesk', 'redmond' ), true ) ) {
+			if ( in_array( $family, array( 'default', 'cupertino', 'redmond' ), true ) ) {
 				$targets[] = $theme;
 			}
 		}

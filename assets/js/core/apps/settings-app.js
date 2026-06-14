@@ -14,7 +14,7 @@
 		const surfaces = getThemeSurfaces(config);
 		const layout = typeof surfaces.settings === 'string' ? surfaces.settings : '';
 
-		return layout || 'pufferdesk-settings';
+		return layout || 'pufferdesk-hub';
 	}
 
 	window.PufferDesk.apps.createSettingsApp = function createSettingsApp(context = {}) {
@@ -34,8 +34,6 @@
 		const settingsUI = window.PufferDesk.apps.settings.createUI({ dom, labels: settingsLabels });
 		const getSettingAction = window.PufferDesk.config.getSettingAction.bind(window.PufferDesk.config);
 		const apps = Array.isArray(config.apps) ? config.apps : [];
-		const themes = Array.isArray(config.themes) ? config.themes : [];
-		const themeModes = Array.isArray(config.themeModes) ? config.themeModes : [];
 		const shell = document.querySelector('[data-pufferdesk-shell]');
 		const appSurfaceManager = window.PufferDesk.apps.createAppSurfaceManager(shell, config, {
 			apps
@@ -97,6 +95,7 @@
 		const t = settingsLabels.get;
 		const settingsLayout = getSettingsLayout(config);
 		const isWindowsSettingsLayout = settingsLayout === 'windows-settings';
+		const isPufferDeskHubLayout = settingsLayout === 'pufferdesk-hub';
 		const activeTheme = config.theme && typeof config.theme === 'object' ? config.theme : {};
 		const isRedmondSettingsLayout = isWindowsSettingsLayout
 			&& (activeTheme.family === 'redmond' || activeTheme.id === 'redmond/default');
@@ -382,16 +381,6 @@
 			}
 
 			paneTitle.textContent = title;
-		}
-
-		function getThemeOptionLabel(theme) {
-			const family = theme.family_label || theme.label || theme.family || t('appearance.themeFallbackLabel');
-			const version = theme.version_label || theme.version || '';
-			if (!version || theme.version === 'default') {
-				return family;
-			}
-
-			return settingsLabels.format(t('appearance.themeVersionFormat'), [family, version]);
 		}
 
 		function getWallpaperPreference() {
@@ -1714,38 +1703,14 @@
 			return header;
 		}
 
-		function saveTheme(themeMode, status) {
-			function showThemeSwitchOverlay() {
-				const dialogs = window.PufferDesk && window.PufferDesk.shellDialogs ? window.PufferDesk.shellDialogs : null;
-
-				if (dialogs && typeof dialogs.showBlockingOverlay === 'function') {
-					dialogs.showBlockingOverlay(t('status.themeSwitching'));
-				}
-			}
-
-			mutations.post({
-				action: getSettingAction('THEME'),
-				errorText: t('status.themeSaveError'),
-				onSuccess() {
-					showThemeSwitchOverlay();
-					window.setTimeout(() => {
-						window.location.href = config.shellUrl || window.location.href;
-					}, 320);
-
-					return t('status.themeSaved');
-				},
-				payload: {
-					theme_mode: themeMode
-				},
-				status
-			});
-			}
-
 			const content = dom.createElement('div', 'pdk-settings');
 			settingsRoot = content;
 			content.dataset.pdkSettingsLayout = settingsLayout;
 			if (isWindowsSettingsLayout) {
 				content.classList.add('pdk-settings-windows');
+			}
+			if (isPufferDeskHubLayout) {
+				content.classList.add('pdk-settings-hub');
 			}
 			const main = dom.createElement('div', 'pdk-settings-main');
 			const pane = dom.createElement('div', 'pdk-settings-pane');
@@ -1785,21 +1750,16 @@
 				getCurrentWallpaper: getWallpaperCurrent,
 				getGeneralSettingsConfig,
 				getSettingsUsage,
-				getThemeOptionLabel,
 				getUserProfile,
 				getWallpaperGroup,
 				isWindowsSettingsLayout,
 				mutations,
 				openSettingsPanel: openSettingsSubpanel,
-				saveTheme,
 				selectWallpaperItem,
 				settingsLabels,
 				settingsLayout,
 				status,
 				t,
-				themeMode: typeof config.themeMode === 'string' ? config.themeMode : '',
-				themeModes,
-				themes,
 				updateAppearance,
 				updateRangeFill
 			};
@@ -1810,9 +1770,6 @@
 			pane.appendChild(settingsPanels.createAppearancePanel(panelContext));
 			if (isWindowsSettingsLayout && typeof settingsPanels.createPersonalizationColorsPanel === 'function') {
 				pane.appendChild(settingsPanels.createPersonalizationColorsPanel(panelContext));
-			}
-			if (isWindowsSettingsLayout && typeof settingsPanels.createPersonalizationThemesPanel === 'function') {
-				pane.appendChild(settingsPanels.createPersonalizationThemesPanel(panelContext));
 			}
 			if (isWindowsSettingsLayout && typeof settingsPanels.createPersonalizationTaskbarPanel === 'function') {
 				pane.appendChild(settingsPanels.createPersonalizationTaskbarPanel(panelContext));
@@ -1865,14 +1822,14 @@
 				const appTitle = typeof labels.appTitle === 'string' && labels.appTitle ? labels.appTitle : settingsLabels.get('appTitle');
 
 			return {
-				bodyClass: `pdk-window-body pdk-settings-body${isWindowsLayout ? ' pdk-settings-windows-body' : ''}`,
+				bodyClass: `pdk-window-body pdk-settings-body${isWindowsLayout ? ' pdk-settings-windows-body' : ''}${layout === 'pufferdesk-hub' ? ' pdk-settings-hub-body' : ''}`,
 				contextMenu: false,
 				content: window.PufferDesk.apps.createSettingsApp({ config }),
-				height: isWindowsLayout ? '760px' : '680px',
-				resizeMode: isWindowsLayout ? 'both' : 'vertical',
+				height: isWindowsLayout ? '760px' : (layout === 'pufferdesk-hub' ? '690px' : '680px'),
+				resizeMode: isWindowsLayout || layout === 'pufferdesk-hub' ? 'both' : 'vertical',
 				surfaceLayout: layout,
-				titlebarLabel: isWindowsLayout ? appTitle : '',
-				width: isWindowsLayout ? '1024px' : '725px'
+				titlebarLabel: isWindowsLayout || layout === 'pufferdesk-hub' ? appTitle : '',
+				width: isWindowsLayout ? '1024px' : (layout === 'pufferdesk-hub' ? '840px' : '725px')
 			};
 		});
 	}

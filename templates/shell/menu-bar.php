@@ -73,17 +73,17 @@ if ( ! $pufferdesk_show_status ) {
 			<button type="button"><?php echo esc_html( $pufferdesk_get_label( PufferDesk_App_Menu_Normalizer::GROUP_HELP ) ); ?></button>
 		</nav>
 	<?php endif; ?>
-	<?php if ( $pufferdesk_show_search ) : ?>
-		<label class="pdk-search" for="pdk-search-input">
-			<svg class="pdk-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-				<circle cx="11" cy="11" r="6.5" />
-				<path d="m16 16 4 4" />
-			</svg>
-			<input id="pdk-search-input" type="search" placeholder="<?php echo esc_attr( $pufferdesk_get_label( 'search_apps' ) ); ?>" autocomplete="off" data-pdk-search />
-		</label>
-	<?php endif; ?>
 	<?php if ( $pufferdesk_show_status ) : ?>
 		<div class="pdk-status-area" aria-label="<?php echo esc_attr( $pufferdesk_get_label( 'status' ) ); ?>">
+			<?php if ( $pufferdesk_show_search ) : ?>
+				<label class="pdk-search pdk-search-status" for="pdk-search-input">
+					<svg class="pdk-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+						<circle cx="11" cy="11" r="6.5" />
+						<path d="m16 16 4 4" />
+					</svg>
+					<input id="pdk-search-input" type="search" placeholder="<?php echo esc_attr( $pufferdesk_get_label( 'search_apps' ) ); ?>" autocomplete="off" data-pdk-search />
+				</label>
+			<?php endif; ?>
 			<span class="pdk-sound-status-slot" data-pdk-sound-status></span>
 			<button type="button" class="pdk-notification-button" data-pdk-notification-toggle aria-label="<?php echo esc_attr( $pufferdesk_notifications['open'] ); ?>">
 				<svg class="pdk-notification-button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -93,5 +93,13 @@ if ( ! $pufferdesk_show_status ) {
 			</button>
 			<div class="pdk-clock" data-pdk-clock><?php echo esc_html( date_i18n( 'D M j H:i' ) ); ?></div>
 		</div>
+	<?php elseif ( $pufferdesk_show_search ) : ?>
+		<label class="pdk-search" for="pdk-search-input">
+			<svg class="pdk-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+				<circle cx="11" cy="11" r="6.5" />
+				<path d="m16 16 4 4" />
+			</svg>
+			<input id="pdk-search-input" type="search" placeholder="<?php echo esc_attr( $pufferdesk_get_label( 'search_apps' ) ); ?>" autocomplete="off" data-pdk-search />
+		</label>
 	<?php endif; ?>
 </header>

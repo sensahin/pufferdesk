@@ -174,7 +174,7 @@ final class PufferDesk_Settings_Registry {
 				'preference_key' => PufferDesk_User_Preferences::META_THEME,
 				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_THEME,
 				'sanitizer'    => 'PufferDesk_User_Preferences::set_theme_mode',
-				'default'      => PufferDesk_User_Preferences::THEME_MODE_AUTO,
+				'default'      => PufferDesk_User_Preferences::THEME_MODE_DEFAULT,
 				'options'      => $this->preferences->get_theme_mode_options(),
 			),
 			self::DOMAIN_WALLPAPER => array(

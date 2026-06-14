@@ -161,11 +161,12 @@ final class PufferDesk_App_Normalizer {
 		$rights    = __( 'Licensed under GPLv2 or later.', 'pufferdesk-admin-desktop' );
 
 		return array(
-			'name'      => '' !== $name ? $name : __( 'WordPress', 'pufferdesk-admin-desktop' ),
-			'version'   => $version,
-			'copyright' => $copyright,
-			'rights'    => $rights,
-			'lines'     => array(
+			'name'        => '' !== $name ? $name : __( 'WordPress', 'pufferdesk-admin-desktop' ),
+			'description' => __( 'WordPress core feature.', 'pufferdesk-admin-desktop' ),
+			'version'     => $version,
+			'copyright'   => $copyright,
+			'rights'      => $rights,
+			'lines'       => array(
 				$version,
 				$copyright,
 				$rights,
@@ -429,6 +430,9 @@ final class PufferDesk_App_Normalizer {
 		$year  = gmdate( 'Y' );
 		$icon  = isset( $about['icon'] ) ? PufferDesk_Icon_Renderer::normalize( $about['icon'] ) : $fallback_icon;
 		$lines = array();
+		$description = array_key_exists( 'description', $about )
+			? sanitize_text_field( (string) $about['description'] )
+			: '';
 
 		if ( ! empty( $about['lines'] ) && is_array( $about['lines'] ) ) {
 			foreach ( $about['lines'] as $line ) {
@@ -440,19 +444,20 @@ final class PufferDesk_App_Normalizer {
 		}
 
 		return array(
-			'name'      => $name,
-			'version'   => array_key_exists( 'version', $about )
+			'name'        => $name,
+			'description' => $description,
+			'version'     => array_key_exists( 'version', $about )
 				? sanitize_text_field( (string) $about['version'] )
 				: self::format_about_version( PUFFERDESK_VERSION ),
-			'copyright' => array_key_exists( 'copyright', $about )
+			'copyright'   => array_key_exists( 'copyright', $about )
 				? sanitize_text_field( (string) $about['copyright'] )
 				: sprintf(
 					self::get_default_about_label( 'copyright' ),
 					$year
 				),
-			'rights'    => array_key_exists( 'rights', $about ) ? sanitize_text_field( (string) $about['rights'] ) : self::get_default_about_label( 'rights' ),
-			'lines'     => $lines,
-			'icon'      => $icon,
+			'rights'      => array_key_exists( 'rights', $about ) ? sanitize_text_field( (string) $about['rights'] ) : self::get_default_about_label( 'rights' ),
+			'lines'       => $lines,
+			'icon'        => $icon,
 		);
 	}
 }
