@@ -28,6 +28,37 @@
 			&& url.pathname.indexOf(adminUrl.pathname.replace(/\/$/, '')) === 0;
 	}
 
+	function getLinkUrl(value) {
+		if (isSkippableUrl(value)) {
+			return null;
+		}
+
+		try {
+			return new URL(value, window.location.href);
+		} catch (error) {
+			return null;
+		}
+	}
+
+	function shouldLeaveIframe(url) {
+		return url
+			&& (url.protocol === 'http:' || url.protocol === 'https:')
+			&& !isAdminUrl(url);
+	}
+
+	function ensureExternalLink(link) {
+		const relValues = String(link.getAttribute('rel') || '')
+			.split(/\s+/)
+			.filter(Boolean);
+		const relSet = new Set(relValues);
+
+		relSet.add('noopener');
+		relSet.add('noreferrer');
+
+		link.setAttribute('target', '_blank');
+		link.setAttribute('rel', Array.from(relSet).join(' '));
+	}
+
 	function withIframeParam(value) {
 		if (isSkippableUrl(value)) {
 			return '';
@@ -64,12 +95,22 @@
 			return;
 		}
 
+		const href = link.getAttribute('href') || '';
+		const linkUrl = getLinkUrl(href);
 		const target = String(link.getAttribute('target') || '').trim().toLowerCase();
 		if (target && target !== '_self') {
+			if (shouldLeaveIframe(linkUrl)) {
+				ensureExternalLink(link);
+			}
 			return;
 		}
 
-		const next = withIframeParam(link.getAttribute('href') || '');
+		if (shouldLeaveIframe(linkUrl)) {
+			ensureExternalLink(link);
+			return;
+		}
+
+		const next = withIframeParam(href);
 		if (next) {
 			link.setAttribute('href', next);
 		}
