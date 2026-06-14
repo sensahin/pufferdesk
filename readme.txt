@@ -43,13 +43,17 @@ No. PufferDesk wraps existing admin screens where possible so WordPress and plug
 
 Yes. Use the Classic Admin option in PufferDesk, or open `/wp-admin/index.php?pufferdesk_classic=1`.
 
-= Are the bundled assets release-safe? =
+= Will my existing plugins still work? =
 
-Yes. Bundled icons, wallpapers, and sounds are original or release-safe. See `THIRD-PARTY-ASSETS.txt` and `THIRD-PARTY-NOTICES.txt`.
+Most should. PufferDesk opens existing WordPress admin screens inside windows, so plugin admin pages usually continue to run as normal.
 
-= Where are the readable sources for bundled assets? =
+= Can each user customize their own workspace? =
 
-Readable CSS and JavaScript sources are included in `assets/css/` and `assets/js/`. Minified release assets are generated in `assets/dist/`, and `assets/dist/SOURCES.md` lists the source files used to build them.
+Yes. Theme, layout, launcher placement, widgets, folders, and other workspace preferences are saved per WordPress user.
+
+= What if an admin screen does not behave well in a window? =
+
+Use Classic Admin for that screen. PufferDesk is designed to keep the normal WordPress admin available as a fallback.
 
 == Changelog ==
 

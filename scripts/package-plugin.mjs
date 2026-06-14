@@ -17,6 +17,8 @@ const ignoredTopLevel = new Set([
 	'.gitignore',
 	'AGENTS.md',
 	'README.md',
+	'THIRD-PARTY-ASSETS.txt',
+	'THIRD-PARTY-NOTICES.txt',
 	'docs',
 	'node_modules',
 	'release'
