@@ -593,6 +593,19 @@
 			return items;
 		}
 
+		function appendOpenInBrowserTabItem(items, app, options = {}) {
+			if (!app || !app.url) {
+				return items;
+			}
+
+			items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, Object.assign({
+				title: app.label || '',
+				url: app.url
+			}, options)));
+
+			return items;
+		}
+
 		function folderToolbarDisplayItem(label, mode, detail = {}) {
 			const active = getFolderToolbarDisplayMode(detail) === mode;
 
@@ -629,17 +642,12 @@
 					target: app.id
 				})
 			];
+			appendOpenInBrowserTabItem(items, app, {
+				icon: 'dashicons-external'
+			});
 			appendAppRouteItems(items, app, {
 				icon: 'dashicons-admin-links'
 			});
-
-			if (app.url) {
-				items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {
-					icon: 'dashicons-external',
-					title: app.label || '',
-					url: app.url
-				}));
-			}
 
 			if (folderId && isUserFolder(folderId)) {
 				items.push(commandItem(getLabel('remove_from_folder'), commandIds.FOLDER_REMOVE_APP, {
@@ -768,14 +776,8 @@
 					target: app.id
 				}));
 			}
+			appendOpenInBrowserTabItem(items, app);
 			appendAppRouteItems(items, app);
-
-			if (app.url) {
-				items.push(commandItem(getLabel('open_in_browser_tab'), commandIds.WINDOW_OPEN_BROWSER_TAB, {
-					title: app.label || '',
-					url: app.url
-				}));
-			}
 
 			if (!isFixedDockApp(app)) {
 				items.push(
