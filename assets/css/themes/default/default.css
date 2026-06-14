@@ -208,8 +208,31 @@
 	--pdk-clock-widget-shadow: 0 18px 44px rgba(17, 35, 42, 0.14), 0 1px 0 rgba(255, 255, 255, 0.62) inset;
 	--pdk-clock-widget-time: #17242b;
 	--pdk-clock-widget-date: rgba(23, 36, 43, 0.6);
-	--pdk-sticky-note-default-width: 348px;
-	--pdk-sticky-note-default-height: 276px;
+	--pdk-sticky-note-bg: rgb(255 248 166);
+	--pdk-sticky-note-body-bg: transparent;
+	--pdk-sticky-note-border: rgb(20 20 20 / 0.96);
+	--pdk-sticky-note-caret: #050505;
+	--pdk-sticky-note-collapsed-min-height: 18px;
+	--pdk-sticky-note-content-padding: 6px 10px 18px;
+	--pdk-sticky-note-default-height: 204px;
+	--pdk-sticky-note-default-width: 304px;
+	--pdk-sticky-note-expanded-min-height: 96px;
+	--pdk-sticky-note-font-size: 14px;
+	--pdk-sticky-note-font-weight: 400;
+	--pdk-sticky-note-header-bg: rgb(248 231 35 / 0.86);
+	--pdk-sticky-note-header-height: 14px;
+	--pdk-sticky-note-header-padding: 0 10px;
+	--pdk-sticky-note-ink: #050505;
+	--pdk-sticky-note-line-height: 1.32;
+	--pdk-sticky-note-min-height: 96px;
+	--pdk-sticky-note-min-width: 180px;
+	--pdk-sticky-note-placeholder: transparent;
+	--pdk-sticky-note-radius: 0;
+	--pdk-sticky-note-shadow: 12px 14px 20px rgb(0 0 0 / 0.22);
+	--pdk-sticky-note-symbol: rgb(143 119 0);
+	--pdk-sticky-note-safe-top-offset: -2px;
+	--pdk-sticky-note-toolbar-display: none;
+	--pdk-sticky-note-toolbar-height: 0px;
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] {
@@ -2107,6 +2130,67 @@
 	--pdk-sticky-note-menu-radius: 9px;
 	--pdk-sticky-note-menu-shadow: 0 18px 38px rgba(17, 35, 42, 0.2);
 	--pdk-sticky-note-menu-width: 238px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note {
+	border-width: 2px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-new,
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-menu,
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-close {
+	display: none;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-actions {
+	gap: 3px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-discard,
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-fullscreen,
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-collapse {
+	color: var(--pdk-sticky-note-symbol);
+	display: inline-flex;
+	height: 14px;
+	position: relative;
+	width: 12px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-discard::before,
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-fullscreen::before,
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-collapse::before {
+	background-color: transparent;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: contain;
+	content: "";
+	display: block;
+	filter: drop-shadow(0 1px 0 rgb(255 255 255 / 0.55));
+	height: 10px;
+	mask-image: none;
+	width: 10px;
+	-webkit-mask-image: none;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-discard::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1.9' y='1.9' width='12.2' height='12.2' fill='%23fff8b8' stroke='%238f7700' stroke-width='1.55'/%3E%3C/svg%3E");
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-fullscreen::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 14H14V2Z' fill='%23fff8b8' stroke='%238f7700' stroke-linejoin='miter' stroke-width='1.55'/%3E%3C/svg%3E");
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note-collapse::before {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='2.1' y='3.85' width='11.8' height='2.35' fill='%23fff8b8' stroke='%238f7700' stroke-width='.85'/%3E%3Crect x='2.1' y='9.15' width='11.8' height='2.35' fill='%23fff8b8' stroke='%238f7700' stroke-width='.85'/%3E%3C/svg%3E");
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note.is-collapsed {
+	box-shadow: 8px 8px 15px rgb(0 0 0 / 0.18);
+	min-height: var(--pdk-sticky-note-collapsed-min-height, 18px);
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-sticky-note.is-collapsed .pdk-sticky-note-fullscreen {
+	display: none;
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-menu-bar-background="0"] .pdk-menu-bar {

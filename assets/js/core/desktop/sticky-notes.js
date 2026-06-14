@@ -21,14 +21,6 @@
 		const labels = getLabels(config);
 		const desktop = shell ? shell.querySelector('.pdk-desktop') : null;
 		const documentStore = options.documentStore || (window.PufferDesk.documents ? window.PufferDesk.documents.createDocumentStore(config) : null);
-		const dragDropManager = options.dragDropManager || window.PufferDesk.dragDropManager || null;
-		const dragDropConstants = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.constants ? window.PufferDesk.dragDrop.constants : {};
-		const dragDropModels = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.models ? window.PufferDesk.dragDrop.models : null;
-		const containerTypes = dragDropConstants.containerTypes || {};
-		const itemTypes = dragDropConstants.itemTypes || {};
-		const virtualFilesystem = window.PufferDesk.virtualFilesystem && typeof window.PufferDesk.virtualFilesystem.create === 'function'
-			? window.PufferDesk.virtualFilesystem.create(config)
-			: null;
 		const sessionStore = window.PufferDesk.session && typeof window.PufferDesk.session.createSessionStore === 'function'
 			? window.PufferDesk.session.createSessionStore(options.storageKey || config.storageKey || '')
 			: null;
@@ -88,7 +80,6 @@
 		let restorePromise = null;
 		let highestZ = 40;
 		let transientNoteId = 0;
-		let activeDocumentDropTarget = null;
 
 		function isRedmondTheme() {
 			const theme = config.theme && typeof config.theme === 'object' ? config.theme : {};
@@ -788,137 +779,6 @@
 			syncStickyFullscreenSource(noteElement);
 		}
 
-		function clearDocumentDropTarget() {
-			if (activeDocumentDropTarget) {
-				activeDocumentDropTarget.classList.remove('is-drop-target');
-				activeDocumentDropTarget = null;
-			}
-		}
-
-		function setDocumentDropTarget(target) {
-			if (activeDocumentDropTarget === target) {
-				return;
-			}
-
-			clearDocumentDropTarget();
-			activeDocumentDropTarget = target || null;
-			if (activeDocumentDropTarget) {
-				activeDocumentDropTarget.classList.add('is-drop-target');
-			}
-		}
-
-		function getDocumentSourceFolderId(entry) {
-			const parentPath = entry && entry.document && typeof entry.document.parentPath === 'string'
-				? entry.document.parentPath
-				: '';
-
-			return parentPath && virtualFilesystem && typeof virtualFilesystem.getFolderIdForPath === 'function'
-				? virtualFilesystem.getFolderIdForPath(parentPath)
-				: '';
-		}
-
-		function getDocumentSourceContainerId(entry) {
-			const folderId = getDocumentSourceFolderId(entry);
-			const desktopFolderId = virtualFilesystem && typeof virtualFilesystem.getFolderId === 'function'
-				? virtualFilesystem.getFolderId('DESKTOP')
-				: '';
-
-			return folderId && folderId !== desktopFolderId && dragDropModels
-				? dragDropModels.createContainerId(containerTypes.FOLDER, folderId)
-				: containerTypes.DESKTOP || 'desktop';
-		}
-
-		function getStickyDocumentDragItem(entry) {
-			const documentId = entry && entry.document ? Number.parseInt(entry.document.id, 10) : 0;
-
-			if (!isPersistedDocumentId(documentId)) {
-				return null;
-			}
-
-			return {
-				id: `document-${documentId}`,
-				label: entry.document.title || getLabel('stickyNote'),
-				metadata: {
-					documentId,
-					parentPath: entry.document.parentPath || '',
-					source: 'sticky-note',
-					sourceFolderId: getDocumentSourceFolderId(entry)
-				},
-				sourceContainerId: getDocumentSourceContainerId(entry),
-				type: itemTypes.DOCUMENT || 'document'
-			};
-		}
-
-		function getFolderDropIdFromElement(element) {
-			return element && element.dataset
-				? element.dataset.pdkOpenFolder || element.dataset.pdkContextId || ''
-				: '';
-		}
-
-		function getElementBelowNote(noteElement, clientX, clientY) {
-			if (typeof document.elementFromPoint !== 'function' || !noteElement) {
-				return null;
-			}
-
-			const previousPointerEvents = noteElement.style.pointerEvents;
-
-			noteElement.style.pointerEvents = 'none';
-			const element = document.elementFromPoint(clientX, clientY);
-			noteElement.style.pointerEvents = previousPointerEvents || '';
-
-			return element;
-		}
-
-		function getStickyNoteDropTarget(noteElement, entry, clientX, clientY) {
-			if (!dragDropManager || !dragDropModels || typeof dragDropManager.validateDrop !== 'function') {
-				return null;
-			}
-
-			const item = getStickyDocumentDragItem(entry);
-			const element = getElementBelowNote(noteElement, clientX, clientY);
-			const folderElement = element && typeof element.closest === 'function'
-				? element.closest('.pdk-folder-launcher, [data-pdk-desktop-icon-kind="folder"]')
-				: null;
-			const pane = element && typeof element.closest === 'function'
-				? element.closest('.pdk-finder-pane')
-				: null;
-			let targetElement = null;
-			let folderId = '';
-
-			if (!item || !element) {
-				return null;
-			}
-
-			if (folderElement && !noteElement.contains(folderElement)) {
-				targetElement = folderElement;
-				folderId = getFolderDropIdFromElement(folderElement);
-			} else if (pane) {
-				const win = pane.closest('.pdk-window[data-pdk-window-kind="folder"]');
-
-				targetElement = pane;
-				folderId = win && win.dataset ? win.dataset.pdkFolderWindow || '' : '';
-			}
-
-			if (!targetElement || !folderId) {
-				return null;
-			}
-
-			const toContainerId = dragDropModels.createContainerId(containerTypes.FOLDER, folderId);
-			const move = {
-				fromContainerId: item.sourceContainerId,
-				item,
-				toContainerId
-			};
-			const validation = dragDropManager.validateDrop(move, {
-				emit: false
-			});
-
-			return validation && validation.valid ? {
-				element: targetElement,
-				move
-			} : null;
-		}
-
 		function createIconButton(className, label, text) {
 			const button = document.createElement('button');
 			button.className = className;
@@ -957,6 +817,10 @@
 			}
 
 			return Boolean(editor && String(editor.value || '').trim());
+		}
+
+		function entryHasContent(entry) {
+			return Boolean(entry && entry.content && editorHasContent(entry.content));
 		}
 
 		function createFormatToolbar(className) {
@@ -1642,11 +1506,15 @@
 				return entry.pendingSave.then(() => confirmDiscardNote(entry));
 			}
 
-			if (isUnsavedEntry(entry) && (!entry.content || !editorHasContent(entry.content))) {
+			if (isUnsavedEntry(entry) && !entryHasContent(entry)) {
 				return deleteNote(entry.document.id);
 			}
 
 			if (!isUnsavedEntry(entry) && !hasUnsavedChanges(entry)) {
+				if (shouldAskOnFirstSave() && !entryHasContent(entry)) {
+					return deleteNote(entry.document.id);
+				}
+
 				return Promise.resolve(hideNote(entry.document.id));
 			}
 
@@ -1745,8 +1613,6 @@
 
 		function bindDrag(noteElement, dragHandle, entry) {
 			let dragState = null;
-			let currentDropTarget = null;
-			let platformDragStarted = false;
 			const dragThreshold = 3;
 
 			bindNoteTitlebarDoubleClick(entry, dragHandle);
@@ -1767,12 +1633,6 @@
 					noteElement.classList.add('is-dragging');
 					delete noteElement.dataset.pdkRightAnchor;
 					elevateForDrag(noteElement);
-					if (dragDropManager && typeof dragDropManager.startDrag === 'function') {
-						platformDragStarted = Boolean(dragDropManager.startDrag(getStickyDocumentDragItem(entry), {
-							element: noteElement,
-							source: 'sticky-note'
-						}));
-					}
 				}
 
 				const desktopRect = desktop.getBoundingClientRect();
@@ -1784,48 +1644,19 @@
 
 				noteElement.style.left = `${Math.round(nextLeft)}px`;
 				noteElement.style.top = `${Math.round(nextTop)}px`;
-
-				currentDropTarget = getStickyNoteDropTarget(noteElement, entry, event.clientX, event.clientY);
-				setDocumentDropTarget(currentDropTarget ? currentDropTarget.element : null);
-				if (platformDragStarted && dragDropManager) {
-					if (currentDropTarget && typeof dragDropManager.hover === 'function') {
-						dragDropManager.hover(Object.assign({}, currentDropTarget.move, {
-							position: {
-								clientX: event.clientX,
-								clientY: event.clientY
-							}
-						}));
-					} else if (typeof dragDropManager.leave === 'function') {
-						dragDropManager.leave();
-					}
-				}
 			}
 
-			function finishDrag(event, commitDrop) {
+			function finishDrag() {
 				if (!dragState) {
 					return;
 				}
 
 				const didDrag = dragState.started;
-				const dropTarget = currentDropTarget;
 				dragState = null;
-				currentDropTarget = null;
 				noteElement.classList.remove('is-dragging');
 				if (layer) {
 					layer.style.zIndex = '';
 				}
-				clearDocumentDropTarget();
-				if (didDrag && commitDrop && dropTarget && dragDropManager && typeof dragDropManager.completeDrop === 'function') {
-					dragDropManager.completeDrop(Object.assign({}, dropTarget.move, {
-						position: {
-							clientX: event && Number.isFinite(event.clientX) ? event.clientX : 0,
-							clientY: event && Number.isFinite(event.clientY) ? event.clientY : 0
-						}
-					}));
-				} else if (platformDragStarted && dragDropManager && typeof dragDropManager.cancel === 'function') {
-					dragDropManager.cancel('no-drop-target');
-				}
-				platformDragStarted = false;
 				if (didDrag) {
 					saveLayout();
 				}
@@ -1834,12 +1665,12 @@
 				window.removeEventListener('pointercancel', onPointerCancel);
 			}
 
-			function onPointerUp(event) {
-				finishDrag(event, true);
+			function onPointerUp() {
+				finishDrag();
 			}
 
-			function onPointerCancel(event) {
-				finishDrag(event, false);
+			function onPointerCancel() {
+				finishDrag();
 			}
 
 			dragHandle.addEventListener('pointerdown', (event) => {

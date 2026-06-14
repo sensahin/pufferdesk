@@ -87,7 +87,7 @@ final class PufferDesk_Theme_Registry {
 					),
 				),
 					'documents'      => array(
-						'stickyNoteSavePolicy' => 'default-location',
+						'stickyNoteSavePolicy' => 'ask-on-first-save',
 					),
 					'surfaces'       => array(
 						'settings' => 'pufferdesk-hub',
