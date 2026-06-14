@@ -57,24 +57,8 @@ async function copyDirectory(source, target) {
 	}
 }
 
-async function renameMainPluginFile() {
-	const oldMainFile = path.join(stagingRoot, 'pufferdesk-admin-desktop.php');
-	const newMainFile = path.join(stagingRoot, `${pluginSlug}.php`);
-
-	try {
-		await fs.rename(oldMainFile, newMainFile);
-	} catch (error) {
-		if (error && error.code === 'ENOENT') {
-			return;
-		}
-
-		throw error;
-	}
-}
-
 await fs.rm(releaseDir, { recursive: true, force: true });
 await copyDirectory(root, stagingRoot);
-await renameMainPluginFile();
 await execFileAsync('zip', ['-qr', zipPath, pluginSlug], { cwd: releaseDir });
 
 console.log(`Created ${zipPath}`);

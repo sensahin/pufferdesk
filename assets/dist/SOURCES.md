@@ -2,7 +2,7 @@
 
 Generated release assets are minified for performance. Readable source files and build scripts are maintained at:
 
-https://github.com/sensahin/pufferdesk-admin-desktop
+https://github.com/sensahin/pufferdesk
 
 The release zip ships compiled assets from the source files listed below.
 

@@ -224,7 +224,7 @@ Release assets are generated into `assets/dist/`:
 
 - `assets/dist/css/pufferdesk-core.min.css`
 - `assets/dist/css/themes/{family}/{version}.min.css`
-- `assets/dist/js/pufferdesk-admin-desktop.min.js`
+- `assets/dist/js/pufferdesk.min.js`
 - `assets/dist/SOURCES.md`
 
 WordPress uses source assets when `SCRIPT_DEBUG` is enabled or when dist files are missing. Otherwise it uses the minified release assets for fewer requests.
@@ -242,7 +242,7 @@ The project owner's local WordPress environment is available at:
 
 ```text
 https://newwp:7890/wp-admin/
-https://newwp:7890/wp-admin/admin.php?page=pufferdesk-admin-desktop
+https://newwp:7890/wp-admin/admin.php?page=pufferdesk
 ```
 
 Private local login details, database constants, WP-CLI socket configuration, and the detailed browser smoke checklist are documented in `AGENTS.md`. `AGENTS.md` is intentionally excluded from release packaging, so do not duplicate local passwords or machine-only credentials in this README.
@@ -267,22 +267,22 @@ Theme shell chrome is data-driven. A theme can declare its shell model and runti
 
 ```php
 'app_labels' => array(
-	'trash' => __( 'Removed Items', 'pufferdesk-admin-desktop' ),
+	'trash' => __( 'Removed Items', 'pufferdesk' ),
 ),
 'menu' => array(
 	'labels' => array(
-		'trash'             => __( 'Removed Items', 'pufferdesk-admin-desktop' ),
-		'empty_trash'       => __( 'Empty Removed Items', 'pufferdesk-admin-desktop' ),
-		'empty_trash_title' => __( 'Empty Removed Items?', 'pufferdesk-admin-desktop' ),
-		'get_info'          => __( 'Details', 'pufferdesk-admin-desktop' ),
+		'trash'             => __( 'Removed Items', 'pufferdesk' ),
+		'empty_trash'       => __( 'Empty Removed Items', 'pufferdesk' ),
+		'empty_trash_title' => __( 'Empty Removed Items?', 'pufferdesk' ),
+		'get_info'          => __( 'Details', 'pufferdesk' ),
 	),
 ),
 'info_panel' => array(
 	'labels' => array(
-		'kindLabel'     => __( 'Item type', 'pufferdesk-admin-desktop' ),
-		'whereLabel'    => __( 'Path', 'pufferdesk-admin-desktop' ),
-		'modifiedLabel' => __( 'Updated', 'pufferdesk-admin-desktop' ),
-		'moreInfoLabel' => __( 'Open details', 'pufferdesk-admin-desktop' ),
+		'kindLabel'     => __( 'Item type', 'pufferdesk' ),
+		'whereLabel'    => __( 'Path', 'pufferdesk' ),
+		'modifiedLabel' => __( 'Updated', 'pufferdesk' ),
+		'moreInfoLabel' => __( 'Open details', 'pufferdesk' ),
 	),
 ),
 'shell' => array(
@@ -311,11 +311,11 @@ Theme shell chrome is data-driven. A theme can declare its shell model and runti
 		'trash' => 'desktop',
 	),
 	'labels'                => array(
-		'launcher'             => __( 'Launcher', 'pufferdesk-admin-desktop' ),
-		'desktop_launcher'     => __( 'Desktop & Launcher', 'pufferdesk-admin-desktop' ),
-		'launcher_and_desktop' => __( 'Launcher & Desktop', 'pufferdesk-admin-desktop' ),
-		'keep_in_launcher'     => __( 'Keep in Launcher', 'pufferdesk-admin-desktop' ),
-		'remove_from_launcher' => __( 'Remove from Launcher', 'pufferdesk-admin-desktop' ),
+		'launcher'             => __( 'Launcher', 'pufferdesk' ),
+		'desktop_launcher'     => __( 'Desktop & Launcher', 'pufferdesk' ),
+		'launcher_and_desktop' => __( 'Launcher & Desktop', 'pufferdesk' ),
+		'keep_in_launcher'     => __( 'Keep in Launcher', 'pufferdesk' ),
+		'remove_from_launcher' => __( 'Remove from Launcher', 'pufferdesk' ),
 	),
 ),
 ```
@@ -344,9 +344,9 @@ Window chrome is also theme metadata. Core still owns window behavior, but theme
 		'order'     => array( 'close', 'minimize', 'maximize' ),
 		'style'     => 'traffic',
 		'labels'    => array(
-			'close'    => __( 'Close', 'pufferdesk-admin-desktop' ),
-			'minimize' => __( 'Minimize', 'pufferdesk-admin-desktop' ),
-			'maximize' => __( 'Maximize', 'pufferdesk-admin-desktop' ),
+			'close'    => __( 'Close', 'pufferdesk' ),
+			'minimize' => __( 'Minimize', 'pufferdesk' ),
+			'maximize' => __( 'Maximize', 'pufferdesk' ),
 		),
 	),
 	'title'    => array(

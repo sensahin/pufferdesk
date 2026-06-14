@@ -14,7 +14,7 @@ const distAdminChromeCss = assetManifest.dist?.adminChromeCss || 'assets/dist/cs
 const distCoreCss = assetManifest.dist?.coreCss || 'assets/dist/css/pufferdesk-core.min.css';
 const distIframeScript = assetManifest.dist?.iframeScript || 'assets/dist/js/pufferdesk-admin-iframe.min.js';
 const distScript = assetManifest.dist?.script || 'assets/dist/js/pufferdesk.min.js';
-const sourceRepository = 'https://github.com/sensahin/pufferdesk-admin-desktop';
+const sourceRepository = 'https://github.com/sensahin/pufferdesk';
 
 function readManifestSources(entries, key) {
 	if (!Array.isArray(entries)) {

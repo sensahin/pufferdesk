@@ -18,7 +18,7 @@ Existing WordPress admin screens open inside PufferDesk windows where practical,
 
 == Source Code ==
 
-The release zip ships compiled assets under `assets/dist/`. Readable source files and build scripts are maintained at https://github.com/sensahin/pufferdesk-admin-desktop, and `assets/dist/SOURCES.md` lists the source files used to build the compiled assets.
+The release zip ships compiled assets under `assets/dist/`. Readable source files and build scripts are maintained at https://github.com/sensahin/pufferdesk, and `assets/dist/SOURCES.md` lists the source files used to build the compiled assets.
 
 == Features ==
 

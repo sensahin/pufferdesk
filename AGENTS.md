@@ -45,7 +45,7 @@ Never:
 
 Root:
 
-- `pufferdesk-admin-desktop.php`: plugin header, constants, class loading, singleton bootstrap.
+- `pufferdesk.php`: plugin header, constants, class loading, singleton bootstrap.
 - `README.md`: user-facing plugin/readme documentation.
 - `AGENTS.md`: this contributor/agent instruction file.
 - `package.json`: build, check, and package scripts.
@@ -329,7 +329,7 @@ PHP:
 - Use nonces for AJAX/state-changing requests.
 - Sanitize input with WordPress functions such as `sanitize_key`, `sanitize_text_field`, `absint`, and `esc_url_raw`.
 - Escape output with `esc_html`, `esc_attr`, `esc_url`, or `wp_json_encode` as appropriate.
-- Use translation functions with the `pufferdesk-admin-desktop` text domain for user-facing strings.
+- Use translation functions with the `pufferdesk` text domain for user-facing strings.
 - Prefer WordPress APIs over raw globals or direct database access.
 - Avoid PHP notices/warnings on missing array keys.
 
@@ -389,7 +389,7 @@ Generated release assets:
 
 - `assets/dist/css/pufferdesk-core.min.css`
 - `assets/dist/css/themes/{family}/{version}.min.css`
-- `assets/dist/js/pufferdesk-admin-desktop.min.js`
+- `assets/dist/js/pufferdesk.min.js`
 - `assets/dist/SOURCES.md`
 
 Do not edit generated dist files by hand. Change source files, then run `npm run build`.
@@ -402,7 +402,7 @@ Local admin URLs:
 
 ```text
 https://newwp:7890/wp-admin/
-https://newwp:7890/wp-admin/admin.php?page=pufferdesk-admin-desktop
+https://newwp:7890/wp-admin/admin.php?page=pufferdesk
 ```
 
 Local admin login:
@@ -421,7 +421,7 @@ Local WordPress path:
 Plugin path:
 
 ```bash
-/Users/senolsahin/Sites/new/wp-content/plugins/pufferdesk-admin-desktop
+/Users/senolsahin/Sites/new/wp-content/plugins/pufferdesk
 ```
 
 Local database constants from `wp-config.php`:
@@ -456,10 +456,10 @@ WP-CLI may print PHP deprecation warnings from WP-CLI internals on newer PHP ver
 Recommended Plugin Check command:
 
 ```bash
-PLUGIN_DIR=/Users/senolsahin/Sites/new/wp-content/plugins/pufferdesk-admin-desktop
+PLUGIN_DIR=/Users/senolsahin/Sites/new/wp-content/plugins/pufferdesk
 find "$PLUGIN_DIR" -name .DS_Store -delete
 find "$PLUGIN_DIR" -type d -exec chmod u-w {} +
-php -d mysqli.default_socket=/Applications/MAMP/tmp/mysql/mysql.sock /usr/local/bin/wp --path=/Users/senolsahin/Sites/new plugin check pufferdesk-admin-desktop --exclude-directories=.github,release,node_modules --exclude-files=.gitignore,.gitattributes,.DS_Store,AGENTS.md
+php -d mysqli.default_socket=/Applications/MAMP/tmp/mysql/mysql.sock /usr/local/bin/wp --path=/Users/senolsahin/Sites/new plugin check pufferdesk --exclude-directories=.github,release,node_modules --exclude-files=.gitignore,.gitattributes,.DS_Store,AGENTS.md
 STATUS=$?
 find "$PLUGIN_DIR" -type d -exec chmod u+w {} +
 find "$PLUGIN_DIR" -name .DS_Store -delete
@@ -478,7 +478,7 @@ Browser testing is not required for every small text-only or isolated PHP metada
 
 Minimum browser smoke matrix for meaningful UI/runtime changes:
 
-- Log in at `https://newwp:7890/wp-admin/` if needed, then open `https://newwp:7890/wp-admin/admin.php?page=pufferdesk-admin-desktop`.
+- Log in at `https://newwp:7890/wp-admin/` if needed, then open `https://newwp:7890/wp-admin/admin.php?page=pufferdesk`.
 - Confirm the shell loads without visible PHP errors or blocking console errors.
 - Test the current theme and, when theme tokens/chrome changed, Default in light and dark modes. Restore the user's original appearance afterward.
 - Open the system/site menu, top menus, and a desktop/context menu; check readability, hover/disabled states, separators, and z-index.
@@ -495,7 +495,7 @@ Minimum browser smoke matrix for meaningful UI/runtime changes:
 The GitHub repository is private:
 
 ```bash
-https://github.com/sensahin/pufferdesk-admin-desktop.git
+https://github.com/sensahin/pufferdesk.git
 ```
 
 Before committing:

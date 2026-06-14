@@ -57,7 +57,7 @@ Generated for the full PHP/JS Single Source of Truth cleanup task.
 - `includes/class-pufferdesk-window-chrome-contracts.php` - No change: Domain owner for window chrome IDs; no consumer cleanup needed inside owner.
 - `includes/class-pufferdesk-workspace-controller.php` - No change: Reviewed; existing domain ownership, WordPress safety, or local behavior did not need cleanup.
 - `includes/class-pufferdesk-workspace-state.php` - No change: Domain owner for workspace sections/window kinds; consumers already use runtime contracts.
-- `pufferdesk-admin-desktop.php` - No change: Reviewed; no safe high-value SSOT cleanup needed.
+- `pufferdesk.php` - No change: Reviewed; no safe high-value SSOT cleanup needed.
 - `templates/desktop/apps.php` - No change: Template already uses renderer/contract helpers or contains local markup/classes only.
 - `templates/desktop/folders.php` - No change: Template already uses renderer/contract helpers or contains local markup/classes only.
 - `templates/shell/desktop.php` - Changed: Reused the context-menu desktop target constant for the desktop context ID.
@@ -71,7 +71,7 @@ Generated for the full PHP/JS Single Source of Truth cleanup task.
 
 ## JS Files
 
-- `assets/dist/js/pufferdesk-admin-desktop.min.js` - Changed: Generated build artifact updated by `npm run build`; not manually edited.
+- `assets/dist/js/pufferdesk.min.js` - Changed: Generated build artifact updated by `npm run build`; not manually edited.
 - `assets/js/core/api/desktop-api.js` - No change: Reviewed; no safe high-value SSOT cleanup needed.
 - `assets/js/core/apps/about-window.js` - Changed: About window fallback title now uses runtime menu labels instead of a local product-name literal.
 - `assets/js/core/apps/app-badges.js` - No change: App module reviewed; unchanged files already use shared helpers or keep local UI-only values.
