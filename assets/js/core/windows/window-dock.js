@@ -298,7 +298,7 @@
 		}
 
 		function minimizeWindow(win) {
-			if (!win || win.classList.contains('is-hidden') || win.classList.contains('is-minimizing')) {
+			if (!win || win.dataset.pdkMinimizable === '0' || win.classList.contains('is-hidden') || win.classList.contains('is-minimizing')) {
 				return;
 			}
 

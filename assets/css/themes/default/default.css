@@ -704,25 +704,68 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-app-window="keyboard-shortcuts"] .pdk-window-titlebar {
-	display: grid;
+	display: none;
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-body {
 	-webkit-backdrop-filter: none !important;
 	backdrop-filter: none !important;
 	background: transparent !important;
-	border-radius: 0 0 var(--pdk-window-radius) var(--pdk-window-radius);
+	border-radius: var(--pdk-window-radius);
 	color: var(--pdk-ink);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts {
 	background: transparent !important;
-	grid-template-rows: auto minmax(0, 1fr) auto;
-	padding: 16px 18px 0;
+	grid-template-rows: auto auto minmax(0, 1fr) auto;
+	padding: 22px 22px 0;
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-header {
-	display: none;
+	align-items: center;
+	display: grid;
+	gap: 14px;
+	grid-template-columns: minmax(0, 1fr) 28px;
+	margin: 0 0 16px;
+	padding: 0;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-title {
+	color: var(--pdk-ink);
+	font-family: var(--pdk-font-display);
+	font-size: 18px;
+	font-weight: var(--pdk-weight-bold);
+	line-height: 1.18;
+	margin: 0;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-close {
+	align-items: center;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 7px;
+	color: var(--pdk-control-icon-ink);
+	display: inline-flex;
+	font-family: var(--pdk-font-display);
+	font-size: 20px;
+	height: 28px;
+	justify-content: center;
+	line-height: 1;
+	margin: 0;
+	padding: 0;
+	width: 28px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-close:hover,
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-close:focus-visible {
+	background: var(--pdk-control-icon-hover-bg);
+	border-color: var(--pdk-divider-soft);
+	color: var(--pdk-ink);
+	outline: none;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-close:active {
+	background: var(--pdk-control-icon-active-bg);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-search-wrap {

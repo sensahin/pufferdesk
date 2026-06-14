@@ -280,6 +280,9 @@
 			if (options.persist === false) {
 				win.dataset.pdkPersist = '0';
 			}
+			if (options.minimizable === false) {
+				win.dataset.pdkMinimizable = '0';
+			}
 			if (options.menu && typeof options.menu === 'object') {
 				win.pdkMenu = options.menu;
 			}

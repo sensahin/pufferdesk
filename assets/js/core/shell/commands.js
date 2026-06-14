@@ -177,6 +177,10 @@
 			return null;
 		}
 
+		function isWindowMinimizable(win) {
+			return Boolean(win && win.dataset.pdkMinimizable !== '0');
+		}
+
 		function getWindowById(windowId) {
 			return windowId
 				? shell.querySelector(`.pdk-window[data-pdk-window-id="${dom.escapeAttribute(windowId)}"]:not(.is-closed)`)
@@ -2207,8 +2211,10 @@
 					centered: true,
 					contextMenu: false,
 					content: window.PufferDesk.apps.createKeyboardShortcutsApp({ config }),
+					disabledControls: ['minimize'],
 					height: `${Math.round(modalHeight)}px`,
 					icon: 'dashicons-keyboard',
+					minimizable: false,
 					persist: false,
 					resizeMode: 'both',
 					title,
@@ -2450,10 +2456,13 @@
 
 		const minimizeWindowCommand = {
 			isEnabled(payload, detail) {
-				return Boolean(manager && typeof manager.minimizeWindow === 'function' && getTargetWindow(detail));
+				return Boolean(manager && typeof manager.minimizeWindow === 'function' && isWindowMinimizable(getTargetWindow(detail)));
 			},
 			run(payload, detail) {
-				manager.minimizeWindow(getTargetWindow(detail));
+				const win = getTargetWindow(detail);
+				if (isWindowMinimizable(win)) {
+					manager.minimizeWindow(win);
+				}
 			}
 		};
 
