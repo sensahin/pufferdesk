@@ -107,6 +107,16 @@
 	--pdk-focus-ring-alpha: 0.38;
 	--pdk-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 251, 0.96), rgba(238, 246, 242, 0.92));
 	--pdk-window-bar-border: rgba(72, 88, 92, 0.14);
+	--pdk-app-navigation-bg: linear-gradient(180deg, rgba(248, 251, 247, 0.96), rgba(232, 243, 237, 0.92));
+	--pdk-app-navigation-border: rgba(72, 88, 92, 0.13);
+	--pdk-app-navigation-ink: var(--pdk-ink);
+	--pdk-app-navigation-item-ink: rgba(23, 36, 43, 0.86);
+	--pdk-app-navigation-item-hover-bg: rgb(var(--pdk-accent-rgb) / 0.1);
+	--pdk-app-navigation-item-hover-border: rgb(var(--pdk-accent-rgb) / 0.16);
+	--pdk-app-navigation-item-hover-ink: var(--pdk-ink);
+	--pdk-app-navigation-item-active-bg: rgb(var(--pdk-accent-rgb) / 0.16);
+	--pdk-app-navigation-item-active-border: rgb(var(--pdk-accent-rgb) / 0.28);
+	--pdk-app-navigation-item-active-ink: var(--pdk-accent);
 	--pdk-window-radius: 12px;
 	--pdk-window-maximized-radius: 0;
 	--pdk-window-safe-edge: 2px;
@@ -257,6 +267,18 @@
 	--pdk-focus-ring-rgb: var(--pdk-accent-rgb);
 	--pdk-window-bar-bg: linear-gradient(180deg, rgba(36, 50, 53, 0.96), rgba(29, 42, 45, 0.92));
 	--pdk-window-bar-border: rgba(178, 207, 199, 0.12);
+	--pdk-app-navigation-bg: linear-gradient(180deg, rgba(56, 73, 77, 0.96), rgba(43, 60, 64, 0.94));
+	--pdk-app-navigation-border: rgba(178, 207, 199, 0.16);
+	--pdk-app-navigation-ink: rgba(237, 245, 243, 0.9);
+	--pdk-app-navigation-item-ink: rgba(237, 245, 243, 0.82);
+	--pdk-app-navigation-item-hover-bg: rgb(var(--pdk-accent-rgb) / 0.2);
+	--pdk-app-navigation-item-hover-border: rgb(var(--pdk-accent-rgb) / 0.3);
+	--pdk-app-navigation-item-hover-ink: rgba(255, 255, 255, 0.96);
+	--pdk-app-navigation-item-active-bg:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)),
+		var(--pdk-accent-active-strong);
+	--pdk-app-navigation-item-active-border: rgb(var(--pdk-accent-rgb) / 0.7);
+	--pdk-app-navigation-item-active-ink: var(--pdk-accent-ink);
 	--pdk-dock-bg: rgba(25, 37, 41, 0.88);
 	--pdk-dock-glass-bg:
 		linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),

@@ -583,8 +583,9 @@
 
 .pdk-app-navigation {
 	align-items: center;
-	background: var(--pdk-window-bar-bg);
-	border-bottom: 1px solid var(--pdk-window-bar-border);
+	background: var(--pdk-app-navigation-bg, var(--pdk-window-bar-bg));
+	border-bottom: 1px solid var(--pdk-app-navigation-border, var(--pdk-window-bar-border));
+	color: var(--pdk-app-navigation-ink, var(--pdk-ink));
 	display: flex;
 	flex: 0 0 auto;
 	gap: 5px;
@@ -596,10 +597,10 @@
 }
 
 .pdk-app-navigation-item {
-	background: transparent;
+	background: var(--pdk-app-navigation-item-bg, transparent);
 	border: 1px solid transparent;
 	border-radius: 6px;
-	color: var(--pdk-ink);
+	color: var(--pdk-app-navigation-item-ink, currentColor);
 	cursor: default;
 	flex: 0 0 auto;
 	font: inherit;
@@ -616,15 +617,16 @@
 
 .pdk-app-navigation-item:hover,
 .pdk-app-navigation-item:focus-visible {
-	background: var(--pdk-control-bg-hover);
-	border-color: var(--pdk-line);
+	background: var(--pdk-app-navigation-item-hover-bg, var(--pdk-control-bg-hover));
+	border-color: var(--pdk-app-navigation-item-hover-border, var(--pdk-line));
+	color: var(--pdk-app-navigation-item-hover-ink, var(--pdk-app-navigation-item-ink, currentColor));
 	outline: none;
 }
 
 .pdk-app-navigation-item.is-active {
-	background: var(--pdk-accent-soft);
-	border-color: var(--pdk-accent-medium);
-	color: var(--pdk-accent);
+	background: var(--pdk-app-navigation-item-active-bg, var(--pdk-accent-soft));
+	border-color: var(--pdk-app-navigation-item-active-border, var(--pdk-accent-medium));
+	color: var(--pdk-app-navigation-item-active-ink, var(--pdk-accent));
 }
 
 .pdk-app-frame {
