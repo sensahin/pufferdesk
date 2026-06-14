@@ -21,6 +21,17 @@ final class PufferDesk_Asset_Manifest {
 	private $manifest = null;
 
 	/**
+	 * Get the minified admin chrome CSS path.
+	 *
+	 * @return string
+	 */
+	public function get_dist_admin_chrome_css() {
+		$dist = $this->get_dist();
+
+		return isset( $dist['adminChromeCss'] ) ? $dist['adminChromeCss'] : 'assets/dist/css/pufferdesk-admin-chrome.min.css';
+	}
+
+	/**
 	 * Get the minified core CSS path.
 	 *
 	 * @return string
@@ -29,6 +40,17 @@ final class PufferDesk_Asset_Manifest {
 		$dist = $this->get_dist();
 
 		return isset( $dist['coreCss'] ) ? $dist['coreCss'] : 'assets/dist/css/pufferdesk-core.min.css';
+	}
+
+	/**
+	 * Get the minified iframe helper JavaScript path.
+	 *
+	 * @return string
+	 */
+	public function get_dist_iframe_script() {
+		$dist = $this->get_dist();
+
+		return isset( $dist['iframeScript'] ) ? $dist['iframeScript'] : 'assets/dist/js/pufferdesk-admin-iframe.min.js';
 	}
 
 	/**
@@ -108,8 +130,10 @@ final class PufferDesk_Asset_Manifest {
 			: array();
 
 		return array(
-			'coreCss' => isset( $dist['coreCss'] ) && is_scalar( $dist['coreCss'] ) ? $this->normalize_asset_path( $dist['coreCss'] ) : 'assets/dist/css/pufferdesk-core.min.css',
-			'script'  => isset( $dist['script'] ) && is_scalar( $dist['script'] ) ? $this->normalize_asset_path( $dist['script'] ) : 'assets/dist/js/pufferdesk.min.js',
+			'adminChromeCss' => isset( $dist['adminChromeCss'] ) && is_scalar( $dist['adminChromeCss'] ) ? $this->normalize_asset_path( $dist['adminChromeCss'] ) : 'assets/dist/css/pufferdesk-admin-chrome.min.css',
+			'coreCss'        => isset( $dist['coreCss'] ) && is_scalar( $dist['coreCss'] ) ? $this->normalize_asset_path( $dist['coreCss'] ) : 'assets/dist/css/pufferdesk-core.min.css',
+			'iframeScript'   => isset( $dist['iframeScript'] ) && is_scalar( $dist['iframeScript'] ) ? $this->normalize_asset_path( $dist['iframeScript'] ) : 'assets/dist/js/pufferdesk-admin-iframe.min.js',
+			'script'         => isset( $dist['script'] ) && is_scalar( $dist['script'] ) ? $this->normalize_asset_path( $dist['script'] ) : 'assets/dist/js/pufferdesk.min.js',
 		);
 	}
 

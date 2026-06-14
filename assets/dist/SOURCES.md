@@ -1,6 +1,10 @@
 # PufferDesk Built Asset Sources
 
-Generated release assets are minified for performance. Readable source files remain in the plugin and are listed below.
+Generated release assets are minified for performance. Readable source files and build scripts are maintained at:
+
+https://github.com/sensahin/pufferdesk-admin-desktop
+
+The release zip ships compiled assets from the source files listed below.
 
 ## Core CSS
 - assets/css/core/admin-chrome.css
@@ -27,6 +31,9 @@ Generated release assets are minified for performance. Readable source files rem
 - assets/css/themes/cupertino/default.css -> assets/dist/css/themes/cupertino/default.min.css
 - assets/css/themes/default/default.css -> assets/dist/css/themes/default/default.min.css
 - assets/css/themes/redmond/default.css -> assets/dist/css/themes/redmond/default.min.css
+
+## Iframe Script
+- assets/js/core/admin-iframe.js -> assets/dist/js/pufferdesk-admin-iframe.min.js
 
 ## JavaScript
 - assets/js/core/config.js

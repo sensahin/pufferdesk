@@ -16,6 +16,10 @@ PufferDesk wraps the WordPress admin in a desktop-style workspace with windows, 
 
 Existing WordPress admin screens open inside PufferDesk windows where practical, while Classic Admin remains available as a fallback.
 
+== Source Code ==
+
+The release zip ships compiled assets under `assets/dist/`. Readable source files and build scripts are maintained at https://github.com/sensahin/pufferdesk-admin-desktop, and `assets/dist/SOURCES.md` lists the source files used to build the compiled assets.
+
 == Features ==
 
 * Desktop-style admin shell for WordPress.

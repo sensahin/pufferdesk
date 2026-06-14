@@ -8,8 +8,13 @@ const assetManifest = JSON.parse(await fs.readFile(path.join(root, 'assets/manif
 
 const coreCssSources = readManifestSources(assetManifest.coreStyles, 'coreStyles');
 const jsSources = readManifestSources(assetManifest.scripts, 'scripts');
+const adminChromeCssSource = coreCssSources[0] || 'assets/css/core/admin-chrome.css';
+const iframeScriptSource = 'assets/js/core/admin-iframe.js';
+const distAdminChromeCss = assetManifest.dist?.adminChromeCss || 'assets/dist/css/pufferdesk-admin-chrome.min.css';
 const distCoreCss = assetManifest.dist?.coreCss || 'assets/dist/css/pufferdesk-core.min.css';
+const distIframeScript = assetManifest.dist?.iframeScript || 'assets/dist/js/pufferdesk-admin-iframe.min.js';
 const distScript = assetManifest.dist?.script || 'assets/dist/js/pufferdesk.min.js';
+const sourceRepository = 'https://github.com/sensahin/pufferdesk-admin-desktop';
 
 function readManifestSources(entries, key) {
 	if (!Array.isArray(entries)) {
@@ -56,7 +61,7 @@ async function minify({ loader, sources, outfile, label }) {
 		minify: true,
 		legalComments: 'none'
 	});
-	const banner = `/*! PufferDesk ${label}. Readable sources are included in the plugin. See assets/dist/SOURCES.md. */\n`;
+	const banner = `/*! PufferDesk ${label}. Readable sources: ${sourceRepository}. See assets/dist/SOURCES.md. */\n`;
 	const target = path.join(root, outfile);
 
 	await fs.mkdir(path.dirname(target), { recursive: true });
@@ -88,13 +93,20 @@ async function writeSourcesManifest(themeCssSources) {
 	const lines = [
 		'# PufferDesk Built Asset Sources',
 		'',
-		'Generated release assets are minified for performance. Readable source files remain in the plugin and are listed below.',
+		'Generated release assets are minified for performance. Readable source files and build scripts are maintained at:',
+		'',
+		sourceRepository,
+		'',
+		'The release zip ships compiled assets from the source files listed below.',
 		'',
 		'## Core CSS',
 		...coreCssSources.map((source) => `- ${source}`),
 		'',
 		'## Theme CSS',
 		...themeCssSources.map((source) => `- ${source} -> ${distThemePath(source)}`),
+		'',
+		'## Iframe Script',
+		`- ${iframeScriptSource} -> ${distIframeScript}`,
 		'',
 		'## JavaScript',
 		...jsSources.map((source) => `- ${source}`)
@@ -107,6 +119,13 @@ async function main() {
 	await fs.rm(distDir, { recursive: true, force: true });
 
 	const themeCssSources = await findThemeCss(path.join(root, 'assets/css/themes'));
+
+	await minify({
+		loader: 'css',
+		sources: [adminChromeCssSource],
+		outfile: distAdminChromeCss,
+		label: 'admin chrome CSS'
+	});
 
 	await minify({
 		loader: 'css',
@@ -129,6 +148,13 @@ async function main() {
 		sources: jsSources,
 		outfile: distScript,
 		label: 'JavaScript'
+	});
+
+	await minify({
+		loader: 'js',
+		sources: [iframeScriptSource],
+		outfile: distIframeScript,
+		label: 'iframe JavaScript'
 	});
 
 	await writeSourcesManifest(themeCssSources);

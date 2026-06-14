@@ -1,6 +1,8 @@
 {
 	"dist": {
+		"adminChromeCss": "assets/dist/css/pufferdesk-admin-chrome.min.css",
 		"coreCss": "assets/dist/css/pufferdesk-core.min.css",
+		"iframeScript": "assets/dist/js/pufferdesk-admin-iframe.min.js",
 		"script": "assets/dist/js/pufferdesk.min.js"
 	},
 	"coreStyles": [

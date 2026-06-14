@@ -93,12 +93,11 @@ final class PufferDesk_Assets {
 		$theme   = isset( $context['theme'] ) && is_array( $context['theme'] ) ? $context['theme'] : array();
 
 		foreach ( isset( $theme['stylesheet_stack'] ) && is_array( $theme['stylesheet_stack'] ) ? $theme['stylesheet_stack'] : array() as $index => $stylesheet ) {
-			$stylesheet_path = PUFFERDESK_DIR . 'assets/css/themes/' . $stylesheet;
-			if ( ! file_exists( $stylesheet_path ) ) {
+			$theme_asset = $this->get_theme_stylesheet_asset( $stylesheet, $use_dist );
+			if ( ! file_exists( PUFFERDESK_DIR . $theme_asset ) ) {
 				continue;
 			}
 
-			$theme_asset = $this->get_theme_stylesheet_asset( $stylesheet, $use_dist );
 			$style_handle = 'pufferdesk-theme-' . ( isset( $theme['id'] ) ? sanitize_key( $theme['id'] ) : 'current' ) . '-' . (int) $index;
 			wp_enqueue_style(
 				$style_handle,
@@ -124,12 +123,34 @@ final class PufferDesk_Assets {
 	 * @return bool
 	 */
 	private function should_use_dist_assets() {
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+		$dist_available = file_exists( PUFFERDESK_DIR . $this->asset_manifest->get_dist_core_css() )
+			&& file_exists( PUFFERDESK_DIR . $this->asset_manifest->get_dist_script() );
+
+		if ( ! $dist_available ) {
 			return false;
 		}
 
-		return file_exists( PUFFERDESK_DIR . $this->asset_manifest->get_dist_core_css() )
-			&& file_exists( PUFFERDESK_DIR . $this->asset_manifest->get_dist_script() );
+		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG && $this->source_assets_available() ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Whether readable source assets are available in this install.
+	 *
+	 * Release zips may ship only compiled assets and link to source files from readme.txt.
+	 *
+	 * @return bool
+	 */
+	private function source_assets_available() {
+		$core_styles  = $this->asset_manifest->get_core_styles( true );
+		$core_scripts = $this->asset_manifest->get_core_scripts();
+		$first_style  = ! empty( $core_styles[0]['path'] ) ? $core_styles[0]['path'] : 'assets/css/core/admin-chrome.css';
+		$first_script = ! empty( $core_scripts[0]['path'] ) ? $core_scripts[0]['path'] : 'assets/js/core/config.js';
+
+		return file_exists( PUFFERDESK_DIR . $first_style ) && file_exists( PUFFERDESK_DIR . $first_script );
 	}
 
 	/**
@@ -140,12 +161,14 @@ final class PufferDesk_Assets {
 	 */
 	private function enqueue_dist_core_styles( $include_shell ) {
 		if ( ! $include_shell ) {
-			$admin_chrome = $this->asset_manifest->get_admin_chrome_style();
+			$admin_chrome      = $this->asset_manifest->get_admin_chrome_style();
+			$admin_chrome_dist = $this->asset_manifest->get_dist_admin_chrome_css();
+			$path              = file_exists( PUFFERDESK_DIR . $admin_chrome_dist ) ? $admin_chrome_dist : $admin_chrome['path'];
 			wp_enqueue_style(
 				$admin_chrome['handle'],
-				PUFFERDESK_URL . $admin_chrome['path'],
+				PUFFERDESK_URL . $path,
 				array( 'dashicons' ),
-				$this->get_asset_version( $admin_chrome['path'] )
+				$this->get_asset_version( $path )
 			);
 
 			return $admin_chrome['handle'];
@@ -222,7 +245,9 @@ final class PufferDesk_Assets {
 	 */
 	private function enqueue_iframe_script() {
 		$handle = 'pufferdesk-admin-iframe';
-		$path   = 'assets/js/core/admin-iframe.js';
+		$dist   = $this->asset_manifest->get_dist_iframe_script();
+		$source = 'assets/js/core/admin-iframe.js';
+		$path   = file_exists( PUFFERDESK_DIR . $dist ) ? $dist : $source;
 
 		wp_enqueue_script(
 			$handle,

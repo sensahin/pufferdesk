@@ -22,6 +22,9 @@ const ignoredTopLevel = new Set([
 	'THIRD-PARTY-NOTICES.txt',
 	'docs',
 	'node_modules',
+	'package-lock.json',
+	'package.json',
+	'scripts',
 	'release'
 ]);
 
@@ -37,6 +40,9 @@ async function copyDirectory(source, target) {
 			continue;
 		}
 		if (entry.name === 'README.md') {
+			continue;
+		}
+		if (source === path.join(root, 'assets') && (entry.name === 'css' || entry.name === 'js')) {
 			continue;
 		}
 
