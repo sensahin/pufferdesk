@@ -141,6 +141,14 @@
 	--pdk-dock-hover-scale: 1.02;
 	--pdk-dock-icon-size: 25px;
 	--pdk-dock-item-size: 48px;
+	--pdk-dock-item-bg: transparent;
+	--pdk-dock-item-border: transparent;
+	--pdk-dock-item-hover-bg: rgba(255, 255, 255, 0.3);
+	--pdk-dock-item-hover-border: rgba(255, 255, 255, 0.36);
+	--pdk-dock-item-hover-shadow: 0 1px 0 rgba(255, 255, 255, 0.42) inset;
+	--pdk-dock-item-running-bg: rgb(var(--pdk-accent-rgb) / 0.14);
+	--pdk-dock-item-running-border: rgb(var(--pdk-accent-rgb) / 0.18);
+	--pdk-dock-item-shadow: none;
 	--pdk-dock-tile-size: 46px;
 	--pdk-dock-tooltip-bg: rgba(23, 36, 43, 0.94);
 	--pdk-dock-tooltip-border: rgba(255, 255, 255, 0.08);
@@ -311,6 +319,11 @@
 	--pdk-dock-glass-filter: blur(30px) saturate(150%) brightness(0.98);
 	--pdk-dock-border: rgba(178, 207, 199, 0.12);
 	--pdk-dock-bottom-border: rgba(0, 0, 0, 0.28);
+	--pdk-dock-item-hover-bg: rgba(255, 255, 255, 0.09);
+	--pdk-dock-item-hover-border: rgba(255, 255, 255, 0.1);
+	--pdk-dock-item-hover-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+	--pdk-dock-item-running-bg: rgb(var(--pdk-accent-rgb) / 0.18);
+	--pdk-dock-item-running-border: rgb(var(--pdk-accent-rgb) / 0.22);
 	--pdk-dock-separator: rgba(178, 207, 199, 0.16);
 	--pdk-dock-shadow: 0 20px 48px rgba(0, 0, 0, 0.38), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 	--pdk-running-indicator: #f0a65e;
@@ -540,21 +553,31 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-dock-item,
 .pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item {
+	background: var(--pdk-dock-item-bg);
+	border-color: var(--pdk-dock-item-border);
 	border-radius: 12px;
+	box-shadow: var(--pdk-dock-item-shadow);
+	transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-dock-item:hover,
+.pdk-shell[data-pdk-theme="default"] .pdk-dock-item:focus,
 .pdk-shell[data-pdk-theme="default"] .pdk-dock-item:focus-visible,
+.pdk-shell[data-pdk-theme="default"] .pdk-dock-item:focus-within,
 .pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item:hover,
-.pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item:focus-visible {
-	background: rgba(255, 255, 255, 0.28);
+.pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item:focus,
+.pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item:focus-visible,
+.pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item:focus-within {
+	background: var(--pdk-dock-item-hover-bg);
+	border-color: var(--pdk-dock-item-hover-border);
+	box-shadow: var(--pdk-dock-item-hover-shadow);
 }
 
-.pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-dock-item:hover,
-.pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-dock-item:focus-visible,
-.pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-dock-window-item:hover,
-.pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-dock-window-item:focus-visible {
-	background: rgba(255, 255, 255, 0.08);
+.pdk-shell[data-pdk-theme="default"] .pdk-dock-item.is-running,
+.pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item.is-running {
+	background: var(--pdk-dock-item-running-bg);
+	border-color: var(--pdk-dock-item-running-border);
+	box-shadow: var(--pdk-dock-item-shadow);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-desktop-icon-button {
