@@ -6,9 +6,10 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const root = process.cwd();
 const manifest = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'));
+const pluginSlug = manifest.name;
 const releaseDir = path.join(root, 'release');
-const stagingRoot = path.join(releaseDir, 'pufferdesk-admin-desktop');
-const zipPath = path.join(releaseDir, `pufferdesk-admin-desktop-${manifest.version}.zip`);
+const stagingRoot = path.join(releaseDir, pluginSlug);
+const zipPath = path.join(releaseDir, `${pluginSlug}-${manifest.version}.zip`);
 
 const ignoredTopLevel = new Set([
 	'.git',
@@ -50,8 +51,24 @@ async function copyDirectory(source, target) {
 	}
 }
 
+async function renameMainPluginFile() {
+	const oldMainFile = path.join(stagingRoot, 'pufferdesk-admin-desktop.php');
+	const newMainFile = path.join(stagingRoot, `${pluginSlug}.php`);
+
+	try {
+		await fs.rename(oldMainFile, newMainFile);
+	} catch (error) {
+		if (error && error.code === 'ENOENT') {
+			return;
+		}
+
+		throw error;
+	}
+}
+
 await fs.rm(releaseDir, { recursive: true, force: true });
 await copyDirectory(root, stagingRoot);
-await execFileAsync('zip', ['-qr', zipPath, 'pufferdesk-admin-desktop'], { cwd: releaseDir });
+await renameMainPluginFile();
+await execFileAsync('zip', ['-qr', zipPath, pluginSlug], { cwd: releaseDir });
 
 console.log(`Created ${zipPath}`);

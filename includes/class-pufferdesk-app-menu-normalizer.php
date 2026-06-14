@@ -54,13 +54,13 @@ final class PufferDesk_App_Menu_Normalizer {
 	 */
 	public static function get_default_group_labels( $app_label = '' ) {
 		return array(
-			self::GROUP_APP    => '' !== $app_label ? $app_label : __( 'App', 'pufferdesk-admin-desktop' ),
-			self::GROUP_FILE   => __( 'File', 'pufferdesk-admin-desktop' ),
-			self::GROUP_EDIT   => __( 'Edit', 'pufferdesk-admin-desktop' ),
-			self::GROUP_VIEW   => __( 'View', 'pufferdesk-admin-desktop' ),
-			self::GROUP_GO     => __( 'Go', 'pufferdesk-admin-desktop' ),
-			self::GROUP_WINDOW => __( 'Window', 'pufferdesk-admin-desktop' ),
-			self::GROUP_HELP   => __( 'Help', 'pufferdesk-admin-desktop' ),
+			self::GROUP_APP    => '' !== $app_label ? $app_label : __( 'App', 'pufferdesk' ),
+			self::GROUP_FILE   => __( 'File', 'pufferdesk' ),
+			self::GROUP_EDIT   => __( 'Edit', 'pufferdesk' ),
+			self::GROUP_VIEW   => __( 'View', 'pufferdesk' ),
+			self::GROUP_GO     => __( 'Go', 'pufferdesk' ),
+			self::GROUP_WINDOW => __( 'Window', 'pufferdesk' ),
+			self::GROUP_HELP   => __( 'Help', 'pufferdesk' ),
 		);
 	}
 
@@ -132,32 +132,32 @@ final class PufferDesk_App_Menu_Normalizer {
 			'groups' => array(
 				array(
 					'id'    => self::GROUP_APP,
-					'label' => __( 'System Settings', 'pufferdesk-admin-desktop' ),
+					'label' => __( 'System Settings', 'pufferdesk' ),
 					'items' => array(
 						array(
-							'label'   => __( 'About System Settings', 'pufferdesk-admin-desktop' ),
+							'label'   => __( 'About System Settings', 'pufferdesk' ),
 							'command' => PufferDesk_Command_Ids::OPEN_ABOUT,
 							'target'  => PufferDesk_App_Ids::OS_SETTINGS,
 						),
 						array( 'type' => 'separator' ),
 						array(
-							'label'    => __( 'Hide System Settings', 'pufferdesk-admin-desktop' ),
+							'label'    => __( 'Hide System Settings', 'pufferdesk' ),
 							'command'  => PufferDesk_Command_Ids::WINDOW_HIDE,
 							'icon'     => 'dashicons-hidden',
 						),
 						array(
-							'label'    => __( 'Hide Others', 'pufferdesk-admin-desktop' ),
+							'label'    => __( 'Hide Others', 'pufferdesk' ),
 							'command'  => PufferDesk_Command_Ids::WINDOW_HIDE_OTHERS,
 							'icon'     => 'dashicons-excerpt-view',
 						),
 						array(
-							'label'   => __( 'Show All', 'pufferdesk-admin-desktop' ),
+							'label'   => __( 'Show All', 'pufferdesk' ),
 							'command' => PufferDesk_Command_Ids::WINDOW_SHOW_ALL,
 							'icon'    => 'dashicons-visibility',
 						),
 						array( 'type' => 'separator' ),
 						array(
-							'label'    => __( 'Quit System Settings', 'pufferdesk-admin-desktop' ),
+							'label'    => __( 'Quit System Settings', 'pufferdesk' ),
 							'command'  => PufferDesk_Command_Ids::WINDOW_CLOSE,
 							'icon'     => 'dashicons-dismiss',
 						),
@@ -504,7 +504,7 @@ final class PufferDesk_App_Menu_Normalizer {
 					array(
 						'label'   => sprintf(
 							/* translators: %s: app label. */
-							__( 'About %s', 'pufferdesk-admin-desktop' ),
+							__( 'About %s', 'pufferdesk' ),
 							$app_label
 						),
 						'command' => PufferDesk_Command_Ids::OPEN_ABOUT,
@@ -513,24 +513,24 @@ final class PufferDesk_App_Menu_Normalizer {
 					array(
 						'label'    => sprintf(
 							/* translators: %s: app label. */
-							__( 'Hide %s', 'pufferdesk-admin-desktop' ),
+							__( 'Hide %s', 'pufferdesk' ),
 							$app_label
 						),
 						'command'  => PufferDesk_Command_Ids::WINDOW_HIDE,
 					),
 					array(
-						'label'    => __( 'Hide Others', 'pufferdesk-admin-desktop' ),
+						'label'    => __( 'Hide Others', 'pufferdesk' ),
 						'command'  => PufferDesk_Command_Ids::WINDOW_HIDE_OTHERS,
 					),
 					array(
-						'label'   => __( 'Show All', 'pufferdesk-admin-desktop' ),
+						'label'   => __( 'Show All', 'pufferdesk' ),
 						'command' => PufferDesk_Command_Ids::WINDOW_SHOW_ALL,
 					),
 					array( 'type' => 'separator' ),
 					array(
 						'label'    => sprintf(
 							/* translators: %s: app label. */
-							__( 'Quit %s', 'pufferdesk-admin-desktop' ),
+							__( 'Quit %s', 'pufferdesk' ),
 							$app_label
 						),
 						'command'  => PufferDesk_Command_Ids::WINDOW_CLOSE,
@@ -563,11 +563,11 @@ final class PufferDesk_App_Menu_Normalizer {
 							'allowReserved'  => true,
 							'combo'          => 'primary+m',
 							'contexts'       => array( 'window' ),
-							'reservedReason' => __( 'Scoped to PufferDesk windows.', 'pufferdesk-admin-desktop' ),
+							'reservedReason' => __( 'Scoped to PufferDesk windows.', 'pufferdesk' ),
 						),
 					),
 					array(
-						'label'   => __( 'Zoom', 'pufferdesk-admin-desktop' ),
+						'label'   => __( 'Zoom', 'pufferdesk' ),
 						'command' => PufferDesk_Command_Ids::WINDOW_TOGGLE_MAXIMIZE,
 					),
 					array(

@@ -81,27 +81,27 @@ final class PufferDesk_Notification_Registry {
 			: PufferDesk_Window_Chrome_Contracts::CONTROL_CLOSE;
 
 		return array(
-			'buttonLabel'     => __( 'Notifications', 'pufferdesk-admin-desktop' ),
-			'centerTitle'     => __( 'Notification Center', 'pufferdesk-admin-desktop' ),
+			'buttonLabel'     => __( 'Notifications', 'pufferdesk' ),
+			'centerTitle'     => __( 'Notification Center', 'pufferdesk' ),
 			'close'           => $close_label,
-			'closePanel'      => __( 'Close notifications', 'pufferdesk-admin-desktop' ),
-			'dismiss'         => __( 'Dismiss', 'pufferdesk-admin-desktop' ),
-			'empty'           => __( 'No notifications', 'pufferdesk-admin-desktop' ),
-			'markAllRead'     => __( 'Mark All as Read', 'pufferdesk-admin-desktop' ),
-			'markRead'        => __( 'Mark as Read', 'pufferdesk-admin-desktop' ),
-			'newNotification' => __( 'New notification', 'pufferdesk-admin-desktop' ),
-			'open'            => __( 'Open Notifications', 'pufferdesk-admin-desktop' ),
+			'closePanel'      => __( 'Close notifications', 'pufferdesk' ),
+			'dismiss'         => __( 'Dismiss', 'pufferdesk' ),
+			'empty'           => __( 'No notifications', 'pufferdesk' ),
+			'markAllRead'     => __( 'Mark All as Read', 'pufferdesk' ),
+			'markRead'        => __( 'Mark as Read', 'pufferdesk' ),
+			'newNotification' => __( 'New notification', 'pufferdesk' ),
+			'open'            => __( 'Open Notifications', 'pufferdesk' ),
 			/* translators: 1: notification button label, 2: unread count. */
-			'openCount'       => __( '%1$s, %2$d', 'pufferdesk-admin-desktop' ),
+			'openCount'       => __( '%1$s, %2$d', 'pufferdesk' ),
 			'pufferdeskSource' => PufferDesk_Product_Labels::name(),
-			'commandFailedMessage' => __( 'The command could not be completed.', 'pufferdesk-admin-desktop' ),
-			'commandFailedTitle' => __( 'PufferDesk command failed.', 'pufferdesk-admin-desktop' ),
-			'refresh'         => __( 'Refresh', 'pufferdesk-admin-desktop' ),
-			'refreshPanel'    => __( 'Refresh notifications', 'pufferdesk-admin-desktop' ),
-			'refreshFailedTitle' => __( 'Notifications could not be updated.', 'pufferdesk-admin-desktop' ),
-			'runtimeActionFailedTitle' => __( 'A PufferDesk action failed.', 'pufferdesk-admin-desktop' ),
-			'runtimeErrorFallback' => __( 'Unexpected runtime error.', 'pufferdesk-admin-desktop' ),
-			'serviceUnavailable' => __( 'Notification service unavailable.', 'pufferdesk-admin-desktop' ),
+			'commandFailedMessage' => __( 'The command could not be completed.', 'pufferdesk' ),
+			'commandFailedTitle' => __( 'PufferDesk command failed.', 'pufferdesk' ),
+			'refresh'         => __( 'Refresh', 'pufferdesk' ),
+			'refreshPanel'    => __( 'Refresh notifications', 'pufferdesk' ),
+			'refreshFailedTitle' => __( 'Notifications could not be updated.', 'pufferdesk' ),
+			'runtimeActionFailedTitle' => __( 'A PufferDesk action failed.', 'pufferdesk' ),
+			'runtimeErrorFallback' => __( 'Unexpected runtime error.', 'pufferdesk' ),
+			'serviceUnavailable' => __( 'Notification service unavailable.', 'pufferdesk' ),
 		);
 	}
 
@@ -566,21 +566,21 @@ final class PufferDesk_Notification_Registry {
 		if ( $core > 0 ) {
 			$details[] = sprintf(
 				/* translators: %d: WordPress core update count. */
-				_n( '%d WordPress update', '%d WordPress updates', $core, 'pufferdesk-admin-desktop' ),
+				_n( '%d WordPress update', '%d WordPress updates', $core, 'pufferdesk' ),
 				$core
 			);
 		}
 		if ( $plugins > 0 ) {
 			$details[] = sprintf(
 				/* translators: %d: plugin update count. */
-				_n( '%d plugin update', '%d plugin updates', $plugins, 'pufferdesk-admin-desktop' ),
+				_n( '%d plugin update', '%d plugin updates', $plugins, 'pufferdesk' ),
 				$plugins
 			);
 		}
 		if ( $themes > 0 ) {
 			$details[] = sprintf(
 				/* translators: %d: theme update count. */
-				_n( '%d theme update', '%d theme updates', $themes, 'pufferdesk-admin-desktop' ),
+				_n( '%d theme update', '%d theme updates', $themes, 'pufferdesk' ),
 				$themes
 			);
 		}
@@ -589,11 +589,11 @@ final class PufferDesk_Notification_Registry {
 			array(
 				'id'           => sanitize_key( sprintf( 'wordpress-updates-%d-%d-%d-%d', $total, $core, $plugins, $themes ) ),
 				'source'       => PufferDesk_User_Preferences::NOTIFICATION_SOURCE_WORDPRESS_UPDATES,
-				'source_label' => __( 'WordPress Updates', 'pufferdesk-admin-desktop' ),
+				'source_label' => __( 'WordPress Updates', 'pufferdesk' ),
 				'type'         => 'warning',
 				'title'        => sprintf(
 					/* translators: %d: total update count. */
-					_n( '%d update is available', '%d updates are available', $total, 'pufferdesk-admin-desktop' ),
+					_n( '%d update is available', '%d updates are available', $total, 'pufferdesk' ),
 					$total
 				),
 				'message'      => implode( ', ', $details ),
@@ -603,10 +603,10 @@ final class PufferDesk_Notification_Registry {
 				'icon'         => 'dashicons-update',
 				'actions'      => array(
 					array(
-						'label'   => __( 'Open Updates', 'pufferdesk-admin-desktop' ),
+						'label'   => __( 'Open Updates', 'pufferdesk' ),
 						'command' => PufferDesk_Command_Ids::OPEN_URL,
 						'url'     => admin_url( 'update-core.php' ),
-						'title'   => __( 'WordPress Updates', 'pufferdesk-admin-desktop' ),
+						'title'   => __( 'WordPress Updates', 'pufferdesk' ),
 						'icon'    => 'dashicons-update',
 					),
 				),
@@ -634,24 +634,24 @@ final class PufferDesk_Notification_Registry {
 			array(
 				'id'           => sanitize_key( 'comments-moderation-' . $pending ),
 				'source'       => PufferDesk_User_Preferences::NOTIFICATION_SOURCE_COMMENTS,
-				'source_label' => __( 'Comments', 'pufferdesk-admin-desktop' ),
+				'source_label' => __( 'Comments', 'pufferdesk' ),
 				'type'         => 'info',
 				'title'        => sprintf(
 					/* translators: %d: pending comment count. */
-					_n( '%d comment is waiting', '%d comments are waiting', $pending, 'pufferdesk-admin-desktop' ),
+					_n( '%d comment is waiting', '%d comments are waiting', $pending, 'pufferdesk' ),
 					$pending
 				),
-				'message'      => __( 'Review comments in the moderation queue.', 'pufferdesk-admin-desktop' ),
+				'message'      => __( 'Review comments in the moderation queue.', 'pufferdesk' ),
 				'timestamp'    => time(),
 				'priority'     => 'normal',
 				'capability'   => 'moderate_comments',
 				'icon'         => 'dashicons-admin-comments',
 				'actions'      => array(
 					array(
-						'label'   => __( 'Review Comments', 'pufferdesk-admin-desktop' ),
+						'label'   => __( 'Review Comments', 'pufferdesk' ),
 						'command' => PufferDesk_Command_Ids::OPEN_URL,
 						'url'     => admin_url( 'edit-comments.php?comment_status=moderated' ),
-						'title'   => __( 'Comments', 'pufferdesk-admin-desktop' ),
+						'title'   => __( 'Comments', 'pufferdesk' ),
 						'icon'    => 'dashicons-admin-comments',
 					),
 				),
@@ -686,22 +686,22 @@ final class PufferDesk_Notification_Registry {
 			array(
 				'id'           => sanitize_key( sprintf( 'site-health-%d-%d', $critical, $recommended ) ),
 				'source'       => PufferDesk_User_Preferences::NOTIFICATION_SOURCE_SITE_HEALTH,
-				'source_label' => __( 'Site Health', 'pufferdesk-admin-desktop' ),
+				'source_label' => __( 'Site Health', 'pufferdesk' ),
 				'type'         => $type,
 				'title'        => $critical > 0
 					? sprintf(
 						/* translators: %d: critical issue count. */
-						_n( '%d critical Site Health issue', '%d critical Site Health issues', $critical, 'pufferdesk-admin-desktop' ),
+						_n( '%d critical Site Health issue', '%d critical Site Health issues', $critical, 'pufferdesk' ),
 						$critical
 					)
 					: sprintf(
 						/* translators: %d: recommended issue count. */
-						_n( '%d Site Health recommendation', '%d Site Health recommendations', $recommended, 'pufferdesk-admin-desktop' ),
+						_n( '%d Site Health recommendation', '%d Site Health recommendations', $recommended, 'pufferdesk' ),
 						$recommended
 					),
 				'message'      => sprintf(
 					/* translators: 1: critical issue count, 2: recommended issue count. */
-					__( '%1$d critical, %2$d recommended.', 'pufferdesk-admin-desktop' ),
+					__( '%1$d critical, %2$d recommended.', 'pufferdesk' ),
 					$critical,
 					$recommended
 				),
@@ -711,10 +711,10 @@ final class PufferDesk_Notification_Registry {
 				'icon'         => 'dashicons-heart',
 				'actions'      => array(
 					array(
-						'label'   => __( 'Open Site Health', 'pufferdesk-admin-desktop' ),
+						'label'   => __( 'Open Site Health', 'pufferdesk' ),
 						'command' => PufferDesk_Command_Ids::OPEN_URL,
 						'url'     => admin_url( 'site-health.php' ),
-						'title'   => __( 'Site Health', 'pufferdesk-admin-desktop' ),
+						'title'   => __( 'Site Health', 'pufferdesk' ),
 						'icon'    => 'dashicons-heart',
 					),
 				),

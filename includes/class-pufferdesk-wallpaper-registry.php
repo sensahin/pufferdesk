@@ -238,7 +238,7 @@ final class PufferDesk_Wallpaper_Registry {
 			if ( ! current_user_can( 'upload_files' ) ) {
 				return new WP_Error(
 					'pufferdesk_wallpaper_upload_forbidden',
-					__( 'You do not have permission to choose uploaded wallpapers.', 'pufferdesk-admin-desktop' )
+					__( 'You do not have permission to choose uploaded wallpapers.', 'pufferdesk' )
 				);
 			}
 
@@ -246,7 +246,7 @@ final class PufferDesk_Wallpaper_Registry {
 			if ( ! $this->is_valid_image_attachment( $attachment_id ) ) {
 				return new WP_Error(
 					'pufferdesk_invalid_wallpaper_upload',
-					__( 'Choose a valid image from the WordPress Media Library.', 'pufferdesk-admin-desktop' )
+					__( 'Choose a valid image from the WordPress Media Library.', 'pufferdesk' )
 				);
 			}
 
@@ -257,7 +257,7 @@ final class PufferDesk_Wallpaper_Registry {
 		if ( ! $item ) {
 			return new WP_Error(
 				'pufferdesk_invalid_wallpaper',
-				__( 'The selected wallpaper is not available.', 'pufferdesk-admin-desktop' )
+				__( 'The selected wallpaper is not available.', 'pufferdesk' )
 			);
 		}
 
@@ -292,7 +292,7 @@ final class PufferDesk_Wallpaper_Registry {
 			$item = array(
 				'type'      => self::TYPE_COLOR,
 				'id'        => 'none',
-				'label'     => __( 'Default', 'pufferdesk-admin-desktop' ),
+				'label'     => __( 'Default', 'pufferdesk' ),
 				'css_value' => 'none',
 				'preview'   => 'none',
 				'fit'       => 'cover',
@@ -376,7 +376,7 @@ final class PufferDesk_Wallpaper_Registry {
 			'type'          => self::TYPE_UPLOAD,
 			'id'            => 'custom',
 			'attachment_id' => $attachment_id,
-			'label'         => $label ? sanitize_text_field( $label ) : __( 'Custom Wallpaper', 'pufferdesk-admin-desktop' ),
+			'label'         => $label ? sanitize_text_field( $label ) : __( 'Custom Wallpaper', 'pufferdesk' ),
 			'url'           => esc_url_raw( $url ),
 			'css_value'     => $this->get_url_css_value( $url ),
 			'preview'       => $this->get_url_css_value( $url ),
@@ -437,102 +437,102 @@ final class PufferDesk_Wallpaper_Registry {
 			array(
 				array(
 					'id'        => 'aurora-flow',
-					'label'     => __( 'Aurora', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Aurora', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.34), transparent 24%), radial-gradient(circle at 78% 18%, rgba(46, 211, 255, 0.38), transparent 30%), linear-gradient(135deg, #2447c7 0%, #2fb8d2 52%, #8d3cff 100%)',
 				),
 				array(
 					'id'        => 'aqua-horizon',
-					'label'     => __( 'Aqua', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Aqua', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.46), transparent 22%), linear-gradient(120deg, #1d5fbf 0%, #1eb4c9 55%, #62f1dc 100%)',
 				),
 				array(
 					'id'        => 'alpine-mist',
-					'label'     => __( 'Alpine', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Alpine', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 76% 22%, rgba(255, 255, 255, 0.42), transparent 24%), linear-gradient(130deg, #16406d 0%, #3a8e9b 48%, #9ac77c 100%)',
 				),
 				array(
 					'id'        => 'canyon-light',
-					'label'     => __( 'Canyon', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Canyon', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 72% 18%, rgba(255, 231, 174, 0.45), transparent 28%), linear-gradient(125deg, #ff5c39 0%, #d83c7d 48%, #783fd6 100%)',
 				),
 				array(
 					'id'        => 'coral-ridge',
-					'label'     => __( 'Coral', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Coral', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.38), transparent 24%), linear-gradient(120deg, #ff4438 0%, #ee2d7a 52%, #b22ed5 100%)',
 				),
 				array(
 					'id'        => 'ember',
-					'label'     => __( 'Ember', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Ember', 'pufferdesk' ),
 					'css_value' => 'linear-gradient(135deg, #ffffc4 0.000%, #ff6164 50.000%, #b00012 100.000%)',
 				),
 				array(
 					'id'        => 'breeze',
-					'label'     => __( 'Breeze', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Breeze', 'pufferdesk' ),
 					'css_value' => 'linear-gradient(90deg, #07aeea 0.000%, #2bf598 100.000%)',
 				),
 				array(
 					'id'        => 'solar',
-					'label'     => __( 'Solar', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Solar', 'pufferdesk' ),
 					'css_value' => 'linear-gradient(90deg, #2a001b 0.000%, #78130c 16.667%, #ce480e 33.333%, #ff8d22 50.000%, #ffd543 66.667%, #ffff69 83.333%, #ffff8d 100.000%)',
 				),
 				array(
 					'id'        => 'azure',
-					'label'     => __( 'Azure', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Azure', 'pufferdesk' ),
 					'css_value' => 'linear-gradient(180deg, #003bff 0.000%, #004bff 8.333%, #125cff 16.667%, #2b6cff 25.000%, #447bff 33.333%, #5d8bff 41.667%, #7499ff 50.000%, #8aa7ff 58.333%, #9db3ff 66.667%, #adbfff 75.000%, #b9c9ff 83.333%, #c2d2ff 91.667%, #c6d9ff 100.000%)',
 				),
 				array(
 					'id'        => 'lagoon-glow',
-					'label'     => __( 'Lagoon', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Lagoon', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 80% 20%, rgba(227, 255, 241, 0.36), transparent 26%), linear-gradient(135deg, #0c6a88 0%, #18b5b7 54%, #69ddbb 100%)',
 				),
 				array(
 					'id'        => 'violet-wave',
-					'label'     => __( 'Violet', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Violet', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.3), transparent 22%), linear-gradient(130deg, #2b4fcf 0%, #7042d8 46%, #df46a6 100%)',
 				),
 				array(
 					'id'        => 'sunset-field',
-					'label'     => __( 'Sunset', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Sunset', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 74% 18%, rgba(255, 239, 170, 0.48), transparent 24%), linear-gradient(120deg, #ff7a18 0%, #ff3f68 48%, #6d4cf5 100%)',
 				),
 				array(
 					'id'        => 'mint-haze',
-					'label'     => __( 'Mint', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Mint', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.4), transparent 24%), linear-gradient(135deg, #207a68 0%, #6ac99d 52%, #b4d676 100%)',
 				),
 				array(
 					'id'        => 'nightfall',
-					'label'     => __( 'Nightfall', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Nightfall', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 78% 18%, rgba(92, 116, 255, 0.34), transparent 28%), radial-gradient(circle at 22% 76%, rgba(0, 204, 196, 0.22), transparent 32%), linear-gradient(135deg, #121d3d 0%, #242056 50%, #0f5364 100%)',
 				),
 				array(
 					'id'        => 'switchyard',
-					'label'     => __( 'Switchyard', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Switchyard', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 14% 18%, rgba(107, 183, 162, 0.34), transparent 24%), radial-gradient(circle at 78% 22%, rgba(231, 172, 91, 0.26), transparent 30%), linear-gradient(135deg, #263445 0%, #53606c 48%, #97a092 100%)',
 				),
 				array(
 					'id'        => 'blueprint',
-					'label'     => __( 'Blueprint', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Blueprint', 'pufferdesk' ),
 					'css_value' => 'linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px), linear-gradient(0deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(135deg, #1f3a4c 0%, #31535b 54%, #6f7c69 100%)',
 				),
 				array(
 					'id'        => 'terminal-light',
-					'label'     => __( 'Terminal Light', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Terminal Light', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 82% 18%, rgba(250, 205, 117, 0.38), transparent 25%), linear-gradient(135deg, #e2e6df 0%, #bbc6c1 50%, #7d9095 100%)',
 				),
 				array(
 					'id'        => 'pane-light',
-					'label'     => __( 'Pane Light', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Pane Light', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 18% 16%, rgba(255, 255, 255, 0.68), transparent 22%), radial-gradient(circle at 82% 18%, rgba(97, 178, 255, 0.38), transparent 28%), linear-gradient(135deg, #dfefff 0%, #bcd8f4 48%, #d8e4f7 100%)',
 				),
 				array(
 					'id'        => 'ribbon-blue',
-					'label'     => __( 'Ribbon Blue', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Ribbon Blue', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 74% 20%, rgba(115, 196, 255, 0.46), transparent 28%), radial-gradient(circle at 22% 72%, rgba(76, 110, 245, 0.28), transparent 34%), linear-gradient(135deg, #e7f3ff 0%, #a9caf5 52%, #d9d8f7 100%)',
 				),
 				array(
 					'id'        => 'graphite-glow',
-					'label'     => __( 'Graphite Glow', 'pufferdesk-admin-desktop' ),
+					'label'     => __( 'Graphite Glow', 'pufferdesk' ),
 					'css_value' => 'radial-gradient(circle at 82% 20%, rgba(66, 153, 225, 0.3), transparent 28%), radial-gradient(circle at 18% 70%, rgba(125, 92, 255, 0.2), transparent 34%), linear-gradient(135deg, #1c2635 0%, #26384d 50%, #18202c 100%)',
 				),
 			)
@@ -556,7 +556,7 @@ final class PufferDesk_Wallpaper_Registry {
 			$items[] = array(
 				'type'          => self::TYPE_THEME,
 				'id'            => 'default',
-				'label'         => __( 'Default', 'pufferdesk-admin-desktop' ),
+				'label'         => __( 'Default', 'pufferdesk' ),
 				'url'           => esc_url_raw( $theme['media']['wallpaper']['url'] ),
 				'css_value'     => $this->get_url_css_value( $theme['media']['wallpaper']['url'] ),
 				'preview'       => $this->get_url_css_value( $theme['media']['wallpaper']['url'] ),
@@ -693,44 +693,44 @@ final class PufferDesk_Wallpaper_Registry {
 	private function get_color_label( $id ) {
 		switch ( sanitize_key( $id ) ) {
 			case 'periwinkle':
-				return __( 'Periwinkle', 'pufferdesk-admin-desktop' );
+				return __( 'Periwinkle', 'pufferdesk' );
 			case 'cyan':
-				return __( 'Cyan', 'pufferdesk-admin-desktop' );
+				return __( 'Cyan', 'pufferdesk' );
 			case 'rose':
-				return __( 'Rose', 'pufferdesk-admin-desktop' );
+				return __( 'Rose', 'pufferdesk' );
 			case 'blue':
-				return __( 'Blue', 'pufferdesk-admin-desktop' );
+				return __( 'Blue', 'pufferdesk' );
 			case 'peach':
-				return __( 'Peach', 'pufferdesk-admin-desktop' );
+				return __( 'Peach', 'pufferdesk' );
 			case 'cream':
-				return __( 'Cream', 'pufferdesk-admin-desktop' );
+				return __( 'Cream', 'pufferdesk' );
 			case 'gold':
-				return __( 'Gold', 'pufferdesk-admin-desktop' );
+				return __( 'Gold', 'pufferdesk' );
 			case 'magenta':
-				return __( 'Magenta', 'pufferdesk-admin-desktop' );
+				return __( 'Magenta', 'pufferdesk' );
 			case 'ember':
-				return __( 'Ember', 'pufferdesk-admin-desktop' );
+				return __( 'Ember', 'pufferdesk' );
 			case 'blush':
-				return __( 'Blush', 'pufferdesk-admin-desktop' );
+				return __( 'Blush', 'pufferdesk' );
 			case 'mist':
-				return __( 'Mist', 'pufferdesk-admin-desktop' );
+				return __( 'Mist', 'pufferdesk' );
 			case 'pink':
-				return __( 'Pink', 'pufferdesk-admin-desktop' );
+				return __( 'Pink', 'pufferdesk' );
 			case 'gray':
-				return __( 'Gray', 'pufferdesk-admin-desktop' );
+				return __( 'Gray', 'pufferdesk' );
 			case 'silver':
-				return __( 'Silver', 'pufferdesk-admin-desktop' );
+				return __( 'Silver', 'pufferdesk' );
 			case 'slate':
-				return __( 'Slate', 'pufferdesk-admin-desktop' );
+				return __( 'Slate', 'pufferdesk' );
 			case 'teal':
-				return __( 'Teal', 'pufferdesk-admin-desktop' );
+				return __( 'Teal', 'pufferdesk' );
 			case 'mint':
-				return __( 'Mint', 'pufferdesk-admin-desktop' );
+				return __( 'Mint', 'pufferdesk' );
 			case 'yellow':
-				return __( 'Yellow', 'pufferdesk-admin-desktop' );
+				return __( 'Yellow', 'pufferdesk' );
 			case 'black':
 			default:
-				return __( 'Black', 'pufferdesk-admin-desktop' );
+				return __( 'Black', 'pufferdesk' );
 		}
 	}
 

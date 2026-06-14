@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * Owns URLs, request detection, redirects, and mode toggle handling.
  */
 final class PufferDesk_Router {
-	const PAGE_SLUG    = 'pufferdesk-admin-desktop';
+	const PAGE_SLUG    = 'pufferdesk';
 	const NONCE_TOGGLE = 'pufferdesk_toggle';
 	const QUERY_CLASSIC     = 'pufferdesk_classic';
 	const QUERY_IFRAME      = 'pufferdesk_iframe';
@@ -45,7 +45,7 @@ final class PufferDesk_Router {
 		}
 
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
-			wp_die( esc_html__( 'You do not have permission to change PufferDesk.', 'pufferdesk-admin-desktop' ) );
+			wp_die( esc_html__( 'You do not have permission to change PufferDesk.', 'pufferdesk' ) );
 		}
 
 		check_admin_referer( self::NONCE_TOGGLE );

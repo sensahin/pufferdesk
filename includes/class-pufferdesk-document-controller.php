@@ -211,7 +211,7 @@ final class PufferDesk_Document_Controller {
 		if ( ! check_ajax_referer( PufferDesk_Settings_Controller::NONCE_ACTION, 'nonce', false ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Security check failed.', 'pufferdesk-admin-desktop' ),
+					'message' => __( 'Security check failed.', 'pufferdesk' ),
 				),
 				403
 			);

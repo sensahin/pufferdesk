@@ -9,7 +9,7 @@ const assetManifest = JSON.parse(await fs.readFile(path.join(root, 'assets/manif
 const coreCssSources = readManifestSources(assetManifest.coreStyles, 'coreStyles');
 const jsSources = readManifestSources(assetManifest.scripts, 'scripts');
 const distCoreCss = assetManifest.dist?.coreCss || 'assets/dist/css/pufferdesk-core.min.css';
-const distScript = assetManifest.dist?.script || 'assets/dist/js/pufferdesk-admin-desktop.min.js';
+const distScript = assetManifest.dist?.script || 'assets/dist/js/pufferdesk.min.js';
 
 function readManifestSources(entries, key) {
 	if (!Array.isArray(entries)) {

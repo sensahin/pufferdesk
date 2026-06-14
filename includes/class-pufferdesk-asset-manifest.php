@@ -39,7 +39,7 @@ final class PufferDesk_Asset_Manifest {
 	public function get_dist_script() {
 		$dist = $this->get_dist();
 
-		return isset( $dist['script'] ) ? $dist['script'] : 'assets/dist/js/pufferdesk-admin-desktop.min.js';
+		return isset( $dist['script'] ) ? $dist['script'] : 'assets/dist/js/pufferdesk.min.js';
 	}
 
 	/**
@@ -109,7 +109,7 @@ final class PufferDesk_Asset_Manifest {
 
 		return array(
 			'coreCss' => isset( $dist['coreCss'] ) && is_scalar( $dist['coreCss'] ) ? $this->normalize_asset_path( $dist['coreCss'] ) : 'assets/dist/css/pufferdesk-core.min.css',
-			'script'  => isset( $dist['script'] ) && is_scalar( $dist['script'] ) ? $this->normalize_asset_path( $dist['script'] ) : 'assets/dist/js/pufferdesk-admin-desktop.min.js',
+			'script'  => isset( $dist['script'] ) && is_scalar( $dist['script'] ) ? $this->normalize_asset_path( $dist['script'] ) : 'assets/dist/js/pufferdesk.min.js',
 		);
 	}
 

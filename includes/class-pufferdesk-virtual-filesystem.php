@@ -268,7 +268,7 @@ final class PufferDesk_Virtual_Filesystem {
 			'icon'     => PufferDesk_Icon_Renderer::normalize( $icon ),
 			'kind'     => 'system',
 			'special'  => sanitize_key( $special ),
-			'source'   => __( 'PufferDesk virtual filesystem', 'pufferdesk-admin-desktop' ),
+			'source'   => __( 'PufferDesk virtual filesystem', 'pufferdesk' ),
 			'user'     => false,
 			'virtual'  => true,
 		);
@@ -298,20 +298,20 @@ final class PufferDesk_Virtual_Filesystem {
 	 */
 	private function get_labels( $theme, $user_id ) {
 		$user           = get_user_by( 'id', $user_id );
-		$user_label     = $user && $user->display_name ? $user->display_name : ( $user && $user->user_login ? $user->user_login : __( 'User', 'pufferdesk-admin-desktop' ) );
-		$trash          = $this->get_theme_menu_label( $theme, 'trash', __( 'Trash', 'pufferdesk-admin-desktop' ) );
+		$user_label     = $user && $user->display_name ? $user->display_name : ( $user && $user->user_login ? $user->user_login : __( 'User', 'pufferdesk' ) );
+		$trash          = $this->get_theme_menu_label( $theme, 'trash', __( 'Trash', 'pufferdesk' ) );
 		$is_redmond     = $this->is_redmond_theme( $theme );
-		$home_label     = $is_redmond ? __( 'This PC', 'pufferdesk-admin-desktop' ) : sanitize_text_field( $user_label );
-		$root_label     = $is_redmond ? __( 'This PC', 'pufferdesk-admin-desktop' ) : sanitize_text_field( $user_label );
+		$home_label     = $is_redmond ? __( 'This PC', 'pufferdesk' ) : sanitize_text_field( $user_label );
+		$root_label     = $is_redmond ? __( 'This PC', 'pufferdesk' ) : sanitize_text_field( $user_label );
 
 		return array(
 			'home'       => $home_label,
-			'desktop'    => __( 'Desktop', 'pufferdesk-admin-desktop' ),
-			'documents'  => __( 'Documents', 'pufferdesk-admin-desktop' ),
+			'desktop'    => __( 'Desktop', 'pufferdesk' ),
+			'documents'  => __( 'Documents', 'pufferdesk' ),
 			'trash'      => $trash,
-			'thisPc'     => __( 'This PC', 'pufferdesk-admin-desktop' ),
-			'localDisk'  => __( 'Local Disk', 'pufferdesk-admin-desktop' ),
-			'users'      => __( 'Users', 'pufferdesk-admin-desktop' ),
+			'thisPc'     => __( 'This PC', 'pufferdesk' ),
+			'localDisk'  => __( 'Local Disk', 'pufferdesk' ),
+			'users'      => __( 'Users', 'pufferdesk' ),
 			'root'       => $root_label,
 		);
 	}

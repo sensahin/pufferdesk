@@ -130,9 +130,9 @@ final class PufferDesk_Window_Chrome_Contracts {
 				'order'     => self::get_control_ids(),
 				'style'     => self::STYLE_TRAFFIC,
 				'labels'    => array(
-					self::CONTROL_CLOSE    => __( 'Close', 'pufferdesk-admin-desktop' ),
-					self::CONTROL_MINIMIZE => __( 'Minimize', 'pufferdesk-admin-desktop' ),
-					self::CONTROL_MAXIMIZE => __( 'Maximize', 'pufferdesk-admin-desktop' ),
+					self::CONTROL_CLOSE    => __( 'Close', 'pufferdesk' ),
+					self::CONTROL_MINIMIZE => __( 'Minimize', 'pufferdesk' ),
+					self::CONTROL_MAXIMIZE => __( 'Maximize', 'pufferdesk' ),
 				),
 			),
 			'title'    => array(

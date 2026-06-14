@@ -129,72 +129,72 @@ final class PufferDesk_Sound_Registry {
 		$alert  = esc_url_raw( PUFFERDESK_URL . 'assets/media/shared/sounds/notification-alert.wav' );
 		$events = array(
 			self::EVENT_NOTIFICATION_DEFAULT => array(
-				'description' => __( 'Fallback notification sound.', 'pufferdesk-admin-desktop' ),
+				'description' => __( 'Fallback notification sound.', 'pufferdesk' ),
 				'group'       => 'notifications',
-				'label'       => __( 'Default notification', 'pufferdesk-admin-desktop' ),
+				'label'       => __( 'Default notification', 'pufferdesk' ),
 				'source'      => array(
 					'src'    => $notice,
 					'volume' => 0.34,
 				),
 			),
 			self::EVENT_NOTIFICATION_INFO    => array(
-				'description' => __( 'Used for standard notifications.', 'pufferdesk-admin-desktop' ),
+				'description' => __( 'Used for standard notifications.', 'pufferdesk' ),
 				'group'       => 'notifications',
-				'label'       => __( 'Notification', 'pufferdesk-admin-desktop' ),
+				'label'       => __( 'Notification', 'pufferdesk' ),
 				'source'      => array(
 					'src'    => $notice,
 					'volume' => 0.34,
 				),
 			),
 			self::EVENT_NOTIFICATION_WARNING => array(
-				'description' => __( 'Used for warning notifications.', 'pufferdesk-admin-desktop' ),
+				'description' => __( 'Used for warning notifications.', 'pufferdesk' ),
 				'group'       => 'notifications',
-				'label'       => __( 'Warning notification', 'pufferdesk-admin-desktop' ),
+				'label'       => __( 'Warning notification', 'pufferdesk' ),
 				'source'      => array(
 					'src'    => $alert,
 					'volume' => 0.36,
 				),
 			),
 			self::EVENT_NOTIFICATION_ERROR   => array(
-				'description' => __( 'Used for critical notifications.', 'pufferdesk-admin-desktop' ),
+				'description' => __( 'Used for critical notifications.', 'pufferdesk' ),
 				'group'       => 'notifications',
-				'label'       => __( 'Critical notification', 'pufferdesk-admin-desktop' ),
+				'label'       => __( 'Critical notification', 'pufferdesk' ),
 				'source'      => array(
 					'src'    => $alert,
 					'volume' => 0.4,
 				),
 			),
 			self::EVENT_DIALOG_WARNING       => array(
-				'description' => __( 'Reserved for warning dialogs.', 'pufferdesk-admin-desktop' ),
+				'description' => __( 'Reserved for warning dialogs.', 'pufferdesk' ),
 				'group'       => 'dialogs',
-				'label'       => __( 'Warning dialog', 'pufferdesk-admin-desktop' ),
+				'label'       => __( 'Warning dialog', 'pufferdesk' ),
 				'source'      => array(
 					'src'    => $alert,
 					'volume' => 0.38,
 				),
 			),
 			self::EVENT_DIALOG_DESTRUCTIVE   => array(
-				'description' => __( 'Reserved for destructive confirmations.', 'pufferdesk-admin-desktop' ),
+				'description' => __( 'Reserved for destructive confirmations.', 'pufferdesk' ),
 				'group'       => 'dialogs',
-				'label'       => __( 'Destructive action', 'pufferdesk-admin-desktop' ),
+				'label'       => __( 'Destructive action', 'pufferdesk' ),
 				'source'      => array(
 					'src'    => $alert,
 					'volume' => 0.4,
 				),
 			),
 			self::EVENT_TRASH_EMPTY          => array(
-				'description' => __( 'Reserved for emptying Trash or Recycle Bin.', 'pufferdesk-admin-desktop' ),
+				'description' => __( 'Reserved for emptying Trash or Recycle Bin.', 'pufferdesk' ),
 				'group'       => 'system',
-				'label'       => __( 'Empty Trash', 'pufferdesk-admin-desktop' ),
+				'label'       => __( 'Empty Trash', 'pufferdesk' ),
 				'source'      => array(
 					'src'    => $alert,
 					'volume' => 0.38,
 				),
 			),
 			self::EVENT_APP_ERROR            => array(
-				'description' => __( 'Reserved for app and plugin errors.', 'pufferdesk-admin-desktop' ),
+				'description' => __( 'Reserved for app and plugin errors.', 'pufferdesk' ),
 				'group'       => 'apps',
-				'label'       => __( 'App error', 'pufferdesk-admin-desktop' ),
+				'label'       => __( 'App error', 'pufferdesk' ),
 				'source'      => array(
 					'src'    => $alert,
 					'volume' => 0.4,

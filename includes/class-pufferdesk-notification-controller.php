@@ -96,7 +96,7 @@ final class PufferDesk_Notification_Controller {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to manage notifications.', 'pufferdesk-admin-desktop' ),
+					'message' => __( 'You do not have permission to manage notifications.', 'pufferdesk' ),
 				),
 				403
 			);

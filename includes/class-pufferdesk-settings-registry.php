@@ -303,31 +303,31 @@ final class PufferDesk_Settings_Registry {
 	private function get_client_domain_label( $domain_id, $fallback ) {
 		switch ( $domain_id ) {
 			case 'appearance':
-				return __( 'Appearance', 'pufferdesk-admin-desktop' );
+				return __( 'Appearance', 'pufferdesk' );
 			case 'desktop_dock':
-				return __( 'Desktop & Dock', 'pufferdesk-admin-desktop' );
+				return __( 'Desktop & Dock', 'pufferdesk' );
 			case 'app_locations':
-				return __( 'App Locations', 'pufferdesk-admin-desktop' );
+				return __( 'App Locations', 'pufferdesk' );
 			case 'app_login_items':
-				return __( 'Login Items', 'pufferdesk-admin-desktop' );
+				return __( 'Login Items', 'pufferdesk' );
 			case 'desktop_folders':
-				return __( 'Desktop Folders', 'pufferdesk-admin-desktop' );
+				return __( 'Desktop Folders', 'pufferdesk' );
 			case 'desktop_trash':
-				return __( 'Trash', 'pufferdesk-admin-desktop' );
+				return __( 'Trash', 'pufferdesk' );
 			case 'menu_bar':
-				return __( 'Menu Bar', 'pufferdesk-admin-desktop' );
+				return __( 'Menu Bar', 'pufferdesk' );
 			case 'notifications':
-				return __( 'Notifications', 'pufferdesk-admin-desktop' );
+				return __( 'Notifications', 'pufferdesk' );
 			case 'sounds':
-				return __( 'Sound', 'pufferdesk-admin-desktop' );
+				return __( 'Sound', 'pufferdesk' );
 			case 'theme':
-				return __( 'Theme', 'pufferdesk-admin-desktop' );
+				return __( 'Theme', 'pufferdesk' );
 			case 'wallpaper':
-				return __( 'Wallpaper', 'pufferdesk-admin-desktop' );
+				return __( 'Wallpaper', 'pufferdesk' );
 			case 'wallpaper_uploads':
-				return __( 'Wallpaper Uploads', 'pufferdesk-admin-desktop' );
+				return __( 'Wallpaper Uploads', 'pufferdesk' );
 			case 'reset':
-				return __( 'Reset', 'pufferdesk-admin-desktop' );
+				return __( 'Reset', 'pufferdesk' );
 			default:
 				return $fallback;
 		}

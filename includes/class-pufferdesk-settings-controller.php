@@ -119,7 +119,7 @@ final class PufferDesk_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'desktopDock' => $desktop_dock,
-				'message'     => __( 'Desktop & Dock saved.', 'pufferdesk-admin-desktop' ),
+				'message'     => __( 'Desktop & Dock saved.', 'pufferdesk' ),
 			)
 		);
 	}
@@ -145,7 +145,7 @@ final class PufferDesk_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'appLocations' => $app_locations,
-				'message'      => __( 'App locations saved.', 'pufferdesk-admin-desktop' ),
+				'message'      => __( 'App locations saved.', 'pufferdesk' ),
 			)
 		);
 	}
@@ -171,7 +171,7 @@ final class PufferDesk_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'appLoginItems' => $items,
-				'message'       => __( 'Login items saved.', 'pufferdesk-admin-desktop' ),
+				'message'       => __( 'Login items saved.', 'pufferdesk' ),
 			)
 		);
 	}
@@ -197,7 +197,7 @@ final class PufferDesk_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'desktopFolders' => $folders,
-				'message'        => __( 'Desktop folders saved.', 'pufferdesk-admin-desktop' ),
+				'message'        => __( 'Desktop folders saved.', 'pufferdesk' ),
 			)
 		);
 	}
@@ -223,7 +223,7 @@ final class PufferDesk_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'desktopTrash' => $items,
-				'message'      => __( 'Trash saved.', 'pufferdesk-admin-desktop' ),
+				'message'      => __( 'Trash saved.', 'pufferdesk' ),
 			)
 		);
 	}
@@ -246,7 +246,7 @@ final class PufferDesk_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'appearance' => $appearance,
-				'message'    => __( 'Appearance saved.', 'pufferdesk-admin-desktop' ),
+				'message'    => __( 'Appearance saved.', 'pufferdesk' ),
 			)
 		);
 	}
@@ -267,7 +267,7 @@ final class PufferDesk_Settings_Controller {
 		wp_send_json_success(
 			array(
 				'menuBar' => $menu_bar,
-				'message' => __( 'Menu Bar saved.', 'pufferdesk-admin-desktop' ),
+				'message' => __( 'Menu Bar saved.', 'pufferdesk' ),
 			)
 		);
 	}
@@ -300,7 +300,7 @@ final class PufferDesk_Settings_Controller {
 
 		wp_send_json_success(
 			array(
-				'message'       => __( 'Notifications saved.', 'pufferdesk-admin-desktop' ),
+				'message'       => __( 'Notifications saved.', 'pufferdesk' ),
 				'notifications' => $notifications,
 			)
 		);
@@ -321,7 +321,7 @@ final class PufferDesk_Settings_Controller {
 
 		wp_send_json_success(
 			array(
-				'message' => __( 'Sound saved.', 'pufferdesk-admin-desktop' ),
+				'message' => __( 'Sound saved.', 'pufferdesk' ),
 				'sounds'  => $sounds,
 			)
 		);
@@ -352,7 +352,7 @@ final class PufferDesk_Settings_Controller {
 		$theme = $this->theme_registry->get_current_theme( $this->preferences );
 		wp_send_json_success(
 			array(
-				'message'   => __( 'Theme saved.', 'pufferdesk-admin-desktop' ),
+				'message'   => __( 'Theme saved.', 'pufferdesk' ),
 				'themeMode' => $this->preferences->get_theme_mode( $this->theme_registry->get_themes() ),
 				'theme'     => array(
 					'id'            => $theme['id'],
@@ -397,7 +397,7 @@ final class PufferDesk_Settings_Controller {
 
 		wp_send_json_success(
 			array(
-				'message'   => __( 'Wallpaper saved.', 'pufferdesk-admin-desktop' ),
+				'message'   => __( 'Wallpaper saved.', 'pufferdesk' ),
 				'wallpaper' => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
 			)
 		);
@@ -413,7 +413,7 @@ final class PufferDesk_Settings_Controller {
 		if ( ! $attachment_id ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Choose a valid photo to remove.', 'pufferdesk-admin-desktop' ),
+					'message' => __( 'Choose a valid photo to remove.', 'pufferdesk' ),
 				),
 				400
 			);
@@ -432,7 +432,7 @@ final class PufferDesk_Settings_Controller {
 
 		wp_send_json_success(
 			array(
-				'message'   => __( 'Photo removed.', 'pufferdesk-admin-desktop' ),
+				'message'   => __( 'Photo removed.', 'pufferdesk' ),
 				'wallpaper' => $this->wallpaper_registry->get_client_config( $theme, $this->preferences ),
 			)
 		);
@@ -450,7 +450,7 @@ final class PufferDesk_Settings_Controller {
 		if ( empty( $domains ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'Choose a valid PufferDesk reset option.', 'pufferdesk-admin-desktop' ),
+					'message' => __( 'Choose a valid PufferDesk reset option.', 'pufferdesk' ),
 				),
 				400
 			);
@@ -465,7 +465,7 @@ final class PufferDesk_Settings_Controller {
 					'clearAllUserSessions' => true,
 					'reload'               => true,
 				),
-				'message'      => __( 'PufferDesk settings were reset.', 'pufferdesk-admin-desktop' ),
+				'message'      => __( 'PufferDesk settings were reset.', 'pufferdesk' ),
 				'profile'      => $profile,
 				'resetDomains' => $reset_domains,
 				'workspaceStatesReset' => $workspace_states_reset,
@@ -501,7 +501,7 @@ final class PufferDesk_Settings_Controller {
 	 * @return string
 	 */
 	private function settings_permission_message() {
-		return __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk-admin-desktop' );
+		return __( 'You do not have permission to change PufferDesk settings.', 'pufferdesk' );
 	}
 
 	/**
@@ -510,7 +510,7 @@ final class PufferDesk_Settings_Controller {
 	 * @return string
 	 */
 	private function folders_permission_message() {
-		return __( 'You do not have permission to change PufferDesk folders.', 'pufferdesk-admin-desktop' );
+		return __( 'You do not have permission to change PufferDesk folders.', 'pufferdesk' );
 	}
 
 	/**
@@ -519,7 +519,7 @@ final class PufferDesk_Settings_Controller {
 	 * @return string
 	 */
 	private function trash_permission_message() {
-		return __( 'You do not have permission to change PufferDesk Trash.', 'pufferdesk-admin-desktop' );
+		return __( 'You do not have permission to change PufferDesk Trash.', 'pufferdesk' );
 	}
 
 	/**
@@ -528,7 +528,7 @@ final class PufferDesk_Settings_Controller {
 	 * @return string
 	 */
 	private function reset_permission_message() {
-		return __( 'You do not have permission to reset PufferDesk settings.', 'pufferdesk-admin-desktop' );
+		return __( 'You do not have permission to reset PufferDesk settings.', 'pufferdesk' );
 	}
 
 	/**

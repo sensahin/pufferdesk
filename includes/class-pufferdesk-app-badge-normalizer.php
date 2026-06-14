@@ -35,7 +35,7 @@ final class PufferDesk_App_Badge_Normalizer {
 	 */
 	public static function get_aria_label_format() {
 		/* translators: 1: app label, 2: app badge accessibility label. */
-		return __( '%1$s, %2$s', 'pufferdesk-admin-desktop' );
+		return __( '%1$s, %2$s', 'pufferdesk' );
 	}
 
 	/**
@@ -63,7 +63,7 @@ final class PufferDesk_App_Badge_Normalizer {
 	public static function format_count_label( $text, $count ) {
 		return sprintf(
 			/* translators: %s: Notification count. */
-			_n( '%s notification', '%s notifications', $count, 'pufferdesk-admin-desktop' ),
+			_n( '%s notification', '%s notifications', $count, 'pufferdesk' ),
 			(string) $text
 		);
 	}
@@ -77,7 +77,7 @@ final class PufferDesk_App_Badge_Normalizer {
 	public static function format_status_label( $text ) {
 		return sprintf(
 			/* translators: %s: Badge text. */
-			__( '%s status', 'pufferdesk-admin-desktop' ),
+			__( '%s status', 'pufferdesk' ),
 			(string) $text
 		);
 	}

@@ -182,13 +182,13 @@ final class PufferDesk_Notification_Normalizer {
 	private function get_source_label( $source ) {
 		switch ( $source ) {
 			case PufferDesk_User_Preferences::NOTIFICATION_SOURCE_WORDPRESS_UPDATES:
-				return __( 'WordPress Updates', 'pufferdesk-admin-desktop' );
+				return __( 'WordPress Updates', 'pufferdesk' );
 			case PufferDesk_User_Preferences::NOTIFICATION_SOURCE_COMMENTS:
-				return __( 'Comments', 'pufferdesk-admin-desktop' );
+				return __( 'Comments', 'pufferdesk' );
 			case PufferDesk_User_Preferences::NOTIFICATION_SOURCE_SITE_HEALTH:
-				return __( 'Site Health', 'pufferdesk-admin-desktop' );
+				return __( 'Site Health', 'pufferdesk' );
 			case PufferDesk_User_Preferences::NOTIFICATION_SOURCE_APPS:
-				return __( 'Apps', 'pufferdesk-admin-desktop' );
+				return __( 'Apps', 'pufferdesk' );
 			case PufferDesk_User_Preferences::NOTIFICATION_SOURCE_PUFFERDESK:
 			default:
 				return PufferDesk_Product_Labels::name();

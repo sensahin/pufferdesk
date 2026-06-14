@@ -17,7 +17,7 @@ final class PufferDesk_Product_Labels {
 	 * @return string
 	 */
 	public static function name() {
-		return __( 'PufferDesk', 'pufferdesk-admin-desktop' );
+		return __( 'PufferDesk', 'pufferdesk' );
 	}
 
 	/**
@@ -26,7 +26,7 @@ final class PufferDesk_Product_Labels {
 	 * @return string
 	 */
 	public static function classic_admin() {
-		return __( 'Classic Admin', 'pufferdesk-admin-desktop' );
+		return __( 'Classic Admin', 'pufferdesk' );
 	}
 
 	/**
@@ -35,7 +35,7 @@ final class PufferDesk_Product_Labels {
 	 * @return string
 	 */
 	public static function documents_name() {
-		return __( 'PufferDesk Sticky Notes', 'pufferdesk-admin-desktop' );
+		return __( 'PufferDesk Sticky Notes', 'pufferdesk' );
 	}
 
 	/**
@@ -44,6 +44,6 @@ final class PufferDesk_Product_Labels {
 	 * @return string
 	 */
 	public static function document_name() {
-		return __( 'PufferDesk Sticky Note', 'pufferdesk-admin-desktop' );
+		return __( 'PufferDesk Sticky Note', 'pufferdesk' );
 	}
 }

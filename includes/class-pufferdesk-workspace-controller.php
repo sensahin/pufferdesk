@@ -143,7 +143,7 @@ final class PufferDesk_Workspace_Controller {
 
 		wp_send_json_success(
 			array(
-				'message'        => __( 'Workspace saved.', 'pufferdesk-admin-desktop' ),
+				'message'        => __( 'Workspace saved.', 'pufferdesk' ),
 				'workspaceState' => $state,
 			)
 		);
@@ -164,7 +164,7 @@ final class PufferDesk_Workspace_Controller {
 
 		wp_send_json_success(
 			array(
-				'message'        => __( 'Workspace layout reset.', 'pufferdesk-admin-desktop' ),
+				'message'        => __( 'Workspace layout reset.', 'pufferdesk' ),
 				'workspaceState' => $this->workspace_state->get_default_state(),
 			)
 		);
@@ -177,7 +177,7 @@ final class PufferDesk_Workspace_Controller {
 		if ( ! is_user_logged_in() || ! current_user_can( 'read' ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'You do not have permission to change PufferDesk workspace state.', 'pufferdesk-admin-desktop' ),
+					'message' => __( 'You do not have permission to change PufferDesk workspace state.', 'pufferdesk' ),
 				),
 				403
 			);
@@ -203,7 +203,7 @@ final class PufferDesk_Workspace_Controller {
 		if ( empty( $themes[ $theme_id ] ) || ! empty( $themes[ $theme_id ]['abstract'] ) ) {
 			wp_send_json_error(
 				array(
-					'message' => __( 'The selected PufferDesk theme is not available.', 'pufferdesk-admin-desktop' ),
+					'message' => __( 'The selected PufferDesk theme is not available.', 'pufferdesk' ),
 				),
 				400
 			);

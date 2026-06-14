@@ -39,7 +39,7 @@ final class PufferDesk_Shell_Renderer {
 	 */
 	public function render() {
 		if ( ! current_user_can( 'read' ) ) {
-			wp_die( esc_html__( 'You do not have permission to use PufferDesk.', 'pufferdesk-admin-desktop' ) );
+			wp_die( esc_html__( 'You do not have permission to use PufferDesk.', 'pufferdesk' ) );
 		}
 
 		$context             = $this->shell_context->get();

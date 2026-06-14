@@ -152,7 +152,7 @@ final class PufferDesk_Content_Search_Service {
 			'snippet'  => $snippet,
 			'subtitle' => sprintf(
 				/* translators: 1: content type label, 2: post status label. */
-				__( '%1$s - %2$s', 'pufferdesk-admin-desktop' ),
+				__( '%1$s - %2$s', 'pufferdesk' ),
 				$type['label'],
 				$status_label
 			),
@@ -173,17 +173,17 @@ final class PufferDesk_Content_Search_Service {
 		$types = array(
 			'post'       => array(
 				'icon'  => 'dashicons-admin-post',
-				'label' => __( 'Post', 'pufferdesk-admin-desktop' ),
+				'label' => __( 'Post', 'pufferdesk' ),
 				'type'  => 'wp_post',
 			),
 			'page'       => array(
 				'icon'  => 'dashicons-admin-page',
-				'label' => __( 'Page', 'pufferdesk-admin-desktop' ),
+				'label' => __( 'Page', 'pufferdesk' ),
 				'type'  => 'wp_page',
 			),
 			'attachment' => array(
 				'icon'  => 'dashicons-admin-media',
-				'label' => __( 'Media', 'pufferdesk-admin-desktop' ),
+				'label' => __( 'Media', 'pufferdesk' ),
 				'type'  => 'wp_attachment',
 			),
 		);
@@ -219,8 +219,8 @@ final class PufferDesk_Content_Search_Service {
 		}
 
 		return 'attachment' === $post->post_type
-			? __( 'Untitled media item', 'pufferdesk-admin-desktop' )
-			: __( 'Untitled', 'pufferdesk-admin-desktop' );
+			? __( 'Untitled media item', 'pufferdesk' )
+			: __( 'Untitled', 'pufferdesk' );
 	}
 
 	/**

@@ -280,7 +280,7 @@ final class PufferDesk_Onboarding_Note {
 	 * @return string
 	 */
 	private function get_note_title() {
-		return __( 'Welcome to PufferDesk', 'pufferdesk-admin-desktop' );
+		return __( 'Welcome to PufferDesk', 'pufferdesk' );
 	}
 
 	/**
@@ -291,9 +291,9 @@ final class PufferDesk_Onboarding_Note {
 	private function get_note_content() {
 		return sprintf(
 			'<p>%1$s</p><p>%2$s</p><p>%3$s</p>',
-			esc_html__( 'Your WordPress admin has a desktop now.', 'pufferdesk-admin-desktop' ),
-			esc_html__( 'Drag windows, right-click the desktop, and make folders.', 'pufferdesk-admin-desktop' ),
-			esc_html__( 'Classic Admin is still one click away.', 'pufferdesk-admin-desktop' )
+			esc_html__( 'Your WordPress admin has a desktop now.', 'pufferdesk' ),
+			esc_html__( 'Drag windows, right-click the desktop, and make folders.', 'pufferdesk' ),
+			esc_html__( 'Classic Admin is still one click away.', 'pufferdesk' )
 		);
 	}
 }

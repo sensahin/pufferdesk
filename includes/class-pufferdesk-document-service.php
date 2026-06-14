@@ -39,9 +39,9 @@ final class PufferDesk_Document_Service {
 	public static function get_default_labels() {
 		return array(
 			/* translators: %s: Source document title. */
-			'copyNameFormat'     => __( '%s copy', 'pufferdesk-admin-desktop' ),
-			'stickyNote'         => __( 'Sticky Note', 'pufferdesk-admin-desktop' ),
-			'untitledStickyNote' => __( 'Untitled Sticky Note', 'pufferdesk-admin-desktop' ),
+			'copyNameFormat'     => __( '%s copy', 'pufferdesk' ),
+			'stickyNote'         => __( 'Sticky Note', 'pufferdesk' ),
+			'untitledStickyNote' => __( 'Untitled Sticky Note', 'pufferdesk' ),
 		);
 	}
 
@@ -325,7 +325,7 @@ final class PufferDesk_Document_Service {
 		if ( 'trash' === $post->post_status && false === wp_untrash_post( $post->ID ) ) {
 			return new WP_Error(
 				'pufferdesk_document_restore_failed',
-				__( 'Could not restore document.', 'pufferdesk-admin-desktop' ),
+				__( 'Could not restore document.', 'pufferdesk' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -374,7 +374,7 @@ final class PufferDesk_Document_Service {
 		if ( ! $post || PufferDesk_Document_Post_Type::POST_TYPE !== $post->post_type ) {
 			return new WP_Error(
 				'pufferdesk_document_not_found',
-				__( 'Document not found.', 'pufferdesk-admin-desktop' ),
+				__( 'Document not found.', 'pufferdesk' ),
 				array( 'status' => 404 )
 			);
 		}
@@ -532,7 +532,7 @@ final class PufferDesk_Document_Service {
 	private function permission_error() {
 		return new WP_Error(
 			'pufferdesk_document_forbidden',
-			__( 'You do not have permission to edit PufferDesk documents.', 'pufferdesk-admin-desktop' ),
+			__( 'You do not have permission to edit PufferDesk documents.', 'pufferdesk' ),
 			array( 'status' => 403 )
 		);
 	}

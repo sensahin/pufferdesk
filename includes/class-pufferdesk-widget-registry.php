@@ -38,7 +38,7 @@ final class PufferDesk_Widget_Registry {
 		$widgets = array(
 			array(
 				'id'               => 'clock',
-				'label'            => __( 'Clock', 'pufferdesk-admin-desktop' ),
+				'label'            => __( 'Clock', 'pufferdesk' ),
 				'icon'             => $this->theme_icon( 'clock.svg', 'dashicons-clock' ),
 				'kind'             => self::KIND_NATIVE,
 				'native'           => self::NATIVE_CLOCK,

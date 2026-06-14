@@ -98,7 +98,7 @@ final class PufferDesk_Workspace_State {
 		if ( $expected_updated_at < $current_updated_at ) {
 			return new WP_Error(
 				'pufferdesk_workspace_conflict',
-				__( 'Workspace layout changed in another browser window. The latest layout was kept.', 'pufferdesk-admin-desktop' ),
+				__( 'Workspace layout changed in another browser window. The latest layout was kept.', 'pufferdesk' ),
 				array(
 					'current_updated_at' => $current_updated_at,
 					'status'             => 409,

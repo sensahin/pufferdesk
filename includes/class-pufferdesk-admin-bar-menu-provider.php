@@ -254,7 +254,7 @@ final class PufferDesk_Admin_Bar_Menu_Provider {
 
 		return sprintf(
 			/* translators: %s: content type label. */
-			__( 'New %s', 'pufferdesk-admin-desktop' ),
+			__( 'New %s', 'pufferdesk' ),
 			$label
 		);
 	}

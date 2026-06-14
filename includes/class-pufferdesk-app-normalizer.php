@@ -95,12 +95,12 @@ final class PufferDesk_App_Normalizer {
 	public static function get_default_about_labels() {
 		return array(
 			/* translators: %s: version number. */
-			'versionFormat' => __( 'Version %s', 'pufferdesk-admin-desktop' ),
+			'versionFormat' => __( 'Version %s', 'pufferdesk' ),
 			/* translators: %s: author name. */
-			'authorFormat'  => __( 'By %s', 'pufferdesk-admin-desktop' ),
+			'authorFormat'  => __( 'By %s', 'pufferdesk' ),
 			/* translators: %s: current year. */
-			'copyright'     => __( 'Copyright (c) %s PufferDesk contributors.', 'pufferdesk-admin-desktop' ),
-			'rights'        => __( 'Licensed under GPLv2 or later.', 'pufferdesk-admin-desktop' ),
+			'copyright'     => __( 'Copyright (c) %s PufferDesk contributors.', 'pufferdesk' ),
+			'rights'        => __( 'Licensed under GPLv2 or later.', 'pufferdesk' ),
 		);
 	}
 
@@ -149,20 +149,20 @@ final class PufferDesk_App_Normalizer {
 		$version    = '' !== $wp_version
 			? sprintf(
 				/* translators: %s: WordPress version number. */
-				__( 'WordPress Version %s', 'pufferdesk-admin-desktop' ),
+				__( 'WordPress Version %s', 'pufferdesk' ),
 				$wp_version
 			)
-			: __( 'WordPress', 'pufferdesk-admin-desktop' );
+			: __( 'WordPress', 'pufferdesk' );
 		$copyright = sprintf(
 			/* translators: %s: current year. */
-			__( 'Copyright (c) 2003-%s WordPress contributors.', 'pufferdesk-admin-desktop' ),
+			__( 'Copyright (c) 2003-%s WordPress contributors.', 'pufferdesk' ),
 			$year
 		);
-		$rights    = __( 'Licensed under GPLv2 or later.', 'pufferdesk-admin-desktop' );
+		$rights    = __( 'Licensed under GPLv2 or later.', 'pufferdesk' );
 
 		return array(
-			'name'        => '' !== $name ? $name : __( 'WordPress', 'pufferdesk-admin-desktop' ),
-			'description' => __( 'WordPress core feature.', 'pufferdesk-admin-desktop' ),
+			'name'        => '' !== $name ? $name : __( 'WordPress', 'pufferdesk' ),
+			'description' => __( 'WordPress core feature.', 'pufferdesk' ),
 			'version'     => $version,
 			'copyright'   => $copyright,
 			'rights'      => $rights,

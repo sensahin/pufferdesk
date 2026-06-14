@@ -57,7 +57,7 @@ final class PufferDesk_User_Preferences {
 	 * @return string
 	 */
 	public static function get_default_folder_label() {
-		return __( 'untitled folder', 'pufferdesk-admin-desktop' );
+		return __( 'untitled folder', 'pufferdesk' );
 	}
 
 	/**
@@ -418,7 +418,7 @@ final class PufferDesk_User_Preferences {
 		if ( ! $this->is_theme_mode_available( $theme_mode, $themes ) ) {
 			return new WP_Error(
 				'pufferdesk_invalid_theme',
-				__( 'The selected PufferDesk theme is not available.', 'pufferdesk-admin-desktop' )
+				__( 'The selected PufferDesk theme is not available.', 'pufferdesk' )
 			);
 		}
 
@@ -1491,7 +1491,7 @@ final class PufferDesk_User_Preferences {
 		$label = isset( $item['label'] ) ? sanitize_text_field( (string) $item['label'] ) : '';
 		$title = isset( $document['title'] ) ? sanitize_text_field( (string) $document['title'] ) : '';
 		$label = '' !== $label ? $label : $title;
-		$label = '' !== $label ? $label : __( 'Sticky Note', 'pufferdesk-admin-desktop' );
+		$label = '' !== $label ? $label : __( 'Sticky Note', 'pufferdesk' );
 
 		$kind = isset( $document['kind'] ) ? sanitize_key( (string) $document['kind'] ) : '';
 		if ( PufferDesk_Document_Service::KIND_STICKY !== $kind ) {

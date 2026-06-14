@@ -1,7 +1,7 @@
 {
 	"dist": {
 		"coreCss": "assets/dist/css/pufferdesk-core.min.css",
-		"script": "assets/dist/js/pufferdesk-admin-desktop.min.js"
+		"script": "assets/dist/js/pufferdesk.min.js"
 	},
 	"coreStyles": [
 		{
