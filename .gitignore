@@ -1,5 +1,6 @@
 .DS_Store
 AGENTS.md
+README.md
 docs/
 node_modules/
 release/
