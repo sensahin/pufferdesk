@@ -8,6 +8,10 @@
 	const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
 
 	window.PufferDesk.apps.settings.createGeneralPanel = function createGeneralPanel(ctx) {
+		if (ctx.isWindowsSettingsLayout || ctx.settingsLayout === 'windows-settings') {
+			return createWindowsHomePanel(ctx);
+		}
+
 		const general = ctx.getGeneralSettingsConfig();
 		const groups = Array.isArray(general.groups) ? general.groups : [];
 		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-general-panel');
@@ -34,6 +38,347 @@
 
 		return panel;
 	};
+
+	function createWindowsHomePanel(ctx) {
+		const dom = ctx.dom;
+		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-general-panel pdk-settings-windows-home-panel');
+		const general = ctx.getGeneralSettingsConfig();
+		const home = general.home && typeof general.home === 'object' ? general.home : {};
+		const siteInfo = ctx.config.siteInfo && typeof ctx.config.siteInfo === 'object' ? ctx.config.siteInfo : {};
+
+		panel.dataset.pdkSettingsPanel = 'general';
+		panel.appendChild(createWindowsHomeTop(ctx, home, siteInfo));
+		panel.appendChild(createWindowsHomeUpdateNotice(ctx, home));
+		panel.appendChild(createWindowsHomeCards(ctx));
+		panel.appendChild(createWindowsHomeFooter(ctx, home));
+
+		return panel;
+	}
+
+	function createWindowsHomeTop(ctx, home, siteInfo) {
+		const dom = ctx.dom;
+		const row = dom.createElement('section', 'pdk-settings-home-top');
+		const device = dom.createElement('div', 'pdk-settings-home-device');
+		const preview = dom.createElement('span', 'pdk-settings-home-device-preview');
+		const text = dom.createElement('span', 'pdk-settings-home-device-text');
+		const status = dom.createElement('div', 'pdk-settings-home-status');
+		const title = siteInfo.name || ctx.t('generalPanel.siteFallbackTitle');
+		const subtitle = siteInfo.tagline || siteInfo.url || ctx.t('generalPanel.home.siteSubtitleFallback');
+
+		applyHomeWallpaperPreview(ctx, preview);
+		text.appendChild(dom.createElement('strong', '', title));
+		if (subtitle) {
+			text.appendChild(dom.createElement('span', '', subtitle));
+		}
+		if (home.siteSettingsUrl) {
+			text.appendChild(createHomeUrlButton(ctx, {
+				className: 'pdk-settings-home-inline-link',
+				icon: 'dashicons-admin-settings',
+				label: ctx.t('generalPanel.home.renameLabel'),
+				title: ctx.t('generalPanel.home.siteSettingsTitle'),
+				url: home.siteSettingsUrl
+			}));
+		}
+		device.append(preview, text);
+		row.appendChild(device);
+
+		createWindowsHomeStatusItems(ctx, home).forEach((item) => {
+			status.appendChild(item);
+		});
+		if (status.children.length) {
+			row.appendChild(status);
+		}
+
+		return row;
+	}
+
+	function createWindowsHomeStatusItems(ctx, home) {
+		const updates = home.wordpressUpdates && typeof home.wordpressUpdates === 'object'
+			? home.wordpressUpdates
+			: {};
+		const label = updates.label || ctx.t('generalPanel.home.updatesTitle');
+		const status = updates.status || ctx.t('generalPanel.home.updatesCurrent');
+
+		return [
+			createHomeTile(ctx, {
+				className: updates.count > 0 ? 'has-attention' : '',
+				description: status,
+				icon: 'dashicons-update',
+				label,
+				url: updates.url,
+				windowTitle: updates.title || label
+			})
+		];
+	}
+
+	function createWindowsHomeUpdateNotice(ctx, home) {
+		const dom = ctx.dom;
+		const updates = home.wordpressUpdates && typeof home.wordpressUpdates === 'object'
+			? home.wordpressUpdates
+			: {};
+
+		if (!updates.count || updates.count <= 0) {
+			return dom.createElement('div', 'pdk-settings-home-update-notice is-empty');
+		}
+
+		const notice = dom.createElement('section', 'pdk-settings-home-update-notice');
+		const text = dom.createElement('span', 'pdk-settings-home-update-text');
+
+		text.appendChild(ctx.createSettingsRowIcon('dashicons-info', 'blue'));
+		text.appendChild(dom.createElement('span', '', updates.description || ctx.t('generalPanel.home.updatesAttentionDescription')));
+		notice.appendChild(text);
+		if (updates.url) {
+			notice.appendChild(createHomeUrlButton(ctx, {
+				className: 'pdk-settings-home-update-link',
+				icon: 'dashicons-update',
+				label: ctx.t('generalPanel.home.updatesActionLabel'),
+				title: updates.title || ctx.t('generalPanel.home.updatesTitle'),
+				url: updates.url
+			}));
+		}
+
+		return notice;
+	}
+
+	function createWindowsHomeCards(ctx) {
+		const dom = ctx.dom;
+		const grid = dom.createElement('div', 'pdk-settings-home-grid');
+
+		grid.appendChild(createWindowsHomeRecommendedCard(ctx));
+		grid.appendChild(createWindowsHomePersonalizeCard(ctx));
+
+		return grid;
+	}
+
+	function createWindowsHomePersonalizeCard(ctx) {
+		const dom = ctx.dom;
+		const card = createHomeCard(ctx, {
+			className: 'pdk-settings-home-card-personalize',
+			description: ctx.t('generalPanel.home.personalizeDescription'),
+			icon: 'dashicons-admin-appearance',
+			title: ctx.t('generalPanel.home.personalizeTitle')
+		});
+		const thumbnails = dom.createElement('div', 'pdk-settings-home-wallpapers');
+		const wallpaperItems = getHomeWallpaperItems(ctx).slice(0, 4);
+		const action = createHomePanelButton(ctx, {
+			className: 'pdk-settings-home-card-action',
+			description: ctx.t('generalPanel.home.backgroundDescription'),
+			icon: 'dashicons-format-image',
+			label: getSidebarLabel(ctx, 'wallpaper', ctx.t('wallpaper.title')),
+			panel: 'wallpaper'
+		});
+
+		wallpaperItems.forEach((item) => {
+			const button = document.createElement('button');
+			const preview = dom.createElement('span', 'pdk-settings-home-wallpaper-preview');
+
+			button.type = 'button';
+			button.className = 'pdk-settings-home-wallpaper-button';
+			button.setAttribute('aria-label', item.label || ctx.t('wallpaper.title'));
+			applyHomeWallpaperItemPreview(preview, item);
+			button.appendChild(preview);
+			button.addEventListener('click', () => openHomePanel(ctx, 'wallpaper'));
+			thumbnails.appendChild(button);
+		});
+
+		if (thumbnails.children.length) {
+			card.appendChild(thumbnails);
+		}
+		card.appendChild(action);
+
+		return card;
+	}
+
+	function createWindowsHomeRecommendedCard(ctx) {
+		const dom = ctx.dom;
+		const card = createHomeCard(ctx, {
+			className: 'pdk-settings-home-card-recommended',
+			description: ctx.t('generalPanel.home.recommendedDescription'),
+			title: ctx.t('generalPanel.home.recommendedTitle')
+		});
+		const list = dom.createElement('div', 'pdk-settings-home-recommended-list');
+		const rows = [
+			{
+				description: ctx.t('generalPanel.home.systemDescription'),
+				icon: 'dashicons-desktop',
+				id: 'desktop-dock',
+				label: getSidebarLabel(ctx, 'desktop-dock', ctx.t('desktopDock.title'))
+			},
+			{
+				description: ctx.t('generalPanel.home.notificationsDescription'),
+				icon: 'dashicons-bell',
+				id: 'notifications',
+				label: getSidebarLabel(ctx, 'notifications', ctx.t('notifications.title'))
+			},
+			{
+				description: ctx.t('generalPanel.home.appearanceDescription'),
+				icon: 'dashicons-admin-appearance',
+				id: 'appearance',
+				label: getSidebarLabel(ctx, 'appearance', ctx.t('appearance.title'))
+			}
+		];
+
+		rows.forEach((row) => {
+			list.appendChild(createHomePanelButton(ctx, {
+				className: 'pdk-settings-home-recommended-row',
+				description: row.description,
+				icon: row.icon,
+				label: row.label,
+				panel: row.id
+			}));
+		});
+		card.appendChild(list);
+
+		return card;
+	}
+
+	function createWindowsHomeFooter(ctx, home) {
+		const dom = ctx.dom;
+		const footer = dom.createElement('div', 'pdk-settings-home-footer');
+		const links = Array.isArray(home.helpLinks) ? home.helpLinks : [];
+
+		links.forEach((link) => {
+			if (!link || !link.url || !link.label) {
+				return;
+			}
+
+			footer.appendChild(createHomeUrlButton(ctx, {
+				className: 'pdk-settings-home-footer-link',
+				icon: link.icon || 'dashicons-editor-help',
+				label: link.label,
+				title: link.title || link.label,
+				url: link.url,
+				withIcon: true
+			}));
+		});
+
+		return footer;
+	}
+
+	function createHomeCard(ctx, options = {}) {
+		const dom = ctx.dom;
+		const card = dom.createElement('section', `pdk-settings-home-card ${options.className || ''}`.trim());
+		const header = dom.createElement('span', 'pdk-settings-home-card-header');
+		const text = dom.createElement('span', 'pdk-settings-home-card-text');
+
+		if (options.icon) {
+			header.appendChild(ctx.createSettingsRowIcon(options.icon, options.tone || 'gray'));
+		}
+		text.appendChild(dom.createElement('strong', '', options.title || ''));
+		if (options.description) {
+			text.appendChild(dom.createElement('span', '', options.description));
+		}
+		header.appendChild(text);
+		card.appendChild(header);
+
+		return card;
+	}
+
+	function createHomeTile(ctx, options = {}) {
+		const dom = ctx.dom;
+		const tile = options.url ? document.createElement('button') : dom.createElement('div');
+		const text = dom.createElement('span', 'pdk-settings-home-tile-text');
+
+		if (options.url) {
+			tile.type = 'button';
+			tile.dataset.pdkOpenUrl = options.url;
+			tile.dataset.pdkTitle = options.windowTitle || options.label || '';
+			tile.dataset.pdkIcon = options.icon || dom.getDefaultDashicon();
+		}
+		tile.className = `pdk-settings-home-tile ${options.className || ''}`.trim();
+		tile.appendChild(ctx.createSettingsRowIcon(options.icon || dom.getDefaultDashicon(), options.tone || 'blue'));
+		text.appendChild(dom.createElement('strong', '', options.label || ''));
+		if (options.description) {
+			text.appendChild(dom.createElement('span', '', options.description));
+		}
+		tile.appendChild(text);
+
+		return tile;
+	}
+
+	function createHomePanelButton(ctx, options = {}) {
+		const dom = ctx.dom;
+		const button = document.createElement('button');
+		const text = dom.createElement('span', 'pdk-settings-home-panel-text');
+
+		button.type = 'button';
+		button.className = `pdk-settings-home-panel-button ${options.className || ''}`.trim();
+		if (options.panel) {
+			button.dataset.pdkSettingsHomePanel = options.panel;
+		}
+		button.appendChild(ctx.createSettingsRowIcon(options.icon || dom.getDefaultDashicon(), options.tone || 'gray'));
+		text.appendChild(dom.createElement('strong', '', options.label || ''));
+		if (options.description) {
+			text.appendChild(dom.createElement('span', '', options.description));
+		}
+		button.appendChild(text);
+		button.appendChild(dom.createElement('span', 'pdk-settings-row-chevron'));
+		button.addEventListener('click', () => openHomePanel(ctx, options.panel));
+
+		return button;
+	}
+
+	function createHomeUrlButton(ctx, options = {}) {
+		const button = document.createElement('button');
+
+		button.type = 'button';
+		button.className = options.className || 'pdk-settings-home-link';
+		button.dataset.pdkOpenUrl = options.url || '';
+		button.dataset.pdkTitle = options.title || options.label || '';
+		button.dataset.pdkIcon = options.icon || ctx.dom.getDefaultDashicon();
+		if (options.withIcon && options.icon) {
+			const icon = ctx.dom.createElement('span', 'pdk-settings-home-link-icon');
+
+			icon.appendChild(ctx.dom.createDashicon(options.icon));
+			button.appendChild(icon);
+			button.appendChild(ctx.dom.createElement('span', 'pdk-settings-home-link-label', options.label || ''));
+		} else {
+			button.textContent = options.label || '';
+		}
+
+		return button;
+	}
+
+	function openHomePanel(ctx, panelId) {
+		if (panelId && typeof ctx.openSettingsPanel === 'function') {
+			ctx.openSettingsPanel(panelId);
+		}
+	}
+
+	function getSidebarLabel(ctx, id, fallback) {
+		const items = ctx.settingsLabels && typeof ctx.settingsLabels.getOptions === 'function'
+			? ctx.settingsLabels.getOptions('sidebar.items')
+			: [];
+		const item = items.find((option) => option && option.id === id);
+
+		return item && item.label ? item.label : fallback;
+	}
+
+	function getHomeWallpaperItems(ctx) {
+		const wallpapers = typeof ctx.getWallpaperGroup === 'function' ? ctx.getWallpaperGroup('wallpapers') : [];
+		const colors = typeof ctx.getWallpaperGroup === 'function' ? ctx.getWallpaperGroup('colors') : [];
+
+		return wallpapers.concat(colors).filter((item) => item && typeof item === 'object');
+	}
+
+	function applyHomeWallpaperPreview(ctx, preview) {
+		const current = typeof ctx.getCurrentWallpaper === 'function'
+			? ctx.getCurrentWallpaper()
+			: {};
+		const items = getHomeWallpaperItems(ctx);
+		const item = current && Object.keys(current).length ? current : items[0];
+
+		applyHomeWallpaperItemPreview(preview, item || {});
+	}
+
+	function applyHomeWallpaperItemPreview(element, item = {}) {
+		if (item.swatch) {
+			element.style.backgroundColor = item.swatch;
+		}
+		if (item.preview || item.css_value) {
+			element.style.backgroundImage = item.preview || item.css_value;
+		}
+	}
 
 	window.PufferDesk.apps.settings.createGeneralAboutPanel = function createGeneralAboutPanel(ctx) {
 		const dom = ctx.dom;

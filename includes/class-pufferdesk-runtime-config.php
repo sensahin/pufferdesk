@@ -929,6 +929,7 @@ final class PufferDesk_Runtime_Config {
 			'general' => array(
 				'description' => isset( $general_labels['description'] ) ? $general_labels['description'] : '',
 				'groups'      => $this->get_general_settings_groups(),
+				'home'        => $this->get_general_settings_home_config(),
 			),
 			'labels'  => $labels,
 		);
@@ -1119,6 +1120,24 @@ final class PufferDesk_Runtime_Config {
 				'diagnosticsDescription'    => __( 'WordPress diagnostics and environment report', 'pufferdesk-admin-desktop' ),
 				'moreInfoLabel'             => __( 'More Info...', 'pufferdesk-admin-desktop' ),
 				'moreInfoTitle'             => __( 'Site Health Info', 'pufferdesk-admin-desktop' ),
+				'home'                      => array(
+					'siteSubtitleFallback'      => __( 'WordPress site', 'pufferdesk-admin-desktop' ),
+					'siteSettingsTitle'         => __( 'General Settings', 'pufferdesk-admin-desktop' ),
+					'renameLabel'               => __( 'Rename', 'pufferdesk-admin-desktop' ),
+					'updatesTitle'              => __( 'WordPress Update', 'pufferdesk-admin-desktop' ),
+					'updatesCurrent'            => __( 'Up to date', 'pufferdesk-admin-desktop' ),
+					'updatesAttention'          => __( 'Attention needed', 'pufferdesk-admin-desktop' ),
+					'updatesAttentionDescription' => __( 'WordPress updates are ready to review.', 'pufferdesk-admin-desktop' ),
+					'updatesActionLabel'        => __( 'Review now', 'pufferdesk-admin-desktop' ),
+					'recommendedTitle'          => __( 'Recommended settings', 'pufferdesk-admin-desktop' ),
+					'recommendedDescription'    => __( 'Recent and commonly used settings', 'pufferdesk-admin-desktop' ),
+					'personalizeTitle'          => __( 'Personalize your desktop', 'pufferdesk-admin-desktop' ),
+					'personalizeDescription'    => __( 'Choose a background, theme, and desktop look.', 'pufferdesk-admin-desktop' ),
+					'backgroundDescription'     => __( 'Wallpaper and photos', 'pufferdesk-admin-desktop' ),
+					'systemDescription'         => __( 'Taskbar, desktop, apps, and widgets', 'pufferdesk-admin-desktop' ),
+					'notificationsDescription'  => __( 'Notification Center and alerts', 'pufferdesk-admin-desktop' ),
+					'appearanceDescription'     => __( 'Theme, colors, and transparency', 'pufferdesk-admin-desktop' ),
+				),
 			),
 			'appearance'   => array(
 				'title'                 => __( 'Appearance', 'pufferdesk-admin-desktop' ),
@@ -1409,6 +1428,54 @@ final class PufferDesk_Runtime_Config {
 		}
 
 		return array_keys( $value ) === range( 0, count( $value ) - 1 );
+	}
+
+	/**
+	 * Windows-style Home metadata for the Redmond Settings surface.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_general_settings_home_config() {
+		$updates_badge = $this->get_wordpress_updates_menu_badge();
+		$updates_count = isset( $updates_badge['count'] ) ? absint( $updates_badge['count'] ) : 0;
+		$can_update    = current_user_can( 'update_core' ) || current_user_can( 'update_plugins' ) || current_user_can( 'update_themes' );
+
+		return array(
+			'siteSettingsUrl'  => current_user_can( 'manage_options' ) ? admin_url( 'options-general.php' ) : '',
+			'wordpressUpdates' => array(
+				'label'       => __( 'WordPress Update', 'pufferdesk-admin-desktop' ),
+				'title'       => __( 'WordPress Updates', 'pufferdesk-admin-desktop' ),
+				'url'         => $can_update ? admin_url( 'update-core.php' ) : '',
+				'count'       => $updates_count,
+				'badge'       => $updates_badge,
+				'status'      => $updates_count > 0
+					? __( 'Attention needed', 'pufferdesk-admin-desktop' )
+					: __( 'Up to date', 'pufferdesk-admin-desktop' ),
+				'description' => $updates_count > 0 && ! empty( $updates_badge['text'] )
+					? sprintf(
+						/* translators: %s: WordPress update count label. */
+						__( '%s ready to review.', 'pufferdesk-admin-desktop' ),
+						$updates_badge['text']
+					)
+					: __( 'WordPress is up to date.', 'pufferdesk-admin-desktop' ),
+			),
+			'helpLinks'        => array(
+				array(
+					'id'    => 'help',
+					'label' => __( 'Get help', 'pufferdesk-admin-desktop' ),
+					'title' => __( 'PufferDesk Help', 'pufferdesk-admin-desktop' ),
+					'url'   => 'https://pufferdesk.com',
+					'icon'  => 'dashicons-editor-help',
+				),
+				array(
+					'id'    => 'feedback',
+					'label' => __( 'Give feedback', 'pufferdesk-admin-desktop' ),
+					'title' => __( 'PufferDesk Feedback', 'pufferdesk-admin-desktop' ),
+					'url'   => 'https://pufferdesk.com',
+					'icon'  => 'dashicons-format-chat',
+				),
+			),
+		);
 	}
 
 	/**
