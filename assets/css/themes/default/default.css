@@ -152,13 +152,13 @@
 	--pdk-dock-tile-size: 46px;
 	--pdk-dock-adaptive-icon-frame-size: 40px;
 	--pdk-dock-adaptive-icon-frame-bg:
-		linear-gradient(145deg, rgba(255, 255, 255, 0.36), rgb(var(--pdk-accent-rgb) / 0.14)),
-		rgba(255, 255, 255, 0.18);
-	--pdk-dock-adaptive-icon-frame-border: rgba(255, 255, 255, 0.34);
-	--pdk-dock-adaptive-icon-frame-shadow: 0 7px 14px rgba(17, 35, 42, 0.12), 0 1px 0 rgba(255, 255, 255, 0.32) inset;
+		linear-gradient(145deg, rgba(255, 255, 255, 0.34), rgb(var(--pdk-accent-rgb) / 0.24)),
+		rgb(var(--pdk-accent-rgb) / 0.12);
+	--pdk-dock-adaptive-icon-frame-border: rgb(var(--pdk-accent-rgb) / 0.12);
+	--pdk-dock-adaptive-icon-frame-shadow: 0 7px 14px rgba(17, 35, 42, 0.1), 0 1px 0 rgba(255, 255, 255, 0.24) inset;
 	--pdk-dock-adaptive-icon-frame-hover-bg:
-		linear-gradient(145deg, rgba(255, 255, 255, 0.46), rgb(var(--pdk-accent-rgb) / 0.2)),
-		rgba(255, 255, 255, 0.24);
+		linear-gradient(145deg, rgba(255, 255, 255, 0.42), rgb(var(--pdk-accent-rgb) / 0.3)),
+		rgb(var(--pdk-accent-rgb) / 0.16);
 	--pdk-dock-adaptive-icon-ink: var(--pdk-accent);
 	--pdk-dock-tooltip-bg: rgba(23, 36, 43, 0.94);
 	--pdk-dock-tooltip-border: rgba(255, 255, 255, 0.08);
@@ -343,14 +343,14 @@
 	--pdk-dock-separator: rgba(178, 207, 199, 0.16);
 	--pdk-dock-shadow: 0 20px 48px rgba(0, 0, 0, 0.38), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 	--pdk-dock-adaptive-icon-frame-bg:
-		linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgb(var(--pdk-accent-rgb) / 0.18)),
-		rgba(10, 22, 28, 0.22);
-	--pdk-dock-adaptive-icon-frame-border: rgb(var(--pdk-accent-rgb) / 0.2);
-	--pdk-dock-adaptive-icon-frame-shadow: 0 8px 18px rgba(0, 0, 0, 0.22), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+		linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgb(var(--pdk-accent-rgb) / 0.32)),
+		rgb(var(--pdk-accent-rgb) / 0.13);
+	--pdk-dock-adaptive-icon-frame-border: rgba(255, 255, 255, 0.1);
+	--pdk-dock-adaptive-icon-frame-shadow: 0 8px 18px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 	--pdk-dock-adaptive-icon-frame-hover-bg:
-		linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgb(var(--pdk-accent-rgb) / 0.26)),
-		rgba(10, 22, 28, 0.28);
-	--pdk-dock-adaptive-icon-ink: var(--pdk-accent);
+		linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgb(var(--pdk-accent-rgb) / 0.4)),
+		rgb(var(--pdk-accent-rgb) / 0.18);
+	--pdk-dock-adaptive-icon-ink: color-mix(in srgb, var(--pdk-accent) 58%, #fff);
 	--pdk-running-indicator: var(--pdk-accent);
 	--pdk-running-indicator-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16), 0 0 9px rgb(var(--pdk-accent-rgb) / 0.48);
 	--pdk-dock-tooltip-bg: rgba(237, 245, 243, 0.94);
@@ -633,8 +633,7 @@
 	box-shadow: var(--pdk-running-indicator-shadow, none);
 }
 
-.pdk-shell[data-pdk-theme="default"] .pdk-dock-item:has(> .pdk-icon-adaptive)::before,
-.pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item:has(> .pdk-icon-adaptive)::before {
+.pdk-shell[data-pdk-theme="default"] .pdk-dock-item:has(> .pdk-icon-adaptive)::before {
 	background: var(--pdk-dock-adaptive-icon-frame-bg);
 	border: 1px solid var(--pdk-dock-adaptive-icon-frame-border);
 	border-radius: 12px;
@@ -651,15 +650,11 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-dock-item:has(> .pdk-icon-adaptive):hover::before,
 .pdk-shell[data-pdk-theme="default"] .pdk-dock-item:has(> .pdk-icon-adaptive):focus-visible::before,
-.pdk-shell[data-pdk-theme="default"] .pdk-dock-item:has(> .pdk-icon-adaptive):focus-within::before,
-.pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item:has(> .pdk-icon-adaptive):hover::before,
-.pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item:has(> .pdk-icon-adaptive):focus-visible::before,
-.pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item:has(> .pdk-icon-adaptive):focus-within::before {
+.pdk-shell[data-pdk-theme="default"] .pdk-dock-item:has(> .pdk-icon-adaptive):focus-within::before {
 	background: var(--pdk-dock-adaptive-icon-frame-hover-bg);
 }
 
-.pdk-shell[data-pdk-theme="default"] .pdk-dock-item > .pdk-icon-adaptive,
-.pdk-shell[data-pdk-theme="default"] .pdk-dock-window-item > .pdk-icon-adaptive {
+.pdk-shell[data-pdk-theme="default"] .pdk-dock-item > .pdk-icon-adaptive {
 	color: var(--pdk-dock-adaptive-icon-ink);
 	position: relative;
 	z-index: 1;
