@@ -185,8 +185,9 @@
 			const target = getWindowAnimationTarget(win);
 
 			cancelWindowAnimation(win);
-			win.classList.remove('is-hidden', 'is-closed', 'is-minimizing', 'is-show-desktop-hidden');
+			win.classList.remove('is-hidden', 'is-closed', 'is-minimizing', 'is-opening', 'is-restoring', 'is-show-desktop-hidden');
 			win.removeAttribute('data-pdk-minimize-animation');
+			clearWindowAnimationTarget(win);
 			removeMinimizedDockItem(win);
 			constrainWindow(win);
 			if (wasHidden && revealOptions.emitState !== false) {

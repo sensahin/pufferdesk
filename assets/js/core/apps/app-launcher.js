@@ -623,7 +623,28 @@
 				: url;
 		}
 
-		function setAppWindowRoute(win, route) {
+		function urlsMatch(first, second) {
+			if (first === second) {
+				return true;
+			}
+
+			try {
+				return new URL(first, window.location.origin).href === new URL(second, window.location.origin).href;
+			} catch (error) {
+				return false;
+			}
+		}
+
+		function getOpenAppWindow(appId) {
+			if (manager && typeof manager.getAppWindowState === 'function') {
+				const state = manager.getAppWindowState(appId);
+				return state && state.windowElement ? state.windowElement : null;
+			}
+
+			return null;
+		}
+
+		function setAppWindowRoute(win, route, options = {}) {
 			if (!win || !route || !route.url) {
 				return false;
 			}
@@ -635,7 +656,13 @@
 
 			win.dataset.pdkWindowUrl = route.url;
 			win.dataset.pdkActiveAppRoute = route.id || '';
-			frame.src = getWindowFrameUrl(route.url);
+			if (options.navigate !== false) {
+				const frameUrl = getWindowFrameUrl(route.url);
+				const currentFrameUrl = frame.getAttribute('src') || '';
+				if (!urlsMatch(currentFrameUrl, frameUrl)) {
+					frame.src = frameUrl;
+				}
+			}
 			win.querySelectorAll('[data-pdk-app-route]').forEach((button) => {
 				const active = button.dataset.pdkAppRoute === route.id;
 				button.classList.toggle('is-active', active);
@@ -1022,6 +1049,7 @@
 				return null;
 			}
 
+			const existingWindow = getOpenAppWindow(app.id);
 			const win = openApp(app.id, {
 				nativeContext: {
 					routeId: route.id,
@@ -1030,8 +1058,10 @@
 			});
 			if (win) {
 				ensureAppNavigation(win, app);
-				setAppWindowRoute(win, route);
-				if (manager && typeof manager.focusWindow === 'function') {
+				setAppWindowRoute(win, route, {
+					navigate: win === existingWindow
+				});
+				if (win === existingWindow && manager && typeof manager.focusWindow === 'function') {
 					manager.focusWindow(win);
 				}
 			}
