@@ -268,12 +268,6 @@ final class PufferDesk_Theme_Registry {
 									'tone'  => 'green',
 								),
 								array(
-									'id'    => 'wallpaper',
-									'label' => __( 'Background', 'pufferdesk-admin-desktop' ),
-									'icon'  => 'dashicons-format-image',
-									'tone'  => 'blue',
-								),
-								array(
 									'id'    => 'widgets',
 									'label' => __( 'Widgets', 'pufferdesk-admin-desktop' ),
 									'icon'  => 'dashicons-screenoptions',

@@ -229,17 +229,19 @@
 		const options = ctx.settingsLabels && typeof ctx.settingsLabels.getOptions === 'function'
 			? ctx.settingsLabels.getOptions('appearance.modeOptions')
 			: [];
-		const select = ctx.createInlineSelect({
-			className: 'pdk-settings-home-color-mode-select',
-			disabled: !options.length,
-			onChange: (mode) => {
-				if (typeof ctx.updateAppearance === 'function') {
-					ctx.updateAppearance('mode', mode, ctx.status);
-				}
-			},
-			options,
-			value: currentAppearance.mode || 'auto'
-		});
+		const select = typeof ctx.createAppearanceSelect === 'function'
+			? { wrap: ctx.createAppearanceSelect('mode', options, ctx.status, 'pdk-settings-home-color-mode-select') }
+			: ctx.createInlineSelect({
+				className: 'pdk-settings-home-color-mode-select',
+				disabled: !options.length,
+				onChange: (mode) => {
+					if (typeof ctx.updateAppearance === 'function') {
+						ctx.updateAppearance('mode', mode, ctx.status);
+					}
+				},
+				options,
+				value: currentAppearance.mode || 'auto'
+			});
 
 		row.appendChild(ctx.createSettingsRowIcon('dashicons-admin-appearance', 'gray'));
 		row.appendChild(dom.createElement('span', 'pdk-settings-home-color-mode-label', ctx.t('generalPanel.home.colorModeLabel')));

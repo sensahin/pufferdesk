@@ -69,6 +69,7 @@
 			? menuBar.normalize(config.menuBar || {})
 			: Object.assign({}, config.menuBar || {});
 		let accentLabel = null;
+		const appearanceControls = [];
 		let activeSection = 'general';
 		let activePanel = 'general';
 		let paneTitle = null;
@@ -341,7 +342,7 @@
 			}
 			updateSidebarSelection(activeSection);
 			if (paneTitle) {
-				paneTitle.textContent = panel.dataset.pdkSettingsTitle || getSidebarItem(activeSection).label;
+				updatePaneTitle(panel);
 			}
 			updateHistoryControls();
 			recordSettingsPanelVisit(panelId, panel, previousPanel);
@@ -365,6 +366,22 @@
 			showSettingsPanel(panelId, {
 				pushHistory: true
 			});
+		}
+
+		function updatePaneTitle(panel) {
+			const title = panel.dataset.pdkSettingsTitle || getSidebarItem(activeSection).label;
+			const parentTitle = panel.dataset.pdkSettingsTitleParent || '';
+			const currentTitle = panel.dataset.pdkSettingsTitleCurrent || '';
+
+			paneTitle.textContent = '';
+			if (isWindowsSettingsLayout && parentTitle && currentTitle) {
+				paneTitle.appendChild(dom.createElement('span', 'pdk-settings-pane-title-parent', parentTitle));
+				paneTitle.appendChild(dom.createElement('span', 'pdk-settings-pane-title-separator', '›'));
+				paneTitle.appendChild(dom.createElement('span', 'pdk-settings-pane-title-current', currentTitle));
+				return;
+			}
+
+			paneTitle.textContent = title;
 		}
 
 		function getThemeOptionLabel(theme) {
@@ -580,6 +597,10 @@
 			if (accentLabel) {
 				accentLabel.textContent = getAccentOption(currentAppearance.accent_color).label;
 			}
+
+			appearanceControls.forEach((entry) => {
+				entry.select.value = String(currentAppearance[entry.key] || '');
+			});
 		}
 
 		function applyAppearance(nextAppearance) {
@@ -770,6 +791,26 @@
 				[key]: value
 			}));
 			saveAppearance(status);
+		}
+
+		function createAppearanceSelect(key, options, status, className = '') {
+			const { select, wrap } = createInlineSelect({
+				className,
+				options: Array.isArray(options) ? options : [],
+				value: currentAppearance[key],
+				onChange: (value, control) => {
+					updateAppearance(key, value, status);
+					control.blur();
+				}
+			});
+
+			appearanceControls.push({
+				key,
+				select,
+				type: 'select'
+			});
+
+			return wrap;
 		}
 
 		function applyDesktopDock(nextDesktopDock) {
@@ -1716,6 +1757,7 @@
 				capabilities,
 				config,
 				createAccentGroup,
+				createAppearanceSelect,
 				createAppLocationSection,
 				createButton,
 				createCollapsibleWallpaperSection,
@@ -1766,6 +1808,15 @@
 			pane.appendChild(settingsPanels.createGeneralAboutPanel(panelContext));
 			pane.appendChild(settingsPanels.createProfilePanel(panelContext));
 			pane.appendChild(settingsPanels.createAppearancePanel(panelContext));
+			if (isWindowsSettingsLayout && typeof settingsPanels.createPersonalizationColorsPanel === 'function') {
+				pane.appendChild(settingsPanels.createPersonalizationColorsPanel(panelContext));
+			}
+			if (isWindowsSettingsLayout && typeof settingsPanels.createPersonalizationThemesPanel === 'function') {
+				pane.appendChild(settingsPanels.createPersonalizationThemesPanel(panelContext));
+			}
+			if (isWindowsSettingsLayout && typeof settingsPanels.createPersonalizationTaskbarPanel === 'function') {
+				pane.appendChild(settingsPanels.createPersonalizationTaskbarPanel(panelContext));
+			}
 			pane.appendChild(settingsPanels.createDesktopDockPanel(panelContext));
 			pane.appendChild(settingsPanels.createMenuBarPanel(panelContext));
 			pane.appendChild(settingsPanels.createNotificationsPanel(panelContext));
