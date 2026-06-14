@@ -3154,12 +3154,11 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-titlebar-back-chevron {
-	-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='M5 12l6 6'/%3E%3Cpath d='M5 12l6 -6'/%3E%3C/svg%3E") center / 24px 24px no-repeat;
-	background: currentColor;
 	border: 0;
 	display: block;
 	height: 24px;
-	mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='M5 12l6 6'/%3E%3Cpath d='M5 12l6 -6'/%3E%3C/svg%3E") center / 24px 24px no-repeat;
+	font-size: 24px;
+	line-height: 24px;
 	transform: none;
 	width: 24px;
 }
@@ -3735,142 +3734,19 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-recommended-row .pdk-settings-row-icon {
+	background: transparent;
+	border-radius: 0;
+	box-shadow: none;
+	color: var(--pdk-ink);
 	height: 34px;
-	position: relative;
 	width: 34px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-recommended-row .pdk-settings-row-icon .dashicons {
-	display: none;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-recommended-row .pdk-settings-row-icon::before,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-recommended-row .pdk-settings-row-icon::after {
-	box-sizing: border-box;
-	content: "";
-	position: absolute;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-recommended-row .pdk-settings-row-icon::before {
-	border: 2px solid currentColor;
-	border-radius: 3px;
-	height: 17px;
-	left: 6px;
-	top: 7px;
-	width: 22px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-recommended-row .pdk-settings-row-icon::after {
-	background:
-		linear-gradient(currentColor, currentColor) 50% 0 / 2px 6px no-repeat,
-		linear-gradient(currentColor, currentColor) 50% 100% / 12px 2px no-repeat;
-	height: 9px;
-	left: 11px;
-	top: 23px;
-	width: 12px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="notifications"] .pdk-settings-row-icon::before {
-	border: 2px solid currentColor;
-	border-bottom: 0;
-	border-radius: 9px 9px 3px 3px;
-	height: 17px;
-	left: 9px;
-	top: 8px;
-	width: 16px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="notifications"] .pdk-settings-row-icon::after {
-	background:
-		linear-gradient(currentColor, currentColor) 50% 0 / 22px 2px no-repeat,
-		radial-gradient(circle, currentColor 0 2px, transparent 2.2px) 50% 7px / 8px 8px no-repeat;
-	height: 16px;
-	left: 6px;
-	top: 23px;
-	width: 22px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="wallpaper"] .pdk-settings-row-icon::before,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="appearance"] .pdk-settings-row-icon::before {
-	border: 2px solid currentColor;
-	border-radius: 3px;
-	height: 22px;
-	left: 6px;
-	top: 6px;
-	width: 22px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="wallpaper"] .pdk-settings-row-icon::after,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="appearance"] .pdk-settings-row-icon::after {
-	background:
-		radial-gradient(circle, currentColor 0 2px, transparent 2.2px) 14px 0 / 6px 6px no-repeat,
-		linear-gradient(135deg, transparent 0 42%, currentColor 43% 54%, transparent 55%) 0 8px / 20px 10px no-repeat,
-		linear-gradient(45deg, transparent 0 44%, currentColor 45% 56%, transparent 57%) 2px 11px / 16px 8px no-repeat;
-	height: 20px;
-	left: 8px;
-	top: 9px;
-	width: 20px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="apps"] .pdk-settings-row-icon::before,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="menu-bar"] .pdk-settings-row-icon::before {
-	background: currentColor;
-	border-radius: 1px;
-	box-shadow: 0 8px 0 currentColor, 0 16px 0 currentColor;
-	height: 4px;
-	left: 6px;
-	top: 7px;
-	width: 4px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="apps"] .pdk-settings-row-icon::after,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="menu-bar"] .pdk-settings-row-icon::after {
-	background: currentColor;
-	border-radius: 999px;
-	box-shadow: 0 8px 0 currentColor, 0 16px 0 currentColor;
-	height: 2px;
-	left: 14px;
-	top: 8px;
-	width: 14px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="widgets"] .pdk-settings-row-icon::before,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="workspace"] .pdk-settings-row-icon::before {
-	border: 2px solid currentColor;
-	border-radius: 2px;
-	box-shadow: 12px 0 0 -2px var(--pdk-redmond-settings-card-bg), 12px 0 0 0 currentColor, 0 12px 0 -2px var(--pdk-redmond-settings-card-bg), 0 12px 0 0 currentColor, 12px 12px 0 -2px var(--pdk-redmond-settings-card-bg), 12px 12px 0 0 currentColor;
-	height: 9px;
-	left: 6px;
-	top: 6px;
-	width: 9px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="widgets"] .pdk-settings-row-icon::after,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="workspace"] .pdk-settings-row-icon::after {
-	display: none;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="system"] .pdk-settings-row-icon::before,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="recovery"] .pdk-settings-row-icon::before {
-	background: currentColor;
-	border-radius: 999px;
-	height: 2px;
-	left: 7px;
-	top: 18px;
-	transform: rotate(-45deg);
-	width: 21px;
-}
-
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="system"] .pdk-settings-row-icon::after,
-.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended [data-pdk-settings-home-panel="recovery"] .pdk-settings-row-icon::after {
-	border: 2px solid currentColor;
-	border-bottom: 0;
-	border-radius: 7px 7px 0 0;
-	height: 9px;
-	left: 15px;
-	top: 7px;
-	transform: rotate(-45deg);
-	width: 14px;
+	font-size: 28px;
+	height: 28px;
+	line-height: 28px;
+	width: 28px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-card-recommended .pdk-settings-home-panel-text strong {

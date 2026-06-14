@@ -1626,13 +1626,15 @@
 
 		function createWindowsTitlebarBackButton() {
 			const button = document.createElement('button');
+			const icon = dom.createDashicon('dashicons-arrow-left-alt');
 
 			button.type = 'button';
 			button.className = 'pdk-settings-titlebar-back';
 			button.disabled = true;
 			button.dataset.pdkNoDrag = '';
 			button.setAttribute('aria-label', t('history.back'));
-			button.appendChild(dom.createElement('span', 'pdk-settings-titlebar-back-chevron'));
+			icon.classList.add('pdk-settings-titlebar-back-chevron');
+			button.appendChild(icon);
 			button.addEventListener('click', goBackInSettingsHistory);
 			backButton = button;
 
