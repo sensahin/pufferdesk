@@ -3075,24 +3075,24 @@
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-app-window="os-settings"][data-pdk-surface-layout="windows-settings"] .pdk-window-resize-handle-n,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-app-window="os-settings"][data-pdk-surface-layout="windows-settings"] .pdk-window-resize-handle-s {
-	height: 8px;
-	left: 14px;
-	right: 14px;
+	height: 5px;
+	left: 10px;
+	right: 10px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-app-window="os-settings"][data-pdk-surface-layout="windows-settings"] .pdk-window-resize-handle-e,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-app-window="os-settings"][data-pdk-surface-layout="windows-settings"] .pdk-window-resize-handle-w {
-	bottom: 14px;
-	top: 14px;
-	width: 8px;
+	bottom: 10px;
+	top: 10px;
+	width: 3px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-app-window="os-settings"][data-pdk-surface-layout="windows-settings"] .pdk-window-resize-handle-ne,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-app-window="os-settings"][data-pdk-surface-layout="windows-settings"] .pdk-window-resize-handle-nw,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-app-window="os-settings"][data-pdk-surface-layout="windows-settings"] .pdk-window-resize-handle-se,
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-app-window="os-settings"][data-pdk-surface-layout="windows-settings"] .pdk-window-resize-handle-sw {
-	height: 14px;
-	width: 14px;
+	height: 10px;
+	width: 10px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] {
@@ -3128,7 +3128,7 @@
 	background: transparent;
 	border: 0;
 	border-radius: 4px;
-	color: var(--pdk-ink);
+	color: #8a8a8a;
 	cursor: default;
 	display: flex;
 	height: 38px;
@@ -3153,11 +3153,37 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-titlebar-back-chevron {
+	border: 0;
+	display: block;
+	height: 18px;
+	position: relative;
+	transform: none;
+	width: 24px;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-titlebar-back-chevron::before,
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-titlebar-back-chevron::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-titlebar-back-chevron::before {
+	background: currentColor;
+	border-radius: 999px;
+	height: 1.45px;
+	left: 3px;
+	right: 2px;
+	transform: translateY(-50%);
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-titlebar-back-chevron::after {
 	border-bottom: 1.45px solid currentColor;
 	border-left: 1.45px solid currentColor;
-	height: 9px;
-	transform: rotate(45deg);
-	width: 9px;
+	height: 10px;
+	left: 3px;
+	transform: translateY(-50%) rotate(45deg);
+	width: 10px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-search-field {
@@ -3327,10 +3353,13 @@
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-pane {
+	box-sizing: border-box;
 	gap: 8px;
+	justify-self: start;
 	padding: 0 24px 28px 28px;
 	scrollbar-color: var(--pdk-redmond-settings-scrollbar-thumb) transparent;
 	scrollbar-width: thin;
+	width: calc(100% - 8px);
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-window[data-pdk-app-window="os-settings"][data-pdk-surface-layout="windows-settings"] .pdk-settings-pane::-webkit-scrollbar {
@@ -3468,6 +3497,10 @@
 	padding: 3px 6px;
 	text-align: left;
 	width: fit-content;
+}
+
+.pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-device-text > .pdk-settings-home-inline-link {
+	margin-left: -6px;
 }
 
 .pdk-shell[data-pdk-theme="redmond"] .pdk-settings[data-pdk-settings-layout="windows-settings"] .pdk-settings-home-inline-link:hover,
