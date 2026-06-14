@@ -147,7 +147,9 @@ final class PufferDesk_Theme_Registry {
 					'labels' => array(
 						'accessLabel'               => __( 'Visibility', 'pufferdesk-admin-desktop' ),
 						'createdLabel'              => __( 'Added', 'pufferdesk-admin-desktop' ),
+						/* translators: %s: item name. */
 						'documentInfoTitle'         => __( '%s Details', 'pufferdesk-admin-desktop' ),
+						/* translators: %s: folder name. */
 						'folderInfoTitle'           => __( '%s Details', 'pufferdesk-admin-desktop' ),
 						'generalSection'            => __( 'Overview', 'pufferdesk-admin-desktop' ),
 						'infoFallbackTitle'         => __( 'Details', 'pufferdesk-admin-desktop' ),
@@ -155,6 +157,7 @@ final class PufferDesk_Theme_Registry {
 						'lastOpenedLabel'           => __( 'Last opened', 'pufferdesk-admin-desktop' ),
 						'locationLabel'             => __( 'Path', 'pufferdesk-admin-desktop' ),
 						'modifiedLabel'             => __( 'Updated', 'pufferdesk-admin-desktop' ),
+						/* translators: %s: formatted modified date. */
 						'modifiedTemplate'          => __( 'Updated %s', 'pufferdesk-admin-desktop' ),
 						'moreInfoLabel'             => __( 'Open details', 'pufferdesk-admin-desktop' ),
 						'moreInfoSection'           => __( 'Activity', 'pufferdesk-admin-desktop' ),
@@ -244,12 +247,15 @@ final class PufferDesk_Theme_Registry {
 					'labels' => array(
 						'accessLabel'               => __( 'Access', 'pufferdesk-admin-desktop' ),
 						'createdLabel'              => __( 'Created', 'pufferdesk-admin-desktop' ),
+						/* translators: %s: item name. */
 						'documentInfoTitle'         => __( '%s Info', 'pufferdesk-admin-desktop' ),
+						/* translators: %s: folder name. */
 						'folderInfoTitle'           => __( '%s Info', 'pufferdesk-admin-desktop' ),
 						'generalSection'            => __( 'General:', 'pufferdesk-admin-desktop' ),
 						'infoFallbackTitle'         => __( 'Info', 'pufferdesk-admin-desktop' ),
 						'kindLabel'                 => __( 'Kind', 'pufferdesk-admin-desktop' ),
 						'modifiedLabel'             => __( 'Modified', 'pufferdesk-admin-desktop' ),
+						/* translators: %s: formatted modified date. */
 						'modifiedTemplate'          => __( 'Modified: %s', 'pufferdesk-admin-desktop' ),
 						'moreInfoLabel'             => __( 'More Info...', 'pufferdesk-admin-desktop' ),
 						'moreInfoSection'           => __( 'More Info:', 'pufferdesk-admin-desktop' ),

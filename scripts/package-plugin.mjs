@@ -16,6 +16,8 @@ const ignoredTopLevel = new Set([
 	'.gitattributes',
 	'.gitignore',
 	'AGENTS.md',
+	'README.md',
+	'docs',
 	'node_modules',
 	'release'
 ]);
@@ -29,6 +31,9 @@ async function copyDirectory(source, target) {
 			continue;
 		}
 		if (entry.name === '.DS_Store') {
+			continue;
+		}
+		if (entry.name === 'README.md') {
 			continue;
 		}
 

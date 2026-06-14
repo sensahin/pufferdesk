@@ -331,6 +331,7 @@ final class PufferDesk_Runtime_Config {
 			/* translators: %s: preview item count. */
 			'previewAvailableTemplate'  => __( '%s available.', 'pufferdesk-admin-desktop' ),
 			'previewSection'            => __( 'Preview', 'pufferdesk-admin-desktop' ),
+			/* translators: 1: folder count, 2: folder label, 3: file count, 4: file label. */
 			'propertiesContainsTemplate' => __( '%1$d %2$s, %3$d %4$s', 'pufferdesk-admin-desktop' ),
 			'propertiesCustomizeTab'     => __( 'Customize', 'pufferdesk-admin-desktop' ),
 			'propertiesGeneralTab'       => __( 'General', 'pufferdesk-admin-desktop' ),

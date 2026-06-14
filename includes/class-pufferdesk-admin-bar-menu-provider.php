@@ -132,6 +132,7 @@ final class PufferDesk_Admin_Bar_Menu_Provider {
 		$snapshot = new WP_Admin_Bar();
 		if ( class_exists( 'WP_Admin_Bar' ) && $wp_admin_bar instanceof WP_Admin_Bar && isset( $wp_admin_bar->user ) ) {
 			$snapshot->user = is_object( $wp_admin_bar->user ) ? clone $wp_admin_bar->user : $wp_admin_bar->user;
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Calls the WordPress core admin bar hook on a snapshot object.
 			do_action_ref_array( 'admin_bar_menu', array( &$snapshot ) );
 		}
 

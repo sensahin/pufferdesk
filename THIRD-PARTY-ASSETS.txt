@@ -1,6 +1,6 @@
 # Third-Party Assets
 
-PufferDesk avoids bundled Apple-owned, Microsoft-owned, Canonical-owned, and other third-party platform artwork, app logos, wallpapers, and font files.
+PufferDesk keeps bundled media original, licensed for redistribution, or otherwise release-safe.
 
 Selected app, document, and virtual folder SVG glyphs in
 assets/media/shared/icons/theme/ are based on Tabler Icons v3.44.0 under the
