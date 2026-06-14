@@ -685,6 +685,143 @@
 	color: #fff;
 }
 
+.pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-app-window="keyboard-shortcuts"] {
+	--pdk-keyboard-shortcuts-bg: transparent;
+	--pdk-keyboard-shortcuts-ink: var(--pdk-ink);
+	--pdk-keyboard-shortcuts-muted: var(--pdk-muted);
+	--pdk-keyboard-shortcuts-subtle: color-mix(in srgb, var(--pdk-muted) 76%, transparent);
+	--pdk-keyboard-shortcuts-field: var(--pdk-material-control-bg);
+	--pdk-keyboard-shortcuts-key-bg: rgb(var(--pdk-accent-rgb) / 0.12);
+	--pdk-keyboard-shortcuts-scrollbar: var(--pdk-scrollbar-thumb);
+	--pdk-keyboard-shortcuts-radius: var(--pdk-window-radius);
+	-webkit-backdrop-filter: var(--pdk-material-regular-filter) !important;
+	backdrop-filter: var(--pdk-material-regular-filter) !important;
+	background: var(--pdk-material-regular-bg) !important;
+	border: 1px solid var(--pdk-material-regular-border);
+	border-radius: var(--pdk-window-radius);
+	box-shadow: var(--pdk-material-regular-shadow);
+	min-width: min(520px, calc(100vw - 28px));
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-app-window="keyboard-shortcuts"] .pdk-window-titlebar {
+	display: grid;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-body {
+	-webkit-backdrop-filter: none !important;
+	backdrop-filter: none !important;
+	background: transparent !important;
+	border-radius: 0 0 var(--pdk-window-radius) var(--pdk-window-radius);
+	color: var(--pdk-ink);
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts {
+	background: transparent !important;
+	grid-template-rows: auto minmax(0, 1fr) auto;
+	padding: 16px 18px 0;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-header {
+	display: none;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-search-wrap {
+	margin: 0 0 14px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts .pdk-keyboard-shortcuts-search {
+	background: var(--pdk-material-control-bg);
+	border: 1px solid var(--pdk-material-control-border);
+	border-radius: 10px;
+	box-shadow: 0 1px 0 rgb(255 255 255 / 0.34) inset;
+	color: var(--pdk-ink);
+	height: 38px;
+	padding-inline: 13px 36px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts .pdk-keyboard-shortcuts-search:focus {
+	background: var(--pdk-material-control-hover-bg);
+	border-color: rgb(var(--pdk-accent-rgb) / 0.34);
+	box-shadow: 0 0 0 3px rgb(var(--pdk-focus-ring-rgb) / 0.16), 0 1px 0 rgb(255 255 255 / 0.34) inset;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts .pdk-keyboard-shortcuts-search::placeholder,
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-search-clear {
+	color: var(--pdk-muted);
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-search-clear:hover,
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-search-clear:focus-visible {
+	background: rgb(var(--pdk-accent-rgb) / 0.12);
+	color: var(--pdk-ink);
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-list {
+	gap: 16px;
+	padding: 0 2px 18px 0;
+	scrollbar-color: var(--pdk-scrollbar-thumb) transparent;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-section {
+	gap: 8px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-heading {
+	color: var(--pdk-ink);
+	font-size: 12px;
+	font-weight: var(--pdk-weight-semibold);
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-group {
+	border-block-start: 1px solid var(--pdk-divider-soft);
+	gap: 0;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-row {
+	gap: 18px;
+	min-height: 38px;
+	padding: 7px 2px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-row + .pdk-keyboard-shortcuts-row {
+	border-block-start: 1px solid var(--pdk-divider-soft);
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-action {
+	color: var(--pdk-ink);
+	font-size: 13px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-key {
+	background: var(--pdk-keyboard-shortcuts-key-bg);
+	border: 1px solid rgb(var(--pdk-accent-rgb) / 0.16);
+	border-radius: 7px;
+	box-shadow: 0 1px 0 rgb(255 255 255 / 0.36) inset;
+	color: var(--pdk-ink);
+	min-height: 22px;
+	min-width: 26px;
+	padding: 2px 7px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-keyboard-shortcuts-empty {
+	color: var(--pdk-muted);
+}
+
+.pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-app-window="keyboard-shortcuts"] {
+	--pdk-keyboard-shortcuts-key-bg: rgb(var(--pdk-accent-rgb) / 0.18);
+}
+
+.pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-keyboard-shortcuts .pdk-keyboard-shortcuts-search {
+	box-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset;
+}
+
+.pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-keyboard-shortcuts-key {
+	border-color: rgb(var(--pdk-accent-rgb) / 0.24);
+	box-shadow: 0 1px 0 rgb(255 255 255 / 0.08) inset;
+}
+
 .pdk-shell[data-pdk-theme="default"] .pdk-dock {
 	-webkit-backdrop-filter: var(--pdk-dock-glass-filter, var(--pdk-material-clear-filter));
 	backdrop-filter: var(--pdk-dock-glass-filter, var(--pdk-material-clear-filter));
