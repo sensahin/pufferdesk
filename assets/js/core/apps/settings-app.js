@@ -978,7 +978,7 @@
 			});
 
 			applyWallpaper(nextWallpaper);
-			saveWallpaper(nextWallpaper.preference, status, fallbackWallpaper);
+			return saveWallpaper(nextWallpaper.preference, status, fallbackWallpaper);
 		}
 
 		function createOptionButton(key, option, status, className, previewClassName) {
@@ -1739,6 +1739,7 @@
 				createSettingsRow,
 				dom,
 				executeMenuCommand,
+				getAppearance: () => currentAppearance,
 				getCurrentWallpaper: getWallpaperCurrent,
 				getGeneralSettingsConfig,
 				getSettingsUsage,
@@ -1749,6 +1750,7 @@
 				mutations,
 				openSettingsPanel: openSettingsSubpanel,
 				saveTheme,
+				selectWallpaperItem,
 				settingsLabels,
 				settingsLayout,
 				status,
@@ -1756,6 +1758,7 @@
 				themeMode: typeof config.themeMode === 'string' ? config.themeMode : '',
 				themeModes,
 				themes,
+				updateAppearance,
 				updateRangeFill
 			};
 

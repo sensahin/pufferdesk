@@ -166,19 +166,24 @@
 		const dom = ctx.dom;
 		const card = createHomeCard(ctx, {
 			className: 'pdk-settings-home-card-personalize',
-			description: ctx.t('generalPanel.home.personalizeDescription'),
-			icon: 'dashicons-admin-appearance',
 			title: ctx.t('generalPanel.home.personalizeTitle')
 		});
 		const thumbnails = dom.createElement('div', 'pdk-settings-home-wallpapers');
-		const wallpaperItems = getHomeWallpaperItems(ctx).slice(0, 4);
-		const action = createHomePanelButton(ctx, {
-			className: 'pdk-settings-home-card-action',
-			description: ctx.t('generalPanel.home.backgroundDescription'),
-			icon: 'dashicons-format-image',
-			label: getSidebarLabel(ctx, 'wallpaper', ctx.t('wallpaper.title')),
-			panel: 'wallpaper'
-		});
+		const wallpaperItems = getHomePersonalizeWallpaperItems(ctx);
+		const wallpaperButtons = [];
+
+		function syncWallpaperButtons() {
+			const currentKey = getHomeWallpaperItemKey(
+				typeof ctx.getCurrentWallpaper === 'function' ? ctx.getCurrentWallpaper() : {}
+			);
+
+			wallpaperButtons.forEach((button) => {
+				const selected = button.dataset.pdkWallpaperKey === currentKey;
+
+				button.classList.toggle('is-selected', selected);
+				button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+			});
+		}
 
 		wallpaperItems.forEach((item) => {
 			const button = document.createElement('button');
@@ -186,19 +191,75 @@
 
 			button.type = 'button';
 			button.className = 'pdk-settings-home-wallpaper-button';
+			button.dataset.pdkWallpaperKey = getHomeWallpaperItemKey(item);
 			button.setAttribute('aria-label', item.label || ctx.t('wallpaper.title'));
+			button.setAttribute('aria-pressed', 'false');
 			applyHomeWallpaperItemPreview(preview, item);
 			button.appendChild(preview);
-			button.addEventListener('click', () => openHomePanel(ctx, 'wallpaper'));
+			button.addEventListener('click', () => {
+				if (typeof ctx.selectWallpaperItem !== 'function') {
+					openHomePanel(ctx, 'wallpaper');
+					return;
+				}
+
+				const result = ctx.selectWallpaperItem(item, ctx.status);
+				syncWallpaperButtons();
+				if (result && typeof result.then === 'function') {
+					result.then(syncWallpaperButtons);
+				}
+			});
+			wallpaperButtons.push(button);
 			thumbnails.appendChild(button);
 		});
 
 		if (thumbnails.children.length) {
 			card.appendChild(thumbnails);
 		}
-		card.appendChild(action);
+		card.appendChild(createHomeColorModeRow(ctx));
+		card.appendChild(createHomeBrowsePersonalizeButton(ctx));
+		syncWallpaperButtons();
 
 		return card;
+	}
+
+	function createHomeColorModeRow(ctx) {
+		const dom = ctx.dom;
+		const row = dom.createElement('div', 'pdk-settings-home-color-mode-row');
+		const currentAppearance = typeof ctx.getAppearance === 'function' ? ctx.getAppearance() : {};
+		const options = ctx.settingsLabels && typeof ctx.settingsLabels.getOptions === 'function'
+			? ctx.settingsLabels.getOptions('appearance.modeOptions')
+			: [];
+		const select = ctx.createInlineSelect({
+			className: 'pdk-settings-home-color-mode-select',
+			disabled: !options.length,
+			onChange: (mode) => {
+				if (typeof ctx.updateAppearance === 'function') {
+					ctx.updateAppearance('mode', mode, ctx.status);
+				}
+			},
+			options,
+			value: currentAppearance.mode || 'auto'
+		});
+
+		row.appendChild(ctx.createSettingsRowIcon('dashicons-admin-appearance', 'gray'));
+		row.appendChild(dom.createElement('span', 'pdk-settings-home-color-mode-label', ctx.t('generalPanel.home.colorModeLabel')));
+		row.appendChild(select.wrap);
+
+		return row;
+	}
+
+	function createHomeBrowsePersonalizeButton(ctx) {
+		const dom = ctx.dom;
+		const button = document.createElement('button');
+
+		button.type = 'button';
+		button.className = 'pdk-settings-home-browse-button';
+		button.dataset.pdkSettingsHomePanel = 'appearance';
+		button.appendChild(dom.createElement('span', 'pdk-settings-home-browse-label', ctx.t('generalPanel.home.browsePersonalizeLabel')));
+		button.appendChild(dom.createElement('span', 'pdk-settings-row-chevron'));
+		button.addEventListener('click', () => openHomePanel(ctx, 'appearance'));
+
+		return button;
 	}
 
 	function createWindowsHomeRecommendedCard(ctx) {
@@ -401,6 +462,24 @@
 				tone: item.tone || 'gray'
 			};
 		});
+	}
+
+	function getHomePersonalizeWallpaperItems(ctx) {
+		const wallpapers = typeof ctx.getWallpaperGroup === 'function' ? ctx.getWallpaperGroup('wallpapers') : [];
+
+		return wallpapers.filter((item) => item && typeof item === 'object').slice(0, 6);
+	}
+
+	function getHomeWallpaperItemKey(item = {}) {
+		if (!item || typeof item !== 'object') {
+			return ':';
+		}
+
+		if (Number.parseInt(item.attachment_id, 10) > 0) {
+			return `${item.type || ''}:${Number.parseInt(item.attachment_id, 10) || 0}`;
+		}
+
+		return `${item.type || ''}:${item.id || ''}`;
 	}
 
 	function getHomeWallpaperItems(ctx) {
