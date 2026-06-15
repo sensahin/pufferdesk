@@ -184,18 +184,6 @@
 			return themeFamily === 'default';
 		}
 
-		function isRedmondFamily() {
-			return themeFamily === 'redmond';
-		}
-
-		function showsCutFolderActions() {
-			return !['default', 'cupertino'].includes(themeFamily);
-		}
-
-		function usesInlineFolderActions() {
-			return ['default', 'cupertino'].includes(themeFamily);
-		}
-
 		function getMenuLabel(key, fallback) {
 			return typeof menuLabels[key] === 'string' && menuLabels[key] ? menuLabels[key] : (fallback || key);
 		}
@@ -246,10 +234,6 @@
 				? info.label
 				: getInfoPanelLabel('folderFallbackTitle', '');
 
-			if (isRedmondFamily()) {
-				return `${label} ${getMenuLabel('properties', 'Properties')}`;
-			}
-
 			return formatInfoPanelLabel('folderInfoTitle', '', [label]);
 		}
 
@@ -257,10 +241,6 @@
 			const label = info && info.label
 				? info.label
 				: getInfoPanelLabel('documentFallbackTitle', getMenuLabel('document'));
-
-			if (isRedmondFamily()) {
-				return `${label} ${getMenuLabel('properties', 'Properties')}`;
-			}
 
 			return formatInfoPanelLabel('documentInfoTitle', '', [label]);
 		}
@@ -1016,7 +996,7 @@
 				return openTrash();
 			}
 
-			if (appId === appIds.STICKY_NOTES && usesInlineFolderActions()) {
+			if (appId === appIds.STICKY_NOTES) {
 				const stickyManager = window.PufferDesk.stickyNoteManager || null;
 				return stickyManager && typeof stickyManager.createStickyNote === 'function'
 					? stickyManager.createStickyNote(openOptions.nativeContext || {})
@@ -3589,33 +3569,16 @@
 			return button;
 		}
 
-		function getFolderToolbarActions(folderId = '') {
-			const canCreateFolder = folderId && !isTrashFolderId(folderId);
-			const deleteCommand = usesInlineFolderActions()
-				? commandIds.FOLDER_DELETE_SELECTED_IMMEDIATELY
-				: commandIds.FOLDER_DELETE_SELECTED;
-			const actions = [
-				{ id: 'view', label: getMenuLabel('view'), icon: 'dashicons-grid-view', disclosure: 'vertical', menuPlacement: 'icon-top' },
-				{ id: 'delete', label: getMenuLabel('delete'), icon: 'dashicons-trash', command: deleteCommand },
-				{ id: 'get-info', label: getMenuLabel('get_info'), icon: 'dashicons-info-outline', command: commandIds.FOLDER_GET_INFO }
-			];
+			function getFolderToolbarActions(folderId = '') {
+				const canCreateFolder = folderId && !isTrashFolderId(folderId);
+				const deleteCommand = commandIds.FOLDER_DELETE_SELECTED_IMMEDIATELY;
+				const actions = [
+					{ id: 'view', label: getMenuLabel('view'), icon: 'dashicons-grid-view', disclosure: 'vertical', menuPlacement: 'icon-top' },
+					{ id: 'delete', label: getMenuLabel('delete'), icon: 'dashicons-trash', command: deleteCommand },
+					{ id: 'get-info', label: getMenuLabel('get_info'), icon: 'dashicons-info-outline', command: commandIds.FOLDER_GET_INFO }
+				];
 
-			if (usesInlineFolderActions()) {
 				actions.splice(1, 0, { id: 'group', label: getMenuLabel('group'), icon: 'dashicons-screenoptions', disclosure: true });
-			}
-
-			if (!usesInlineFolderActions()) {
-				actions.splice(
-					1,
-					0,
-					{ id: 'copy', label: getMenuLabel('copy'), icon: 'dashicons-clipboard', command: commandIds.CLIPBOARD_COPY },
-					{ id: 'paste', label: getMenuLabel('paste'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_PASTE }
-				);
-			}
-
-			if (showsCutFolderActions()) {
-				actions.splice(2, 0, { id: 'cut', label: getMenuLabel('cut'), icon: 'dashicons-admin-page', command: commandIds.CLIPBOARD_CUT });
-			}
 
 			if (canCreateFolder) {
 				actions.push({ id: 'new-folder', label: getMenuLabel('new_folder'), icon: 'dashicons-category', badge: 'plus', command: commandIds.FOLDER_CREATE });
@@ -5042,12 +5005,12 @@
 			}
 
 			const title = getFolderInfoTitle(info);
-			const width = isRedmondFamily() ? '640px' : (usesDefaultProductPanels() ? '468px' : '414px');
+			const width = usesDefaultProductPanels() ? '468px' : '414px';
 			const win = manager.createWindow({
 				appId: `folder-info-${info.id}`,
 				bodyClass: 'pdk-window-body pdk-info-panel-body',
 				content: createFolderInfoContent(info),
-				disabledControls: isRedmondFamily() ? ['minimize', 'maximize'] : ['maximize'],
+				disabledControls: ['maximize'],
 				height: 'auto',
 				icon: info.icon || 'dashicons-category',
 				persist: false,
@@ -5088,13 +5051,13 @@
 					return null;
 				}
 
-				const title = getDocumentInfoTitle(info);
-				const width = isRedmondFamily() ? '640px' : (usesDefaultProductPanels() ? '468px' : '414px');
-				const win = manager.createWindow({
+					const title = getDocumentInfoTitle(info);
+					const width = usesDefaultProductPanels() ? '468px' : '414px';
+					const win = manager.createWindow({
 					appId: `document-info-${info.id}`,
 					bodyClass: 'pdk-window-body pdk-info-panel-body',
 					content: createDocumentInfoContent(info),
-					disabledControls: isRedmondFamily() ? ['minimize', 'maximize'] : ['maximize'],
+						disabledControls: ['maximize'],
 					height: 'auto',
 					icon: info.icon || 'dashicons-media-document',
 					persist: false,

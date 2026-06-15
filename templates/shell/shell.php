@@ -96,11 +96,10 @@ $pufferdesk_window_title = wp_parse_args(
 	array(
 		'alignment' => PufferDesk_Window_Chrome_Contracts::TITLE_ALIGNMENT_LEFT,
 	)
-);
-$pufferdesk_token_styles      = PufferDesk_Theme_Token_Renderer::get_shell_styles( $theme, $wallpaper, $pufferdesk_desktop_dock );
-$pufferdesk_shell_style       = isset( $pufferdesk_token_styles['style'] ) ? $pufferdesk_token_styles['style'] : '';
-$pufferdesk_mode_token_style_rules = isset( $pufferdesk_token_styles['mode_rules'] ) && is_array( $pufferdesk_token_styles['mode_rules'] ) ? $pufferdesk_token_styles['mode_rules'] : array();
-$pufferdesk_effective_appearance = 'dark' === $pufferdesk_appearance['mode'] ? 'dark' : 'light';
+	);
+	$pufferdesk_token_styles      = PufferDesk_Theme_Token_Renderer::get_shell_styles( $theme, $wallpaper, $pufferdesk_desktop_dock );
+	$pufferdesk_shell_style       = isset( $pufferdesk_token_styles['style'] ) ? $pufferdesk_token_styles['style'] : '';
+	$pufferdesk_effective_appearance = 'dark' === $pufferdesk_appearance['mode'] ? 'dark' : 'light';
 $pufferdesk_shell_attributes     = array(
 	'class'                           => 'pdk-shell',
 	'data-pufferdesk-shell'           => '',
@@ -143,14 +142,11 @@ $pufferdesk_shell_attributes     = array(
 	'data-pdk-menu-bar-recent-count'  => (string) max( 0, min( 50, (int) $pufferdesk_menu_bar['recent_count'] ) ),
 	'data-pdk-menu-bar-revealed'      => '0',
 );
-if ( $pufferdesk_shell_style ) {
-	$pufferdesk_shell_attributes['style'] = $pufferdesk_shell_style;
-}
-?>
-<?php if ( ! empty( $pufferdesk_mode_token_style_rules ) ) : ?>
-<style id="pufferdesk-theme-mode-tokens"><?php echo esc_html( implode( "\n", $pufferdesk_mode_token_style_rules ) ); ?></style>
-<?php endif; ?>
-<div <?php foreach ( $pufferdesk_shell_attributes as $pufferdesk_attribute => $pufferdesk_value ) : ?><?php echo esc_attr( $pufferdesk_attribute ); ?><?php if ( '' !== $pufferdesk_value ) : ?>="<?php echo esc_attr( $pufferdesk_value ); ?>"<?php endif; ?> <?php endforeach; ?>>
+	if ( $pufferdesk_shell_style ) {
+		$pufferdesk_shell_attributes['style'] = $pufferdesk_shell_style;
+	}
+	?>
+	<div <?php foreach ( $pufferdesk_shell_attributes as $pufferdesk_attribute => $pufferdesk_value ) : ?><?php echo esc_attr( $pufferdesk_attribute ); ?><?php if ( '' !== $pufferdesk_value ) : ?>="<?php echo esc_attr( $pufferdesk_value ); ?>"<?php endif; ?> <?php endforeach; ?>>
 	<?php
 	if ( 'auto' === $pufferdesk_appearance['mode'] ) {
 		// Resolve Auto appearance before shell surfaces paint.

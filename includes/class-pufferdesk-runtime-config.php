@@ -911,7 +911,6 @@ final class PufferDesk_Runtime_Config {
 	 */
 	private function get_shell_capabilities_config( $theme = array() ) {
 		$shell       = isset( $theme['shell'] ) && is_array( $theme['shell'] ) ? $theme['shell'] : array();
-		$family      = isset( $theme['family'] ) ? (string) $theme['family'] : '';
 		$launcher    = isset( $shell['launcher'] ) ? (string) $shell['launcher'] : 'dock';
 		$top_bar     = isset( $shell['top_bar'] ) ? (string) $shell['top_bar'] : 'menu-bar';
 		$system_menu = isset( $shell['system_menu'] ) ? (string) $shell['system_menu'] : 'mark';
@@ -944,14 +943,14 @@ final class PufferDesk_Runtime_Config {
 			'appLocations'      => array(
 				'launcher' => $has_launcher,
 				'desktop'  => true,
-			),
-			'appearance'        => array(
-				'windowMaterial'  => 'cupertino' === $family,
-				'accentColor'     => true,
-				'iconWidgetStyle' => 'default' !== $family,
-			),
-		);
-	}
+				),
+				'appearance'        => array(
+					'windowMaterial'  => true,
+					'accentColor'     => true,
+					'iconWidgetStyle' => true,
+				),
+			);
+		}
 
 	/**
 	 * Settings data used by native System Settings panels.

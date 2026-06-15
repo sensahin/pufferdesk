@@ -25,8 +25,6 @@ final class PufferDesk_User_Preferences {
 	const META_WALLPAPER  = 'pufferdesk_wallpaper';
 	const META_WALLPAPER_UPLOADS = 'pufferdesk_wallpaper_uploads';
 	const THEME_MODE_DEFAULT = 'default';
-	const THEME_MODE_CUPERTINO = 'cupertino';
-	const THEME_MODE_REDMOND = 'redmond';
 	const NOTIFICATION_SOURCE_WORDPRESS_UPDATES = 'wordpress_updates';
 	const NOTIFICATION_SOURCE_COMMENTS          = 'comments';
 	const NOTIFICATION_SOURCE_SITE_HEALTH       = 'site_health';
@@ -437,23 +435,16 @@ final class PufferDesk_User_Preferences {
 	 */
 	private function is_theme_mode_available( $mode, $themes ) {
 		$mode = sanitize_key( (string) $mode );
-		if ( '' === $mode || empty( $themes[ $mode ] ) || ! empty( $themes[ $mode ]['abstract'] ) ) {
+		if (
+			'' === $mode
+			|| empty( $themes[ $mode ] )
+			|| ! empty( $themes[ $mode ]['abstract'] )
+			|| empty( $themes[ $mode ]['public'] )
+		) {
 			return false;
 		}
 
-		if ( ! empty( $themes[ $mode ]['public'] ) ) {
-			return true;
-		}
-
-		/**
-		 * Allow a local development build to opt into hidden bundled themes.
-		 *
-		 * @param bool                $allow  Whether internal themes can be selected.
-		 * @param string              $mode   Requested theme ID.
-		 * @param array<string,mixed> $theme  Requested theme metadata.
-		 * @param array<string,mixed> $themes Available themes.
-		 */
-		return (bool) apply_filters( 'pufferdesk_allow_internal_themes', false, $mode, $themes[ $mode ], $themes );
+		return true;
 	}
 
 	/**

@@ -148,7 +148,7 @@ final class PufferDesk_Onboarding_Note {
 
 			$notes[] = array(
 				'id'    => $document_id,
-				'state' => $this->get_layout_state( $theme ),
+				'state' => $this->get_layout_state(),
 			);
 
 			$state[ PufferDesk_Workspace_State::SECTION_STICKY_NOTES ] = $notes;
@@ -177,8 +177,8 @@ final class PufferDesk_Onboarding_Note {
 				continue;
 			}
 
-			$family = isset( $theme['family'] ) ? sanitize_key( (string) $theme['family'] ) : '';
-			if ( in_array( $family, array( 'default', 'cupertino', 'redmond' ), true ) ) {
+			$theme_id = isset( $theme['id'] ) ? sanitize_key( (string) $theme['id'] ) : '';
+			if ( PufferDesk_User_Preferences::THEME_MODE_DEFAULT === $theme_id ) {
 				$targets[] = $theme;
 			}
 		}
@@ -189,13 +189,11 @@ final class PufferDesk_Onboarding_Note {
 	/**
 	 * Default first-run layout for the note.
 	 *
-	 * @param array<string,mixed> $theme Theme metadata.
 	 * @return array<string,mixed>
 	 */
-	private function get_layout_state( $theme ) {
-		$is_redmond = isset( $theme['family'] ) && 'redmond' === sanitize_key( (string) $theme['family'] );
-		$width      = $is_redmond ? 305 : 360;
-		$height     = $is_redmond ? 254 : 285;
+	private function get_layout_state() {
+		$width  = 360;
+		$height = 285;
 
 		return array(
 			'expandedHeight' => $height,

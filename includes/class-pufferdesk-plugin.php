@@ -179,11 +179,10 @@ final class PufferDesk_Plugin {
 	 */
 	private function hooks() {
 		add_action( 'admin_init', array( $this->router, 'handle_mode_toggle' ) );
-		add_action( 'admin_init', array( $this->router, 'redirect_dashboard_to_shell' ) );
-		add_action( 'admin_enqueue_scripts', array( $this->assets, 'enqueue' ) );
-		add_filter( 'admin_body_class', array( $this->assets, 'add_admin_body_classes' ) );
-		add_action( 'admin_head', array( $this->assets, 'print_iframe_head_style' ) );
-		$this->document_post_type->hooks();
+			add_action( 'admin_init', array( $this->router, 'redirect_dashboard_to_shell' ) );
+			add_action( 'admin_enqueue_scripts', array( $this->assets, 'enqueue' ) );
+			add_filter( 'admin_body_class', array( $this->assets, 'add_admin_body_classes' ) );
+			$this->document_post_type->hooks();
 		$this->admin_controller->hooks();
 		$this->settings_controller->hooks();
 		$this->workspace_controller->hooks();

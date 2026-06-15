@@ -81,24 +81,6 @@
 		let highestZ = 40;
 		let transientNoteId = 0;
 
-		function isRedmondTheme() {
-			const theme = config.theme && typeof config.theme === 'object' ? config.theme : {};
-
-			return theme.family === 'redmond';
-		}
-
-		function usesCollapsingTitlebar() {
-			const theme = config.theme && typeof config.theme === 'object' ? config.theme : {};
-			const user = config.user && typeof config.user === 'object' ? config.user : {};
-			const themeFamily = typeof theme.family === 'string' ? theme.family : '';
-			const themeId = typeof theme.id === 'string' ? theme.id : '';
-			const userThemeId = typeof user.themeId === 'string' ? user.themeId : '';
-
-			return ['default', 'cupertino'].includes(themeFamily)
-				|| ['default', 'cupertino', 'cupertino/default'].includes(themeId)
-				|| ['default', 'cupertino', 'cupertino/default'].includes(userThemeId);
-		}
-
 		function getStickyKind() {
 			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
 		}
@@ -290,12 +272,12 @@
 			return Number.isFinite(value) && value > 0 ? value : fallback;
 		}
 
-		function getDefaultStickyWidth(redmond = isRedmondTheme()) {
-			return getStickyDimension('--pdk-sticky-note-default-width', redmond ? 305 : 360);
+		function getDefaultStickyWidth() {
+			return getStickyDimension('--pdk-sticky-note-default-width', 360);
 		}
 
-		function getDefaultStickyHeight(redmond = isRedmondTheme()) {
-			return getStickyDimension('--pdk-sticky-note-default-height', redmond ? 254 : 285);
+		function getDefaultStickyHeight() {
+			return getStickyDimension('--pdk-sticky-note-default-height', 285);
 		}
 
 		function getStickyMinWidth() {
@@ -546,17 +528,16 @@
 		}
 
 		function getDefaultTop(index = 0) {
-			return (isRedmondTheme() ? 76 : getStickySafeArea().top) + (index % 5) * 34;
+			return getStickySafeArea().top + (index % 5) * 34;
 		}
 
 		function getDefaultState(index = 0, overrides = {}) {
-			const redmond = isRedmondTheme();
-			const width = toNumber(overrides.width, getDefaultStickyWidth(redmond));
+			const width = toNumber(overrides.width, getDefaultStickyWidth());
 			const hasRightAnchor = Object.prototype.hasOwnProperty.call(overrides, 'right') && !Object.prototype.hasOwnProperty.call(overrides, 'left');
 			const left = hasRightAnchor ? getRightAnchoredLeft(width, overrides.right) : getDefaultLeft(index);
 
 			return {
-				height: toNumber(overrides.height, getDefaultStickyHeight(redmond)),
+				height: toNumber(overrides.height, getDefaultStickyHeight()),
 				left: toNumber(overrides.left, left),
 				top: toNumber(overrides.top, getDefaultTop(index)),
 				width,
@@ -950,17 +931,6 @@
 			menu.style.top = `${Math.round(clamp(preferredTop, margin, maxTop))}px`;
 		}
 
-		function openNotesListApp() {
-			const desktopApi = window.PufferDesk.desktopApi || (window.PufferDesk.desktop && window.PufferDesk.desktop.api) || null;
-
-			if (desktopApi && desktopApi.apps && typeof desktopApi.apps.open === 'function') {
-				desktopApi.apps.open(stickyNotesAppId);
-				return true;
-			}
-
-			return false;
-		}
-
 		function createOptionsMenuItem(className, label) {
 			const button = document.createElement('button');
 			const icon = document.createElement('span');
@@ -1016,16 +986,12 @@
 			closeNoteOptionsMenu();
 
 			const menu = document.createElement('div');
-			const notesListButton = isRedmondTheme() ? createOptionsMenuItem('is-notes-list', getLabel('notesList')) : null;
 			const deleteButton = createOptionsMenuItem('is-delete-note', getLabel('deleteNote'));
 
 			menu.className = 'pdk-sticky-note-options';
 			menu.dataset.pdkStickyNoteFloating = '1';
 			menu.setAttribute('role', 'menu');
 			menu.append(createColorPalette(entry));
-			if (notesListButton) {
-				menu.appendChild(notesListButton);
-			}
 			menu.appendChild(deleteButton);
 			(shell || document.body).appendChild(menu);
 			if (trigger) {
@@ -1051,12 +1017,6 @@
 				closeNoteOptionsMenu();
 			}
 
-			if (notesListButton) {
-				notesListButton.addEventListener('click', () => {
-					closeNoteOptionsMenu();
-					openNotesListApp();
-				});
-			}
 			deleteButton.addEventListener('click', () => {
 				closeNoteOptionsMenu();
 				confirmDiscardNote(entry);
@@ -1588,12 +1548,7 @@
 				}
 
 				closeNoteOptionsMenu();
-				if (usesCollapsingTitlebar()) {
-					setCollapsed(entry, !entry.element.classList.contains('is-collapsed'));
-					return;
-				}
-
-				setFullscreen(entry, !entry.element.classList.contains('is-fullscreen'));
+				setCollapsed(entry, !entry.element.classList.contains('is-collapsed'));
 			};
 
 			if (titlebarActions && typeof titlebarActions.bindDoubleClick === 'function') {

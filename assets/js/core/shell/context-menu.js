@@ -24,11 +24,10 @@
 		const providers = new Map();
 		const extensions = new Map();
 		const menuSchema = schema || window.PufferDesk.shell.createMenuSchema();
-		const themeSurfaces = config.theme && config.theme.surfaces && typeof config.theme.surfaces === 'object'
-			? config.theme.surfaces
-			: {};
-		const themeFamily = config.theme && typeof config.theme.family === 'string' ? config.theme.family : '';
-		const folderMenuOptions = window.PufferDesk.apps && typeof window.PufferDesk.apps.createFolderMenuOptions === 'function'
+			const themeSurfaces = config.theme && config.theme.surfaces && typeof config.theme.surfaces === 'object'
+				? config.theme.surfaces
+				: {};
+			const folderMenuOptions = window.PufferDesk.apps && typeof window.PufferDesk.apps.createFolderMenuOptions === 'function'
 			? window.PufferDesk.apps.createFolderMenuOptions({
 				getMenuLabel: getLabel
 			})
@@ -83,19 +82,10 @@
 		}
 
 		function getClipboardItems(options = {}) {
-			const includeCut = options.includeCut !== false && showsCutMenuItems();
 			const includeCopy = options.includeCopy !== false;
 			const includePaste = options.includePaste !== false;
 			const items = [];
 
-			if (includeCut) {
-				items.push(commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
-					hideWhenUnavailable: true,
-					icon: 'dashicons-admin-page',
-					id: 'cut',
-					shortcut: options.shortcutLabels === false ? '' : shortcut('primary+x')
-				}));
-			}
 			if (includeCopy) {
 				items.push(commandItem(getLabel('copy'), commandIds.CLIPBOARD_COPY, {
 					icon: 'dashicons-clipboard',
@@ -158,10 +148,6 @@
 
 		function getTrashItem(trashId) {
 			return folderManager && typeof folderManager.getTrashItem === 'function' ? folderManager.getTrashItem(trashId) : null;
-		}
-
-		function getTrashCount() {
-			return folderManager && typeof folderManager.getTrashCount === 'function' ? folderManager.getTrashCount() : 0;
 		}
 
 		function getDocumentsConfig() {
@@ -297,18 +283,6 @@
 			return themeSurfaces.folder === 'file-explorer';
 		}
 
-		function isRedmondFamily() {
-			return themeFamily === 'redmond';
-		}
-
-		function showsCutMenuItems() {
-			return !['default', 'cupertino'].includes(themeFamily);
-		}
-
-		function usesInlineStickyNoteActions() {
-			return ['default', 'cupertino'].includes(themeFamily);
-		}
-
 		function getDesktopSortMode() {
 			return desktopIconManager && typeof desktopIconManager.getSortMode === 'function'
 				? desktopIconManager.getSortMode()
@@ -380,130 +354,6 @@
 			];
 		}
 
-		function getRedmondDesktopViewItems() {
-			const sortMode = getDesktopSortMode();
-			const autoArrangeActive = sortMode !== 'none' && sortMode !== 'snap-to-grid';
-			const alignToGridActive = sortMode === 'snap-to-grid';
-
-			return [
-				desktopIconSizeItem(getLabel('large_icons'), 'large'),
-				desktopIconSizeItem(getLabel('medium_icons'), 'medium'),
-				desktopIconSizeItem(getLabel('small_icons'), 'small'),
-				separator(),
-				commandItem(getLabel('auto_arrange_icons'), commandIds.DESKTOP_SORT_ICONS, {
-					icon: autoArrangeActive ? 'dashicons-yes' : '',
-					id: 'desktop-view-auto-arrange-icons',
-					payload: {
-						mode: autoArrangeActive ? 'none' : 'name'
-					}
-				}),
-				commandItem(getLabel('align_icons_to_grid'), commandIds.DESKTOP_SORT_ICONS, {
-					icon: alignToGridActive ? 'dashicons-yes' : '',
-					id: 'desktop-view-align-icons-to-grid',
-					payload: {
-						mode: alignToGridActive ? 'none' : 'snap-to-grid'
-					}
-				})
-			];
-		}
-
-		function getRedmondDesktopSortByItems() {
-			return [
-				sortByItem(getLabel('sort_name'), 'name'),
-				sortByItem(getLabel('sort_size'), 'size'),
-				sortByItem(getLabel('sort_kind'), 'kind'),
-				sortByItem(getLabel('sort_date_modified'), 'date-modified')
-			];
-		}
-
-		function getRedmondDesktopMenu() {
-			return {
-				groups: [
-					{
-						id: 'primary',
-						items: [
-							commandItem(getLabel('paste'), commandIds.CLIPBOARD_PASTE, {
-								hideWhenUnavailable: true,
-								icon: 'dashicons-admin-page',
-								id: 'desktop-paste',
-								shortcut: shortcut('primary+v')
-							}),
-							separator(),
-							{
-								icon: 'dashicons-grid-view',
-								id: 'desktop-view',
-								items: getRedmondDesktopViewItems(),
-								label: getLabel('view')
-							},
-							{
-								icon: 'dashicons-sort',
-								id: 'desktop-sort-by',
-								items: getRedmondDesktopSortByItems(),
-								label: getLabel('sort_by_sentence')
-							},
-							commandItem(getLabel('refresh'), commandIds.DESKTOP_REFRESH, {
-								icon: 'dashicons-update',
-								id: 'desktop-refresh'
-							})
-						]
-					},
-					{
-						id: 'create',
-						items: [
-							{
-								icon: 'dashicons-plus-alt2',
-								id: 'desktop-new',
-								items: [
-									commandItem(getLabel('folder'), commandIds.FOLDER_CREATE, {
-										icon: 'dashicons-category',
-										id: 'desktop-new-folder'
-									}),
-									commandItem(getLabel('new_sticky_note'), commandIds.DOCUMENT_NEW_STICKY_NOTE, {
-										icon: 'dashicons-sticky',
-										id: 'desktop-new-sticky-note'
-									})
-								],
-								label: getLabel('new')
-							}
-						]
-					},
-					{
-						id: 'display',
-						items: [
-							commandItem(getLabel('explore_background'), commandIds.SETTINGS_OPEN_PANEL, {
-								icon: 'dashicons-format-image',
-								id: 'desktop-explore-background',
-								panel: 'wallpaper'
-							}),
-							commandItem(getLabel('next_background'), commandIds.WALLPAPER_NEXT, {
-								icon: 'dashicons-format-gallery',
-								id: 'desktop-next-background'
-							}),
-							commandItem(getLabel('display_settings'), commandIds.SETTINGS_OPEN_PANEL, {
-								icon: 'dashicons-desktop',
-								id: 'desktop-display-settings',
-								panel: 'desktop-dock'
-							}),
-							commandItem(getLabel('personalize'), commandIds.SETTINGS_OPEN_PANEL, {
-								icon: 'dashicons-edit',
-								id: 'desktop-personalize',
-								panel: 'appearance'
-							})
-						]
-					},
-					{
-						id: 'layout',
-						items: [
-							commandItem(getLabel('reset_layout'), commandIds.SESSION_RESET_LAYOUT, {
-								icon: 'dashicons-update',
-								id: 'desktop-reset-layout'
-							})
-						]
-					}
-				]
-			};
-		}
-
 		function getFolderToolbarDisplayMode(detail = {}) {
 			const mode = detail.windowElement && detail.windowElement.dataset
 				? detail.windowElement.dataset.pdkFolderToolbarDisplay
@@ -547,14 +397,14 @@
 			const layout = getFolderContentLayout(detail);
 
 			return folderMenuOptions
-				? folderMenuOptions.getFolderContentItems(folderId, {
-					infoLabel: isFileExplorerSurface() ? getLabel('properties') : getLabel('get_info'),
-					infoShortcut: isFileExplorerSurface() ? shortcut('secondary+enter') : '',
-					layout,
-					sortByLabel: isRedmondFamily() ? getLabel('sort_by_sentence') : getLabel('sort_by'),
-					sortMode: getFolderContentSortMode(detail),
-					viewMode: getFolderContentViewMode(detail)
-				})
+					? folderMenuOptions.getFolderContentItems(folderId, {
+						infoLabel: isFileExplorerSurface() ? getLabel('properties') : getLabel('get_info'),
+						infoShortcut: isFileExplorerSurface() ? shortcut('secondary+enter') : '',
+						layout,
+						sortByLabel: getLabel('sort_by'),
+						sortMode: getFolderContentSortMode(detail),
+						viewMode: getFolderContentViewMode(detail)
+					})
 				: [];
 		}
 
@@ -622,10 +472,6 @@
 				return [];
 			}
 
-			if (detail.type === targets.DESKTOP_APP && isRedmondFamily() && app.id === appIds.TRASH) {
-				return getRedmondRecycleBinItems(app);
-			}
-
 			const folderId = detail.folderId || '';
 			const addToFolderItems = getUserFolders()
 				.filter((folder) => folder.id !== folderId)
@@ -678,40 +524,6 @@
 			return items;
 		}
 
-		function shouldShowAppClipboardGroup(app, detail = {}) {
-			return !(
-				app
-				&& app.id === appIds.TRASH
-				&& detail.type === targets.DESKTOP_APP
-				&& isRedmondFamily()
-			);
-		}
-
-		function getRedmondRecycleBinItems(app) {
-			const hasTrashItems = getTrashCount() > 0;
-
-			return [
-				commandItem(getLabel('open'), commandIds.OPEN_APP, {
-					icon: app.icon || 'dashicons-trash',
-					id: 'recycle-bin-open',
-					shortcut: getLabel('enter_key'),
-					target: app.id
-				}),
-				commandItem(getLabel('empty_trash'), commandIds.TRASH_EMPTY, {
-					disabled: !hasTrashItems,
-					icon: 'dashicons-trash',
-					id: 'recycle-bin-empty'
-				}),
-				separator(),
-				commandItem(getLabel('properties'), commandIds.FOLDER_GET_INFO, {
-					icon: 'dashicons-admin-tools',
-					id: 'recycle-bin-properties',
-					shortcut: shortcut('secondary+enter'),
-					target: appIds.TRASH
-				})
-			];
-		}
-
 		function getDockOptionsItem(app, state) {
 			const optionItems = [
 				state.open
@@ -755,7 +567,7 @@
 				];
 			}
 
-			if (app.id === appIds.STICKY_NOTES && usesInlineStickyNoteActions()) {
+			if (app.id === appIds.STICKY_NOTES) {
 				return getInlineStickyNotesDockItems(app);
 			}
 
@@ -956,15 +768,6 @@
 					);
 				}
 
-				if (showsCutMenuItems()) {
-					items.push(commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
-						hideWhenUnavailable: true,
-						icon: 'dashicons-admin-page',
-						id: 'cut',
-						shortcut: shortcut('primary+x')
-					}));
-				}
-
 				return items;
 			}
 
@@ -1150,15 +953,6 @@
 					})
 				);
 
-				if (showsCutMenuItems()) {
-					items.push(commandItem(getLabel('cut'), commandIds.CLIPBOARD_CUT, {
-						hideWhenUnavailable: true,
-						icon: 'dashicons-admin-page',
-						id: 'cut',
-						shortcut: shortcut('primary+x')
-					}));
-				}
-
 				return items;
 			}
 
@@ -1324,10 +1118,6 @@
 		}
 
 		registerProvider(targets.DESKTOP, () => {
-			if (isRedmondFamily()) {
-				return getRedmondDesktopMenu();
-			}
-
 			return {
 				groups: [
 					{
@@ -1380,10 +1170,7 @@
 			const app = detail.app || appMap.get(detail.id);
 			const groups = [];
 
-			if (shouldShowAppClipboardGroup(app, detail)) {
-				groups.push(getClipboardGroup());
-			}
-
+			groups.push(getClipboardGroup());
 			groups.push({
 				id: 'primary',
 				items: getAppItems(app, detail)
@@ -1561,37 +1348,6 @@
 		registerProvider(targets.WINDOW, (detail) => {
 			const app = detail.appId ? appMap.get(detail.appId) : null;
 			const browserUrl = getWindowBrowserUrl(detail, app);
-			const win = detail.windowElement || null;
-			const isHidden = Boolean(win && win.classList && (win.classList.contains('is-hidden') || win.classList.contains('is-minimizing') || win.classList.contains('is-show-desktop-hidden')));
-			const isMaximized = Boolean(win && win.classList && win.classList.contains('is-maximized'));
-			if (isRedmondFamily()) {
-				return {
-					groups: [
-						{
-							id: 'primary',
-							items: [
-								commandItem(getLabel('window_restore'), commandIds.WINDOW_FOCUS, {
-									disabled: !isHidden,
-									icon: 'dashicons-image-rotate'
-								}),
-								commandItem(getLabel('window_minimize'), commandIds.WINDOW_MINIMIZE, {
-									icon: 'dashicons-minus'
-								}),
-								commandItem(isMaximized ? getLabel('window_restore') : getLabel('window_maximize'), commandIds.WINDOW_TOGGLE_MAXIMIZE, {
-									icon: 'dashicons-editor-expand'
-								}),
-								separator(),
-								commandItem(getLabel('window_close'), commandIds.WINDOW_CLOSE, {
-									icon: 'dashicons-no-alt',
-									shortcut: shortcut('secondary+f4', {
-										contexts: [shortcutContexts.WINDOW]
-									})
-								})
-							]
-						}
-					]
-				};
-			}
 			const items = [
 				commandItem(getLabel('bring_to_front'), commandIds.WINDOW_FOCUS, {
 					icon: 'dashicons-editor-expand'

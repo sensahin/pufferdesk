@@ -28,9 +28,7 @@ The release zip ships compiled assets from the source files listed below.
 - assets/css/core/responsive.css
 
 ## Theme CSS
-- assets/css/themes/cupertino/default.css -> assets/dist/css/themes/cupertino/default.min.css
 - assets/css/themes/default/default.css -> assets/dist/css/themes/default/default.min.css
-- assets/css/themes/redmond/default.css -> assets/dist/css/themes/redmond/default.min.css
 
 ## Iframe Script
 - assets/js/core/admin-iframe.js -> assets/dist/js/pufferdesk-admin-iframe.min.js

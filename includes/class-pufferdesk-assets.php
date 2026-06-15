@@ -73,12 +73,13 @@ final class PufferDesk_Assets {
 			return;
 		}
 
-		$style_dependency = $use_dist
-			? $this->enqueue_dist_core_styles( $is_shell )
-			: $this->enqueue_core_styles( $is_shell );
+			$style_dependency = $use_dist
+				? $this->enqueue_dist_core_styles( $is_shell )
+				: $this->enqueue_core_styles( $is_shell );
+			$this->add_admin_chrome_inline_style( $style_dependency );
 
-		if ( $is_iframe ) {
-			$this->enqueue_iframe_script();
+			if ( $is_iframe ) {
+				$this->enqueue_iframe_script();
 		}
 
 		if ( ! $is_shell ) {
@@ -104,11 +105,12 @@ final class PufferDesk_Assets {
 				PUFFERDESK_URL . $theme_asset,
 				array( $style_dependency ),
 				$this->get_asset_version( $theme_asset )
-			);
-			$style_dependency = $style_handle;
-		}
+				);
+				$style_dependency = $style_handle;
+			}
+			$this->add_theme_mode_inline_styles( $style_dependency, $theme, $context );
 
-		$config_handle = $use_dist ? $this->enqueue_dist_script() : $this->enqueue_core_scripts();
+			$config_handle = $use_dist ? $this->enqueue_dist_script() : $this->enqueue_core_scripts();
 
 		wp_add_inline_script(
 			$config_handle,
@@ -311,13 +313,41 @@ final class PufferDesk_Assets {
 
 	/**
 	 * Remove the admin top offset inside shell and embedded iframe apps.
+	 *
+	 * @param string $style_handle Style handle receiving the inline rule.
 	 */
-	public function print_iframe_head_style() {
-		if ( ! $this->router->is_shell_request() && ! $this->router->is_iframe_request() ) {
+	private function add_admin_chrome_inline_style( $style_handle ) {
+		if ( '' === $style_handle ) {
 			return;
 		}
 
-		echo '<style>html.wp-toolbar{padding-top:0!important;}</style>';
+		wp_add_inline_style( $style_handle, 'html.wp-toolbar{padding-top:0!important;}' );
+	}
+
+	/**
+	 * Add active appearance-mode token rules after the final theme stylesheet.
+	 *
+	 * @param string              $style_handle Style handle receiving the inline rules.
+	 * @param array<string,mixed> $theme Current resolved theme.
+	 * @param array<string,mixed> $context Current shell context.
+	 */
+	private function add_theme_mode_inline_styles( $style_handle, $theme, $context ) {
+		if ( '' === $style_handle ) {
+			return;
+		}
+
+		$token_styles = PufferDesk_Theme_Token_Renderer::get_shell_styles(
+			$theme,
+			isset( $context['wallpaper'] ) && is_array( $context['wallpaper'] ) ? $context['wallpaper'] : array(),
+			isset( $context['desktop_dock'] ) && is_array( $context['desktop_dock'] ) ? $context['desktop_dock'] : array()
+		);
+		$mode_rules   = isset( $token_styles['mode_rules'] ) && is_array( $token_styles['mode_rules'] ) ? $token_styles['mode_rules'] : array();
+
+		if ( empty( $mode_rules ) ) {
+			return;
+		}
+
+		wp_add_inline_style( $style_handle, implode( "\n", $mode_rules ) );
 	}
 
 	/**

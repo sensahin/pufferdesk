@@ -726,8 +726,7 @@
 		function isStartPanelGroup(group = {}) {
 			return group.id === 'system'
 				&& shell.dataset.pdkShellLauncher === 'taskbar'
-				&& shell.dataset.pdkShellSystemMenu === 'start'
-				&& shell.dataset.pdkThemeFamily === 'redmond';
+				&& shell.dataset.pdkShellSystemMenu === 'start';
 		}
 
 		function isVisibleStartApp(app) {

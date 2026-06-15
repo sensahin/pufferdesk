@@ -50,15 +50,14 @@ final class PufferDesk_Admin_Controller {
 	public function register_admin_page() {
 		$product_label = PufferDesk_Product_Labels::name();
 
-		add_menu_page(
-			$product_label,
-			$product_label,
-			'read',
-			PufferDesk_Router::PAGE_SLUG,
-			array( $this->renderer, 'render' ),
-			'dashicons-desktop',
-			2
-		);
+			add_menu_page(
+				$product_label,
+				$product_label,
+				'read',
+				PufferDesk_Router::PAGE_SLUG,
+				array( $this->renderer, 'render' ),
+				'dashicons-desktop'
+			);
 	}
 
 	/**

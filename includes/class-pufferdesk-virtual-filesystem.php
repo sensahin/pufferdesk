@@ -96,7 +96,7 @@ final class PufferDesk_Virtual_Filesystem {
 	 * @return array<int,array<string,mixed>>
 	 */
 	public function get_desktop_system_folders( $theme = array(), $user_id = 0 ) {
-		$folder_ids = $this->get_desktop_system_folder_ids( $theme );
+		$folder_ids = $this->get_desktop_system_folder_ids();
 		$folders    = $this->get_system_folders( $theme, $user_id );
 		$allowed    = array_fill_keys( $folder_ids, true );
 
@@ -130,11 +130,11 @@ final class PufferDesk_Virtual_Filesystem {
 			}
 
 			$folder_id             = (string) $folder['id'];
-			$breadcrumbs           = $this->get_breadcrumbs( $folder_id, $theme, $labels );
+			$breadcrumbs           = $this->get_breadcrumbs( $folder_id, $labels );
 			$display[ $folder_id ] = array(
 				'breadcrumbs' => $breadcrumbs,
-				'pathLabel'   => $this->format_display_path( $breadcrumbs, $theme ),
-				'where'       => $this->format_display_path( $breadcrumbs, $theme ),
+				'pathLabel'   => $this->format_display_path( $breadcrumbs ),
+				'where'       => $this->format_display_path( $breadcrumbs ),
 			);
 		}
 
@@ -300,9 +300,8 @@ final class PufferDesk_Virtual_Filesystem {
 		$user           = get_user_by( 'id', $user_id );
 		$user_label     = $user && $user->display_name ? $user->display_name : ( $user && $user->user_login ? $user->user_login : __( 'User', 'pufferdesk' ) );
 		$trash          = $this->get_theme_menu_label( $theme, 'trash', __( 'Trash', 'pufferdesk' ) );
-		$is_redmond     = $this->is_redmond_theme( $theme );
-		$home_label     = $is_redmond ? __( 'This PC', 'pufferdesk' ) : sanitize_text_field( $user_label );
-		$root_label     = $is_redmond ? __( 'This PC', 'pufferdesk' ) : sanitize_text_field( $user_label );
+		$home_label     = sanitize_text_field( $user_label );
+		$root_label     = sanitize_text_field( $user_label );
 
 		return array(
 			'home'       => $home_label,
@@ -320,28 +319,10 @@ final class PufferDesk_Virtual_Filesystem {
 	 * Breadcrumb labels for a folder.
 	 *
 	 * @param string              $folder_id Folder ID.
-	 * @param array<string,mixed> $theme Current theme.
 	 * @param array<string,string> $labels Theme labels.
 	 * @return array<int,string>
 	 */
-	private function get_breadcrumbs( $folder_id, $theme, $labels ) {
-		if ( $this->is_redmond_theme( $theme ) ) {
-			if ( self::FOLDER_HOME === $folder_id ) {
-				return array( $labels['thisPc'] );
-			}
-
-			if ( self::FOLDER_TRASH === $folder_id ) {
-				return array( $labels['thisPc'], $labels['trash'] );
-			}
-
-			$crumbs = array( $labels['thisPc'], $labels['localDisk'] );
-			if ( isset( $labels[ $folder_id ] ) ) {
-				$crumbs[] = $labels[ $folder_id ];
-			}
-
-			return $crumbs;
-		}
-
+	private function get_breadcrumbs( $folder_id, $labels ) {
 		if ( self::FOLDER_TRASH === $folder_id ) {
 			return array( $labels['trash'] );
 		}
@@ -357,36 +338,19 @@ final class PufferDesk_Virtual_Filesystem {
 	/**
 	 * Format breadcrumbs as a display path.
 	 *
-	 * @param array<int,string>   $breadcrumbs Breadcrumb labels.
-	 * @param array<string,mixed> $theme Current theme.
+	 * @param array<int,string> $breadcrumbs Breadcrumb labels.
 	 * @return string
 	 */
-	private function format_display_path( $breadcrumbs, $theme ) {
-		$separator = $this->is_redmond_theme( $theme ) ? ' > ' : ' / ';
-
-		return implode( $separator, array_filter( array_map( 'sanitize_text_field', (array) $breadcrumbs ) ) );
+	private function format_display_path( $breadcrumbs ) {
+		return implode( ' / ', array_filter( array_map( 'sanitize_text_field', (array) $breadcrumbs ) ) );
 	}
 
 	/**
-	 * Theme-aware default desktop system folder IDs.
+	 * Default desktop system folder IDs.
 	 *
-	 * @param array<string,mixed> $theme Current theme.
 	 * @return array<int,string>
 	 */
-	private function get_desktop_system_folder_ids( $theme ) {
-		if ( $this->is_cupertino_theme( $theme ) ) {
-			return array(
-				self::FOLDER_DOCUMENTS,
-			);
-		}
-
-		if ( $this->is_redmond_theme( $theme ) ) {
-			return array(
-				self::FOLDER_HOME,
-				self::FOLDER_DOCUMENTS,
-			);
-		}
-
+	private function get_desktop_system_folder_ids() {
 		return array(
 			self::FOLDER_HOME,
 			self::FOLDER_DESKTOP,
@@ -406,29 +370,5 @@ final class PufferDesk_Virtual_Filesystem {
 		$labels = isset( $theme['menu']['labels'] ) && is_array( $theme['menu']['labels'] ) ? $theme['menu']['labels'] : array();
 
 		return isset( $labels[ $key ] ) && is_string( $labels[ $key ] ) && '' !== $labels[ $key ] ? $labels[ $key ] : $fallback;
-	}
-
-	/**
-	 * Whether the active theme uses Redmond-style filesystem vocabulary.
-	 *
-	 * @param array<string,mixed> $theme Current theme.
-	 * @return bool
-	 */
-	private function is_redmond_theme( $theme ) {
-		$family = isset( $theme['family'] ) ? sanitize_key( (string) $theme['family'] ) : '';
-
-		return 'redmond' === $family;
-	}
-
-	/**
-	 * Whether the active theme uses the Cupertino filesystem desktop.
-	 *
-	 * @param array<string,mixed> $theme Current theme.
-	 * @return bool
-	 */
-	private function is_cupertino_theme( $theme ) {
-		$family = isset( $theme['family'] ) ? sanitize_key( (string) $theme['family'] ) : '';
-
-		return 'cupertino' === $family;
 	}
 }

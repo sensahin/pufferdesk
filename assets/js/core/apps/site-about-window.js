@@ -35,16 +35,6 @@
 		return infoPanel.labels && typeof infoPanel.labels === 'object' ? infoPanel.labels : {};
 	}
 
-	function getThemeFamily() {
-		const config = getRuntimeConfig();
-
-		return config.theme && typeof config.theme.family === 'string' ? config.theme.family : '';
-	}
-
-	function isRedmondFamily() {
-		return getThemeFamily() === 'redmond';
-	}
-
 	function getInfoPanelLabel(key, fallback = '', labels = null) {
 		const source = labels && typeof labels === 'object' ? labels : getInfoPanelLabels();
 		const value = source[key];
@@ -84,22 +74,6 @@
 		}).format(new Date(timestamp));
 	}
 
-	function formatPropertiesDate(value, labels = null) {
-		const timestamp = Date.parse(value);
-		if (!Number.isFinite(timestamp)) {
-			return getInfoPanelLabel('notAvailable', '', labels);
-		}
-
-		return new Intl.DateTimeFormat(undefined, {
-			day: 'numeric',
-			hour: 'numeric',
-			minute: '2-digit',
-			month: 'long',
-			second: '2-digit',
-			weekday: 'long',
-			year: 'numeric'
-		}).format(new Date(timestamp));
-	}
 
 	function plural(count, singular, pluralLabel, labels = null) {
 		return formatInfoPanelLabel('itemCountTemplate', '', [count, count === 1 ? singular : pluralLabel], labels);
@@ -217,271 +191,6 @@
 		body.appendChild(row);
 	}
 
-	function createPropertiesTabs(labels = null) {
-		const tabs = document.createElement('div');
-		const tabLabels = [
-			getInfoPanelLabel('propertiesGeneralTab', 'General', labels),
-			getInfoPanelLabel('propertiesSharingTab', 'Sharing', labels),
-			getInfoPanelLabel('propertiesPreviousVersionsTab', 'Previous Versions', labels),
-			getInfoPanelLabel('propertiesCustomizeTab', 'Customize', labels)
-		];
-
-		tabs.className = 'pdk-properties-tabs';
-		tabs.setAttribute('role', 'tablist');
-		tabs.setAttribute('aria-label', getInfoPanelLabel('propertiesTabsLabel', 'Properties tabs', labels));
-
-		tabLabels.forEach((label, index) => {
-			const tab = document.createElement('button');
-
-			tab.type = 'button';
-			tab.className = 'pdk-properties-tab';
-			tab.textContent = label;
-			tab.setAttribute('role', 'tab');
-			tab.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
-			tab.tabIndex = index === 0 ? 0 : -1;
-			if (index === 0) {
-				tab.classList.add('is-active');
-			} else {
-				tab.disabled = true;
-			}
-			tabs.appendChild(tab);
-		});
-
-		return tabs;
-	}
-
-	function createPropertiesRule() {
-		const rule = document.createElement('span');
-
-		rule.className = 'pdk-properties-rule';
-		rule.setAttribute('aria-hidden', 'true');
-
-		return rule;
-	}
-
-	function appendPropertiesRow(section, label, value) {
-		const row = document.createElement('div');
-		const term = document.createElement('dt');
-		const description = document.createElement('dd');
-
-		row.className = 'pdk-properties-row';
-		term.className = 'pdk-properties-term';
-		term.textContent = `${label}:`;
-		description.className = 'pdk-properties-value';
-		description.textContent = hasValue(value) ? value : getInfoPanelLabel('notAvailable');
-		row.append(term, description);
-		section.appendChild(row);
-	}
-
-	function createPropertiesSection(rows = []) {
-		const section = document.createElement('dl');
-
-		section.className = 'pdk-properties-section';
-		rows.forEach((row) => {
-			if (row && hasValue(row.label)) {
-				appendPropertiesRow(section, row.label, row.value);
-			}
-		});
-
-		return section;
-	}
-
-	function createPropertiesAttribute(label, state = 'unchecked') {
-		const item = document.createElement('span');
-		const box = document.createElement('span');
-		const text = document.createElement('span');
-		const checkedState = state === 'mixed' ? 'mixed' : (state === 'checked' ? 'true' : 'false');
-
-		item.className = 'pdk-properties-attribute';
-		box.className = 'pdk-properties-checkbox';
-		box.dataset.pdkPropertiesCheckbox = state;
-		box.setAttribute('role', 'checkbox');
-		box.setAttribute('aria-checked', checkedState);
-		box.setAttribute('aria-label', label);
-		text.className = 'pdk-properties-attribute-label';
-		text.textContent = label;
-		item.append(box, text);
-
-		return item;
-	}
-
-	function createPropertiesAttributes(labels = null) {
-		const row = document.createElement('div');
-		const term = document.createElement('span');
-		const list = document.createElement('div');
-
-		row.className = 'pdk-properties-attributes';
-		term.className = 'pdk-properties-term';
-		term.textContent = `${getInfoPanelLabel('attributesLabel', 'Attributes', labels)}:`;
-		list.className = 'pdk-properties-attribute-list';
-		list.append(
-			createPropertiesAttribute(getInfoPanelLabel('readOnlyAttribute', 'Read-only (Only applies to files in folder)', labels), 'mixed'),
-			createPropertiesAttribute(getInfoPanelLabel('hiddenAttribute', 'Hidden', labels), 'unchecked'),
-			createPropertiesAttribute(getInfoPanelLabel('archiveAttribute', 'Archive', labels), 'unchecked')
-		);
-		row.append(term, list);
-
-		return row;
-	}
-
-	function createPropertiesNameRow(info = {}, actions = {}, fallbackTitle = '') {
-		const icon = document.createElement('span');
-		const nameInput = document.createElement('input');
-		const row = document.createElement('div');
-
-		row.className = 'pdk-properties-name-row';
-		icon.className = 'pdk-properties-icon pdk-info-panel-icon';
-		icon.appendChild(window.PufferDesk.dom.createIcon(info.icon || 'dashicons-category'));
-		nameInput.className = 'pdk-info-panel-name-input pdk-properties-name-input';
-		nameInput.type = 'text';
-		nameInput.value = info.label || fallbackTitle;
-		nameInput.disabled = !info.canRename;
-		nameInput.addEventListener('change', () => {
-			if (info.canRename && typeof actions.onRename === 'function') {
-				actions.onRename(nameInput.value);
-			}
-		});
-		row.append(icon, nameInput);
-
-		return row;
-	}
-
-	function closeContainingWindow(source) {
-		const win = source && typeof source.closest === 'function' ? source.closest('.pdk-window') : null;
-		const close = win ? win.querySelector('.pdk-window-control-close') : null;
-
-		if (close) {
-			close.click();
-		}
-	}
-
-	function createPropertiesFooter(labels = null) {
-		const footer = document.createElement('footer');
-		const ok = document.createElement('button');
-		const cancel = document.createElement('button');
-		const apply = document.createElement('button');
-
-		footer.className = 'pdk-properties-footer';
-		ok.type = 'button';
-		ok.className = 'pdk-properties-button pdk-properties-button-primary';
-		ok.textContent = getInfoPanelLabel('okLabel', 'OK', labels);
-		ok.addEventListener('click', () => closeContainingWindow(ok));
-
-		cancel.type = 'button';
-		cancel.className = 'pdk-properties-button';
-		cancel.textContent = getInfoPanelLabel('cancelLabel', 'Cancel', labels);
-		cancel.addEventListener('click', () => closeContainingWindow(cancel));
-
-		apply.type = 'button';
-		apply.className = 'pdk-properties-button';
-		apply.textContent = getInfoPanelLabel('applyLabel', 'Apply', labels);
-		apply.disabled = true;
-		apply.setAttribute('aria-disabled', 'true');
-
-		footer.append(ok, cancel, apply);
-
-		return footer;
-	}
-
-	function getPropertiesContainsLabel(items = [], labels = null) {
-		const fileCount = items.filter((item) => item && item.type !== 'folder').length;
-		const folderCount = items.filter((item) => item && item.type === 'folder').length;
-		const fileLabel = fileCount === 1
-			? getInfoPanelLabel('fileSingular', 'File', labels)
-			: getInfoPanelLabel('filePlural', 'Files', labels);
-		const folderLabel = folderCount === 1
-			? getInfoPanelLabel('folderSingular', 'Folder', labels)
-			: getInfoPanelLabel('folderPlural', 'Folders', labels);
-
-		return formatInfoPanelLabel('propertiesContainsTemplate', '%1$d %2$s, %3$d %4$s', [fileCount, fileLabel, folderCount, folderLabel], labels);
-	}
-
-	function createPropertiesWindow(info = {}, actions = {}, variant = 'folder') {
-		const labels = getInfoPanelLabels();
-		const isFolder = variant === 'folder';
-		const fallbackTitle = isFolder
-			? getInfoPanelLabel('folderFallbackTitle', 'Folder', labels)
-			: getInfoPanelLabel('documentFallbackTitle', 'Document', labels);
-		const items = Array.isArray(info.items) ? info.items : [];
-		const zeroBytes = getInfoPanelLabel('zeroBytesLabel', '0 bytes', labels);
-		const firstRows = isFolder ? [
-			{
-				label: getInfoPanelLabel('typeLabel', 'Type', labels),
-				value: getInfoPanelLabel('fileFolderTypeLabel', 'File folder', labels)
-			},
-			{
-				label: getInfoPanelLabel('locationLabel', 'Location', labels),
-				value: info.where || getInfoPanelLabel('pufferdeskFallback', 'PufferDesk', labels)
-			},
-			{
-				label: getInfoPanelLabel('sizeLabel', 'Size', labels),
-				value: zeroBytes
-			},
-			{
-				label: getInfoPanelLabel('sizeOnDiskLabel', 'Size on disk', labels),
-				value: zeroBytes
-			},
-			{
-				label: getInfoPanelLabel('containsLabel', 'Contains', labels),
-				value: getPropertiesContainsLabel(items, labels)
-			}
-		] : [
-			{
-				label: getInfoPanelLabel('typeLabel', 'Type', labels),
-				value: info.kind || fallbackTitle
-			},
-			{
-				label: getInfoPanelLabel('locationLabel', 'Location', labels),
-				value: info.where || getInfoPanelLabel('pufferdeskFallback', 'PufferDesk', labels)
-			},
-			{
-				label: getInfoPanelLabel('sizeLabel', 'Size', labels),
-				value: info.size || zeroBytes
-			},
-			{
-				label: getInfoPanelLabel('sizeOnDiskLabel', 'Size on disk', labels),
-				value: info.size || zeroBytes
-			}
-		];
-		const dateRows = [
-			{
-				label: getInfoPanelLabel('createdLabel', 'Created', labels),
-				value: formatPropertiesDate(info.createdAt, labels)
-			}
-		];
-		const page = document.createElement('div');
-		const panel = createInfoPanelWindow({
-			children: [
-				createPropertiesTabs(labels),
-				page,
-				createPropertiesFooter(labels)
-			],
-			className: `pdk-properties-panel pdk-properties-panel-${variant}`,
-			layout: 'properties',
-			variant
-		});
-
-		if (!isFolder) {
-			dateRows.push({
-				label: getInfoPanelLabel('modifiedLabel', 'Modified', labels),
-				value: formatPropertiesDate(info.modifiedAt, labels)
-			});
-		}
-
-		page.className = 'pdk-properties-page';
-		page.append(
-			createPropertiesNameRow(info, actions, fallbackTitle),
-			createPropertiesRule(),
-			createPropertiesSection(firstRows),
-			createPropertiesRule(),
-			createPropertiesSection(dateRows),
-			createPropertiesRule(),
-			createPropertiesAttributes(labels)
-		);
-		panel.dataset.pdkPropertiesKind = variant;
-
-		return panel;
-	}
 
 	function createInfoPanelWindow(options = {}) {
 		const dom = window.PufferDesk.dom;
@@ -605,10 +314,6 @@
 	function createDocumentInfoWindow(info = {}, actions = {}) {
 		const labels = getInfoPanelLabels();
 
-		if (isRedmondFamily()) {
-			return createPropertiesWindow(info, actions, 'document');
-		}
-
 		const documentFallbackTitle = getInfoPanelLabel('documentFallbackTitle', '', labels);
 		const general = createDisclosure(getInfoPanelLabel('generalSection', '', labels));
 		const name = createDisclosure(getInfoPanelLabel('nameSection', '', labels));
@@ -660,10 +365,6 @@
 
 	function createFolderInfoWindow(info = {}, actions = {}) {
 		const labels = getInfoPanelLabels();
-
-		if (isRedmondFamily()) {
-			return createPropertiesWindow(info, actions, 'folder');
-		}
 
 		const itemCount = Number.parseInt(info.itemCount, 10) || 0;
 		const items = Array.isArray(info.items) ? info.items : [];

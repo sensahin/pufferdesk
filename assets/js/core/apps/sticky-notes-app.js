@@ -241,21 +241,19 @@
 	if (typeof window.PufferDesk.apps.registerNativeAppRenderer === 'function') {
 		const nativeIds = window.PufferDesk.apps.nativeIds || {};
 		window.PufferDesk.apps.registerNativeAppRenderer(nativeIds.STICKY_NOTES, ({ config }) => {
-			const labels = getLabels(config);
-			const appIds = window.PufferDesk.apps.ids || {};
-			const theme = config && config.theme && typeof config.theme === 'object' ? config.theme : {};
-			const isRedmond = theme.family === 'redmond';
-			const title = getAppLabel(config, appIds.STICKY_NOTES) || (typeof labels.stickyNotes === 'string' && labels.stickyNotes ? labels.stickyNotes : 'stickyNotes');
+				const labels = getLabels(config);
+				const appIds = window.PufferDesk.apps.ids || {};
+				const title = getAppLabel(config, appIds.STICKY_NOTES) || (typeof labels.stickyNotes === 'string' && labels.stickyNotes ? labels.stickyNotes : 'stickyNotes');
 
-			return {
-				bodyClass: 'pdk-window-body pdk-sticky-notes-app-body',
-				content: window.PufferDesk.apps.createStickyNotesApp({ config }),
-				height: isRedmond ? '565px' : '420px',
-				resizeMode: 'vertical',
-				title,
-				titlebarLabel: title,
-				width: isRedmond ? '554px' : '360px'
-			};
+				return {
+					bodyClass: 'pdk-window-body pdk-sticky-notes-app-body',
+					content: window.PufferDesk.apps.createStickyNotesApp({ config }),
+					height: '420px',
+					resizeMode: 'vertical',
+					title,
+					titlebarLabel: title,
+					width: '360px'
+				};
 		});
 	}
 })();

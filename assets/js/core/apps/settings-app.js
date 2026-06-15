@@ -93,12 +93,10 @@
 		const sidebarButtons = [];
 		const wallpaperPhotoVisibleCount = 4;
 		const t = settingsLabels.get;
-		const settingsLayout = getSettingsLayout(config);
-		const isWindowsSettingsLayout = settingsLayout === 'windows-settings';
-		const isPufferDeskHubLayout = settingsLayout === 'pufferdesk-hub';
-		const activeTheme = config.theme && typeof config.theme === 'object' ? config.theme : {};
-		const isRedmondSettingsLayout = isWindowsSettingsLayout
-			&& (activeTheme.family === 'redmond' || activeTheme.id === 'redmond/default');
+			const settingsLayout = getSettingsLayout(config);
+			const isWindowsSettingsLayout = settingsLayout === 'windows-settings';
+			const isPufferDeskHubLayout = settingsLayout === 'pufferdesk-hub';
+			const tracksSettingsUsage = isWindowsSettingsLayout;
 		const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.sections || {}
 			: {};
@@ -209,7 +207,7 @@
 		}
 
 		function getSettingsUsage() {
-			if (!isRedmondSettingsLayout || !sessionStore || typeof sessionStore.getSection !== 'function') {
+				if (!tracksSettingsUsage || !sessionStore || typeof sessionStore.getSection !== 'function') {
 				return { panels: {} };
 			}
 
@@ -217,7 +215,7 @@
 		}
 
 		function saveSettingsUsage(usage) {
-			if (!isRedmondSettingsLayout || !sessionStore || typeof sessionStore.saveSection !== 'function') {
+				if (!tracksSettingsUsage || !sessionStore || typeof sessionStore.saveSection !== 'function') {
 				return false;
 			}
 
@@ -244,7 +242,7 @@
 				: panelId;
 			const item = sidebarItems.find((sidebarItem) => sidebarItem && sidebarItem.id === sectionId);
 
-			if (!isRedmondSettingsLayout || !item || item.disabled || sectionId === 'general' || sectionId === profileItem.id) {
+				if (!tracksSettingsUsage || !item || item.disabled || sectionId === 'general' || sectionId === profileItem.id) {
 				return '';
 			}
 
