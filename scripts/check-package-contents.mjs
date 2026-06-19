@@ -32,14 +32,17 @@ const forbiddenTopLevel = new Set([
 	'README.md',
 	'composer.json',
 	'composer.lock',
+	'coverage',
 	'docs',
 	'eslint.config.mjs',
 	'node_modules',
 	'package-lock.json',
 	'package.json',
+	'playwright-report',
 	'playwright.config.mjs',
 	'scripts',
 	'stylelint.config.cjs',
+	'test-results',
 	'tests',
 	'vendor'
 ]);
