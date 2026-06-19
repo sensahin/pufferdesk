@@ -188,6 +188,87 @@ final class PufferDesk_App_Menu_Normalizer {
 	}
 
 	/**
+	 * Users app menu definition.
+	 *
+	 * @return array<string,array<int,array<string,mixed>>>
+	 */
+	public function get_users_menu() {
+		$group_labels = self::get_default_group_labels();
+
+		return array(
+			'groups' => array(
+				array(
+					'id'    => self::GROUP_APP,
+					'label' => __( 'Users', 'pufferdesk' ),
+					'items' => array(
+						array(
+							'label'   => __( 'About Users', 'pufferdesk' ),
+							'command' => PufferDesk_Command_Ids::OPEN_ABOUT,
+							'target'  => PufferDesk_App_Ids::USERS,
+						),
+						array( 'type' => 'separator' ),
+						array(
+							'label'   => __( 'Hide Users', 'pufferdesk' ),
+							'command' => PufferDesk_Command_Ids::WINDOW_HIDE,
+						),
+						array(
+							'label'   => __( 'Hide Others', 'pufferdesk' ),
+							'command' => PufferDesk_Command_Ids::WINDOW_HIDE_OTHERS,
+						),
+						array(
+							'label'   => __( 'Show All', 'pufferdesk' ),
+							'command' => PufferDesk_Command_Ids::WINDOW_SHOW_ALL,
+						),
+						array( 'type' => 'separator' ),
+						array(
+							'label'   => __( 'Quit Users', 'pufferdesk' ),
+							'command' => PufferDesk_Command_Ids::WINDOW_CLOSE,
+						),
+					),
+				),
+				array(
+					'id'    => self::GROUP_FILE,
+					'label' => $group_labels[ self::GROUP_FILE ],
+					'items' => array(
+						array(
+							'label'   => __( 'Add User', 'pufferdesk' ),
+							'command' => PufferDesk_Command_Ids::USER_CREATE,
+							'icon'    => 'dashicons-plus-alt2',
+							'target'  => PufferDesk_App_Ids::USERS,
+						),
+						array(
+							'label'   => __( 'Open Profile', 'pufferdesk' ),
+							'command' => PufferDesk_Command_Ids::USER_OPEN_PROFILE,
+							'icon'    => 'dashicons-id',
+							'target'  => PufferDesk_App_Ids::USERS,
+						),
+					),
+				),
+				array(
+					'id'    => self::GROUP_EDIT,
+					'label' => $group_labels[ self::GROUP_EDIT ],
+					'items' => array(),
+				),
+				array(
+					'id'    => self::GROUP_VIEW,
+					'label' => $group_labels[ self::GROUP_VIEW ],
+					'items' => array(),
+				),
+				array(
+					'id'    => self::GROUP_WINDOW,
+					'label' => $group_labels[ self::GROUP_WINDOW ],
+					'items' => array(),
+				),
+				array(
+					'id'    => self::GROUP_HELP,
+					'label' => $group_labels[ self::GROUP_HELP ],
+					'items' => array(),
+				),
+			),
+		);
+	}
+
+	/**
 	 * Normalize menu groups.
 	 *
 	 * @param array<int,mixed> $groups Raw menu groups.

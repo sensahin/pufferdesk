@@ -19,6 +19,7 @@ final class PufferDesk_Settings_Registry {
 	const DOMAIN_DESKTOP_FOLDERS   = 'desktop_folders';
 	const DOMAIN_DESKTOP_TRASH     = 'desktop_trash';
 	const DOMAIN_MENU_BAR          = 'menu_bar';
+	const DOMAIN_NATIVE_ADMIN      = 'native_admin';
 	const DOMAIN_NOTIFICATIONS     = 'notifications';
 	const DOMAIN_SOUNDS            = 'sounds';
 	const DOMAIN_THEME             = 'theme';
@@ -137,6 +138,18 @@ final class PufferDesk_Settings_Registry {
 				'default'      => $this->preferences->get_default_menu_bar(),
 				'options'      => $this->preferences->get_menu_bar_options(),
 			),
+			self::DOMAIN_NATIVE_ADMIN => array(
+				'id'           => self::DOMAIN_NATIVE_ADMIN,
+				'label'        => 'Native Admin',
+				'panel'        => 'native-admin',
+				'capability'   => PufferDesk_Users_Controller::CAPABILITY,
+				'ajax_action'  => 'pufferdesk_save_native_admin',
+				'handler'      => 'save_native_admin',
+				'preference_key' => PufferDesk_User_Preferences::META_NATIVE_ADMIN,
+				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_NATIVE_ADMIN,
+				'sanitizer'    => 'PufferDesk_User_Preferences::set_native_admin',
+				'default'      => $this->preferences->get_default_native_admin(),
+			),
 			self::DOMAIN_NOTIFICATIONS => array(
 				'id'           => self::DOMAIN_NOTIFICATIONS,
 				'label'        => 'Notifications',
@@ -238,6 +251,7 @@ final class PufferDesk_Settings_Registry {
 			'DESKTOP_FOLDERS'   => self::DOMAIN_DESKTOP_FOLDERS,
 			'DESKTOP_TRASH'     => self::DOMAIN_DESKTOP_TRASH,
 			'MENU_BAR'          => self::DOMAIN_MENU_BAR,
+			'NATIVE_ADMIN'      => self::DOMAIN_NATIVE_ADMIN,
 			'NOTIFICATIONS'     => self::DOMAIN_NOTIFICATIONS,
 			'SOUNDS'            => self::DOMAIN_SOUNDS,
 			'THEME'             => self::DOMAIN_THEME,
@@ -316,6 +330,8 @@ final class PufferDesk_Settings_Registry {
 				return __( 'Trash', 'pufferdesk' );
 			case 'menu_bar':
 				return __( 'Menu Bar', 'pufferdesk' );
+			case 'native_admin':
+				return __( 'Native Admin', 'pufferdesk' );
 			case 'notifications':
 				return __( 'Notifications', 'pufferdesk' );
 			case 'sounds':

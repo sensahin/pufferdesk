@@ -29,6 +29,7 @@ final class PufferDesk_App_Ids {
 	const NATIVE_SETTINGS     = 'settings';
 	const NATIVE_STICKY_NOTES = 'sticky-notes';
 	const NATIVE_TRASH        = 'trash';
+	const NATIVE_USERS        = 'users';
 
 	/**
 	 * Client-safe built-in app ID map.
@@ -64,6 +65,7 @@ final class PufferDesk_App_Ids {
 			'SETTINGS'     => self::NATIVE_SETTINGS,
 			'STICKY_NOTES' => self::NATIVE_STICKY_NOTES,
 			'TRASH'        => self::NATIVE_TRASH,
+			'USERS'        => self::NATIVE_USERS,
 		);
 	}
 }

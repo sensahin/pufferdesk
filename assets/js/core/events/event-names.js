@@ -32,6 +32,7 @@
 		DRAGDROP_ITEM_UNREGISTERED: 'dragdrop:item:unregistered',
 		DROP_VALIDATE: 'drop:validate',
 		FOLDER_CONTENTS_CHANGED: 'folder:contents:changed',
+		IFRAME_CONTEXT_CHANGED: 'iframe:contextChanged',
 		ITEM_MOVE_ERROR: 'item:move:error',
 		ITEM_MOVE_ROLLBACK: 'item:move:rollback',
 		ITEM_MOVE_START: 'item:move:start',

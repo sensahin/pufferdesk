@@ -71,7 +71,9 @@ final class PufferDesk_Command_Ids {
 	const TRASH_DELETE_IMMEDIATELY      = 'trash.delete-immediately';
 	const TRASH_EMPTY                   = 'trash.empty';
 	const TRASH_RESTORE                 = 'trash.restore';
+	const USER_CREATE                   = 'user.create';
 	const USER_LOGOUT                   = 'user.logout';
+	const USER_OPEN_PROFILE             = 'user.open-profile';
 	const WALLPAPER_NEXT                = 'wallpaper.next';
 	const WIDGET_HIDE                   = 'widget.hide';
 	const WINDOW_CLOSE                  = 'window.close';

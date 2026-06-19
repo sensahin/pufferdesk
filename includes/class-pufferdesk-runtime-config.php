@@ -70,13 +70,13 @@ final class PufferDesk_Runtime_Config {
 	/**
 	 * Constructor.
 	 *
-	 * @param PufferDesk_Router            $router Request router.
-	 * @param PufferDesk_Theme_Registry    $theme_registry Theme registry.
-	 * @param PufferDesk_Settings_Registry $settings_registry Settings registry.
-	 * @param PufferDesk_Virtual_Filesystem|null  $virtual_filesystem Virtual filesystem service.
-	 * @param PufferDesk_Notification_Registry|null $notification_registry Notification registry.
-	 * @param PufferDesk_User_Preferences|null    $preferences User preferences.
-	 * @param PufferDesk_Sound_Registry|null      $sound_registry Sound event registry.
+	 * @param PufferDesk_Router                       $router Request router.
+	 * @param PufferDesk_Theme_Registry               $theme_registry Theme registry.
+	 * @param PufferDesk_Settings_Registry            $settings_registry Settings registry.
+	 * @param PufferDesk_Virtual_Filesystem|null      $virtual_filesystem Virtual filesystem service.
+	 * @param PufferDesk_Notification_Registry|null   $notification_registry Notification registry.
+	 * @param PufferDesk_User_Preferences|null        $preferences User preferences.
+	 * @param PufferDesk_Sound_Registry|null          $sound_registry Sound event registry.
 	 * @param PufferDesk_Admin_Bar_Menu_Provider|null $admin_bar_menu_provider Admin bar menu provider.
 	 */
 	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry, $virtual_filesystem = null, $notification_registry = null, $preferences = null, $sound_registry = null, $admin_bar_menu_provider = null ) {
@@ -190,11 +190,13 @@ final class PufferDesk_Runtime_Config {
 			'desktopTrash'   => isset( $context['desktop_trash'] ) && is_array( $context['desktop_trash'] ) ? $context['desktop_trash'] : array(),
 			'dialogs'        => $this->get_dialogs_config( $theme ),
 			'documents'      => $this->get_documents_config( $theme ),
+			'iframe'         => $this->get_iframe_config(),
 			'logoutUrl'      => $this->get_logout_url(),
 			'media'          => array(
 				'sharedIconsUrl' => esc_url_raw( PUFFERDESK_URL . 'assets/media/shared/icons/' ),
 			),
 			'menuBar'        => isset( $context['menu_bar'] ) && is_array( $context['menu_bar'] ) ? $context['menu_bar'] : array(),
+			'nativeAdmin'    => $this->get_native_admin_config(),
 			'notifications'  => $this->notification_registry->get_client_config(),
 			'settings'       => $this->get_settings_config( $theme ),
 			'shellCapabilities' => $this->get_shell_capabilities_config( $theme ),
@@ -241,6 +243,25 @@ final class PufferDesk_Runtime_Config {
 	}
 
 	/**
+	 * Runtime behavior and labels for embedded WordPress admin frames.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_iframe_config() {
+		return array(
+			'readyTimeoutMs' => 6000,
+			'labels'         => array(
+				'loadingTitle'       => __( 'Loading...', 'pufferdesk' ),
+				'loadingDescription' => '',
+				'errorTitle'         => __( 'This page could not be safely embedded.', 'pufferdesk' ),
+				'errorDescription'   => __( 'PufferDesk kept the page covered because it did not confirm iframe mode.', 'pufferdesk' ),
+				'retry'              => __( 'Retry', 'pufferdesk' ),
+				'openClassic'        => __( 'Open in Classic Admin', 'pufferdesk' ),
+			),
+		);
+	}
+
+	/**
 	 * Shared stable identifiers exposed to browser-side contracts.
 	 *
 	 * @return array<string,mixed>
@@ -272,6 +293,7 @@ final class PufferDesk_Runtime_Config {
 				),
 				'sections'     => PufferDesk_Workspace_State::get_section_ids(),
 				'windowKinds'  => PufferDesk_Workspace_State::get_window_kind_ids(),
+				'windowPlacementPrefixes' => PufferDesk_Workspace_State::get_window_placement_prefixes(),
 			),
 		);
 	}
@@ -279,6 +301,7 @@ final class PufferDesk_Runtime_Config {
 	/**
 	 * Localized labels used by shared native info panels.
 	 *
+	 * @param array<string,mixed> $theme Active theme configuration.
 	 * @return array<string,mixed>
 	 */
 	private function get_info_panel_config( $theme = array() ) {
@@ -296,14 +319,14 @@ final class PufferDesk_Runtime_Config {
 			'containsLabel'             => __( 'Contains', 'pufferdesk' ),
 			'createdLabel'              => __( 'Added', 'pufferdesk' ),
 			'documentFallbackTitle'     => __( 'Document', 'pufferdesk' ),
-			/* translators: %s: document label. */
-			'documentInfoTitle'         => __( '%s Details', 'pufferdesk' ),
+				/* translators: %s: item label. */
+				'documentInfoTitle'         => __( '%s Details', 'pufferdesk' ),
 			'fileFolderTypeLabel'       => __( 'File folder', 'pufferdesk' ),
 			'filePlural'                => __( 'Files', 'pufferdesk' ),
 			'fileSingular'              => __( 'File', 'pufferdesk' ),
 			'folderFallbackTitle'       => __( 'Folder', 'pufferdesk' ),
-			/* translators: %s: folder label. */
-			'folderInfoTitle'           => __( '%s Details', 'pufferdesk' ),
+				/* translators: %s: item label. */
+				'folderInfoTitle'           => __( '%s Details', 'pufferdesk' ),
 			'folderPlural'              => __( 'Folders', 'pufferdesk' ),
 			'folderSingular'            => __( 'Folder', 'pufferdesk' ),
 			/* translators: %s: folder contents count. */
@@ -403,6 +426,7 @@ final class PufferDesk_Runtime_Config {
 	/**
 	 * Sticky Notes document runtime endpoints.
 	 *
+	 * @param array<string,mixed> $theme Active theme configuration.
 	 * @return array<string,mixed>
 	 */
 	private function get_documents_config( $theme = array() ) {
@@ -590,6 +614,7 @@ final class PufferDesk_Runtime_Config {
 	/**
 	 * Safe site details for the About This Site window.
 	 *
+	 * @param array<string,mixed> $theme Active theme configuration.
 	 * @return array<string,mixed>
 	 */
 	private function get_site_info_config( $theme = array() ) {
@@ -697,6 +722,7 @@ final class PufferDesk_Runtime_Config {
 	/**
 	 * Safe product details for the About PufferDesk window.
 	 *
+	 * @param array<string,mixed> $theme Active theme configuration.
 	 * @return array<string,mixed>
 	 */
 	private function get_product_info_config( $theme = array() ) {
@@ -939,15 +965,13 @@ final class PufferDesk_Runtime_Config {
 				'enabled'    => $has_menu_bar,
 				'background' => $has_menu_bar,
 				'recent'     => 'global' === $app_menu,
-			),
-			'appLocations'      => array(
-				'launcher' => $has_launcher,
-				'desktop'  => true,
+				),
+				'appLocations'      => array(
+					'launcher' => $has_launcher,
+					'desktop'  => true,
 				),
 				'appearance'        => array(
-					'windowMaterial'  => true,
-					'accentColor'     => true,
-					'iconWidgetStyle' => true,
+					'accentColor' => true,
 				),
 			);
 		}
@@ -972,6 +996,167 @@ final class PufferDesk_Runtime_Config {
 			),
 			'labels'  => $labels,
 		);
+	}
+
+	/**
+	 * Native WordPress admin experience config.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function get_native_admin_config() {
+		$preferences       = $this->preferences->get_native_admin();
+		$users_enabled     = ! empty( $preferences['users'] );
+		$can_users         = current_user_can( PufferDesk_Users_Controller::CAPABILITY );
+		$can_create_users  = current_user_can( PufferDesk_Users_Controller::CAPABILITY_CREATE );
+		$can_edit_profile  = current_user_can( 'edit_user', get_current_user_id() );
+		$features          = array(
+			'directory' => $users_enabled && $can_users,
+			'add'       => $users_enabled && $can_create_users,
+			'profile'   => $users_enabled && $can_edit_profile,
+		);
+
+		return array(
+			'preferences' => $preferences,
+			'apps'        => array(
+				PufferDesk_App_Ids::USERS => array(
+					'actions'      => array(
+						'create'        => PufferDesk_Users_Controller::ACTION_CREATE,
+						'getProfile'    => PufferDesk_Users_Controller::ACTION_GET_PROFILE,
+						'list'          => PufferDesk_Users_Controller::ACTION_LIST,
+						'updateProfile' => PufferDesk_Users_Controller::ACTION_UPDATE_PROFILE,
+					),
+					'canAccess'    => $can_users,
+					'canCreate'    => $can_create_users,
+					'canProfile'   => $can_edit_profile,
+					'capability'   => PufferDesk_Users_Controller::CAPABILITY,
+					'enabled'      => ! empty( $features['directory'] ),
+					'fallbackUrls' => array(
+						'add'       => esc_url_raw( admin_url( 'user-new.php' ) ),
+						'directory' => esc_url_raw( admin_url( 'users.php' ) ),
+						'profile'   => esc_url_raw( admin_url( 'profile.php' ) ),
+					),
+					'defaultRole'  => $this->get_default_user_role(),
+					'features'     => $features,
+					'native'       => PufferDesk_App_Ids::NATIVE_USERS,
+					'perPage'      => PufferDesk_Users_Controller::LIST_PER_PAGE,
+					'preference'   => 'users',
+					'roleOptions'  => $this->get_editable_user_role_options(),
+				),
+			),
+			'labels'      => array(
+				'users' => array(
+					'addUser'           => __( 'Add User', 'pufferdesk' ),
+					'addUserTitle'      => __( 'Add User', 'pufferdesk' ),
+					'advancedDetails'   => __( 'Advanced Details', 'pufferdesk' ),
+					'allRoles'          => __( 'All roles', 'pufferdesk' ),
+					'bioLabel'          => __( 'Bio', 'pufferdesk' ),
+					'cancel'            => __( 'Cancel', 'pufferdesk' ),
+					'close'             => __( 'Close', 'pufferdesk' ),
+					'createUser'        => __( 'Add User', 'pufferdesk' ),
+					'detailsTitle'      => __( 'User Details', 'pufferdesk' ),
+					'displayNameLabel'  => __( 'Display name', 'pufferdesk' ),
+					'editInWordPress'   => __( 'Edit in WordPress', 'pufferdesk' ),
+					'editProfile'       => __( 'Edit Profile', 'pufferdesk' ),
+					'emailLabel'        => __( 'Email', 'pufferdesk' ),
+					'emptyDescription'  => __( 'Try a different search term or role filter.', 'pufferdesk' ),
+					'emptyTitle'        => __( 'No users found', 'pufferdesk' ),
+					'firstNameLabel'    => __( 'First name', 'pufferdesk' ),
+					'inviteLabel'       => __( 'Send the new user an email invitation', 'pufferdesk' ),
+					'lastNameLabel'     => __( 'Last name', 'pufferdesk' ),
+					'loading'           => __( 'Loading users...', 'pufferdesk' ),
+					'loginLabel'        => __( 'Username', 'pufferdesk' ),
+					'manualUsername'    => __( 'Set username manually', 'pufferdesk' ),
+					'nameLabel'         => __( 'Name', 'pufferdesk' ),
+					'nativeDisabled'    => __( 'This native workflow is disabled in Settings.', 'pufferdesk' ),
+					'openProfile'       => __( 'Open Profile', 'pufferdesk' ),
+					'paginationEmpty'   => __( 'No users', 'pufferdesk' ),
+						/* translators: 1: Current page number, 2: Total page count. */
+						'paginationPage'    => __( 'Page %1$d of %2$d', 'pufferdesk' ),
+						/* translators: 1: First visible user number, 2: Last visible user number, 3: Total users. */
+						'paginationRange'   => __( 'Showing %1$d-%2$d of %3$d', 'pufferdesk' ),
+					'permissionDenied'  => __( 'You do not have permission to view users.', 'pufferdesk' ),
+					'postsLabel'        => __( 'Posts', 'pufferdesk' ),
+					'nextPage'          => __( 'Next', 'pufferdesk' ),
+					'previousPage'      => __( 'Previous', 'pufferdesk' ),
+					'profileTitle'      => __( 'Profile', 'pufferdesk' ),
+					'registeredLabel'   => __( 'Registered', 'pufferdesk' ),
+					'roleLabel'         => __( 'Role', 'pufferdesk' ),
+					'saveProfile'       => __( 'Save Profile', 'pufferdesk' ),
+					'saving'            => __( 'Saving...', 'pufferdesk' ),
+					'searchLabel'       => __( 'Search users', 'pufferdesk' ),
+					'searchPlaceholder' => __( 'Search users', 'pufferdesk' ),
+					'serviceError'      => __( 'Users could not be loaded.', 'pufferdesk' ),
+					'subtitle'          => __( 'WordPress account directory', 'pufferdesk' ),
+					'usernameHelp'      => __( 'Leave blank to generate it from the email address.', 'pufferdesk' ),
+					'urlLabel'          => __( 'Website', 'pufferdesk' ),
+						/* translators: %d: Number of users. */
+						'userCount'         => __( '%d users', 'pufferdesk' ),
+					'userCreated'       => __( 'User added.', 'pufferdesk' ),
+					'usersTitle'        => __( 'Users', 'pufferdesk' ),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Get editable WordPress role choices for native user forms.
+	 *
+	 * @return array<int,array<string,string>>
+	 */
+	private function get_editable_user_role_options() {
+		if ( ! current_user_can( 'promote_users' ) ) {
+			return array();
+		}
+
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+
+		$roles   = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array();
+		$options = array();
+
+		foreach ( $roles as $role => $data ) {
+			$role = sanitize_key( (string) $role );
+			if ( '' === $role ) {
+				continue;
+			}
+
+			$options[] = array(
+				'label' => translate_user_role( isset( $data['name'] ) ? $data['name'] : $role ),
+				'value' => $role,
+			);
+		}
+
+		usort(
+			$options,
+			static function ( $a, $b ) {
+				return strcasecmp( $a['label'], $b['label'] );
+			}
+		);
+
+		return $options;
+	}
+
+	/**
+	 * Get the default assignable WordPress role for the current user.
+	 *
+	 * @return string
+	 */
+	private function get_default_user_role() {
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+
+		$roles   = function_exists( 'get_editable_roles' ) ? get_editable_roles() : array();
+		$default = sanitize_key( (string) get_option( 'default_role', 'subscriber' ) );
+
+		if ( isset( $roles[ $default ] ) ) {
+			return $default;
+		}
+
+		$role_keys = array_keys( $roles );
+
+		return ! empty( $role_keys ) ? sanitize_key( (string) $role_keys[0] ) : '';
 	}
 
 	/**
@@ -1021,21 +1206,23 @@ final class PufferDesk_Runtime_Config {
 				'removing'               => __( 'Removing...', 'pufferdesk' ),
 				'serviceUnavailable'     => __( 'Settings service unavailable.', 'pufferdesk' ),
 				'appearanceSaveError'    => __( 'Appearance could not be saved.', 'pufferdesk' ),
-				'appearanceSaved'        => __( 'Appearance saved.', 'pufferdesk' ),
-				'desktopDockSaveError'   => sprintf(
-					/* translators: %s: theme-specific desktop and launcher settings label. */
-					__( '%s could not be saved.', 'pufferdesk' ),
-					$desktop_launcher_label
-				),
+					'appearanceSaved'        => __( 'Appearance saved.', 'pufferdesk' ),
+					'desktopDockSaveError'   => sprintf(
+						/* translators: %s: settings section label. */
+						__( '%s could not be saved.', 'pufferdesk' ),
+						$desktop_launcher_label
+					),
 				'appLocationsSaveError'  => __( 'App locations could not be saved.', 'pufferdesk' ),
 				'appLocationsSaved'      => __( 'App locations saved.', 'pufferdesk' ),
-				'loginItemsSaveError'    => __( 'Login items could not be saved.', 'pufferdesk' ),
-				'loginItemsSaved'        => __( 'Login items saved.', 'pufferdesk' ),
-				'menuBarSaveError'       => sprintf(
-					/* translators: %s: theme-specific menu bar label. */
-					__( '%s could not be saved.', 'pufferdesk' ),
-					$menu_bar_label
-				),
+					'loginItemsSaveError'    => __( 'Login items could not be saved.', 'pufferdesk' ),
+					'loginItemsSaved'        => __( 'Login items saved.', 'pufferdesk' ),
+					'menuBarSaveError'       => sprintf(
+						/* translators: %s: settings section label. */
+						__( '%s could not be saved.', 'pufferdesk' ),
+						$menu_bar_label
+					),
+				'nativeAdminSaveError'   => __( 'Native admin experiences could not be saved.', 'pufferdesk' ),
+				'nativeAdminSaved'       => __( 'Native admin experiences saved.', 'pufferdesk' ),
 				'notificationsSaveError' => __( 'Notifications could not be saved.', 'pufferdesk' ),
 				'notificationsSaved'     => __( 'Notifications saved.', 'pufferdesk' ),
 				'soundsSaveError'        => __( 'Sound could not be saved.', 'pufferdesk' ),
@@ -1062,10 +1249,16 @@ final class PufferDesk_Runtime_Config {
 				'resetCurrentTitle'            => __( 'Reset layout?', 'pufferdesk' ),
 			),
 			'sidebar'      => array(
-				'searchPlaceholder' => __( 'Search', 'pufferdesk' ),
-				'searchLabel'       => __( 'Search settings', 'pufferdesk' ),
-				'navLabel'          => __( 'Settings sections', 'pufferdesk' ),
-				'items'             => array(
+				'searchPlaceholder'            => __( 'Search', 'pufferdesk' ),
+				'searchLabel'                  => __( 'Search settings', 'pufferdesk' ),
+				'searchResultsTitle'           => __( 'Search results', 'pufferdesk' ),
+				/* translators: %s: Settings search query. */
+				'searchResultsSummary'         => __( 'Results for "%s"', 'pufferdesk' ),
+				'searchNoResultsTitle'         => __( 'No settings found', 'pufferdesk' ),
+				'searchNoResultsDescription'   => __( 'Try a different setting, label, or description.', 'pufferdesk' ),
+				'searchOpenLabel'              => __( 'Open setting', 'pufferdesk' ),
+				'navLabel'                     => __( 'Settings sections', 'pufferdesk' ),
+				'items'                        => array(
 					array(
 						'id'    => 'general',
 						'label' => __( 'General', 'pufferdesk' ),
@@ -1085,11 +1278,24 @@ final class PufferDesk_Runtime_Config {
 						'tone'  => 'indigo',
 					),
 					array(
+						'id'    => 'apps',
+						'label' => __( 'Apps', 'pufferdesk' ),
+						'icon'  => 'dashicons-screenoptions',
+						'tone'  => 'purple',
+					),
+					array(
 						'id'    => 'menu-bar',
 						'label' => $menu_bar_label,
 						'icon'  => 'dashicons-menu-alt3',
 						'tone'  => 'gray',
 						'visible' => ! empty( $capabilities['menuBar']['enabled'] ),
+					),
+					array(
+						'id'    => 'native-admin',
+						'label' => __( 'Admin Experiences', 'pufferdesk' ),
+						'icon'  => 'dashicons-admin-site-alt3',
+						'tone'  => 'indigo',
+						'visible' => current_user_can( PufferDesk_Users_Controller::CAPABILITY ),
 					),
 					array(
 						'id'    => 'notifications',
@@ -1161,17 +1367,14 @@ final class PufferDesk_Runtime_Config {
 					'browsePersonalizeLabel'    => __( 'Browse more backgrounds and colors', 'pufferdesk' ),
 					'systemDescription'         => __( 'Launcher, desktop, apps, and widgets', 'pufferdesk' ),
 					'notificationsDescription'  => __( 'Notification Center and alerts', 'pufferdesk' ),
-					'appearanceDescription'     => __( 'Colors and window surfaces', 'pufferdesk' ),
+					'appearanceDescription'     => __( 'Colors and theme', 'pufferdesk' ),
 				),
 			),
 			'appearance'   => array(
 				'title'                 => __( 'Appearance', 'pufferdesk' ),
 				'appearanceLabel'       => __( 'Appearance', 'pufferdesk' ),
-				'materialLabel'         => __( 'Window surface', 'pufferdesk' ),
-				'materialDescription'   => __( 'Choose a clear or tinted surface style.', 'pufferdesk' ),
 				'themeHeading'          => __( 'Style', 'pufferdesk' ),
 				'colorLabel'            => __( 'Color', 'pufferdesk' ),
-				'iconWidgetStyleLabel'  => __( 'Icon & widget style', 'pufferdesk' ),
 				'themeLabel'            => __( 'Theme', 'pufferdesk' ),
 				'themeFallbackLabel'    => __( 'Theme', 'pufferdesk' ),
 				/* translators: 1: theme family label, 2: theme version label. */
@@ -1181,16 +1384,6 @@ final class PufferDesk_Runtime_Config {
 					array( 'value' => 'auto', 'label' => __( 'System', 'pufferdesk' ) ),
 					array( 'value' => 'light', 'label' => __( 'Light', 'pufferdesk' ) ),
 					array( 'value' => 'dark', 'label' => __( 'Dark', 'pufferdesk' ) ),
-				),
-				'materialOptions'       => array(
-					array( 'value' => 'clear', 'label' => __( 'Clear', 'pufferdesk' ) ),
-					array( 'value' => 'tinted', 'label' => __( 'Tinted', 'pufferdesk' ) ),
-				),
-				'iconWidgetStyleOptions' => array(
-					array( 'value' => 'default', 'label' => __( 'Default', 'pufferdesk' ) ),
-					array( 'value' => 'dark', 'label' => __( 'Dark', 'pufferdesk' ) ),
-					array( 'value' => 'clear', 'label' => __( 'Clear', 'pufferdesk' ) ),
-					array( 'value' => 'tinted', 'label' => __( 'Tinted', 'pufferdesk' ) ),
 				),
 				'accentOptions'         => array(
 					array( 'value' => 'blue', 'label' => __( 'Blue', 'pufferdesk' ) ),
@@ -1376,18 +1569,28 @@ final class PufferDesk_Runtime_Config {
 			'widgets'      => array(
 				'title'             => __( 'Widgets', 'pufferdesk' ),
 				'description'       => __( 'Choose which desktop widgets are visible.', 'pufferdesk' ),
+				'desktopHeading'    => __( 'Display', 'pufferdesk' ),
 				'emptyLabel'        => __( 'No widgets are registered for this account.', 'pufferdesk' ),
+				'registeredHeading' => __( 'Widgets', 'pufferdesk' ),
 				'showOnDesktopLabel' => __( 'Show on desktop', 'pufferdesk' ),
 			),
 			'apps'         => array(
+				'headings'         => array(
+					'locations' => __( 'Apps', 'pufferdesk' ),
+				),
 				'openAtLoginLabel' => __( 'Open at login', 'pufferdesk' ),
+			),
+			'nativeAdmin'  => array(
+				'heading'                 => __( 'Native WordPress screens', 'pufferdesk' ),
+				'usersDescription'        => __( 'Open Users, Add User, and Profile in native PufferDesk windows when available.', 'pufferdesk' ),
+				'usersLabel'              => __( 'Use native Users experience', 'pufferdesk' ),
 			),
 		);
 
 		$theme_settings = isset( $theme['settings'] ) && is_array( $theme['settings'] ) ? $theme['settings'] : array();
 		$theme_labels   = isset( $theme_settings['labels'] ) && is_array( $theme_settings['labels'] ) ? $theme_settings['labels'] : array();
 		$labels         = $this->merge_settings_labels( $labels, $theme_labels );
-		$labels         = $this->remove_settings_sidebar_items( $labels, array( 'apps', 'workspace', 'system' ) );
+		$labels         = $this->remove_settings_sidebar_items( $labels, array( 'workspace', 'system' ) );
 
 		return $labels;
 	}
@@ -1701,6 +1904,7 @@ final class PufferDesk_Runtime_Config {
 	/**
 	 * Runtime data for PufferDesk shell actions.
 	 *
+	 * @param array<string,mixed> $theme Active theme configuration.
 	 * @return array<string,mixed>
 	 */
 	private function get_system_config( $theme = array() ) {
@@ -1885,6 +2089,13 @@ final class PufferDesk_Runtime_Config {
 								'type' => 'separator',
 							),
 							array(
+								'label'   => __( 'Manage Account...', 'pufferdesk' ),
+								'command' => PufferDesk_Command_Ids::USER_OPEN_PROFILE,
+								'target'  => (string) get_current_user_id(),
+								'url'     => admin_url( 'profile.php' ),
+								'icon'    => 'dashicons-admin-users',
+							),
+							array(
 								'label'   => sprintf(
 									/* translators: %s: current user display name. */
 									__( 'Log Out %s...', 'pufferdesk' ),
@@ -1976,6 +2187,8 @@ final class PufferDesk_Runtime_Config {
 				'new'                     => __( 'New', 'pufferdesk' ),
 				'new_folder'              => __( 'New Folder', 'pufferdesk' ),
 				'new_note'                => __( 'New Note', 'pufferdesk' ),
+				'add_user'                => __( 'Add User', 'pufferdesk' ),
+				'open_profile'            => __( 'Open Profile', 'pufferdesk' ),
 				'group'                   => __( 'Group', 'pufferdesk' ),
 				'more'                    => __( 'More', 'pufferdesk' ),
 				'sort'                    => __( 'Sort', 'pufferdesk' ),
@@ -2104,8 +2317,7 @@ final class PufferDesk_Runtime_Config {
 				'content_view'            => __( 'Content', 'pufferdesk' ),
 				'as_icons'                => __( 'as Icons', 'pufferdesk' ),
 				'as_list'                 => __( 'as List', 'pufferdesk' ),
-				'show'                    => __( 'Show', 'pufferdesk' ),
-				'auto_arrange_icons'      => __( 'Auto arrange icons', 'pufferdesk' ),
+					'auto_arrange_icons'      => __( 'Auto arrange icons', 'pufferdesk' ),
 				'align_icons_to_grid'     => __( 'Align icons to grid', 'pufferdesk' ),
 				'reset_layout'            => __( 'Reset Layout...', 'pufferdesk' ),
 				'refresh'                 => __( 'Refresh', 'pufferdesk' ),

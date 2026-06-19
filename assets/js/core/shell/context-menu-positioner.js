@@ -93,10 +93,59 @@
 			}, detail);
 		}
 
+		function positionSubmenu(submenu, options = {}) {
+			const wrapper = options.wrapper || (submenu && typeof submenu.closest === 'function' ? submenu.closest('.pdk-menu-submenu') : null);
+			const trigger = options.trigger || (wrapper ? wrapper.querySelector('.pdk-menu-submenu-trigger') : null);
+
+			if (!submenu || !wrapper || !trigger || typeof submenu.getBoundingClientRect !== 'function') {
+				return false;
+			}
+
+			const shellRect = shell.getBoundingClientRect();
+			const wrapperRect = wrapper.getBoundingClientRect();
+			const triggerRect = trigger.getBoundingClientRect();
+			const minLeft = shellRect.left + 8;
+			const minTop = shellRect.top + 8;
+			const maxRight = shellRect.right - 8;
+			const maxBottom = shellRect.bottom - 8;
+			const gap = 6;
+
+			submenu.style.maxHeight = '';
+			submenu.style.overflowY = '';
+
+			const submenuRect = submenu.getBoundingClientRect();
+			const submenuWidth = submenu.offsetWidth || submenuRect.width;
+			let submenuHeight = submenu.offsetHeight || submenuRect.height;
+			const availableHeight = Math.max(120, maxBottom - minTop);
+
+			if (submenuHeight > availableHeight) {
+				submenuHeight = availableHeight;
+				submenu.style.maxHeight = `${Math.floor(availableHeight)}px`;
+				submenu.style.overflowY = 'auto';
+			}
+
+			const rightLeft = triggerRect.right + gap;
+			const leftLeft = triggerRect.left - submenuWidth - gap;
+			const canOpenRight = rightLeft + submenuWidth <= maxRight;
+			const canOpenLeft = leftLeft >= minLeft;
+			const opensLeft = !canOpenRight && canOpenLeft;
+			const preferredLeft = opensLeft ? leftLeft : rightLeft;
+			const preferredTop = triggerRect.top - gap;
+			const clientLeft = clamp(Math.round(preferredLeft), minLeft, Math.max(minLeft, maxRight - submenuWidth));
+			const clientTop = clamp(Math.round(preferredTop), minTop, Math.max(minTop, maxBottom - submenuHeight));
+
+			submenu.dataset.pdkSubmenuPlacement = opensLeft ? 'left' : 'right';
+			submenu.style.left = `${Math.round(clientLeft - wrapperRect.left)}px`;
+			submenu.style.top = `${Math.round(clientTop - wrapperRect.top)}px`;
+
+			return true;
+		}
+
 		return {
 			positionAtElement,
 			positionAtPoint,
-			positionDockMenu
+			positionDockMenu,
+			positionSubmenu
 		};
 	};
 })();

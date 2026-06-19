@@ -54,6 +54,80 @@
 			return route && typeof route.url === 'string' ? route.url : '';
 		}
 
+		function getNativeAdminRequestedFeature(nativeContext = {}) {
+			return String(nativeContext.nativeAdminFeature || '').trim();
+		}
+
+		function nativeAdminFeatureEnabled(appConfig, feature) {
+			const features = appConfig && appConfig.features && typeof appConfig.features === 'object'
+				? appConfig.features
+				: {};
+
+			return Boolean(feature && features[feature] === true);
+		}
+
+		function getNativeAdminAppConfig(app, nativeContext = {}) {
+			const nativeAdmin = config.nativeAdmin && typeof config.nativeAdmin === 'object'
+				? config.nativeAdmin
+				: {};
+			const nativeAdminApps = nativeAdmin.apps && typeof nativeAdmin.apps === 'object'
+				? nativeAdmin.apps
+				: {};
+			const requestedFeature = getNativeAdminRequestedFeature(nativeContext);
+			const appConfig = app && app.id && nativeAdminApps[app.id] && typeof nativeAdminApps[app.id] === 'object'
+				? nativeAdminApps[app.id]
+				: null;
+
+			if (!appConfig || (!appConfig.enabled && !nativeAdminFeatureEnabled(appConfig, requestedFeature)) || !appConfig.native) {
+				return null;
+			}
+
+			if (
+				nativeApps
+				&& typeof nativeApps.hasNativeAppRenderer === 'function'
+				&& !nativeApps.hasNativeAppRenderer(appConfig.native)
+			) {
+				return null;
+			}
+
+			return appConfig;
+		}
+
+		function getNativeAdminWindowOptions(app, baseOptions, nativeContext = {}) {
+			const nativeAdminApp = getNativeAdminAppConfig(app, nativeContext);
+			const requestedFeature = getNativeAdminRequestedFeature(nativeContext);
+
+			if (!nativeAdminApp) {
+				return null;
+			}
+
+			const getOptions = nativeApps && typeof nativeApps.getNativeAppWindowOptions === 'function'
+				? nativeApps.getNativeAppWindowOptions
+				: null;
+			const nativeOptions = getOptions
+				? getOptions(nativeAdminApp.native, {
+					app,
+					baseOptions,
+					config,
+					manager,
+					nativeAdmin: nativeAdminApp,
+					shell
+				}, nativeContext && typeof nativeContext === 'object' ? nativeContext : {})
+				: null;
+
+			if (!nativeOptions) {
+				return null;
+			}
+
+			const windowOptions = Object.assign({}, baseOptions, nativeOptions);
+			if (requestedFeature) {
+				windowOptions.persist = false;
+				windowOptions.windowIdentity = `native-admin:${app.id}:${requestedFeature}`;
+			}
+
+			return windowOptions;
+		}
+
 		function getAppWindowOptions(app, nativeContext = {}) {
 			if (!app || typeof app !== 'object') {
 				return null;
@@ -70,6 +144,11 @@
 
 			if (app.window_persistence === windowPersistence.NONE) {
 				windowOptions.persist = false;
+			}
+
+			const nativeAdminOptions = getNativeAdminWindowOptions(app, windowOptions, nativeContext);
+			if (nativeAdminOptions) {
+				return nativeAdminOptions;
 			}
 
 			if (app.kind === appKinds.NATIVE) {

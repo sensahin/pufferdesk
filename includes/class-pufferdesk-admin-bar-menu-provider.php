@@ -178,9 +178,9 @@ final class PufferDesk_Admin_Bar_Menu_Provider {
 	/**
 	 * Normalize an admin bar node into a PufferDesk menu item.
 	 *
-	 * @param object                              $node Admin bar node.
-	 * @param array<string,array<int,object>>     $children Nodes grouped by parent.
-	 * @param array<string,bool>                  $seen Seen node IDs.
+	 * @param object                          $node Admin bar node.
+	 * @param array<string,array<int,object>> $children Nodes grouped by parent.
+	 * @param array<string,bool>              $seen Seen node IDs.
 	 * @return array<string,mixed>
 	 */
 	private function normalize_new_content_node( $node, $children, $seen = array() ) {

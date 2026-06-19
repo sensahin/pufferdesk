@@ -497,7 +497,7 @@
 			};
 		}
 
-		function getItemGroup(item, groupMode, layout) {
+		function getItemGroup(item, groupMode, _layout) {
 			const metadata = item && item.listMeta ? item.listMeta : getListMetadata(item);
 
 			if (groupMode === 'name') {

@@ -8,6 +8,8 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Template variables.
+ *
  * @var array<int,array<string,mixed>>  $apps
  * @var array<string,mixed>             $theme
  * @var array<string,mixed>             $shell

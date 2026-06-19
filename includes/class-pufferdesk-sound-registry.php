@@ -23,8 +23,8 @@ final class PufferDesk_Sound_Registry {
 	/**
 	 * Build the browser runtime sound configuration.
 	 *
-	 * @param array<string,mixed>                  $theme Resolved theme metadata.
-	 * @param PufferDesk_User_Preferences|null    $preferences User preference service.
+	 * @param array<string,mixed>              $theme Resolved theme metadata.
+	 * @param PufferDesk_User_Preferences|null $preferences User preference service.
 	 * @return array<string,mixed>
 	 */
 	public function get_client_config( $theme = array(), $preferences = null ) {

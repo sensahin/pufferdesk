@@ -37,8 +37,8 @@ final class PufferDesk_Notification_Registry {
 	/**
 	 * Constructor.
 	 *
-	 * @param PufferDesk_User_Preferences          $preferences User preferences.
-	 * @param PufferDesk_Notification_Normalizer   $normalizer  Notification normalizer.
+	 * @param PufferDesk_User_Preferences        $preferences User preferences.
+	 * @param PufferDesk_Notification_Normalizer $normalizer  Notification normalizer.
 	 */
 	public function __construct( PufferDesk_User_Preferences $preferences, PufferDesk_Notification_Normalizer $normalizer ) {
 		$this->preferences = $preferences;

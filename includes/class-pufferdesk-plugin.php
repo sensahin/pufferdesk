@@ -40,6 +40,13 @@ final class PufferDesk_Plugin {
 	private $assets;
 
 	/**
+	 * Embedded WordPress admin page context resolver.
+	 *
+	 * @var PufferDesk_Admin_Context_Resolver
+	 */
+	private $admin_context_resolver;
+
+	/**
 	 * Settings controller.
 	 *
 	 * @var PufferDesk_Settings_Controller
@@ -82,6 +89,13 @@ final class PufferDesk_Plugin {
 	private $notification_controller;
 
 	/**
+	 * Native Users app data controller.
+	 *
+	 * @var PufferDesk_Users_Controller
+	 */
+	private $users_controller;
+
+	/**
 	 * Boot and return the singleton.
 	 *
 	 * @return PufferDesk_Plugin
@@ -100,7 +114,8 @@ final class PufferDesk_Plugin {
 	 */
 	private function __construct() {
 		$preferences        = new PufferDesk_User_Preferences();
-		$app_registry       = new PufferDesk_App_Registry();
+		$admin_menu_provider = new PufferDesk_Admin_Menu_App_Provider( new PufferDesk_App_Badge_Normalizer() );
+		$app_registry       = new PufferDesk_App_Registry( $admin_menu_provider );
 		$widget_registry    = new PufferDesk_Widget_Registry();
 		$theme_registry     = new PufferDesk_Theme_Registry();
 		$wallpaper_registry = new PufferDesk_Wallpaper_Registry();
@@ -120,6 +135,7 @@ final class PufferDesk_Plugin {
 		$sound_registry     = new PufferDesk_Sound_Registry();
 		$asset_manifest     = new PufferDesk_Asset_Manifest();
 		$settings_registry  = new PufferDesk_Settings_Registry( $preferences );
+		$this->admin_context_resolver = new PufferDesk_Admin_Context_Resolver( $admin_menu_provider );
 		$this->router       = new PufferDesk_Router( $preferences );
 		$shell_context      = new PufferDesk_Shell_Context(
 			$preferences,
@@ -151,7 +167,8 @@ final class PufferDesk_Plugin {
 			$this->router,
 			$shell_context,
 			$runtime_config,
-			$asset_manifest
+			$asset_manifest,
+			$this->admin_context_resolver
 		);
 		$this->settings_controller = new PufferDesk_Settings_Controller(
 			$preferences,
@@ -172,6 +189,7 @@ final class PufferDesk_Plugin {
 		$this->content_search_controller = new PufferDesk_Content_Search_Controller( $content_search_service );
 		$this->document_controller = new PufferDesk_Document_Controller( $document_service );
 		$this->notification_controller = new PufferDesk_Notification_Controller( $notification_registry );
+		$this->users_controller = new PufferDesk_Users_Controller();
 	}
 
 	/**
@@ -179,15 +197,20 @@ final class PufferDesk_Plugin {
 	 */
 	private function hooks() {
 		add_action( 'admin_init', array( $this->router, 'handle_mode_toggle' ) );
-			add_action( 'admin_init', array( $this->router, 'redirect_dashboard_to_shell' ) );
-			add_action( 'admin_enqueue_scripts', array( $this->assets, 'enqueue' ) );
-			add_filter( 'admin_body_class', array( $this->assets, 'add_admin_body_classes' ) );
-			$this->document_post_type->hooks();
+		add_action( 'admin_init', array( $this->router, 'prevent_iframe_shell_nesting' ), 0 );
+		add_action( 'admin_init', array( $this->router, 'redirect_dashboard_to_shell' ) );
+		add_filter( 'wp_redirect', array( $this->router, 'preserve_iframe_redirect' ), 10, 1 );
+		add_action( 'admin_enqueue_scripts', array( $this->assets, 'enqueue' ) );
+		add_action( 'admin_head', array( $this->assets, 'print_early_admin_chrome' ), 0 );
+		add_action( 'in_admin_header', array( $this->assets, 'print_iframe_admin_context' ), 20 );
+		add_filter( 'admin_body_class', array( $this->assets, 'add_admin_body_classes' ) );
+		$this->document_post_type->hooks();
 		$this->admin_controller->hooks();
 		$this->settings_controller->hooks();
 		$this->workspace_controller->hooks();
 		$this->content_search_controller->hooks();
 		$this->document_controller->hooks();
 		$this->notification_controller->hooks();
+		$this->users_controller->hooks();
 	}
 }

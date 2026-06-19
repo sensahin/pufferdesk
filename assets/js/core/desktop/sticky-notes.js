@@ -379,20 +379,6 @@
 			};
 		}
 
-		function getNoteIndex(noteElement) {
-			let index = 0;
-
-			for (const entry of noteMap.values()) {
-				if (entry && entry.element === noteElement) {
-					return index;
-				}
-
-				index += 1;
-			}
-
-			return 0;
-		}
-
 		function getStickyBounds(noteElement) {
 			const safeArea = getStickySafeArea();
 			const desktopRect = desktop ? desktop.getBoundingClientRect() : { width: 1200, height: 800 };

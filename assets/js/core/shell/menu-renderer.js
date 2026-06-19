@@ -4,11 +4,12 @@
 	window.PufferDesk = window.PufferDesk || {};
 	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
-	window.PufferDesk.shell.createMenuItemRenderer = function createMenuItemRenderer(commands) {
+	window.PufferDesk.shell.createMenuItemRenderer = function createMenuItemRenderer(commands, options = {}) {
 		const dom = window.PufferDesk.dom;
 		const targets = window.PufferDesk.shell.contextMenuConstants
 			? window.PufferDesk.shell.contextMenuConstants.targets || {}
 			: {};
+		const positionSubmenu = typeof options.positionSubmenu === 'function' ? options.positionSubmenu : null;
 
 		function isIconDescriptor(icon) {
 			return icon && typeof icon === 'object';
@@ -219,6 +220,18 @@
 				window.clearTimeout(closeTimer);
 				wrapper.classList.add('is-open');
 				button.setAttribute('aria-expanded', 'true');
+				if (positionSubmenu) {
+					positionSubmenu(subPopover, {
+						detail,
+						item,
+						trigger: button,
+						wrapper
+					});
+				}
+				const shortcut = button.querySelector('.pdk-menu-item-shortcut');
+				if (shortcut) {
+					shortcut.textContent = subPopover.dataset.pdkSubmenuPlacement === 'left' ? '‹' : '›';
+				}
 			};
 			const close = () => {
 				window.clearTimeout(closeTimer);

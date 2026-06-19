@@ -284,7 +284,7 @@ final class PufferDesk_Document_Service {
 	/**
 	 * Trash or permanently delete a document.
 	 *
-	 * @param int $document_id Document post ID.
+	 * @param int  $document_id Document post ID.
 	 * @param bool $force Whether to permanently delete the document.
 	 * @return bool|WP_Error
 	 */
@@ -389,7 +389,7 @@ final class PufferDesk_Document_Service {
 	 * @return bool
 	 */
 	private function current_user_can_edit_document( $post ) {
-		return $this->current_user_can_use_documents() && (int) $post->post_author === get_current_user_id();
+		return $this->current_user_can_use_documents() && get_current_user_id() === (int) $post->post_author;
 	}
 
 	/**

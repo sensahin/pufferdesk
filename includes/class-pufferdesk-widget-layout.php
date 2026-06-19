@@ -122,7 +122,7 @@ final class PufferDesk_Widget_Layout {
 				continue;
 			}
 
-			if ( $widget_id === sanitize_key( (string) $item['id'] ) ) {
+			if ( sanitize_key( (string) $item['id'] ) === $widget_id ) {
 				return $item['state'];
 			}
 		}

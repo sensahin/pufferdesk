@@ -146,15 +146,6 @@
 				: containerTypes.DESKTOP;
 		}
 
-		function getAppCurrentContainerId(appId) {
-			const manager = getFolderManager();
-			const folder = manager && typeof manager.getUserFolderForApp === 'function'
-				? manager.getUserFolderForApp(appId)
-				: null;
-
-			return folder && folder.id ? models.createContainerId(containerTypes.FOLDER, folder.id) : containerTypes.DESKTOP;
-		}
-
 		function getFolderCurrentContainerId(folderId) {
 			const folder = getFolder(folderId);
 

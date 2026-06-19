@@ -14,7 +14,6 @@
 		const isVisibleWindow = typeof options.isVisibleWindow === 'function'
 			? options.isVisibleWindow
 			: (win) => Boolean(win && !win.classList.contains('is-hidden') && !win.classList.contains('is-closed'));
-		let windowOffset = 0;
 
 		function getCssPixelValue(name, fallback) {
 			return geometry.readCssPixel(shell, name, fallback);
@@ -40,6 +39,22 @@
 			return getMenuBarHeight() + getWindowSafeEdge();
 		}
 
+		function getVisibleDockBottomInset(fallback = 0) {
+			if (!dock || !desktop || shell.dataset.pdkDockAutoHide === '1') {
+				return fallback;
+			}
+
+			if (shell.dataset.pdkDockPosition && shell.dataset.pdkDockPosition !== 'bottom') {
+				return fallback;
+			}
+
+			const desktopRect = desktop.getBoundingClientRect();
+			const dockRect = dock.getBoundingClientRect();
+			const inset = Math.ceil(desktopRect.bottom - dockRect.top);
+
+			return Math.max(fallback, inset > 0 ? inset : Math.ceil(dockRect.height));
+		}
+
 		function getWindowSafeBottom() {
 			const edge = getWindowSafeEdge();
 
@@ -47,8 +62,8 @@
 				return edge;
 			}
 
-			if (shell.dataset.pdkShellLauncher === 'taskbar') {
-				return Math.max(edge, Math.ceil(dock.getBoundingClientRect().height));
+			if (shell.dataset.pdkShellLauncher === 'taskbar' || shell.dataset.pdkShellLauncher === 'dock') {
+				return getVisibleDockBottomInset(edge);
 			}
 
 			return edge;
@@ -75,8 +90,8 @@
 				return 0;
 			}
 
-			if (shell.dataset.pdkShellLauncher === 'taskbar') {
-				return Math.ceil(dock.getBoundingClientRect().height);
+			if (shell.dataset.pdkShellLauncher === 'taskbar' || shell.dataset.pdkShellLauncher === 'dock') {
+				return getVisibleDockBottomInset(0);
 			}
 
 			return 0;
@@ -100,17 +115,36 @@
 			};
 		}
 
-		function getWindowBounds(win) {
+		function syncWindowResizeSafeArea() {
 			const safeArea = syncWindowSafeArea();
-			const maxLeft = Math.max(0, desktop.clientWidth - win.offsetWidth);
-			const maxTop = Math.max(safeArea.top, desktop.clientHeight - safeArea.bottom - getWindowBottomVisibleHeight(win));
 
 			return {
+				bottom: safeArea.edge,
+				left: 0,
+				right: 0,
+				top: safeArea.top
+			};
+		}
+
+		function getWindowBounds(win, boundsOptions = {}) {
+			const safeArea = syncWindowSafeArea();
+			const bottom = boundsOptions.allowDockOverlap ? safeArea.edge : safeArea.bottom;
+			const maxLeft = Math.max(0, desktop.clientWidth - win.offsetWidth);
+			const maxTop = Math.max(safeArea.top, desktop.clientHeight - bottom - getWindowBottomVisibleHeight(win));
+
+			return {
+				bottom,
 				maxLeft,
 				maxTop,
 				minLeft: 0,
 				minTop: safeArea.top
 			};
+		}
+
+		function getWindowDragBounds(win) {
+			return getWindowBounds(win, {
+				allowDockOverlap: true
+			});
 		}
 
 		function getResizeMinSize(win) {
@@ -134,12 +168,14 @@
 
 			const desktopRect = desktop.getBoundingClientRect();
 			const rect = win.getBoundingClientRect();
-			const bounds = getWindowBounds(win);
+			const bounds = getWindowBounds(win, {
+				allowDockOverlap: true
+			});
 			const currentLeft = readNumber(win.style.left) ?? Math.round(rect.left - desktopRect.left);
 			const currentTop = readNumber(win.style.top) ?? Math.round(rect.top - desktopRect.top);
 			const nextLeft = clamp(currentLeft, bounds.minLeft, bounds.maxLeft);
 			const nextTop = clamp(currentTop, bounds.minTop, bounds.maxTop);
-			const maxHeight = Math.max(0, desktop.clientHeight - syncWindowSafeArea().bottom - nextTop);
+			const maxHeight = Math.max(0, desktop.clientHeight - bounds.bottom - nextTop);
 
 			win.style.transform = 'none';
 			win.style.left = `${nextLeft}px`;
@@ -173,28 +209,14 @@
 			};
 		}
 
-		function getDefaultPosition() {
-			const safeArea = syncWindowSafeArea();
-			const bounds = {
-				maxLeft: Math.max(0, desktop.clientWidth - 420),
-				maxTop: Math.max(safeArea.top, desktop.clientHeight - safeArea.bottom - 360),
-				minLeft: 0,
-				minTop: safeArea.top
-			};
-			const left = clamp(180 + windowOffset, bounds.minLeft, bounds.maxLeft);
-			const top = clamp(bounds.minTop + windowOffset, bounds.minTop, bounds.maxTop);
-			windowOffset = (windowOffset + 28) % 140;
-
-			return {
-				left: `${left}px`,
-				top: `${top}px`
-			};
+		function getDefaultPosition(windowOptions = {}) {
+			return getCenteredPosition(windowOptions);
 		}
 
 		function getCenteredPosition(windowOptions = {}) {
 			const safeArea = syncWindowSafeArea();
-			const width = readNumber(windowOptions.width) ?? 360;
-			const height = readNumber(windowOptions.height) ?? 260;
+			const width = readNumber(windowOptions.width) ?? 860;
+			const height = readNumber(windowOptions.height) ?? 620;
 			const workHeight = Math.max(0, desktop.clientHeight - safeArea.top - safeArea.bottom);
 			const bounds = {
 				maxLeft: Math.max(0, desktop.clientWidth - width),
@@ -216,9 +238,11 @@
 			constrainWindow,
 			getCenteredPosition,
 			getDefaultPosition,
+			getWindowDragBounds,
 			getRelativeRect,
 			getResizeMinSize,
 			getWindowBounds,
+			syncWindowResizeSafeArea,
 			syncWindowSafeArea
 		};
 	};

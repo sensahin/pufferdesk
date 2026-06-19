@@ -99,16 +99,22 @@ final class PufferDesk_Admin_Menu_App_Provider {
 				continue;
 			}
 
-			$cap = PufferDesk_App_Normalizer::normalize_capability( isset( $item[1] ) ? $item[1] : PufferDesk_App_Normalizer::DEFAULT_CAPABILITY );
-			if ( ! current_user_can( $cap ) ) {
-				continue;
-			}
-
 			$menu_title = isset( $item[0] ) ? (string) $item[0] : '';
 			$id         = $this->get_admin_menu_app_id( $slug );
 			$url        = $this->get_admin_menu_url( $slug );
 			$label      = $this->get_admin_menu_label( $menu_title );
 			$badge      = $this->badge_normalizer->from_admin_menu_title( $menu_title );
+			$cap        = PufferDesk_App_Normalizer::normalize_capability( isset( $item[1] ) ? $item[1] : PufferDesk_App_Normalizer::DEFAULT_CAPABILITY );
+			$navigation = $this->get_admin_menu_navigation( $slug, $id );
+			if ( ! current_user_can( $cap ) ) {
+				if ( empty( $navigation ) ) {
+					continue;
+				}
+
+				$fallback_route = $navigation[0];
+				$cap            = isset( $fallback_route['cap'] ) ? PufferDesk_App_Normalizer::normalize_capability( $fallback_route['cap'] ) : $cap;
+				$url            = isset( $fallback_route['url'] ) ? esc_url_raw( (string) $fallback_route['url'] ) : $url;
+			}
 			if ( '' === $id || '' === $url || '' === $label ) {
 				continue;
 			}
@@ -117,7 +123,6 @@ final class PufferDesk_Admin_Menu_App_Provider {
 			$plugin_file = $this->get_admin_menu_plugin_file( $slug );
 			$source      = '' !== $plugin_file ? PufferDesk_App_Normalizer::SOURCE_WP_PLUGIN : PufferDesk_App_Normalizer::SOURCE_WP_MENU;
 			$about       = $this->get_admin_menu_about( $slug, $label, $plugin_file );
-			$navigation  = $this->get_admin_menu_navigation( $slug, $id );
 			$index       = isset( $by_id[ $id ] )
 				? $by_id[ $id ]
 				: ( isset( $by_url[ $url_key ] ) ? $by_url[ $url_key ] : null );
@@ -179,6 +184,75 @@ final class PufferDesk_Admin_Menu_App_Provider {
 	}
 
 	/**
+	 * Get a normalized WordPress admin menu context for a parent menu slug.
+	 *
+	 * @param string $parent_slug Parent menu slug.
+	 * @return array<string,mixed>
+	 */
+	public function get_admin_menu_context( $parent_slug ) {
+		$record = $this->find_admin_menu_item( $parent_slug );
+		if ( empty( $record['item'] ) || ! is_array( $record['item'] ) ) {
+			return array();
+		}
+
+		$item = $record['item'];
+		$slug = isset( $record['slug'] ) ? (string) $record['slug'] : (string) $parent_slug;
+		$id    = $this->get_admin_menu_app_id( $slug );
+		$label = $this->get_admin_menu_label( isset( $item[0] ) ? (string) $item[0] : '' );
+		$url   = $this->get_admin_menu_url( $slug );
+		$cap   = PufferDesk_App_Normalizer::normalize_capability( isset( $item[1] ) ? $item[1] : PufferDesk_App_Normalizer::DEFAULT_CAPABILITY );
+		$navigation = $this->get_admin_menu_navigation( $slug, $id );
+		if ( ! current_user_can( $cap ) ) {
+			if ( empty( $navigation ) ) {
+				return array();
+			}
+
+			$fallback_route = $navigation[0];
+			$cap            = isset( $fallback_route['cap'] ) ? PufferDesk_App_Normalizer::normalize_capability( $fallback_route['cap'] ) : $cap;
+			$url            = isset( $fallback_route['url'] ) ? esc_url_raw( (string) $fallback_route['url'] ) : $url;
+		}
+		if ( '' === $id || '' === $label || '' === $url || ! $this->is_wordpress_admin_url( $url ) ) {
+			return array();
+		}
+
+		return array(
+			'id'         => $id,
+			'label'      => $label,
+			'url'        => $url,
+			'slug'       => $slug,
+			'cap'        => $cap,
+			'navigation' => $navigation,
+		);
+	}
+
+	/**
+	 * Get normalized contexts for all visible WordPress admin menu parents.
+	 *
+	 * @return array<int,array<string,mixed>>
+	 */
+	public function get_admin_menu_contexts() {
+		$contexts = array();
+
+		foreach ( $this->get_admin_menu_items() as $item ) {
+			if ( ! is_array( $item ) || empty( $item[2] ) ) {
+				continue;
+			}
+
+			$slug = (string) $item[2];
+			if ( $this->is_skipped_admin_menu_item( $slug, $item ) ) {
+				continue;
+			}
+
+			$context = $this->get_admin_menu_context( $slug );
+			if ( ! empty( $context ) ) {
+				$contexts[] = $context;
+			}
+		}
+
+		return $contexts;
+	}
+
+	/**
 	 * Get WordPress admin menu items, building an AJAX-safe snapshot when needed.
 	 *
 	 * @return array<int,array<int,mixed>>
@@ -208,13 +282,15 @@ final class PufferDesk_Admin_Menu_App_Provider {
 			return $this->cache_admin_menu_items( array() );
 		}
 
-		$menu                  = is_array( $menu ) ? $menu : array();
-		$submenu               = is_array( $submenu ) ? $submenu : array();
-		$_wp_menu_nopriv      = is_array( $_wp_menu_nopriv ) ? $_wp_menu_nopriv : array();
-		$_wp_submenu_nopriv   = is_array( $_wp_submenu_nopriv ) ? $_wp_submenu_nopriv : array();
-		$_registered_pages    = is_array( $_registered_pages ) ? $_registered_pages : array();
-		$_parent_pages        = is_array( $_parent_pages ) ? $_parent_pages : array();
-		$_wp_real_parent_file = is_array( $_wp_real_parent_file ) ? $_wp_real_parent_file : array();
+			// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress admin-menu APIs populate these globals; PufferDesk normalizes them before building a bounded snapshot.
+			$menu                  = is_array( $menu ) ? $menu : array();
+			$submenu               = is_array( $submenu ) ? $submenu : array();
+			$_wp_menu_nopriv      = is_array( $_wp_menu_nopriv ) ? $_wp_menu_nopriv : array();
+			$_wp_submenu_nopriv   = is_array( $_wp_submenu_nopriv ) ? $_wp_submenu_nopriv : array();
+			$_registered_pages    = is_array( $_registered_pages ) ? $_registered_pages : array();
+			$_parent_pages        = is_array( $_parent_pages ) ? $_parent_pages : array();
+			$_wp_real_parent_file = is_array( $_wp_real_parent_file ) ? $_wp_real_parent_file : array();
+			// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WordPress core hook used to build an admin menu snapshot for AJAX saves.
 		do_action( 'admin_menu', '' );
@@ -255,6 +331,47 @@ final class PufferDesk_Admin_Menu_App_Provider {
 	}
 
 	/**
+	 * Find a WordPress admin top-level menu item for a slug or its real parent alias.
+	 *
+	 * @param string $slug Menu slug.
+	 * @return array{slug:string,item:array<int,mixed>}|array<string,mixed>
+	 */
+	private function find_admin_menu_item( $slug ) {
+		global $_wp_real_parent_file;
+
+		$slug       = trim( (string) $slug );
+		$candidates = array();
+		if ( '' !== $slug ) {
+			$candidates[] = $slug;
+		}
+
+		if ( is_array( $_wp_real_parent_file ) ) {
+			if ( isset( $_wp_real_parent_file[ $slug ] ) ) {
+				$candidates[] = (string) $_wp_real_parent_file[ $slug ];
+			}
+
+			foreach ( $_wp_real_parent_file as $alias => $real_parent ) {
+				if ( (string) $real_parent === $slug ) {
+					$candidates[] = (string) $alias;
+				}
+			}
+		}
+
+		foreach ( array_unique( array_filter( $candidates ) ) as $candidate ) {
+			foreach ( $this->get_admin_menu_items() as $item ) {
+				if ( is_array( $item ) && isset( $item[2] ) && (string) $item[2] === $candidate ) {
+					return array(
+						'slug' => $candidate,
+						'item' => $item,
+					);
+				}
+			}
+		}
+
+		return array();
+	}
+
+	/**
 	 * Get WordPress admin submenu items for a top-level parent slug.
 	 *
 	 * @param string $parent_slug Parent menu slug.
@@ -265,6 +382,7 @@ final class PufferDesk_Admin_Menu_App_Provider {
 
 		$this->get_admin_menu_items();
 
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- WordPress stores admin submenu items in this global and the provider normalizes a read snapshot.
 		$submenu = is_array( $submenu ) ? $submenu : array();
 		$parents = array( $parent_slug );
 		if ( is_array( $_wp_real_parent_file ) && ! empty( $_wp_real_parent_file[ $parent_slug ] ) ) {
@@ -353,7 +471,7 @@ final class PufferDesk_Admin_Menu_App_Provider {
 	/**
 	 * Merge existing route definitions with provider-discovered routes.
 	 *
-	 * @param mixed $existing Existing navigation value.
+	 * @param mixed                          $existing Existing navigation value.
 	 * @param array<int,array<string,mixed>> $discovered Discovered navigation items.
 	 * @return array<int,array<string,mixed>>
 	 */

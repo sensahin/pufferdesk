@@ -49,23 +49,9 @@
 			t('appearance.appearanceLabel'),
 			createOptionGroup('mode', settingsLabels.getOptions('appearance.modeOptions'), status, 'pdk-settings-preview-option', 'pdk-settings-appearance-preview')
 		));
-		if (appearanceCapabilities.windowMaterial !== false) {
-			appearanceSection.appendChild(createSettingsRow(
-				t('appearance.materialLabel'),
-				createOptionGroup('window_material', settingsLabels.getOptions('appearance.materialOptions'), status, 'pdk-settings-preview-option', 'pdk-settings-material-preview'),
-				t('appearance.materialDescription'),
-				'pdk-settings-row-fluid-label'
-			));
-		}
 
 		if (appearanceCapabilities.accentColor !== false) {
 			styleSection.appendChild(createSettingsRow(t('appearance.colorLabel'), createAccentGroup(status)));
-		}
-		if (appearanceCapabilities.iconWidgetStyle !== false) {
-			styleSection.appendChild(createSettingsRow(
-				t('appearance.iconWidgetStyleLabel'),
-				createOptionGroup('icon_widget_style', settingsLabels.getOptions('appearance.iconWidgetStyleOptions'), status, 'pdk-settings-icon-option', 'pdk-settings-icon-preview')
-			));
 		}
 
 		panel.appendChild(appearanceSection);
@@ -133,14 +119,6 @@
 			icon: 'dashicons-admin-appearance',
 			label: t(ctx, 'personalization.chooseModeLabel', 'Choose your mode')
 		}));
-		if (appearanceCapabilities.windowMaterial !== false) {
-			section.appendChild(createPersonalizationControlRow(ctx, {
-				control: createAppearanceSelect(ctx, 'window_material', getOptions(ctx, 'appearance.materialOptions'), 'pdk-settings-personalization-select'),
-				description: t(ctx, 'appearance.materialDescription', 'Surfaces appear translucent'),
-				icon: 'dashicons-admin-customizer',
-				label: t(ctx, 'appearance.materialLabel', 'Transparency effects')
-			}));
-		}
 		if (appearanceCapabilities.accentColor !== false) {
 			section.appendChild(createPersonalizationControlRow(ctx, {
 				control: ctx.createAccentGroup(ctx.status),

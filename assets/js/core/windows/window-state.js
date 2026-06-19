@@ -33,6 +33,17 @@
 			};
 		}
 
+		function readWindowPlacementState(win) {
+			const state = readWindowState(win);
+
+			return {
+				left: state.left,
+				top: state.top,
+				width: state.width,
+				height: state.height
+			};
+		}
+
 		function applyWindowState(win, state, stateOptions = {}) {
 			if (!state || typeof state !== 'object') {
 				return;
@@ -115,6 +126,7 @@
 
 		return {
 			applyWindowState,
+			readWindowPlacementState,
 			readWindowState,
 			serializeWindows
 		};

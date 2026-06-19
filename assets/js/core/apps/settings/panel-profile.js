@@ -23,11 +23,12 @@
 		}
 
 		accountSection.appendChild(ctx.createProfileActionRow({
+			command: (window.PufferDesk.shell && window.PufferDesk.shell.commands ? window.PufferDesk.shell.commands.USER_OPEN_PROFILE : ''),
 			description: ctx.t('profile.personalInfoDescription'),
 			icon: 'dashicons-id',
 			label: ctx.t('profile.personalInfoLabel'),
+			target: String(ctx.config.userId || ''),
 			tone: 'gray',
-			url: profileUrl,
 			windowTitle: ctx.t('profile.profileTitle')
 		}));
 		accountSection.appendChild(ctx.createProfileActionRow({

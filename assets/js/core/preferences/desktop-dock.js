@@ -1005,10 +1005,10 @@
 		dock.addEventListener('focusin', (event) => {
 			showExclusiveTooltip(dock, getDockItem(event.target));
 		});
-		dock.addEventListener('pointerdown', (event) => {
+		dock.addEventListener('pointerdown', () => {
 			dismissDockTooltips(dock);
 		});
-		dock.addEventListener('click', (event) => {
+		dock.addEventListener('click', () => {
 			dismissDockTooltips(dock, true);
 		});
 		dock.addEventListener('keydown', (event) => {

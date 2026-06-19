@@ -22,7 +22,6 @@
 	}
 
 	window.PufferDesk.shell.createSoundStatus = function createSoundStatus(shell, config = {}, context = {}) {
-		const dom = window.PufferDesk.dom;
 		const api = context.apiClient || (window.PufferDesk.services ? window.PufferDesk.services.api : null);
 		const events = context.events || window.PufferDesk.events || null;
 		const eventNames = events && events.names ? events.names : {};
@@ -246,6 +245,7 @@
 			const volumeText = document.createElement('span');
 			const value = document.createElement('span');
 			const range = document.createElement('input');
+			const separator = document.createElement('span');
 			const settings = document.createElement('button');
 
 			flyout = document.createElement('section');
@@ -281,6 +281,8 @@
 			settings.className = 'pdk-sound-settings-button';
 			settings.textContent = t('settings');
 			settings.addEventListener('click', openSettings);
+			separator.className = 'pdk-menu-separator pdk-sound-flyout-separator';
+			separator.setAttribute('role', 'separator');
 			const volumeIconUrl = getSharedIconUrl('volume.svg');
 
 			if (volumeIconUrl) {
@@ -288,7 +290,7 @@
 			}
 
 			volumeRow.append(volumeText, value, range);
-			flyout.append(title, volumeRow, settings);
+			flyout.append(title, volumeRow, separator, settings);
 			shell.appendChild(flyout);
 			flyoutRange = range;
 			flyoutValue = value;

@@ -30,6 +30,7 @@
 	window.PufferDesk.session.workspace = Object.freeze({
 		desktopIconPrefixes: Object.freeze(Object.assign({}, contract.desktopIconPrefixes || {})),
 		sections: Object.freeze(Object.assign({}, contract.sections || {})),
+		windowPlacementPrefixes: Object.freeze(Object.assign({}, contract.windowPlacementPrefixes || {})),
 		windowKinds: Object.freeze(Object.assign({}, contract.windowKinds || {})),
 		getDefaultState() {
 			return clone(contract.defaultState || {});

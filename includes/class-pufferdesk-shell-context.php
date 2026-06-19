@@ -70,13 +70,13 @@ final class PufferDesk_Shell_Context {
 	/**
 	 * Constructor.
 	 *
-	 * @param PufferDesk_User_Preferences   $preferences Preferences.
-	 * @param PufferDesk_App_Registry       $app_registry App registry.
-	 * @param PufferDesk_Widget_Registry    $widget_registry Widget registry.
-	 * @param PufferDesk_Theme_Registry     $theme_registry Theme registry.
-	 * @param PufferDesk_Wallpaper_Registry $wallpaper_registry Wallpaper registry.
-	 * @param PufferDesk_Workspace_State    $workspace_state Workspace state service.
-	 * @param PufferDesk_Virtual_Filesystem $virtual_filesystem Virtual filesystem service.
+	 * @param PufferDesk_User_Preferences     $preferences Preferences.
+	 * @param PufferDesk_App_Registry         $app_registry App registry.
+	 * @param PufferDesk_Widget_Registry      $widget_registry Widget registry.
+	 * @param PufferDesk_Theme_Registry       $theme_registry Theme registry.
+	 * @param PufferDesk_Wallpaper_Registry   $wallpaper_registry Wallpaper registry.
+	 * @param PufferDesk_Workspace_State      $workspace_state Workspace state service.
+	 * @param PufferDesk_Virtual_Filesystem   $virtual_filesystem Virtual filesystem service.
 	 * @param PufferDesk_Onboarding_Note|null $onboarding_note First-run onboarding note service.
 	 */
 	public function __construct(

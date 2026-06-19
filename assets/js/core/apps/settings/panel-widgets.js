@@ -7,16 +7,23 @@
 
 	window.PufferDesk.apps.settings.createWidgetsPanel = function createWidgetsPanel(ctx) {
 		const {
+			createDesktopDockSelectRow,
+			createDesktopDockToggleRow,
 			createSettingsRow,
 			createSection,
+			createSectionHeading,
 			dom,
+			status,
 			t
 		} = ctx;
 		const widgets = Array.isArray(ctx.config.widgets) ? ctx.config.widgets : [];
 		const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-widgets-panel');
+		const surfaceSection = createSection('', 'pdk-settings-list pdk-settings-widgets-list');
 		const section = createSection('', 'pdk-settings-list pdk-settings-widgets-list');
 
 		panel.dataset.pdkSettingsPanel = 'widgets';
+		surfaceSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.showWidgetsDesktop'), 'show_widgets_desktop', status));
+		surfaceSection.appendChild(createDesktopDockSelectRow(t('desktopDock.rows.dimWidgets'), 'dim_widgets', status));
 
 		function getWidgetManager() {
 			return window.PufferDesk.widgetManager || null;
@@ -113,6 +120,9 @@
 			});
 		}
 
+		panel.appendChild(createSectionHeading(t('widgets.desktopHeading')));
+		panel.appendChild(surfaceSection);
+		panel.appendChild(createSectionHeading(t('widgets.registeredHeading')));
 		panel.appendChild(section);
 
 		return panel;

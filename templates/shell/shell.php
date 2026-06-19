@@ -23,14 +23,13 @@ defined( 'ABSPATH' ) || exit;
  * @var array<string,mixed>             $theme
  * @var array<string,mixed>             $wallpaper
  * @var array<string,mixed>             $workspace_state
+ * @var PufferDesk_Shell_Renderer       $pufferdesk_renderer
  */
 $pufferdesk_appearance = wp_parse_args(
 	is_array( $appearance ) ? $appearance : array(),
 	array(
-		'mode'              => 'auto',
-		'window_material'   => 'clear',
-		'accent_color'      => 'blue',
-		'icon_widget_style' => 'default',
+		'mode'         => 'auto',
+		'accent_color' => 'blue',
 	)
 );
 
@@ -124,9 +123,7 @@ $pufferdesk_shell_attributes     = array(
 	'data-pdk-menu-contrast'          => ! empty( $wallpaper['menu_contrast'] ) ? $wallpaper['menu_contrast'] : 'auto',
 	'data-pdk-appearance-mode'        => $pufferdesk_appearance['mode'],
 	'data-pdk-effective-appearance'   => $pufferdesk_effective_appearance,
-	'data-pdk-window-material'        => $pufferdesk_appearance['window_material'],
 	'data-pdk-accent-color'           => $pufferdesk_appearance['accent_color'],
-	'data-pdk-icon-widget-style'      => $pufferdesk_appearance['icon_widget_style'],
 	'data-pdk-dock-position'          => $pufferdesk_desktop_dock['dock_position'],
 	'data-pdk-dock-auto-hide'         => ! empty( $pufferdesk_desktop_dock['auto_hide_dock'] ) ? '1' : '0',
 	'data-pdk-dock-animate-apps'      => ! empty( $pufferdesk_desktop_dock['animate_opening_apps'] ) ? '1' : '0',
@@ -146,7 +143,15 @@ $pufferdesk_shell_attributes     = array(
 		$pufferdesk_shell_attributes['style'] = $pufferdesk_shell_style;
 	}
 	?>
-	<div <?php foreach ( $pufferdesk_shell_attributes as $pufferdesk_attribute => $pufferdesk_value ) : ?><?php echo esc_attr( $pufferdesk_attribute ); ?><?php if ( '' !== $pufferdesk_value ) : ?>="<?php echo esc_attr( $pufferdesk_value ); ?>"<?php endif; ?> <?php endforeach; ?>>
+	<div
+		<?php foreach ( $pufferdesk_shell_attributes as $pufferdesk_attribute => $pufferdesk_value ) : ?>
+			<?php if ( '' === $pufferdesk_value ) : ?>
+				<?php echo esc_attr( $pufferdesk_attribute ); ?>
+			<?php else : ?>
+				<?php echo esc_attr( $pufferdesk_attribute ); ?>="<?php echo esc_attr( $pufferdesk_value ); ?>"
+			<?php endif; ?>
+		<?php endforeach; ?>
+	>
 	<?php
 	if ( 'auto' === $pufferdesk_appearance['mode'] ) {
 		// Resolve Auto appearance before shell surfaces paint.
@@ -157,7 +162,7 @@ $pufferdesk_shell_attributes     = array(
 	?>
 	<?php
 	if ( $pufferdesk_has_menu_bar ) {
-		$this->render_part(
+		$pufferdesk_renderer->render_part(
 			'shell/menu-bar.php',
 			array(
 				'labels'              => $pufferdesk_template_labels,
@@ -168,7 +173,7 @@ $pufferdesk_shell_attributes     = array(
 		);
 	}
 
-	$this->render_part(
+	$pufferdesk_renderer->render_part(
 		'shell/desktop.php',
 		array(
 			'apps'            => $apps,

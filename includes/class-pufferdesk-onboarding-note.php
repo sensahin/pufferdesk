@@ -38,9 +38,9 @@ final class PufferDesk_Onboarding_Note {
 	/**
 	 * Constructor.
 	 *
-	 * @param PufferDesk_Workspace_State     $workspace_state Workspace state service.
-	 * @param PufferDesk_Document_Service    $documents Sticky Notes document service.
-	 * @param PufferDesk_Virtual_Filesystem  $virtual_filesystem Virtual filesystem service.
+	 * @param PufferDesk_Workspace_State    $workspace_state Workspace state service.
+	 * @param PufferDesk_Document_Service   $documents Sticky Notes document service.
+	 * @param PufferDesk_Virtual_Filesystem $virtual_filesystem Virtual filesystem service.
 	 */
 	public function __construct(
 		PufferDesk_Workspace_State $workspace_state,
@@ -119,12 +119,12 @@ final class PufferDesk_Onboarding_Note {
 	/**
 	 * Seed theme-scoped Sticky Note layout records.
 	 *
-	 * @param int                              $document_id Sticky Note document ID.
+	 * @param int                               $document_id Sticky Note document ID.
 	 * @param array<string,array<string,mixed>> $themes Available themes.
-	 * @param array<int,array<string,mixed>>   $apps Available apps.
-	 * @param array<int,array<string,mixed>>   $widgets Available widgets.
-	 * @param array<int,array<string,mixed>>   $folders Available folders.
-	 * @param int                              $user_id User ID.
+	 * @param array<int,array<string,mixed>>    $apps Available apps.
+	 * @param array<int,array<string,mixed>>    $widgets Available widgets.
+	 * @param array<int,array<string,mixed>>    $folders Available folders.
+	 * @param int                               $user_id User ID.
 	 * @return array<int,string>
 	 */
 	private function seed_workspace_layouts( $document_id, $themes, $apps, $widgets, $folders, $user_id ) {
@@ -210,7 +210,7 @@ final class PufferDesk_Onboarding_Note {
 	 * Whether a layout list already contains this Sticky Note.
 	 *
 	 * @param array<int,array<string,mixed>> $notes Sticky Note layout records.
-	 * @param int                           $document_id Document ID.
+	 * @param int                            $document_id Document ID.
 	 * @return bool
 	 */
 	private function has_sticky_note_layout( $notes, $document_id ) {

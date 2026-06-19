@@ -26,7 +26,14 @@
 		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames ? window.PufferDesk.events.domNames : {};
 		const schema = window.PufferDesk.shell.createMenuSchema(labels);
 		const commands = context.commands || window.PufferDesk.shell.createCommandRegistry(shell, context);
-		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands);
+		const menuPositioner = window.PufferDesk.shell.createContextMenuPositioner
+			? window.PufferDesk.shell.createContextMenuPositioner(shell)
+			: null;
+		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands, {
+			positionSubmenu: menuPositioner && typeof menuPositioner.positionSubmenu === 'function'
+				? menuPositioner.positionSubmenu
+				: null
+		});
 		const transientSurfaces = window.PufferDesk.shell.transientSurfaces || null;
 		const startCreatePluginCardLimit = 6;
 		const newContentConfig = menuConfig.newContent && typeof menuConfig.newContent === 'object'
@@ -507,10 +514,45 @@
 			return baseItems.concat([separator()], openWindowItems);
 		}
 
+		function getNativeUsersConfig() {
+			const nativeAdmin = config.nativeAdmin && typeof config.nativeAdmin === 'object' ? config.nativeAdmin : {};
+			const nativeAdminApps = nativeAdmin.apps && typeof nativeAdmin.apps === 'object' ? nativeAdmin.apps : {};
+
+			return appIds.USERS && nativeAdminApps[appIds.USERS] && typeof nativeAdminApps[appIds.USERS] === 'object'
+				? nativeAdminApps[appIds.USERS]
+				: {};
+		}
+
+		function nativeUsersFeatureEnabled(nativeUsers, feature) {
+			const features = nativeUsers.features && typeof nativeUsers.features === 'object' ? nativeUsers.features : {};
+
+			return features[feature] === true;
+		}
+
 		function getAppRouteMenuItems(app, options = {}) {
-			return appNavigation && typeof appNavigation.createMenuItems === 'function'
+			const routeItems = appNavigation && typeof appNavigation.createMenuItems === 'function'
 				? appNavigation.createMenuItems(app, options)
 				: [];
+
+			if (!app || app.id !== appIds.USERS || !routeItems.length) {
+				return routeItems;
+			}
+
+			const nativeUsers = getNativeUsersConfig();
+
+			return routeItems.filter((item) => {
+				const url = String(item.url || '').toLowerCase();
+
+				if (nativeUsersFeatureEnabled(nativeUsers, 'add') && commandIds.USER_CREATE && url.includes('user-new.php')) {
+					return false;
+				}
+
+				if (nativeUsersFeatureEnabled(nativeUsers, 'profile') && commandIds.USER_OPEN_PROFILE && url.includes('profile.php')) {
+					return false;
+				}
+
+				return true;
+			});
 		}
 
 		function capRouteMenuItems(items, limit) {
@@ -1124,8 +1166,9 @@
 			const user = config.user && typeof config.user === 'object' ? config.user : {};
 
 			return [
-				commandItem(getLabel('start_manage_account'), commandIds.OPEN_URL, {
+				commandItem(getLabel('start_manage_account'), commandIds.USER_OPEN_PROFILE, {
 					icon: 'dashicons-admin-users',
+					target: String(config.userId || ''),
 					url: user.profileUrl || ''
 				}),
 				commandItem(getLabel('start_sign_out'), commandIds.USER_LOGOUT, {

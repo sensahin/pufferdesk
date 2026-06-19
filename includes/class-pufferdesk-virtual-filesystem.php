@@ -318,7 +318,7 @@ final class PufferDesk_Virtual_Filesystem {
 	/**
 	 * Breadcrumb labels for a folder.
 	 *
-	 * @param string              $folder_id Folder ID.
+	 * @param string               $folder_id Folder ID.
 	 * @param array<string,string> $labels Theme labels.
 	 * @return array<int,string>
 	 */

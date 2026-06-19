@@ -236,10 +236,8 @@ final class PufferDesk_Settings_Controller {
 
 		$appearance = $this->preferences->set_appearance(
 			array(
-				'mode'              => $this->read_post_value( 'mode' ),
-				'window_material'   => $this->read_post_value( 'window_material' ),
-				'accent_color'      => $this->read_post_value( 'accent_color' ),
-				'icon_widget_style' => $this->read_post_value( 'icon_widget_style' ),
+				'mode'         => $this->read_post_value( 'mode' ),
+				'accent_color' => $this->read_post_value( 'accent_color' ),
 			)
 		);
 
@@ -268,6 +266,26 @@ final class PufferDesk_Settings_Controller {
 			array(
 				'menuBar' => $menu_bar,
 				'message' => __( 'Menu Bar saved.', 'pufferdesk' ),
+			)
+		);
+	}
+
+	/**
+	 * Save the current user's native-admin experience settings.
+	 */
+	public function save_native_admin() {
+		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_NATIVE_ADMIN, $this->settings_permission_message() );
+
+		$native_admin = $this->preferences->set_native_admin(
+			array(
+				'users' => $this->read_post_value( 'users_enabled' ),
+			)
+		);
+
+		wp_send_json_success(
+			array(
+				'message'     => __( 'Native admin experiences saved.', 'pufferdesk' ),
+				'nativeAdmin' => $native_admin,
 			)
 		);
 	}

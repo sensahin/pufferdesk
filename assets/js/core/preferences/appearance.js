@@ -91,33 +91,11 @@
 		return allowed[key] && allowed[key].includes(next) ? next : defaults[key];
 	}
 
-	function getAppearanceCapabilities() {
-		const config = window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
-			? window.PufferDesk.config.get()
-			: {};
-		const settings = config.settings && typeof config.settings === 'object' ? config.settings : {};
-		const capabilities = settings.capabilities && typeof settings.capabilities === 'object' ? settings.capabilities : {};
-
-		return capabilities.appearance && typeof capabilities.appearance === 'object' ? capabilities.appearance : {};
-	}
-
 	function normalize(appearance = {}) {
-		const capabilities = getAppearanceCapabilities();
-		const normalized = {
+		return {
 			mode: getAllowedValue('mode', appearance.mode),
-			window_material: getAllowedValue('window_material', appearance.window_material),
-			accent_color: getAllowedValue('accent_color', appearance.accent_color),
-			icon_widget_style: getAllowedValue('icon_widget_style', appearance.icon_widget_style)
+			accent_color: getAllowedValue('accent_color', appearance.accent_color)
 		};
-
-		if (capabilities.windowMaterial === false) {
-			normalized.window_material = defaults.window_material || 'clear';
-		}
-		if (capabilities.iconWidgetStyle === false) {
-			normalized.icon_widget_style = defaults.icon_widget_style || 'default';
-		}
-
-		return normalized;
 	}
 
 	function getEffectiveMode(appearance) {
@@ -163,9 +141,7 @@
 		currentAppearance = normalize(appearance);
 		shell.dataset.pdkAppearanceMode = currentAppearance.mode;
 		shell.dataset.pdkEffectiveAppearance = getEffectiveMode(currentAppearance);
-		shell.dataset.pdkWindowMaterial = currentAppearance.window_material;
 		shell.dataset.pdkAccentColor = currentAppearance.accent_color;
-		shell.dataset.pdkIconWidgetStyle = currentAppearance.icon_widget_style;
 		applyAccent(shell, currentAppearance.accent_color);
 
 		return currentAppearance;

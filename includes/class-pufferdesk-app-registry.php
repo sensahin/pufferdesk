@@ -38,8 +38,8 @@ final class PufferDesk_App_Registry {
 	 * Constructor.
 	 *
 	 * @param PufferDesk_Admin_Menu_App_Provider|null $admin_menu_provider Optional admin menu provider.
-	 * @param PufferDesk_App_Normalizer|null         $app_normalizer Optional app normalizer.
-	 * @param PufferDesk_App_Menu_Normalizer|null    $menu_normalizer Optional menu normalizer.
+	 * @param PufferDesk_App_Normalizer|null          $app_normalizer Optional app normalizer.
+	 * @param PufferDesk_App_Menu_Normalizer|null     $menu_normalizer Optional menu normalizer.
 	 */
 	public function __construct( $admin_menu_provider = null, $app_normalizer = null, $menu_normalizer = null ) {
 		$badge_normalizer          = new PufferDesk_App_Badge_Normalizer();
@@ -136,6 +136,7 @@ final class PufferDesk_App_Registry {
 				'about' => $this->wordpress_core_about( __( 'Users', 'pufferdesk' ) ),
 				'group' => PufferDesk_App_Normalizer::GROUP_SYSTEM,
 				'cap'   => 'list_users',
+				'menu'  => $this->menu_normalizer->get_users_menu(),
 			),
 			array(
 				'id'     => PufferDesk_App_Ids::OS_SETTINGS,

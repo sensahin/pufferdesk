@@ -8,6 +8,8 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Template variables.
+ *
  * @var array<int,array<string,string>> $apps
  * @var array<int,array<string,string>> $desktop_apps
  * @var array<int,array<string,string>> $dock_apps
@@ -18,6 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * @var array<string,string>            $labels
  * @var array<string,string>            $notification_labels
  * @var array<string,mixed>             $workspace_state
+ * @var PufferDesk_Shell_Renderer       $pufferdesk_renderer
  */
 $pufferdesk_labels   = isset( $labels ) && is_array( $labels ) ? $labels : PufferDesk_Runtime_Config::get_shell_template_labels( isset( $theme ) && is_array( $theme ) ? $theme : array() );
 $pufferdesk_shell    = wp_parse_args(
@@ -30,14 +33,14 @@ $pufferdesk_shell    = wp_parse_args(
 );
 $pufferdesk_launcher = isset( $pufferdesk_shell['launcher'] ) ? (string) $pufferdesk_shell['launcher'] : 'dock';
 ?>
-<main
+<div
 	class="pdk-desktop"
 	data-pdk-context="<?php echo esc_attr( PufferDesk_Context_Menu_Contracts::TARGET_DESKTOP ); ?>"
 	data-pdk-context-id="<?php echo esc_attr( PufferDesk_Context_Menu_Contracts::TARGET_DESKTOP ); ?>"
 	aria-label="<?php echo esc_attr( isset( $pufferdesk_labels['pufferdesk_desktop'] ) ? $pufferdesk_labels['pufferdesk_desktop'] : 'pufferdesk_desktop' ); ?>"
 >
 	<?php
-	$this->render_part(
+	$pufferdesk_renderer->render_part(
 		'desktop/folders.php',
 		array(
 			'folders'         => $folders,
@@ -47,7 +50,7 @@ $pufferdesk_launcher = isset( $pufferdesk_shell['launcher'] ) ? (string) $puffer
 		)
 	);
 
-	$this->render_part(
+	$pufferdesk_renderer->render_part(
 		'desktop/apps.php',
 		array(
 			'apps'            => isset( $desktop_apps ) && is_array( $desktop_apps ) ? $desktop_apps : array(),
@@ -57,7 +60,7 @@ $pufferdesk_launcher = isset( $pufferdesk_shell['launcher'] ) ? (string) $puffer
 		)
 	);
 
-	$this->render_part(
+	$pufferdesk_renderer->render_part(
 		'widgets/desktop.php',
 		array(
 			'widgets'         => $widgets,
@@ -68,7 +71,7 @@ $pufferdesk_launcher = isset( $pufferdesk_shell['launcher'] ) ? (string) $puffer
 	);
 
 	if ( 'none' !== $pufferdesk_launcher ) {
-		$this->render_part(
+		$pufferdesk_renderer->render_part(
 			'shell/dock.php',
 			array(
 				'apps'  => isset( $dock_apps ) && is_array( $dock_apps ) ? $dock_apps : $apps,
@@ -80,4 +83,4 @@ $pufferdesk_launcher = isset( $pufferdesk_shell['launcher'] ) ? (string) $puffer
 		);
 	}
 	?>
-</main>
+</div>

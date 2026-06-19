@@ -196,6 +196,323 @@
 	box-shadow: 0 0 0 3px var(--pdk-focus-ring, rgba(36, 88, 202, 0.28));
 }
 
+.pdk-shell {
+	--pdk-native-control-bg: var(--pdk-control-bg, rgba(255, 255, 255, 0.82));
+	--pdk-native-control-border: var(--pdk-material-control-border, var(--pdk-line, rgba(0, 0, 0, 0.14)));
+	--pdk-native-control-focus-border: var(--pdk-accent, #2271b1);
+	--pdk-native-control-height: 34px;
+	--pdk-native-control-hover-bg: var(--pdk-control-bg-hover, color-mix(in srgb, var(--pdk-ink, #1d2327) 9%, transparent));
+	--pdk-native-control-hover-border: color-mix(in srgb, var(--pdk-accent, #2271b1) 24%, var(--pdk-native-control-border));
+	--pdk-native-control-ink: var(--pdk-ink, #1d2327);
+	--pdk-native-select-chevron-color: var(--pdk-muted, #646970);
+}
+
+.pdk-native-dialog-layer {
+	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(8px);
+	background: rgb(0 0 0 / 0.26);
+	display: grid;
+	inset: 0;
+	padding: 20px;
+	place-items: center;
+	position: absolute;
+	z-index: 30;
+}
+
+.pdk-native-dialog {
+	background: var(--pdk-panel, var(--pdk-material-regular-bg, #fff));
+	border: 1px solid var(--pdk-line, rgba(0, 0, 0, 0.12));
+	border-radius: var(--pdk-radius-window, 12px);
+	box-shadow: var(--pdk-shadow-window, 0 22px 58px rgb(0 0 0 / 0.24));
+	color: var(--pdk-ink, #1d2327);
+	display: grid;
+	grid-template-rows: auto minmax(0, 1fr) auto;
+	max-height: min(var(--pdk-native-dialog-max-height, 620px), 100%);
+	overflow: hidden;
+	width: min(var(--pdk-native-dialog-width, 520px), 100%);
+}
+
+.pdk-native-dialog-header,
+.pdk-native-dialog-footer {
+	align-items: center;
+	background: var(--pdk-material-bar-bg, rgba(255, 255, 255, 0.56));
+	display: flex;
+	gap: 10px;
+	padding: 14px 16px;
+}
+
+.pdk-native-dialog-header {
+	border-bottom: 1px solid var(--pdk-line, rgba(0, 0, 0, 0.1));
+	justify-content: space-between;
+}
+
+.pdk-native-dialog-title {
+	color: var(--pdk-ink, #1d2327);
+	font-size: var(--pdk-font-size-heading, 18px);
+	line-height: 1.2;
+	margin: 0;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.pdk-native-dialog-close {
+	-webkit-appearance: none;
+	appearance: none;
+	align-items: center;
+	background: var(--pdk-native-control-bg);
+	border: 1px solid var(--pdk-native-control-border);
+	border-radius: 50%;
+	box-sizing: border-box;
+	color: var(--pdk-muted, #646970);
+	cursor: pointer;
+	display: inline-flex;
+	flex: 0 0 auto;
+	font-size: 0;
+	height: 28px;
+	justify-content: center;
+	line-height: 0;
+	overflow: hidden;
+	padding: 0;
+	position: relative;
+	transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+	width: 28px;
+}
+
+.pdk-native-dialog-close::before,
+.pdk-native-dialog-close::after {
+	background: currentColor;
+	border-radius: 999px;
+	content: "";
+	height: 1.5px;
+	left: 50%;
+	position: absolute;
+	top: 50%;
+	transform-origin: center;
+	width: 11px;
+}
+
+.pdk-native-dialog-close::before {
+	transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.pdk-native-dialog-close::after {
+	transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.pdk-native-dialog-close:hover {
+	background: var(--pdk-native-control-hover-bg);
+	border-color: var(--pdk-native-control-hover-border);
+	color: var(--pdk-ink, #1d2327);
+}
+
+.pdk-native-dialog-content {
+	min-height: 0;
+	overflow: auto;
+	padding: 16px;
+}
+
+.pdk-native-dialog-footer {
+	border-top: 1px solid var(--pdk-line, rgba(0, 0, 0, 0.1));
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	justify-content: stretch;
+}
+
+.pdk-native-dialog-status {
+	color: var(--pdk-muted, #646970);
+	font-size: var(--pdk-font-size-caption, 12px);
+	line-height: 1.35;
+	min-width: 0;
+	opacity: 0;
+	overflow: hidden;
+	padding: 0;
+	text-overflow: ellipsis;
+	transition: opacity 140ms ease, visibility 140ms ease;
+	visibility: hidden;
+	white-space: nowrap;
+}
+
+.pdk-native-dialog-status.has-message {
+	opacity: 1;
+	visibility: visible;
+}
+
+.pdk-native-dialog-status.is-error {
+	color: var(--pdk-danger, #b32d2e);
+}
+
+.pdk-native-dialog-actions {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	justify-content: flex-end;
+	min-width: 0;
+}
+
+.pdk-control-button {
+	align-items: center;
+	background: var(--pdk-native-control-bg);
+	border: 1px solid var(--pdk-native-control-border);
+	border-radius: 8px;
+	box-sizing: border-box;
+	color: var(--pdk-ink, #1d2327);
+	cursor: pointer;
+	display: inline-flex;
+	font: inherit;
+	font-weight: var(--pdk-font-weight-medium, 500);
+	justify-content: center;
+	line-height: 1.2;
+	margin: 0;
+	min-height: var(--pdk-native-control-height);
+	padding: 0 12px;
+	text-align: center;
+	transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.pdk-control-button:not(:disabled):hover {
+	background-color: var(--pdk-native-control-hover-bg);
+	border-color: var(--pdk-native-control-hover-border);
+}
+
+.pdk-control-button:disabled {
+	cursor: default;
+	opacity: 0.56;
+}
+
+.pdk-control-button:focus-visible,
+.pdk-native-dialog-close:focus-visible,
+.pdk-form .pdk-form-control:focus {
+	box-shadow: 0 0 0 3px var(--pdk-focus-ring, rgb(var(--pdk-focus-ring-rgb, 34 113 177) / 0.28));
+	outline: none;
+}
+
+.pdk-control-button-primary {
+	background: var(--pdk-accent, #2271b1);
+	border-color: color-mix(in srgb, var(--pdk-accent, #2271b1) 72%, transparent);
+	color: var(--pdk-accent-ink, #fff);
+}
+
+.pdk-control-button-primary:not(:disabled):hover {
+	background: var(--pdk-accent-active, var(--pdk-accent, #2271b1));
+	border-color: color-mix(in srgb, var(--pdk-accent, #2271b1) 78%, transparent);
+}
+
+.pdk-form {
+	display: grid;
+	gap: 12px;
+}
+
+.pdk-form-field {
+	color: var(--pdk-ink, #1d2327);
+	display: grid;
+	gap: 6px;
+}
+
+.pdk-form-label,
+.pdk-form-help {
+	color: var(--pdk-muted, #646970);
+	font-size: var(--pdk-font-size-caption, 12px);
+}
+
+.pdk-form-label {
+	font-weight: var(--pdk-font-weight-medium, 500);
+}
+
+.pdk-form .pdk-form-control {
+	background: var(--pdk-native-control-bg);
+	border: 1px solid var(--pdk-native-control-border);
+	border-radius: 8px;
+	box-shadow: none;
+	box-sizing: border-box;
+	color: var(--pdk-ink, #1d2327);
+	display: block;
+	font: inherit;
+	margin: 0;
+	max-width: 100%;
+	min-height: var(--pdk-native-control-height);
+	outline: none;
+	padding: 7px 10px;
+	transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+	width: 100%;
+}
+
+.pdk-form .pdk-form-control:focus {
+	border-color: var(--pdk-native-control-focus-border);
+}
+
+.pdk-form .pdk-form-control:not(:disabled):hover {
+	background-color: var(--pdk-native-control-hover-bg);
+	border-color: var(--pdk-native-control-hover-border);
+}
+
+.pdk-form .pdk-form-control:disabled {
+	color: var(--pdk-muted, #646970);
+	opacity: 1;
+}
+
+.pdk-form .pdk-form-select {
+	-webkit-appearance: none;
+	appearance: none;
+	background-color: var(--pdk-native-control-bg);
+	background-image:
+		linear-gradient(45deg, transparent 50%, var(--pdk-native-select-chevron-color) 50%),
+		linear-gradient(135deg, var(--pdk-native-select-chevron-color) 50%, transparent 50%);
+	background-position:
+		calc(100% - 16px) calc(50% + 1px),
+		calc(100% - 11px) calc(50% + 1px);
+	background-repeat: no-repeat;
+	background-size: 5px 5px;
+	color: var(--pdk-native-control-ink);
+	cursor: pointer;
+	line-height: 1.2;
+	padding-right: 32px;
+	-webkit-text-fill-color: var(--pdk-native-control-ink);
+}
+
+.pdk-form .pdk-form-select:hover,
+.pdk-form .pdk-form-select:focus {
+	color: var(--pdk-native-control-ink);
+	-webkit-text-fill-color: var(--pdk-native-control-ink);
+}
+
+.pdk-form .pdk-form-select option {
+	background: var(--pdk-panel, var(--pdk-material-regular-bg, #fff));
+	color: var(--pdk-ink, #1d2327);
+}
+
+.pdk-form textarea.pdk-form-control {
+	min-height: 92px;
+	resize: vertical;
+}
+
+.pdk-form-checkbox {
+	align-items: center;
+	color: var(--pdk-ink, #1d2327);
+	display: flex;
+	gap: 9px;
+}
+
+.pdk-form-checkbox input {
+	flex: 0 0 auto;
+	height: 16px;
+	margin: 0;
+	min-height: 16px;
+	width: 16px;
+}
+
+.pdk-form-details {
+	display: grid;
+	gap: 12px;
+	padding-top: 2px;
+}
+
+.pdk-form-details summary {
+	color: var(--pdk-ink, #1d2327);
+	cursor: pointer;
+	font-weight: var(--pdk-font-weight-medium, 500);
+}
+
 .pdk-shell-document-save-dialog {
 	gap: 14px;
 	max-width: min(390px, calc(100% - 32px));

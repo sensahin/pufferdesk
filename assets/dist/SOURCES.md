@@ -19,6 +19,7 @@ The release zip ships compiled assets from the source files listed below.
 - assets/css/core/windows.css
 - assets/css/core/documents.css
 - assets/css/core/apps.css
+- assets/css/core/users.css
 - assets/css/core/shortcuts.css
 - assets/css/core/folders.css
 - assets/css/core/about.css
@@ -42,6 +43,9 @@ The release zip ships compiled assets from the source files listed below.
 - assets/js/core/shell/context-menu-constants.js
 - assets/js/core/events/event-names.js
 - assets/js/core/services/tooltips.js
+- assets/js/core/services/modal-focus.js
+- assets/js/core/services/native-controls.js
+- assets/js/core/services/modal-dialog.js
 - assets/js/core/events/event-bus.js
 - assets/js/core/shell/transient-surfaces.js
 - assets/js/core/services/storage.js
@@ -92,6 +96,7 @@ The release zip ships compiled assets from the source files listed below.
 - assets/js/core/apps/app-surfaces.js
 - assets/js/core/apps/app-preferences.js
 - assets/js/core/apps/native-apps.js
+- assets/js/core/apps/users-app.js
 - assets/js/core/api/desktop-api.js
 - assets/js/core/apps/settings/labels.js
 - assets/js/core/apps/settings/ui.js
@@ -100,7 +105,9 @@ The release zip ships compiled assets from the source files listed below.
 - assets/js/core/apps/settings/panel-profile.js
 - assets/js/core/apps/settings/panel-appearance.js
 - assets/js/core/apps/settings/panel-desktop-dock.js
+- assets/js/core/apps/settings/panel-apps.js
 - assets/js/core/apps/settings/panel-menu-bar.js
+- assets/js/core/apps/settings/panel-native-admin.js
 - assets/js/core/apps/settings/panel-notifications.js
 - assets/js/core/apps/settings/panel-sounds.js
 - assets/js/core/apps/settings/panel-wallpaper.js

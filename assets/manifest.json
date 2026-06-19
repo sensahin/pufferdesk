@@ -55,6 +55,10 @@
 			"path": "assets/css/core/apps.css"
 		},
 		{
+			"handle": "pufferdesk-core-users",
+			"path": "assets/css/core/users.css"
+		},
+		{
 			"handle": "pufferdesk-core-shortcuts",
 			"path": "assets/css/core/shortcuts.css"
 		},
@@ -134,6 +138,23 @@
 			"path": "assets/js/core/services/tooltips.js",
 			"deps": [
 				"pufferdesk-config"
+			]
+		},
+		{
+			"handle": "pufferdesk-modal-focus",
+			"path": "assets/js/core/services/modal-focus.js",
+			"deps": []
+		},
+		{
+			"handle": "pufferdesk-native-controls",
+			"path": "assets/js/core/services/native-controls.js",
+			"deps": []
+		},
+		{
+			"handle": "pufferdesk-modal-dialog",
+			"path": "assets/js/core/services/modal-dialog.js",
+			"deps": [
+				"pufferdesk-modal-focus"
 			]
 		},
 		{
@@ -580,6 +601,20 @@
 			"deps": []
 		},
 		{
+			"handle": "pufferdesk-users-app",
+			"path": "assets/js/core/apps/users-app.js",
+			"deps": [
+				"pufferdesk-config",
+				"pufferdesk-dom",
+				"pufferdesk-app-ids",
+				"pufferdesk-command-ids",
+				"pufferdesk-api-client",
+				"pufferdesk-native-controls",
+				"pufferdesk-modal-dialog",
+				"pufferdesk-native-apps"
+			]
+		},
+		{
 			"handle": "pufferdesk-desktop-api",
 			"path": "assets/js/core/api/desktop-api.js",
 			"deps": [
@@ -646,8 +681,24 @@
 			]
 		},
 		{
+			"handle": "pufferdesk-settings-panel-apps",
+			"path": "assets/js/core/apps/settings/panel-apps.js",
+			"deps": [
+				"pufferdesk-settings-labels",
+				"pufferdesk-settings-ui"
+			]
+		},
+		{
 			"handle": "pufferdesk-settings-panel-menu-bar",
 			"path": "assets/js/core/apps/settings/panel-menu-bar.js",
+			"deps": [
+				"pufferdesk-settings-labels",
+				"pufferdesk-settings-ui"
+			]
+		},
+		{
+			"handle": "pufferdesk-settings-panel-native-admin",
+			"path": "assets/js/core/apps/settings/panel-native-admin.js",
 			"deps": [
 				"pufferdesk-settings-labels",
 				"pufferdesk-settings-ui"
@@ -714,7 +765,9 @@
 				"pufferdesk-settings-panel-profile",
 				"pufferdesk-settings-panel-appearance",
 				"pufferdesk-settings-panel-desktop-dock",
+				"pufferdesk-settings-panel-apps",
 				"pufferdesk-settings-panel-menu-bar",
+				"pufferdesk-settings-panel-native-admin",
 				"pufferdesk-settings-panel-notifications",
 				"pufferdesk-settings-panel-sounds",
 				"pufferdesk-settings-panel-wallpaper",
@@ -920,6 +973,7 @@
 				"pufferdesk-menu-commands",
 				"pufferdesk-menu-schema",
 				"pufferdesk-menu-renderer",
+				"pufferdesk-context-menu-positioner",
 				"pufferdesk-shortcut-contexts",
 				"pufferdesk-folder-view-modes",
 				"pufferdesk-transient-surfaces"

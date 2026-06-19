@@ -1,61 +1,61 @@
 .pdk-shell[data-pdk-theme="default"] {
-	--pdk-ink: #17242b;
-	--pdk-muted: #647078;
-	--pdk-menu-ink: #17242b;
-	--pdk-menu-muted: #63717c;
-	--pdk-menu-placeholder: rgba(23, 36, 43, 0.5);
+	--pdk-ink: #172436;
+	--pdk-muted: #667285;
+	--pdk-menu-ink: #172436;
+	--pdk-menu-muted: #66758a;
+	--pdk-menu-placeholder: rgba(23, 36, 54, 0.5);
 	--pdk-menu-text-shadow: none;
-	--pdk-menu-mark-filter: drop-shadow(0 2px 6px rgba(17, 31, 38, 0.18));
-	--pdk-about-title-color: #17242b;
-	--pdk-about-text-color: #33414a;
-	--pdk-material-clear-bg: rgba(245, 249, 247, 0.84);
-	--pdk-material-clear-border: rgba(117, 134, 128, 0.24);
+	--pdk-menu-mark-filter: drop-shadow(0 2px 6px rgba(18, 32, 56, 0.18));
+	--pdk-about-title-color: #172436;
+	--pdk-about-text-color: #34445a;
+	--pdk-material-clear-bg: rgba(246, 248, 252, 0.84);
+	--pdk-material-clear-border: rgba(112, 124, 148, 0.24);
 	--pdk-material-clear-filter: blur(22px) saturate(145%);
-	--pdk-material-clear-shadow: 0 24px 54px rgba(17, 35, 42, 0.18), 0 1px 0 rgba(255, 255, 255, 0.58) inset;
-	--pdk-material-regular-bg: rgba(250, 252, 249, 0.95);
-	--pdk-material-regular-border: rgba(109, 125, 120, 0.26);
+	--pdk-material-clear-shadow: 0 24px 54px rgba(18, 32, 56, 0.18), 0 1px 0 rgba(255, 255, 255, 0.58) inset;
+	--pdk-material-regular-bg: rgba(250, 252, 255, 0.95);
+	--pdk-material-regular-border: rgba(108, 120, 144, 0.26);
 	--pdk-material-regular-filter: blur(18px) saturate(132%);
-	--pdk-material-regular-shadow: 0 26px 70px rgba(17, 35, 42, 0.18), 0 1px 0 rgba(255, 255, 255, 0.68) inset;
-	--pdk-material-tinted-bg: linear-gradient(145deg, rgba(232, 244, 239, 0.94), rgba(255, 252, 247, 0.88) 55%, rgba(246, 231, 220, 0.76));
-	--pdk-material-tinted-border: rgba(90, 122, 117, 0.28);
-	--pdk-material-solid-bg: #fbfcf8;
-	--pdk-material-solid-border: rgba(71, 84, 90, 0.14);
-	--pdk-material-card-bg: rgba(255, 255, 251, 0.9);
-	--pdk-material-card-border: rgba(86, 101, 104, 0.14);
+	--pdk-material-regular-shadow: 0 26px 70px rgba(18, 32, 56, 0.18), 0 1px 0 rgba(255, 255, 255, 0.68) inset;
+	--pdk-material-tinted-bg: linear-gradient(145deg, rgba(234, 241, 255, 0.94), rgba(255, 255, 255, 0.9) 55%, rgba(239, 244, 253, 0.78));
+	--pdk-material-tinted-border: rgba(89, 112, 150, 0.26);
+	--pdk-material-solid-bg: #fbfcff;
+	--pdk-material-solid-border: rgba(76, 90, 116, 0.14);
+	--pdk-material-card-bg: rgba(255, 255, 255, 0.9);
+	--pdk-material-card-border: rgba(88, 104, 132, 0.14);
 	--pdk-material-card-filter: blur(14px) saturate(128%);
-	--pdk-material-card-shadow: 0 18px 38px rgba(20, 41, 46, 0.12), 0 1px 0 rgba(255, 255, 255, 0.72) inset;
-	--pdk-material-control-bg: rgba(234, 241, 237, 0.92);
-	--pdk-material-control-hover-bg: rgba(245, 248, 245, 0.98);
-	--pdk-material-control-active-bg: rgba(221, 234, 229, 0.96);
-	--pdk-material-control-border: rgba(85, 102, 104, 0.16);
+	--pdk-material-card-shadow: 0 18px 38px rgba(20, 36, 58, 0.12), 0 1px 0 rgba(255, 255, 255, 0.72) inset;
+	--pdk-material-control-bg: rgba(235, 240, 248, 0.92);
+	--pdk-material-control-hover-bg: rgba(246, 249, 253, 0.98);
+	--pdk-material-control-active-bg: rgba(224, 233, 247, 0.96);
+	--pdk-material-control-border: rgba(84, 98, 124, 0.16);
 	--pdk-material-control-filter: none;
-	--pdk-material-bar-bg: rgba(248, 251, 247, 0.9);
-	--pdk-material-bar-border: rgba(78, 93, 95, 0.16);
+	--pdk-material-bar-bg: rgba(248, 250, 254, 0.9);
+	--pdk-material-bar-border: rgba(80, 94, 122, 0.16);
 	--pdk-material-bar-filter: blur(18px) saturate(138%);
-	--pdk-material-bar-shadow: 0 12px 34px rgba(20, 41, 46, 0.12), 0 1px 0 rgba(255, 255, 255, 0.74) inset;
-	--pdk-material-popover-bg: rgba(252, 253, 249, 0.96);
-	--pdk-material-popover-border: rgba(75, 89, 92, 0.16);
+	--pdk-material-bar-shadow: 0 12px 34px rgba(20, 36, 58, 0.12), 0 1px 0 rgba(255, 255, 255, 0.74) inset;
+	--pdk-material-popover-bg: rgba(252, 253, 255, 0.96);
+	--pdk-material-popover-border: rgba(78, 92, 120, 0.16);
 	--pdk-material-popover-filter: blur(18px) saturate(132%);
-	--pdk-material-popover-shadow: 0 22px 54px rgba(17, 35, 42, 0.2), 0 1px 0 rgba(255, 255, 255, 0.72) inset;
-	--pdk-material-dialog-bg: rgba(252, 253, 249, 0.98);
-	--pdk-material-dialog-border: rgba(75, 89, 92, 0.18);
+	--pdk-material-popover-shadow: 0 22px 54px rgba(18, 32, 56, 0.2), 0 1px 0 rgba(255, 255, 255, 0.72) inset;
+	--pdk-material-dialog-bg: rgba(252, 253, 255, 0.98);
+	--pdk-material-dialog-border: rgba(78, 92, 120, 0.18);
 	--pdk-material-dialog-filter: blur(18px) saturate(132%);
-	--pdk-material-dialog-shadow: 0 28px 76px rgba(17, 35, 42, 0.25), 0 1px 0 rgba(255, 255, 255, 0.72) inset;
-	--pdk-divider: rgba(72, 88, 92, 0.18);
-	--pdk-divider-soft: rgba(72, 88, 92, 0.1);
-	--pdk-menu-bg: linear-gradient(180deg, rgba(255, 255, 251, 0.36), rgba(238, 246, 242, 0.16));
-	--pdk-menu-border: rgba(72, 88, 92, 0.14);
+	--pdk-material-dialog-shadow: 0 28px 76px rgba(18, 32, 56, 0.25), 0 1px 0 rgba(255, 255, 255, 0.72) inset;
+	--pdk-divider: rgba(76, 90, 118, 0.18);
+	--pdk-divider-soft: rgba(76, 90, 118, 0.1);
+	--pdk-menu-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(238, 244, 252, 0.16));
+	--pdk-menu-border: rgba(76, 90, 118, 0.14);
 	--pdk-menu-glass-filter: blur(26px) saturate(160%) brightness(1.04);
-	--pdk-menu-shadow: 0 10px 26px rgba(17, 35, 42, 0.1);
+	--pdk-menu-shadow: 0 10px 26px rgba(18, 32, 56, 0.1);
 	--pdk-menu-active-bg: var(--pdk-accent-active-strong);
 	--pdk-menu-selection-active-bg: var(--pdk-menu-active-bg);
 	--pdk-menu-popover-radius: 12px;
-	--pdk-menu-popover-ink: #17242b;
-	--pdk-menu-popover-muted: rgba(23, 36, 43, 0.54);
-	--pdk-menu-popover-separator: rgba(72, 88, 92, 0.14);
+	--pdk-menu-popover-ink: #172436;
+	--pdk-menu-popover-muted: rgba(23, 36, 54, 0.54);
+	--pdk-menu-popover-separator: rgba(76, 90, 118, 0.14);
 	--pdk-menu-item-hover-bg: var(--pdk-accent-active-strong);
 	--pdk-menu-item-hover-ink: var(--pdk-accent-ink);
-	--pdk-menu-item-disabled: rgba(23, 36, 43, 0.32);
+	--pdk-menu-item-disabled: rgba(23, 36, 54, 0.32);
 	--pdk-menu-bar-height: 30px;
 	--pdk-menu-bar-half-height: 15px;
 	--pdk-top-bar-item-height: 24px;
@@ -70,6 +70,7 @@
 	--pdk-menu-selection-ink: var(--pdk-top-bar-item-hover-ink);
 	--pdk-menu-selection-active-ink: var(--pdk-top-bar-item-hover-ink);
 	--pdk-notification-button-size: var(--pdk-top-bar-item-height);
+	--pdk-notification-badge-top: 0px;
 	--pdk-notification-button-hover-bg: var(--pdk-top-bar-item-hover-bg);
 	--pdk-notification-button-hover-ink: var(--pdk-top-bar-item-hover-ink);
 	--pdk-sound-status-button-size: var(--pdk-top-bar-item-height);
@@ -80,38 +81,38 @@
 	--pdk-dialog-bg: var(--pdk-material-dialog-bg);
 	--pdk-dialog-border: var(--pdk-material-dialog-border);
 	--pdk-dialog-shadow: var(--pdk-material-dialog-shadow);
-	--pdk-dialog-ink: #17242b;
-	--pdk-dialog-muted: rgba(23, 36, 43, 0.66);
-	--pdk-dialog-button-bg: rgba(234, 241, 237, 0.94);
-	--pdk-dialog-button-border: rgba(75, 89, 92, 0.16);
+	--pdk-dialog-ink: #172436;
+	--pdk-dialog-muted: rgba(23, 36, 54, 0.66);
+	--pdk-dialog-button-bg: rgba(235, 240, 248, 0.94);
+	--pdk-dialog-button-border: rgba(78, 92, 120, 0.16);
 	--pdk-dialog-button-hover-bg: #fff;
 	--pdk-action-dialog-icon-bg: var(--pdk-accent);
 	--pdk-action-dialog-icon-ink: var(--pdk-accent-ink);
 	--pdk-desktop-bg:
-		linear-gradient(135deg, rgba(22, 135, 123, 0.72), rgba(240, 244, 229, 0.12) 38%, rgba(218, 133, 101, 0.3) 68%, rgba(35, 54, 70, 0.54)),
-		#173743;
-	--pdk-tile-bg: rgba(252, 253, 249, 0.9);
+		linear-gradient(135deg, rgba(36, 88, 202, 0.66), rgba(58, 132, 214, 0.18) 38%, rgba(126, 87, 194, 0.24) 68%, rgba(24, 35, 61, 0.54)),
+		#183a70;
+	--pdk-tile-bg: rgba(252, 253, 255, 0.9);
 	--pdk-tile-border: rgba(255, 255, 255, 0.5);
-	--pdk-tile-shadow: 0 12px 28px rgba(17, 35, 42, 0.14), 0 1px 0 rgba(255, 255, 255, 0.62) inset;
-	--pdk-accent: #16877b;
-	--pdk-accent-rgb: 22 135 123;
+	--pdk-tile-shadow: 0 12px 28px rgba(18, 32, 56, 0.14), 0 1px 0 rgba(255, 255, 255, 0.62) inset;
+	--pdk-accent: #2458ca;
+	--pdk-accent-rgb: 36 88 202;
 	--pdk-accent-ink: #fff;
-	--pdk-theme-default-accent-swatch: #16877b;
+	--pdk-theme-default-accent-swatch: #2458ca;
 	--pdk-accent-soft-alpha: 0.14;
 	--pdk-accent-medium-alpha: 0.24;
 	--pdk-accent-active-alpha: 0.88;
 	--pdk-accent-active-strong-start-alpha: 0.95;
 	--pdk-accent-active-strong-end-alpha: 0.82;
-	--pdk-accent-vivid: #16877b;
+	--pdk-accent-vivid: #2f6fed;
 	--pdk-highlight-alpha: 0.18;
 	--pdk-focus-ring-rgb: var(--pdk-accent-rgb);
 	--pdk-focus-ring-alpha: 0.38;
-	--pdk-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 251, 0.96), rgba(238, 246, 242, 0.92));
-	--pdk-window-bar-border: rgba(72, 88, 92, 0.14);
-	--pdk-app-navigation-bg: linear-gradient(180deg, rgba(248, 251, 247, 0.96), rgba(232, 243, 237, 0.92));
-	--pdk-app-navigation-border: rgba(72, 88, 92, 0.13);
+	--pdk-window-bar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(239, 244, 252, 0.92));
+	--pdk-window-bar-border: rgba(76, 90, 118, 0.14);
+	--pdk-app-navigation-bg: linear-gradient(180deg, rgba(248, 250, 254, 0.96), rgba(232, 240, 252, 0.92));
+	--pdk-app-navigation-border: rgba(76, 90, 118, 0.13);
 	--pdk-app-navigation-ink: var(--pdk-ink);
-	--pdk-app-navigation-item-ink: rgba(23, 36, 43, 0.86);
+	--pdk-app-navigation-item-ink: rgba(23, 36, 54, 0.86);
 	--pdk-app-navigation-item-hover-bg: rgb(var(--pdk-accent-rgb) / 0.1);
 	--pdk-app-navigation-item-hover-border: rgb(var(--pdk-accent-rgb) / 0.16);
 	--pdk-app-navigation-item-hover-ink: var(--pdk-ink);
@@ -128,15 +129,15 @@
 	--pdk-card-bg: var(--pdk-material-card-bg);
 	--pdk-card-border: var(--pdk-material-card-border);
 	--pdk-card-shadow: var(--pdk-material-card-shadow);
-	--pdk-dock-bg: rgba(248, 251, 247, 0.58);
+	--pdk-dock-bg: rgba(248, 250, 254, 0.58);
 	--pdk-dock-glass-bg:
-		linear-gradient(135deg, rgba(255, 255, 255, 0.46), rgba(247, 252, 249, 0.24) 48%, rgba(222, 241, 233, 0.16)),
-		rgba(235, 245, 239, 0.34);
+		linear-gradient(135deg, rgba(255, 255, 255, 0.46), rgba(247, 250, 255, 0.24) 48%, rgba(224, 235, 252, 0.16)),
+		rgba(235, 241, 251, 0.34);
 	--pdk-dock-glass-filter: blur(28px) saturate(160%) brightness(1.04);
-	--pdk-dock-border: rgba(248, 252, 249, 0.46);
-	--pdk-dock-bottom-border: rgba(72, 88, 92, 0.12);
-	--pdk-dock-separator: rgba(57, 72, 77, 0.2);
-	--pdk-dock-shadow: 0 18px 42px rgba(16, 34, 40, 0.18), 0 1px 0 rgba(255, 255, 255, 0.68) inset;
+	--pdk-dock-border: rgba(248, 250, 255, 0.46);
+	--pdk-dock-bottom-border: rgba(76, 90, 118, 0.12);
+	--pdk-dock-separator: rgba(58, 72, 94, 0.2);
+	--pdk-dock-shadow: 0 18px 42px rgba(18, 32, 56, 0.18), 0 1px 0 rgba(255, 255, 255, 0.68) inset;
 	--pdk-dock-screen-edge: 16px;
 	--pdk-dock-hover-lift: 3px;
 	--pdk-dock-hover-scale: 1.02;
@@ -157,83 +158,83 @@
 		linear-gradient(145deg, rgba(255, 255, 255, 0.42), rgb(var(--pdk-accent-rgb) / 0.27)),
 		rgb(var(--pdk-accent-rgb) / 0.15);
 	--pdk-dock-adaptive-icon-frame-border: rgb(var(--pdk-accent-rgb) / 0.08);
-	--pdk-dock-adaptive-icon-frame-shadow: 0 7px 14px rgba(17, 35, 42, 0.09), 0 1px 0 rgba(255, 255, 255, 0.34) inset, 0 -1px 0 rgb(var(--pdk-accent-rgb) / 0.08) inset;
+	--pdk-dock-adaptive-icon-frame-shadow: 0 7px 14px rgba(18, 32, 56, 0.09), 0 1px 0 rgba(255, 255, 255, 0.34) inset, 0 -1px 0 rgb(var(--pdk-accent-rgb) / 0.08) inset;
 	--pdk-dock-adaptive-icon-frame-hover-bg:
 		linear-gradient(145deg, rgba(255, 255, 255, 0.5), rgb(var(--pdk-accent-rgb) / 0.34)),
 		rgb(var(--pdk-accent-rgb) / 0.19);
 	--pdk-dock-adaptive-icon-ink: var(--pdk-accent);
-	--pdk-dock-tooltip-bg: rgba(23, 36, 43, 0.94);
+	--pdk-dock-tooltip-bg: rgba(23, 36, 54, 0.94);
 	--pdk-dock-tooltip-border: rgba(255, 255, 255, 0.08);
 	--pdk-dock-tooltip-color: rgba(255, 255, 255, 0.94);
-	--pdk-dock-tooltip-shadow: 0 8px 18px rgba(17, 35, 42, 0.22);
+	--pdk-dock-tooltip-shadow: 0 8px 18px rgba(18, 32, 56, 0.22);
 	--pdk-running-indicator: var(--pdk-accent);
 	--pdk-running-indicator-shadow: 0 0 0 1px rgba(255, 255, 255, 0.62), 0 0 8px rgb(var(--pdk-accent-rgb) / 0.34);
 	--pdk-app-badge-bg: #d65d4d;
 	--pdk-app-badge-ink: #fff;
-	--pdk-app-badge-neutral-bg: rgba(57, 72, 77, 0.92);
+	--pdk-app-badge-neutral-bg: rgba(58, 72, 94, 0.92);
 	--pdk-app-badge-attention-bg: #d65d4d;
 	--pdk-app-badge-update-bg: #d65d4d;
 	--pdk-icon-widget-app-surface-bg: transparent;
 	--pdk-icon-widget-app-surface-border: transparent;
 	--pdk-icon-widget-app-surface-border-width: 0;
 	--pdk-icon-widget-app-surface-shadow: none;
-	--pdk-icon-widget-image-filter: saturate(0.92) contrast(1.02);
+	--pdk-icon-widget-image-filter: saturate(0.96) contrast(1.02);
 	--pdk-icon-widget-image-opacity: 1;
-	--pdk-icon-widget-surface-bg: linear-gradient(145deg, rgba(255, 255, 251, 0.94), rgba(224, 241, 234, 0.86));
+	--pdk-icon-widget-surface-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(224, 235, 252, 0.86));
 	--pdk-icon-widget-surface-border: rgba(255, 255, 255, 0.54);
-	--pdk-icon-widget-surface-shadow: 0 9px 18px rgba(17, 35, 42, 0.12), 0 1px 0 rgba(255, 255, 255, 0.62) inset;
+	--pdk-icon-widget-surface-shadow: 0 9px 18px rgba(18, 32, 56, 0.12), 0 1px 0 rgba(255, 255, 255, 0.62) inset;
 	--pdk-icon-widget-dock-surface-radius: 10px;
-	--pdk-icon-widget-dock-surface-shadow: 0 7px 14px rgba(17, 35, 42, 0.12), 0 1px 0 rgba(255, 255, 255, 0.42) inset;
+	--pdk-icon-widget-dock-surface-shadow: 0 7px 14px rgba(18, 32, 56, 0.12), 0 1px 0 rgba(255, 255, 255, 0.42) inset;
 	--pdk-icon-widget-symbol: var(--pdk-accent);
 	--pdk-icon-adaptive-ink: var(--pdk-icon-widget-symbol);
-	--pdk-folder-icon-filter: sepia(0.35) saturate(1.7) hue-rotate(114deg) brightness(0.92) contrast(1.02);
+	--pdk-folder-icon-filter: saturate(0.98) contrast(1.03);
 	--pdk-folder-icon-opacity: 0.96;
 	--pdk-finder-sidebar-accent: var(--pdk-accent);
 	--pdk-finder-sidebar-selection-bg: rgb(var(--pdk-accent-rgb) / 0.12);
-	--pdk-finder-list-header-bg: rgba(238, 246, 242, 0.9);
-	--pdk-finder-list-header-ink: rgba(23, 36, 43, 0.64);
-	--pdk-finder-list-divider: rgba(72, 88, 92, 0.12);
+	--pdk-finder-list-header-bg: rgba(239, 244, 252, 0.9);
+	--pdk-finder-list-header-ink: rgba(23, 36, 54, 0.64);
+	--pdk-finder-list-divider: rgba(76, 90, 118, 0.12);
 	--pdk-finder-list-row-alt-bg: rgb(var(--pdk-accent-rgb) / 0.035);
 	--pdk-finder-list-row-selected-bg: var(--pdk-accent);
 	--pdk-finder-list-row-selected-ink: var(--pdk-accent-ink);
 	--pdk-about-window-radius: 14px;
 	--pdk-site-about-window-radius: 16px;
 	--pdk-scrollbar-track: transparent;
-	--pdk-scrollbar-thumb: rgba(89, 104, 108, 0.45);
-	--pdk-scrollbar-thumb-hover: rgba(89, 104, 108, 0.62);
-	--pdk-notification-center-bg: rgba(252, 253, 249, 0.96);
-	--pdk-notification-center-border: rgba(75, 89, 92, 0.16);
-	--pdk-notification-center-filter: blur(18px) saturate(132%);
-	--pdk-notification-center-ink: #17242b;
-	--pdk-notification-center-radius: 14px;
-	--pdk-notification-center-shadow: var(--pdk-material-popover-shadow);
-	--pdk-notification-item-bg: rgba(255, 255, 251, 0.72);
-	--pdk-notification-item-border: rgba(72, 88, 92, 0.12);
-	--pdk-notification-item-radius: 10px;
-	--pdk-notification-item-unread-bg: rgba(232, 244, 239, 0.88);
-	--pdk-notification-message-ink: rgba(23, 36, 43, 0.84);
-	--pdk-notification-muted: rgba(23, 36, 43, 0.6);
-	--pdk-notification-toast-bg: rgba(252, 253, 249, 0.98);
-	--pdk-notification-toast-border: rgba(75, 89, 92, 0.16);
+	--pdk-scrollbar-thumb: rgba(90, 104, 128, 0.45);
+	--pdk-scrollbar-thumb-hover: rgba(90, 104, 128, 0.62);
+	--pdk-notification-center-bg: var(--pdk-menu-popover-bg);
+	--pdk-notification-center-border: var(--pdk-menu-popover-border);
+	--pdk-notification-center-filter: var(--pdk-menu-popover-filter);
+	--pdk-notification-center-ink: var(--pdk-menu-popover-ink);
+	--pdk-notification-center-radius: var(--pdk-menu-popover-radius);
+	--pdk-notification-center-shadow: var(--pdk-menu-popover-shadow);
+	--pdk-notification-item-bg: transparent;
+	--pdk-notification-item-border: transparent;
+	--pdk-notification-item-radius: 6px;
+	--pdk-notification-item-unread-bg: rgb(var(--pdk-accent-rgb) / 0.1);
+	--pdk-notification-message-ink: rgba(23, 36, 54, 0.84);
+	--pdk-notification-muted: var(--pdk-menu-popover-muted);
+	--pdk-notification-toast-bg: rgba(252, 253, 255, 0.98);
+	--pdk-notification-toast-border: rgba(78, 92, 120, 0.16);
 	--pdk-notification-toast-filter: blur(18px) saturate(132%);
-	--pdk-notification-toast-ink: #17242b;
+	--pdk-notification-toast-ink: #172436;
 	--pdk-notification-toast-radius: 12px;
 	--pdk-notification-toast-shadow: var(--pdk-material-popover-shadow);
-	--pdk-sound-flyout-bg: var(--pdk-material-popover-bg);
-	--pdk-sound-flyout-border: var(--pdk-material-popover-border);
-	--pdk-sound-flyout-filter: var(--pdk-material-popover-filter);
-	--pdk-sound-flyout-ink: #17242b;
-	--pdk-sound-flyout-radius: 12px;
-	--pdk-sound-flyout-shadow: var(--pdk-material-popover-shadow);
+	--pdk-sound-flyout-bg: var(--pdk-menu-popover-bg);
+	--pdk-sound-flyout-border: var(--pdk-menu-popover-border);
+	--pdk-sound-flyout-filter: var(--pdk-menu-popover-filter);
+	--pdk-sound-flyout-ink: var(--pdk-menu-popover-ink);
+	--pdk-sound-flyout-radius: var(--pdk-menu-popover-radius);
+	--pdk-sound-flyout-shadow: var(--pdk-menu-popover-shadow);
 	--pdk-clock-widget-bg:
-		linear-gradient(145deg, rgba(255, 255, 255, 0.38), rgba(247, 252, 249, 0.2) 48%, rgb(var(--pdk-accent-rgb) / 0.08)),
-		rgba(236, 245, 239, 0.24);
-	--pdk-clock-widget-border: rgba(248, 252, 249, 0.44);
+		linear-gradient(145deg, rgba(255, 255, 255, 0.38), rgba(247, 250, 255, 0.2) 48%, rgb(var(--pdk-accent-rgb) / 0.08)),
+		rgba(236, 241, 251, 0.24);
+	--pdk-clock-widget-border: rgba(248, 250, 255, 0.44);
 	--pdk-clock-widget-filter: blur(26px) saturate(155%) brightness(1.04);
-	--pdk-clock-widget-shadow: 0 14px 32px rgba(16, 34, 40, 0.16), 0 1px 0 rgba(255, 255, 255, 0.46) inset;
+	--pdk-clock-widget-shadow: 0 14px 32px rgba(18, 32, 56, 0.16), 0 1px 0 rgba(255, 255, 255, 0.46) inset;
 	--pdk-clock-widget-sheen: linear-gradient(150deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.1) 34%, rgba(255, 255, 255, 0) 68%);
-	--pdk-clock-widget-time: #17242b;
-	--pdk-clock-widget-date: rgba(23, 36, 43, 0.64);
+	--pdk-clock-widget-time: #172436;
+	--pdk-clock-widget-date: rgba(23, 36, 54, 0.64);
 	--pdk-clock-widget-text-shadow: 0 1px 1px rgba(255, 255, 255, 0.34);
 	--pdk-sticky-note-bg: rgb(255 248 166);
 	--pdk-sticky-note-body-bg: transparent;
@@ -263,65 +264,65 @@
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] {
-	--pdk-ink: #edf5f3;
-	--pdk-muted: rgba(237, 245, 243, 0.66);
-	--pdk-menu-ink: rgba(237, 245, 243, 0.94);
-	--pdk-menu-muted: rgba(237, 245, 243, 0.68);
-	--pdk-menu-placeholder: rgba(237, 245, 243, 0.48);
-	--pdk-about-title-color: #f3f7f4;
-	--pdk-about-text-color: rgba(237, 245, 243, 0.82);
-	--pdk-material-clear-bg: rgba(25, 37, 41, 0.84);
-	--pdk-material-clear-border: rgba(178, 207, 199, 0.16);
+	--pdk-ink: #edf3ff;
+	--pdk-muted: rgba(237, 243, 255, 0.66);
+	--pdk-menu-ink: rgba(237, 243, 255, 0.94);
+	--pdk-menu-muted: rgba(237, 243, 255, 0.68);
+	--pdk-menu-placeholder: rgba(237, 243, 255, 0.48);
+	--pdk-about-title-color: #f4f7ff;
+	--pdk-about-text-color: rgba(237, 243, 255, 0.82);
+	--pdk-material-clear-bg: rgba(22, 30, 46, 0.84);
+	--pdk-material-clear-border: rgba(168, 182, 210, 0.16);
 	--pdk-material-clear-shadow: 0 24px 64px rgba(0, 0, 0, 0.44), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
-	--pdk-material-regular-bg: rgba(31, 43, 47, 0.94);
-	--pdk-material-regular-border: rgba(178, 207, 199, 0.18);
+	--pdk-material-regular-bg: rgba(27, 36, 54, 0.94);
+	--pdk-material-regular-border: rgba(168, 182, 210, 0.18);
 	--pdk-material-regular-shadow: 0 28px 76px rgba(0, 0, 0, 0.48), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
-	--pdk-material-tinted-bg: linear-gradient(145deg, rgba(29, 55, 55, 0.95), rgba(40, 45, 48, 0.92) 56%, rgba(71, 51, 43, 0.86));
-	--pdk-material-tinted-border: rgba(178, 207, 199, 0.18);
-	--pdk-material-solid-bg: #202c30;
-	--pdk-material-solid-border: rgba(178, 207, 199, 0.14);
-	--pdk-material-card-bg: rgba(36, 48, 51, 0.86);
-	--pdk-material-card-border: rgba(178, 207, 199, 0.12);
+	--pdk-material-tinted-bg: linear-gradient(145deg, rgba(24, 39, 69, 0.95), rgba(32, 39, 56, 0.92) 56%, rgba(44, 42, 65, 0.86));
+	--pdk-material-tinted-border: rgba(168, 182, 210, 0.18);
+	--pdk-material-solid-bg: #20283a;
+	--pdk-material-solid-border: rgba(168, 182, 210, 0.14);
+	--pdk-material-card-bg: rgba(32, 42, 60, 0.86);
+	--pdk-material-card-border: rgba(168, 182, 210, 0.12);
 	--pdk-material-card-shadow: 0 20px 46px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
-	--pdk-material-control-bg: rgba(48, 66, 68, 0.82);
-	--pdk-material-control-hover-bg: rgba(62, 80, 82, 0.92);
-	--pdk-material-control-active-bg: rgba(70, 89, 88, 0.92);
-	--pdk-material-control-border: rgba(178, 207, 199, 0.14);
-	--pdk-material-bar-bg: rgba(25, 37, 41, 0.88);
-	--pdk-material-bar-border: rgba(178, 207, 199, 0.12);
+	--pdk-material-control-bg: rgba(43, 55, 78, 0.82);
+	--pdk-material-control-hover-bg: rgba(55, 68, 94, 0.92);
+	--pdk-material-control-active-bg: rgba(62, 78, 108, 0.92);
+	--pdk-material-control-border: rgba(168, 182, 210, 0.14);
+	--pdk-material-bar-bg: rgba(22, 31, 47, 0.88);
+	--pdk-material-bar-border: rgba(168, 182, 210, 0.12);
 	--pdk-material-bar-shadow: 0 12px 34px rgba(0, 0, 0, 0.32), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
-	--pdk-material-popover-bg: rgba(31, 43, 47, 0.96);
-	--pdk-material-popover-border: rgba(178, 207, 199, 0.16);
+	--pdk-material-popover-bg: rgba(27, 36, 54, 0.96);
+	--pdk-material-popover-border: rgba(168, 182, 210, 0.16);
 	--pdk-material-popover-shadow: 0 26px 64px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
-	--pdk-material-dialog-bg: rgba(31, 43, 47, 0.98);
-	--pdk-material-dialog-border: rgba(178, 207, 199, 0.16);
+	--pdk-material-dialog-bg: rgba(27, 36, 54, 0.98);
+	--pdk-material-dialog-border: rgba(168, 182, 210, 0.16);
 	--pdk-material-dialog-shadow: 0 30px 80px rgba(0, 0, 0, 0.56), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
-	--pdk-divider: rgba(178, 207, 199, 0.14);
-	--pdk-divider-soft: rgba(178, 207, 199, 0.08);
-	--pdk-menu-bg: linear-gradient(180deg, rgba(36, 50, 53, 0.34), rgba(24, 35, 39, 0.18));
-	--pdk-menu-border: rgba(178, 207, 199, 0.12);
+	--pdk-divider: rgba(168, 182, 210, 0.14);
+	--pdk-divider-soft: rgba(168, 182, 210, 0.08);
+	--pdk-menu-bg: linear-gradient(180deg, rgba(32, 43, 62, 0.34), rgba(20, 29, 45, 0.18));
+	--pdk-menu-border: rgba(168, 182, 210, 0.12);
 	--pdk-menu-glass-filter: blur(28px) saturate(150%) brightness(0.98);
-	--pdk-menu-popover-ink: rgba(237, 245, 243, 0.96);
-	--pdk-menu-popover-muted: rgba(237, 245, 243, 0.52);
-	--pdk-menu-popover-separator: rgba(178, 207, 199, 0.12);
-	--pdk-menu-item-disabled: rgba(237, 245, 243, 0.28);
+	--pdk-menu-popover-ink: rgba(237, 243, 255, 0.96);
+	--pdk-menu-popover-muted: rgba(237, 243, 255, 0.52);
+	--pdk-menu-popover-separator: rgba(168, 182, 210, 0.12);
+	--pdk-menu-item-disabled: rgba(237, 243, 255, 0.28);
 	--pdk-desktop-bg:
-		linear-gradient(135deg, rgba(16, 114, 106, 0.58), rgba(24, 36, 42, 0.34) 42%, rgba(168, 89, 64, 0.22) 72%, rgba(11, 20, 28, 0.78)),
-		#10242d;
-	--pdk-tile-bg: rgba(36, 48, 51, 0.86);
-	--pdk-tile-border: rgba(178, 207, 199, 0.14);
+		linear-gradient(135deg, rgba(36, 88, 202, 0.56), rgba(24, 36, 62, 0.36) 42%, rgba(126, 87, 194, 0.22) 72%, rgba(10, 18, 34, 0.78)),
+		#101d34;
+	--pdk-tile-bg: rgba(32, 42, 60, 0.86);
+	--pdk-tile-border: rgba(168, 182, 210, 0.14);
 	--pdk-tile-shadow: 0 16px 36px rgba(0, 0, 0, 0.28), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
-	--pdk-accent: #35a99b;
-	--pdk-accent-rgb: 53 169 155;
-	--pdk-accent-ink: #061817;
-	--pdk-accent-vivid: #35a99b;
+	--pdk-accent: #5b86ff;
+	--pdk-accent-rgb: 91 134 255;
+	--pdk-accent-ink: #07142f;
+	--pdk-accent-vivid: #7aa2ff;
 	--pdk-focus-ring-rgb: var(--pdk-accent-rgb);
-	--pdk-window-bar-bg: linear-gradient(180deg, rgba(36, 50, 53, 0.96), rgba(29, 42, 45, 0.92));
-	--pdk-window-bar-border: rgba(178, 207, 199, 0.12);
-	--pdk-app-navigation-bg: linear-gradient(180deg, rgba(56, 73, 77, 0.96), rgba(43, 60, 64, 0.94));
-	--pdk-app-navigation-border: rgba(178, 207, 199, 0.16);
-	--pdk-app-navigation-ink: rgba(237, 245, 243, 0.9);
-	--pdk-app-navigation-item-ink: rgba(237, 245, 243, 0.82);
+	--pdk-window-bar-bg: linear-gradient(180deg, rgba(32, 43, 62, 0.96), rgba(24, 34, 52, 0.92));
+	--pdk-window-bar-border: rgba(168, 182, 210, 0.12);
+	--pdk-app-navigation-bg: linear-gradient(180deg, rgba(47, 59, 82, 0.96), rgba(36, 49, 73, 0.94));
+	--pdk-app-navigation-border: rgba(168, 182, 210, 0.16);
+	--pdk-app-navigation-ink: rgba(237, 243, 255, 0.9);
+	--pdk-app-navigation-item-ink: rgba(237, 243, 255, 0.82);
 	--pdk-app-navigation-item-hover-bg: rgb(var(--pdk-accent-rgb) / 0.2);
 	--pdk-app-navigation-item-hover-border: rgb(var(--pdk-accent-rgb) / 0.3);
 	--pdk-app-navigation-item-hover-ink: rgba(255, 255, 255, 0.96);
@@ -330,19 +331,19 @@
 		var(--pdk-accent-active-strong);
 	--pdk-app-navigation-item-active-border: rgb(var(--pdk-accent-rgb) / 0.7);
 	--pdk-app-navigation-item-active-ink: var(--pdk-accent-ink);
-	--pdk-dock-bg: rgba(25, 37, 41, 0.58);
+	--pdk-dock-bg: rgba(22, 30, 46, 0.58);
 	--pdk-dock-glass-bg:
 		linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025) 52%, rgb(var(--pdk-accent-rgb) / 0.06)),
-		rgba(16, 28, 32, 0.36);
+		rgba(14, 24, 39, 0.36);
 	--pdk-dock-glass-filter: blur(30px) saturate(150%) brightness(0.98);
-	--pdk-dock-border: rgba(178, 207, 199, 0.12);
+	--pdk-dock-border: rgba(168, 182, 210, 0.12);
 	--pdk-dock-bottom-border: rgba(0, 0, 0, 0.28);
 	--pdk-dock-item-hover-bg: rgba(255, 255, 255, 0.09);
 	--pdk-dock-item-hover-border: rgba(255, 255, 255, 0.1);
 	--pdk-dock-item-hover-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 	--pdk-dock-item-running-bg: rgb(var(--pdk-accent-rgb) / 0.18);
 	--pdk-dock-item-running-border: rgb(var(--pdk-accent-rgb) / 0.22);
-	--pdk-dock-separator: rgba(178, 207, 199, 0.16);
+	--pdk-dock-separator: rgba(168, 182, 210, 0.16);
 	--pdk-dock-shadow: 0 20px 48px rgba(0, 0, 0, 0.38), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 	--pdk-dock-adaptive-icon-frame-bg:
 		linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgb(var(--pdk-accent-rgb) / 0.34) 58%, rgba(255, 255, 255, 0.08)),
@@ -355,48 +356,48 @@
 	--pdk-dock-adaptive-icon-ink: color-mix(in srgb, var(--pdk-accent) 42%, #fff);
 	--pdk-running-indicator: var(--pdk-accent);
 	--pdk-running-indicator-shadow: 0 0 0 1px rgba(255, 255, 255, 0.16), 0 0 9px rgb(var(--pdk-accent-rgb) / 0.48);
-	--pdk-dock-tooltip-bg: rgba(237, 245, 243, 0.94);
+	--pdk-dock-tooltip-bg: rgba(237, 243, 255, 0.94);
 	--pdk-dock-tooltip-border: transparent;
-	--pdk-dock-tooltip-color: #17242b;
-	--pdk-icon-widget-surface-bg: linear-gradient(145deg, rgba(52, 70, 72, 0.92), rgba(34, 53, 54, 0.86));
-	--pdk-icon-widget-surface-border: rgba(178, 207, 199, 0.16);
+	--pdk-dock-tooltip-color: #172436;
+	--pdk-icon-widget-surface-bg: linear-gradient(145deg, rgba(45, 57, 80, 0.92), rgba(28, 43, 67, 0.86));
+	--pdk-icon-widget-surface-border: rgba(168, 182, 210, 0.16);
 	--pdk-icon-widget-symbol: var(--pdk-accent);
-	--pdk-folder-icon-filter: sepia(0.25) saturate(1.4) hue-rotate(116deg) brightness(1.1) contrast(0.96);
+	--pdk-folder-icon-filter: saturate(1.02) brightness(1.06) contrast(0.98);
 	--pdk-finder-sidebar-selection-bg: rgb(var(--pdk-accent-rgb) / 0.18);
-	--pdk-finder-list-header-bg: rgba(31, 43, 47, 0.92);
-	--pdk-finder-list-header-ink: rgba(237, 245, 243, 0.58);
-	--pdk-finder-list-divider: rgba(178, 207, 199, 0.1);
+	--pdk-finder-list-header-bg: rgba(27, 36, 54, 0.92);
+	--pdk-finder-list-header-ink: rgba(237, 243, 255, 0.58);
+	--pdk-finder-list-divider: rgba(168, 182, 210, 0.1);
 	--pdk-finder-list-row-alt-bg: rgba(255, 255, 255, 0.035);
 	--pdk-finder-list-row-selected-bg: var(--pdk-accent);
 	--pdk-finder-list-row-selected-ink: var(--pdk-accent-ink);
-	--pdk-scrollbar-thumb: rgba(202, 220, 214, 0.38);
-	--pdk-scrollbar-thumb-hover: rgba(202, 220, 214, 0.54);
-	--pdk-dialog-ink: rgba(237, 245, 243, 0.96);
-	--pdk-dialog-muted: rgba(237, 245, 243, 0.62);
-	--pdk-dialog-button-bg: rgba(48, 66, 68, 0.82);
-	--pdk-dialog-button-border: rgba(178, 207, 199, 0.14);
-	--pdk-dialog-button-hover-bg: rgba(62, 80, 82, 0.92);
-	--pdk-notification-center-bg: rgba(31, 43, 47, 0.96);
-	--pdk-notification-center-border: rgba(178, 207, 199, 0.16);
-	--pdk-notification-center-ink: rgba(237, 245, 243, 0.96);
-	--pdk-notification-item-bg: rgba(255, 255, 255, 0.07);
-	--pdk-notification-item-border: rgba(178, 207, 199, 0.12);
-	--pdk-notification-item-unread-bg: rgb(var(--pdk-accent-rgb) / 0.14);
-	--pdk-notification-message-ink: rgba(237, 245, 243, 0.86);
-	--pdk-notification-muted: rgba(237, 245, 243, 0.56);
-	--pdk-notification-toast-bg: rgba(31, 43, 47, 0.98);
-	--pdk-notification-toast-border: rgba(178, 207, 199, 0.16);
-	--pdk-notification-toast-ink: rgba(237, 245, 243, 0.96);
-	--pdk-sound-flyout-ink: rgba(237, 245, 243, 0.96);
+	--pdk-scrollbar-thumb: rgba(200, 214, 240, 0.38);
+	--pdk-scrollbar-thumb-hover: rgba(200, 214, 240, 0.54);
+	--pdk-dialog-ink: rgba(237, 243, 255, 0.96);
+	--pdk-dialog-muted: rgba(237, 243, 255, 0.62);
+	--pdk-dialog-button-bg: rgba(43, 55, 78, 0.82);
+	--pdk-dialog-button-border: rgba(168, 182, 210, 0.14);
+	--pdk-dialog-button-hover-bg: rgba(55, 68, 94, 0.92);
+	--pdk-notification-center-bg: var(--pdk-menu-popover-bg);
+	--pdk-notification-center-border: var(--pdk-menu-popover-border);
+	--pdk-notification-center-ink: var(--pdk-menu-popover-ink);
+	--pdk-notification-item-bg: transparent;
+	--pdk-notification-item-border: transparent;
+	--pdk-notification-item-unread-bg: rgb(var(--pdk-accent-rgb) / 0.18);
+	--pdk-notification-message-ink: rgba(237, 243, 255, 0.86);
+	--pdk-notification-muted: var(--pdk-menu-popover-muted);
+	--pdk-notification-toast-bg: rgba(27, 36, 54, 0.98);
+	--pdk-notification-toast-border: rgba(168, 182, 210, 0.16);
+	--pdk-notification-toast-ink: rgba(237, 243, 255, 0.96);
+	--pdk-sound-flyout-ink: var(--pdk-menu-popover-ink);
 	--pdk-clock-widget-bg:
 		linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025) 52%, rgb(var(--pdk-accent-rgb) / 0.08)),
-		rgba(16, 28, 32, 0.32);
-	--pdk-clock-widget-border: rgba(178, 207, 199, 0.14);
+		rgba(14, 24, 39, 0.32);
+	--pdk-clock-widget-border: rgba(168, 182, 210, 0.14);
 	--pdk-clock-widget-filter: blur(28px) saturate(145%) brightness(0.98);
 	--pdk-clock-widget-shadow: 0 18px 42px rgba(0, 0, 0, 0.34), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
 	--pdk-clock-widget-sheen: linear-gradient(150deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04) 34%, rgba(255, 255, 255, 0) 66%);
-	--pdk-clock-widget-time: rgba(237, 245, 243, 0.96);
-	--pdk-clock-widget-date: rgba(237, 245, 243, 0.64);
+	--pdk-clock-widget-time: rgba(237, 243, 255, 0.96);
+	--pdk-clock-widget-date: rgba(237, 243, 255, 0.64);
 	--pdk-clock-widget-text-shadow: 0 1px 1px rgba(0, 0, 0, 0.28);
 }
 
@@ -560,9 +561,9 @@
 	align-items: center;
 	backdrop-filter: blur(18px) saturate(142%);
 	background:
-		linear-gradient(145deg, rgba(255, 255, 251, 0.74), rgb(var(--pdk-accent-rgb) / 0.08)),
-		rgba(236, 245, 240, 0.62);
-	border: 1px solid rgba(72, 88, 92, 0.12);
+		linear-gradient(145deg, rgba(255, 255, 255, 0.74), rgb(var(--pdk-accent-rgb) / 0.08)),
+		rgba(236, 241, 251, 0.62);
+	border: 1px solid rgba(76, 90, 118, 0.12);
 	border-radius: 10px;
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.52) inset, 0 -1px 0 rgb(var(--pdk-accent-rgb) / 0.04) inset;
 	color: var(--pdk-ink);
@@ -574,14 +575,14 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-start-search:focus-within {
 	background:
-		linear-gradient(145deg, rgba(255, 255, 251, 0.82), rgb(var(--pdk-accent-rgb) / 0.12)),
-		rgba(238, 247, 242, 0.72);
+		linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgb(var(--pdk-accent-rgb) / 0.12)),
+		rgba(239, 244, 252, 0.72);
 	border-color: rgb(var(--pdk-accent-rgb) / 0.28);
 	box-shadow: 0 0 0 1px rgb(var(--pdk-accent-rgb) / 0.18), 0 0 0 4px rgb(var(--pdk-accent-rgb) / 0.1), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-start-search-icon {
-	color: rgba(23, 36, 43, 0.56);
+	color: rgba(23, 36, 54, 0.56);
 	flex: 0 0 auto;
 	font-size: 18px;
 	height: 18px;
@@ -609,40 +610,40 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-start-search-input::placeholder {
-	color: rgba(23, 36, 43, 0.56);
+	color: rgba(23, 36, 54, 0.56);
 	opacity: 1;
-	-webkit-text-fill-color: rgba(23, 36, 43, 0.56);
+	-webkit-text-fill-color: rgba(23, 36, 54, 0.56);
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-start-search {
 	background:
 		linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgb(var(--pdk-accent-rgb) / 0.13)),
-		rgba(18, 31, 35, 0.72);
-	border-color: rgba(178, 207, 199, 0.12);
+		rgba(17, 28, 45, 0.72);
+	border-color: rgba(168, 182, 210, 0.12);
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.11) inset, 0 -1px 0 rgb(var(--pdk-accent-rgb) / 0.08) inset;
-	color: rgba(237, 245, 243, 0.96);
+	color: rgba(237, 243, 255, 0.96);
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-start-search:focus-within {
 	background:
 		linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgb(var(--pdk-accent-rgb) / 0.18)),
-		rgba(20, 35, 39, 0.82);
+		rgba(18, 31, 49, 0.82);
 	border-color: rgb(var(--pdk-accent-rgb) / 0.42);
 	box-shadow: 0 0 0 1px rgb(var(--pdk-accent-rgb) / 0.22), 0 0 0 4px rgb(var(--pdk-accent-rgb) / 0.16), 0 1px 0 rgba(255, 255, 255, 0.14) inset;
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-start-search-icon {
-	color: rgba(237, 245, 243, 0.62);
+	color: rgba(237, 243, 255, 0.62);
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-start-search-input {
-	color: rgba(237, 245, 243, 0.96) !important;
-	-webkit-text-fill-color: rgba(237, 245, 243, 0.96);
+	color: rgba(237, 243, 255, 0.96) !important;
+	-webkit-text-fill-color: rgba(237, 243, 255, 0.96);
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-start-search-input::placeholder {
-	color: rgba(237, 245, 243, 0.62);
-	-webkit-text-fill-color: rgba(237, 245, 243, 0.62);
+	color: rgba(237, 243, 255, 0.62);
+	-webkit-text-fill-color: rgba(237, 243, 255, 0.62);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window {
@@ -995,12 +996,12 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-window-kind="folder"] .pdk-window-titlebar,
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-window-titlebar {
-	background: linear-gradient(180deg, rgba(255, 255, 251, 0.96), rgba(236, 245, 240, 0.92));
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(239, 244, 252, 0.92));
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"] .pdk-window-titlebar,
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-app-window="os-settings"] .pdk-window-titlebar {
-	background: linear-gradient(180deg, rgba(38, 52, 55, 0.96), rgba(29, 42, 45, 0.92));
+	background: linear-gradient(180deg, rgba(32, 43, 62, 0.96), rgba(24, 34, 52, 0.92));
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-finder-window,
@@ -1011,13 +1012,13 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-finder-sidebar,
 .pdk-shell[data-pdk-theme="default"] .pdk-settings-sidebar {
-	background: rgba(236, 245, 240, 0.72);
+	background: rgba(239, 244, 252, 0.72);
 	border-color: var(--pdk-divider);
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-finder-sidebar,
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-settings-sidebar {
-	background: rgba(24, 35, 39, 0.72);
+	background: rgba(20, 29, 45, 0.72);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-finder-sidebar-item.is-active,
@@ -1028,13 +1029,13 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-finder-toolbar,
 .pdk-shell[data-pdk-theme="default"] .pdk-settings-pane-header {
-	background: rgba(249, 252, 248, 0.82);
+	background: rgba(249, 251, 255, 0.82);
 	border-color: var(--pdk-divider);
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-finder-toolbar,
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-settings-pane-header {
-	background: rgba(31, 43, 47, 0.82);
+	background: rgba(27, 36, 54, 0.82);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-settings-section,
@@ -1042,7 +1043,7 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-settings-personalization-card,
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-info-card,
 .pdk-shell[data-pdk-theme="default"] .pdk-document-info-card {
-	background: rgba(255, 255, 251, 0.82);
+	background: rgba(255, 255, 255, 0.84);
 	border: 1px solid var(--pdk-divider-soft);
 	border-radius: 10px;
 	box-shadow: none;
@@ -1102,19 +1103,19 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] {
-	background: linear-gradient(180deg, rgba(249, 252, 248, 0.98), rgba(240, 247, 243, 0.96));
+	background: linear-gradient(180deg, rgba(249, 251, 255, 0.98), rgba(240, 245, 253, 0.96));
 	grid-template-columns: var(--pdk-settings-sidebar-width, 216px) minmax(0, 1fr);
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] {
-	background: linear-gradient(180deg, rgba(31, 43, 47, 0.98), rgba(24, 35, 39, 0.96));
+	background: linear-gradient(180deg, rgba(27, 36, 54, 0.98), rgba(20, 30, 47, 0.96));
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-sidebar,
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-sidebar {
 	background:
-		linear-gradient(180deg, rgba(255, 255, 251, 0.58), rgba(232, 243, 238, 0.74)),
-		rgba(236, 245, 240, 0.82);
+		linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(232, 240, 252, 0.74)),
+		rgba(239, 244, 252, 0.82);
 	border-right: 1px solid var(--pdk-divider);
 	gap: 12px;
 	padding: 16px 14px 18px;
@@ -1123,8 +1124,8 @@
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-sidebar,
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-sidebar {
 	background:
-		linear-gradient(180deg, rgba(40, 55, 58, 0.78), rgba(25, 37, 41, 0.88)),
-		rgba(24, 35, 39, 0.9);
+		linear-gradient(180deg, rgba(37, 48, 69, 0.78), rgba(21, 31, 48, 0.88)),
+		rgba(20, 29, 45, 0.9);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-split-sidebar-drag-zone,
@@ -1139,7 +1140,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-search-field {
-	background: rgba(255, 255, 251, 0.82);
+	background: rgba(255, 255, 255, 0.82);
 	border: 1px solid var(--pdk-divider-soft);
 	border-radius: 8px;
 	min-height: 32px;
@@ -1165,7 +1166,7 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-sidebar-item:not(.is-active):hover,
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-sidebar-item:not(.is-active):hover {
-	background: rgba(255, 255, 251, 0.56);
+	background: rgba(255, 255, 255, 0.56);
 	border-color: var(--pdk-divider-soft);
 }
 
@@ -1194,12 +1195,12 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-main,
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-main {
-	background: rgba(255, 255, 251, 0.92);
+	background: rgba(255, 255, 255, 0.92);
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-main,
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-main {
-	background: rgba(31, 43, 47, 0.9);
+	background: rgba(27, 36, 54, 0.9);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-pane-header {
@@ -1214,7 +1215,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-history {
-	background: rgba(234, 241, 237, 0.72);
+	background: rgba(235, 240, 248, 0.72);
 	border-radius: 8px;
 }
 
@@ -1226,7 +1227,7 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-section,
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-card,
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-personalization-card {
-	background: rgba(255, 255, 251, 0.72);
+	background: rgba(255, 255, 255, 0.72);
 	border-color: var(--pdk-divider-soft);
 	border-radius: 8px;
 }
@@ -1237,9 +1238,7 @@
 	background: rgba(255, 255, 255, 0.055);
 }
 
-.pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-preview-option.is-selected .pdk-settings-appearance-preview,
-.pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-preview-option.is-selected .pdk-settings-material-preview,
-.pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-icon-option.is-selected .pdk-settings-icon-preview {
+.pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-preview-option.is-selected .pdk-settings-appearance-preview {
 	box-shadow: 0 0 0 2px rgb(var(--pdk-accent-rgb)), 0 8px 18px rgba(17, 35, 42, 0.12);
 }
 
@@ -1265,12 +1264,12 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] {
-	background: rgba(255, 255, 251, 0.92);
+	background: rgba(255, 255, 255, 0.92);
 	grid-template-columns: var(--pdk-settings-sidebar-width, 216px) minmax(0, 1fr);
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] {
-	background: rgba(31, 43, 47, 0.92);
+	background: rgba(27, 36, 54, 0.92);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-sidebar-heading,
@@ -1282,7 +1281,7 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-settings-pane-header.pdk-finder-toolbar {
 	align-items: center;
-	background: rgba(249, 252, 248, 0.86);
+	background: rgba(249, 251, 255, 0.86);
 	border-bottom: 1px solid var(--pdk-divider-soft);
 	gap: 16px;
 	min-height: 62px;
@@ -1290,7 +1289,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-settings-pane-header.pdk-finder-toolbar {
-	background: rgba(31, 43, 47, 0.86);
+	background: rgba(27, 36, 54, 0.86);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-toolbar-leading,
@@ -1315,7 +1314,7 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-toolbar-button {
 	align-items: center;
-	background: rgba(234, 241, 237, 0.68);
+	background: rgba(235, 240, 248, 0.68);
 	border: 1px solid var(--pdk-divider-soft);
 	border-radius: 8px;
 	display: inline-flex;
@@ -1347,7 +1346,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-tabs {
-	background: rgba(238, 246, 242, 0.78);
+	background: rgba(239, 244, 252, 0.78);
 	border-bottom-color: var(--pdk-divider-soft);
 	gap: 6px;
 	min-height: 36px;
@@ -1355,7 +1354,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-tabs {
-	background: rgba(24, 35, 39, 0.72);
+	background: rgba(20, 29, 45, 0.72);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-tab {
@@ -1366,21 +1365,21 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-tab.is-active {
-	background: rgba(255, 255, 251, 0.88);
+	background: rgba(255, 255, 255, 0.88);
 	box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.7) inset;
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-tab.is-active {
-	background: rgba(31, 43, 47, 0.96);
+	background: rgba(27, 36, 54, 0.96);
 	box-shadow: none;
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-pane {
-	background: rgba(255, 255, 251, 0.92);
+	background: rgba(255, 255, 255, 0.92);
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-pane {
-	background: rgba(31, 43, 47, 0.9);
+	background: rgba(27, 36, 54, 0.9);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-app-launcher:not(.pdk-folder-list-row) {
@@ -1408,7 +1407,7 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-folder-empty-state {
 	align-self: center;
-	background: rgba(234, 241, 237, 0.58);
+	background: rgba(235, 240, 248, 0.58);
 	border: 1px solid var(--pdk-divider-soft);
 	border-radius: 10px;
 	color: var(--pdk-muted);
@@ -1451,12 +1450,12 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-about-body,
 .pdk-shell[data-pdk-theme="default"] .pdk-site-about-body {
-	background: rgba(255, 255, 251, 0.94);
+	background: rgba(255, 255, 255, 0.94);
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-about-body,
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-site-about-body {
-	background: rgba(31, 43, 47, 0.94);
+	background: rgba(27, 36, 54, 0.94);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-about {
@@ -1472,10 +1471,10 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-about-icon {
 	background:
 		radial-gradient(circle at 28% 24%, rgba(255, 255, 255, 0.72), transparent 28%),
-		linear-gradient(145deg, rgb(var(--pdk-accent-rgb) / 0.9), rgba(35, 54, 70, 0.92));
+		linear-gradient(145deg, rgb(var(--pdk-accent-rgb) / 0.9), rgba(28, 42, 76, 0.92));
 	border: 1px solid rgba(255, 255, 255, 0.34);
 	border-radius: 18px;
-	box-shadow: 0 14px 26px rgba(17, 35, 42, 0.18);
+	box-shadow: 0 14px 26px rgba(18, 32, 56, 0.18);
 	height: 92px;
 	margin: 0;
 	width: 92px;
@@ -1556,10 +1555,10 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-site-about-screen {
 	background:
 		radial-gradient(circle at 26% 22%, rgba(255, 255, 255, 0.72), transparent 30%),
-		linear-gradient(145deg, rgb(var(--pdk-accent-rgb) / 0.9), rgba(218, 133, 101, 0.62) 58%, rgba(35, 54, 70, 0.92));
+		linear-gradient(145deg, rgb(var(--pdk-accent-rgb) / 0.9), rgba(83, 111, 214, 0.58) 58%, rgba(28, 42, 76, 0.92));
 	border: 1px solid rgba(255, 255, 255, 0.3);
 	border-radius: 22px;
-	box-shadow: 0 18px 34px rgba(17, 35, 42, 0.18);
+	box-shadow: 0 18px 34px rgba(18, 32, 56, 0.18);
 	height: 134px;
 	width: 134px;
 }
@@ -1590,7 +1589,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-site-about-spec {
-	background: rgba(234, 241, 237, 0.62);
+	background: rgba(235, 240, 248, 0.62);
 	border: 1px solid var(--pdk-divider-soft);
 	border-radius: 8px;
 	gap: 10px;
@@ -1624,13 +1623,13 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window:is([data-pdk-window-kind="folder-info"], [data-pdk-window-kind="document-info"]) {
 	--pdk-info-panel-field-bg:
-		linear-gradient(145deg, rgba(255, 255, 251, 0.74), rgb(var(--pdk-accent-rgb) / 0.08)),
-		rgba(236, 245, 240, 0.62);
-	--pdk-info-panel-field-border: rgba(72, 88, 92, 0.12);
+		linear-gradient(145deg, rgba(255, 255, 255, 0.74), rgb(var(--pdk-accent-rgb) / 0.08)),
+		rgba(236, 241, 251, 0.62);
+	--pdk-info-panel-field-border: rgba(76, 90, 118, 0.12);
 	--pdk-info-panel-field-shadow: 0 1px 0 rgba(255, 255, 255, 0.52) inset, 0 -1px 0 rgb(var(--pdk-accent-rgb) / 0.04) inset;
 	--pdk-info-panel-field-focus-bg:
-		linear-gradient(145deg, rgba(255, 255, 251, 0.82), rgb(var(--pdk-accent-rgb) / 0.12)),
-		rgba(238, 247, 242, 0.72);
+		linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgb(var(--pdk-accent-rgb) / 0.12)),
+		rgba(239, 244, 252, 0.72);
 	--pdk-info-panel-field-focus-border: rgb(var(--pdk-accent-rgb) / 0.28);
 	--pdk-info-panel-field-focus-shadow: 0 0 0 1px rgb(var(--pdk-accent-rgb) / 0.18), 0 0 0 4px rgb(var(--pdk-accent-rgb) / 0.1), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
 	border-radius: 12px;
@@ -1642,12 +1641,12 @@
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-window:is([data-pdk-window-kind="folder-info"], [data-pdk-window-kind="document-info"]) {
 	--pdk-info-panel-field-bg:
 		linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgb(var(--pdk-accent-rgb) / 0.13)),
-		rgba(18, 31, 35, 0.72);
-	--pdk-info-panel-field-border: rgba(178, 207, 199, 0.12);
+		rgba(17, 28, 45, 0.72);
+	--pdk-info-panel-field-border: rgba(168, 182, 210, 0.12);
 	--pdk-info-panel-field-shadow: 0 1px 0 rgba(255, 255, 255, 0.11) inset, 0 -1px 0 rgb(var(--pdk-accent-rgb) / 0.08) inset;
 	--pdk-info-panel-field-focus-bg:
 		linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgb(var(--pdk-accent-rgb) / 0.18)),
-		rgba(20, 35, 39, 0.82);
+		rgba(18, 31, 49, 0.82);
 	--pdk-info-panel-field-focus-border: rgb(var(--pdk-accent-rgb) / 0.42);
 	--pdk-info-panel-field-focus-shadow: 0 0 0 1px rgb(var(--pdk-accent-rgb) / 0.22), 0 0 0 4px rgb(var(--pdk-accent-rgb) / 0.16), 0 1px 0 rgba(255, 255, 255, 0.14) inset;
 }
@@ -1686,17 +1685,17 @@
 
 .pdk-shell[data-pdk-theme="default"] .pdk-search-panel-field {
 	background:
-		linear-gradient(145deg, rgba(255, 255, 251, 0.74), rgb(var(--pdk-accent-rgb) / 0.08)),
-		rgba(236, 245, 240, 0.62);
-	border-color: rgba(72, 88, 92, 0.12);
+		linear-gradient(145deg, rgba(255, 255, 255, 0.74), rgb(var(--pdk-accent-rgb) / 0.08)),
+		rgba(236, 241, 251, 0.62);
+	border-color: rgba(76, 90, 118, 0.12);
 	border-radius: 10px;
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.52) inset, 0 -1px 0 rgb(var(--pdk-accent-rgb) / 0.04) inset;
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-search-panel-field:focus-within {
 	background:
-		linear-gradient(145deg, rgba(255, 255, 251, 0.82), rgb(var(--pdk-accent-rgb) / 0.12)),
-		rgba(238, 247, 242, 0.72);
+		linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgb(var(--pdk-accent-rgb) / 0.12)),
+		rgba(239, 244, 252, 0.72);
 	border-color: rgb(var(--pdk-accent-rgb) / 0.28);
 	box-shadow: 0 0 0 1px rgb(var(--pdk-accent-rgb) / 0.18), 0 0 0 4px rgb(var(--pdk-accent-rgb) / 0.1), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
 }
@@ -1706,8 +1705,8 @@
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-search-panel {
-	--pdk-search-panel-ink: rgba(237, 245, 243, 0.96);
-	--pdk-search-panel-muted: rgba(237, 245, 243, 0.62);
+	--pdk-search-panel-ink: rgba(237, 243, 255, 0.96);
+	--pdk-search-panel-muted: rgba(237, 243, 255, 0.62);
 	--pdk-search-selection-bg: rgb(var(--pdk-accent-rgb) / 0.34);
 	--pdk-search-selection-ink: rgba(255, 255, 255, 0.96);
 }
@@ -1715,15 +1714,15 @@
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-search-panel-field {
 	background:
 		linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgb(var(--pdk-accent-rgb) / 0.13)),
-		rgba(18, 31, 35, 0.72);
-	border-color: rgba(178, 207, 199, 0.12);
+		rgba(17, 28, 45, 0.72);
+	border-color: rgba(168, 182, 210, 0.12);
 	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.11) inset, 0 -1px 0 rgb(var(--pdk-accent-rgb) / 0.08) inset;
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-search-panel-field:focus-within {
 	background:
 		linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgb(var(--pdk-accent-rgb) / 0.18)),
-		rgba(20, 35, 39, 0.82);
+		rgba(18, 31, 49, 0.82);
 	border-color: rgb(var(--pdk-accent-rgb) / 0.42);
 	box-shadow: 0 0 0 1px rgb(var(--pdk-accent-rgb) / 0.22), 0 0 0 4px rgb(var(--pdk-accent-rgb) / 0.16), 0 1px 0 rgba(255, 255, 255, 0.14) inset;
 }
@@ -1749,7 +1748,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] {
-	--pdk-control-icon-ink: #57666b;
+	--pdk-control-icon-ink: #5b6678;
 	--pdk-control-icon-hover-bg: rgb(var(--pdk-accent-rgb) / 0.12);
 	--pdk-control-icon-active-bg: rgb(var(--pdk-accent-rgb) / 0.18);
 	--pdk-desktop-icon-selection-bg: rgb(var(--pdk-accent-rgb) / 0.88);
@@ -1762,13 +1761,13 @@
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] {
-	--pdk-control-icon-ink: rgba(237, 245, 243, 0.72);
+	--pdk-control-icon-ink: rgba(237, 243, 255, 0.72);
 	--pdk-control-icon-hover-bg: rgb(var(--pdk-accent-rgb) / 0.14);
 	--pdk-control-icon-active-bg: rgb(var(--pdk-accent-rgb) / 0.2);
 	--pdk-desktop-icon-selection-bg: var(--pdk-accent-active);
 	--pdk-desktop-icon-selection-ink: var(--pdk-accent-ink);
-	--pdk-material-solid-bg: #1b2a2e;
-	--pdk-window-bar-bg: linear-gradient(180deg, rgba(22, 36, 40, 0.98), rgba(17, 30, 34, 0.96));
+	--pdk-material-solid-bg: #1b2437;
+	--pdk-window-bar-bg: linear-gradient(180deg, rgba(22, 32, 50, 0.98), rgba(17, 27, 44, 0.96));
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window-titlebar {
@@ -1913,7 +1912,7 @@
 	grid-template-rows: repeat(auto-fill, 86px);
 }
 
-.pdk-shell[data-pdk-theme="default"] .pdk-desktop-icon .pdk-app-icon {
+.pdk-shell[data-pdk-theme="default"] .pdk-desktop-icon .pdk-app-icon:has(> .pdk-icon-adaptive) {
 	background:
 		linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.04)),
 		rgba(17, 35, 42, 0.72);
@@ -1922,6 +1921,15 @@
 	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
 	height: 44px;
 	width: 44px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-desktop-icon .pdk-app-icon:has(> .pdk-icon-brand) {
+	background: transparent;
+	border-color: transparent;
+	border-radius: 0;
+	box-shadow: none;
+	height: 46px;
+	width: 46px;
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-desktop-folder .pdk-app-icon,
@@ -1945,6 +1953,11 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-desktop-icon .pdk-icon-mask {
 	height: 34px;
 	width: 34px;
+}
+
+.pdk-shell[data-pdk-theme="default"] .pdk-desktop-icon .pdk-app-icon:has(> .pdk-icon-brand) .pdk-icon-image {
+	height: 46px;
+	width: 46px;
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-desktop-folder .pdk-icon-image,
@@ -1997,7 +2010,7 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"],
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] {
 	background:
-		linear-gradient(180deg, rgba(255, 255, 251, 0.92), rgba(239, 246, 240, 0.94)),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(239, 244, 252, 0.94)),
 		var(--pdk-material-solid-bg);
 }
 
@@ -2056,7 +2069,7 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] > .pdk-folder-simple-tabs {
 	align-items: end;
 	background:
-		linear-gradient(180deg, rgba(255, 255, 251, 0.64), rgba(236, 245, 241, 0.5));
+		linear-gradient(180deg, rgba(255, 255, 255, 0.64), rgba(236, 241, 251, 0.5));
 	border-bottom: 1px solid var(--pdk-divider-soft);
 	box-sizing: border-box;
 	display: flex;
@@ -2108,7 +2121,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-simple-tabs .pdk-finder-tab.is-active {
-	background: rgba(255, 255, 251, 0.82);
+	background: rgba(255, 255, 255, 0.82);
 	border-color: var(--pdk-divider-soft);
 	color: var(--pdk-ink);
 }
@@ -2166,7 +2179,7 @@
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"],
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] {
 	background:
-		linear-gradient(180deg, rgba(34, 48, 50, 0.94), rgba(22, 35, 38, 0.96)),
+		linear-gradient(180deg, rgba(30, 40, 60, 0.94), rgba(20, 30, 47, 0.96)),
 		var(--pdk-material-solid-bg);
 }
 
@@ -2186,7 +2199,7 @@
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-sidebar {
 	background:
 		linear-gradient(180deg, rgb(var(--pdk-accent-rgb) / 0.12), transparent 34%),
-		rgba(15, 29, 33, 0.88);
+		rgba(14, 25, 43, 0.88);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-search-field {
@@ -2320,7 +2333,7 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-section,
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-card,
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-personalization-card {
-	background: rgba(255, 255, 251, 0.54);
+	background: rgba(255, 255, 255, 0.54);
 	border-radius: 8px;
 }
 
@@ -2364,7 +2377,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-settings-pane-header.pdk-finder-toolbar {
-	background: rgba(255, 255, 251, 0.42);
+	background: rgba(255, 255, 255, 0.42);
 	gap: 12px;
 	min-height: 46px;
 	padding: 7px 10px;
@@ -2556,7 +2569,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-folder-list-header {
-	background: rgba(255, 255, 251, 0.82);
+	background: rgba(255, 255, 255, 0.82);
 	border-bottom: 1px solid var(--pdk-divider-soft);
 	color: var(--pdk-muted);
 	min-height: 30px;
@@ -2799,7 +2812,7 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-settings-history-button,
 .pdk-shell[data-pdk-theme="default"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-toolbar-button {
 	align-items: center;
-	background: rgba(255, 255, 251, 0.08);
+	background: rgba(255, 255, 255, 0.08);
 	border: 1px solid var(--pdk-divider-soft);
 	border-radius: 7px;
 	box-shadow: none;
@@ -2818,7 +2831,7 @@
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="light"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-history-button,
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="light"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-settings-history-button,
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="light"] .pdk-window[data-pdk-window-kind="folder"][data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-toolbar-button {
-	background: rgba(255, 255, 251, 0.68);
+	background: rgba(255, 255, 255, 0.68);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-history-button + .pdk-settings-history-button,

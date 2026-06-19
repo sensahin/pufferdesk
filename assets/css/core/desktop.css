@@ -132,6 +132,13 @@
 	z-index: 1;
 }
 
+.pdk-desktop-icon .pdk-app-icon:has(> .pdk-icon-brand) {
+	background: transparent;
+	border-color: transparent;
+	border-radius: 0;
+	box-shadow: none;
+}
+
 .pdk-desktop-icon .pdk-app-icon::before {
 	background: var(--pdk-desktop-icon-selection-icon-bg, rgba(255, 255, 255, 0.16));
 	border-radius: var(--pdk-desktop-icon-selection-icon-radius, 10px);
@@ -176,6 +183,11 @@
 	pointer-events: none;
 	-webkit-user-drag: none;
 	width: 40px;
+}
+
+.pdk-desktop-icon .pdk-app-icon:has(> .pdk-icon-brand) .pdk-icon-image {
+	height: 48px;
+	width: 48px;
 }
 
 .pdk-desktop-icon .pdk-app-badge {

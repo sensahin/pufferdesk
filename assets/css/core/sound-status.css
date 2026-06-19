@@ -65,12 +65,30 @@
 	color: var(--pdk-sound-flyout-ink, var(--pdk-menu-popover-ink));
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 4px;
+	isolation: isolate;
 	min-width: 248px;
-	padding: 14px;
+	padding: 6px;
 	position: absolute;
+	user-select: none;
 	width: min(var(--pdk-sound-flyout-width, 268px), calc(100% - 24px));
 	z-index: var(--pdk-layer-menu-popover);
+}
+
+.pdk-sound-flyout::before {
+	background: var(--pdk-menu-popover-sheen);
+	border-radius: inherit;
+	content: "";
+	inset: 0;
+	opacity: var(--pdk-menu-popover-sheen-opacity);
+	pointer-events: none;
+	position: absolute;
+	z-index: 0;
+}
+
+.pdk-sound-flyout > * {
+	position: relative;
+	z-index: 1;
 }
 
 .pdk-sound-flyout[hidden] {
@@ -78,35 +96,46 @@
 }
 
 .pdk-sound-flyout-title {
-	color: inherit;
-	font-size: var(--pdk-sound-flyout-title-size, var(--pdk-text-section-title));
-	line-height: var(--pdk-line-height-tight);
+	color: var(--pdk-menu-popover-muted);
+	font-size: var(--pdk-sound-flyout-title-size, var(--pdk-text-caption));
+	font-weight: var(--pdk-weight-semibold);
+	line-height: 1.2;
 	margin: 0;
+	padding: 5px 10px 3px;
 }
 
 .pdk-sound-settings-button {
+	align-items: center;
 	appearance: none;
-	background: var(--pdk-sound-control-bg, var(--pdk-control-bg));
-	border: 1px solid var(--pdk-sound-control-border, var(--pdk-control-border));
-	border-radius: var(--pdk-sound-control-radius, var(--pdk-control-radius, 8px));
+	background: transparent;
+	border: 0;
+	border-radius: var(--pdk-sound-control-radius, 6px);
 	color: var(--pdk-sound-control-ink, inherit);
 	cursor: default;
-	font: inherit;
-	min-height: 32px;
-	padding: 6px 12px;
-	text-align: center;
+	display: flex;
+	font-family: inherit;
+	font-size: var(--pdk-text-menu);
+	height: 28px;
+	justify-content: flex-start;
+	line-height: var(--pdk-line-height-tight);
+	padding: 0 10px;
+	text-align: left;
+	width: 100%;
 }
 
 .pdk-sound-settings-button:hover,
 .pdk-sound-settings-button:focus {
-	background: var(--pdk-sound-control-hover-bg, var(--pdk-control-bg-hover));
+	background: var(--pdk-sound-control-hover-bg, var(--pdk-menu-item-hover-bg));
+	color: var(--pdk-sound-control-hover-ink, var(--pdk-menu-item-hover-ink));
 	outline: none;
 }
 
 .pdk-sound-volume-row {
+	border-radius: var(--pdk-sound-control-radius, 6px);
 	display: grid;
 	gap: 8px;
 	grid-template-columns: 1fr auto;
+	padding: 7px 10px 9px;
 }
 
 .pdk-sound-volume-label,
@@ -115,7 +144,7 @@
 }
 
 .pdk-sound-volume-value {
-	color: var(--pdk-sound-volume-value-ink, var(--pdk-muted));
+	color: var(--pdk-sound-volume-value-ink, var(--pdk-menu-popover-muted));
 	font-variant-numeric: tabular-nums;
 }
 

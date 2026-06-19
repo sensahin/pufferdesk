@@ -134,7 +134,7 @@ final class PufferDesk_Wallpaper_Registry {
 	/**
 	 * Build client-facing wallpaper config for the current user/theme.
 	 *
-	 * @param array<string,mixed>            $theme Theme data.
+	 * @param array<string,mixed>         $theme Theme data.
 	 * @param PufferDesk_User_Preferences $preferences User preferences.
 	 * @return array<string,mixed>
 	 */

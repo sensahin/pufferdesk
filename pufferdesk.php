@@ -2,20 +2,21 @@
 /**
  * Plugin Name:       PufferDesk
  * Description:       Turn your WordPress admin into a desktop.
- * Version:           0.1.0
+ * Version:           0.1.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Senol Sahin
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       pufferdesk
+ * Domain Path:       /languages
  *
  * @package PufferDesk
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'PUFFERDESK_VERSION', '0.1.0' );
+define( 'PUFFERDESK_VERSION', '0.1.1' );
 define( 'PUFFERDESK_FILE', __FILE__ );
 define( 'PUFFERDESK_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PUFFERDESK_URL', plugin_dir_url( __FILE__ ) );
@@ -38,6 +39,7 @@ require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-app-badge-renderer.php'
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-app-menu-normalizer.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-app-normalizer.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-admin-menu-app-provider.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-admin-context-resolver.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-app-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-widget-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-widget-layout.php';
@@ -59,6 +61,7 @@ require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-notification-controller
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-sound-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-asset-manifest.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-shell-context.php';
+require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-users-controller.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-settings-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-runtime-config.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-assets.php';

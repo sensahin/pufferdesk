@@ -20,11 +20,36 @@
 		const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.sections || {}
 			: {};
+		const runtimeConfig = window.PufferDesk.config && typeof window.PufferDesk.config.get === 'function'
+			? window.PufferDesk.config.get()
+			: {};
+		const iframeConfig = runtimeConfig.iframe && typeof runtimeConfig.iframe === 'object' ? runtimeConfig.iframe : {};
+		const iframeLabels = Object.assign({
+			errorDescription: 'PufferDesk kept the page covered because it did not confirm iframe mode.',
+			errorTitle: 'This page could not be safely embedded.',
+			loadingDescription: '',
+			loadingTitle: 'Loading...',
+			openClassic: 'Open in Classic Admin',
+			retry: 'Retry'
+		}, iframeConfig.labels && typeof iframeConfig.labels === 'object' ? iframeConfig.labels : {});
+		const iframeReadyTimeoutMs = Number.isFinite(Number(iframeConfig.readyTimeoutMs))
+			? Math.max(1000, Number(iframeConfig.readyTimeoutMs))
+			: 6000;
+		const windowPlacementPrefixes = window.PufferDesk.session && window.PufferDesk.session.workspace
+			? window.PufferDesk.session.workspace.windowPlacementPrefixes || {}
+			: {};
 		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.windowKinds || {}
 			: {};
 		const iframeQueryKey = window.PufferDesk.config.getRouterQueryKey('iframe');
 		const iframeQueryValue = window.PufferDesk.config.getRouterValue('true');
+		const classicQueryKey = window.PufferDesk.config.getRouterQueryKey('classic');
+		const routerPageQueryKey = window.PufferDesk.config.getRouterQueryKey('page');
+		const routerPageSlug = runtimeConfig.contracts
+			&& runtimeConfig.contracts.router
+			&& typeof runtimeConfig.contracts.router.pageSlug === 'string'
+			? runtimeConfig.contracts.router.pageSlug
+			: 'pufferdesk';
 		let zIndex = 30;
 		let windowId = 0;
 		let activeWindow = null;
@@ -33,6 +58,7 @@
 		let sessionSaveDisabled = false;
 		let showDesktopActive = false;
 		let showDesktopWindows = new Set();
+		let pendingWindowPlacements = {};
 		const sessionSaveTask = createDebouncedTask(() => saveSession(), {
 			shouldRun: () => Boolean(options.storageKey && !restoreInProgress && !sessionSaveDisabled),
 			wait: 160
@@ -103,6 +129,7 @@
 				title: win && win.dataset ? win.dataset.pdkWindowTitle || win.getAttribute('aria-label') || '' : '',
 				url: win && win.dataset ? win.dataset.pdkWindowUrl || '' : '',
 				windowElement: win || null,
+				windowIdentity: win && win.dataset ? win.dataset.pdkWindowIdentity || '' : '',
 				windowId: win ? getWindowId(win) : ''
 			}, detail);
 		}
@@ -156,9 +183,10 @@
 			}
 
 			try {
-				return frame.contentWindow && frame.contentWindow.location
+				const href = frame.contentWindow && frame.contentWindow.location
 					? frame.contentWindow.location.href
 					: frame.getAttribute('src') || '';
+				return href && href !== 'about:blank' ? href : frame.getAttribute('src') || '';
 			} catch (error) {
 				return frame.getAttribute('src') || '';
 			}
@@ -168,6 +196,19 @@
 			try {
 				const next = new URL(url, window.location.origin);
 				return next.origin === window.location.origin && next.pathname.indexOf('/wp-admin/') !== -1;
+			} catch (error) {
+				return false;
+			}
+		}
+
+		function isShellFrameUrl(url) {
+			if (!routerPageQueryKey || !routerPageSlug || !isWordPressAdminFrameUrl(url)) {
+				return false;
+			}
+
+			try {
+				const next = new URL(url, window.location.origin);
+				return next.searchParams.get(routerPageQueryKey) === routerPageSlug;
 			} catch (error) {
 				return false;
 			}
@@ -186,19 +227,192 @@
 			}
 		}
 
-		function syncIframeUrl(win, frame) {
-			const url = getFrameUrl(frame);
-			if (!url || !isWordPressAdminFrameUrl(url)) {
+		function isSafeIframeUrl(url) {
+			return isWordPressAdminFrameUrl(url) && !isShellFrameUrl(url) && !needsIframeParam(url);
+		}
+
+		function getClassicIframeDashboardUrl() {
+			try {
+				const shellUrl = new URL(runtimeConfig.shellUrl || '/wp-admin/admin.php', window.location.origin);
+				const next = new URL('index.php', shellUrl);
+				next.search = '';
+				if (classicQueryKey) {
+					next.searchParams.set(classicQueryKey, iframeQueryValue || '1');
+				}
+				if (iframeQueryKey) {
+					next.searchParams.set(iframeQueryKey, iframeQueryValue || '1');
+				}
+
+				return next.toString();
+			} catch (error) {
+				return withIframeParam('/wp-admin/index.php');
+			}
+		}
+
+		function getIframeVeil(win) {
+			return win ? win.querySelector('[data-pdk-iframe-veil]') : null;
+		}
+
+		function setIframeVeilText(win, state, detail = {}) {
+			const veil = getIframeVeil(win);
+			if (!veil) {
 				return;
 			}
 
-			if (needsIframeParam(url)) {
-				frame.src = withIframeParam(url);
+			const title = veil.querySelector('[data-pdk-iframe-veil-title]');
+			const description = veil.querySelector('[data-pdk-iframe-veil-description]');
+			const nextDescription = state === 'error'
+				? detail.description || iframeLabels.errorDescription
+				: detail.description || iframeLabels.loadingDescription;
+			if (title) {
+				title.textContent = state === 'error'
+					? detail.title || iframeLabels.errorTitle
+					: detail.title || iframeLabels.loadingTitle;
+			}
+			if (description) {
+				description.textContent = nextDescription;
+				description.hidden = !nextDescription;
+			}
+		}
+
+		function clearIframeReadyTimer(win) {
+			if (win && win.pdkIframeReadyTimer) {
+				window.clearTimeout(win.pdkIframeReadyTimer);
+				win.pdkIframeReadyTimer = null;
+			}
+		}
+
+		function startIframeReadyTimer(win) {
+			if (!win || win.dataset.pdkIframeState === 'ready') {
 				return;
+			}
+
+			clearIframeReadyTimer(win);
+			win.pdkIframeReadyTimer = window.setTimeout(() => {
+				if (win.dataset.pdkIframeState !== 'ready') {
+					setIframeState(win, 'error');
+				}
+			}, iframeReadyTimeoutMs);
+		}
+
+		function setIframeState(win, state, detail = {}) {
+			if (!win || !state) {
+				return;
+			}
+
+			win.dataset.pdkIframeState = state;
+			setIframeVeilText(win, state, detail);
+			if (state === 'ready' || state === 'error') {
+				clearIframeReadyTimer(win);
+				return;
+			}
+
+			if (state === 'loading') {
+				startIframeReadyTimer(win);
+			}
+		}
+
+		function normalizeIframeContext(context) {
+			return context && typeof context === 'object' && !Array.isArray(context)
+				? context
+				: null;
+		}
+
+		function setIframeContext(win, context, detail = {}) {
+			if (!win) {
+				return;
+			}
+
+			const normalized = normalizeIframeContext(context);
+			win.pdkIframeContext = normalized;
+			if (normalized && typeof normalized.confidence === 'string') {
+				win.dataset.pdkIframeContextConfidence = normalized.confidence;
+			} else {
+				delete win.dataset.pdkIframeContextConfidence;
+			}
+
+			emitWindowEvent(eventNames.IFRAME_CONTEXT_CHANGED, win, {
+				context: normalized,
+				href: detail.href || (win.dataset ? win.dataset.pdkWindowUrl || '' : ''),
+				phase: detail.phase || (normalized ? 'ready' : 'loading')
+			});
+		}
+
+		function prepareIframeNavigation(win, detail = {}) {
+			const frame = win ? win.querySelector('iframe.pdk-app-frame') : null;
+			if (!frame) {
+				return false;
+			}
+
+			setIframeState(win, 'loading', detail);
+			setIframeContext(win, null, {
+				phase: 'loading'
+			});
+			return true;
+		}
+
+		function syncIframeUrl(win, frame) {
+			const url = getFrameUrl(frame);
+			if (!url) {
+				return false;
+			}
+
+			if (isShellFrameUrl(url)) {
+				setIframeState(win, 'loading');
+				frame.src = getClassicIframeDashboardUrl();
+				return true;
+			}
+
+			if (!isWordPressAdminFrameUrl(url)) {
+				setIframeState(win, 'error');
+				return false;
+			}
+
+			if (needsIframeParam(url)) {
+				setIframeState(win, 'loading');
+				frame.src = withIframeParam(url);
+				return true;
 			}
 
 			win.dataset.pdkWindowUrl = withoutIframeParam(url);
 			scheduleSave();
+			return false;
+		}
+
+		function retryIframeWindow(win) {
+			const frame = win ? win.querySelector('iframe.pdk-app-frame') : null;
+			const src = frame ? frame.getAttribute('src') || withIframeParam(win.dataset.pdkWindowUrl || '') : '';
+
+			if (!frame || !src) {
+				return;
+			}
+
+			prepareIframeNavigation(win);
+			frame.setAttribute('src', src);
+		}
+
+		function openIframeInClassic(win) {
+			const frame = win ? win.querySelector('iframe.pdk-app-frame') : null;
+			const url = withoutIframeParam(getFrameUrl(frame) || (win && win.dataset ? win.dataset.pdkWindowUrl : '') || '');
+
+			if (url) {
+				window.open(url, '_blank', 'noopener');
+			}
+		}
+
+		function bindIframeVeilActions(win) {
+			const veil = getIframeVeil(win);
+			if (!veil || veil.dataset.pdkIframeVeilBound === '1') {
+				return;
+			}
+
+			veil.dataset.pdkIframeVeilBound = '1';
+			veil.querySelectorAll('[data-pdk-iframe-retry]').forEach((button) => {
+				button.addEventListener('click', () => retryIframeWindow(win));
+			});
+			veil.querySelectorAll('[data-pdk-iframe-open-classic]').forEach((button) => {
+				button.addEventListener('click', () => openIframeInClassic(win));
+			});
 		}
 
 		function bindIframeGuard(win) {
@@ -208,10 +422,90 @@
 			}
 
 			frame.dataset.pdkIframeGuardBound = '1';
+			bindIframeVeilActions(win);
+			prepareIframeNavigation(win);
 			frame.addEventListener('load', () => {
-				syncIframeUrl(win, frame);
+				if (!syncIframeUrl(win, frame)) {
+					startIframeReadyTimer(win);
+				}
 			});
+			frame.addEventListener('error', () => {
+				setIframeState(win, 'error');
+			});
+			if (typeof window.MutationObserver === 'function') {
+				const observer = new window.MutationObserver((mutations) => {
+					if (mutations.some((mutation) => mutation.type === 'attributes' && mutation.attributeName === 'src')) {
+						prepareIframeNavigation(win);
+					}
+				});
+
+				observer.observe(frame, {
+					attributeFilter: ['src'],
+					attributes: true
+				});
+				frame.pdkIframeSrcObserver = observer;
+			}
 			syncIframeUrl(win, frame);
+		}
+
+		function getIframeWindowFromSource(source) {
+			if (!desktop || !source) {
+				return null;
+			}
+
+			return Array.from(desktop.querySelectorAll('iframe.pdk-app-frame')).find((frame) => frame.contentWindow === source) || null;
+		}
+
+		function handleIframeMessage(event) {
+			if (event.origin !== window.location.origin) {
+				return;
+			}
+
+			const data = event.data && typeof event.data === 'object' ? event.data : null;
+			if (!data || data.source !== 'pufferdesk-admin-iframe') {
+				return;
+			}
+
+			const frame = getIframeWindowFromSource(event.source);
+			const win = frame ? frame.closest('.pdk-window') : null;
+			if (!win) {
+				return;
+			}
+
+			if (data.type === 'pufferdesk:iframe-navigation-start' || data.type === 'pufferdesk:iframe-beforeunload') {
+				prepareIframeNavigation(win);
+				return;
+			}
+
+			if (data.type === 'pufferdesk:iframe-error') {
+				setIframeState(win, 'error', {
+					description: typeof data.message === 'string' && data.message ? data.message : ''
+				});
+				setIframeContext(win, null, {
+					phase: 'error'
+				});
+				return;
+			}
+
+			if (data.type !== 'pufferdesk:iframe-ready') {
+				return;
+			}
+
+			const href = typeof data.href === 'string' && data.href ? data.href : getFrameUrl(frame);
+			if (!isSafeIframeUrl(href)) {
+				if (!syncIframeUrl(win, frame)) {
+					setIframeState(win, 'error');
+				}
+				return;
+			}
+
+			win.dataset.pdkWindowUrl = withoutIframeParam(href);
+			setIframeContext(win, data.context, {
+				href: win.dataset.pdkWindowUrl,
+				phase: 'ready'
+			});
+			setIframeState(win, 'ready');
+			scheduleSave();
 		}
 
 		function setZIndexFloor(value) {
@@ -234,12 +528,164 @@
 			return windowState.readWindowState(win);
 		}
 
+		function readWindowPlacementState(win) {
+			return windowState.readWindowPlacementState(win);
+		}
+
 		function applyWindowState(win, state, stateOptions = {}) {
 			windowState.applyWindowState(win, state, stateOptions);
 		}
 
 		function serializeWindows() {
 			return windowState.serializeWindows();
+		}
+
+		function getWindowPlacementSection() {
+			return workspaceSections.WINDOW_PLACEMENTS || '';
+		}
+
+		function readFiniteNumber(value) {
+			const parsed = Number.parseFloat(value);
+
+			return Number.isFinite(parsed) ? parsed : null;
+		}
+
+		function normalizeWindowPlacementState(state) {
+			if (!state || typeof state !== 'object') {
+				return null;
+			}
+
+			const left = readFiniteNumber(state.left);
+			const top = readFiniteNumber(state.top);
+			const width = readFiniteNumber(state.width);
+			const height = readFiniteNumber(state.height);
+
+			if (!Number.isFinite(left) || !Number.isFinite(top)) {
+				return null;
+			}
+
+			const normalized = {
+				left: Math.max(0, Math.round(left)),
+				top: Math.max(0, Math.round(top))
+			};
+
+			if (Number.isFinite(width)) {
+				normalized.width = Math.max(240, Math.round(width));
+			}
+			if (Number.isFinite(height)) {
+				normalized.height = Math.max(160, Math.round(height));
+			}
+
+			return normalized;
+		}
+
+		function normalizeWindowPlacements(placements) {
+			const normalized = {};
+
+			if (!placements || typeof placements !== 'object' || Array.isArray(placements)) {
+				return normalized;
+			}
+
+			Object.keys(placements).forEach((key) => {
+				const state = normalizeWindowPlacementState(placements[key]);
+				if (key && state) {
+					normalized[key] = state;
+				}
+			});
+
+			return normalized;
+		}
+
+		function getWindowPlacementPrefix(kind) {
+			if (!kind) {
+				return '';
+			}
+
+			return windowPlacementPrefixes[kind] || windowPlacementPrefixes[String(kind).toLowerCase()] || '';
+		}
+
+		function createWindowPlacementKey(kind, id) {
+			const prefix = getWindowPlacementPrefix(kind);
+			const value = typeof id === 'string' ? id.trim() : String(id || '').trim();
+
+			return prefix && value ? `${prefix}${value}` : '';
+		}
+
+		function getWindowPlacementKeyFromOptions(windowOptions = {}) {
+			if (!windowOptions || windowOptions.persist === false) {
+				return '';
+			}
+
+			if (windowOptions.folderId) {
+				return createWindowPlacementKey('FOLDER', windowOptions.folderId);
+			}
+
+			if (windowOptions.appId) {
+				return createWindowPlacementKey('APP', windowOptions.appId);
+			}
+
+			return '';
+		}
+
+		function getWindowPlacementKeyFromElement(win) {
+			if (!win || !win.dataset || win.dataset.pdkPersist === '0') {
+				return '';
+			}
+
+			const folderId = win.dataset.pdkFolderWindow || '';
+			if (folderId && win.dataset.pdkWindowKind === windowKinds.FOLDER) {
+				return createWindowPlacementKey('FOLDER', folderId);
+			}
+
+			const appId = win.dataset.pdkAppWindow || '';
+			return appId ? createWindowPlacementKey('APP', appId) : '';
+		}
+
+		function getSavedWindowPlacements() {
+			const section = getWindowPlacementSection();
+
+			return section ? normalizeWindowPlacements(sessionStore.getSection(section, {})) : {};
+		}
+
+		function getRememberedWindowPlacement(windowOptions = {}) {
+			const key = getWindowPlacementKeyFromOptions(windowOptions);
+			const placements = key ? getSavedWindowPlacements() : {};
+
+			return key && placements[key] ? placements[key] : null;
+		}
+
+		function collectWindowPlacements() {
+			const placements = {};
+
+			if (!desktop) {
+				return placements;
+			}
+
+			desktop.querySelectorAll('.pdk-window').forEach((win) => {
+				const key = getWindowPlacementKeyFromElement(win);
+				if (!key || win.classList.contains('is-closed')) {
+					return;
+				}
+
+				const state = normalizeWindowPlacementState(readWindowPlacementState(win));
+				if (state) {
+					placements[key] = state;
+				}
+			});
+
+			return placements;
+		}
+
+		function rememberWindowPlacement(win) {
+			const key = getWindowPlacementKeyFromElement(win);
+			const state = key ? normalizeWindowPlacementState(readWindowPlacementState(win)) : null;
+
+			if (!key || !state) {
+				return false;
+			}
+
+			pendingWindowPlacements[key] = state;
+			return true;
 		}
 
 		function minimizeWindow(win) {
@@ -299,6 +745,9 @@
 
 			if (changed && moveOptions.emit !== false) {
 				emitWindowStateChanged(win, 'moved');
+			}
+			if (changed) {
+				rememberWindowPlacement(win);
 			}
 			scheduleSave();
 
@@ -362,6 +811,7 @@
 			windowDock.cancelWindowAnimation(win);
 			windowDock.removeMinimizedDockItem(win);
 			showDesktopWindows.delete(win);
+			rememberWindowPlacement(win);
 			const closedState = Object.assign({}, readWindowState(win), {
 				closed: true
 			});
@@ -373,9 +823,16 @@
 			emitWindowStateChanged(win, 'closed', {
 				state: closedState
 			});
+			clearIframeReadyTimer(win);
+			win.querySelectorAll('iframe.pdk-app-frame').forEach((frame) => {
+				if (frame.pdkIframeSrcObserver && typeof frame.pdkIframeSrcObserver.disconnect === 'function') {
+					frame.pdkIframeSrcObserver.disconnect();
+				}
+			});
+			const closedAppId = appId || win.dataset.pdkAppWindow || '';
 			win.remove();
-			if (appId) {
-				setDockRunning(appId, false);
+			if (closedAppId) {
+				setDockRunning(closedAppId, hasAppWindows(closedAppId));
 			}
 			if (activeWindow === win) {
 				setActiveWindow(getTopVisibleWindow());
@@ -498,10 +955,40 @@
 			return true;
 		}
 
-		function getAppWindow(appId) {
-			return appId
-				? desktop.querySelector(`.pdk-window[data-pdk-app-window="${dom.escapeAttribute(appId)}"]:not(.is-closed)`)
+		function normalizeWindowIdentity(value) {
+			return typeof value === 'string' ? value.trim() : String(value || '').trim();
+		}
+
+		function getDefaultAppWindowIdentity(appId) {
+			const value = normalizeWindowIdentity(appId);
+
+			return value ? `app:${value}` : '';
+		}
+
+		function getWindowIdentityFromOptions(windowOptions = {}) {
+			const explicit = normalizeWindowIdentity(windowOptions.windowIdentity);
+
+			return explicit || getDefaultAppWindowIdentity(windowOptions.appId);
+		}
+
+		function getWindowByIdentity(windowIdentity) {
+			const value = normalizeWindowIdentity(windowIdentity);
+
+			return value
+				? desktop.querySelector(`.pdk-window[data-pdk-window-identity="${dom.escapeAttribute(value)}"]:not(.is-closed)`)
 				: null;
+		}
+
+		function hasAppWindows(appId) {
+			const value = normalizeWindowIdentity(appId);
+
+			return value
+				? Boolean(desktop.querySelector(`.pdk-window[data-pdk-app-window="${dom.escapeAttribute(value)}"]:not(.is-closed)`))
+				: false;
+		}
+
+		function getAppWindow(appId) {
+			return getWindowByIdentity(getDefaultAppWindowIdentity(appId));
 		}
 
 		function getAppWindowState(appId) {
@@ -576,8 +1063,22 @@
 				return;
 			}
 
+			const session = sessionStore.load();
+			const placementSection = getWindowPlacementSection();
+
+			session[workspaceSections.WINDOWS] = windows;
+			if (placementSection) {
+				session[placementSection] = Object.assign(
+					{},
+					normalizeWindowPlacements(session[placementSection]),
+					pendingWindowPlacements,
+					collectWindowPlacements()
+				);
+				pendingWindowPlacements = {};
+			}
+
 			preserveStoredWindowsUntilChange = false;
-			sessionStore.saveSection(workspaceSections.WINDOWS, windows);
+			sessionStore.save(session);
 		}
 
 		function scheduleSave() {
@@ -599,45 +1100,54 @@
 		}
 
 		function createWindow(windowOptions) {
-			const existing = windowOptions.appId
-				? desktop.querySelector(`.pdk-window[data-pdk-app-window="${dom.escapeAttribute(windowOptions.appId)}"]:not(.is-closed)`)
-				: null;
+			const windowIdentity = getWindowIdentityFromOptions(windowOptions);
+			const resolvedWindowOptions = windowIdentity
+				? Object.assign({}, windowOptions, {
+					windowIdentity
+				})
+				: windowOptions;
+			const existing = getWindowByIdentity(windowIdentity);
 
 			if (existing) {
-				if (windowOptions.state) {
-					applyWindowState(existing, windowOptions.state);
+				if (resolvedWindowOptions.state) {
+					applyWindowState(existing, resolvedWindowOptions.state);
 				}
-				if (!windowOptions.skipFocus) {
+				if (!resolvedWindowOptions.skipFocus) {
 					focusWindow(existing);
 				}
 				return existing;
 			}
 
-			const position = windowOptions.centered ? layout.getCenteredPosition(windowOptions) : layout.getDefaultPosition();
-			const win = factory.createWindowElement(Object.assign({}, windowOptions, position), withIframeParam);
+			const rememberedPlacement = !resolvedWindowOptions.state ? getRememberedWindowPlacement(resolvedWindowOptions) : null;
+			const position = resolvedWindowOptions.centered ? layout.getCenteredPosition(resolvedWindowOptions) : layout.getDefaultPosition(resolvedWindowOptions);
+			const win = factory.createWindowElement(Object.assign({}, resolvedWindowOptions, position), withIframeParam);
 			desktop.appendChild(win);
 
-			if (windowOptions.state) {
-				applyWindowState(win, windowOptions.state, {
+			if (rememberedPlacement) {
+				applyWindowState(win, rememberedPlacement, {
+					emit: false
+				});
+			} else if (resolvedWindowOptions.state) {
+				applyWindowState(win, resolvedWindowOptions.state, {
 					emit: false
 				});
 			}
 
 			bindWindowFrame(win);
 			emitWindowEvent(eventNames.WINDOW_CREATED, win, {
-				options: windowOptions
+				options: resolvedWindowOptions
 			});
 			emitWindowStateChanged(win, 'created');
 
-			if (!windowOptions.skipFocus) {
+			if (!resolvedWindowOptions.skipFocus) {
 				focusWindow(win);
-				if (!restoreInProgress && windowDock.shouldAnimateOpeningApps() && !(windowOptions.state && windowOptions.state.hidden)) {
+				if (!restoreInProgress && windowDock.shouldAnimateOpeningApps() && !(resolvedWindowOptions.state && resolvedWindowOptions.state.hidden)) {
 					windowDock.playWindowAnimation(win, 'is-opening', windowDock.getWindowAnimationTarget(win), 180);
 				}
 			}
 
-			if (windowOptions.appId) {
-				setDockRunning(windowOptions.appId, true);
+			if (resolvedWindowOptions.appId) {
+				setDockRunning(resolvedWindowOptions.appId, true);
 			}
 			syncMinimizedDockItems();
 
@@ -772,6 +1282,7 @@
 			constrainVisibleWindows();
 			scheduleSave();
 		});
+		window.addEventListener('message', handleIframeMessage);
 		window.addEventListener('beforeunload', saveSession);
 
 		return {
@@ -796,6 +1307,7 @@
 			makeDraggable: interactions.makeDraggable,
 			minimizeWindow,
 			moveWindow,
+			prepareIframeNavigation,
 			restoreSession,
 			saveSession,
 			setDockRunning,

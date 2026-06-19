@@ -120,7 +120,7 @@
 			});
 		}
 
-		function createEmptyState(query) {
+		function createEmptyState(_query) {
 			const empty = dom.createElement('div', 'pdk-search-empty');
 
 			empty.textContent = getLabel('search_no_results', 'No results found');

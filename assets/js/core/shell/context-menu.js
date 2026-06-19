@@ -117,6 +117,47 @@
 			return Boolean(app && app.source === appSources.WP_PLUGIN);
 		}
 
+		function getNativeUsersConfig() {
+			const nativeAdmin = config.nativeAdmin && typeof config.nativeAdmin === 'object' ? config.nativeAdmin : {};
+			const nativeAdminApps = nativeAdmin.apps && typeof nativeAdmin.apps === 'object' ? nativeAdmin.apps : {};
+
+			return appIds.USERS && nativeAdminApps[appIds.USERS] && typeof nativeAdminApps[appIds.USERS] === 'object'
+				? nativeAdminApps[appIds.USERS]
+				: {};
+		}
+
+		function appendUsersWorkflowItems(items, app) {
+			if (!app || app.id !== appIds.USERS) {
+				return;
+			}
+
+			const nativeUsers = getNativeUsersConfig();
+			const workflowItems = [];
+
+			if (nativeUsers.canCreate && commandIds.USER_CREATE) {
+				workflowItems.push(commandItem(getLabel('add_user', 'Add User'), commandIds.USER_CREATE, {
+					icon: 'dashicons-plus-alt2',
+					id: 'add-user',
+					target: app.id
+				}));
+			}
+
+			if (nativeUsers.canProfile && commandIds.USER_OPEN_PROFILE) {
+				workflowItems.push(commandItem(getLabel('open_profile', 'Open Profile'), commandIds.USER_OPEN_PROFILE, {
+					icon: 'dashicons-id',
+					id: 'open-profile',
+					payload: {
+						userId: config.userId || 0
+					},
+					target: app.id
+				}));
+			}
+
+			if (workflowItems.length) {
+				items.push(separator(), ...workflowItems);
+			}
+		}
+
 		function actionStrip(items, options = {}) {
 			return Object.assign({
 				id: 'action-strip',
@@ -289,12 +330,6 @@
 				: 'none';
 		}
 
-		function getDesktopIconSize() {
-			return desktopIconManager && typeof desktopIconManager.getIconSize === 'function'
-				? desktopIconManager.getIconSize()
-				: 'medium';
-		}
-
 		function getAppWindowState(appId) {
 			if (manager && typeof manager.getAppWindowState === 'function') {
 				return manager.getAppWindowState(appId);
@@ -321,18 +356,6 @@
 				icon: active ? 'dashicons-yes' : '',
 				payload: {
 					mode
-				}
-			});
-		}
-
-		function desktopIconSizeItem(label, size) {
-			const active = getDesktopIconSize() === size;
-
-			return commandItem(label, commandIds.DESKTOP_SET_ICON_SIZE, {
-				icon: active ? 'dashicons-yes' : '',
-				id: `desktop-view-${size}-icons`,
-				payload: {
-					size
 				}
 			});
 		}
@@ -409,9 +432,29 @@
 		}
 
 		function getAppRouteItems(app, options = {}) {
-			return appNavigation && typeof appNavigation.createMenuItems === 'function'
+			const routeItems = appNavigation && typeof appNavigation.createMenuItems === 'function'
 				? appNavigation.createMenuItems(app, options)
 				: [];
+
+			if (!app || app.id !== appIds.USERS || !routeItems.length) {
+				return routeItems;
+			}
+
+			const nativeUsers = getNativeUsersConfig();
+
+			return routeItems.filter((item) => {
+				const url = String(item.url || '').toLowerCase();
+
+				if (nativeUsers.canCreate && commandIds.USER_CREATE && url.includes('user-new.php')) {
+					return false;
+				}
+
+				if (nativeUsers.canProfile && commandIds.USER_OPEN_PROFILE && url.includes('profile.php')) {
+					return false;
+				}
+
+				return true;
+			});
 		}
 
 		function capAppRouteItems(items) {
@@ -494,6 +537,7 @@
 			appendAppRouteItems(items, app, {
 				icon: 'dashicons-admin-links'
 			});
+			appendUsersWorkflowItems(items, app);
 
 			if (folderId && isUserFolder(folderId)) {
 				items.push(commandItem(getLabel('remove_from_folder'), commandIds.FOLDER_REMOVE_APP, {
@@ -590,6 +634,7 @@
 			}
 			appendOpenInBrowserTabItem(items, app);
 			appendAppRouteItems(items, app);
+			appendUsersWorkflowItems(items, app);
 
 			if (!isFixedDockApp(app)) {
 				items.push(
@@ -1420,7 +1465,6 @@
 		const schema = window.PufferDesk.shell.createMenuSchema(labels);
 		const commands = context.commands || window.PufferDesk.shell.createCommandRegistry(shell, context);
 		const registry = context.registry || window.PufferDesk.shell.createContextMenuRegistry(config, schema, context);
-		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands);
 		const resolver = context.resolver || (window.PufferDesk.shell.createContextResolver
 			? window.PufferDesk.shell.createContextResolver(shell, config, context)
 			: null);
@@ -1430,6 +1474,11 @@
 		const positioner = context.positioner || (window.PufferDesk.shell.createContextMenuPositioner
 			? window.PufferDesk.shell.createContextMenuPositioner(shell)
 			: null);
+		const itemRenderer = window.PufferDesk.shell.createMenuItemRenderer(commands, {
+			positionSubmenu: positioner && typeof positioner.positionSubmenu === 'function'
+				? positioner.positionSubmenu
+				: null
+		});
 		const keyboardController = context.keyboardController || (window.PufferDesk.shell.createContextMenuKeyboardController
 			? window.PufferDesk.shell.createContextMenuKeyboardController({
 				onClose: closeMenu
@@ -1443,6 +1492,29 @@
 		const constants = window.PufferDesk.shell.contextMenuConstants || {};
 		const targets = constants.targets || {};
 		const eventNames = window.PufferDesk.events && window.PufferDesk.events.names ? window.PufferDesk.events.names : {};
+		const nativeContextMenuSelector = [
+			'[data-pdk-native-context-menu="1"]',
+			'input',
+			'textarea',
+			'select',
+			'[contenteditable="true"]',
+			'[contenteditable="plaintext-only"]',
+			'[role="textbox"]'
+		].join(', ');
+		const shellChromeSelector = [
+			'[data-pdk-shell-surface]',
+			'.pdk-menu-bar',
+			'.pdk-brand',
+			'.pdk-menu-items',
+			'.pdk-status-area',
+			'.pdk-taskbar-status',
+			'.pdk-search-panel',
+			'.pdk-search-results',
+			'.pdk-sound-flyout',
+			'.pdk-notification-center',
+			'.pdk-notification-toasts',
+			'.pdk-menu-popover'
+		].join(', ');
 		const dockLongPressDelay = 560;
 		const dockLongPressMoveTolerance = 8;
 		let popover = null;
@@ -1452,6 +1524,10 @@
 		let activeDockPressMenu = null;
 		let keyboardCleanup = null;
 		let bound = false;
+
+		function getLabel(key, fallback) {
+			return typeof labels[key] === 'string' && labels[key] ? labels[key] : (fallback || key);
+		}
 
 		function emit(name, detail = {}) {
 			if (name && window.PufferDesk.events && typeof window.PufferDesk.events.emit === 'function') {
@@ -1463,6 +1539,14 @@
 			if (commands && typeof commands.setActiveDetail === 'function') {
 				commands.setActiveDetail(detail);
 			}
+		}
+
+		function toElement(target) {
+			if (!target) {
+				return null;
+			}
+
+			return target.nodeType === 1 ? target : target.parentElement || null;
 		}
 
 		function setFacade() {
@@ -1534,24 +1618,50 @@
 		}
 
 		function isWindowTitlebarEvent(eventTarget, win) {
-			const titlebar = eventTarget && typeof eventTarget.closest === 'function'
-				? eventTarget.closest('.pdk-window-titlebar')
+			const element = toElement(eventTarget);
+			const titlebar = element && typeof element.closest === 'function'
+				? element.closest('.pdk-window-titlebar')
 				: null;
 
 			return Boolean(titlebar && win && titlebar.closest('.pdk-window') === win);
 		}
 
-		function shouldSuppressNativeContextMenu(eventTarget) {
-			const explicit = eventTarget && typeof eventTarget.closest === 'function'
-				? eventTarget.closest('[data-pdk-context]')
+		function isNativeContextMenuTarget(eventTarget) {
+			const element = toElement(eventTarget);
+			const nativeTarget = element && typeof element.closest === 'function'
+				? element.closest(nativeContextMenuSelector)
 				: null;
 
-			return Boolean(
+			return Boolean(nativeTarget && shell.contains(nativeTarget));
+		}
+
+		function isShellChromeContextTarget(eventTarget) {
+			const element = toElement(eventTarget);
+			const chrome = element && typeof element.closest === 'function'
+				? element.closest(shellChromeSelector)
+				: null;
+
+			return Boolean(chrome && shell.contains(chrome));
+		}
+
+		function shouldSuppressNativeContextMenu(eventTarget) {
+			if (isNativeContextMenuTarget(eventTarget)) {
+				return false;
+			}
+
+			const element = toElement(eventTarget);
+			const explicit = element && typeof element.closest === 'function'
+				? element.closest('[data-pdk-context]')
+				: null;
+
+			const isWindowBody = Boolean(
 				explicit
 				&& shell.contains(explicit)
 				&& isWindowRootContextTarget(explicit)
-				&& !isWindowTitlebarEvent(eventTarget, explicit)
+				&& !isWindowTitlebarEvent(element, explicit)
 			);
+
+			return isWindowBody || isShellChromeContextTarget(element);
 		}
 
 		function getTargetDetail(target) {
@@ -1594,17 +1704,18 @@
 		}
 
 		function resolveTarget(eventTarget) {
-			if (!eventTarget || !shell.contains(eventTarget)) {
+			const element = toElement(eventTarget);
+			if (!element || !shell.contains(element)) {
 				return null;
 			}
 
-			if (eventTarget.closest('.pdk-context-menu')) {
+			if (element.closest('.pdk-context-menu')) {
 				return null;
 			}
 
-			const explicit = eventTarget.closest('[data-pdk-context]');
+			const explicit = element.closest('[data-pdk-context]');
 			if (explicit && shell.contains(explicit)) {
-				if (isWindowRootContextTarget(explicit) && !isWindowTitlebarEvent(eventTarget, explicit)) {
+				if (isWindowRootContextTarget(explicit) && !isWindowTitlebarEvent(element, explicit)) {
 					return null;
 				}
 
@@ -1612,7 +1723,7 @@
 			}
 
 			const desktop = shell.querySelector('.pdk-desktop');
-			return desktop && desktop.contains(eventTarget) ? desktop : null;
+			return desktop && desktop.contains(element) ? desktop : null;
 		}
 
 		function closeMenu() {
@@ -1925,10 +2036,10 @@
 		}
 
 		function openFromEvent(event) {
-			const nativeContextTarget = event.target && typeof event.target.closest === 'function'
-				? event.target.closest('[data-pdk-native-context-menu="1"]')
-				: null;
-			if (nativeContextTarget && shell.contains(nativeContextTarget)) {
+			const keepsNativeContextMenu = resolver && typeof resolver.isNativeContextMenuTarget === 'function'
+				? resolver.isNativeContextMenuTarget(event.target)
+				: isNativeContextMenuTarget(event.target);
+			if (keepsNativeContextMenu) {
 				closeMenu();
 				return false;
 			}

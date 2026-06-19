@@ -51,7 +51,7 @@
 				syncAppLoginItemControls();
 			}
 		});
-		let optionGroups = [];
+			const optionGroups = [];
 		let currentAppearance = appearance
 			? appearance.normalize(config.appearance || {})
 			: Object.assign({}, config.appearance || {});
@@ -66,12 +66,19 @@
 		let currentMenuBar = menuBar
 			? menuBar.normalize(config.menuBar || {})
 			: Object.assign({}, config.menuBar || {});
+		let currentNativeAdmin = normalizeNativeAdminState(config.nativeAdmin && config.nativeAdmin.preferences);
 		let accentLabel = null;
 		const appearanceControls = [];
 		let activeSection = 'general';
 		let activePanel = 'general';
 		let paneTitle = null;
 		let settingsRoot = null;
+		let settingsSearchInput = null;
+		let settingsSearchPanel = null;
+		let settingsSearchSummary = null;
+		let settingsSearchList = null;
+		let settingsSearchEmpty = null;
+		let settingsSearchActive = false;
 		let backButton = null;
 		let forwardButton = null;
 		const panelHistory = [];
@@ -90,13 +97,16 @@
 		const appLocationControls = [];
 		const appLoginItemControls = [];
 		const menuBarControls = [];
+		const nativeAdminControls = [];
 		const sidebarButtons = [];
+		const settingsSearchNavItems = [];
 		const wallpaperPhotoVisibleCount = 4;
 		const t = settingsLabels.get;
 			const settingsLayout = getSettingsLayout(config);
 			const isWindowsSettingsLayout = settingsLayout === 'windows-settings';
 			const isPufferDeskHubLayout = settingsLayout === 'pufferdesk-hub';
 			const tracksSettingsUsage = isWindowsSettingsLayout;
+		const settingsSearchPanelId = '__settings_search_results__';
 		const workspaceSections = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.sections || {}
 			: {};
@@ -166,6 +176,18 @@
 				return false;
 			},
 			payload: () => Object.assign({}, currentMenuBar),
+			wait: 180
+		});
+		const saveNativeAdminMutation = mutations.createDebounced({
+			action: getSettingAction('NATIVE_ADMIN'),
+			errorText: t('status.nativeAdminSaveError'),
+			latestOnly: true,
+			onSuccess(data) {
+				applyNativeAdmin(data.nativeAdmin || currentNativeAdmin);
+
+				return data.message || t('status.nativeAdminSaved');
+			},
+			payload: () => flattenNativeAdminPayload(currentNativeAdmin),
 			wait: 180
 		});
 		const initialSidebarItem = sidebarItems.find((item) => item && !item.disabled) || sidebarItems[0] || { id: 'general' };
@@ -315,11 +337,17 @@
 		}
 
 		function showSettingsPanel(panelId, options = {}) {
-			const panel = (settingsRoot || document).querySelector(`[data-pdk-settings-panel="${panelId}"]`);
+			const panel = (settingsRoot || document).querySelector(`[data-pdk-settings-panel="${dom.escapeAttribute(panelId)}"]`);
 			if (!panel) {
 				return;
 			}
 			const previousPanel = activePanel;
+
+			if (settingsSearchActive && options.preserveSearch !== true) {
+				clearSettingsSearch({
+					restorePanel: false
+				});
+			}
 
 			if (options.pushHistory && activePanel !== panelId) {
 				panelHistory.push(activePanel);
@@ -379,6 +407,281 @@
 			}
 
 			paneTitle.textContent = title;
+		}
+
+		function normalizeSettingsDisplayText(value) {
+			return String(value || '').replace(/\s+/g, ' ').trim();
+		}
+
+		function normalizeSettingsSearchText(value) {
+			return normalizeSettingsDisplayText(value).toLowerCase();
+		}
+
+		function getSettingsSearchablePanels() {
+			if (!settingsRoot) {
+				return [];
+			}
+
+			return Array.from(settingsRoot.querySelectorAll('[data-pdk-settings-panel]')).filter((panel) => (
+				panel.dataset.pdkSettingsPanel !== settingsSearchPanelId
+			));
+		}
+
+		function getSettingsPanelSection(panel) {
+			const sectionId = panel && panel.dataset
+				? panel.dataset.pdkSettingsSidebar || panel.dataset.pdkSettingsPanel || ''
+				: '';
+
+			return getSidebarItem(sectionId);
+		}
+
+		function getSettingsPanelTitle(panel) {
+			const section = getSettingsPanelSection(panel);
+
+			return normalizeSettingsDisplayText(
+				panel.dataset.pdkSettingsTitleCurrent
+					|| panel.dataset.pdkSettingsTitle
+					|| section.label
+					|| panel.dataset.pdkSettingsPanel
+			);
+		}
+
+		function getSettingsPanelContextLabel(panel, title) {
+			const parentTitle = normalizeSettingsDisplayText(panel.dataset.pdkSettingsTitleParent || '');
+			const section = getSettingsPanelSection(panel);
+			const sectionLabel = normalizeSettingsDisplayText(section.label || '');
+
+			if (parentTitle && normalizeSettingsSearchText(parentTitle) !== normalizeSettingsSearchText(title)) {
+				return parentTitle;
+			}
+
+			if (sectionLabel && normalizeSettingsSearchText(sectionLabel) !== normalizeSettingsSearchText(title)) {
+				return sectionLabel;
+			}
+
+			return '';
+		}
+
+		function collectSettingsPanelSearchPieces(panel, title, contextLabel) {
+			const pieces = new Set();
+			const addPiece = (value) => {
+				const text = normalizeSettingsDisplayText(value);
+				if (text) {
+					pieces.add(text);
+				}
+			};
+
+			addPiece(title);
+			addPiece(contextLabel);
+			addPiece(panel.dataset.pdkSettingsTitle || '');
+			addPiece(panel.dataset.pdkSettingsTitleParent || '');
+			addPiece(panel.dataset.pdkSettingsTitleCurrent || '');
+			addPiece(panel.dataset.pdkSettingsPanel || '');
+			panel.querySelectorAll('h1, h2, h3, h4, p, label, legend, strong, button, option, .pdk-settings-label, .pdk-settings-description, .pdk-settings-row-text, .pdk-settings-row-value, .pdk-settings-range-title, .pdk-settings-group-heading').forEach((node) => {
+				if (node.closest('[aria-hidden="true"], .dashicons, .pdk-settings-row-chevron, .pdk-settings-select-chevrons')) {
+					return;
+				}
+
+				addPiece(node.dataset ? node.dataset.pdkLabelFull : '');
+				addPiece(node.getAttribute('aria-label') || '');
+				addPiece(node.getAttribute('title') || '');
+				addPiece(node.textContent);
+			});
+			panel.querySelectorAll('input, textarea, select').forEach((control) => {
+				addPiece(control.getAttribute('aria-label') || '');
+				addPiece(control.getAttribute('placeholder') || '');
+				if (control.tagName === 'SELECT') {
+					Array.from(control.options || []).forEach((option) => addPiece(option.textContent));
+				}
+			});
+
+			return Array.from(pieces);
+		}
+
+		function getSettingsSearchMatches(query) {
+			return getSettingsSearchablePanels()
+				.map((panel) => {
+					const panelId = panel.dataset.pdkSettingsPanel || '';
+					const section = getSettingsPanelSection(panel);
+					const title = getSettingsPanelTitle(panel);
+					const contextLabel = getSettingsPanelContextLabel(panel, title);
+					const pieces = collectSettingsPanelSearchPieces(panel, title, contextLabel);
+					const titleText = normalizeSettingsSearchText(title);
+					const contextText = normalizeSettingsSearchText(contextLabel);
+					const matchingPiece = pieces.find((piece) => {
+						const text = normalizeSettingsSearchText(piece);
+
+						return text.includes(query) && text !== titleText && text !== contextText && text !== panelId;
+					}) || '';
+					let score = 0;
+
+					if (titleText === query) {
+						score += 120;
+					} else if (titleText.startsWith(query)) {
+						score += 100;
+					} else if (titleText.includes(query)) {
+						score += 80;
+					}
+
+					if (contextText === query) {
+						score += 60;
+					} else if (contextText.startsWith(query)) {
+						score += 45;
+					} else if (contextText.includes(query)) {
+						score += 35;
+					}
+
+					if (matchingPiece) {
+						score += 25;
+					}
+
+					if (!score && !pieces.some((piece) => normalizeSettingsSearchText(piece).includes(query))) {
+						return null;
+					}
+
+					return {
+						contextLabel,
+						description: normalizeSettingsDisplayText(matchingPiece),
+						icon: section.icon || dom.getDefaultDashicon(),
+						panelId,
+						score,
+						title,
+						tone: section.tone || 'gray'
+					};
+				})
+				.filter(Boolean)
+				.sort((a, b) => (
+					b.score - a.score
+					|| a.title.localeCompare(b.title)
+					|| a.panelId.localeCompare(b.panelId)
+				));
+		}
+
+		function updateSettingsSearchSidebarFilter(query) {
+			const normalizedQuery = normalizeSettingsSearchText(query);
+
+			settingsSearchNavItems.forEach((item) => {
+				item.button.hidden = normalizedQuery ? !item.searchText.includes(normalizedQuery) : false;
+			});
+		}
+
+		function createSettingsSearchPanel() {
+			const panel = dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-search-panel');
+			const intro = dom.createElement('section', 'pdk-settings-section pdk-settings-search-intro');
+			const results = dom.createElement('section', 'pdk-settings-section pdk-settings-search-section');
+
+			panel.dataset.pdkSettingsPanel = settingsSearchPanelId;
+			panel.dataset.pdkSettingsTitle = t('sidebar.searchResultsTitle', 'Search results');
+			panel.hidden = true;
+			settingsSearchSummary = dom.createElement('p', 'pdk-settings-search-summary');
+			settingsSearchList = dom.createElement('div', 'pdk-settings-search-results');
+			settingsSearchEmpty = dom.createElement('div', 'pdk-settings-search-empty');
+			settingsSearchEmpty.appendChild(dom.createElement('strong', '', t('sidebar.searchNoResultsTitle', 'No settings found')));
+			settingsSearchEmpty.appendChild(dom.createElement('span', '', t('sidebar.searchNoResultsDescription', 'Try a different setting, label, or description.')));
+			intro.appendChild(settingsSearchSummary);
+			results.appendChild(settingsSearchList);
+			results.appendChild(settingsSearchEmpty);
+			panel.appendChild(intro);
+			panel.appendChild(results);
+			settingsSearchPanel = panel;
+
+			return panel;
+		}
+
+		function renderSettingsSearchResults(matches, displayQuery) {
+			if (!settingsSearchSummary || !settingsSearchList || !settingsSearchEmpty) {
+				return;
+			}
+
+			settingsSearchSummary.textContent = settingsLabels.format(
+				t('sidebar.searchResultsSummary', 'Results for "%s"'),
+				[displayQuery]
+			);
+			settingsSearchList.replaceChildren();
+			matches.forEach((match) => {
+				const row = createSettingsActionRow({
+					className: 'pdk-settings-search-result',
+					description: match.description || match.contextLabel,
+					icon: match.icon,
+					label: match.title,
+					panel: match.panelId,
+					tone: match.tone,
+					value: match.description && match.contextLabel ? match.contextLabel : ''
+				});
+
+				row.setAttribute('aria-label', `${t('sidebar.searchOpenLabel', 'Open setting')}: ${match.title}`);
+				settingsSearchList.appendChild(row);
+			});
+			settingsSearchList.hidden = matches.length === 0;
+			settingsSearchEmpty.hidden = matches.length > 0;
+		}
+
+		function showSettingsSearchResults(query, displayQuery) {
+			const matches = getSettingsSearchMatches(query);
+
+			renderSettingsSearchResults(matches, displayQuery);
+			getSettingsSearchablePanels().forEach((panel) => {
+				panel.hidden = true;
+			});
+			if (settingsSearchPanel) {
+				settingsSearchPanel.hidden = false;
+			}
+			settingsSearchActive = true;
+			if (settingsRoot) {
+				settingsRoot.dataset.pdkSettingsSearchActive = 'true';
+				settingsRoot.dataset.pdkSettingsActivePanel = settingsSearchPanelId;
+			}
+			updateSidebarSelection('');
+			if (paneTitle) {
+				paneTitle.textContent = t('sidebar.searchResultsTitle', 'Search results');
+			}
+			updateHistoryControls();
+		}
+
+		function clearSettingsSearch(options = {}) {
+			settingsSearchActive = false;
+			updateSettingsSearchSidebarFilter('');
+			if (settingsSearchInput && settingsSearchInput.value) {
+				settingsSearchInput.value = '';
+			}
+			if (settingsSearchPanel) {
+				settingsSearchPanel.hidden = true;
+			}
+			if (settingsRoot) {
+				delete settingsRoot.dataset.pdkSettingsSearchActive;
+				settingsRoot.dataset.pdkSettingsActivePanel = activePanel;
+			}
+
+			if (options.restorePanel === false || !settingsRoot) {
+				return;
+			}
+
+			const panel = settingsRoot.querySelector(`[data-pdk-settings-panel="${dom.escapeAttribute(activePanel)}"]`);
+			if (!panel) {
+				return;
+			}
+
+			getSettingsSearchablePanels().forEach((settingsPanel) => {
+				settingsPanel.hidden = settingsPanel.dataset.pdkSettingsPanel !== activePanel;
+			});
+			activeSection = panel.dataset.pdkSettingsSidebar || activePanel;
+			updateSidebarSelection(activeSection);
+			if (paneTitle) {
+				updatePaneTitle(panel);
+			}
+		}
+
+		function applySettingsSearch(rawQuery) {
+			const displayQuery = normalizeSettingsDisplayText(rawQuery);
+			const query = normalizeSettingsSearchText(displayQuery);
+
+			if (!query) {
+				clearSettingsSearch();
+				return;
+			}
+
+			updateSettingsSearchSidebarFilter(query);
+			showSettingsSearchResults(query, displayQuery);
 		}
 
 		function getWallpaperPreference() {
@@ -890,6 +1193,89 @@
 			saveMenuBar(status);
 		}
 
+		function normalizeNativeAdminState(value) {
+			const source = value && typeof value === 'object' ? value : {};
+
+			return {
+				users: source.users === true
+			};
+		}
+
+		function getPathValue(source, path) {
+			return String(path || '').split('.').reduce((current, key) => (
+				current && Object.prototype.hasOwnProperty.call(current, key) ? current[key] : undefined
+			), source);
+		}
+
+		function setPathValue(source, path, value) {
+			const parts = String(path || '').split('.').filter(Boolean);
+			const next = normalizeNativeAdminState(source);
+			let cursor = next;
+
+			parts.forEach((part, index) => {
+				if (index === parts.length - 1) {
+					cursor[part] = value;
+					return;
+				}
+
+				cursor[part] = cursor[part] && typeof cursor[part] === 'object' ? cursor[part] : {};
+				cursor = cursor[part];
+			});
+
+			return next;
+		}
+
+		function flattenNativeAdminPayload(value) {
+			const nativeAdmin = normalizeNativeAdminState(value);
+
+			return {
+				users_enabled: nativeAdmin.users
+			};
+		}
+
+		function applyNativeAdmin(nextNativeAdmin) {
+			currentNativeAdmin = normalizeNativeAdminState(nextNativeAdmin);
+			config.nativeAdmin = config.nativeAdmin && typeof config.nativeAdmin === 'object'
+				? config.nativeAdmin
+				: {};
+			config.nativeAdmin.preferences = currentNativeAdmin;
+			if (config.nativeAdmin.apps && typeof config.nativeAdmin.apps === 'object') {
+				Object.keys(config.nativeAdmin.apps).forEach((appId) => {
+					const appConfig = config.nativeAdmin.apps[appId];
+
+					if (!appConfig || typeof appConfig !== 'object' || !appConfig.preference) {
+						return;
+					}
+
+					const preferenceEnabled = getPathValue(currentNativeAdmin, appConfig.preference) === true;
+
+					appConfig.enabled = appConfig.canAccess !== false && preferenceEnabled;
+					if (appConfig.features && typeof appConfig.features === 'object') {
+						Object.keys(appConfig.features).forEach((feature) => {
+							const canUseFeature = feature === 'add'
+								? appConfig.canCreate !== false
+								: feature === 'profile'
+									? appConfig.canProfile !== false
+									: appConfig.canAccess !== false;
+
+							appConfig.features[feature] = canUseFeature && preferenceEnabled;
+						});
+					}
+				});
+			}
+
+			syncNativeAdminControls();
+		}
+
+		function saveNativeAdmin(status) {
+			saveNativeAdminMutation({ status });
+		}
+
+		function updateNativeAdmin(key, value, status) {
+			applyNativeAdmin(setPathValue(currentNativeAdmin, key, value));
+			saveNativeAdmin(status);
+		}
+
 		function syncDesktopDockControls() {
 			desktopDockControls.forEach((entry) => {
 				const value = currentDesktopDock[entry.key];
@@ -935,6 +1321,14 @@
 				if (entry.type === 'toggle') {
 					entry.button.setAttribute('aria-pressed', value ? 'true' : 'false');
 				}
+			});
+		}
+
+		function syncNativeAdminControls() {
+			nativeAdminControls.forEach((entry) => {
+				const value = getPathValue(currentNativeAdmin, entry.key) === true;
+
+				entry.button.setAttribute('aria-pressed', value ? 'true' : 'false');
 			});
 		}
 
@@ -1072,20 +1466,6 @@
 			return group;
 		}
 
-		function createSingleOptionSelect(labelText) {
-			const select = document.createElement('select');
-			select.className = 'pdk-settings-control';
-			select.disabled = true;
-
-			const option = document.createElement('option');
-			option.value = 'automatic';
-			option.textContent = t('desktopDock.selectOptions.dim_widgets.0.label');
-			option.selected = true;
-			select.appendChild(option);
-
-			return createSettingsRow(labelText, select);
-		}
-
 		function createDesktopDockRange(key, labelText, options, status) {
 			const range = createRangeField({
 				label: labelText,
@@ -1210,11 +1590,21 @@
 
 		function createAppLocationSection(status) {
 			const section = createSection('', 'pdk-settings-list pdk-settings-app-location-list');
+			const sortedApps = apps
+				.filter((app) => app && app.id && !(app.dock && typeof app.dock === 'object' && app.dock.fixed === true))
+				.slice()
+				.sort((a, b) => {
+					const labelCompare = String(a.label || a.id || '').localeCompare(String(b.label || b.id || ''), undefined, {
+						sensitivity: 'base'
+					});
 
-			apps.forEach((app) => {
-				if (app && app.id && !(app.dock && typeof app.dock === 'object' && app.dock.fixed === true)) {
-					section.appendChild(createAppLocationRow(app, status));
-				}
+					return labelCompare || String(a.id || '').localeCompare(String(b.id || ''), undefined, {
+						sensitivity: 'base'
+					});
+				});
+
+			sortedApps.forEach((app) => {
+				section.appendChild(createAppLocationRow(app, status));
 			});
 
 			return section;
@@ -1500,6 +1890,26 @@
 			return createSettingsRow(labelText, control, '', 'pdk-settings-menu-bar-row pdk-settings-row-fluid-label');
 		}
 
+		function createNativeAdminToggle(key, status) {
+			const button = document.createElement('button');
+
+			button.type = 'button';
+			button.className = 'pdk-settings-toggle';
+			button.setAttribute('aria-pressed', getPathValue(currentNativeAdmin, key) === true ? 'true' : 'false');
+			button.addEventListener('click', () => updateNativeAdmin(key, getPathValue(currentNativeAdmin, key) !== true, status));
+			button.appendChild(dom.createElement('span', 'pdk-settings-toggle-knob'));
+			nativeAdminControls.push({
+				button,
+				key
+			});
+
+			return button;
+		}
+
+		function createNativeAdminToggleRow(labelText, key, status, descriptionText = '') {
+			return createSettingsRow(labelText, createNativeAdminToggle(key, status), descriptionText, 'pdk-settings-native-admin-row pdk-settings-row-fluid-label');
+		}
+
 		function createSidebarIcon(item) {
 			const icon = dom.createElement('span', `pdk-settings-sidebar-icon pdk-settings-sidebar-icon-${item.tone || 'blue'}`);
 			icon.appendChild(dom.createDashicon(item.icon));
@@ -1590,8 +2000,9 @@
 			const search = dom.createElement('label', 'pdk-settings-search-field');
 			const searchInput = document.createElement('input');
 			const nav = dom.createElement('nav', 'pdk-settings-sidebar-nav');
-			const navItems = [];
 
+			settingsSearchInput = searchInput;
+			settingsSearchNavItems.length = 0;
 			dragZone.dataset.pdkDragHandle = '';
 			dragZone.setAttribute('aria-hidden', 'true');
 			if (!isWindowsSettingsLayout) {
@@ -1634,17 +2045,27 @@
 					button,
 					id: item.id
 				});
-				navItems.push({
+				settingsSearchNavItems.push({
 					button,
-					label: item.label.toLowerCase()
+					searchText: normalizeSettingsSearchText(`${item.label || ''} ${item.id || ''}`)
 				});
 			});
 
 			searchInput.addEventListener('input', () => {
-				const query = searchInput.value.trim().toLowerCase();
-				navItems.forEach((item) => {
-					item.button.hidden = query ? !item.label.includes(query) : false;
-				});
+				applySettingsSearch(searchInput.value);
+			});
+			searchInput.addEventListener('keydown', (event) => {
+				if (event.key === 'Escape' && searchInput.value) {
+					event.preventDefault();
+					clearSettingsSearch();
+				}
+				if (event.key === 'Enter' && settingsSearchActive && settingsSearchList) {
+					const firstResult = settingsSearchList.querySelector('button.pdk-settings-search-result');
+					if (firstResult) {
+						event.preventDefault();
+						firstResult.click();
+					}
+				}
 			});
 
 			sidebar.appendChild(nav);
@@ -1732,6 +2153,7 @@
 				createMenuBarRow,
 				createMenuBarSelect,
 				createMenuBarToggle,
+				createNativeAdminToggleRow,
 				createOptionGroup,
 				createPhotoWallpaperGroup,
 				createProfileActionRow,
@@ -1773,12 +2195,19 @@
 				pane.appendChild(settingsPanels.createPersonalizationTaskbarPanel(panelContext));
 			}
 			pane.appendChild(settingsPanels.createDesktopDockPanel(panelContext));
+			if (typeof settingsPanels.createAppsPanel === 'function') {
+				pane.appendChild(settingsPanels.createAppsPanel(panelContext));
+			}
 			pane.appendChild(settingsPanels.createMenuBarPanel(panelContext));
+			if (typeof settingsPanels.createNativeAdminPanel === 'function') {
+				pane.appendChild(settingsPanels.createNativeAdminPanel(panelContext));
+			}
 			pane.appendChild(settingsPanels.createNotificationsPanel(panelContext));
-			pane.appendChild(settingsPanels.createSoundsPanel(panelContext));
-			pane.appendChild(settingsPanels.createWallpaperPanel(panelContext));
-			pane.appendChild(settingsPanels.createWidgetsPanel(panelContext));
-			pane.appendChild(status);
+				pane.appendChild(settingsPanels.createSoundsPanel(panelContext));
+				pane.appendChild(settingsPanels.createWallpaperPanel(panelContext));
+				pane.appendChild(settingsPanels.createWidgetsPanel(panelContext));
+				pane.appendChild(createSettingsSearchPanel());
+				pane.appendChild(status);
 
 		main.appendChild(createPaneHeader(t('generalPanel.title')));
 		main.appendChild(pane);
@@ -1791,6 +2220,7 @@
 		syncDesktopDockControls();
 		syncAppLoginItemControls();
 		syncMenuBarControls();
+		syncNativeAdminControls();
 		syncWallpaperControls();
 		setActiveSection(activeSection);
 		content.pdkOpenPanel = (panelId) => {

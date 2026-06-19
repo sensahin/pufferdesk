@@ -114,7 +114,7 @@
 			return match ? Number.parseInt(direct ? raw : match[1], 10) || 0 : 0;
 		}
 
-		function getDocumentTrashIcon(documentData = {}) {
+		function getDocumentTrashIcon(_documentData = {}) {
 			return window.PufferDesk.documents && typeof window.PufferDesk.documents.getStickyNoteDocumentIcon === 'function'
 				? window.PufferDesk.documents.getStickyNoteDocumentIcon()
 				: 'dashicons-media-text';
@@ -124,7 +124,7 @@
 			return documentStore && documentStore.kinds ? documentStore.kinds.sticky : '';
 		}
 
-		function getDocumentFallbackLabel(documentData = {}) {
+		function getDocumentFallbackLabel(_documentData = {}) {
 			return getMenuLabel('sticky_note');
 		}
 
@@ -1700,16 +1700,14 @@
 				const nextLabel = String(label.textContent || '').trim();
 				cleanup();
 
-				if (commit) {
-					renameFolder(folderId, nextLabel || originalLabel);
-				} else {
-					if (dom.setTruncatedLabelText) {
+					if (commit) {
+						renameFolder(folderId, nextLabel || originalLabel);
+					} else if (dom.setTruncatedLabelText) {
 						dom.setTruncatedLabelText(label, originalLabel);
 					} else {
 						label.textContent = originalLabel;
 					}
 				}
-			}
 
 			function stopEditingEvent(event) {
 				event.stopPropagation();

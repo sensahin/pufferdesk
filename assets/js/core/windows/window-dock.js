@@ -18,7 +18,6 @@
 		const getActiveWindow = typeof options.getActiveWindow === 'function' ? options.getActiveWindow : noop;
 		const setActiveWindow = typeof options.setActiveWindow === 'function' ? options.setActiveWindow : noop;
 		const getTopVisibleWindow = typeof options.getTopVisibleWindow === 'function' ? options.getTopVisibleWindow : noop;
-		const isVisibleWindow = typeof options.isVisibleWindow === 'function' ? options.isVisibleWindow : () => false;
 		const focusWindow = typeof options.focusWindow === 'function' ? options.focusWindow : noop;
 		const constrainWindow = typeof options.constrainWindow === 'function' ? options.constrainWindow : noop;
 		const emitWindowStateChanged = typeof options.emitWindowStateChanged === 'function'

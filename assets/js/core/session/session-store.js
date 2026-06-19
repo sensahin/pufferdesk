@@ -25,6 +25,7 @@
 			SETTINGS_USAGE: workspaceSections.SETTINGS_USAGE || 'settingsUsage',
 			STICKY_NOTES: workspaceSections.STICKY_NOTES,
 			WIDGETS: workspaceSections.WIDGETS,
+			WINDOW_PLACEMENTS: workspaceSections.WINDOW_PLACEMENTS,
 			WINDOWS: workspaceSections.WINDOWS
 		};
 		const domEventNames = window.PufferDesk.events && window.PufferDesk.events.domNames
@@ -55,6 +56,7 @@
 				updatedAt: 0,
 				[sectionIds.DOCK_APPS]: [],
 				[sectionIds.WINDOWS]: [],
+				[sectionIds.WINDOW_PLACEMENTS]: {},
 				[sectionIds.WIDGETS]: [],
 				[sectionIds.STICKY_NOTES]: [],
 				[sectionIds.DESKTOP_ICONS]: [],
@@ -121,6 +123,7 @@
 				[sectionIds.SETTINGS_USAGE]: isObject(session[sectionIds.SETTINGS_USAGE]) ? session[sectionIds.SETTINGS_USAGE] : defaults[sectionIds.SETTINGS_USAGE],
 				[sectionIds.STICKY_NOTES]: Array.isArray(session[sectionIds.STICKY_NOTES]) ? session[sectionIds.STICKY_NOTES] : [],
 				[sectionIds.WIDGETS]: Array.isArray(session[sectionIds.WIDGETS]) ? session[sectionIds.WIDGETS] : [],
+				[sectionIds.WINDOW_PLACEMENTS]: isObject(session[sectionIds.WINDOW_PLACEMENTS]) ? session[sectionIds.WINDOW_PLACEMENTS] : {},
 				[sectionIds.WINDOWS]: Array.isArray(session[sectionIds.WINDOWS]) ? session[sectionIds.WINDOWS] : []
 			});
 		}

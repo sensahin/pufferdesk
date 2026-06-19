@@ -111,12 +111,16 @@ final class PufferDesk_Shell_Renderer {
 		if ( ! isset( $data['theme'] ) && is_array( $this->current_theme ) ) {
 			$data['theme'] = $this->current_theme;
 		}
+		if ( ! isset( $data['pufferdesk_renderer'] ) ) {
+			$data['pufferdesk_renderer'] = $this;
+		}
 
 		$path = $this->resolve_template_path( $template, isset( $data['theme'] ) ? $data['theme'] : null );
 		if ( ! file_exists( $path ) ) {
 			return;
 		}
 
+		// phpcs:ignore WordPress.PHP.DontExtract.extract_extract -- Template data is renderer-owned and intentionally exposed as local template variables.
 		extract( $data, EXTR_SKIP );
 		include $path;
 	}

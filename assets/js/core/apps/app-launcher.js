@@ -262,22 +262,6 @@
 			return Boolean(handler && (!kinds.length || kinds.includes(documentData.kind || '')));
 		}
 
-		function formatInfoDate(value) {
-			const timestamp = Date.parse(value);
-			if (!Number.isFinite(timestamp)) {
-				return getInfoPanelLabel('notAvailable', '');
-			}
-
-			return new Intl.DateTimeFormat(undefined, {
-				day: 'numeric',
-				hour: '2-digit',
-				minute: '2-digit',
-				month: 'long',
-				weekday: 'long',
-				year: 'numeric'
-			}).format(new Date(timestamp));
-		}
-
 		function getDocumentContentSize(documentData = {}) {
 			const content = typeof documentData.content === 'string' ? documentData.content : '';
 
@@ -640,6 +624,9 @@
 				const frameUrl = getWindowFrameUrl(route.url);
 				const currentFrameUrl = frame.getAttribute('src') || '';
 				if (!urlsMatch(currentFrameUrl, frameUrl)) {
+					if (manager && typeof manager.prepareIframeNavigation === 'function') {
+						manager.prepareIframeNavigation(win);
+					}
 					frame.src = frameUrl;
 				}
 			}
@@ -652,11 +639,63 @@
 			return true;
 		}
 
-		function ensureAppNavigation(win, app) {
-			const routes = getAppNavigationRoutes(app);
+		function normalizeNavigationRoute(route, app) {
+			return appNavigation && typeof appNavigation.normalizeRoute === 'function'
+				? appNavigation.normalizeRoute(route, app)
+				: route;
+		}
+
+		function getWindowNavigationBody(win) {
 			const frame = win ? win.querySelector('iframe.pdk-app-frame') : null;
 			const body = frame ? frame.closest('.pdk-window-body') : null;
-			if (!win || !app || !routes.length || !frame || !body) {
+
+			return {
+				body,
+				frame
+			};
+		}
+
+		function clearAppNavigation(win) {
+			const parts = getWindowNavigationBody(win);
+			if (!parts.body) {
+				return false;
+			}
+
+			parts.body.querySelectorAll('[data-pdk-app-navigation]').forEach((nav) => {
+				nav.remove();
+			});
+			parts.body.classList.remove('pdk-window-body-has-app-navigation');
+			if (win && win.dataset) {
+				delete win.dataset.pdkActiveAppRoute;
+			}
+
+			return true;
+		}
+
+		function routeIsActive(route, options = {}) {
+			if (!route) {
+				return false;
+			}
+
+			const activeRouteId = options.activeRouteId || '';
+			const activeSlug = options.activeSlug || '';
+			const currentUrl = options.currentUrl || '';
+
+			return Boolean(
+				(activeRouteId && route.id === activeRouteId)
+				|| (activeSlug && route.slug === activeSlug)
+				|| (currentUrl && route.url && urlsMatch(route.url, currentUrl))
+			);
+		}
+
+		function renderAppNavigation(win, app, routes, options = {}) {
+			const normalizedRoutes = (Array.isArray(routes) ? routes : [])
+				.map((route) => normalizeNavigationRoute(route, app))
+				.filter(Boolean);
+			const frame = win ? win.querySelector('iframe.pdk-app-frame') : null;
+			const body = frame ? frame.closest('.pdk-window-body') : null;
+			if (!win || !app || !normalizedRoutes.length || !frame || !body) {
+				clearAppNavigation(win);
 				return false;
 			}
 
@@ -666,23 +705,35 @@
 			if (!nav) {
 				nav = document.createElement('nav');
 				nav.className = 'pdk-app-navigation';
-				nav.dataset.pdkAppNavigation = app.id;
-				nav.setAttribute('aria-label', app.label || getMenuLabel('app'));
 				body.insertBefore(nav, frame);
 			}
 
-			const currentUrl = win.dataset.pdkWindowUrl || app.url || '';
-			nav.replaceChildren(...routes.map((route) => {
+			nav.dataset.pdkAppNavigation = options.navigationId || app.id;
+			nav.dataset.pdkAppNavigationSource = options.source || 'app';
+			nav.setAttribute('aria-label', options.label || app.label || getMenuLabel('app'));
+
+			const activeOptions = {
+				activeRouteId: options.activeRouteId || win.dataset.pdkActiveAppRoute || '',
+				activeSlug: options.activeSlug || '',
+				currentUrl: options.currentUrl || win.dataset.pdkWindowUrl || app.url || ''
+			};
+			nav.replaceChildren(...normalizedRoutes.map((route) => {
 				const button = document.createElement('button');
-				const active = route.id === win.dataset.pdkActiveAppRoute || route.url === currentUrl;
+				const active = routeIsActive(route, activeOptions);
 
 				button.type = 'button';
 				button.className = 'pdk-app-navigation-item';
 				button.dataset.pdkAppRoute = route.id;
+				button.dataset.pdkAppRouteApp = route.appId || app.id;
 				button.textContent = route.label;
 				button.setAttribute('aria-current', active ? 'page' : 'false');
 				button.classList.toggle('is-active', active);
 				button.addEventListener('click', () => {
+					if (typeof options.onRouteClick === 'function') {
+						options.onRouteClick(route);
+						return;
+					}
+
 					openAppRoute(app.id, route.id);
 				});
 
@@ -690,6 +741,130 @@
 			}));
 
 			return true;
+		}
+
+		function ensureAppNavigation(win, app) {
+			return renderAppNavigation(win, app, getAppNavigationRoutes(app));
+		}
+
+		function getIframeContextTitle(context, fallbackApp = null) {
+			const pageTitle = typeof context.pageTitle === 'string' ? context.pageTitle.trim() : '';
+			const submenuLabel = typeof context.submenuLabel === 'string' ? context.submenuLabel.trim() : '';
+			const parentLabel = typeof context.parentLabel === 'string' ? context.parentLabel.trim() : '';
+
+			return pageTitle || submenuLabel || parentLabel || (fallbackApp && fallbackApp.label ? fallbackApp.label : '');
+		}
+
+		function setWindowVisibleTitle(win, title) {
+			const nextTitle = String(title || '').trim();
+			if (!win || !nextTitle) {
+				return false;
+			}
+
+			win.dataset.pdkWindowTitle = nextTitle;
+			win.setAttribute('aria-label', formatMenuLabel('window_title_format', '', [nextTitle]));
+
+			const titlebar = win.querySelector('.pdk-window-titlebar');
+			if (titlebar) {
+				titlebar.dataset.pdkContextLabel = nextTitle;
+			}
+
+			const label = win.querySelector('.pdk-window-titlebar-label-text');
+			if (label) {
+				label.textContent = nextTitle;
+			}
+
+			return true;
+		}
+
+		function normalizeIframeAdminContext(context) {
+			if (!context || typeof context !== 'object' || Array.isArray(context)) {
+				return null;
+			}
+
+			return {
+				activeRouteId: typeof context.activeRouteId === 'string' ? context.activeRouteId : '',
+				confidence: typeof context.confidence === 'string' ? context.confidence : 'unknown',
+				currentUrl: typeof context.currentUrl === 'string' ? context.currentUrl : '',
+				pageTitle: typeof context.pageTitle === 'string' ? context.pageTitle : '',
+				parentAppId: typeof context.parentAppId === 'string' ? context.parentAppId : '',
+				parentLabel: typeof context.parentLabel === 'string' ? context.parentLabel : '',
+				routes: Array.isArray(context.routes) ? context.routes : [],
+				submenuFile: typeof context.submenuFile === 'string' ? context.submenuFile : '',
+				submenuLabel: typeof context.submenuLabel === 'string' ? context.submenuLabel : ''
+			};
+		}
+
+		function isConfidentIframeContext(context) {
+			return Boolean(
+				context
+				&& context.parentAppId
+				&& ['parent+submenu', 'parent', 'url'].includes(context.confidence)
+			);
+		}
+
+		function getIframeContextRoutes(context, contextApp) {
+			const routes = Array.isArray(context.routes) && context.routes.length
+				? context.routes
+				: getAppNavigationRoutes(contextApp);
+
+			return routes
+				.map((route) => normalizeNavigationRoute(route, contextApp))
+				.filter((route) => route && route.url);
+		}
+
+		function applyIframeAdminContext(win, rawContext, options = {}) {
+			if (!win || !win.dataset || !win.dataset.pdkAppWindow) {
+				return false;
+			}
+
+			if (options.phase === 'loading' || options.phase === 'error') {
+				clearAppNavigation(win);
+				return true;
+			}
+
+			const originalApp = appMap.get(win.dataset.pdkAppWindow || '') || null;
+			const context = normalizeIframeAdminContext(rawContext);
+			if (!context) {
+				clearAppNavigation(win);
+				return false;
+			}
+
+			setWindowVisibleTitle(win, getIframeContextTitle(context, originalApp));
+
+			if (!isConfidentIframeContext(context)) {
+				clearAppNavigation(win);
+				return true;
+			}
+
+			const contextApp = appMap.get(context.parentAppId) || {
+				id: context.parentAppId,
+				label: context.parentLabel || getMenuLabel('admin'),
+				navigation: context.routes,
+				url: context.currentUrl
+			};
+			const routes = getIframeContextRoutes(context, contextApp);
+			if (!routes.length) {
+				clearAppNavigation(win);
+				return true;
+			}
+
+			return renderAppNavigation(win, contextApp, routes, {
+				activeRouteId: context.activeRouteId,
+				activeSlug: context.submenuFile,
+				currentUrl: context.currentUrl || win.dataset.pdkWindowUrl || '',
+				label: context.parentLabel || contextApp.label || getMenuLabel('admin'),
+				navigationId: context.parentAppId,
+				onRouteClick(route) {
+					setAppWindowRoute(win, route, {
+						navigate: true
+					});
+					if (manager && typeof manager.focusWindow === 'function') {
+						manager.focusWindow(win);
+					}
+				},
+				source: 'iframe-context'
+			});
 		}
 
 		function bindExistingAppNavigation() {
@@ -3283,16 +3458,7 @@
 			pane.dataset.pdkFolderId = folderId;
 		}
 
-		function parseDocumentId(value) {
-			const raw = String(value || '').trim();
-			const direct = raw.match(/^\d+$/);
-			const prefixed = raw.match(/^document-(\d+)$/);
-			const match = direct ? direct : prefixed;
-
-			return match ? Number.parseInt(direct ? raw : match[1], 10) || 0 : 0;
-		}
-
-		function getSelectedDesktopDocumentElements(folderId, options = {}) {
+			function getSelectedDesktopDocumentElements(folderId, options = {}) {
 			const targetElement = options && options.targetElement ? options.targetElement : null;
 			const targetIsDesktopDocument = Boolean(
 				targetElement
@@ -4795,6 +4961,7 @@
 			const showFolderTitlebar = usesFolderTitlebarLayout();
 			const win = manager.createWindow({
 				appId: isTrashFolderId(folderId) ? appIds.TRASH : '',
+				folderId,
 				title: folderTitle,
 				icon: folder && folder.icon ? folder.icon : defaultDashicon,
 				titlebarIcon: showFolderTitlebar && folder && folder.icon ? folder.icon : '',
@@ -5108,12 +5275,11 @@
 					return;
 				}
 
-				const urlButton = event.target.closest('[data-pdk-open-url]');
-				if (urlButton) {
-					openUrl(urlButton.dataset.pdkOpenUrl, urlButton.dataset.pdkTitle, urlButton.dataset.pdkIcon);
-					return;
-				}
-			});
+					const urlButton = event.target.closest('[data-pdk-open-url]');
+					if (urlButton) {
+						openUrl(urlButton.dataset.pdkOpenUrl, urlButton.dataset.pdkTitle, urlButton.dataset.pdkIcon);
+					}
+				});
 
 			shell.addEventListener('dblclick', (event) => {
 				const appButton = event.target.closest('[data-pdk-open-app]');
@@ -5141,6 +5307,12 @@
 					if (app) {
 						ensureAppNavigation(win, app);
 					}
+				});
+				window.PufferDesk.events.on(eventNames.IFRAME_CONTEXT_CHANGED, (event) => {
+					const detail = event && event.detail ? event.detail : {};
+					applyIframeAdminContext(detail.windowElement || null, detail.context || null, {
+						phase: detail.phase || ''
+					});
 				});
 			}
 		}

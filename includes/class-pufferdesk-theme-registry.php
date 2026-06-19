@@ -147,10 +147,10 @@ final class PufferDesk_Theme_Registry {
 					'labels' => array(
 						'accessLabel'               => __( 'Visibility', 'pufferdesk' ),
 						'createdLabel'              => __( 'Added', 'pufferdesk' ),
-						/* translators: %s: item name. */
-						'documentInfoTitle'         => __( '%s Details', 'pufferdesk' ),
-						/* translators: %s: folder name. */
-						'folderInfoTitle'           => __( '%s Details', 'pufferdesk' ),
+							/* translators: %s: item label. */
+							'documentInfoTitle'         => __( '%s Details', 'pufferdesk' ),
+							/* translators: %s: item label. */
+							'folderInfoTitle'           => __( '%s Details', 'pufferdesk' ),
 						'generalSection'            => __( 'Overview', 'pufferdesk' ),
 						'infoFallbackTitle'         => __( 'Details', 'pufferdesk' ),
 						'kindLabel'                 => __( 'Item type', 'pufferdesk' ),

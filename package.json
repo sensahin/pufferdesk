@@ -1,17 +1,37 @@
 {
   "name": "pufferdesk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Turn your WordPress admin into a desktop.",
   "type": "module",
   "scripts": {
+    "audit:deps": "npm audit --audit-level=high && composer audit",
     "build": "node scripts/build-assets.mjs",
-    "check": "npm run build && npm run check:js && npm run check:php",
-    "check:js": "find assets/js -name '*.js' -print0 | xargs -0 -n1 node --check",
-    "check:php": "find . -path './node_modules' -prune -o -path './release' -prune -o -name '*.php' -print0 | xargs -0 -n1 php -l",
-    "package": "npm run build && node scripts/package-plugin.mjs"
+    "check": "npm run check:php && npm run check:js && npm run lint:css && npm run test:php && npm run test:security && npm run build && npm run check:dist",
+    "check:dist": "node scripts/check-dist-clean.mjs",
+    "check:js": "npm run check:js:syntax && npm run lint:js",
+    "check:js:syntax": "find assets/js scripts tests \\( -name '*.js' -o -name '*.mjs' \\) -print0 | xargs -0 -n1 node --check",
+    "check:package": "node scripts/check-package-contents.mjs",
+    "check:php": "composer run lint:php:syntax && composer run lint:php",
+    "i18n:make-pot": "mkdir -p languages && wp i18n make-pot . languages/pufferdesk.pot --domain=pufferdesk --exclude=.github,node_modules,vendor,release,assets/dist,scripts,tests",
+    "lint:css": "stylelint \"assets/css/**/*.css\"",
+    "lint:css:fix": "stylelint \"assets/css/**/*.css\" --fix",
+    "lint:js": "eslint \"assets/js/**/*.js\" \"scripts/**/*.mjs\" \"tests/**/*.js\" \"tests/**/*.mjs\"",
+    "lint:js:fix": "eslint \"assets/js/**/*.js\" \"scripts/**/*.mjs\" \"tests/**/*.js\" \"tests/**/*.mjs\" --fix",
+    "package": "npm run build && node scripts/package-plugin.mjs && npm run check:package",
+    "test:a11y": "playwright test tests/e2e",
+    "test:php": "php tests/php/shell-renderer-template-smoke.php",
+    "test:security": "node --test tests/security/*.test.mjs"
   },
   "devDependencies": {
-    "esbuild": "^0.25.12"
+    "@axe-core/playwright": "^4.11.3",
+    "@playwright/test": "^1.61.0",
+    "@wordpress/eslint-plugin": "^25.4.1",
+    "@wordpress/stylelint-config": "^23.40.1",
+    "axe-core": "^4.12.1",
+    "esbuild": "^0.28.1",
+    "eslint": "^9.39.4",
+    "jsdom": "^29.1.1",
+    "stylelint": "^16.26.1"
   }
 }

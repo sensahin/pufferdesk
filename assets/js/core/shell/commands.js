@@ -150,6 +150,69 @@
 				: '';
 		}
 
+		function getNativeUsersConfig() {
+			const nativeAdmin = config.nativeAdmin && typeof config.nativeAdmin === 'object' ? config.nativeAdmin : {};
+			const nativeAdminApps = nativeAdmin.apps && typeof nativeAdmin.apps === 'object' ? nativeAdmin.apps : {};
+
+			return appIds.USERS && nativeAdminApps[appIds.USERS] && typeof nativeAdminApps[appIds.USERS] === 'object'
+				? nativeAdminApps[appIds.USERS]
+				: {};
+		}
+
+		function nativeUsersFeatureEnabled(feature) {
+			const nativeUsers = getNativeUsersConfig();
+			const features = nativeUsers.features && typeof nativeUsers.features === 'object' ? nativeUsers.features : {};
+
+			return features[feature] === true;
+		}
+
+		function getNativeUsersFallbackUrl(feature) {
+			const nativeUsers = getNativeUsersConfig();
+			const fallbackUrls = nativeUsers.fallbackUrls && typeof nativeUsers.fallbackUrls === 'object' ? nativeUsers.fallbackUrls : {};
+
+			return fallbackUrls[feature] || fallbackUrls.directory || '';
+		}
+
+		function openNativeUsersFallback(feature, payload = {}) {
+			const url = payload.url || getNativeUsersFallbackUrl(feature);
+
+			if (!url || !launcher || typeof launcher.openUrl !== 'function') {
+				return false;
+			}
+
+			launcher.openUrl(url, payload.title || payload.label || '', payload.icon || 'dashicons-admin-users');
+			return true;
+		}
+
+		function openNativeUsersWorkflow(feature, payload = {}) {
+			const workflow = window.PufferDesk.apps && window.PufferDesk.apps.usersWorkflow
+				? window.PufferDesk.apps.usersWorkflow
+				: null;
+
+			if (workflow && feature === 'add' && typeof workflow.openAddUser === 'function') {
+				return workflow.openAddUser(payload);
+			}
+
+			if (workflow && feature === 'profile' && typeof workflow.openProfile === 'function') {
+				return workflow.openProfile(payload);
+			}
+
+			if (
+				nativeUsersFeatureEnabled(feature)
+				&& launcher
+				&& typeof launcher.openApp === 'function'
+				&& appIds.USERS
+			) {
+				return launcher.openApp(appIds.USERS, {
+					nativeContext: Object.assign({}, payload, {
+						nativeAdminFeature: feature
+					})
+				});
+			}
+
+			return openNativeUsersFallback(feature, payload);
+		}
+
 		function getSearchInput() {
 			return shell.querySelector('[data-pdk-search]');
 		}
@@ -191,6 +254,12 @@
 			const win = getTargetWindow(detail);
 
 			return win ? win.querySelector('iframe.pdk-app-frame') : null;
+		}
+
+		function prepareTargetIframeNavigation(detail = activeDetail) {
+			const win = getTargetWindow(detail);
+
+			return Boolean(win && manager && typeof manager.prepareIframeNavigation === 'function' && manager.prepareIframeNavigation(win));
 		}
 
 		function normalizeFolderToolbarDisplayMode(mode) {
@@ -2301,6 +2370,33 @@
 			}
 		});
 
+		register(commandIds.USER_CREATE, {
+			isEnabled() {
+				const nativeUsers = getNativeUsersConfig();
+
+				return Boolean(nativeUsers.canCreate && (nativeUsersFeatureEnabled('add') || getNativeUsersFallbackUrl('add')));
+			},
+			run(payload) {
+				return openNativeUsersWorkflow('add', payload);
+			}
+		});
+
+		register(commandIds.USER_OPEN_PROFILE, {
+			isEnabled(payload) {
+				const nativeUsers = getNativeUsersConfig();
+				const userId = Number.parseInt(payload.userId || payload.target, 10) || Number.parseInt(config.userId, 10) || 0;
+
+				return Boolean(nativeUsers.canProfile && (userId || nativeUsersFeatureEnabled('profile') || getNativeUsersFallbackUrl('profile')));
+			},
+			run(payload) {
+				const userId = Number.parseInt(payload.userId || payload.target, 10) || Number.parseInt(config.userId, 10) || 0;
+
+				return openNativeUsersWorkflow('profile', Object.assign({}, payload, {
+					userId
+				}));
+			}
+		});
+
 		register(commandIds.RECENT_ITEMS_CLEAR, {
 			isEnabled() {
 				return Boolean(window.PufferDesk.menuBar && typeof window.PufferDesk.menuBar.clearRecentItems === 'function');
@@ -2489,6 +2585,7 @@
 					return;
 				}
 
+				prepareTargetIframeNavigation(detail);
 				try {
 					if (frame.contentWindow && frame.contentWindow.location) {
 						frame.contentWindow.location.reload();
@@ -2511,6 +2608,7 @@
 			run(payload, detail) {
 				const frame = getTargetWindowFrame(detail);
 
+				prepareTargetIframeNavigation(detail);
 				try {
 					if (frame && frame.contentWindow && frame.contentWindow.history) {
 						frame.contentWindow.history.back();
@@ -2526,6 +2624,7 @@
 			run(payload, detail) {
 				const frame = getTargetWindowFrame(detail);
 
+				prepareTargetIframeNavigation(detail);
 				try {
 					if (frame && frame.contentWindow && frame.contentWindow.history) {
 						frame.contentWindow.history.forward();

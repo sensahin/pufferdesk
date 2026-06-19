@@ -1,2 +1,8 @@
 <?php
-// Silence is golden.
+/**
+ * Silence direct access for bundled cursor assets.
+ *
+ * @package PufferDesk
+ */
+
+defined( 'ABSPATH' ) || exit;

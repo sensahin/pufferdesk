@@ -7,7 +7,6 @@
 
 	window.PufferDesk.apps.settings.createDesktopDockPanel = function createDesktopDockPanel(ctx) {
 		const {
-			createAppLocationSection,
 			createDesktopDockSelectRow,
 			createDesktopDockSliderSection,
 			createDesktopDockToggleRow,
@@ -22,9 +21,7 @@
 		const panel = ctx.dom.createElement('div', 'pdk-settings-pane-panel pdk-settings-desktop-dock-panel');
 		const dockSection = createSection('', 'pdk-settings-list pdk-settings-desktop-dock-list');
 		const behaviorSection = createSection('', 'pdk-settings-list pdk-settings-desktop-dock-list');
-		const appsSection = createAppLocationSection(status);
 		const desktopSection = createSection('', 'pdk-settings-list pdk-settings-desktop-dock-list');
-		const widgetsSection = createSection('', 'pdk-settings-list pdk-settings-desktop-dock-list');
 		const sliderSection = showLauncher
 			? createDesktopDockSliderSection(status, {
 				magnification: launcher.magnification !== false,
@@ -57,9 +54,6 @@
 			t('desktopDock.rows.wallpaperClickDescription')
 		));
 
-		widgetsSection.appendChild(createDesktopDockToggleRow(t('desktopDock.rows.showWidgetsDesktop'), 'show_widgets_desktop', status));
-		widgetsSection.appendChild(createDesktopDockSelectRow(t('desktopDock.rows.dimWidgets'), 'dim_widgets', status));
-
 		if (showLauncher) {
 			panel.appendChild(createSectionHeading(t('desktopDock.headings.dock')));
 			if (sliderSection && sliderSection.children.length) {
@@ -72,12 +66,8 @@
 				panel.appendChild(behaviorSection);
 			}
 		}
-		panel.appendChild(createSectionHeading(t('desktopDock.headings.apps')));
-		panel.appendChild(appsSection);
 		panel.appendChild(createSectionHeading(t('desktopDock.headings.desktop')));
 		panel.appendChild(desktopSection);
-		panel.appendChild(createSectionHeading(t('desktopDock.headings.widgets')));
-		panel.appendChild(widgetsSection);
 
 		return panel;
 	};
@@ -105,7 +95,6 @@
 		if (showLauncher && launcher.indicators !== false) {
 			taskbarSection.appendChild(createTaskbarToggleRow(ctx, t(ctx, 'desktopDock.rows.showOpenIndicators', 'Show indicators for open applications'), 'show_open_indicators', 'dashicons-visibility'));
 		}
-		taskbarSection.appendChild(createTaskbarToggleRow(ctx, t(ctx, 'desktopDock.rows.showWidgetsDesktop', 'Show widgets on desktop'), 'show_widgets_desktop', 'dashicons-screenoptions'));
 
 		behaviorSection.appendChild(createTaskbarSelectRow(ctx, t(ctx, 'desktopDock.rows.minimizeAnimation', 'Minimized window animation'), 'minimize_animation', 'dashicons-image-flip-vertical'));
 		if (showLauncher) {

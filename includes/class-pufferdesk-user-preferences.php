@@ -19,6 +19,7 @@ final class PufferDesk_User_Preferences {
 	const META_DESKTOP_TRASH = 'pufferdesk_desktop_trash';
 	const META_ENABLED    = 'pufferdesk_enabled';
 	const META_MENU_BAR   = 'pufferdesk_menu_bar';
+	const META_NATIVE_ADMIN = 'pufferdesk_native_admin';
 	const META_NOTIFICATIONS = 'pufferdesk_notifications';
 	const META_SOUNDS     = 'pufferdesk_sounds';
 	const META_THEME      = 'pufferdesk_theme';
@@ -42,6 +43,7 @@ final class PufferDesk_User_Preferences {
 	const RESET_DOMAIN_DESKTOP_FOLDERS = 'desktop_folders';
 	const RESET_DOMAIN_DESKTOP_TRASH = 'desktop_trash';
 	const RESET_DOMAIN_MENU_BAR = 'menu_bar';
+	const RESET_DOMAIN_NATIVE_ADMIN = 'native_admin';
 	const RESET_DOMAIN_NOTIFICATIONS = 'notifications';
 	const RESET_DOMAIN_SOUNDS = 'sounds';
 	const RESET_DOMAIN_THEME = 'theme';
@@ -64,10 +66,8 @@ final class PufferDesk_User_Preferences {
 	 * @var array<string,mixed>
 	 */
 	private $default_appearance = array(
-		'mode'           => 'auto',
-		'window_material' => 'clear',
-		'accent_color'   => 'blue',
-		'icon_widget_style' => 'default',
+		'mode'         => 'auto',
+		'accent_color' => 'blue',
 	);
 
 	/**
@@ -76,10 +76,8 @@ final class PufferDesk_User_Preferences {
 	 * @var array<string,array<int,string>>
 	 */
 	private $appearance_options = array(
-		'mode'              => array( 'auto', 'light', 'dark' ),
-		'window_material'   => array( 'clear', 'tinted' ),
-		'accent_color'      => array( 'blue', 'default', 'purple', 'pink', 'red', 'orange', 'yellow', 'green', 'graphite' ),
-		'icon_widget_style' => array( 'default', 'dark', 'clear', 'tinted' ),
+		'mode'         => array( 'auto', 'light', 'dark' ),
+		'accent_color' => array( 'blue', 'default', 'purple', 'pink', 'red', 'orange', 'yellow', 'green', 'graphite' ),
 	);
 
 	/**
@@ -133,6 +131,15 @@ final class PufferDesk_User_Preferences {
 	private $default_menu_bar = array(
 		'show_background' => false,
 		'recent_count'    => 10,
+	);
+
+	/**
+	 * Default native-admin experience preferences.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private $default_native_admin = array(
+		'users' => false,
 	);
 
 	/**
@@ -297,6 +304,15 @@ final class PufferDesk_User_Preferences {
 	 */
 	public function get_menu_bar_options() {
 		return array();
+	}
+
+	/**
+	 * Default native-admin experience preferences.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function get_default_native_admin() {
+		return $this->default_native_admin;
 	}
 
 	/**
@@ -564,7 +580,7 @@ final class PufferDesk_User_Preferences {
 	/**
 	 * Save the user's app placement preferences.
 	 *
-	 * @param array<string,mixed>             $app_locations App location data.
+	 * @param array<string,mixed>            $app_locations App location data.
 	 * @param array<int,array<string,mixed>> $apps Available apps.
 	 * @param int                            $user_id Optional user ID.
 	 * @return array<string,string>
@@ -746,6 +762,35 @@ final class PufferDesk_User_Preferences {
 		update_user_meta( $user_id, self::META_MENU_BAR, $menu_bar );
 
 		return $menu_bar;
+	}
+
+	/**
+	 * Get the user's native-admin experience preferences.
+	 *
+	 * @param int $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function get_native_admin( $user_id = 0 ) {
+		$user_id      = $user_id ? (int) $user_id : get_current_user_id();
+		$native_admin = get_user_meta( $user_id, self::META_NATIVE_ADMIN, true );
+
+		return $this->sanitize_native_admin( is_array( $native_admin ) ? $native_admin : array() );
+	}
+
+	/**
+	 * Save the user's native-admin experience preferences.
+	 *
+	 * @param array<string,mixed> $native_admin Native-admin preference data.
+	 * @param int                 $user_id Optional user ID.
+	 * @return array<string,mixed>
+	 */
+	public function set_native_admin( $native_admin, $user_id = 0 ) {
+		$user_id      = $user_id ? (int) $user_id : get_current_user_id();
+		$native_admin = $this->sanitize_native_admin( is_array( $native_admin ) ? $native_admin : array() );
+
+		update_user_meta( $user_id, self::META_NATIVE_ADMIN, $native_admin );
+
+		return $native_admin;
 	}
 
 	/**
@@ -998,6 +1043,7 @@ final class PufferDesk_User_Preferences {
 			self::RESET_DOMAIN_DESKTOP_FOLDERS,
 			self::RESET_DOMAIN_DESKTOP_TRASH,
 			self::RESET_DOMAIN_MENU_BAR,
+			self::RESET_DOMAIN_NATIVE_ADMIN,
 			self::RESET_DOMAIN_NOTIFICATIONS,
 			self::RESET_DOMAIN_SOUNDS,
 			self::RESET_DOMAIN_THEME,
@@ -1106,6 +1152,22 @@ final class PufferDesk_User_Preferences {
 	}
 
 	/**
+	 * Sanitize native-admin experience preferences.
+	 *
+	 * @param array<string,mixed> $native_admin Raw native-admin preference data.
+	 * @return array<string,mixed>
+	 */
+	public function sanitize_native_admin( $native_admin ) {
+		$sanitized = $this->default_native_admin;
+
+		if ( array_key_exists( 'users', $native_admin ) && ! is_array( $native_admin['users'] ) ) {
+			$sanitized['users'] = $this->sanitize_boolean( $native_admin['users'] );
+		}
+
+		return $sanitized;
+	}
+
+	/**
 	 * Sanitize sound preferences.
 	 *
 	 * @param array<string,mixed> $sounds Raw sound preferences.
@@ -1128,7 +1190,7 @@ final class PufferDesk_User_Preferences {
 	/**
 	 * Sanitize app placement preferences.
 	 *
-	 * @param array<string,mixed>             $app_locations Raw app location data.
+	 * @param array<string,mixed>            $app_locations Raw app location data.
 	 * @param array<int,array<string,mixed>> $apps Available apps.
 	 * @param bool                           $with_defaults Whether absent app locations should use the generic fallback.
 	 * @return array<string,string>
@@ -1722,8 +1784,8 @@ final class PufferDesk_User_Preferences {
 	/**
 	 * Sanitize app ids inside a desktop folder.
 	 *
-	 * @param array<int,mixed>        $app_ids Raw app IDs.
-	 * @param array<string,bool>      $available_apps App IDs visible in the current registry.
+	 * @param array<int,mixed>   $app_ids Raw app IDs.
+	 * @param array<string,bool> $available_apps App IDs visible in the current registry.
 	 * @return array<int,string>
 	 */
 	private function sanitize_desktop_folder_app_ids( $app_ids, $available_apps ) {
@@ -1837,6 +1899,7 @@ final class PufferDesk_User_Preferences {
 			self::RESET_DOMAIN_DESKTOP_FOLDERS   => self::META_DESKTOP_FOLDERS,
 			self::RESET_DOMAIN_DESKTOP_TRASH     => self::META_DESKTOP_TRASH,
 			self::RESET_DOMAIN_MENU_BAR          => self::META_MENU_BAR,
+			self::RESET_DOMAIN_NATIVE_ADMIN      => self::META_NATIVE_ADMIN,
 			self::RESET_DOMAIN_NOTIFICATIONS     => self::META_NOTIFICATIONS,
 			self::RESET_DOMAIN_SOUNDS            => self::META_SOUNDS,
 			self::RESET_DOMAIN_THEME             => self::META_THEME,

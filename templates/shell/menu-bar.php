@@ -8,6 +8,8 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Template variables.
+ *
  * @var string $site_name
  * @var array<string,mixed> $shell
  * @var array<string,string> $labels
@@ -43,7 +45,7 @@ if ( ! $pufferdesk_show_status ) {
 	$pufferdesk_menu_classes[] = 'pdk-menu-bar-no-status';
 }
 ?>
-<header class="<?php echo esc_attr( implode( ' ', $pufferdesk_menu_classes ) ); ?>" data-pdk-shell-surface="top-bar">
+<div class="<?php echo esc_attr( implode( ' ', $pufferdesk_menu_classes ) ); ?>" data-pdk-shell-surface="top-bar">
 	<div class="pdk-brand">
 		<?php if ( $pufferdesk_show_mark ) : ?>
 			<button type="button" class="pdk-system-mark" data-pdk-system-menu aria-label="<?php echo esc_attr( $pufferdesk_get_label( 'open_system_menu' ) ); ?>">
@@ -102,4 +104,4 @@ if ( ! $pufferdesk_show_status ) {
 			<input id="pdk-search-input" type="search" placeholder="<?php echo esc_attr( $pufferdesk_get_label( 'search_apps' ) ); ?>" autocomplete="off" data-pdk-search />
 		</label>
 	<?php endif; ?>
-</header>
+</div>

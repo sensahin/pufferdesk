@@ -44,7 +44,6 @@
 			MAXIMIZE: 'maximize',
 			MINIMIZE: 'minimize'
 		});
-		const controlIds = Object.keys(controlDefinitions);
 		const controlPlacements = getContractList(windowChromeContract.placements, ['left', 'right']);
 		const controlStyles = getContractList(windowChromeContract.styles, ['traffic', 'caption', 'toolbar', 'hidden']);
 		const titleAlignments = getContractList(windowChromeContract.titleAlignments, ['left', 'center', 'right']);
@@ -253,11 +252,72 @@
 			return titlebar;
 		}
 
+		function getIframeLabels() {
+			const config = getRuntimeConfig();
+			const iframe = config.iframe && typeof config.iframe === 'object' ? config.iframe : {};
+			const labels = iframe.labels && typeof iframe.labels === 'object' ? iframe.labels : {};
+
+			return Object.assign({
+				errorDescription: 'PufferDesk kept the page covered because it did not confirm iframe mode.',
+				errorTitle: 'This page could not be safely embedded.',
+				loadingDescription: '',
+				loadingTitle: 'Loading...',
+				openClassic: 'Open in Classic Admin',
+				retry: 'Retry'
+			}, labels);
+		}
+
+		function createIframeVeil() {
+			const labels = getIframeLabels();
+			const veil = document.createElement('div');
+			const panel = document.createElement('div');
+			const progress = document.createElement('span');
+			const title = document.createElement('strong');
+			const description = document.createElement('span');
+			const actions = document.createElement('div');
+			const retry = document.createElement('button');
+			const openClassic = document.createElement('button');
+
+			veil.className = 'pdk-iframe-veil';
+			veil.dataset.pdkIframeVeil = '';
+			panel.className = 'pdk-iframe-veil-panel';
+			progress.className = 'pdk-iframe-veil-progress';
+			progress.setAttribute('aria-hidden', 'true');
+			title.className = 'pdk-iframe-veil-title';
+			title.dataset.pdkIframeVeilTitle = '';
+			title.textContent = labels.loadingTitle;
+			description.className = 'pdk-iframe-veil-description';
+			description.dataset.pdkIframeVeilDescription = '';
+			description.textContent = labels.loadingDescription;
+			description.hidden = !labels.loadingDescription;
+			actions.className = 'pdk-iframe-veil-actions';
+
+			retry.type = 'button';
+			retry.className = 'pdk-iframe-veil-button';
+			retry.dataset.pdkIframeRetry = '';
+			retry.textContent = labels.retry;
+			openClassic.type = 'button';
+			openClassic.className = 'pdk-iframe-veil-button pdk-iframe-veil-button-secondary';
+			openClassic.dataset.pdkIframeOpenClassic = '';
+			openClassic.textContent = labels.openClassic;
+
+			actions.appendChild(retry);
+			actions.appendChild(openClassic);
+			panel.appendChild(progress);
+			panel.appendChild(title);
+			panel.appendChild(description);
+			panel.appendChild(actions);
+			veil.appendChild(panel);
+
+			return veil;
+		}
+
 		function createWindowElement(options, withIframeParam) {
 			const chrome = normalizeWindowChrome(options.windowChrome || getRuntimeWindowChrome());
 			const win = document.createElement('section');
 			win.className = 'pdk-window pdk-app-window';
 			win.dataset.pdkAppWindow = options.appId || '';
+			win.dataset.pdkWindowIdentity = options.windowIdentity || '';
 			win.dataset.pdkContext = contextTargets.WINDOW;
 			win.dataset.pdkContextId = options.appId || options.windowKind || contextTargets.WINDOW;
 			win.dataset.pdkContextLabel = options.title || '';
@@ -273,6 +333,7 @@
 			win.dataset.pdkWindowTitleIcon = chrome.title.show_icon ? '1' : '0';
 			if (options.url) {
 				win.dataset.pdkWindowUrl = options.url;
+				win.dataset.pdkIframeState = 'loading';
 			}
 			if (options.contextMenu === false) {
 				win.dataset.pdkContextMenuDisabled = '1';
@@ -300,10 +361,13 @@
 
 			if (options.url) {
 				const iframe = document.createElement('iframe');
+				body.classList.add('pdk-window-body-has-frame');
 				iframe.className = 'pdk-app-frame';
 				iframe.src = withIframeParam(options.url);
+				iframe.setAttribute('sandbox', 'allow-downloads allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts');
 				iframe.title = options.title;
 				body.appendChild(iframe);
+				body.appendChild(createIframeVeil());
 			} else if (options.content) {
 				body.appendChild(options.content);
 			}

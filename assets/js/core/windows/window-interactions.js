@@ -32,7 +32,9 @@
 				}
 				scheduleSave();
 			},
-			syncSafeArea: () => layout.syncWindowSafeArea()
+			syncSafeArea: () => typeof layout.syncWindowResizeSafeArea === 'function'
+				? layout.syncWindowResizeSafeArea()
+				: layout.syncWindowSafeArea()
 		});
 
 		function isDragExcludedTarget(target, root = null) {
@@ -104,7 +106,9 @@
 					const move = (moveEvent) => {
 						const nextLeft = startLeft + moveEvent.clientX - startX;
 						const nextTop = startTop + moveEvent.clientY - startY;
-						const bounds = layout.getWindowBounds(win);
+						const bounds = typeof layout.getWindowDragBounds === 'function'
+							? layout.getWindowDragBounds(win)
+							: layout.getWindowBounds(win);
 
 						win.style.left = `${clamp(nextLeft, bounds.minLeft, bounds.maxLeft)}px`;
 						win.style.top = `${clamp(nextTop, bounds.minTop, bounds.maxTop)}px`;

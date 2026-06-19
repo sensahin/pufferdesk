@@ -8,10 +8,13 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Template variables.
+ *
  * @var array<int,array<string,mixed>> $widgets
  * @var array<string,string>           $labels
  * @var array<string,mixed>            $theme
  * @var array<string,mixed>            $workspace_state
+ * @var PufferDesk_Shell_Renderer      $pufferdesk_renderer
  */
 
 if ( empty( $widgets ) ) {
@@ -23,11 +26,11 @@ $pufferdesk_labels = isset( $labels ) && is_array( $labels ) ? $labels : PufferD
 	<?php foreach ( $widgets as $pufferdesk_widget ) : ?>
 		<?php
 		$pufferdesk_template = isset( $pufferdesk_widget['template'] ) ? $pufferdesk_widget['template'] : 'widgets/generic.php';
-		if ( ! $this->template_exists( $pufferdesk_template, $theme ) ) {
+		if ( ! $pufferdesk_renderer->template_exists( $pufferdesk_template, $theme ) ) {
 			$pufferdesk_template = 'widgets/generic.php';
 		}
 
-		$this->render_part(
+		$pufferdesk_renderer->render_part(
 			$pufferdesk_template,
 			array(
 				'widget'          => $pufferdesk_widget,

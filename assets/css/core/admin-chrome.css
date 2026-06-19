@@ -1,5 +1,8 @@
 body.pufferdesk-shell #wpadminbar,
 body.pufferdesk-shell #adminmenumain,
+body.pufferdesk-shell #adminmenu,
+body.pufferdesk-shell #adminmenuback,
+body.pufferdesk-shell #adminmenuwrap,
 body.pufferdesk-shell #wpfooter,
 body.pufferdesk-shell #screen-meta,
 body.pufferdesk-shell #screen-meta-links,
@@ -33,8 +36,15 @@ body.pufferdesk-shell .pdk-shell {
 	z-index: 100000;
 }
 
+html.pufferdesk-iframe-booting body {
+	visibility: hidden !important;
+}
+
 body.pufferdesk-iframe #wpadminbar,
 body.pufferdesk-iframe #adminmenumain,
+body.pufferdesk-iframe #adminmenu,
+body.pufferdesk-iframe #adminmenuback,
+body.pufferdesk-iframe #adminmenuwrap,
 body.pufferdesk-iframe #wpfooter,
 body.pufferdesk-iframe #screen-meta,
 body.pufferdesk-iframe #screen-meta-links,

@@ -19,6 +19,29 @@
 		const itemTypes = constants.itemTypes || {};
 		const contextKeys = constants.keys || {};
 		const nonItemDataTargets = constants.nonItemDataTargets || [];
+		const nativeContextMenuSelector = [
+			'[data-pdk-native-context-menu="1"]',
+			'input',
+			'textarea',
+			'select',
+			'[contenteditable="true"]',
+			'[contenteditable="plaintext-only"]',
+			'[role="textbox"]'
+		].join(', ');
+		const shellChromeSelector = [
+			'[data-pdk-shell-surface]',
+			'.pdk-menu-bar',
+			'.pdk-brand',
+			'.pdk-menu-items',
+			'.pdk-status-area',
+			'.pdk-taskbar-status',
+			'.pdk-search-panel',
+			'.pdk-search-results',
+			'.pdk-sound-flyout',
+			'.pdk-notification-center',
+			'.pdk-notification-toasts',
+			'.pdk-menu-popover'
+		].join(', ');
 		const dragDropModels = window.PufferDesk.dragDrop && window.PufferDesk.dragDrop.models ? window.PufferDesk.dragDrop.models : null;
 		const windowKinds = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.windowKinds || {}
@@ -92,6 +115,15 @@
 			return Boolean(titlebar && win && titlebar.closest('.pdk-window') === win);
 		}
 
+		function isNativeContextMenuTarget(eventTarget) {
+			const element = toElement(eventTarget);
+			const nativeTarget = element && typeof element.closest === 'function'
+				? element.closest(nativeContextMenuSelector)
+				: null;
+
+			return Boolean(nativeTarget && shell.contains(nativeTarget));
+		}
+
 		function isContextMenuDisabled(eventTarget) {
 			const element = toElement(eventTarget);
 			const disabled = element && typeof element.closest === 'function'
@@ -101,18 +133,33 @@
 			return Boolean(disabled && shell.contains(disabled));
 		}
 
+		function isShellChromeContextTarget(eventTarget) {
+			const element = toElement(eventTarget);
+			const chrome = element && typeof element.closest === 'function'
+				? element.closest(shellChromeSelector)
+				: null;
+
+			return Boolean(chrome && shell.contains(chrome));
+		}
+
 		function shouldSuppressNativeContextMenu(eventTarget) {
+			if (isNativeContextMenuTarget(eventTarget)) {
+				return false;
+			}
+
 			const element = toElement(eventTarget);
 			const explicit = element && typeof element.closest === 'function'
 				? element.closest('[data-pdk-context]')
 				: null;
 
-			return Boolean(
+			const isWindowBody = Boolean(
 				explicit
 				&& shell.contains(explicit)
 				&& isWindowRootContextTarget(explicit)
 				&& !isWindowTitlebarEvent(element, explicit)
 			);
+
+			return isWindowBody || isShellChromeContextTarget(element);
 		}
 
 		function resolveTarget(eventTarget) {
@@ -382,6 +429,7 @@
 
 		return {
 			getTargetDetail,
+			isNativeContextMenuTarget,
 			isContextMenuDisabled,
 			isWindowTitlebarEvent,
 			resolve,

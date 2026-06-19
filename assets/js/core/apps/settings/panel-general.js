@@ -401,20 +401,10 @@
 		}
 	}
 
-	function getSidebarLabel(ctx, id, fallback) {
-		const item = getSidebarItem(ctx, id);
-
-		return item && item.label ? item.label : fallback;
-	}
-
 	function getSidebarItems(ctx) {
 		return ctx.settingsLabels && typeof ctx.settingsLabels.getOptions === 'function'
 			? ctx.settingsLabels.getOptions('sidebar.items').filter((item) => item && item.visible !== false && !item.disabled)
 			: [];
-	}
-
-	function getSidebarItem(ctx, id) {
-		return getSidebarItems(ctx).find((option) => option && option.id === id) || null;
 	}
 
 	function getRecommendedSettingsRows(ctx) {

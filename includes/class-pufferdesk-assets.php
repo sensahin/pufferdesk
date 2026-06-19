@@ -40,23 +40,33 @@ final class PufferDesk_Assets {
 	private $asset_manifest;
 
 	/**
+	 * Iframe admin page context resolver.
+	 *
+	 * @var PufferDesk_Admin_Context_Resolver
+	 */
+	private $admin_context_resolver;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param PufferDesk_Router         $router Router.
-	 * @param PufferDesk_Shell_Context  $shell_context Shell context builder.
-	 * @param PufferDesk_Runtime_Config $runtime_config Runtime config builder.
-	 * @param PufferDesk_Asset_Manifest $asset_manifest Asset manifest.
+	 * @param PufferDesk_Router                 $router Router.
+	 * @param PufferDesk_Shell_Context          $shell_context Shell context builder.
+	 * @param PufferDesk_Runtime_Config         $runtime_config Runtime config builder.
+	 * @param PufferDesk_Asset_Manifest         $asset_manifest Asset manifest.
+	 * @param PufferDesk_Admin_Context_Resolver $admin_context_resolver Iframe admin context resolver.
 	 */
 	public function __construct(
 		PufferDesk_Router $router,
 		PufferDesk_Shell_Context $shell_context,
 		PufferDesk_Runtime_Config $runtime_config,
-		PufferDesk_Asset_Manifest $asset_manifest
+		PufferDesk_Asset_Manifest $asset_manifest,
+		PufferDesk_Admin_Context_Resolver $admin_context_resolver
 	) {
-		$this->router         = $router;
-		$this->shell_context  = $shell_context;
-		$this->runtime_config = $runtime_config;
-		$this->asset_manifest = $asset_manifest;
+		$this->router                 = $router;
+		$this->shell_context          = $shell_context;
+		$this->runtime_config         = $runtime_config;
+		$this->asset_manifest         = $asset_manifest;
+		$this->admin_context_resolver = $admin_context_resolver;
 	}
 
 	/**
@@ -256,7 +266,7 @@ final class PufferDesk_Assets {
 			PUFFERDESK_URL . $path,
 			array(),
 			$this->get_asset_version( $path ),
-			true
+			false
 		);
 
 		wp_add_inline_script(
@@ -264,6 +274,9 @@ final class PufferDesk_Assets {
 			'window.pufferDeskIframe = ' . wp_json_encode(
 				array(
 					'adminBase'  => admin_url(),
+					'classicKey' => PufferDesk_Router::QUERY_CLASSIC,
+					'pageKey'    => PufferDesk_Router::QUERY_PAGE,
+					'pageSlug'   => PufferDesk_Router::PAGE_SLUG,
 					'queryKey'   => PufferDesk_Router::QUERY_IFRAME,
 					'queryValue' => PufferDesk_Router::QUERY_TRUE_VALUE,
 				)
@@ -312,6 +325,31 @@ final class PufferDesk_Assets {
 	}
 
 	/**
+	 * Print critical chrome suppression before external stylesheets load.
+	 */
+	public function print_early_admin_chrome() {
+		if ( ! $this->router->is_shell_request() && ! $this->router->is_iframe_request() ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Critical CSS is plugin-owned static CSS and must remain raw inside the style tag.
+		echo '<style id="pufferdesk-critical-admin-chrome">' . $this->get_critical_admin_chrome_css() . '</style>' . "\n";
+	}
+
+	/**
+	 * Print the resolved WordPress admin menu context for iframe pages.
+	 */
+	public function print_iframe_admin_context() {
+		if ( ! $this->router->is_iframe_request() ) {
+			return;
+		}
+
+		echo '<script id="pufferdesk-iframe-admin-context">window.pufferDeskIframe=window.pufferDeskIframe||{};window.pufferDeskIframe.context='
+			. wp_json_encode( $this->admin_context_resolver->resolve() )
+			. ';</script>' . "\n";
+	}
+
+	/**
 	 * Remove the admin top offset inside shell and embedded iframe apps.
 	 *
 	 * @param string $style_handle Style handle receiving the inline rule.
@@ -322,6 +360,23 @@ final class PufferDesk_Assets {
 		}
 
 		wp_add_inline_style( $style_handle, 'html.wp-toolbar{padding-top:0!important;}' );
+	}
+
+	/**
+	 * Critical CSS that prevents admin chrome from flashing before full assets load.
+	 *
+	 * @return string
+	 */
+	private function get_critical_admin_chrome_css() {
+		return 'html.wp-toolbar{padding-top:0!important;}'
+			. 'body.pufferdesk-shell #wpadminbar,body.pufferdesk-shell #adminmenumain,body.pufferdesk-shell #adminmenu,body.pufferdesk-shell #adminmenuback,body.pufferdesk-shell #adminmenuwrap,body.pufferdesk-shell #wpfooter,body.pufferdesk-shell #screen-meta,body.pufferdesk-shell #screen-meta-links,body.pufferdesk-shell .notice,body.pufferdesk-shell .update-nag{display:none!important;}'
+			. 'body.pufferdesk-shell{overflow:hidden;}'
+			. 'body.pufferdesk-shell #wpcontent{margin-left:0!important;padding-left:0!important;}'
+			. 'body.pufferdesk-shell #wpbody-content{padding-bottom:0;}'
+			. 'html.pufferdesk-iframe-booting body{visibility:hidden!important;}'
+			. 'body.pufferdesk-iframe #wpadminbar,body.pufferdesk-iframe #adminmenumain,body.pufferdesk-iframe #adminmenu,body.pufferdesk-iframe #adminmenuback,body.pufferdesk-iframe #adminmenuwrap,body.pufferdesk-iframe #wpfooter,body.pufferdesk-iframe #screen-meta,body.pufferdesk-iframe #screen-meta-links,body.pufferdesk-iframe .update-nag{display:none!important;}'
+			. 'body.pufferdesk-iframe #wpcontent{margin-left:0!important;padding:18px 22px 32px!important;}'
+			. 'body.pufferdesk-iframe #wpbody-content{padding-bottom:0;}';
 	}
 
 	/**

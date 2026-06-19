@@ -8,6 +8,8 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Template variables.
+ *
  * @var array<string,mixed> $theme
  * @var array<string,mixed> $window_chrome
  * @var string              $title

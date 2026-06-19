@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  */
 final class PufferDesk_Workspace_State {
 	const META_PREFIX = 'pufferdesk_workspace_state';
-	const VERSION     = 4;
+	const VERSION     = 5;
 	const SECTION_DESKTOP_ICONS = 'desktopIcons';
 	const SECTION_DESKTOP_SORT = 'desktopSort';
 	const SECTION_DOCK_APPS = 'dockApps';
@@ -22,10 +22,13 @@ final class PufferDesk_Workspace_State {
 	const SECTION_SETTINGS_USAGE = 'settingsUsage';
 	const SECTION_STICKY_NOTES = 'stickyNotes';
 	const SECTION_WIDGETS = 'widgets';
+	const SECTION_WINDOW_PLACEMENTS = 'windowPlacements';
 	const SECTION_WINDOWS = 'windows';
 	const DESKTOP_ICON_PREFIX_APP = 'app:';
 	const DESKTOP_ICON_PREFIX_DOCUMENT = 'document:';
 	const DESKTOP_ICON_PREFIX_FOLDER = 'folder:';
+	const WINDOW_PLACEMENT_PREFIX_APP = 'app:';
+	const WINDOW_PLACEMENT_PREFIX_FOLDER = 'folder:';
 	const WINDOW_KIND_APP = 'app';
 	const WINDOW_KIND_FOLDER = 'folder';
 	const WINDOW_KIND_WINDOW = 'window';
@@ -160,6 +163,7 @@ final class PufferDesk_Workspace_State {
 			'updatedAt'    => 0,
 			self::SECTION_DOCK_APPS => array(),
 			self::SECTION_WINDOWS => array(),
+			self::SECTION_WINDOW_PLACEMENTS => array(),
 			self::SECTION_WIDGETS => array(),
 			self::SECTION_STICKY_NOTES => array(),
 			self::SECTION_DESKTOP_ICONS => array(),
@@ -198,8 +202,21 @@ final class PufferDesk_Workspace_State {
 			'RECENT_ITEMS'   => self::SECTION_RECENT_ITEMS,
 			'SETTINGS_USAGE' => self::SECTION_SETTINGS_USAGE,
 			'STICKY_NOTES'   => self::SECTION_STICKY_NOTES,
-			'WIDGETS'        => self::SECTION_WIDGETS,
-			'WINDOWS'        => self::SECTION_WINDOWS,
+			'WIDGETS'           => self::SECTION_WIDGETS,
+			'WINDOW_PLACEMENTS' => self::SECTION_WINDOW_PLACEMENTS,
+			'WINDOWS'           => self::SECTION_WINDOWS,
+		);
+	}
+
+	/**
+	 * Persisted window placement key prefixes used by PHP and browser state managers.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_window_placement_prefixes() {
+		return array(
+			'APP'    => self::WINDOW_PLACEMENT_PREFIX_APP,
+			'FOLDER' => self::WINDOW_PLACEMENT_PREFIX_FOLDER,
 		);
 	}
 
@@ -233,6 +250,7 @@ final class PufferDesk_Workspace_State {
 			'updatedAt'    => isset( $state['updatedAt'] ) ? $this->sanitize_timestamp( $state['updatedAt'] ) : $default['updatedAt'],
 			self::SECTION_DOCK_APPS => $this->sanitize_dock_apps( isset( $state[ self::SECTION_DOCK_APPS ] ) ? $state[ self::SECTION_DOCK_APPS ] : array(), $apps ),
 			self::SECTION_WINDOWS => $this->sanitize_windows( isset( $state[ self::SECTION_WINDOWS ] ) ? $state[ self::SECTION_WINDOWS ] : array(), $apps, $folders ),
+			self::SECTION_WINDOW_PLACEMENTS => $this->sanitize_window_placements( isset( $state[ self::SECTION_WINDOW_PLACEMENTS ] ) ? $state[ self::SECTION_WINDOW_PLACEMENTS ] : array(), $apps, $folders ),
 			self::SECTION_WIDGETS => $this->sanitize_widgets( isset( $state[ self::SECTION_WIDGETS ] ) ? $state[ self::SECTION_WIDGETS ] : array(), $widgets ),
 			self::SECTION_STICKY_NOTES => $this->sanitize_sticky_notes( isset( $state[ self::SECTION_STICKY_NOTES ] ) ? $state[ self::SECTION_STICKY_NOTES ] : array() ),
 			self::SECTION_DESKTOP_ICONS => $this->sanitize_desktop_icons( isset( $state[ self::SECTION_DESKTOP_ICONS ] ) ? $state[ self::SECTION_DESKTOP_ICONS ] : array(), $apps, $folders ),
@@ -417,6 +435,87 @@ final class PufferDesk_Workspace_State {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Sanitize remembered window placement records.
+	 *
+	 * @param mixed                          $placements Raw placement map.
+	 * @param array<int,array<string,mixed>> $apps Available apps.
+	 * @param array<int,array<string,mixed>> $folders Available folders.
+	 * @return array<string,array<string,mixed>>
+	 */
+	private function sanitize_window_placements( $placements, $apps, $folders = array() ) {
+		$available_apps    = $this->get_available_ids( $apps );
+		$available_folders = $this->get_available_ids( $folders );
+		$sanitized         = array();
+
+		foreach ( is_array( $placements ) ? $placements : array() as $placement_key => $state ) {
+			if ( ! is_array( $state ) ) {
+				continue;
+			}
+
+			$placement_key = $this->sanitize_window_placement_key( $placement_key, $available_apps, $available_folders );
+			if ( '' === $placement_key || isset( $sanitized[ $placement_key ] ) ) {
+				continue;
+			}
+
+			$rect = $this->sanitize_rect_state(
+				$state,
+				array(
+					'min_width'  => 240,
+					'min_height' => 160,
+				)
+			);
+			$rect = array_intersect_key(
+				$rect,
+				array(
+					'left'   => true,
+					'top'    => true,
+					'width'  => true,
+					'height' => true,
+				)
+			);
+
+			if ( isset( $rect['left'], $rect['top'] ) ) {
+				$sanitized[ $placement_key ] = $rect;
+			}
+
+			if ( count( $sanitized ) >= 160 ) {
+				break;
+			}
+		}
+
+		return $sanitized;
+	}
+
+	/**
+	 * Sanitize a remembered window placement key.
+	 *
+	 * @param mixed              $placement_key Raw placement key.
+	 * @param array<string,bool> $available_apps Available app IDs.
+	 * @param array<string,bool> $available_folders Available folder IDs.
+	 * @return string
+	 */
+	private function sanitize_window_placement_key( $placement_key, $available_apps, $available_folders ) {
+		$placement_key = is_scalar( $placement_key ) ? (string) $placement_key : '';
+		if ( '' === $placement_key ) {
+			return '';
+		}
+
+		if ( 0 === strpos( $placement_key, self::WINDOW_PLACEMENT_PREFIX_APP ) ) {
+			$app_id = sanitize_key( substr( $placement_key, strlen( self::WINDOW_PLACEMENT_PREFIX_APP ) ) );
+
+			return $this->is_allowed_app_id( $app_id, $available_apps ) ? self::WINDOW_PLACEMENT_PREFIX_APP . $app_id : '';
+		}
+
+		if ( 0 === strpos( $placement_key, self::WINDOW_PLACEMENT_PREFIX_FOLDER ) ) {
+			$folder_id = sanitize_key( substr( $placement_key, strlen( self::WINDOW_PLACEMENT_PREFIX_FOLDER ) ) );
+
+			return $this->is_allowed_folder_id( $folder_id, $available_folders ) ? self::WINDOW_PLACEMENT_PREFIX_FOLDER . $folder_id : '';
+		}
+
+		return '';
 	}
 
 	/**
