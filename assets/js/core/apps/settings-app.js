@@ -2203,11 +2203,10 @@
 				pane.appendChild(settingsPanels.createNativeAdminPanel(panelContext));
 			}
 			pane.appendChild(settingsPanels.createNotificationsPanel(panelContext));
-				pane.appendChild(settingsPanels.createSoundsPanel(panelContext));
-				pane.appendChild(settingsPanels.createWallpaperPanel(panelContext));
-				pane.appendChild(settingsPanels.createWidgetsPanel(panelContext));
-				pane.appendChild(createSettingsSearchPanel());
-				pane.appendChild(status);
+			pane.appendChild(settingsPanels.createWallpaperPanel(panelContext));
+			pane.appendChild(settingsPanels.createWidgetsPanel(panelContext));
+			pane.appendChild(createSettingsSearchPanel());
+			pane.appendChild(status);
 
 		main.appendChild(createPaneHeader(t('generalPanel.title')));
 		main.appendChild(pane);

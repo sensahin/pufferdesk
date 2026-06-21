@@ -108,12 +108,11 @@
 			: 'all';
 		const historyDays = Number.parseInt(preferences.history_days || preferences.historyDays, 10);
 
-		return {
-			enabled: normalizeBoolean(preferences.enabled, true),
-			history_days: Number.isFinite(historyDays) ? Math.max(1, Math.min(90, historyDays)) : 30,
-			play_sound: normalizeBoolean(readPreference(preferences, 'play_sound', 'playSound'), false),
-			quiet_mode: normalizeBoolean(readPreference(preferences, 'quiet_mode', 'quietMode'), false),
-			severity,
+			return {
+				enabled: normalizeBoolean(preferences.enabled, true),
+				history_days: Number.isFinite(historyDays) ? Math.max(1, Math.min(90, historyDays)) : 30,
+				quiet_mode: normalizeBoolean(readPreference(preferences, 'quiet_mode', 'quietMode'), false),
+				severity,
 			show_badges: normalizeBoolean(readPreference(preferences, 'show_badges', 'showBadges'), true),
 			show_toasts: normalizeBoolean(readPreference(preferences, 'show_toasts', 'showToasts'), true),
 			sources
@@ -164,12 +163,11 @@
 			id,
 			lastSeen: Number.isFinite(lastSeen) && lastSeen > 0 ? lastSeen : normalizedTimestamp,
 			message,
-			persistence: typeof notification.persistence === 'string' && notification.persistence ? notification.persistence : 'session',
-			priority,
-			read: Boolean(notification.read),
-			sound: notification.sound !== false,
-			source,
-			sourceLabel: typeof notification.sourceLabel === 'string'
+				persistence: typeof notification.persistence === 'string' && notification.persistence ? notification.persistence : 'session',
+				priority,
+				read: Boolean(notification.read),
+				source,
+				sourceLabel: typeof notification.sourceLabel === 'string'
 				? notification.sourceLabel
 				: (typeof notification.source_label === 'string' ? notification.source_label : source),
 			timestamp: normalizedTimestamp,
@@ -447,26 +445,14 @@
 			return () => listeners.delete(listener);
 		}
 
-		function playAppErrorSound() {
-			const soundEvents = window.PufferDesk.services && window.PufferDesk.services.soundEvents
-				? window.PufferDesk.services.soundEvents
-				: null;
-
-			return soundEvents && typeof soundEvents.play === 'function'
-				? soundEvents.play('appError', 'app.error')
-				: false;
-		}
-
 		function bindSystemNotifications() {
 			window.addEventListener('error', (event) => {
 				if (!event || !event.message) {
 					return;
 				}
 
-				playAppErrorSound();
 				notify({
 					message: event.filename ? `${event.filename}:${event.lineno || 0}` : '',
-					sound: false,
 					source: getDefaultSourceId(),
 					sourceLabel: getLabel('pufferdeskSource'),
 					title: event.message,
@@ -479,10 +465,8 @@
 				const reason = event && event.reason ? event.reason : null;
 				const message = reason && reason.message ? reason.message : String(reason || getLabel('runtimeErrorFallback'));
 
-				playAppErrorSound();
 				notify({
 					message,
-					sound: false,
 					source: getDefaultSourceId(),
 					sourceLabel: getLabel('pufferdeskSource'),
 					title: getLabel('runtimeActionFailedTitle'),

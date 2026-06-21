@@ -21,7 +21,6 @@ final class PufferDesk_Settings_Registry {
 	const DOMAIN_MENU_BAR          = 'menu_bar';
 	const DOMAIN_NATIVE_ADMIN      = 'native_admin';
 	const DOMAIN_NOTIFICATIONS     = 'notifications';
-	const DOMAIN_SOUNDS            = 'sounds';
 	const DOMAIN_THEME             = 'theme';
 	const DOMAIN_WALLPAPER         = 'wallpaper';
 	const DOMAIN_WALLPAPER_UPLOADS = 'wallpaper_uploads';
@@ -165,18 +164,6 @@ final class PufferDesk_Settings_Registry {
 					'severity' => $this->preferences->get_notification_severity_options(),
 				),
 			),
-			self::DOMAIN_SOUNDS => array(
-				'id'           => self::DOMAIN_SOUNDS,
-				'label'        => 'Sound',
-				'panel'        => 'sounds',
-				'capability'   => self::CAPABILITY,
-				'ajax_action'  => 'pufferdesk_save_sounds',
-				'handler'      => 'save_sounds',
-				'preference_key' => PufferDesk_User_Preferences::META_SOUNDS,
-				'reset_domain' => PufferDesk_User_Preferences::RESET_DOMAIN_SOUNDS,
-				'sanitizer'    => 'PufferDesk_User_Preferences::set_sounds',
-				'default'      => $this->preferences->get_default_sounds(),
-			),
 			self::DOMAIN_THEME => array(
 				'id'           => self::DOMAIN_THEME,
 				'label'        => 'Theme',
@@ -253,7 +240,6 @@ final class PufferDesk_Settings_Registry {
 			'MENU_BAR'          => self::DOMAIN_MENU_BAR,
 			'NATIVE_ADMIN'      => self::DOMAIN_NATIVE_ADMIN,
 			'NOTIFICATIONS'     => self::DOMAIN_NOTIFICATIONS,
-			'SOUNDS'            => self::DOMAIN_SOUNDS,
 			'THEME'             => self::DOMAIN_THEME,
 			'WALLPAPER'         => self::DOMAIN_WALLPAPER,
 			'WALLPAPER_UPLOADS' => self::DOMAIN_WALLPAPER_UPLOADS,
@@ -334,8 +320,6 @@ final class PufferDesk_Settings_Registry {
 				return __( 'Native Admin', 'pufferdesk' );
 			case 'notifications':
 				return __( 'Notifications', 'pufferdesk' );
-			case 'sounds':
-				return __( 'Sound', 'pufferdesk' );
 			case 'theme':
 				return __( 'Theme', 'pufferdesk' );
 			case 'wallpaper':

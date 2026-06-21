@@ -66,7 +66,6 @@ final class PufferDesk_Command_Ids {
 	const SHELL_SHUTDOWN                = 'shell.shutdown';
 	const SHELL_SLEEP                   = 'shell.sleep';
 	const SHELL_SWITCH_CLASSIC          = 'shell.switch-classic';
-	const SOUND_TOGGLE_MUTE             = 'sound.toggle-mute';
 	const SYSTEM_ERASE_CONTENT_SETTINGS = 'system.erase-content-settings';
 	const TRASH_DELETE_IMMEDIATELY      = 'trash.delete-immediately';
 	const TRASH_EMPTY                   = 'trash.empty';

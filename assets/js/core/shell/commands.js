@@ -92,23 +92,10 @@
 			return getLabel(key, templateFallback);
 		}
 
-		function playSoundEvent(key, fallback) {
-			const soundEvents = window.PufferDesk.services && window.PufferDesk.services.soundEvents
-				? window.PufferDesk.services.soundEvents
-				: null;
-
-			return soundEvents && typeof soundEvents.play === 'function'
-				? soundEvents.play(key, fallback)
-				: false;
-		}
-
 		function notifyCommandError(error) {
-			playSoundEvent('appError', 'app.error');
-
 			if (window.PufferDesk.notificationStore && typeof window.PufferDesk.notificationStore.notify === 'function') {
 				window.PufferDesk.notificationStore.notify({
 					message: error && error.message ? error.message : getNotificationLabel('commandFailedMessage'),
-					sound: false,
 					source: getNotificationSourceId('PUFFERDESK'),
 					sourceLabel: getNotificationLabel('pufferdeskSource'),
 					title: getNotificationLabel('commandFailedTitle'),
@@ -1093,9 +1080,8 @@
 			const detailMeta = createdAt ? [`${getLabel('sort_date_created')}: ${createdAt}`] : [];
 			const confirmationTitle = getLabel('move_folder_to_trash_confirmation');
 			const fallbackTitle = formatLabel('move_folder_to_trash_title_format', [folderLabel]);
-			const isSystemDeleteDialog = variant === 'delete-folder';
 
-			return {
+				return {
 				cancelLabel: getLabel('move_folder_to_trash_cancel_label', getLabel('cancel')),
 				confirmLabel: getLabel('move_folder_to_trash_confirm_label', getLabel('move_to_trash')),
 				defaultAction: getConfirmationDefaultAction(policy),
@@ -1105,12 +1091,11 @@
 					label: folderLabel,
 					meta: detailMeta
 				},
-				message: isSystemDeleteDialog
-					? ''
-					: getLabel('move_folder_to_trash_message'),
-				soundEventKey: isSystemDeleteDialog ? 'dialogDestructive' : 'dialogWarning',
-				title: isSystemDeleteDialog ? confirmationTitle : fallbackTitle,
-				variant,
+					message: variant === 'delete-folder'
+						? ''
+						: getLabel('move_folder_to_trash_message'),
+					title: variant === 'delete-folder' ? confirmationTitle : fallbackTitle,
+					variant,
 				windowTitle: getLabel('move_folder_to_trash_window_title')
 			};
 		}
@@ -1123,10 +1108,9 @@
 				return getMoveFolderToTrashDialogOptions(folder, folderLabel);
 			}
 
-			const policy = getConfirmationPolicy('move_folder_to_trash');
-			const variant = policy.variant || 'move-to-trash';
-			const isSystemDeleteDialog = variant === 'delete-folder';
-			const countLabel = formatLabel('selected_folder_count_format', [folders.length]);
+				const policy = getConfirmationPolicy('move_folder_to_trash');
+				const variant = policy.variant || 'move-to-trash';
+				const countLabel = formatLabel('selected_folder_count_format', [folders.length]);
 
 			return {
 				cancelLabel: getLabel('move_folder_to_trash_cancel_label', getLabel('cancel')),
@@ -1138,12 +1122,11 @@
 					label: countLabel,
 					meta: []
 				},
-				message: isSystemDeleteDialog
-					? ''
-					: getLabel('move_folders_to_trash_message'),
-				soundEventKey: isSystemDeleteDialog ? 'dialogDestructive' : 'dialogWarning',
-				title: isSystemDeleteDialog
-					? getLabel('move_folders_to_trash_confirmation')
+					message: variant === 'delete-folder'
+						? ''
+						: getLabel('move_folders_to_trash_message'),
+					title: variant === 'delete-folder'
+						? getLabel('move_folders_to_trash_confirmation')
 					: formatLabel('move_folders_to_trash_title_format', [folders.length]),
 				variant,
 				windowTitle: getLabel('move_folders_to_trash_window_title', getLabel('move_folder_to_trash_window_title'))
@@ -2008,13 +1991,12 @@
 				}
 
 				const confirmed = dialogs && typeof dialogs.confirm === 'function'
-					? await dialogs.confirm({
-						cancelLabel: getLabel('cancel'),
-						confirmLabel: getLabel('delete'),
-						message: getLabel('delete_immediately_message'),
-						soundEventKey: 'dialogDestructive',
-						title: getLabel('delete_immediately_title')
-					})
+						? await dialogs.confirm({
+							cancelLabel: getLabel('cancel'),
+							confirmLabel: getLabel('delete'),
+							message: getLabel('delete_immediately_message'),
+							title: getLabel('delete_immediately_title')
+						})
 					: window.confirm(getLabel('delete_immediately_fallback_message'));
 
 				if (confirmed) {
@@ -2035,10 +2017,10 @@
 					&& typeof folderManager.getTrashCount === 'function'
 					&& folderManager.getTrashCount() > 0
 				);
-			},
-			async run() {
-				const actionConfig = getActionConfig('emptyTrash');
-				let confirmed = false;
+				},
+				async run() {
+					const actionConfig = getActionConfig('emptyTrash');
+					let confirmed = false;
 
 				if (dialogs && typeof dialogs.confirmActionDialog === 'function') {
 					const result = await dialogs.confirmActionDialog(actionConfig);
@@ -2047,16 +2029,13 @@
 					confirmed = await dialogs.confirm(actionConfig);
 				} else {
 					confirmed = window.confirm(getLabel('empty_trash_confirmation'));
-				}
+					}
 
-				if (confirmed) {
-					const emptied = await folderManager.emptyTrash();
-					if (emptied) {
-						playSoundEvent('trashEmpty');
+					if (confirmed) {
+						await folderManager.emptyTrash();
 					}
 				}
-			}
-		});
+			});
 
 		register(commandIds.FOLDER_ADD_APP, {
 			isEnabled(payload, detail) {
@@ -2300,15 +2279,6 @@
 			},
 			run(payload) {
 				launcher.openSettingsPanel(payload.panel);
-			}
-		});
-
-		register(commandIds.SOUND_TOGGLE_MUTE, {
-			isEnabled() {
-				return Boolean(window.PufferDesk.soundStatus && typeof window.PufferDesk.soundStatus.toggleMute === 'function');
-			},
-			run() {
-				window.PufferDesk.soundStatus.toggleMute();
 			}
 		});
 

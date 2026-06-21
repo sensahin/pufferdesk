@@ -161,8 +161,9 @@
 
 			activeResults = Array.isArray(results) ? results : [];
 			panel.classList.toggle('has-query', hasQuery);
-			resultsPanel.hidden = !hasQuery;
-			if (!hasQuery) {
+			panel.classList.toggle('has-results', Boolean(activeResults.length || hasQuery));
+			resultsPanel.hidden = !activeResults.length && !hasQuery;
+			if (resultsPanel.hidden) {
 				resultsList.replaceChildren();
 				setActiveIndex(-1);
 				return;
@@ -201,22 +202,17 @@
 		function updateResults() {
 			const query = panelInput ? panelInput.value.trim() : '';
 			const requestId = searchRequestId + 1;
+			const limit = query ? 18 : 10;
 
 			searchRequestId = requestId;
 			if (!resultsPanel || !resultsList) {
 				return;
 			}
 
-			if (!query) {
-				resultsPanel.dataset.pdkSearchLoading = '0';
-				renderResults('', []);
-				return;
-			}
-
-			panel.classList.add('has-query');
+			panel.classList.toggle('has-query', Boolean(query));
 			resultsPanel.hidden = false;
-			resultsPanel.dataset.pdkSearchLoading = '1';
-			searchEngine.search(query, { limit: 18 }).then((results) => {
+			resultsPanel.dataset.pdkSearchLoading = query ? '1' : '0';
+			searchEngine.search(query, { limit }).then((results) => {
 				if (requestId !== searchRequestId) {
 					return;
 				}
@@ -312,6 +308,7 @@
 			panel.hidden = true;
 			panel.classList.remove('is-open');
 			panel.classList.remove('has-query');
+			panel.classList.remove('has-results');
 			delete shell.dataset.pdkSearchOpen;
 			cancelPendingResults();
 			activeResults = [];

@@ -132,6 +132,14 @@
 			].filter(Boolean).join(' '));
 		}
 
+		function getInitials(text) {
+			return normalizeText(text)
+				.split(/[^a-z0-9]+/)
+				.filter(Boolean)
+				.map((part) => part.charAt(0))
+				.join('');
+		}
+
 		function hasOrderedCharacters(text, query) {
 			let position = 0;
 
@@ -150,6 +158,7 @@
 			const needle = normalizeText(query);
 			const label = normalizeText(result.label);
 			const text = result.searchText || getSearchText(result);
+			const initials = getInitials(text);
 			const recentBoost = recentBoosts.get(getResultKey(result)) || 0;
 			const typeBoosts = {
 				app: 35,
@@ -177,6 +186,10 @@
 				score += 650;
 			} else if (text.includes(needle)) {
 				score += 420;
+			} else if (initials && initials.startsWith(needle)) {
+				score += 760;
+			} else if (initials && initials.includes(needle)) {
+				score += 520;
 			} else if (hasOrderedCharacters(text, needle)) {
 				score += 160;
 			} else {
@@ -343,22 +356,15 @@
 					keywords: ['reload', 'refresh', 'shell'],
 					label: getSettingsLabel('system.restartLabel', getLabel('start_restart', 'Restart'))
 				},
-				{
-					command: commandIds.SHELL_SWITCH_CLASSIC,
-					icon: 'dashicons-admin-site-alt3',
-					id: 'switch-classic-admin',
-					keywords: ['classic', 'wordpress', 'admin'],
-					label: getSettingsLabel('system.classicLabel', 'Switch to Classic Admin...'),
-					target: config.classicUrl || ''
-				},
-				{
-					command: commandIds.SOUND_TOGGLE_MUTE,
-					icon: 'dashicons-controls-volumeon',
-					id: 'sound-toggle-mute',
-					keywords: ['audio', 'volume', 'mute', 'unmute'],
-					label: getLabel('sound_mute', 'Mute')
-				}
-			];
+					{
+						command: commandIds.SHELL_SWITCH_CLASSIC,
+						icon: 'dashicons-admin-site-alt3',
+						id: 'switch-classic-admin',
+						keywords: ['classic', 'wordpress', 'admin'],
+						label: getSettingsLabel('system.classicLabel', 'Switch to Classic Admin...'),
+						target: config.classicUrl || ''
+					}
+				];
 		}
 
 		function collectCommandResults() {

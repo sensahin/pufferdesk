@@ -16,10 +16,9 @@ export default [
 		languageOptions: {
 			ecmaVersion: 2022,
 			sourceType: 'script',
-			globals: {
-				AbortController: 'readonly',
-				Audio: 'readonly',
-				CustomEvent: 'readonly',
+				globals: {
+					AbortController: 'readonly',
+					CustomEvent: 'readonly',
 				FormData: 'readonly',
 				Image: 'readonly',
 				IntersectionObserver: 'readonly',

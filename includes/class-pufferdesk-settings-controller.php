@@ -309,7 +309,6 @@ final class PufferDesk_Settings_Controller {
 				'show_badges'  => $this->read_post_value( 'show_badges' ),
 				'show_toasts'  => $this->read_post_value( 'show_toasts' ),
 				'quiet_mode'   => $this->read_post_value( 'quiet_mode' ),
-				'play_sound'   => $this->read_post_value( 'play_sound' ),
 				'history_days' => $this->read_post_value( 'history_days' ),
 				'severity'     => $this->read_post_value( 'severity' ),
 				'sources'      => is_array( $sources ) ? $sources : array(),
@@ -320,27 +319,6 @@ final class PufferDesk_Settings_Controller {
 			array(
 				'message'       => __( 'Notifications saved.', 'pufferdesk' ),
 				'notifications' => $notifications,
-			)
-		);
-	}
-
-	/**
-	 * Save the current user's Sound settings.
-	 */
-	public function save_sounds() {
-		$this->require_domain_access( PufferDesk_Settings_Registry::DOMAIN_SOUNDS, $this->settings_permission_message() );
-
-		$sounds = $this->preferences->set_sounds(
-			array(
-				'enabled' => $this->read_post_value( 'enabled' ),
-				'volume'  => $this->read_post_value( 'volume' ),
-			)
-		);
-
-		wp_send_json_success(
-			array(
-				'message' => __( 'Sound saved.', 'pufferdesk' ),
-				'sounds'  => $sounds,
 			)
 		);
 	}

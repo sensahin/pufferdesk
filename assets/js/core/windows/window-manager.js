@@ -1053,14 +1053,14 @@
 			}
 		}
 
-		function saveSession() {
+		function saveSession(saveOptions = {}) {
 			if (!options.storageKey || restoreInProgress || sessionSaveDisabled) {
-				return;
+				return false;
 			}
 
 			const windows = serializeWindows();
 			if (preserveStoredWindowsUntilChange && !windows.length) {
-				return;
+				return false;
 			}
 
 			const session = sessionStore.load();
@@ -1079,6 +1079,14 @@
 
 			preserveStoredWindowsUntilChange = false;
 			sessionStore.save(session);
+
+			if (saveOptions.flush && typeof sessionStore.flush === 'function') {
+				sessionStore.flush({
+					keepalive: Boolean(saveOptions.keepalive)
+				});
+			}
+
+			return true;
 		}
 
 		function scheduleSave() {
@@ -1283,7 +1291,15 @@
 			scheduleSave();
 		});
 		window.addEventListener('message', handleIframeMessage);
-		window.addEventListener('beforeunload', saveSession);
+		function flushSessionBeforePageExit() {
+			saveSession({
+				flush: true,
+				keepalive: true
+			});
+		}
+
+		window.addEventListener('beforeunload', flushSessionBeforePageExit);
+		window.addEventListener('pagehide', flushSessionBeforePageExit);
 
 		return {
 			applyWindowState,

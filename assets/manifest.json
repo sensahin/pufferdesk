@@ -31,10 +31,6 @@
 			"path": "assets/css/core/notifications.css"
 		},
 		{
-			"handle": "pufferdesk-core-sound-status",
-			"path": "assets/css/core/sound-status.css"
-		},
-		{
 			"handle": "pufferdesk-core-desktop",
 			"path": "assets/css/core/desktop.css"
 		},
@@ -194,14 +190,6 @@
 			]
 		},
 		{
-			"handle": "pufferdesk-sound-manager",
-			"path": "assets/js/core/services/sound-manager.js",
-			"deps": [
-				"pufferdesk-config",
-				"pufferdesk-event-bus"
-			]
-		},
-		{
 			"handle": "pufferdesk-notification-store",
 			"path": "assets/js/core/notifications/notification-store.js",
 			"deps": [
@@ -225,21 +213,6 @@
 			"deps": [
 				"pufferdesk-dom",
 				"pufferdesk-notification-store",
-				"pufferdesk-transient-surfaces"
-			]
-		},
-		{
-			"handle": "pufferdesk-sound-status",
-			"path": "assets/js/core/shell/sound-status.js",
-			"deps": [
-				"pufferdesk-config",
-				"pufferdesk-dom",
-				"pufferdesk-command-ids",
-				"pufferdesk-context-menu-constants",
-				"pufferdesk-api-client",
-				"pufferdesk-event-bus",
-				"pufferdesk-debounced-task",
-				"pufferdesk-sound-manager",
 				"pufferdesk-transient-surfaces"
 			]
 		},
@@ -716,18 +689,6 @@
 			]
 		},
 		{
-			"handle": "pufferdesk-settings-panel-sounds",
-			"path": "assets/js/core/apps/settings/panel-sounds.js",
-			"deps": [
-				"pufferdesk-config",
-				"pufferdesk-settings-labels",
-				"pufferdesk-settings-ui",
-				"pufferdesk-settings-mutations",
-				"pufferdesk-sound-manager",
-				"pufferdesk-event-bus"
-			]
-		},
-		{
 			"handle": "pufferdesk-settings-panel-wallpaper",
 			"path": "assets/js/core/apps/settings/panel-wallpaper.js",
 			"deps": [
@@ -769,7 +730,6 @@
 				"pufferdesk-settings-panel-menu-bar",
 				"pufferdesk-settings-panel-native-admin",
 				"pufferdesk-settings-panel-notifications",
-				"pufferdesk-settings-panel-sounds",
 				"pufferdesk-settings-panel-wallpaper",
 				"pufferdesk-settings-panel-widgets"
 			]
@@ -1071,11 +1031,9 @@
 				"pufferdesk-wallpaper",
 				"pufferdesk-reopen-policy",
 				"pufferdesk-documents-service",
-				"pufferdesk-sound-manager",
 				"pufferdesk-notification-store",
 				"pufferdesk-notification-toasts",
 				"pufferdesk-notification-center",
-				"pufferdesk-sound-status",
 				"pufferdesk-window-manager",
 				"pufferdesk-widget-manager",
 				"pufferdesk-dragdrop-manager",

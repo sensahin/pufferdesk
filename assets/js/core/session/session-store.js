@@ -204,17 +204,36 @@
 
 		function chooseInitialSession() {
 			const remote = normalizeSession(config.workspaceState || {});
+			const remoteUpdatedAt = getUpdatedAt(remote);
+			const cached = key && storage && typeof storage.getJSON === 'function'
+				? normalizeSession(storage.getJSON(key))
+				: null;
+
+			if (cached && getUpdatedAt(cached) > remoteUpdatedAt) {
+				return {
+					pendingRemoteSave: true,
+					remoteUpdatedAt,
+					session: cached
+				};
+			}
+
 			writeLocalCache(remote);
 
-			return remote;
+			return {
+				pendingRemoteSave: false,
+				remoteUpdatedAt,
+				session: remote
+			};
 		}
 
-		let currentSession = chooseInitialSession();
-		let remoteUpdatedAt = getUpdatedAt(currentSession);
+		const initialSession = chooseInitialSession();
+		let currentSession = initialSession.session;
+		let remoteUpdatedAt = initialSession.remoteUpdatedAt;
 		let saveTimer = null;
 		let saveInFlight = false;
 		let savePromise = null;
 		let savePending = false;
+		let hasUnsavedRemoteChanges = Boolean(initialSession.pendingRemoteSave);
 
 		function acceptBroadcastSession(session, source) {
 			const next = normalizeSession(session);
@@ -223,6 +242,7 @@
 			const isRemote = source === 'remote' || source === 'conflict' || source === 'reset';
 
 			if (source === 'reset') {
+				hasUnsavedRemoteChanges = false;
 				applySession(next, {
 					notify: true,
 					remote: true,
@@ -247,6 +267,9 @@
 				remote: isRemote,
 				source: source || 'broadcast'
 			});
+			if (isRemote) {
+				hasUnsavedRemoteChanges = false;
+			}
 		}
 
 		function bindBroadcastChannel() {
@@ -293,6 +316,7 @@
 			remoteUpdatedAt = getUpdatedAt(normalized);
 
 			if (getUpdatedAt(currentSession) <= snapshotUpdatedAt) {
+				hasUnsavedRemoteChanges = false;
 				applySession(normalized, {
 					broadcast: true,
 					notify: source === 'conflict',
@@ -303,10 +327,11 @@
 			}
 
 			savePending = true;
+			hasUnsavedRemoteChanges = true;
 			writeLocalCache(currentSession);
 		}
 
-		function postWorkspaceState(session, expectedUpdatedAt) {
+		function postWorkspaceState(session, expectedUpdatedAt, options = {}) {
 			if (!canSyncRemote()) {
 				return Promise.resolve(false);
 			}
@@ -317,7 +342,7 @@
 				expected_updated_at: String(Math.max(0, expectedUpdatedAt || 0)),
 				theme_id: getThemeId(),
 				state: JSON.stringify(snapshot)
-			}).then((result) => {
+			}, options).then((result) => {
 				const data = result && result.data && typeof result.data === 'object' ? result.data : {};
 				if (result && result.success && data.workspaceState) {
 					handleRemoteState(data.workspaceState, snapshot, 'remote');
@@ -332,11 +357,15 @@
 			});
 		}
 
-		function flushRemoteSave() {
+		function flushRemoteSave(options = {}) {
 			window.clearTimeout(saveTimer);
 			saveTimer = null;
 
 			if (!canSyncRemote()) {
+				return Promise.resolve(false);
+			}
+
+			if (!hasUnsavedRemoteChanges && !savePending) {
 				return Promise.resolve(false);
 			}
 
@@ -349,14 +378,14 @@
 			const expectedUpdatedAt = remoteUpdatedAt;
 
 			saveInFlight = true;
-			savePromise = postWorkspaceState(snapshot, expectedUpdatedAt)
+			savePromise = postWorkspaceState(snapshot, expectedUpdatedAt, options)
 				.catch(() => false)
 				.finally(() => {
 					saveInFlight = false;
 					savePromise = null;
 					if (savePending) {
 						savePending = false;
-						return flushRemoteSave();
+						return flushRemoteSave(options);
 					}
 
 					return false;
@@ -374,6 +403,10 @@
 			saveTimer = window.setTimeout(flushRemoteSave, 650);
 		}
 
+		if (hasUnsavedRemoteChanges) {
+			scheduleRemoteSave();
+		}
+
 		const store = {
 			load() {
 				return clone(currentSession);
@@ -386,6 +419,7 @@
 					broadcast: true,
 					source: 'local'
 				});
+				hasUnsavedRemoteChanges = true;
 				scheduleRemoteSave();
 
 				return true;
@@ -405,6 +439,7 @@
 
 			clear() {
 				window.clearTimeout(saveTimer);
+				hasUnsavedRemoteChanges = false;
 				const next = getDefaultSession();
 				applySession(next, {
 					broadcast: true,
@@ -415,6 +450,7 @@
 					theme_id: getThemeId()
 				}).then((result) => {
 					if (result && result.success && result.data && result.data.workspaceState) {
+						hasUnsavedRemoteChanges = false;
 						applySession(result.data.workspaceState, {
 							broadcast: true,
 							remote: true,
@@ -424,11 +460,13 @@
 					}
 
 					remoteUpdatedAt = 0;
+					hasUnsavedRemoteChanges = false;
 					return false;
 				}).catch(() => false);
 
 				if (!canSyncRemote()) {
 					remoteUpdatedAt = 0;
+					hasUnsavedRemoteChanges = false;
 					return Promise.resolve(false);
 				}
 
@@ -439,8 +477,8 @@
 				return resetRemote();
 			},
 
-			flush() {
-				return flushRemoteSave();
+			flush(options = {}) {
+				return flushRemoteSave(options);
 			}
 		};
 

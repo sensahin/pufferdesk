@@ -23,7 +23,6 @@ final class PufferDesk_Context_Menu_Contracts {
 	const TARGET_FOLDER_SIDEBAR     = 'folder-sidebar-item';
 	const TARGET_FOLDER_TAB         = 'folder-tab';
 	const TARGET_FOLDER_TOOLBAR     = 'folder-toolbar';
-	const TARGET_SOUND_STATUS       = 'sound-status';
 	const TARGET_STICKY_NOTE        = 'sticky-note';
 	const TARGET_TRASH_ITEM         = 'trash-item';
 	const TARGET_WIDGET             = 'widget';
@@ -106,7 +105,6 @@ final class PufferDesk_Context_Menu_Contracts {
 			'FOLDER_SIDEBAR' => self::TARGET_FOLDER_SIDEBAR,
 			'FOLDER_TAB'     => self::TARGET_FOLDER_TAB,
 			'FOLDER_TOOLBAR' => self::TARGET_FOLDER_TOOLBAR,
-			'SOUND_STATUS'   => self::TARGET_SOUND_STATUS,
 			'STICKY_NOTE'    => self::TARGET_STICKY_NOTE,
 			'TRASH_ITEM'     => self::TARGET_TRASH_ITEM,
 			'WIDGET'         => self::TARGET_WIDGET,

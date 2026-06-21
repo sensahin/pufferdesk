@@ -132,7 +132,6 @@ final class PufferDesk_Plugin {
 			$preferences,
 			new PufferDesk_Notification_Normalizer()
 		);
-		$sound_registry     = new PufferDesk_Sound_Registry();
 		$asset_manifest     = new PufferDesk_Asset_Manifest();
 		$settings_registry  = new PufferDesk_Settings_Registry( $preferences );
 		$this->admin_context_resolver = new PufferDesk_Admin_Context_Resolver( $admin_menu_provider );
@@ -153,8 +152,7 @@ final class PufferDesk_Plugin {
 			$settings_registry,
 			$virtual_filesystem,
 			$notification_registry,
-			$preferences,
-			$sound_registry
+			$preferences
 		);
 		$renderer       = new PufferDesk_Shell_Renderer(
 			$shell_context

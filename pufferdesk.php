@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       PufferDesk
  * Description:       Turn your WordPress admin into a desktop.
- * Version:           0.1.1
+ * Version:           0.1.2
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Senol Sahin
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'PUFFERDESK_VERSION', '0.1.1' );
+define( 'PUFFERDESK_VERSION', '0.1.2' );
 define( 'PUFFERDESK_FILE', __FILE__ );
 define( 'PUFFERDESK_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PUFFERDESK_URL', plugin_dir_url( __FILE__ ) );
@@ -58,7 +58,6 @@ require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-onboarding-note.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-notification-normalizer.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-notification-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-notification-controller.php';
-require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-sound-registry.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-asset-manifest.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-shell-context.php';
 require_once PUFFERDESK_DIR . 'includes/class-pufferdesk-users-controller.php';

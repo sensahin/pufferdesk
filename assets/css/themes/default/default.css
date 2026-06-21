@@ -73,9 +73,6 @@
 	--pdk-notification-badge-top: 0px;
 	--pdk-notification-button-hover-bg: var(--pdk-top-bar-item-hover-bg);
 	--pdk-notification-button-hover-ink: var(--pdk-top-bar-item-hover-ink);
-	--pdk-sound-status-button-size: var(--pdk-top-bar-item-height);
-	--pdk-sound-status-button-hover-bg: var(--pdk-top-bar-item-hover-bg);
-	--pdk-sound-status-button-hover-ink: var(--pdk-top-bar-item-hover-ink);
 	--pdk-control-bg: var(--pdk-material-control-bg);
 	--pdk-control-bg-hover: var(--pdk-material-control-hover-bg);
 	--pdk-dialog-bg: var(--pdk-material-dialog-bg);
@@ -220,12 +217,6 @@
 	--pdk-notification-toast-ink: #172436;
 	--pdk-notification-toast-radius: 12px;
 	--pdk-notification-toast-shadow: var(--pdk-material-popover-shadow);
-	--pdk-sound-flyout-bg: var(--pdk-menu-popover-bg);
-	--pdk-sound-flyout-border: var(--pdk-menu-popover-border);
-	--pdk-sound-flyout-filter: var(--pdk-menu-popover-filter);
-	--pdk-sound-flyout-ink: var(--pdk-menu-popover-ink);
-	--pdk-sound-flyout-radius: var(--pdk-menu-popover-radius);
-	--pdk-sound-flyout-shadow: var(--pdk-menu-popover-shadow);
 	--pdk-clock-widget-bg:
 		linear-gradient(145deg, rgba(255, 255, 255, 0.38), rgba(247, 250, 255, 0.2) 48%, rgb(var(--pdk-accent-rgb) / 0.08)),
 		rgba(236, 241, 251, 0.24);
@@ -388,7 +379,6 @@
 	--pdk-notification-toast-bg: rgba(27, 36, 54, 0.98);
 	--pdk-notification-toast-border: rgba(168, 182, 210, 0.16);
 	--pdk-notification-toast-ink: rgba(237, 243, 255, 0.96);
-	--pdk-sound-flyout-ink: var(--pdk-menu-popover-ink);
 	--pdk-clock-widget-bg:
 		linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025) 52%, rgb(var(--pdk-accent-rgb) / 0.08)),
 		rgba(14, 24, 39, 0.32);
@@ -421,7 +411,6 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-system-mark,
 .pdk-shell[data-pdk-theme="default"] .pdk-menu-items button,
 .pdk-shell[data-pdk-theme="default"] .pdk-status-button,
-.pdk-shell[data-pdk-theme="default"] .pdk-sound-status-button,
 .pdk-shell[data-pdk-theme="default"] .pdk-status-area .pdk-search,
 .pdk-shell[data-pdk-theme="default"] .pdk-notification-button {
 	border-radius: var(--pdk-top-bar-item-radius);
@@ -456,8 +445,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-status-area .pdk-search-icon,
-.pdk-shell[data-pdk-theme="default"] .pdk-status-area .pdk-notification-button-icon,
-.pdk-shell[data-pdk-theme="default"] .pdk-status-area .pdk-sound-status-icon {
+.pdk-shell[data-pdk-theme="default"] .pdk-status-area .pdk-notification-button-icon {
 	color: currentColor;
 }
 
@@ -480,9 +468,6 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-menu-items button.is-active,
 .pdk-shell[data-pdk-theme="default"] .pdk-status-button:hover,
 .pdk-shell[data-pdk-theme="default"] .pdk-status-button:focus-visible,
-.pdk-shell[data-pdk-theme="default"] .pdk-sound-status-button:hover,
-.pdk-shell[data-pdk-theme="default"] .pdk-sound-status-button:focus,
-.pdk-shell[data-pdk-theme="default"] .pdk-sound-status-button.is-active,
 .pdk-shell[data-pdk-theme="default"] .pdk-notification-button:hover,
 .pdk-shell[data-pdk-theme="default"] .pdk-notification-button:focus,
 .pdk-shell[data-pdk-theme="default"] .pdk-notification-button.is-active,
@@ -536,7 +521,6 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-system-menu,
 .pdk-shell[data-pdk-theme="default"] .pdk-app-menu,
 .pdk-shell[data-pdk-theme="default"] .pdk-context-menu,
-.pdk-shell[data-pdk-theme="default"] .pdk-sound-flyout,
 .pdk-shell[data-pdk-theme="default"] .pdk-notification-center,
 .pdk-shell[data-pdk-theme="default"] .pdk-notification-toast {
 	border-radius: var(--pdk-menu-popover-radius);
@@ -2186,8 +2170,8 @@
 .pdk-shell[data-pdk-theme="default"] .pdk-settings[data-pdk-settings-layout="pufferdesk-hub"] .pdk-settings-sidebar,
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-finder-sidebar {
 	background:
-		linear-gradient(180deg, rgba(18, 78, 88, 0.08), transparent 34%),
-		rgba(244, 249, 243, 0.8);
+		linear-gradient(180deg, rgb(var(--pdk-accent-rgb) / 0.06), transparent 34%),
+		rgba(239, 244, 252, 0.82);
 	border-right: 1px solid var(--pdk-divider-soft);
 	gap: 9px;
 	min-height: 0;
@@ -2576,7 +2560,7 @@
 }
 
 .pdk-shell[data-pdk-theme="default"][data-pdk-effective-appearance="dark"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-folder-list-header {
-	background: rgba(14, 27, 31, 0.9);
+	background: rgba(18, 28, 45, 0.9);
 }
 
 .pdk-shell[data-pdk-theme="default"] .pdk-folder-content[data-pdk-folder-layout="pufferdesk-files"] .pdk-folder-list-heading {

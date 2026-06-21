@@ -37,7 +37,6 @@
 			'.pdk-taskbar-status',
 			'.pdk-search-panel',
 			'.pdk-search-results',
-			'.pdk-sound-flyout',
 			'.pdk-notification-center',
 			'.pdk-notification-toasts',
 			'.pdk-menu-popover'
@@ -202,10 +201,6 @@
 				return areas.DESKTOP;
 			}
 
-			if (type === targets.SOUND_STATUS) {
-				return areas.STATUS;
-			}
-
 			if (type === targets.WINDOW) {
 				return areas.WINDOW;
 			}
@@ -244,10 +239,6 @@
 
 			if (type === targets.WINDOW) {
 				return targetTypes.TITLEBAR;
-			}
-
-			if (type === targets.SOUND_STATUS) {
-				return targetTypes.STATUS;
 			}
 
 			return targetTypes.ITEM;

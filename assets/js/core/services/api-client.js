@@ -18,14 +18,16 @@
 	}
 
 	window.PufferDesk.services.api = {
-		post(action, data = {}) {
+		post(action, data = {}, options = {}) {
 			const config = window.PufferDesk.config.get();
 
 			if (!config.ajaxUrl || !config.nonce) {
 				return Promise.reject(new Error(getSettingsLabel('status.serviceUnavailable')));
 			}
 
-			const form = new window.FormData();
+			const keepalive = Boolean(options.keepalive);
+			const form = keepalive ? new window.URLSearchParams() : new window.FormData();
+
 			form.append('action', action);
 			form.append('nonce', config.nonce);
 
@@ -34,9 +36,10 @@
 			});
 
 			return window.fetch(config.ajaxUrl, {
-				method: 'POST',
+				body: form,
 				credentials: 'same-origin',
-				body: form
+				keepalive,
+				method: 'POST'
 			}).then((response) => response.json());
 		}
 	};

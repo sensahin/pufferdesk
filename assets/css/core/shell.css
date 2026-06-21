@@ -900,7 +900,7 @@
 	-webkit-text-fill-color: var(--pdk-search-selection-ink, #fff);
 }
 
-.pdk-search-panel:not(.has-query) .pdk-search-results,
+.pdk-search-panel:not(.has-results) .pdk-search-results,
 .pdk-search-results[hidden] {
 	display: none !important;
 }

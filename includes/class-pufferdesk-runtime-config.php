@@ -54,13 +54,6 @@ final class PufferDesk_Runtime_Config {
 	private $notification_registry;
 
 	/**
-	 * Sound event registry.
-	 *
-	 * @var PufferDesk_Sound_Registry
-	 */
-	private $sound_registry;
-
-	/**
 	 * WordPress admin bar menu provider.
 	 *
 	 * @var PufferDesk_Admin_Bar_Menu_Provider
@@ -76,10 +69,9 @@ final class PufferDesk_Runtime_Config {
 	 * @param PufferDesk_Virtual_Filesystem|null      $virtual_filesystem Virtual filesystem service.
 	 * @param PufferDesk_Notification_Registry|null   $notification_registry Notification registry.
 	 * @param PufferDesk_User_Preferences|null        $preferences User preferences.
-	 * @param PufferDesk_Sound_Registry|null          $sound_registry Sound event registry.
 	 * @param PufferDesk_Admin_Bar_Menu_Provider|null $admin_bar_menu_provider Admin bar menu provider.
 	 */
-	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry, $virtual_filesystem = null, $notification_registry = null, $preferences = null, $sound_registry = null, $admin_bar_menu_provider = null ) {
+	public function __construct( PufferDesk_Router $router, PufferDesk_Theme_Registry $theme_registry, PufferDesk_Settings_Registry $settings_registry, $virtual_filesystem = null, $notification_registry = null, $preferences = null, $admin_bar_menu_provider = null ) {
 		$this->router             = $router;
 		$this->theme_registry     = $theme_registry;
 		$this->settings_registry  = $settings_registry;
@@ -88,7 +80,6 @@ final class PufferDesk_Runtime_Config {
 		$this->notification_registry = $notification_registry instanceof PufferDesk_Notification_Registry
 			? $notification_registry
 			: new PufferDesk_Notification_Registry( new PufferDesk_User_Preferences(), new PufferDesk_Notification_Normalizer() );
-		$this->sound_registry = $sound_registry instanceof PufferDesk_Sound_Registry ? $sound_registry : new PufferDesk_Sound_Registry();
 		$this->admin_bar_menu_provider = $admin_bar_menu_provider instanceof PufferDesk_Admin_Bar_Menu_Provider
 			? $admin_bar_menu_provider
 			: new PufferDesk_Admin_Bar_Menu_Provider();
@@ -205,7 +196,6 @@ final class PufferDesk_Runtime_Config {
 			'siteInfo'       => $this->get_site_info_config( $theme ),
 			'siteName'       => get_bloginfo( 'name' ),
 			'productInfo'    => $this->get_product_info_config( $theme ),
-			'sounds'         => $this->get_sounds_config( $theme ),
 			'system'         => $this->get_system_config( $theme ),
 			'themeMode'      => $theme_mode,
 			'themeModes'     => $this->get_theme_mode_options_config(),
@@ -572,16 +562,6 @@ final class PufferDesk_Runtime_Config {
 		);
 
 		return $dialogs;
-	}
-
-	/**
-	 * Shared shell sound event map.
-	 *
-	 * @param array<string,mixed> $theme Resolved theme metadata.
-	 * @return array<string,mixed>
-	 */
-	private function get_sounds_config( $theme ) {
-		return $this->sound_registry->get_client_config( $theme, $this->preferences );
 	}
 
 	/**
@@ -1225,8 +1205,6 @@ final class PufferDesk_Runtime_Config {
 				'nativeAdminSaved'       => __( 'Native admin experiences saved.', 'pufferdesk' ),
 				'notificationsSaveError' => __( 'Notifications could not be saved.', 'pufferdesk' ),
 				'notificationsSaved'     => __( 'Notifications saved.', 'pufferdesk' ),
-				'soundsSaveError'        => __( 'Sound could not be saved.', 'pufferdesk' ),
-				'soundsSaved'            => __( 'Sound saved.', 'pufferdesk' ),
 				'wallpaperSaveError'     => __( 'Wallpaper could not be saved.', 'pufferdesk' ),
 				'wallpaperSaved'         => __( 'Wallpaper saved.', 'pufferdesk' ),
 				'photoRemoveError'       => __( 'Photo could not be removed.', 'pufferdesk' ),
@@ -1302,12 +1280,6 @@ final class PufferDesk_Runtime_Config {
 						'label' => __( 'Notifications', 'pufferdesk' ),
 						'icon'  => 'dashicons-bell',
 						'tone'  => 'blue',
-					),
-					array(
-						'id'    => 'sounds',
-						'label' => __( 'Sound', 'pufferdesk' ),
-						'icon'  => 'dashicons-format-audio',
-						'tone'  => 'green',
 					),
 					array(
 						'id'    => 'wallpaper',
@@ -1508,7 +1480,6 @@ final class PufferDesk_Runtime_Config {
 					'showToasts'   => __( 'Show notification banners', 'pufferdesk' ),
 					'quietMode'    => __( 'Quiet mode', 'pufferdesk' ),
 					'quietModeDescription' => __( 'Keep notifications in Notification Center without showing banners.', 'pufferdesk' ),
-					'playSound'    => __( 'Play sound', 'pufferdesk' ),
 					'historyDays'  => __( 'Keep history', 'pufferdesk' ),
 					'severity'     => __( 'Show', 'pufferdesk' ),
 				),
@@ -1528,28 +1499,6 @@ final class PufferDesk_Runtime_Config {
 					array( 'value' => '7', 'label' => __( '7 days', 'pufferdesk' ) ),
 					array( 'value' => '30', 'label' => __( '30 days', 'pufferdesk' ) ),
 					array( 'value' => '90', 'label' => __( '90 days', 'pufferdesk' ) ),
-				),
-			),
-			'sounds'        => array(
-				'headings'    => array(
-					'behavior' => __( 'Behavior', 'pufferdesk' ),
-					'output'   => __( 'Output', 'pufferdesk' ),
-				),
-				'rows'        => array(
-					'enabled' => __( 'Enable system sounds', 'pufferdesk' ),
-					'volume'  => __( 'Output volume', 'pufferdesk' ),
-				),
-				'ranges'      => array(
-					'low'  => __( 'Low', 'pufferdesk' ),
-					'high' => __( 'High', 'pufferdesk' ),
-				),
-				'status'      => array(
-					'title'          => __( 'Sound', 'pufferdesk' ),
-					'buttonLabel'    => __( 'Sound', 'pufferdesk' ),
-					'mutedLabel'     => __( 'Sound muted', 'pufferdesk' ),
-					'settings'       => __( 'Sound Settings', 'pufferdesk' ),
-					/* translators: %d: Sound output volume percentage. */
-					'volumeValue'    => __( 'Volume %d%', 'pufferdesk' ),
 				),
 			),
 			'wallpaper'    => array(
@@ -2513,10 +2462,6 @@ final class PufferDesk_Runtime_Config {
 				'window_restore'          => __( 'Restore', 'pufferdesk' ),
 				'window_move'             => __( 'Move', 'pufferdesk' ),
 				'window_size'             => __( 'Size', 'pufferdesk' ),
-				'sound'                   => __( 'Sound', 'pufferdesk' ),
-				'sound_mute'              => __( 'Mute', 'pufferdesk' ),
-				'sound_unmute'            => __( 'Unmute', 'pufferdesk' ),
-				'sound_settings'          => __( 'Sound Settings', 'pufferdesk' ),
 			),
 		);
 

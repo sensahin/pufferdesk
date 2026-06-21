@@ -10,12 +10,11 @@
 			return window.PufferDesk.notifications.normalizePreferences(preferences);
 		}
 
-		return Object.assign({
-			enabled: true,
-			history_days: 30,
-			play_sound: false,
-			quiet_mode: false,
-			severity: 'all',
+			return Object.assign({
+				enabled: true,
+				history_days: 30,
+				quiet_mode: false,
+				severity: 'all',
 			show_badges: true,
 			show_toasts: true,
 			sources: {}
@@ -117,12 +116,11 @@
 
 				return data.message || t('status.notificationsSaved');
 			},
-			payload: () => ({
-				enabled: currentPreferences.enabled ? '1' : '0',
-				history_days: currentPreferences.history_days,
-				play_sound: currentPreferences.play_sound ? '1' : '0',
-				quiet_mode: currentPreferences.quiet_mode ? '1' : '0',
-				severity: currentPreferences.severity,
+				payload: () => ({
+					enabled: currentPreferences.enabled ? '1' : '0',
+					history_days: currentPreferences.history_days,
+					quiet_mode: currentPreferences.quiet_mode ? '1' : '0',
+					severity: currentPreferences.severity,
 				show_badges: currentPreferences.show_badges ? '1' : '0',
 				show_toasts: currentPreferences.show_toasts ? '1' : '0',
 				sources: JSON.stringify(currentPreferences.sources || {})
@@ -242,11 +240,7 @@
 			t('notifications.rows.quietMode'),
 			t('notifications.rows.quietModeDescription')
 		));
-		behaviorSection.appendChild(createToggleRow(
-			'play_sound',
-			t('notifications.rows.playSound')
-		));
-		behaviorSection.appendChild(createSelectRow(
+			behaviorSection.appendChild(createSelectRow(
 			'severity',
 			t('notifications.rows.severity'),
 			'notifications.severityOptions'

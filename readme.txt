@@ -4,7 +4,7 @@ Tags: desktop, dashboard, admin, ui, productivity
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,6 +33,7 @@ Features include:
 == Source Code ==
 
 The release zip ships compiled assets under `assets/dist/`. Readable source files and build scripts are maintained at https://github.com/sensahin/pufferdesk, and `assets/dist/SOURCES.md` lists the source files used to build the compiled assets.
+Release packaging also checks package size budgets, rejects machine-specific files, and keeps source-only development assets out of the zip.
 
 == Installation ==
 
@@ -63,6 +64,12 @@ Yes. Theme, layout, window positions, launcher placement, widgets, folders, and 
 Use Classic Admin for that screen. PufferDesk is designed to keep the normal WordPress admin available as a fallback.
 
 == Changelog ==
+
+= 0.1.2 =
+
+* Refines light-mode sidebar colors in Settings and Folder windows.
+* Performs internal code cleanup and trims unused release assets.
+* Adds a WordPress.org Live Preview blueprint for opening PufferDesk in WordPress Playground.
 
 = 0.1.1 =
 

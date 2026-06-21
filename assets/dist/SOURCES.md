@@ -13,7 +13,6 @@ The release zip ships compiled assets from the source files listed below.
 - assets/css/core/context-menu.css
 - assets/css/core/tooltips.css
 - assets/css/core/notifications.css
-- assets/css/core/sound-status.css
 - assets/css/core/desktop.css
 - assets/css/core/widgets.css
 - assets/css/core/windows.css
@@ -51,11 +50,9 @@ The release zip ships compiled assets from the source files listed below.
 - assets/js/core/services/storage.js
 - assets/js/core/services/api-client.js
 - assets/js/core/services/content-search.js
-- assets/js/core/services/sound-manager.js
 - assets/js/core/notifications/notification-store.js
 - assets/js/core/notifications/toast-service.js
 - assets/js/core/notifications/notification-center.js
-- assets/js/core/shell/sound-status.js
 - assets/js/core/services/virtual-filesystem.js
 - assets/js/core/services/documents.js
 - assets/js/core/services/rich-text.js
@@ -109,7 +106,6 @@ The release zip ships compiled assets from the source files listed below.
 - assets/js/core/apps/settings/panel-menu-bar.js
 - assets/js/core/apps/settings/panel-native-admin.js
 - assets/js/core/apps/settings/panel-notifications.js
-- assets/js/core/apps/settings/panel-sounds.js
 - assets/js/core/apps/settings/panel-wallpaper.js
 - assets/js/core/apps/settings/panel-widgets.js
 - assets/js/core/apps/settings-app.js

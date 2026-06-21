@@ -180,7 +180,7 @@ final class PufferDesk_Theme_Registry {
 		 * Theme keys are stable IDs. Values accept:
 		 * id, label, family, family_label, version, version_label, parent,
 		 * stylesheet, stylesheets, media, wallpaper, wallpapers, icon_pack,
-		 * cursor_pack, app_labels, typography, tokens, mode_tokens, shell, menu, sounds,
+		 * cursor_pack, app_labels, typography, tokens, mode_tokens, shell, menu,
 		 * surfaces, window_chrome, abstract, and public.
 		 *
 		 * @param array<string,array<string,mixed>> $themes Registered themes.
@@ -324,7 +324,6 @@ final class PufferDesk_Theme_Registry {
 				'info_panel'     => $this->normalize_info_panel_config( isset( $theme['info_panel'] ) ? $theme['info_panel'] : array() ),
 				'dialogs'        => $this->normalize_dialog_config( isset( $theme['dialogs'] ) ? $theme['dialogs'] : array() ),
 				'documents'      => $this->normalize_document_config( isset( $theme['documents'] ) ? $theme['documents'] : array() ),
-				'sounds'         => $this->normalize_sound_config( isset( $theme['sounds'] ) ? $theme['sounds'] : array() ),
 				'surfaces'       => $this->normalize_surface_config( isset( $theme['surfaces'] ) ? $theme['surfaces'] : array() ),
 				'settings'       => $this->normalize_settings_config( isset( $theme['settings'] ) ? $theme['settings'] : array() ),
 				'window_chrome'  => $this->normalize_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() ),
@@ -374,7 +373,6 @@ final class PufferDesk_Theme_Registry {
 		$theme['info_panel']       = $this->merge_theme_config( $parent['info_panel'], $theme['info_panel'] );
 		$theme['dialogs']          = $this->complete_dialog_config( $this->merge_theme_config( $parent['dialogs'], $theme['dialogs'] ) );
 		$theme['documents']        = $this->complete_document_config( $this->merge_theme_config( $parent['documents'], $theme['documents'] ) );
-		$theme['sounds']           = $this->complete_sound_config( $this->merge_theme_config( $parent['sounds'], $theme['sounds'] ) );
 		$theme['surfaces']         = $this->complete_surface_config( $this->merge_theme_config( $parent['surfaces'], $theme['surfaces'] ) );
 		$theme['settings']         = $this->complete_settings_config( $this->merge_theme_config( $parent['settings'], $theme['settings'] ) );
 		$theme['window_chrome']    = $this->complete_window_chrome_config( $this->merge_theme_config( $parent['window_chrome'], $theme['window_chrome'] ) );
@@ -401,7 +399,6 @@ final class PufferDesk_Theme_Registry {
 		$theme['info_panel']       = isset( $theme['info_panel'] ) && is_array( $theme['info_panel'] ) ? $theme['info_panel'] : array();
 		$theme['dialogs']          = $this->complete_dialog_config( isset( $theme['dialogs'] ) ? $theme['dialogs'] : array() );
 		$theme['documents']        = $this->complete_document_config( isset( $theme['documents'] ) ? $theme['documents'] : array() );
-		$theme['sounds']           = $this->complete_sound_config( isset( $theme['sounds'] ) ? $theme['sounds'] : array() );
 		$theme['surfaces']         = $this->complete_surface_config( isset( $theme['surfaces'] ) ? $theme['surfaces'] : array() );
 		$theme['settings']         = $this->complete_settings_config( isset( $theme['settings'] ) ? $theme['settings'] : array() );
 		$theme['window_chrome']    = $this->complete_window_chrome_config( isset( $theme['window_chrome'] ) ? $theme['window_chrome'] : array() );
@@ -1280,91 +1277,6 @@ final class PufferDesk_Theme_Registry {
 	}
 
 	/**
-	 * Normalize theme sound metadata.
-	 *
-	 * @param mixed $sounds Raw sound metadata.
-	 * @return array<string,mixed>
-	 */
-	private function normalize_sound_config( $sounds ) {
-		if ( ! is_array( $sounds ) ) {
-			return array();
-		}
-
-		$normalized = array();
-
-		if ( array_key_exists( 'enabled', $sounds ) ) {
-			$normalized['enabled'] = $this->normalize_boolean( $sounds['enabled'] );
-		}
-
-		if ( array_key_exists( 'rateLimitMs', $sounds ) || array_key_exists( 'rate_limit_ms', $sounds ) ) {
-			$rate_limit = array_key_exists( 'rateLimitMs', $sounds ) ? $sounds['rateLimitMs'] : $sounds['rate_limit_ms'];
-			if ( is_numeric( $rate_limit ) ) {
-				$normalized['rateLimitMs'] = max( 0, min( 5000, absint( $rate_limit ) ) );
-			}
-		}
-
-		if ( isset( $sounds['events'] ) && is_array( $sounds['events'] ) ) {
-			$events = array();
-
-			foreach ( $sounds['events'] as $event_id => $event ) {
-				$event_id = strtolower( preg_replace( '/[^a-zA-Z0-9_.:-]/', '', (string) $event_id ) );
-				if ( '' === $event_id ) {
-					continue;
-				}
-
-				$event = $this->normalize_sound_event_config( $event );
-				if ( ! empty( $event ) ) {
-					$events[ $event_id ] = $event;
-				}
-			}
-
-			if ( ! empty( $events ) ) {
-				$normalized['events'] = $events;
-			}
-		}
-
-		return $normalized;
-	}
-
-	/**
-	 * Normalize one sound event descriptor.
-	 *
-	 * @param mixed $event Raw sound event descriptor.
-	 * @return array<string,mixed>
-	 */
-	private function normalize_sound_event_config( $event ) {
-		$descriptor = is_array( $event ) ? $event : array( 'src' => $event );
-		$path       = '';
-
-		foreach ( array( 'path', 'file', 'src' ) as $field ) {
-			if ( isset( $descriptor[ $field ] ) && is_scalar( $descriptor[ $field ] ) ) {
-				$path = (string) $descriptor[ $field ];
-				break;
-			}
-		}
-
-		$file = $this->normalize_media_file( $path );
-		if ( empty( $file['url'] ) ) {
-			return array();
-		}
-
-		$normalized = array(
-			'path' => $file['path'],
-			'src'  => $file['url'],
-		);
-
-		if ( isset( $descriptor['volume'] ) && is_numeric( $descriptor['volume'] ) ) {
-			$normalized['volume'] = max( 0, min( 1, (float) $descriptor['volume'] ) );
-		}
-
-		if ( isset( $descriptor['playbackRate'] ) && is_numeric( $descriptor['playbackRate'] ) ) {
-			$normalized['playbackRate'] = max( 0.5, min( 2, (float) $descriptor['playbackRate'] ) );
-		}
-
-		return $normalized;
-	}
-
-	/**
 	 * Normalize native settings app theme metadata.
 	 *
 	 * @param mixed $settings Raw settings metadata.
@@ -1489,18 +1401,6 @@ final class PufferDesk_Theme_Registry {
 	 */
 	private function complete_menu_config( $menu ) {
 		return is_array( $menu ) ? $menu : array();
-	}
-
-	/**
-	 * Apply defaults to sound metadata.
-	 *
-	 * Runtime config provides shared defaults; theme sound metadata is additive.
-	 *
-	 * @param mixed $sounds Sound metadata.
-	 * @return array<string,mixed>
-	 */
-	private function complete_sound_config( $sounds ) {
-		return is_array( $sounds ) ? $sounds : array();
 	}
 
 	/**

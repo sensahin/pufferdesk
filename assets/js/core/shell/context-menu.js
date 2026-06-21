@@ -698,41 +698,6 @@
 			return items;
 		}
 
-		function getSoundPreferences() {
-			if (window.PufferDesk.soundStatus && typeof window.PufferDesk.soundStatus.getPreferences === 'function') {
-				return window.PufferDesk.soundStatus.getPreferences();
-			}
-
-			if (window.PufferDesk.sound && typeof window.PufferDesk.sound.getPreferences === 'function') {
-				return window.PufferDesk.sound.getPreferences();
-			}
-
-			return {};
-		}
-
-		function isSoundMuted() {
-			const preferences = getSoundPreferences();
-			const volume = Number.parseInt(preferences.volume, 10);
-
-			return preferences.enabled === false || (Number.isFinite(volume) && volume <= 0);
-		}
-
-		function getSoundStatusItems() {
-			const muted = isSoundMuted();
-
-			return [
-				commandItem(muted ? getLabel('sound_unmute') : getLabel('sound_mute'), commandIds.SOUND_TOGGLE_MUTE, {
-					icon: muted ? 'dashicons-controls-volumeon' : 'dashicons-controls-volumeoff',
-					id: 'sound-toggle-mute'
-				}),
-				commandItem(getLabel('sound_settings'), commandIds.SETTINGS_OPEN_PANEL, {
-					icon: 'dashicons-format-audio',
-					id: 'sound-settings',
-					panel: 'sounds'
-				})
-			];
-		}
-
 		function getFolderItems(folder) {
 			if (!folder) {
 				return [];
@@ -1254,15 +1219,6 @@
 			]
 		}));
 
-		registerProvider(targets.SOUND_STATUS, () => ({
-			groups: [
-				{
-					id: 'primary',
-					items: getSoundStatusItems()
-				}
-			]
-		}));
-
 		registerProvider(itemTypes.FOLDER, (detail) => ({
 			groups: [
 				{
@@ -1510,7 +1466,6 @@
 			'.pdk-taskbar-status',
 			'.pdk-search-panel',
 			'.pdk-search-results',
-			'.pdk-sound-flyout',
 			'.pdk-notification-center',
 			'.pdk-notification-toasts',
 			'.pdk-menu-popover'

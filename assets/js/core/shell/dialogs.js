@@ -5,10 +5,9 @@
 	window.PufferDesk.shell = window.PufferDesk.shell || {};
 
 	window.PufferDesk.shell.createShellDialogs = function createShellDialogs(shell) {
-		const dom = window.PufferDesk.dom || null;
-		const geometry = window.PufferDesk.geometry;
-		const commandIds = (window.PufferDesk.shell && window.PufferDesk.shell.commands) || {};
-		let activeDialog = null;
+			const dom = window.PufferDesk.dom || null;
+			const geometry = window.PufferDesk.geometry;
+			let activeDialog = null;
 		let activeOverlay = null;
 
 		function getRuntimeConfig() {
@@ -68,92 +67,6 @@
 
 		function getDefaultAction(options = {}) {
 			return options.defaultAction === 'cancel' || options.default_action === 'cancel' ? 'cancel' : 'confirm';
-		}
-
-		function getSoundEvents() {
-			return window.PufferDesk.services && window.PufferDesk.services.soundEvents
-				? window.PufferDesk.services.soundEvents
-				: null;
-		}
-
-		function hasDestructiveAction(actions) {
-			return (Array.isArray(actions) ? actions : []).some((action) => {
-				const actionId = action && action.id ? normalizeClassToken(action.id, '') : '';
-				const variant = action && action.variant ? normalizeClassToken(action.variant, '') : '';
-
-				return ['delete', 'destroy', 'discard', 'erase', 'remove'].includes(actionId)
-					|| ['danger', 'delete', 'destructive'].includes(variant);
-			});
-		}
-
-		function getSoundEventFallback(eventKey) {
-			if (eventKey === 'dialogDestructive') {
-				return 'dialog.destructive';
-			}
-
-			if (eventKey === 'appError') {
-				return 'app.error';
-			}
-
-			if (eventKey === 'trashEmpty') {
-				return commandIds.TRASH_EMPTY;
-			}
-
-			return 'dialog.warning';
-		}
-
-		function getDialogSoundEvent(options = {}, fallbackVariant = 'default', actions = []) {
-			if (options.soundEvent === false || options.sound_event === false || options.silent === true) {
-				return null;
-			}
-
-			if (typeof options.soundEventKey === 'string' && options.soundEventKey) {
-				return {
-					fallback: getSoundEventFallback(options.soundEventKey),
-					key: options.soundEventKey
-				};
-			}
-
-			if (typeof options.sound_event_key === 'string' && options.sound_event_key) {
-				return {
-					fallback: getSoundEventFallback(options.sound_event_key),
-					key: options.sound_event_key
-				};
-			}
-
-			if (typeof options.soundEvent === 'string' && options.soundEvent) {
-				return {
-					fallback: options.soundEvent,
-					key: ''
-				};
-			}
-
-			if (typeof options.sound_event === 'string' && options.sound_event) {
-				return {
-					fallback: options.sound_event,
-					key: ''
-				};
-			}
-
-			const variant = normalizeClassToken(options.variant, fallbackVariant);
-			const destructive = options.destructive === true
-				|| ['danger', 'delete', 'delete-folder', 'destructive', 'erase', 'sticky-note-discard'].includes(variant)
-				|| hasDestructiveAction(actions);
-
-			return destructive
-				? { fallback: 'dialog.destructive', key: 'dialogDestructive' }
-				: { fallback: 'dialog.warning', key: 'dialogWarning' };
-		}
-
-		function playDialogSound(options = {}, fallbackVariant = 'default', actions = []) {
-			const soundEvents = getSoundEvents();
-			const soundEvent = getDialogSoundEvent(options, fallbackVariant, actions);
-
-			if (!soundEvents || typeof soundEvents.play !== 'function' || !soundEvent) {
-				return false;
-			}
-
-			return soundEvents.play(soundEvent.key, soundEvent.fallback);
 		}
 
 		function applyDialogMetadata(layer, dialog, options = {}, fallbackVariant = 'default') {
@@ -478,7 +391,6 @@
 				layer.appendChild(dialog);
 				shell.appendChild(layer);
 				activeDialog = layer;
-				playDialogSound(options, 'confirm');
 
 				window.requestAnimationFrame(() => {
 					layer.classList.add('is-visible');
@@ -571,7 +483,6 @@
 				layer.appendChild(dialog);
 				shell.appendChild(layer);
 				activeDialog = layer;
-				playDialogSound(options, 'choice', actions);
 
 				window.requestAnimationFrame(() => {
 					layer.classList.add('is-visible');
@@ -701,7 +612,6 @@
 				layer.appendChild(dialog);
 				shell.appendChild(layer);
 				activeDialog = layer;
-				playDialogSound(options, hasTimer ? 'timed-action' : 'action');
 
 				window.requestAnimationFrame(() => {
 					layer.classList.add('is-visible');

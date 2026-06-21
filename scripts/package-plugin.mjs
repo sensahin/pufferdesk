@@ -10,6 +10,11 @@ const pluginSlug = manifest.name;
 const releaseDir = path.join(root, 'release');
 const stagingRoot = path.join(releaseDir, pluginSlug);
 const zipPath = path.join(releaseDir, `${pluginSlug}-${manifest.version}.zip`);
+const machineSpecificFiles = new Set([
+	'.DS_Store',
+	'Thumbs.db',
+	'desktop.ini'
+]);
 
 const ignoredTopLevel = new Set([
 	'.git',
@@ -46,10 +51,13 @@ async function copyDirectory(source, target) {
 		if (source === root && ignoredTopLevel.has(entry.name)) {
 			continue;
 		}
-		if (entry.name === '.DS_Store') {
+		if (machineSpecificFiles.has(entry.name)) {
 			continue;
 		}
 		if (entry.name === 'README.md') {
+			continue;
+		}
+		if (source === path.join(root, 'languages') && entry.name.endsWith('.pot')) {
 			continue;
 		}
 		if (source === path.join(root, 'assets') && (entry.name === 'css' || entry.name === 'js')) {
@@ -67,8 +75,26 @@ async function copyDirectory(source, target) {
 	}
 }
 
+async function pruneMachineSpecificFiles(target) {
+	const entries = await fs.readdir(target, { withFileTypes: true });
+
+	for (const entry of entries) {
+		const absolute = path.join(target, entry.name);
+
+		if (machineSpecificFiles.has(entry.name)) {
+			await fs.rm(absolute, { force: true });
+			continue;
+		}
+
+		if (entry.isDirectory()) {
+			await pruneMachineSpecificFiles(absolute);
+		}
+	}
+}
+
 await fs.rm(releaseDir, { recursive: true, force: true });
 await copyDirectory(root, stagingRoot);
+await pruneMachineSpecificFiles(stagingRoot);
 await execFileAsync('zip', ['-qr', zipPath, pluginSlug], { cwd: releaseDir });
 
 console.log(`Created ${zipPath}`);

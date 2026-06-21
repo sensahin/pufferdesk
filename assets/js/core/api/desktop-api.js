@@ -25,11 +25,10 @@
 		const windowManager = context.windowManager || null;
 		const appLauncher = context.appLauncher || null;
 		const commandRegistry = context.commandRegistry || null;
-		const events = context.events || window.PufferDesk.events || null;
-		const nativeApps = context.nativeApps || window.PufferDesk.apps || {};
-		const notificationStore = context.notificationStore || window.PufferDesk.notificationStore || null;
-		const soundManager = context.soundManager || window.PufferDesk.sound || null;
-		const eventNames = events && events.names ? events.names : {};
+			const events = context.events || window.PufferDesk.events || null;
+			const nativeApps = context.nativeApps || window.PufferDesk.apps || {};
+			const notificationStore = context.notificationStore || window.PufferDesk.notificationStore || null;
+			const eventNames = events && events.names ? events.names : {};
 
 		function emit(name, detail = {}) {
 			if (events && typeof events.emit === 'function') {
@@ -154,9 +153,9 @@
 						: false;
 				}
 			},
-			notifications: {
-				dismiss(idOrIds) {
-					return notificationStore && typeof notificationStore.dismiss === 'function'
+				notifications: {
+					dismiss(idOrIds) {
+						return notificationStore && typeof notificationStore.dismiss === 'function'
 						? notificationStore.dismiss(idOrIds)
 						: Promise.resolve(null);
 				},
@@ -180,62 +179,13 @@
 						? notificationStore.notify(notification)
 						: null;
 				},
-				refresh() {
-					return notificationStore && typeof notificationStore.refresh === 'function'
-						? notificationStore.refresh()
-						: Promise.resolve(null);
-				}
-			},
-			sounds: {
-				canPlay(eventName) {
-					return soundManager && typeof soundManager.canPlay === 'function'
-						? soundManager.canPlay(eventName)
-						: false;
-				},
-				getPreferences() {
-					return soundManager && typeof soundManager.getPreferences === 'function'
-						? soundManager.getPreferences()
-						: {};
-				},
-				getEventId(key, fallback = '') {
-					return soundManager && typeof soundManager.getEventId === 'function'
-						? soundManager.getEventId(key, fallback)
-						: fallback;
-				},
-				play(eventName, options = {}) {
-					return soundManager && typeof soundManager.play === 'function'
-						? soundManager.play(eventName, options)
-						: false;
-				},
-				playNotification(notification = {}, preferences = null) {
-					const resolvedPreferences = preferences || (
-						notificationStore && typeof notificationStore.getPreferences === 'function'
-							? notificationStore.getPreferences()
-							: {}
-					);
-
-					return soundManager && typeof soundManager.playNotification === 'function'
-						? soundManager.playNotification(notification, resolvedPreferences)
-						: false;
-				},
-				unlock() {
-					if (soundManager && typeof soundManager.unlock === 'function') {
-						soundManager.unlock();
-						return true;
+					refresh() {
+						return notificationStore && typeof notificationStore.refresh === 'function'
+							? notificationStore.refresh()
+							: Promise.resolve(null);
 					}
-
-					return false;
 				},
-				setPreferences(preferences = {}, options = {}) {
-					if (soundManager && typeof soundManager.setPreferences === 'function') {
-						soundManager.setPreferences(preferences, options);
-						return true;
-					}
-
-					return false;
-				}
-			},
-			windows: {
+				windows: {
 				close(windowRef) {
 					return runWindowAction('closeWindow', windowRef);
 				},
