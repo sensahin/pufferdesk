@@ -1,10 +1,10 @@
-=== PufferDesk ===
+=== PufferDesk - Turn your admin into a desktop ===
 Contributors: senols
 Tags: desktop, dashboard, admin, ui, productivity
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.1.2
+Stable tag: 0.1.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,9 +61,16 @@ Yes. Theme, layout, window positions, launcher placement, widgets, folders, and 
 
 = What if an admin screen does not behave well in a window? =
 
-Use Classic Admin for that screen. PufferDesk is designed to keep the normal WordPress admin available as a fallback.
+PufferDesk shows a note with a Classic Admin action when a screen cannot be safely displayed in a window. The normal WordPress admin remains available as a fallback.
+Developers can mark custom apps or routes as Classic Admin-only with iframe compatibility metadata or the `pufferdesk_admin_screen_iframe_compatibility` filter.
 
 == Changelog ==
+
+= 0.1.3 =
+
+* Improves handling for admin screens that cannot safely initialize inside PufferDesk windows.
+* Fixes Classic Admin fallback links for iframe compatibility notices.
+* Cleans Plugin Check findings in source smoke tests and release packaging hygiene.
 
 = 0.1.2 =
 

@@ -40,6 +40,12 @@
 		const iconTypes = config.contracts && config.contracts.icons && config.contracts.icons.types
 			? config.contracts.icons.types
 			: {};
+		const appDescriptorContract = config.contracts && config.contracts.appDescriptors && typeof config.contracts.appDescriptors === 'object'
+			? config.contracts.appDescriptors
+			: {};
+		const iframeCompatibility = appDescriptorContract.iframeCompatibility && typeof appDescriptorContract.iframeCompatibility === 'object'
+			? appDescriptorContract.iframeCompatibility
+			: {};
 		const dragDropManager = options.dragDropManager || window.PufferDesk.dragDropManager || null;
 		const folderMenuOptions = window.PufferDesk.apps.createFolderMenuOptions
 			? window.PufferDesk.apps.createFolderMenuOptions({
@@ -587,6 +593,19 @@
 				: url;
 		}
 
+		function getRouteIframeCompatibility(route) {
+			const compatibility = route && typeof route.iframe_compatibility === 'string' ? route.iframe_compatibility : '';
+			const embed = iframeCompatibility.EMBED || 'embed';
+
+			return compatibility && Object.keys(iframeCompatibility).some((key) => iframeCompatibility[key] === compatibility)
+				? compatibility
+				: embed;
+		}
+
+		function routeRequiresClassicAdmin(route) {
+			return getRouteIframeCompatibility(route) === (iframeCompatibility.CLASSIC || 'classic');
+		}
+
 		function urlsMatch(first, second) {
 			if (first === second) {
 				return true;
@@ -620,10 +639,20 @@
 
 			win.dataset.pdkWindowUrl = route.url;
 			win.dataset.pdkActiveAppRoute = route.id || '';
-			if (options.navigate !== false) {
+			if (manager && typeof manager.setIframeCompatibility === 'function') {
+				manager.setIframeCompatibility(win, getRouteIframeCompatibility(route));
+			}
+			if (routeRequiresClassicAdmin(route)) {
+				if (manager && typeof manager.showIframeCompatibilityNotice === 'function') {
+					manager.showIframeCompatibilityNotice(win, {
+						url: route.url
+					});
+				}
+			} else if (options.navigate !== false) {
 				const frameUrl = getWindowFrameUrl(route.url);
 				const currentFrameUrl = frame.getAttribute('src') || '';
-				if (!urlsMatch(currentFrameUrl, frameUrl)) {
+				const shouldRefreshErrorState = win.dataset && win.dataset.pdkIframeState === 'error';
+				if (shouldRefreshErrorState || !urlsMatch(currentFrameUrl, frameUrl)) {
 					if (manager && typeof manager.prepareIframeNavigation === 'function') {
 						manager.prepareIframeNavigation(win);
 					}

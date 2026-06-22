@@ -144,15 +144,16 @@ final class PufferDesk_Admin_Context_Resolver {
 			}
 
 			$normalized[] = array(
-				'id'      => sanitize_key( (string) $route['id'] ),
-				'label'   => sanitize_text_field( (string) $route['label'] ),
-				'url'     => esc_url_raw( (string) $route['url'] ),
-				'appId'   => ! empty( $route['app_id'] ) ? sanitize_key( (string) $route['app_id'] ) : ( ! empty( $route['appId'] ) ? sanitize_key( (string) $route['appId'] ) : '' ),
-				'parent'  => ! empty( $route['parent'] ) ? sanitize_text_field( (string) $route['parent'] ) : '',
-				'slug'    => ! empty( $route['slug'] ) ? sanitize_text_field( (string) $route['slug'] ) : '',
-				'cap'     => ! empty( $route['cap'] ) ? sanitize_text_field( (string) $route['cap'] ) : PufferDesk_App_Normalizer::DEFAULT_CAPABILITY,
-				'command' => PufferDesk_Command_Ids::APP_OPEN_ROUTE,
-				'target'  => ! empty( $route['target'] ) ? sanitize_key( (string) $route['target'] ) : '',
+				'id'                   => sanitize_key( (string) $route['id'] ),
+				'label'                => sanitize_text_field( (string) $route['label'] ),
+				'url'                  => esc_url_raw( (string) $route['url'] ),
+				'appId'                => ! empty( $route['app_id'] ) ? sanitize_key( (string) $route['app_id'] ) : ( ! empty( $route['appId'] ) ? sanitize_key( (string) $route['appId'] ) : '' ),
+				'parent'               => ! empty( $route['parent'] ) ? sanitize_text_field( (string) $route['parent'] ) : '',
+				'slug'                 => ! empty( $route['slug'] ) ? sanitize_text_field( (string) $route['slug'] ) : '',
+				'cap'                  => ! empty( $route['cap'] ) ? sanitize_text_field( (string) $route['cap'] ) : PufferDesk_App_Normalizer::DEFAULT_CAPABILITY,
+				'command'              => PufferDesk_Command_Ids::APP_OPEN_ROUTE,
+				'target'               => ! empty( $route['target'] ) ? sanitize_key( (string) $route['target'] ) : '',
+				'iframe_compatibility' => PufferDesk_App_Normalizer::normalize_iframe_compatibility( isset( $route['iframe_compatibility'] ) ? $route['iframe_compatibility'] : PufferDesk_App_Normalizer::IFRAME_COMPATIBILITY_EMBED ),
 			);
 		}
 

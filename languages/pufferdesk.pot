@@ -2,28 +2,27 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: PufferDesk 0.1.2\n"
+"Project-Id-Version: PufferDesk - Turn your admin into a desktop 0.1.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/pufferdesk\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-20T17:33:38+00:00\n"
+"POT-Creation-Date: 2026-06-22T07:25:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: pufferdesk\n"
 
 #. Plugin Name of the plugin
 #: pufferdesk.php
-#: includes/class-pufferdesk-product-labels.php:20
-msgid "PufferDesk"
+msgid "PufferDesk - Turn your admin into a desktop"
 msgstr ""
 
 #. Description of the plugin
 #: pufferdesk.php
-#: includes/class-pufferdesk-runtime-config.php:713
-#: includes/class-pufferdesk-runtime-config.php:714
+#: includes/class-pufferdesk-runtime-config.php:717
+#: includes/class-pufferdesk-runtime-config.php:718
 msgid "Turn your WordPress admin into a desktop."
 msgstr ""
 
@@ -55,23 +54,23 @@ msgid "%s status"
 msgstr ""
 
 #: includes/class-pufferdesk-app-menu-normalizer.php:57
-#: includes/class-pufferdesk-runtime-config.php:2126
-#: includes/class-pufferdesk-runtime-config.php:2189
+#: includes/class-pufferdesk-runtime-config.php:2130
+#: includes/class-pufferdesk-runtime-config.php:2193
 msgid "App"
 msgstr ""
 
 #: includes/class-pufferdesk-app-menu-normalizer.php:58
-#: includes/class-pufferdesk-runtime-config.php:316
+#: includes/class-pufferdesk-runtime-config.php:320
 msgid "File"
 msgstr ""
 
 #: includes/class-pufferdesk-app-menu-normalizer.php:59
-#: includes/class-pufferdesk-runtime-config.php:1303
+#: includes/class-pufferdesk-runtime-config.php:1307
 msgid "Edit"
 msgstr ""
 
 #: includes/class-pufferdesk-app-menu-normalizer.php:60
-#: includes/class-pufferdesk-runtime-config.php:2299
+#: includes/class-pufferdesk-runtime-config.php:2303
 msgid "View"
 msgstr ""
 
@@ -103,15 +102,15 @@ msgstr ""
 #: includes/class-pufferdesk-app-menu-normalizer.php:149
 #: includes/class-pufferdesk-app-menu-normalizer.php:215
 #: includes/class-pufferdesk-app-menu-normalizer.php:603
-#: includes/class-pufferdesk-runtime-config.php:2325
+#: includes/class-pufferdesk-runtime-config.php:2329
 msgid "Hide Others"
 msgstr ""
 
 #: includes/class-pufferdesk-app-menu-normalizer.php:154
 #: includes/class-pufferdesk-app-menu-normalizer.php:219
 #: includes/class-pufferdesk-app-menu-normalizer.php:607
-#: includes/class-pufferdesk-runtime-config.php:2322
-#: includes/class-pufferdesk-runtime-config.php:2323
+#: includes/class-pufferdesk-runtime-config.php:2326
+#: includes/class-pufferdesk-runtime-config.php:2327
 msgid "Show All"
 msgstr ""
 
@@ -122,7 +121,7 @@ msgstr ""
 #: includes/class-pufferdesk-app-menu-normalizer.php:202
 #: includes/class-pufferdesk-app-registry.php:133
 #: includes/class-pufferdesk-app-registry.php:136
-#: includes/class-pufferdesk-runtime-config.php:1075
+#: includes/class-pufferdesk-runtime-config.php:1079
 #: includes/class-pufferdesk-virtual-filesystem.php:313
 msgid "Users"
 msgstr ""
@@ -140,16 +139,16 @@ msgid "Quit Users"
 msgstr ""
 
 #: includes/class-pufferdesk-app-menu-normalizer.php:234
-#: includes/class-pufferdesk-runtime-config.php:1028
-#: includes/class-pufferdesk-runtime-config.php:1029
-#: includes/class-pufferdesk-runtime-config.php:1035
-#: includes/class-pufferdesk-runtime-config.php:2139
+#: includes/class-pufferdesk-runtime-config.php:1032
+#: includes/class-pufferdesk-runtime-config.php:1033
+#: includes/class-pufferdesk-runtime-config.php:1039
+#: includes/class-pufferdesk-runtime-config.php:2143
 msgid "Add User"
 msgstr ""
 
 #: includes/class-pufferdesk-app-menu-normalizer.php:240
-#: includes/class-pufferdesk-runtime-config.php:1051
-#: includes/class-pufferdesk-runtime-config.php:2140
+#: includes/class-pufferdesk-runtime-config.php:1055
+#: includes/class-pufferdesk-runtime-config.php:2144
 msgid "Open Profile"
 msgstr ""
 
@@ -169,93 +168,93 @@ msgid "Quit %s"
 msgstr ""
 
 #: includes/class-pufferdesk-app-menu-normalizer.php:647
-#: includes/class-pufferdesk-runtime-config.php:2418
+#: includes/class-pufferdesk-runtime-config.php:2422
 msgid "Scoped to PufferDesk windows."
 msgstr ""
 
 #: includes/class-pufferdesk-app-menu-normalizer.php:651
-#: includes/class-pufferdesk-runtime-config.php:2298
+#: includes/class-pufferdesk-runtime-config.php:2302
 msgid "Zoom"
 msgstr ""
 
 #. translators: %s: version number.
-#: includes/class-pufferdesk-app-normalizer.php:98
+#: includes/class-pufferdesk-app-normalizer.php:113
 msgid "Version %s"
 msgstr ""
 
 #. translators: %s: author name.
-#: includes/class-pufferdesk-app-normalizer.php:100
+#: includes/class-pufferdesk-app-normalizer.php:115
 msgid "By %s"
 msgstr ""
 
 #. translators: %s: current year.
-#: includes/class-pufferdesk-app-normalizer.php:102
+#: includes/class-pufferdesk-app-normalizer.php:117
 msgid "Copyright (c) %s PufferDesk contributors."
 msgstr ""
 
-#: includes/class-pufferdesk-app-normalizer.php:103
-#: includes/class-pufferdesk-app-normalizer.php:161
+#: includes/class-pufferdesk-app-normalizer.php:118
+#: includes/class-pufferdesk-app-normalizer.php:176
 msgid "Licensed under GPLv2 or later."
 msgstr ""
 
 #. translators: %s: WordPress version number.
-#: includes/class-pufferdesk-app-normalizer.php:152
+#: includes/class-pufferdesk-app-normalizer.php:167
 msgid "WordPress Version %s"
 msgstr ""
 
-#: includes/class-pufferdesk-app-normalizer.php:155
-#: includes/class-pufferdesk-app-normalizer.php:164
-#: includes/class-pufferdesk-runtime-config.php:651
-#: includes/class-pufferdesk-runtime-config.php:679
-#: includes/class-pufferdesk-runtime-config.php:1314
-#: includes/class-pufferdesk-runtime-config.php:1319
-#: includes/class-pufferdesk-runtime-config.php:2304
+#: includes/class-pufferdesk-app-normalizer.php:170
+#: includes/class-pufferdesk-app-normalizer.php:179
+#: includes/class-pufferdesk-runtime-config.php:655
+#: includes/class-pufferdesk-runtime-config.php:683
+#: includes/class-pufferdesk-runtime-config.php:1318
+#: includes/class-pufferdesk-runtime-config.php:1323
+#: includes/class-pufferdesk-runtime-config.php:2308
 msgid "WordPress"
 msgstr ""
 
 #. translators: %s: current year.
-#: includes/class-pufferdesk-app-normalizer.php:158
+#: includes/class-pufferdesk-app-normalizer.php:173
 msgid "Copyright (c) 2003-%s WordPress contributors."
 msgstr ""
 
-#: includes/class-pufferdesk-app-normalizer.php:165
+#: includes/class-pufferdesk-app-normalizer.php:180
 msgid "WordPress core feature."
 msgstr ""
 
 #: includes/class-pufferdesk-app-registry.php:60
 #: includes/class-pufferdesk-app-registry.php:63
-#: includes/class-pufferdesk-runtime-config.php:2068
+#: includes/class-pufferdesk-runtime-config.php:2072
 msgid "Dashboard"
 msgstr ""
 
 #: includes/class-pufferdesk-app-registry.php:69
 #: includes/class-pufferdesk-app-registry.php:72
-#: includes/class-pufferdesk-runtime-config.php:533
-#: includes/class-pufferdesk-runtime-config.php:1058
-#: includes/class-pufferdesk-runtime-config.php:2184
+#: includes/class-pufferdesk-runtime-config.php:537
+#: includes/class-pufferdesk-runtime-config.php:1062
+#: includes/class-pufferdesk-runtime-config.php:2188
 msgid "Posts"
 msgstr ""
 
 #: includes/class-pufferdesk-app-registry.php:78
-#: includes/class-pufferdesk-runtime-config.php:454
-#: includes/class-pufferdesk-runtime-config.php:497
+#: includes/class-pufferdesk-runtime-config.php:458
+#: includes/class-pufferdesk-runtime-config.php:501
 msgid "Sticky Notes"
 msgstr ""
 
 #: includes/class-pufferdesk-app-registry.php:88
 #: includes/class-pufferdesk-app-registry.php:91
-#: includes/class-pufferdesk-runtime-config.php:528
-#: includes/class-pufferdesk-runtime-config.php:2185
+#: includes/class-pufferdesk-runtime-config.php:532
+#: includes/class-pufferdesk-runtime-config.php:2189
 msgid "Pages"
 msgstr ""
 
 #: includes/class-pufferdesk-app-registry.php:97
 #: includes/class-pufferdesk-app-registry.php:100
 #: includes/class-pufferdesk-content-search-service.php:186
-#: includes/class-pufferdesk-runtime-config.php:523
-#: includes/class-pufferdesk-runtime-config.php:524
-#: includes/class-pufferdesk-runtime-config.php:2186
-#: includes/class-pufferdesk-runtime-config.php:2195
+#: includes/class-pufferdesk-runtime-config.php:527
+#: includes/class-pufferdesk-runtime-config.php:528
+#: includes/class-pufferdesk-runtime-config.php:2190
+#: includes/class-pufferdesk-runtime-config.php:2199
 msgid "Media"
 msgstr ""
 
@@ -264,29 +263,29 @@ msgstr ""
 #: includes/class-pufferdesk-notification-normalizer.php:187
 #: includes/class-pufferdesk-notification-registry.php:637
 #: includes/class-pufferdesk-notification-registry.php:654
-#: includes/class-pufferdesk-runtime-config.php:1488
+#: includes/class-pufferdesk-runtime-config.php:1492
 msgid "Comments"
 msgstr ""
 
 #: includes/class-pufferdesk-app-registry.php:115
 #: includes/class-pufferdesk-app-registry.php:118
-#: includes/class-pufferdesk-runtime-config.php:1248
-#: includes/class-pufferdesk-runtime-config.php:1346
-#: includes/class-pufferdesk-runtime-config.php:1347
+#: includes/class-pufferdesk-runtime-config.php:1252
+#: includes/class-pufferdesk-runtime-config.php:1350
+#: includes/class-pufferdesk-runtime-config.php:1351
 #: includes/class-pufferdesk-settings-registry.php:306
 msgid "Appearance"
 msgstr ""
 
 #: includes/class-pufferdesk-app-registry.php:124
 #: includes/class-pufferdesk-app-registry.php:127
-#: includes/class-pufferdesk-runtime-config.php:2305
+#: includes/class-pufferdesk-runtime-config.php:2309
 msgid "Plugins"
 msgstr ""
 
 #: includes/class-pufferdesk-app-registry.php:153
 #: includes/class-pufferdesk-app-registry.php:156
-#: includes/class-pufferdesk-runtime-config.php:1183
-#: includes/class-pufferdesk-runtime-config.php:2187
+#: includes/class-pufferdesk-runtime-config.php:1187
+#: includes/class-pufferdesk-runtime-config.php:2191
 msgid "Settings"
 msgstr ""
 
@@ -296,7 +295,7 @@ msgid "Tools"
 msgstr ""
 
 #: includes/class-pufferdesk-app-registry.php:171
-#: includes/class-pufferdesk-runtime-config.php:2332
+#: includes/class-pufferdesk-runtime-config.php:2336
 #: includes/class-pufferdesk-settings-registry.php:316
 #: includes/class-pufferdesk-virtual-filesystem.php:302
 msgid "Trash"
@@ -307,10 +306,10 @@ msgstr ""
 #: includes/class-pufferdesk-notification-normalizer.php:189
 #: includes/class-pufferdesk-notification-registry.php:689
 #: includes/class-pufferdesk-notification-registry.php:717
-#: includes/class-pufferdesk-runtime-config.php:1322
-#: includes/class-pufferdesk-runtime-config.php:1489
-#: includes/class-pufferdesk-runtime-config.php:1691
+#: includes/class-pufferdesk-runtime-config.php:1326
+#: includes/class-pufferdesk-runtime-config.php:1493
 #: includes/class-pufferdesk-runtime-config.php:1695
+#: includes/class-pufferdesk-runtime-config.php:1699
 msgid "Site Health"
 msgstr ""
 
@@ -329,14 +328,14 @@ msgid "%1$s - %2$s"
 msgstr ""
 
 #: includes/class-pufferdesk-content-search-service.php:176
-#: includes/class-pufferdesk-runtime-config.php:534
-#: includes/class-pufferdesk-runtime-config.php:2193
+#: includes/class-pufferdesk-runtime-config.php:538
+#: includes/class-pufferdesk-runtime-config.php:2197
 msgid "Post"
 msgstr ""
 
 #: includes/class-pufferdesk-content-search-service.php:181
-#: includes/class-pufferdesk-runtime-config.php:529
-#: includes/class-pufferdesk-runtime-config.php:2194
+#: includes/class-pufferdesk-runtime-config.php:533
+#: includes/class-pufferdesk-runtime-config.php:2198
 msgid "Page"
 msgstr ""
 
@@ -345,7 +344,7 @@ msgid "Untitled media item"
 msgstr ""
 
 #: includes/class-pufferdesk-content-search-service.php:223
-#: includes/class-pufferdesk-runtime-config.php:2135
+#: includes/class-pufferdesk-runtime-config.php:2139
 msgid "Untitled"
 msgstr ""
 
@@ -382,24 +381,24 @@ msgstr ""
 #: includes/class-pufferdesk-notification-normalizer.php:185
 #: includes/class-pufferdesk-notification-registry.php:592
 #: includes/class-pufferdesk-notification-registry.php:609
-#: includes/class-pufferdesk-runtime-config.php:1628
-#: includes/class-pufferdesk-runtime-config.php:1683
-#: includes/class-pufferdesk-runtime-config.php:1974
+#: includes/class-pufferdesk-runtime-config.php:1632
+#: includes/class-pufferdesk-runtime-config.php:1687
+#: includes/class-pufferdesk-runtime-config.php:1978
 msgid "WordPress Updates"
 msgstr ""
 
 #: includes/class-pufferdesk-notification-normalizer.php:191
-#: includes/class-pufferdesk-runtime-config.php:305
-#: includes/class-pufferdesk-runtime-config.php:1260
-#: includes/class-pufferdesk-runtime-config.php:1410
-#: includes/class-pufferdesk-runtime-config.php:1528
-#: includes/class-pufferdesk-runtime-config.php:2127
-#: includes/class-pufferdesk-runtime-config.php:2180
+#: includes/class-pufferdesk-runtime-config.php:309
+#: includes/class-pufferdesk-runtime-config.php:1264
+#: includes/class-pufferdesk-runtime-config.php:1414
+#: includes/class-pufferdesk-runtime-config.php:1532
+#: includes/class-pufferdesk-runtime-config.php:2131
+#: includes/class-pufferdesk-runtime-config.php:2184
 msgid "Apps"
 msgstr ""
 
 #: includes/class-pufferdesk-notification-registry.php:84
-#: includes/class-pufferdesk-runtime-config.php:1280
+#: includes/class-pufferdesk-runtime-config.php:1284
 #: includes/class-pufferdesk-settings-registry.php:322
 msgid "Notifications"
 msgstr ""
@@ -450,7 +449,7 @@ msgid "PufferDesk command failed."
 msgstr ""
 
 #: includes/class-pufferdesk-notification-registry.php:99
-#: includes/class-pufferdesk-runtime-config.php:2272
+#: includes/class-pufferdesk-runtime-config.php:2276
 msgid "Refresh"
 msgstr ""
 
@@ -560,6 +559,10 @@ msgstr ""
 msgid "Classic Admin is still one click away."
 msgstr ""
 
+#: includes/class-pufferdesk-product-labels.php:20
+msgid "PufferDesk"
+msgstr ""
+
 #: includes/class-pufferdesk-product-labels.php:29
 msgid "Classic Admin"
 msgstr ""
@@ -605,10 +608,10 @@ msgid "PufferDesk Desktop"
 msgstr ""
 
 #: includes/class-pufferdesk-runtime-config.php:114
-#: includes/class-pufferdesk-runtime-config.php:493
-#: includes/class-pufferdesk-runtime-config.php:1230
-#: includes/class-pufferdesk-runtime-config.php:2178
-#: includes/class-pufferdesk-runtime-config.php:2404
+#: includes/class-pufferdesk-runtime-config.php:497
+#: includes/class-pufferdesk-runtime-config.php:1234
+#: includes/class-pufferdesk-runtime-config.php:2182
+#: includes/class-pufferdesk-runtime-config.php:2408
 #: includes/class-pufferdesk-theme-registry.php:1001
 msgid "Search"
 msgstr ""
@@ -647,750 +650,758 @@ msgstr ""
 msgid "%s window"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:244
-#: includes/class-pufferdesk-runtime-config.php:479
+#: includes/class-pufferdesk-runtime-config.php:246
+#: includes/class-pufferdesk-runtime-config.php:483
 msgid "Loading..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:246
+#: includes/class-pufferdesk-runtime-config.php:248
 msgid "This page could not be safely embedded."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:247
+#: includes/class-pufferdesk-runtime-config.php:249
 msgid "PufferDesk kept the page covered because it did not confirm iframe mode."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:248
+#: includes/class-pufferdesk-runtime-config.php:250
+msgid "This admin screen cannot be displayed inside PufferDesk."
+msgstr ""
+
+#: includes/class-pufferdesk-runtime-config.php:251
+msgid "Some plugin screens require the standard WordPress admin page to finish loading."
+msgstr ""
+
+#: includes/class-pufferdesk-runtime-config.php:252
 msgid "Retry"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:249
+#: includes/class-pufferdesk-runtime-config.php:253
 msgid "Open in Classic Admin"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:299
-#: includes/class-pufferdesk-runtime-config.php:637
-#: includes/class-pufferdesk-runtime-config.php:2369
+#: includes/class-pufferdesk-runtime-config.php:303
+#: includes/class-pufferdesk-runtime-config.php:641
+#: includes/class-pufferdesk-runtime-config.php:2373
 msgid "About This Site"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:300
-#: includes/class-pufferdesk-runtime-config.php:356
+#: includes/class-pufferdesk-runtime-config.php:304
+#: includes/class-pufferdesk-runtime-config.php:360
 #: includes/class-pufferdesk-theme-registry.php:148
 #: includes/class-pufferdesk-theme-registry.php:167
 msgid "Visibility"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:301
+#: includes/class-pufferdesk-runtime-config.php:305
 msgid "applications"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:302
+#: includes/class-pufferdesk-runtime-config.php:306
 msgid "application"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:303
+#: includes/class-pufferdesk-runtime-config.php:307
 msgid "Apply"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:304
+#: includes/class-pufferdesk-runtime-config.php:308
 msgid "Archive"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:306
+#: includes/class-pufferdesk-runtime-config.php:310
 msgid "Attributes"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:307
-#: includes/class-pufferdesk-runtime-config.php:463
-#: includes/class-pufferdesk-runtime-config.php:558
-#: includes/class-pufferdesk-runtime-config.php:1033
-#: includes/class-pufferdesk-runtime-config.php:1224
-#: includes/class-pufferdesk-runtime-config.php:1870
-#: includes/class-pufferdesk-runtime-config.php:1882
-#: includes/class-pufferdesk-runtime-config.php:1898
-#: includes/class-pufferdesk-runtime-config.php:1909
-#: includes/class-pufferdesk-runtime-config.php:1920
-#: includes/class-pufferdesk-runtime-config.php:1931
-#: includes/class-pufferdesk-runtime-config.php:1942
-#: includes/class-pufferdesk-runtime-config.php:1949
-#: includes/class-pufferdesk-runtime-config.php:2146
-#: includes/class-pufferdesk-runtime-config.php:2349
+#: includes/class-pufferdesk-runtime-config.php:311
+#: includes/class-pufferdesk-runtime-config.php:467
+#: includes/class-pufferdesk-runtime-config.php:562
+#: includes/class-pufferdesk-runtime-config.php:1037
+#: includes/class-pufferdesk-runtime-config.php:1228
+#: includes/class-pufferdesk-runtime-config.php:1874
+#: includes/class-pufferdesk-runtime-config.php:1886
+#: includes/class-pufferdesk-runtime-config.php:1902
+#: includes/class-pufferdesk-runtime-config.php:1913
+#: includes/class-pufferdesk-runtime-config.php:1924
+#: includes/class-pufferdesk-runtime-config.php:1935
+#: includes/class-pufferdesk-runtime-config.php:1946
+#: includes/class-pufferdesk-runtime-config.php:1953
+#: includes/class-pufferdesk-runtime-config.php:2150
+#: includes/class-pufferdesk-runtime-config.php:2353
 msgid "Cancel"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:308
+#: includes/class-pufferdesk-runtime-config.php:312
 msgid "Visible to users with matching WordPress capabilities"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:309
+#: includes/class-pufferdesk-runtime-config.php:313
 msgid "Contains"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:310
+#: includes/class-pufferdesk-runtime-config.php:314
 #: includes/class-pufferdesk-theme-registry.php:149
 msgid "Added"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:311
-#: includes/class-pufferdesk-runtime-config.php:2192
-#: includes/class-pufferdesk-runtime-config.php:2292
+#: includes/class-pufferdesk-runtime-config.php:315
+#: includes/class-pufferdesk-runtime-config.php:2196
+#: includes/class-pufferdesk-runtime-config.php:2296
 msgid "Document"
 msgstr ""
 
 #. translators: %s: item label.
-#: includes/class-pufferdesk-runtime-config.php:313
-#: includes/class-pufferdesk-runtime-config.php:319
+#: includes/class-pufferdesk-runtime-config.php:317
+#: includes/class-pufferdesk-runtime-config.php:323
 #: includes/class-pufferdesk-theme-registry.php:151
 #: includes/class-pufferdesk-theme-registry.php:153
 msgid "%s Details"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:314
+#: includes/class-pufferdesk-runtime-config.php:318
 msgid "File folder"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:315
+#: includes/class-pufferdesk-runtime-config.php:319
 msgid "Files"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:317
 #: includes/class-pufferdesk-runtime-config.php:321
-#: includes/class-pufferdesk-runtime-config.php:2130
-#: includes/class-pufferdesk-runtime-config.php:2133
-#: includes/class-pufferdesk-runtime-config.php:2191
+#: includes/class-pufferdesk-runtime-config.php:325
+#: includes/class-pufferdesk-runtime-config.php:2134
+#: includes/class-pufferdesk-runtime-config.php:2137
+#: includes/class-pufferdesk-runtime-config.php:2195
 msgid "Folder"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:320
-#: includes/class-pufferdesk-runtime-config.php:2131
-#: includes/class-pufferdesk-runtime-config.php:2182
-#: includes/class-pufferdesk-runtime-config.php:2400
+#: includes/class-pufferdesk-runtime-config.php:324
+#: includes/class-pufferdesk-runtime-config.php:2135
+#: includes/class-pufferdesk-runtime-config.php:2186
+#: includes/class-pufferdesk-runtime-config.php:2404
 msgid "Folders"
 msgstr ""
 
 #. translators: %s: folder contents count.
-#: includes/class-pufferdesk-runtime-config.php:323
+#: includes/class-pufferdesk-runtime-config.php:327
 msgid "%s in this folder"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:324
+#: includes/class-pufferdesk-runtime-config.php:328
 #: includes/class-pufferdesk-theme-registry.php:154
 msgid "Overview"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:325
-#: includes/class-pufferdesk-runtime-config.php:1171
-#: includes/class-pufferdesk-runtime-config.php:1178
+#: includes/class-pufferdesk-runtime-config.php:329
+#: includes/class-pufferdesk-runtime-config.php:1175
+#: includes/class-pufferdesk-runtime-config.php:1182
 msgid "Hidden"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:326
-#: includes/class-pufferdesk-runtime-config.php:2145
-#: includes/class-pufferdesk-runtime-config.php:2264
+#: includes/class-pufferdesk-runtime-config.php:330
+#: includes/class-pufferdesk-runtime-config.php:2149
+#: includes/class-pufferdesk-runtime-config.php:2268
 #: includes/class-pufferdesk-theme-registry.php:138
 #: includes/class-pufferdesk-theme-registry.php:155
 msgid "Details"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:327
-#: includes/class-pufferdesk-runtime-config.php:2295
+#: includes/class-pufferdesk-runtime-config.php:331
+#: includes/class-pufferdesk-runtime-config.php:2299
 msgid "items"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:328
-#: includes/class-pufferdesk-runtime-config.php:2294
+#: includes/class-pufferdesk-runtime-config.php:332
+#: includes/class-pufferdesk-runtime-config.php:2298
 msgid "item"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:330
+#: includes/class-pufferdesk-runtime-config.php:334
 msgid "Items"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:331
-#: includes/class-pufferdesk-runtime-config.php:361
+#: includes/class-pufferdesk-runtime-config.php:335
+#: includes/class-pufferdesk-runtime-config.php:365
 #: includes/class-pufferdesk-theme-registry.php:156
 #: includes/class-pufferdesk-theme-registry.php:170
 msgid "Item type"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:332
+#: includes/class-pufferdesk-runtime-config.php:336
 #: includes/class-pufferdesk-theme-registry.php:157
 msgid "Last opened"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:333
+#: includes/class-pufferdesk-runtime-config.php:337
 msgid "Location"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:334
+#: includes/class-pufferdesk-runtime-config.php:338
 #: includes/class-pufferdesk-theme-registry.php:159
 msgid "Updated"
 msgstr ""
 
 #. translators: %s: formatted modified date.
-#: includes/class-pufferdesk-runtime-config.php:336
+#: includes/class-pufferdesk-runtime-config.php:340
 #: includes/class-pufferdesk-theme-registry.php:161
 msgid "Updated %s"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:337
+#: includes/class-pufferdesk-runtime-config.php:341
 #: includes/class-pufferdesk-theme-registry.php:162
 msgid "Open details"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:338
+#: includes/class-pufferdesk-runtime-config.php:342
 #: includes/class-pufferdesk-theme-registry.php:163
 msgid "Activity"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:339
-#: includes/class-pufferdesk-runtime-config.php:1049
-#: includes/class-pufferdesk-runtime-config.php:1317
-#: includes/class-pufferdesk-runtime-config.php:2222
+#: includes/class-pufferdesk-runtime-config.php:343
+#: includes/class-pufferdesk-runtime-config.php:1053
+#: includes/class-pufferdesk-runtime-config.php:1321
+#: includes/class-pufferdesk-runtime-config.php:2226
 #: includes/class-pufferdesk-theme-registry.php:164
 msgid "Name"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:340
+#: includes/class-pufferdesk-runtime-config.php:344
 msgid "No items to preview."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:341
+#: includes/class-pufferdesk-runtime-config.php:345
 msgid "Not available"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:342
-#: includes/class-pufferdesk-runtime-config.php:560
+#: includes/class-pufferdesk-runtime-config.php:346
+#: includes/class-pufferdesk-runtime-config.php:564
 msgid "OK"
 msgstr ""
 
 #. translators: %s: preview item count.
-#: includes/class-pufferdesk-runtime-config.php:345
+#: includes/class-pufferdesk-runtime-config.php:349
 msgid "%s available."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:346
+#: includes/class-pufferdesk-runtime-config.php:350
 #: includes/class-pufferdesk-theme-registry.php:165
 msgid "Preview"
 msgstr ""
 
 #. translators: 1: folder count, 2: folder label, 3: file count, 4: file label.
-#: includes/class-pufferdesk-runtime-config.php:348
+#: includes/class-pufferdesk-runtime-config.php:352
 msgid "%1$d %2$s, %3$d %4$s"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:349
+#: includes/class-pufferdesk-runtime-config.php:353
 msgid "Customize"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:350
-#: includes/class-pufferdesk-runtime-config.php:1242
-#: includes/class-pufferdesk-runtime-config.php:1312
+#: includes/class-pufferdesk-runtime-config.php:354
+#: includes/class-pufferdesk-runtime-config.php:1246
+#: includes/class-pufferdesk-runtime-config.php:1316
 msgid "General"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:351
+#: includes/class-pufferdesk-runtime-config.php:355
 msgid "Previous Versions"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:352
+#: includes/class-pufferdesk-runtime-config.php:356
 msgid "Sharing"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:353
+#: includes/class-pufferdesk-runtime-config.php:357
 msgid "Properties tabs"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:354
+#: includes/class-pufferdesk-runtime-config.php:358
 #: includes/class-pufferdesk-theme-registry.php:166
 msgid "Only visible in this WordPress account"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:355
+#: includes/class-pufferdesk-runtime-config.php:359
 msgid "Read-only (Only applies to files in folder)"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:357
+#: includes/class-pufferdesk-runtime-config.php:361
 #: includes/class-pufferdesk-theme-registry.php:168
 msgid "Site diagnostics"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:358
-#: includes/class-pufferdesk-runtime-config.php:1415
-#: includes/class-pufferdesk-runtime-config.php:2230
-#: includes/class-pufferdesk-runtime-config.php:2464
+#: includes/class-pufferdesk-runtime-config.php:362
+#: includes/class-pufferdesk-runtime-config.php:1419
+#: includes/class-pufferdesk-runtime-config.php:2234
+#: includes/class-pufferdesk-runtime-config.php:2468
 msgid "Size"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:359
+#: includes/class-pufferdesk-runtime-config.php:363
 msgid "Size on disk"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:360
+#: includes/class-pufferdesk-runtime-config.php:364
 msgid "Source"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:362
+#: includes/class-pufferdesk-runtime-config.php:366
 #: includes/class-pufferdesk-theme-registry.php:158
 #: includes/class-pufferdesk-theme-registry.php:171
 msgid "Path"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:364
-#: includes/class-pufferdesk-runtime-config.php:1316
+#: includes/class-pufferdesk-runtime-config.php:368
+#: includes/class-pufferdesk-runtime-config.php:1320
 msgid "WordPress Site"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:365
+#: includes/class-pufferdesk-runtime-config.php:369
 msgid "0 bytes"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:461
+#: includes/class-pufferdesk-runtime-config.php:465
 msgid "Bold"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:462
+#: includes/class-pufferdesk-runtime-config.php:466
 msgid "Bullet list"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:465
+#: includes/class-pufferdesk-runtime-config.php:469
 msgid "Could not load sticky notes."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:466
-#: includes/class-pufferdesk-runtime-config.php:2364
-#: includes/class-pufferdesk-runtime-config.php:2407
+#: includes/class-pufferdesk-runtime-config.php:470
+#: includes/class-pufferdesk-runtime-config.php:2368
+#: includes/class-pufferdesk-runtime-config.php:2411
 msgid "Delete"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:467
+#: includes/class-pufferdesk-runtime-config.php:471
 msgid "Delete Note"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:468
+#: includes/class-pufferdesk-runtime-config.php:472
 msgid "Delete this note?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:469
+#: includes/class-pufferdesk-runtime-config.php:473
 msgid "Deleted"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:470
+#: includes/class-pufferdesk-runtime-config.php:474
 msgid "Discard Note"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:471
+#: includes/class-pufferdesk-runtime-config.php:475
 msgid "Are you sure you want to discard this sticky note?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:472
+#: includes/class-pufferdesk-runtime-config.php:476
 msgid "If you don't save this note, its contents will be lost."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:473
+#: includes/class-pufferdesk-runtime-config.php:477
 msgid "Formatting"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:474
+#: includes/class-pufferdesk-runtime-config.php:478
 msgid "Make Full Screen"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:475
+#: includes/class-pufferdesk-runtime-config.php:479
 msgid "Hide Note"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:476
+#: includes/class-pufferdesk-runtime-config.php:480
 msgid "Image URL"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:477
+#: includes/class-pufferdesk-runtime-config.php:481
 msgid "Insert image"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:478
+#: includes/class-pufferdesk-runtime-config.php:482
 msgid "Italic"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:480
-#: includes/class-pufferdesk-runtime-config.php:2138
+#: includes/class-pufferdesk-runtime-config.php:484
+#: includes/class-pufferdesk-runtime-config.php:2142
 msgid "New Note"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:481
-#: includes/class-pufferdesk-runtime-config.php:2144
+#: includes/class-pufferdesk-runtime-config.php:485
+#: includes/class-pufferdesk-runtime-config.php:2148
 msgid "New Sticky Note"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:482
+#: includes/class-pufferdesk-runtime-config.php:486
 msgid "No matching notes"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:483
+#: includes/class-pufferdesk-runtime-config.php:487
 msgid "No sticky notes"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:484
+#: includes/class-pufferdesk-runtime-config.php:488
 msgid "Note options"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:485
+#: includes/class-pufferdesk-runtime-config.php:489
 msgid "Notes list"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:486
-#: includes/class-pufferdesk-runtime-config.php:2218
+#: includes/class-pufferdesk-runtime-config.php:490
+#: includes/class-pufferdesk-runtime-config.php:2222
 msgid "Save"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:487
+#: includes/class-pufferdesk-runtime-config.php:491
 msgid "Save As:"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:488
+#: includes/class-pufferdesk-runtime-config.php:492
 msgid "Save Sticky Note"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:489
+#: includes/class-pufferdesk-runtime-config.php:493
 msgid "Save..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:490
+#: includes/class-pufferdesk-runtime-config.php:494
 msgid "No save locations available."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:491
+#: includes/class-pufferdesk-runtime-config.php:495
 msgid "Saved"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:492
-#: includes/class-pufferdesk-runtime-config.php:1065
-#: includes/class-pufferdesk-runtime-config.php:1185
+#: includes/class-pufferdesk-runtime-config.php:496
+#: includes/class-pufferdesk-runtime-config.php:1069
+#: includes/class-pufferdesk-runtime-config.php:1189
 msgid "Saving..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:494
+#: includes/class-pufferdesk-runtime-config.php:498
 msgid "Search..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:495
-#: includes/class-pufferdesk-runtime-config.php:1484
-#: includes/class-pufferdesk-runtime-config.php:2149
+#: includes/class-pufferdesk-runtime-config.php:499
+#: includes/class-pufferdesk-runtime-config.php:1488
+#: includes/class-pufferdesk-runtime-config.php:2153
 msgid "Show"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:498
+#: includes/class-pufferdesk-runtime-config.php:502
 msgid "Take a note..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:499
+#: includes/class-pufferdesk-runtime-config.php:503
 msgid "Sticky Notes service unavailable."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:500
+#: includes/class-pufferdesk-runtime-config.php:504
 msgid "Strikethrough"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:501
+#: includes/class-pufferdesk-runtime-config.php:505
 msgid "Underline"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:503
+#: includes/class-pufferdesk-runtime-config.php:507
 msgid "Path:"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:577
-#: includes/class-pufferdesk-runtime-config.php:584
-#: includes/class-pufferdesk-runtime-config.php:1301
+#: includes/class-pufferdesk-runtime-config.php:581
+#: includes/class-pufferdesk-runtime-config.php:588
+#: includes/class-pufferdesk-runtime-config.php:1305
 msgid "WordPress User"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:604
-#: includes/class-pufferdesk-runtime-config.php:833
+#: includes/class-pufferdesk-runtime-config.php:608
+#: includes/class-pufferdesk-runtime-config.php:837
 msgid "Unknown"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:623
+#: includes/class-pufferdesk-runtime-config.php:627
 msgid "PHP"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:627
+#: includes/class-pufferdesk-runtime-config.php:631
 msgid "Database"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:631
+#: includes/class-pufferdesk-runtime-config.php:635
 msgid "Server"
 msgstr ""
 
 #. translators: %s: WordPress release name.
-#: includes/class-pufferdesk-runtime-config.php:648
+#: includes/class-pufferdesk-runtime-config.php:652
 msgid "WordPress %s"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:656
+#: includes/class-pufferdesk-runtime-config.php:660
 msgid "Theme Settings..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:657
-#: includes/class-pufferdesk-runtime-config.php:1377
+#: includes/class-pufferdesk-runtime-config.php:661
+#: includes/class-pufferdesk-runtime-config.php:1381
 msgid "Themes"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:689
-#: includes/class-pufferdesk-runtime-config.php:735
-#: includes/class-pufferdesk-runtime-config.php:1324
+#: includes/class-pufferdesk-runtime-config.php:693
+#: includes/class-pufferdesk-runtime-config.php:739
+#: includes/class-pufferdesk-runtime-config.php:1328
 msgid "More Info..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:692
-#: includes/class-pufferdesk-runtime-config.php:1325
+#: includes/class-pufferdesk-runtime-config.php:696
+#: includes/class-pufferdesk-runtime-config.php:1329
 msgid "Site Health Info"
 msgstr ""
 
 #. translators: %s: PufferDesk plugin version.
-#: includes/class-pufferdesk-runtime-config.php:696
-#: includes/class-pufferdesk-runtime-config.php:741
+#: includes/class-pufferdesk-runtime-config.php:700
+#: includes/class-pufferdesk-runtime-config.php:745
 msgid "PufferDesk %s · Built for WordPress admin."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:710
-#: includes/class-pufferdesk-runtime-config.php:1989
-#: includes/class-pufferdesk-runtime-config.php:2370
+#: includes/class-pufferdesk-runtime-config.php:714
+#: includes/class-pufferdesk-runtime-config.php:1993
+#: includes/class-pufferdesk-runtime-config.php:2374
 msgid "About PufferDesk"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:719
-#: includes/class-pufferdesk-runtime-config.php:732
+#: includes/class-pufferdesk-runtime-config.php:723
+#: includes/class-pufferdesk-runtime-config.php:736
 msgid "GPLv2 or later"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:723
+#: includes/class-pufferdesk-runtime-config.php:727
 msgid "Version"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:727
+#: includes/class-pufferdesk-runtime-config.php:731
 msgid "Author"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:731
+#: includes/class-pufferdesk-runtime-config.php:735
 msgid "License"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:847
+#: includes/class-pufferdesk-runtime-config.php:851
 #: includes/class-pufferdesk-theme-registry.php:110
 #: includes/class-pufferdesk-theme-registry.php:993
 msgid "Launcher"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:848
+#: includes/class-pufferdesk-runtime-config.php:852
 #: includes/class-pufferdesk-theme-registry.php:111
 #: includes/class-pufferdesk-theme-registry.php:994
 msgid "Desktop & Launcher"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:849
+#: includes/class-pufferdesk-runtime-config.php:853
 #: includes/class-pufferdesk-theme-registry.php:112
 #: includes/class-pufferdesk-theme-registry.php:995
 msgid "Launcher & Desktop"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:850
+#: includes/class-pufferdesk-runtime-config.php:854
 #: includes/class-pufferdesk-theme-registry.php:113
 #: includes/class-pufferdesk-theme-registry.php:996
 msgid "Launcher position on screen"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:851
+#: includes/class-pufferdesk-runtime-config.php:855
 #: includes/class-pufferdesk-theme-registry.php:114
 #: includes/class-pufferdesk-theme-registry.php:997
 msgid "Automatically hide the launcher"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:852
+#: includes/class-pufferdesk-runtime-config.php:856
 #: includes/class-pufferdesk-theme-registry.php:115
 #: includes/class-pufferdesk-theme-registry.php:998
 msgid "Launcher Options"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:853
+#: includes/class-pufferdesk-runtime-config.php:857
 #: includes/class-pufferdesk-theme-registry.php:116
 #: includes/class-pufferdesk-theme-registry.php:1003
 msgid "Keep in Launcher"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:854
+#: includes/class-pufferdesk-runtime-config.php:858
 #: includes/class-pufferdesk-theme-registry.php:117
 #: includes/class-pufferdesk-theme-registry.php:1004
 msgid "Remove from Launcher"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:855
+#: includes/class-pufferdesk-runtime-config.php:859
 #: includes/class-pufferdesk-theme-registry.php:118
 #: includes/class-pufferdesk-theme-registry.php:1005
 msgid "Open at startup"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:856
+#: includes/class-pufferdesk-runtime-config.php:860
 #: includes/class-pufferdesk-theme-registry.php:121
 #: includes/class-pufferdesk-theme-registry.php:1008
 msgid "Top Bar"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:857
+#: includes/class-pufferdesk-runtime-config.php:861
 #: includes/class-pufferdesk-theme-registry.php:122
 #: includes/class-pufferdesk-theme-registry.php:1009
 msgid "Show top bar background"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1030
+#: includes/class-pufferdesk-runtime-config.php:1034
 msgid "Advanced Details"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1031
+#: includes/class-pufferdesk-runtime-config.php:1035
 msgid "All roles"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1032
+#: includes/class-pufferdesk-runtime-config.php:1036
 msgid "Bio"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1034
+#: includes/class-pufferdesk-runtime-config.php:1038
 #: includes/class-pufferdesk-window-chrome-contracts.php:133
 msgid "Close"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1036
+#: includes/class-pufferdesk-runtime-config.php:1040
 msgid "User Details"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1037
+#: includes/class-pufferdesk-runtime-config.php:1041
 msgid "Display name"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1038
+#: includes/class-pufferdesk-runtime-config.php:1042
 msgid "Edit in WordPress"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1039
+#: includes/class-pufferdesk-runtime-config.php:1043
 msgid "Edit Profile"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1040
+#: includes/class-pufferdesk-runtime-config.php:1044
 msgid "Email"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1041
+#: includes/class-pufferdesk-runtime-config.php:1045
 msgid "Try a different search term or role filter."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1042
+#: includes/class-pufferdesk-runtime-config.php:1046
 msgid "No users found"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1043
+#: includes/class-pufferdesk-runtime-config.php:1047
 msgid "First name"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1044
+#: includes/class-pufferdesk-runtime-config.php:1048
 msgid "Send the new user an email invitation"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1045
+#: includes/class-pufferdesk-runtime-config.php:1049
 msgid "Last name"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1046
+#: includes/class-pufferdesk-runtime-config.php:1050
 msgid "Loading users..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1047
+#: includes/class-pufferdesk-runtime-config.php:1051
 msgid "Username"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1048
+#: includes/class-pufferdesk-runtime-config.php:1052
 msgid "Set username manually"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1050
+#: includes/class-pufferdesk-runtime-config.php:1054
 msgid "This native workflow is disabled in Settings."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1052
+#: includes/class-pufferdesk-runtime-config.php:1056
 msgid "No users"
 msgstr ""
 
 #. translators: 1: Current page number, 2: Total page count.
-#: includes/class-pufferdesk-runtime-config.php:1054
+#: includes/class-pufferdesk-runtime-config.php:1058
 msgid "Page %1$d of %2$d"
 msgstr ""
 
 #. translators: 1: First visible user number, 2: Last visible user number, 3: Total users.
-#: includes/class-pufferdesk-runtime-config.php:1056
+#: includes/class-pufferdesk-runtime-config.php:1060
 msgid "Showing %1$d-%2$d of %3$d"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1057
+#: includes/class-pufferdesk-runtime-config.php:1061
 #: includes/class-pufferdesk-users-controller.php:37
 msgid "You do not have permission to view users."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1059
+#: includes/class-pufferdesk-runtime-config.php:1063
 msgid "Next"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1060
+#: includes/class-pufferdesk-runtime-config.php:1064
 msgid "Previous"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1061
+#: includes/class-pufferdesk-runtime-config.php:1065
 msgid "Profile"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1062
+#: includes/class-pufferdesk-runtime-config.php:1066
 msgid "Registered"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1063
+#: includes/class-pufferdesk-runtime-config.php:1067
 msgid "Role"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1064
+#: includes/class-pufferdesk-runtime-config.php:1068
 msgid "Save Profile"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1066
-#: includes/class-pufferdesk-runtime-config.php:1067
+#: includes/class-pufferdesk-runtime-config.php:1070
+#: includes/class-pufferdesk-runtime-config.php:1071
 msgid "Search users"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1068
+#: includes/class-pufferdesk-runtime-config.php:1072
 msgid "Users could not be loaded."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1069
+#: includes/class-pufferdesk-runtime-config.php:1073
 msgid "WordPress account directory"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1070
+#: includes/class-pufferdesk-runtime-config.php:1074
 msgid "Leave blank to generate it from the email address."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1071
+#: includes/class-pufferdesk-runtime-config.php:1075
 msgid "Website"
 msgstr ""
 
 #. translators: %d: Number of users.
-#: includes/class-pufferdesk-runtime-config.php:1073
+#: includes/class-pufferdesk-runtime-config.php:1077
 msgid "%d users"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1074
+#: includes/class-pufferdesk-runtime-config.php:1078
 #: includes/class-pufferdesk-users-controller.php:141
 msgid "User added."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1151
-#: includes/class-pufferdesk-runtime-config.php:1362
+#: includes/class-pufferdesk-runtime-config.php:1155
+#: includes/class-pufferdesk-runtime-config.php:1366
 #: includes/class-pufferdesk-theme-registry.php:25
 #: includes/class-pufferdesk-theme-registry.php:38
 #: includes/class-pufferdesk-theme-registry.php:40
@@ -1401,1866 +1412,1866 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1170
-#: includes/class-pufferdesk-runtime-config.php:1176
-#: includes/class-pufferdesk-runtime-config.php:1411
-#: includes/class-pufferdesk-runtime-config.php:2128
-#: includes/class-pufferdesk-runtime-config.php:2397
+#: includes/class-pufferdesk-runtime-config.php:1174
+#: includes/class-pufferdesk-runtime-config.php:1180
+#: includes/class-pufferdesk-runtime-config.php:1415
+#: includes/class-pufferdesk-runtime-config.php:2132
+#: includes/class-pufferdesk-runtime-config.php:2401
 #: includes/class-pufferdesk-virtual-filesystem.php:308
 msgid "Desktop"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1186
+#: includes/class-pufferdesk-runtime-config.php:1190
 msgid "Removing..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1187
+#: includes/class-pufferdesk-runtime-config.php:1191
 msgid "Settings service unavailable."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1188
+#: includes/class-pufferdesk-runtime-config.php:1192
 msgid "Appearance could not be saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1189
+#: includes/class-pufferdesk-runtime-config.php:1193
 #: includes/class-pufferdesk-settings-controller.php:247
 msgid "Appearance saved."
 msgstr ""
 
 #. translators: %s: settings section label.
-#: includes/class-pufferdesk-runtime-config.php:1192
-#: includes/class-pufferdesk-runtime-config.php:1201
+#: includes/class-pufferdesk-runtime-config.php:1196
+#: includes/class-pufferdesk-runtime-config.php:1205
 msgid "%s could not be saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1195
+#: includes/class-pufferdesk-runtime-config.php:1199
 msgid "App locations could not be saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1196
+#: includes/class-pufferdesk-runtime-config.php:1200
 #: includes/class-pufferdesk-settings-controller.php:148
 msgid "App locations saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1197
+#: includes/class-pufferdesk-runtime-config.php:1201
 msgid "Login items could not be saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1198
+#: includes/class-pufferdesk-runtime-config.php:1202
 #: includes/class-pufferdesk-settings-controller.php:174
 msgid "Login items saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1204
+#: includes/class-pufferdesk-runtime-config.php:1208
 msgid "Native admin experiences could not be saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1205
+#: includes/class-pufferdesk-runtime-config.php:1209
 #: includes/class-pufferdesk-settings-controller.php:287
 msgid "Native admin experiences saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1206
+#: includes/class-pufferdesk-runtime-config.php:1210
 msgid "Notifications could not be saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1207
+#: includes/class-pufferdesk-runtime-config.php:1211
 #: includes/class-pufferdesk-settings-controller.php:320
 msgid "Notifications saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1208
+#: includes/class-pufferdesk-runtime-config.php:1212
 msgid "Wallpaper could not be saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1209
+#: includes/class-pufferdesk-runtime-config.php:1213
 #: includes/class-pufferdesk-settings-controller.php:396
 msgid "Wallpaper saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1210
+#: includes/class-pufferdesk-runtime-config.php:1214
 msgid "Photo could not be removed."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1211
+#: includes/class-pufferdesk-runtime-config.php:1215
 #: includes/class-pufferdesk-settings-controller.php:431
 msgid "Photo removed."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1212
+#: includes/class-pufferdesk-runtime-config.php:1216
 msgid "Theme could not be saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1213
+#: includes/class-pufferdesk-runtime-config.php:1217
 #: includes/class-pufferdesk-settings-controller.php:351
 msgid "Theme saved."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1214
+#: includes/class-pufferdesk-runtime-config.php:1218
 msgid "Switching theme..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1215
+#: includes/class-pufferdesk-runtime-config.php:1219
 msgid "PufferDesk settings could not be reset."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1216
+#: includes/class-pufferdesk-runtime-config.php:1220
 msgid "Media Library is not available for this user."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1217
+#: includes/class-pufferdesk-runtime-config.php:1221
 msgid "Choose a valid image."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1220
-#: includes/class-pufferdesk-runtime-config.php:2278
+#: includes/class-pufferdesk-runtime-config.php:1224
+#: includes/class-pufferdesk-runtime-config.php:2282
 msgid "Back"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1221
-#: includes/class-pufferdesk-runtime-config.php:2279
+#: includes/class-pufferdesk-runtime-config.php:1225
+#: includes/class-pufferdesk-runtime-config.php:2283
 msgid "Forward"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1225
+#: includes/class-pufferdesk-runtime-config.php:1229
 msgid "Reset Layout"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1226
+#: includes/class-pufferdesk-runtime-config.php:1230
 msgid "This will reset windows, desktop icons, widgets, and folders for the current theme."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1227
+#: includes/class-pufferdesk-runtime-config.php:1231
 msgid "Reset layout?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1231
+#: includes/class-pufferdesk-runtime-config.php:1235
 msgid "Search settings"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1232
+#: includes/class-pufferdesk-runtime-config.php:1236
 msgid "Search results"
 msgstr ""
 
 #. translators: %s: Settings search query.
-#: includes/class-pufferdesk-runtime-config.php:1234
+#: includes/class-pufferdesk-runtime-config.php:1238
 msgid "Results for \"%s\""
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1235
+#: includes/class-pufferdesk-runtime-config.php:1239
 msgid "No settings found"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1236
+#: includes/class-pufferdesk-runtime-config.php:1240
 msgid "Try a different setting, label, or description."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1237
+#: includes/class-pufferdesk-runtime-config.php:1241
 msgid "Open setting"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1238
+#: includes/class-pufferdesk-runtime-config.php:1242
 msgid "Settings sections"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1273
+#: includes/class-pufferdesk-runtime-config.php:1277
 msgid "Admin Experiences"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1286
+#: includes/class-pufferdesk-runtime-config.php:1290
 #: includes/class-pufferdesk-settings-registry.php:326
 msgid "Wallpaper"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1292
-#: includes/class-pufferdesk-runtime-config.php:1412
-#: includes/class-pufferdesk-runtime-config.php:1519
+#: includes/class-pufferdesk-runtime-config.php:1296
+#: includes/class-pufferdesk-runtime-config.php:1416
 #: includes/class-pufferdesk-runtime-config.php:1523
+#: includes/class-pufferdesk-runtime-config.php:1527
 msgid "Widgets"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1299
+#: includes/class-pufferdesk-runtime-config.php:1303
 msgid "WordPress Account"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1300
-#: includes/class-pufferdesk-runtime-config.php:2125
+#: includes/class-pufferdesk-runtime-config.php:1304
+#: includes/class-pufferdesk-runtime-config.php:2129
 msgid "Admin"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1302
+#: includes/class-pufferdesk-runtime-config.php:1306
 msgid "Edit profile"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1304
+#: includes/class-pufferdesk-runtime-config.php:1308
 msgid "WordPress Profile"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1305
+#: includes/class-pufferdesk-runtime-config.php:1309
 msgid "Personal Information"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1306
+#: includes/class-pufferdesk-runtime-config.php:1310
 msgid "Name, contact, website, and bio"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1307
+#: includes/class-pufferdesk-runtime-config.php:1311
 msgid "Role & Permissions"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1308
+#: includes/class-pufferdesk-runtime-config.php:1312
 msgid "Current access level"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1309
+#: includes/class-pufferdesk-runtime-config.php:1313
 msgid "Sign Out..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1313
+#: includes/class-pufferdesk-runtime-config.php:1317
 msgid "Manage site information, updates, language, privacy, and WordPress tools."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1315
-#: includes/class-pufferdesk-runtime-config.php:1671
-#: includes/class-pufferdesk-runtime-config.php:2151
+#: includes/class-pufferdesk-runtime-config.php:1319
+#: includes/class-pufferdesk-runtime-config.php:1675
+#: includes/class-pufferdesk-runtime-config.php:2155
 msgid "About"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1318
-#: includes/class-pufferdesk-runtime-config.php:2155
+#: includes/class-pufferdesk-runtime-config.php:1322
+#: includes/class-pufferdesk-runtime-config.php:2159
 msgid "Address"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1320
+#: includes/class-pufferdesk-runtime-config.php:1324
 msgid "Displays"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1321
+#: includes/class-pufferdesk-runtime-config.php:1325
 msgid "Diagnostics"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1323
+#: includes/class-pufferdesk-runtime-config.php:1327
 msgid "WordPress diagnostics and environment report"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1327
+#: includes/class-pufferdesk-runtime-config.php:1331
 msgid "WordPress site"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1328
+#: includes/class-pufferdesk-runtime-config.php:1332
 msgid "General Settings"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1329
-#: includes/class-pufferdesk-runtime-config.php:2329
+#: includes/class-pufferdesk-runtime-config.php:1333
+#: includes/class-pufferdesk-runtime-config.php:2333
 msgid "Rename"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1330
-#: includes/class-pufferdesk-runtime-config.php:1627
+#: includes/class-pufferdesk-runtime-config.php:1334
+#: includes/class-pufferdesk-runtime-config.php:1631
 msgid "WordPress Update"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1331
-#: includes/class-pufferdesk-runtime-config.php:1634
+#: includes/class-pufferdesk-runtime-config.php:1335
+#: includes/class-pufferdesk-runtime-config.php:1638
 msgid "Up to date"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1332
-#: includes/class-pufferdesk-runtime-config.php:1633
+#: includes/class-pufferdesk-runtime-config.php:1336
+#: includes/class-pufferdesk-runtime-config.php:1637
 msgid "Attention needed"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1333
+#: includes/class-pufferdesk-runtime-config.php:1337
 msgid "WordPress updates are ready to review."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1334
+#: includes/class-pufferdesk-runtime-config.php:1338
 msgid "Review now"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1335
+#: includes/class-pufferdesk-runtime-config.php:1339
 msgid "Recommended settings"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1336
+#: includes/class-pufferdesk-runtime-config.php:1340
 msgid "Recent and commonly used settings"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1337
+#: includes/class-pufferdesk-runtime-config.php:1341
 msgid "Personalize your desktop"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1338
+#: includes/class-pufferdesk-runtime-config.php:1342
 msgid "Color mode"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1339
+#: includes/class-pufferdesk-runtime-config.php:1343
 msgid "Browse more backgrounds and colors"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1340
+#: includes/class-pufferdesk-runtime-config.php:1344
 msgid "Launcher, desktop, apps, and widgets"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1341
+#: includes/class-pufferdesk-runtime-config.php:1345
 msgid "Notification Center and alerts"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1342
+#: includes/class-pufferdesk-runtime-config.php:1346
 msgid "Colors and theme"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1348
+#: includes/class-pufferdesk-runtime-config.php:1352
 msgid "Style"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1349
+#: includes/class-pufferdesk-runtime-config.php:1353
 msgid "Color"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1350
-#: includes/class-pufferdesk-runtime-config.php:1351
+#: includes/class-pufferdesk-runtime-config.php:1354
+#: includes/class-pufferdesk-runtime-config.php:1355
 #: includes/class-pufferdesk-settings-registry.php:324
 msgid "Theme"
 msgstr ""
 
 #. translators: 1: theme family label, 2: theme version label.
-#: includes/class-pufferdesk-runtime-config.php:1353
-#: includes/class-pufferdesk-runtime-config.php:2320
+#: includes/class-pufferdesk-runtime-config.php:1357
+#: includes/class-pufferdesk-runtime-config.php:2324
 msgid "%1$s · %2$s"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1356
-#: includes/class-pufferdesk-runtime-config.php:2303
+#: includes/class-pufferdesk-runtime-config.php:1360
+#: includes/class-pufferdesk-runtime-config.php:2307
 msgid "System"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1357
+#: includes/class-pufferdesk-runtime-config.php:1361
 msgid "Light"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1358
+#: includes/class-pufferdesk-runtime-config.php:1362
 msgid "Dark"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1361
+#: includes/class-pufferdesk-runtime-config.php:1365
 #: includes/class-pufferdesk-wallpaper-registry.php:702
 msgid "Blue"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1363
+#: includes/class-pufferdesk-runtime-config.php:1367
 msgid "Purple"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1364
+#: includes/class-pufferdesk-runtime-config.php:1368
 #: includes/class-pufferdesk-wallpaper-registry.php:718
 msgid "Pink"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1365
+#: includes/class-pufferdesk-runtime-config.php:1369
 msgid "Red"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1366
+#: includes/class-pufferdesk-runtime-config.php:1370
 msgid "Orange"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1367
+#: includes/class-pufferdesk-runtime-config.php:1371
 #: includes/class-pufferdesk-wallpaper-registry.php:730
 msgid "Yellow"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1368
+#: includes/class-pufferdesk-runtime-config.php:1372
 msgid "Green"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1369
+#: includes/class-pufferdesk-runtime-config.php:1373
 msgid "Graphite"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1373
+#: includes/class-pufferdesk-runtime-config.php:1377
 msgid "Background"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1374
+#: includes/class-pufferdesk-runtime-config.php:1378
 msgid "Background image, color, slideshow"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1375
-#: includes/class-pufferdesk-runtime-config.php:1506
+#: includes/class-pufferdesk-runtime-config.php:1379
+#: includes/class-pufferdesk-runtime-config.php:1510
 msgid "Colors"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1376
+#: includes/class-pufferdesk-runtime-config.php:1380
 msgid "Accent color, transparency effects, color theme"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1378
+#: includes/class-pufferdesk-runtime-config.php:1382
 msgid "Install, create, manage"
 msgstr ""
 
 #. translators: %s: theme-specific launcher label.
-#: includes/class-pufferdesk-runtime-config.php:1382
+#: includes/class-pufferdesk-runtime-config.php:1386
 msgid "%s behaviors and system pins"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1385
+#: includes/class-pufferdesk-runtime-config.php:1389
 msgid "Choose your mode"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1386
+#: includes/class-pufferdesk-runtime-config.php:1390
 msgid "Change the colors that appear in PufferDesk and your apps"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1387
+#: includes/class-pufferdesk-runtime-config.php:1391
 msgid "Accent color"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1388
+#: includes/class-pufferdesk-runtime-config.php:1392
 msgid "Current theme"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1389
+#: includes/class-pufferdesk-runtime-config.php:1393
 msgid "Choose the theme used by this desktop."
 msgstr ""
 
 #. translators: %s: theme-specific launcher label.
-#: includes/class-pufferdesk-runtime-config.php:1392
+#: includes/class-pufferdesk-runtime-config.php:1396
 msgid "%s items"
 msgstr ""
 
 #. translators: %s: theme-specific launcher label.
-#: includes/class-pufferdesk-runtime-config.php:1397
+#: includes/class-pufferdesk-runtime-config.php:1401
 msgid "Show or hide buttons that appear in the %s"
 msgstr ""
 
 #. translators: %s: theme-specific launcher label.
-#: includes/class-pufferdesk-runtime-config.php:1402
+#: includes/class-pufferdesk-runtime-config.php:1406
 msgid "%s behaviors"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1405
+#: includes/class-pufferdesk-runtime-config.php:1409
 msgid "Alignment, hiding, and app indicators"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1416
+#: includes/class-pufferdesk-runtime-config.php:1420
 msgid "Magnification"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1418
+#: includes/class-pufferdesk-runtime-config.php:1422
 msgid "Minimized window animation"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1419
+#: includes/class-pufferdesk-runtime-config.php:1423
 msgid "Minimize windows into application icon"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1421
+#: includes/class-pufferdesk-runtime-config.php:1425
 msgid "Animate opening applications"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1422
+#: includes/class-pufferdesk-runtime-config.php:1426
 msgid "Show indicators for open applications"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1423
+#: includes/class-pufferdesk-runtime-config.php:1427
 msgid "Click wallpaper to show desktop"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1424
+#: includes/class-pufferdesk-runtime-config.php:1428
 msgid "Click wallpaper to move windows out of the way, revealing your desktop items and widgets."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1425
+#: includes/class-pufferdesk-runtime-config.php:1429
 msgid "Show widgets on desktop"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1426
+#: includes/class-pufferdesk-runtime-config.php:1430
 msgid "Dim widgets on desktop"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1429
-#: includes/class-pufferdesk-runtime-config.php:2253
+#: includes/class-pufferdesk-runtime-config.php:1433
+#: includes/class-pufferdesk-runtime-config.php:2257
 msgid "Small"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1430
-#: includes/class-pufferdesk-runtime-config.php:2255
+#: includes/class-pufferdesk-runtime-config.php:1434
+#: includes/class-pufferdesk-runtime-config.php:2259
 msgid "Large"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1431
+#: includes/class-pufferdesk-runtime-config.php:1435
 msgid "Off"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1435
+#: includes/class-pufferdesk-runtime-config.php:1439
 msgid "Left"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1436
+#: includes/class-pufferdesk-runtime-config.php:1440
 msgid "Bottom"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1437
+#: includes/class-pufferdesk-runtime-config.php:1441
 msgid "Right"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1444
-#: includes/class-pufferdesk-runtime-config.php:1449
+#: includes/class-pufferdesk-runtime-config.php:1448
+#: includes/class-pufferdesk-runtime-config.php:1453
 msgid "Always"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1445
-#: includes/class-pufferdesk-runtime-config.php:1450
+#: includes/class-pufferdesk-runtime-config.php:1449
+#: includes/class-pufferdesk-runtime-config.php:1454
 msgid "Never"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1448
+#: includes/class-pufferdesk-runtime-config.php:1452
 msgid "Automatically"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1458
+#: includes/class-pufferdesk-runtime-config.php:1462
 msgid "Recent documents, applications, and servers"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1462
-#: includes/class-pufferdesk-runtime-config.php:2231
+#: includes/class-pufferdesk-runtime-config.php:1466
+#: includes/class-pufferdesk-runtime-config.php:2235
 msgid "None"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1474
+#: includes/class-pufferdesk-runtime-config.php:1478
 msgid "Behavior"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1475
+#: includes/class-pufferdesk-runtime-config.php:1479
 msgid "Sources"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1478
+#: includes/class-pufferdesk-runtime-config.php:1482
 msgid "Enable notifications"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1479
+#: includes/class-pufferdesk-runtime-config.php:1483
 msgid "Show notification badges"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1480
+#: includes/class-pufferdesk-runtime-config.php:1484
 msgid "Show notification banners"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1481
+#: includes/class-pufferdesk-runtime-config.php:1485
 msgid "Quiet mode"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1482
+#: includes/class-pufferdesk-runtime-config.php:1486
 msgid "Keep notifications in Notification Center without showing banners."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1483
+#: includes/class-pufferdesk-runtime-config.php:1487
 msgid "Keep history"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1487
+#: includes/class-pufferdesk-runtime-config.php:1491
 msgid "WordPress updates"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1490
+#: includes/class-pufferdesk-runtime-config.php:1494
 msgid "PufferDesk system"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1491
+#: includes/class-pufferdesk-runtime-config.php:1495
 msgid "Apps and plugins"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1494
+#: includes/class-pufferdesk-runtime-config.php:1498
 msgid "All notifications"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1495
+#: includes/class-pufferdesk-runtime-config.php:1499
 msgid "Warnings and critical alerts"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1496
+#: includes/class-pufferdesk-runtime-config.php:1500
 msgid "Critical alerts only"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1499
+#: includes/class-pufferdesk-runtime-config.php:1503
 msgid "7 days"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1500
+#: includes/class-pufferdesk-runtime-config.php:1504
 msgid "30 days"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1501
+#: includes/class-pufferdesk-runtime-config.php:1505
 msgid "90 days"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1505
+#: includes/class-pufferdesk-runtime-config.php:1509
 msgid "Wallpapers"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1507
+#: includes/class-pufferdesk-runtime-config.php:1511
 msgid "Your Photos"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1508
+#: includes/class-pufferdesk-runtime-config.php:1512
 msgid "Add Photo..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1509
+#: includes/class-pufferdesk-runtime-config.php:1513
 msgid "Selected Photo"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1510
+#: includes/class-pufferdesk-runtime-config.php:1514
 msgid "Remove photo"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1511
+#: includes/class-pufferdesk-runtime-config.php:1515
 msgid "Show Less"
 msgstr ""
 
 #. translators: %d: number of wallpaper items.
-#: includes/class-pufferdesk-runtime-config.php:1513
+#: includes/class-pufferdesk-runtime-config.php:1517
 msgid "Show All (%d)"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1514
+#: includes/class-pufferdesk-runtime-config.php:1518
 msgid "Choose Wallpaper"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1515
+#: includes/class-pufferdesk-runtime-config.php:1519
 msgid "Use as Wallpaper"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1516
+#: includes/class-pufferdesk-runtime-config.php:1520
 #: includes/class-pufferdesk-wallpaper-registry.php:379
 msgid "Custom Wallpaper"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1520
+#: includes/class-pufferdesk-runtime-config.php:1524
 msgid "Choose which desktop widgets are visible."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1521
+#: includes/class-pufferdesk-runtime-config.php:1525
 msgid "Display"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1522
+#: includes/class-pufferdesk-runtime-config.php:1526
 msgid "No widgets are registered for this account."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1524
+#: includes/class-pufferdesk-runtime-config.php:1528
 msgid "Show on desktop"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1530
+#: includes/class-pufferdesk-runtime-config.php:1534
 msgid "Open at login"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1533
+#: includes/class-pufferdesk-runtime-config.php:1537
 msgid "Native WordPress screens"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1534
+#: includes/class-pufferdesk-runtime-config.php:1538
 msgid "Open Users, Add User, and Profile in native PufferDesk windows when available."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1535
+#: includes/class-pufferdesk-runtime-config.php:1539
 msgid "Use native Users experience"
 msgstr ""
 
 #. translators: %s: WordPress update count label.
-#: includes/class-pufferdesk-runtime-config.php:1638
+#: includes/class-pufferdesk-runtime-config.php:1642
 msgid "%s ready to review."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1641
+#: includes/class-pufferdesk-runtime-config.php:1645
 msgid "WordPress is up to date."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1646
+#: includes/class-pufferdesk-runtime-config.php:1650
 msgid "Get help"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1647
+#: includes/class-pufferdesk-runtime-config.php:1651
 msgid "PufferDesk Help"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1653
+#: includes/class-pufferdesk-runtime-config.php:1657
 msgid "Give feedback"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1654
+#: includes/class-pufferdesk-runtime-config.php:1658
 msgid "PufferDesk Feedback"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1672
+#: includes/class-pufferdesk-runtime-config.php:1676
 msgid "Site and WordPress environment details"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1679
+#: includes/class-pufferdesk-runtime-config.php:1683
 msgid "Software Update"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1713
 #: includes/class-pufferdesk-runtime-config.php:1717
+#: includes/class-pufferdesk-runtime-config.php:1721
 msgid "Date & Time"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1722
 #: includes/class-pufferdesk-runtime-config.php:1726
+#: includes/class-pufferdesk-runtime-config.php:1730
 msgid "Language & Region"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1731
 #: includes/class-pufferdesk-runtime-config.php:1735
+#: includes/class-pufferdesk-runtime-config.php:1739
 msgid "Permalinks"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1740
 #: includes/class-pufferdesk-runtime-config.php:1744
+#: includes/class-pufferdesk-runtime-config.php:1748
 msgid "Privacy"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1749
 #: includes/class-pufferdesk-runtime-config.php:1753
+#: includes/class-pufferdesk-runtime-config.php:1757
 msgid "Import & Export"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1765
+#: includes/class-pufferdesk-runtime-config.php:1769
 msgid "Reset PufferDesk Settings..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1766
+#: includes/class-pufferdesk-runtime-config.php:1770
 msgid "Reset PufferDesk preferences, desktop folders, and layouts for this account. WordPress content is not deleted."
 msgstr ""
 
 #. translators: %d: total WordPress update count.
-#: includes/class-pufferdesk-runtime-config.php:1808
+#: includes/class-pufferdesk-runtime-config.php:1812
 msgid "%d update"
 msgid_plural "%d updates"
 msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: total WordPress update count.
-#: includes/class-pufferdesk-runtime-config.php:1815
+#: includes/class-pufferdesk-runtime-config.php:1819
 msgid "%d WordPress update available"
 msgid_plural "%d WordPress updates available"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-pufferdesk-runtime-config.php:1866
+#: includes/class-pufferdesk-runtime-config.php:1870
 msgid "Restart PufferDesk?"
 msgstr ""
 
 #. translators: {seconds}: seconds remaining before PufferDesk restarts automatically.
-#: includes/class-pufferdesk-runtime-config.php:1868
+#: includes/class-pufferdesk-runtime-config.php:1872
 msgid "Reloads PufferDesk only. Your site content is unchanged. Auto-restarts in {seconds}s."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1869
-#: includes/class-pufferdesk-runtime-config.php:2211
+#: includes/class-pufferdesk-runtime-config.php:1873
+#: includes/class-pufferdesk-runtime-config.php:2215
 msgid "Restart"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1871
+#: includes/class-pufferdesk-runtime-config.php:1875
 msgid "Reopen windows after restarting"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1875
+#: includes/class-pufferdesk-runtime-config.php:1879
 msgid "Restarting PufferDesk..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1878
+#: includes/class-pufferdesk-runtime-config.php:1882
 msgid "Switch to Classic Admin?"
 msgstr ""
 
 #. translators: {seconds}: seconds remaining before Classic Admin opens automatically.
-#: includes/class-pufferdesk-runtime-config.php:1880
+#: includes/class-pufferdesk-runtime-config.php:1884
 msgid "Leaves PufferDesk and opens the normal WordPress admin in {seconds}s."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1881
+#: includes/class-pufferdesk-runtime-config.php:1885
 msgid "Switch"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1883
-#: includes/class-pufferdesk-runtime-config.php:1921
-#: includes/class-pufferdesk-runtime-config.php:1932
+#: includes/class-pufferdesk-runtime-config.php:1887
+#: includes/class-pufferdesk-runtime-config.php:1925
+#: includes/class-pufferdesk-runtime-config.php:1936
 msgid "Reopen windows when returning to PufferDesk"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1887
+#: includes/class-pufferdesk-runtime-config.php:1891
 msgid "Switching to Classic Admin..."
 msgstr ""
 
 #. translators: %s: current user display name.
-#: includes/class-pufferdesk-runtime-config.php:1892
+#: includes/class-pufferdesk-runtime-config.php:1896
 msgid "Log out %s?"
 msgstr ""
 
 #. translators: {seconds}: seconds remaining before the user is logged out automatically.
-#: includes/class-pufferdesk-runtime-config.php:1896
+#: includes/class-pufferdesk-runtime-config.php:1900
 msgid "Ends your WordPress session and opens the login screen in {seconds}s."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1897
+#: includes/class-pufferdesk-runtime-config.php:1901
 msgid "Log Out"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1899
+#: includes/class-pufferdesk-runtime-config.php:1903
 msgid "Reopen windows when logging back in"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1903
+#: includes/class-pufferdesk-runtime-config.php:1907
 msgid "Logging out..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1906
+#: includes/class-pufferdesk-runtime-config.php:1910
 msgid "Lock PufferDesk?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1907
+#: includes/class-pufferdesk-runtime-config.php:1911
 msgid "You will be signed out and returned to the WordPress login screen."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1908
-#: includes/class-pufferdesk-runtime-config.php:2208
+#: includes/class-pufferdesk-runtime-config.php:1912
+#: includes/class-pufferdesk-runtime-config.php:2212
 msgid "Lock"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1910
+#: includes/class-pufferdesk-runtime-config.php:1914
 msgid "Reopen windows when signing back in"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1914
+#: includes/class-pufferdesk-runtime-config.php:1918
 msgid "Locking PufferDesk..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1917
+#: includes/class-pufferdesk-runtime-config.php:1921
 msgid "Sleep PufferDesk?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1918
-#: includes/class-pufferdesk-runtime-config.php:1929
+#: includes/class-pufferdesk-runtime-config.php:1922
+#: includes/class-pufferdesk-runtime-config.php:1933
 msgid "PufferDesk will close and Classic Admin will open."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1919
-#: includes/class-pufferdesk-runtime-config.php:2209
+#: includes/class-pufferdesk-runtime-config.php:1923
+#: includes/class-pufferdesk-runtime-config.php:2213
 msgid "Sleep"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1925
+#: includes/class-pufferdesk-runtime-config.php:1929
 msgid "Putting PufferDesk to sleep..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1928
+#: includes/class-pufferdesk-runtime-config.php:1932
 msgid "Shut down PufferDesk?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1930
-#: includes/class-pufferdesk-runtime-config.php:2210
+#: includes/class-pufferdesk-runtime-config.php:1934
+#: includes/class-pufferdesk-runtime-config.php:2214
 msgid "Shut down"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1936
+#: includes/class-pufferdesk-runtime-config.php:1940
 msgid "Shutting down PufferDesk..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1939
+#: includes/class-pufferdesk-runtime-config.php:1943
 msgid "Reset PufferDesk Settings?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1940
+#: includes/class-pufferdesk-runtime-config.php:1944
 msgid "This will reset PufferDesk settings and layout. Your content will not be deleted."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1941
+#: includes/class-pufferdesk-runtime-config.php:1945
 #: includes/class-pufferdesk-settings-registry.php:330
 msgid "Reset"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1943
+#: includes/class-pufferdesk-runtime-config.php:1947
 msgid "Resetting PufferDesk settings..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1946
-#: includes/class-pufferdesk-runtime-config.php:2363
+#: includes/class-pufferdesk-runtime-config.php:1950
+#: includes/class-pufferdesk-runtime-config.php:2367
 msgid "Empty Trash?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1947
+#: includes/class-pufferdesk-runtime-config.php:1951
 msgid "This permanently deletes all trashed PufferDesk folder records, including folder contents. Apps and plugins are not deleted."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1948
-#: includes/class-pufferdesk-runtime-config.php:2362
+#: includes/class-pufferdesk-runtime-config.php:1952
+#: includes/class-pufferdesk-runtime-config.php:2366
 msgid "Empty Trash"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1971
+#: includes/class-pufferdesk-runtime-config.php:1975
 msgid "WordPress Updates..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:1994
-#: includes/class-pufferdesk-runtime-config.php:2176
+#: includes/class-pufferdesk-runtime-config.php:1998
+#: includes/class-pufferdesk-runtime-config.php:2180
 msgid "System Settings..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2005
+#: includes/class-pufferdesk-runtime-config.php:2009
 msgid "Recent Items"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2015
+#: includes/class-pufferdesk-runtime-config.php:2019
 msgid "Close Active App"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2027
+#: includes/class-pufferdesk-runtime-config.php:2031
 msgid "Restart PufferDesk..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2032
+#: includes/class-pufferdesk-runtime-config.php:2036
 msgid "Switch to Classic Admin..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2041
+#: includes/class-pufferdesk-runtime-config.php:2045
 msgid "Manage Account..."
 msgstr ""
 
 #. translators: %s: current user display name.
-#: includes/class-pufferdesk-runtime-config.php:2050
+#: includes/class-pufferdesk-runtime-config.php:2054
 msgid "Log Out %s..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2073
+#: includes/class-pufferdesk-runtime-config.php:2077
 msgid "Visit Site"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2132
+#: includes/class-pufferdesk-runtime-config.php:2136
 msgid "This folder is empty."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2136
+#: includes/class-pufferdesk-runtime-config.php:2140
 msgid "New"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2137
+#: includes/class-pufferdesk-runtime-config.php:2141
 msgid "New Folder"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2141
+#: includes/class-pufferdesk-runtime-config.php:2145
 msgid "Group"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2142
+#: includes/class-pufferdesk-runtime-config.php:2146
 msgid "More"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2143
+#: includes/class-pufferdesk-runtime-config.php:2147
 msgid "Sort"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2147
+#: includes/class-pufferdesk-runtime-config.php:2151
 msgid "Open"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2148
+#: includes/class-pufferdesk-runtime-config.php:2152
 msgid "Open With"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2150
+#: includes/class-pufferdesk-runtime-config.php:2154
 msgid "Quit"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2152
+#: includes/class-pufferdesk-runtime-config.php:2156
 msgid "Open in Browser Tab"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2153
+#: includes/class-pufferdesk-runtime-config.php:2157
 msgid "Open in New Tab"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2154
+#: includes/class-pufferdesk-runtime-config.php:2158
 msgid "Open in New Window"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2156
+#: includes/class-pufferdesk-runtime-config.php:2160
 msgid "Properties"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2157
-#: includes/class-pufferdesk-runtime-config.php:2408
+#: includes/class-pufferdesk-runtime-config.php:2161
+#: includes/class-pufferdesk-runtime-config.php:2412
 msgid "Enter"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2158
+#: includes/class-pufferdesk-runtime-config.php:2162
 msgid "New Tab"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2159
+#: includes/class-pufferdesk-runtime-config.php:2163
 msgid "Close Tab"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2160
+#: includes/class-pufferdesk-runtime-config.php:2164
 msgid "Close Other Tabs"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2161
+#: includes/class-pufferdesk-runtime-config.php:2165
 msgid "Move Tab to New Window"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2162
-#: includes/class-pufferdesk-runtime-config.php:2401
+#: includes/class-pufferdesk-runtime-config.php:2166
+#: includes/class-pufferdesk-runtime-config.php:2405
 msgid "Folder Tabs"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2163
+#: includes/class-pufferdesk-runtime-config.php:2167
 msgid "Add to Folder"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2164
+#: includes/class-pufferdesk-runtime-config.php:2168
 msgid "Move to Folder"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2165
+#: includes/class-pufferdesk-runtime-config.php:2169
 msgid "Remove from Folder"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2166
+#: includes/class-pufferdesk-runtime-config.php:2170
 msgid "Toolbar"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2167
+#: includes/class-pufferdesk-runtime-config.php:2171
 msgid "Icons and Text"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2168
+#: includes/class-pufferdesk-runtime-config.php:2172
 msgid "Icons Only"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2169
+#: includes/class-pufferdesk-runtime-config.php:2173
 msgid "Text Only"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2170
+#: includes/class-pufferdesk-runtime-config.php:2174
 msgid "Show Toolbar"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2171
+#: includes/class-pufferdesk-runtime-config.php:2175
 msgid "Hide Toolbar"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2172
+#: includes/class-pufferdesk-runtime-config.php:2176
 msgid "Folder Command Bar"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2173
+#: includes/class-pufferdesk-runtime-config.php:2177
 msgid "Folder Toolbar"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2174
+#: includes/class-pufferdesk-runtime-config.php:2178
 msgid "Back/Forward"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2175
+#: includes/class-pufferdesk-runtime-config.php:2179
 msgid "Close Window"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2177
+#: includes/class-pufferdesk-runtime-config.php:2181
 msgid "Search apps, settings, and commands"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2179
+#: includes/class-pufferdesk-runtime-config.php:2183
 msgid "No results found"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2181
+#: includes/class-pufferdesk-runtime-config.php:2185
 msgid "App Sections"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2183
-#: includes/class-pufferdesk-runtime-config.php:2306
+#: includes/class-pufferdesk-runtime-config.php:2187
+#: includes/class-pufferdesk-runtime-config.php:2310
 #: includes/class-pufferdesk-virtual-filesystem.php:309
 msgid "Documents"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2188
+#: includes/class-pufferdesk-runtime-config.php:2192
 msgid "Commands"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2190
+#: includes/class-pufferdesk-runtime-config.php:2194
 msgid "App Section"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2196
+#: includes/class-pufferdesk-runtime-config.php:2200
 msgid "Setting"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2197
+#: includes/class-pufferdesk-runtime-config.php:2201
 msgid "Command"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2198
+#: includes/class-pufferdesk-runtime-config.php:2202
 #: includes/class-pufferdesk-theme-registry.php:140
 msgid "Pinned"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2199
+#: includes/class-pufferdesk-runtime-config.php:2203
 msgid "Create"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2200
+#: includes/class-pufferdesk-runtime-config.php:2204
 msgid "More..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2201
+#: includes/class-pufferdesk-runtime-config.php:2205
 msgid "Recommended"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2202
+#: includes/class-pufferdesk-runtime-config.php:2206
 msgid "No recent items yet"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2203
+#: includes/class-pufferdesk-runtime-config.php:2207
 msgid "Power and session"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2204
+#: includes/class-pufferdesk-runtime-config.php:2208
 msgid "Account"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2205
+#: includes/class-pufferdesk-runtime-config.php:2209
 msgid "Manage account"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2206
+#: includes/class-pufferdesk-runtime-config.php:2210
 msgid "Sign out"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2207
+#: includes/class-pufferdesk-runtime-config.php:2211
 msgid "Power options"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2212
+#: includes/class-pufferdesk-runtime-config.php:2216
 msgid "Undo"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2213
+#: includes/class-pufferdesk-runtime-config.php:2217
 msgid "Redo"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2214
+#: includes/class-pufferdesk-runtime-config.php:2218
 msgid "Cut"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2215
+#: includes/class-pufferdesk-runtime-config.php:2219
 msgid "Copy"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2217
+#: includes/class-pufferdesk-runtime-config.php:2221
 msgid "Paste"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2219
+#: includes/class-pufferdesk-runtime-config.php:2223
 msgid "Select All"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2220
+#: includes/class-pufferdesk-runtime-config.php:2224
 msgid "Sort By"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2221
+#: includes/class-pufferdesk-runtime-config.php:2225
 msgid "Sort by"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2223
+#: includes/class-pufferdesk-runtime-config.php:2227
 msgid "Kind"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2224
+#: includes/class-pufferdesk-runtime-config.php:2228
 msgid "Snap to Grid"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2225
+#: includes/class-pufferdesk-runtime-config.php:2229
 msgid "Last Modified By"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2226
+#: includes/class-pufferdesk-runtime-config.php:2230
 msgid "Date Last Opened"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2227
+#: includes/class-pufferdesk-runtime-config.php:2231
 msgid "Date Added"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2228
+#: includes/class-pufferdesk-runtime-config.php:2232
 msgid "Date Modified"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2229
+#: includes/class-pufferdesk-runtime-config.php:2233
 msgid "Date Created"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2232
+#: includes/class-pufferdesk-runtime-config.php:2236
 #: includes/class-pufferdesk-theme-registry.php:142
 #: includes/class-pufferdesk-theme-registry.php:143
 msgid "Type"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2233
+#: includes/class-pufferdesk-runtime-config.php:2237
 msgid "Zero bytes"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2234
+#: includes/class-pufferdesk-runtime-config.php:2238
 msgid "bytes"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2235
+#: includes/class-pufferdesk-runtime-config.php:2239
 msgid "KB"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2236
+#: includes/class-pufferdesk-runtime-config.php:2240
 msgid "MB"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2237
+#: includes/class-pufferdesk-runtime-config.php:2241
 msgid "GB"
 msgstr ""
 
 #. translators: %s: time.
-#: includes/class-pufferdesk-runtime-config.php:2239
+#: includes/class-pufferdesk-runtime-config.php:2243
 msgid "Today at %s"
 msgstr ""
 
 #. translators: %s: time.
-#: includes/class-pufferdesk-runtime-config.php:2241
+#: includes/class-pufferdesk-runtime-config.php:2245
 msgid "Yesterday at %s"
 msgstr ""
 
 #. translators: 1: date, 2: time.
-#: includes/class-pufferdesk-runtime-config.php:2243
+#: includes/class-pufferdesk-runtime-config.php:2247
 msgid "%1$s at %2$s"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2244
+#: includes/class-pufferdesk-runtime-config.php:2248
 msgid "Use Groups"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2245
+#: includes/class-pufferdesk-runtime-config.php:2249
 msgid "Today"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2246
+#: includes/class-pufferdesk-runtime-config.php:2250
 msgid "Yesterday"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2247
+#: includes/class-pufferdesk-runtime-config.php:2251
 msgid "Previous 7 Days"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2248
+#: includes/class-pufferdesk-runtime-config.php:2252
 msgid "Previous 30 Days"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2249
+#: includes/class-pufferdesk-runtime-config.php:2253
 msgid "Older"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2250
+#: includes/class-pufferdesk-runtime-config.php:2254
 msgid "No Date"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2251
+#: includes/class-pufferdesk-runtime-config.php:2255
 msgid "0-9"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2252
-#: includes/class-pufferdesk-runtime-config.php:2405
+#: includes/class-pufferdesk-runtime-config.php:2256
+#: includes/class-pufferdesk-runtime-config.php:2409
 msgid "Other"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2254
+#: includes/class-pufferdesk-runtime-config.php:2258
 msgid "Medium"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2256
+#: includes/class-pufferdesk-runtime-config.php:2260
 msgid "Huge"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2257
+#: includes/class-pufferdesk-runtime-config.php:2261
 msgid "Extra large icons"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2258
+#: includes/class-pufferdesk-runtime-config.php:2262
 msgid "Large icons"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2259
+#: includes/class-pufferdesk-runtime-config.php:2263
 msgid "Medium icons"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2260
+#: includes/class-pufferdesk-runtime-config.php:2264
 msgid "Small icons"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2261
+#: includes/class-pufferdesk-runtime-config.php:2265
 msgid "List view"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2262
+#: includes/class-pufferdesk-runtime-config.php:2266
 msgid "List"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2263
+#: includes/class-pufferdesk-runtime-config.php:2267
 msgid "Details view"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2265
+#: includes/class-pufferdesk-runtime-config.php:2269
 msgid "Tiles"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2266
+#: includes/class-pufferdesk-runtime-config.php:2270
 msgid "Content"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2267
+#: includes/class-pufferdesk-runtime-config.php:2271
 msgid "as Icons"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2268
+#: includes/class-pufferdesk-runtime-config.php:2272
 msgid "as List"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2269
+#: includes/class-pufferdesk-runtime-config.php:2273
 msgid "Auto arrange icons"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2270
+#: includes/class-pufferdesk-runtime-config.php:2274
 msgid "Align icons to grid"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2271
+#: includes/class-pufferdesk-runtime-config.php:2275
 msgid "Reset Layout..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2273
+#: includes/class-pufferdesk-runtime-config.php:2277
 msgid "Change Wallpaper..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2274
+#: includes/class-pufferdesk-runtime-config.php:2278
 msgid "Explore background"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2275
+#: includes/class-pufferdesk-runtime-config.php:2279
 msgid "Next background"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2276
+#: includes/class-pufferdesk-runtime-config.php:2280
 msgid "Display settings"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2277
+#: includes/class-pufferdesk-runtime-config.php:2281
 msgid "Personalize"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2280
+#: includes/class-pufferdesk-runtime-config.php:2284
 msgid "Up"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2281
+#: includes/class-pufferdesk-runtime-config.php:2285
 msgid "Recents"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2282
+#: includes/class-pufferdesk-runtime-config.php:2286
 msgid "Favorites"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2283
+#: includes/class-pufferdesk-runtime-config.php:2287
 msgid "Locations"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2284
+#: includes/class-pufferdesk-runtime-config.php:2288
 msgid "Navigation pane"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2285
+#: includes/class-pufferdesk-runtime-config.php:2289
 msgid "Remove from Sidebar"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2286
+#: includes/class-pufferdesk-runtime-config.php:2290
 msgid "Home"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2287
+#: includes/class-pufferdesk-runtime-config.php:2291
 msgid "Gallery"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2288
+#: includes/class-pufferdesk-runtime-config.php:2292
 #: includes/class-pufferdesk-virtual-filesystem.php:311
 msgid "This PC"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2289
+#: includes/class-pufferdesk-runtime-config.php:2293
 msgid "Network"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2290
+#: includes/class-pufferdesk-runtime-config.php:2294
 msgid "Recent Item"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2291
+#: includes/class-pufferdesk-runtime-config.php:2295
 msgid "Application"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2296
+#: includes/class-pufferdesk-runtime-config.php:2300
 msgid "Reload"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2297
+#: includes/class-pufferdesk-runtime-config.php:2301
 msgid "Reload Page"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2300
+#: includes/class-pufferdesk-runtime-config.php:2304
 msgid "Quick Actions"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2301
+#: includes/class-pufferdesk-runtime-config.php:2305
 msgid "Extensions"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2302
+#: includes/class-pufferdesk-runtime-config.php:2306
 msgid "Clear Menu"
 msgstr ""
 
 #. translators: %s: active window or app title.
-#: includes/class-pufferdesk-runtime-config.php:2308
+#: includes/class-pufferdesk-runtime-config.php:2312
 msgid "Close %s"
 msgstr ""
 
 #. translators: 1: action label, 2: target label.
-#: includes/class-pufferdesk-runtime-config.php:2313
+#: includes/class-pufferdesk-runtime-config.php:2317
 msgid "%1$s: %2$s"
 msgstr ""
 
 #. translators: %s: window title.
-#: includes/class-pufferdesk-runtime-config.php:2318
+#: includes/class-pufferdesk-runtime-config.php:2322
 msgid "Restore %s"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2321
+#: includes/class-pufferdesk-runtime-config.php:2325
 msgid "Bring to Front"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2324
+#: includes/class-pufferdesk-runtime-config.php:2328
 msgid "Hide"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2326
+#: includes/class-pufferdesk-runtime-config.php:2330
 msgid "Remove Widget"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2327
+#: includes/class-pufferdesk-runtime-config.php:2331
 msgid "Edit Widgets..."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2330
+#: includes/class-pufferdesk-runtime-config.php:2334
 msgid "Action"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2331
+#: includes/class-pufferdesk-runtime-config.php:2335
 msgid "Context Menu"
 msgstr ""
 
 #. translators: %d: number of items in the trash.
-#: includes/class-pufferdesk-runtime-config.php:2334
+#: includes/class-pufferdesk-runtime-config.php:2338
 msgid "Trash, %d item"
 msgstr ""
 
 #. translators: %d: number of items in the trash.
-#: includes/class-pufferdesk-runtime-config.php:2336
+#: includes/class-pufferdesk-runtime-config.php:2340
 msgid "Trash, %d items"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2338
+#: includes/class-pufferdesk-runtime-config.php:2342
 msgid "PufferDesk Trash"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2339
+#: includes/class-pufferdesk-runtime-config.php:2343
 msgid "PufferDesk user folder"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2340
+#: includes/class-pufferdesk-runtime-config.php:2344
 #: includes/class-pufferdesk-virtual-filesystem.php:271
 msgid "PufferDesk virtual filesystem"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2341
+#: includes/class-pufferdesk-runtime-config.php:2345
 msgid "WordPress admin group"
 msgstr ""
 
 #. translators: %s: WordPress admin menu group label.
-#: includes/class-pufferdesk-runtime-config.php:2343
+#: includes/class-pufferdesk-runtime-config.php:2347
 msgid "WordPress Admin Menu > %s"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2344
+#: includes/class-pufferdesk-runtime-config.php:2348
 msgid "Empty"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2345
-#: includes/class-pufferdesk-runtime-config.php:2348
-#: includes/class-pufferdesk-runtime-config.php:2357
+#: includes/class-pufferdesk-runtime-config.php:2349
+#: includes/class-pufferdesk-runtime-config.php:2352
+#: includes/class-pufferdesk-runtime-config.php:2361
 msgid "Move to Trash"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2346
+#: includes/class-pufferdesk-runtime-config.php:2350
 msgid "This PufferDesk folder and its contents will be moved. Apps and plugins inside it stay installed and available."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2347
+#: includes/class-pufferdesk-runtime-config.php:2351
 msgid "Are you sure you want to move this folder to Trash?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2350
+#: includes/class-pufferdesk-runtime-config.php:2354
 msgid "Move Folder"
 msgstr ""
 
 #. translators: %s: folder label.
-#: includes/class-pufferdesk-runtime-config.php:2352
+#: includes/class-pufferdesk-runtime-config.php:2356
 msgid "Move \"%s\" to Trash?"
 msgstr ""
 
 #. translators: %d: number of selected folders.
-#: includes/class-pufferdesk-runtime-config.php:2354
+#: includes/class-pufferdesk-runtime-config.php:2358
 msgid "%d folders"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2355
+#: includes/class-pufferdesk-runtime-config.php:2359
 msgid "These PufferDesk folders and their contents will be moved. Apps and plugins inside them stay installed and available."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2356
+#: includes/class-pufferdesk-runtime-config.php:2360
 msgid "Are you sure you want to move these folders to Trash?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2358
+#: includes/class-pufferdesk-runtime-config.php:2362
 msgid "Move Folders"
 msgstr ""
 
 #. translators: %d: number of selected folders.
-#: includes/class-pufferdesk-runtime-config.php:2360
+#: includes/class-pufferdesk-runtime-config.php:2364
 msgid "Move %d folders to Trash?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2361
+#: includes/class-pufferdesk-runtime-config.php:2365
 msgid "Put Back"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2365
+#: includes/class-pufferdesk-runtime-config.php:2369
 msgid "Delete Immediately"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2366
+#: includes/class-pufferdesk-runtime-config.php:2370
 msgid "Delete Immediately?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2367
+#: includes/class-pufferdesk-runtime-config.php:2371
 msgid "This permanently deletes the selected item. Apps and plugins are not deleted."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2368
+#: includes/class-pufferdesk-runtime-config.php:2372
 msgid "Delete this item immediately?"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2371
+#: includes/class-pufferdesk-runtime-config.php:2375
 msgid "The move validator is not available."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2372
+#: includes/class-pufferdesk-runtime-config.php:2376
 msgid "The move did not change workspace state."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2373
+#: includes/class-pufferdesk-runtime-config.php:2377
 msgid "The move could not be completed."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2374
+#: includes/class-pufferdesk-runtime-config.php:2378
 msgid "Move requests must include a supported item id and type."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2375
+#: includes/class-pufferdesk-runtime-config.php:2379
 msgid "Only apps, folders, and documents can be moved by the core move service."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2376
+#: includes/class-pufferdesk-runtime-config.php:2380
 msgid "The moved item does not exist in the current workspace."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2377
+#: includes/class-pufferdesk-runtime-config.php:2381
 msgid "Locked or system items cannot be moved to that container."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2378
+#: includes/class-pufferdesk-runtime-config.php:2382
 msgid "Move requests must include a source container."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2379
+#: includes/class-pufferdesk-runtime-config.php:2383
 msgid "Move requests must include a target container."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2380
+#: includes/class-pufferdesk-runtime-config.php:2384
 msgid "The source container is not registered."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2381
+#: includes/class-pufferdesk-runtime-config.php:2385
 msgid "The target container is not registered."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2382
+#: includes/class-pufferdesk-runtime-config.php:2386
 msgid "The item cannot be moved out of its source container."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2383
+#: includes/class-pufferdesk-runtime-config.php:2387
 msgid "The target container does not accept this item."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2384
+#: includes/class-pufferdesk-runtime-config.php:2388
 msgid "Only user-created folders can be moved between containers."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2385
+#: includes/class-pufferdesk-runtime-config.php:2389
 msgid "Trash cannot be used as a folder parent."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2386
+#: includes/class-pufferdesk-runtime-config.php:2390
 msgid "A folder cannot be moved into itself."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2387
+#: includes/class-pufferdesk-runtime-config.php:2391
 msgid "A folder cannot be moved into one of its descendants."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2388
+#: includes/class-pufferdesk-runtime-config.php:2392
 msgid "The app is already available on the desktop."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2389
+#: includes/class-pufferdesk-runtime-config.php:2393
 msgid "The target folder already contains this app."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2390
+#: includes/class-pufferdesk-runtime-config.php:2394
 msgid "The item model does not allow this drop target."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2391
-#: includes/class-pufferdesk-runtime-config.php:2392
+#: includes/class-pufferdesk-runtime-config.php:2395
+#: includes/class-pufferdesk-runtime-config.php:2396
 msgid "Keyboard Shortcuts"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2393
+#: includes/class-pufferdesk-runtime-config.php:2397
 msgid "Search shortcuts"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2394
+#: includes/class-pufferdesk-runtime-config.php:2398
 msgid "Clear search"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2395
+#: includes/class-pufferdesk-runtime-config.php:2399
 msgid "No shortcuts found."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2396
+#: includes/class-pufferdesk-runtime-config.php:2400
 msgid "Global"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2398
+#: includes/class-pufferdesk-runtime-config.php:2402
 msgid "Desktop & Folders"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2399
+#: includes/class-pufferdesk-runtime-config.php:2403
 msgid "Window Management"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2402
+#: includes/class-pufferdesk-runtime-config.php:2406
 msgid "Text Editing"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2403
+#: includes/class-pufferdesk-runtime-config.php:2407
 msgid "Dialogs"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2406
+#: includes/class-pufferdesk-runtime-config.php:2410
 msgid "Backspace"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2409
+#: includes/class-pufferdesk-runtime-config.php:2413
 msgid "Esc"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2410
+#: includes/class-pufferdesk-runtime-config.php:2414
 msgid "Space"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2411
+#: includes/class-pufferdesk-runtime-config.php:2415
 msgid "Tab"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2412
+#: includes/class-pufferdesk-runtime-config.php:2416
 msgid "Alt"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2413
+#: includes/class-pufferdesk-runtime-config.php:2417
 msgid "Ctrl"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2414
+#: includes/class-pufferdesk-runtime-config.php:2418
 msgid "Meta"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2415
+#: includes/class-pufferdesk-runtime-config.php:2419
 msgid "Shift"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2416
+#: includes/class-pufferdesk-runtime-config.php:2420
 msgid "primary+w is reserved unless scoped to a PufferDesk window or tab."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2417
+#: includes/class-pufferdesk-runtime-config.php:2421
 msgid "primary+n is reserved unless clearly scoped."
 msgstr ""
 
 #. translators: 1: keyboard shortcut label, 2: reserved browser or shell action label.
-#: includes/class-pufferdesk-runtime-config.php:2420
+#: includes/class-pufferdesk-runtime-config.php:2424
 msgid "%1$s is reserved for %2$s."
 msgstr ""
 
 #. translators: 1: keyboard shortcut label, 2: conflicting command label.
-#: includes/class-pufferdesk-runtime-config.php:2422
+#: includes/class-pufferdesk-runtime-config.php:2426
 msgid "%1$s may conflict with %2$s."
 msgstr ""
 
 #. translators: 1: keyboard shortcut label, 2: conflicting command label.
-#: includes/class-pufferdesk-runtime-config.php:2424
+#: includes/class-pufferdesk-runtime-config.php:2428
 msgid "%1$s conflicts with %2$s."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2425
+#: includes/class-pufferdesk-runtime-config.php:2429
 msgid "PufferDesk shortcut conflict:"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2426
+#: includes/class-pufferdesk-runtime-config.php:2430
 msgid "browser back"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2427
+#: includes/class-pufferdesk-runtime-config.php:2431
 msgid "browser forward"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2428
+#: includes/class-pufferdesk-runtime-config.php:2432
 msgid "browser history"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2429
+#: includes/class-pufferdesk-runtime-config.php:2433
 msgid "browser location bar"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2430
+#: includes/class-pufferdesk-runtime-config.php:2434
 msgid "browser new tab"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2431
+#: includes/class-pufferdesk-runtime-config.php:2435
 msgid "browser next tab"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2432
+#: includes/class-pufferdesk-runtime-config.php:2436
 msgid "browser previous tab"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2433
+#: includes/class-pufferdesk-runtime-config.php:2437
 msgid "browser print"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2434
+#: includes/class-pufferdesk-runtime-config.php:2438
 msgid "browser private window"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2435
+#: includes/class-pufferdesk-runtime-config.php:2439
 msgid "browser quit application"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2436
+#: includes/class-pufferdesk-runtime-config.php:2440
 msgid "browser reload"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2437
+#: includes/class-pufferdesk-runtime-config.php:2441
 msgid "browser reopen closed tab"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2438
+#: includes/class-pufferdesk-runtime-config.php:2442
 msgid "browser save page"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2439
+#: includes/class-pufferdesk-runtime-config.php:2443
 msgid "developer tools"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2440
+#: includes/class-pufferdesk-runtime-config.php:2444
 msgid "developer tools console"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2441
+#: includes/class-pufferdesk-runtime-config.php:2445
 msgid "developer tools element picker"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2442
+#: includes/class-pufferdesk-runtime-config.php:2446
 msgid "system hide application"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2443
+#: includes/class-pufferdesk-runtime-config.php:2447
 msgid "system hide other applications"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2444
+#: includes/class-pufferdesk-runtime-config.php:2448
 msgid "system minimize window"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2445
+#: includes/class-pufferdesk-runtime-config.php:2449
 msgid "system screenshot"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2446
+#: includes/class-pufferdesk-runtime-config.php:2450
 msgid "system search"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2447
+#: includes/class-pufferdesk-runtime-config.php:2451
 msgid "WordPress Documentation"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2448
+#: includes/class-pufferdesk-runtime-config.php:2452
 msgid "Support Forums"
 msgstr ""
 
 #. translators: %s: theme-specific launcher label, such as Dock or Taskbar.
-#: includes/class-pufferdesk-runtime-config.php:2452
+#: includes/class-pufferdesk-runtime-config.php:2456
 msgid "App has a fixed %s placement."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2453
+#: includes/class-pufferdesk-runtime-config.php:2457
 msgid "App unavailable."
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2458
+#: includes/class-pufferdesk-runtime-config.php:2462
 msgid "Uninstall"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2462
+#: includes/class-pufferdesk-runtime-config.php:2466
 msgid "Restore"
 msgstr ""
 
-#: includes/class-pufferdesk-runtime-config.php:2463
+#: includes/class-pufferdesk-runtime-config.php:2467
 msgid "Move"
 msgstr ""
 

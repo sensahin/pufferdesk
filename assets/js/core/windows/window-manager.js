@@ -25,6 +25,8 @@
 			: {};
 		const iframeConfig = runtimeConfig.iframe && typeof runtimeConfig.iframe === 'object' ? runtimeConfig.iframe : {};
 		const iframeLabels = Object.assign({
+			embedBlockedDescription: 'Some plugin screens require the standard WordPress admin page to finish loading.',
+			embedBlockedTitle: 'This admin screen cannot be displayed inside PufferDesk.',
 			errorDescription: 'PufferDesk kept the page covered because it did not confirm iframe mode.',
 			errorTitle: 'This page could not be safely embedded.',
 			loadingDescription: '',
@@ -35,6 +37,20 @@
 		const iframeReadyTimeoutMs = Number.isFinite(Number(iframeConfig.readyTimeoutMs))
 			? Math.max(1000, Number(iframeConfig.readyTimeoutMs))
 			: 6000;
+		const iframeBlankCheckDelayMs = Number.isFinite(Number(iframeConfig.blankCheckDelayMs))
+			? Math.max(0, Number(iframeConfig.blankCheckDelayMs))
+			: 2600;
+		const iframeBlankCheckMinText = Number.isFinite(Number(iframeConfig.blankCheckMinText))
+			? Math.max(20, Number(iframeConfig.blankCheckMinText))
+			: 80;
+		const appDescriptorContract = runtimeConfig.contracts && runtimeConfig.contracts.appDescriptors && typeof runtimeConfig.contracts.appDescriptors === 'object'
+			? runtimeConfig.contracts.appDescriptors
+			: {};
+		const iframeCompatibility = appDescriptorContract.iframeCompatibility && typeof appDescriptorContract.iframeCompatibility === 'object'
+			? appDescriptorContract.iframeCompatibility
+			: {};
+		const iframeCompatibilityEmbed = iframeCompatibility.EMBED || 'embed';
+		const iframeCompatibilityClassic = iframeCompatibility.CLASSIC || 'classic';
 		const windowPlacementPrefixes = window.PufferDesk.session && window.PufferDesk.session.workspace
 			? window.PufferDesk.session.workspace.windowPlacementPrefixes || {}
 			: {};
@@ -192,6 +208,34 @@
 			}
 		}
 
+		function normalizeIframeCompatibility(value) {
+			const compatibility = typeof value === 'string' ? value : '';
+
+			return compatibility && Object.keys(iframeCompatibility).some((key) => iframeCompatibility[key] === compatibility)
+				? compatibility
+				: iframeCompatibilityEmbed;
+		}
+
+		function getWindowIframeCompatibility(win) {
+			return normalizeIframeCompatibility(win && win.dataset ? win.dataset.pdkIframeCompatibility : '');
+		}
+
+		function setIframeCompatibility(win, value) {
+			if (!win || !win.dataset) {
+				return iframeCompatibilityEmbed;
+			}
+
+			const compatibility = normalizeIframeCompatibility(value);
+			win.dataset.pdkIframeCompatibility = compatibility;
+			if (compatibility === iframeCompatibilityClassic) {
+				win.dataset.pdkIframeRetryDisabled = '1';
+			} else {
+				delete win.dataset.pdkIframeRetryDisabled;
+			}
+
+			return compatibility;
+		}
+
 		function isWordPressAdminFrameUrl(url) {
 			try {
 				const next = new URL(url, window.location.origin);
@@ -261,6 +305,7 @@
 
 			const title = veil.querySelector('[data-pdk-iframe-veil-title]');
 			const description = veil.querySelector('[data-pdk-iframe-veil-description]');
+			const retry = veil.querySelector('[data-pdk-iframe-retry]');
 			const nextDescription = state === 'error'
 				? detail.description || iframeLabels.errorDescription
 				: detail.description || iframeLabels.loadingDescription;
@@ -273,12 +318,22 @@
 				description.textContent = nextDescription;
 				description.hidden = !nextDescription;
 			}
+			if (retry) {
+				retry.hidden = state === 'error' && (detail.hideRetry === true || (win && win.dataset && win.dataset.pdkIframeRetryDisabled === '1'));
+			}
 		}
 
 		function clearIframeReadyTimer(win) {
 			if (win && win.pdkIframeReadyTimer) {
 				window.clearTimeout(win.pdkIframeReadyTimer);
 				win.pdkIframeReadyTimer = null;
+			}
+		}
+
+		function clearIframeBlankTimer(win) {
+			if (win && win.pdkIframeBlankTimer) {
+				window.clearTimeout(win.pdkIframeBlankTimer);
+				win.pdkIframeBlankTimer = null;
 			}
 		}
 
@@ -295,6 +350,151 @@
 			}, iframeReadyTimeoutMs);
 		}
 
+		function getFrameDocument(frame) {
+			try {
+				return frame && frame.contentDocument ? frame.contentDocument : null;
+			} catch (error) {
+				return null;
+			}
+		}
+
+		function isFrameElementVisible(element, frameWindow) {
+			if (!element || !frameWindow || !element.getBoundingClientRect) {
+				return false;
+			}
+
+			const style = frameWindow.getComputedStyle(element);
+			if (!style || style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
+				return false;
+			}
+
+			const rect = element.getBoundingClientRect();
+			return rect.width > 1 && rect.height > 1;
+		}
+
+		function getFrameElementText(element) {
+			return String((element && (element.innerText || element.textContent)) || '')
+				.replace(/\s+/g, ' ')
+				.trim();
+		}
+
+		function hasVisibleFrameElement(root, selector, frameWindow) {
+			if (!root || !root.querySelectorAll) {
+				return false;
+			}
+
+			return Array.from(root.querySelectorAll(selector)).some((element) => isFrameElementVisible(element, frameWindow));
+		}
+
+		function frameElementHasMeaningfulContent(element, frameWindow) {
+			if (!isFrameElementVisible(element, frameWindow)) {
+				return false;
+			}
+
+			if (getFrameElementText(element).length >= Math.min(24, iframeBlankCheckMinText)) {
+				return true;
+			}
+
+			return hasVisibleFrameElement(
+				element,
+				'a[href], button, canvas, form, iframe, img, input:not([type="hidden"]), select, svg, table, textarea, video, [role="button"], [role="table"]',
+				frameWindow
+			);
+		}
+
+		function hasEmptyLikelyAppMount(body, frameWindow) {
+			const mounts = body && body.querySelectorAll
+				? body.querySelectorAll('#app, #root, .angie-app-page, [class*="app-page"], [class*="app-root"], [data-reactroot], [data-testid$="app-page"]')
+				: [];
+
+			return Array.from(mounts).some((mount) => (
+				isFrameElementVisible(mount, frameWindow) && !frameElementHasMeaningfulContent(mount, frameWindow)
+			));
+		}
+
+		function frameHasMeaningfulContent(frame) {
+			const doc = getFrameDocument(frame);
+			const frameWindow = frame && frame.contentWindow ? frame.contentWindow : null;
+			const body = doc && doc.body ? doc.body : null;
+
+			if (!doc || !body || !frameWindow) {
+				return true;
+			}
+
+			const bodyText = getFrameElementText(body);
+			if (bodyText.length >= iframeBlankCheckMinText) {
+				return true;
+			}
+
+			if (hasEmptyLikelyAppMount(body, frameWindow)) {
+				return false;
+			}
+
+			if (!bodyText) {
+				return hasVisibleFrameElement(
+					body,
+					'canvas, form, iframe, img, input:not([type="hidden"]), select, svg, table, textarea, video, .notice, .postbox, .wp-list-table, [role="alert"], [role="main"]',
+					frameWindow
+				);
+			}
+
+			return true;
+		}
+
+		function showIframeCompatibilityNotice(win, detail = {}) {
+			if (!win) {
+				return false;
+			}
+
+			if (detail.url && win.dataset) {
+				win.dataset.pdkWindowUrl = withoutIframeParam(detail.url);
+			}
+			if (detail.compatibility) {
+				setIframeCompatibility(win, detail.compatibility);
+			}
+
+			const classicRequired = getWindowIframeCompatibility(win) === iframeCompatibilityClassic;
+			if (classicRequired) {
+				win.dataset.pdkIframeRetryDisabled = '1';
+			} else if (detail.hideRetry !== true && win.dataset) {
+				delete win.dataset.pdkIframeRetryDisabled;
+			}
+
+			setIframeState(win, 'error', {
+				description: detail.description || iframeLabels.embedBlockedDescription,
+				hideRetry: classicRequired || detail.hideRetry === true,
+				title: detail.title || iframeLabels.embedBlockedTitle
+			});
+
+			return true;
+		}
+
+		function checkIframeBlankState(win) {
+			const frame = win ? win.querySelector('iframe.pdk-app-frame') : null;
+			if (!frame || !win || win.dataset.pdkIframeState !== 'ready' || getWindowIframeCompatibility(win) === iframeCompatibilityClassic) {
+				return;
+			}
+
+			if (!isSafeIframeUrl(getFrameUrl(frame))) {
+				return;
+			}
+
+			if (!frameHasMeaningfulContent(frame)) {
+				showIframeCompatibilityNotice(win);
+			}
+		}
+
+		function startIframeBlankTimer(win) {
+			if (!win || !iframeBlankCheckDelayMs || getWindowIframeCompatibility(win) === iframeCompatibilityClassic) {
+				return;
+			}
+
+			clearIframeBlankTimer(win);
+			win.pdkIframeBlankTimer = window.setTimeout(() => {
+				checkIframeBlankState(win);
+			}, iframeBlankCheckDelayMs);
+		}
+
 		function setIframeState(win, state, detail = {}) {
 			if (!win || !state) {
 				return;
@@ -302,12 +502,20 @@
 
 			win.dataset.pdkIframeState = state;
 			setIframeVeilText(win, state, detail);
-			if (state === 'ready' || state === 'error') {
+			if (state === 'ready') {
 				clearIframeReadyTimer(win);
+				startIframeBlankTimer(win);
+				return;
+			}
+
+			if (state === 'error') {
+				clearIframeReadyTimer(win);
+				clearIframeBlankTimer(win);
 				return;
 			}
 
 			if (state === 'loading') {
+				clearIframeBlankTimer(win);
 				startIframeReadyTimer(win);
 			}
 		}
@@ -343,6 +551,9 @@
 			if (!frame) {
 				return false;
 			}
+			if (getWindowIframeCompatibility(win) === iframeCompatibilityClassic) {
+				return showIframeCompatibilityNotice(win, detail);
+			}
 
 			setIframeState(win, 'loading', detail);
 			setIframeContext(win, null, {
@@ -355,6 +566,12 @@
 			const url = getFrameUrl(frame);
 			if (!url) {
 				return false;
+			}
+
+			if (getWindowIframeCompatibility(win) === iframeCompatibilityClassic) {
+				return showIframeCompatibilityNotice(win, {
+					url: win && win.dataset ? win.dataset.pdkWindowUrl || url : url
+				});
 			}
 
 			if (isShellFrameUrl(url)) {
@@ -386,6 +603,10 @@
 			if (!frame || !src) {
 				return;
 			}
+			if (getWindowIframeCompatibility(win) === iframeCompatibilityClassic) {
+				showIframeCompatibilityNotice(win);
+				return;
+			}
 
 			prepareIframeNavigation(win);
 			frame.setAttribute('src', src);
@@ -393,7 +614,9 @@
 
 		function openIframeInClassic(win) {
 			const frame = win ? win.querySelector('iframe.pdk-app-frame') : null;
-			const url = withoutIframeParam(getFrameUrl(frame) || (win && win.dataset ? win.dataset.pdkWindowUrl : '') || '');
+			const frameUrl = getFrameUrl(frame);
+			const storedUrl = win && win.dataset ? win.dataset.pdkWindowUrl || '' : '';
+			const url = withoutIframeParam(frameUrl && frameUrl !== 'about:blank' ? frameUrl : storedUrl);
 
 			if (url) {
 				window.open(url, '_blank', 'noopener');
@@ -423,8 +646,11 @@
 
 			frame.dataset.pdkIframeGuardBound = '1';
 			bindIframeVeilActions(win);
-			prepareIframeNavigation(win);
 			frame.addEventListener('load', () => {
+				if (getWindowIframeCompatibility(win) === iframeCompatibilityClassic) {
+					showIframeCompatibilityNotice(win);
+					return;
+				}
 				if (!syncIframeUrl(win, frame)) {
 					startIframeReadyTimer(win);
 				}
@@ -435,7 +661,11 @@
 			if (typeof window.MutationObserver === 'function') {
 				const observer = new window.MutationObserver((mutations) => {
 					if (mutations.some((mutation) => mutation.type === 'attributes' && mutation.attributeName === 'src')) {
-						prepareIframeNavigation(win);
+						if (getWindowIframeCompatibility(win) === iframeCompatibilityClassic) {
+							showIframeCompatibilityNotice(win);
+						} else {
+							prepareIframeNavigation(win);
+						}
 					}
 				});
 
@@ -445,6 +675,15 @@
 				});
 				frame.pdkIframeSrcObserver = observer;
 			}
+
+			if (getWindowIframeCompatibility(win) === iframeCompatibilityClassic) {
+				showIframeCompatibilityNotice(win, {
+					url: win.dataset ? win.dataset.pdkWindowUrl || '' : ''
+				});
+				return;
+			}
+
+			prepareIframeNavigation(win);
 			syncIframeUrl(win, frame);
 		}
 
@@ -1327,6 +1566,8 @@
 			restoreSession,
 			saveSession,
 			setDockRunning,
+			setIframeCompatibility,
+			showIframeCompatibilityNotice,
 			showAllWindows,
 			toggleMaximizeWindow,
 			withIframeParam

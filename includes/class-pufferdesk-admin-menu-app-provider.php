@@ -119,11 +119,12 @@ final class PufferDesk_Admin_Menu_App_Provider {
 				continue;
 			}
 
-			$url_key     = $this->get_url_key( $url );
-			$plugin_file = $this->get_admin_menu_plugin_file( $slug );
-			$source      = '' !== $plugin_file ? PufferDesk_App_Normalizer::SOURCE_WP_PLUGIN : PufferDesk_App_Normalizer::SOURCE_WP_MENU;
-			$about       = $this->get_admin_menu_about( $slug, $label, $plugin_file );
-			$index       = isset( $by_id[ $id ] )
+			$url_key              = $this->get_url_key( $url );
+			$plugin_file          = $this->get_admin_menu_plugin_file( $slug );
+			$source               = '' !== $plugin_file ? PufferDesk_App_Normalizer::SOURCE_WP_PLUGIN : PufferDesk_App_Normalizer::SOURCE_WP_MENU;
+			$about                = $this->get_admin_menu_about( $slug, $label, $plugin_file );
+			$iframe_compatibility = $this->get_admin_menu_iframe_compatibility( $slug, $url );
+			$index                = isset( $by_id[ $id ] )
 				? $by_id[ $id ]
 				: ( isset( $by_url[ $url_key ] ) ? $by_url[ $url_key ] : null );
 
@@ -138,6 +139,7 @@ final class PufferDesk_Admin_Menu_App_Provider {
 					if ( ! empty( $badge ) ) {
 						$matched_app['badge'] = $badge;
 					}
+					$matched_app['iframe_compatibility'] = $iframe_compatibility;
 					if ( ! empty( $navigation ) ) {
 						$matched_app['navigation'] = $this->merge_navigation_items(
 							isset( $matched_app['navigation'] ) ? $matched_app['navigation'] : array(),
@@ -152,13 +154,14 @@ final class PufferDesk_Admin_Menu_App_Provider {
 			}
 
 			$menu_app = array(
-				'id'     => $id,
-				'label'  => $label,
-				'url'    => $url,
-				'icon'   => $this->get_admin_menu_icon( isset( $item[6] ) ? (string) $item[6] : '', $menu_title ),
-				'group'  => PufferDesk_App_Normalizer::GROUP_SITE,
-				'cap'    => $cap,
-				'source' => $source,
+				'id'                   => $id,
+				'label'                => $label,
+				'url'                  => $url,
+				'icon'                 => $this->get_admin_menu_icon( isset( $item[6] ) ? (string) $item[6] : '', $menu_title ),
+				'group'                => PufferDesk_App_Normalizer::GROUP_SITE,
+				'cap'                  => $cap,
+				'source'               => $source,
+				'iframe_compatibility' => $iframe_compatibility,
 			);
 
 			if ( ! empty( $about ) ) {
@@ -216,12 +219,13 @@ final class PufferDesk_Admin_Menu_App_Provider {
 		}
 
 		return array(
-			'id'         => $id,
-			'label'      => $label,
-			'url'        => $url,
-			'slug'       => $slug,
-			'cap'        => $cap,
-			'navigation' => $navigation,
+			'id'                   => $id,
+			'label'                => $label,
+			'url'                  => $url,
+			'slug'                 => $slug,
+			'cap'                  => $cap,
+			'navigation'           => $navigation,
+			'iframe_compatibility' => $this->get_admin_menu_iframe_compatibility( $slug, $url ),
 		);
 	}
 
@@ -438,15 +442,16 @@ final class PufferDesk_Admin_Menu_App_Provider {
 			$seen[ $key ] = true;
 
 			$navigation[] = array(
-				'id'      => $this->get_admin_menu_route_id( $app_id, $slug, count( $navigation ) ),
-				'label'   => $label,
-				'url'     => $url,
-				'app_id'  => $app_id,
-				'parent'  => $parent_slug,
-				'slug'    => $slug,
-				'cap'     => $cap,
-				'command' => PufferDesk_Command_Ids::APP_OPEN_ROUTE,
-				'target'  => $app_id,
+				'id'                   => $this->get_admin_menu_route_id( $app_id, $slug, count( $navigation ) ),
+				'label'                => $label,
+				'url'                  => $url,
+				'app_id'               => $app_id,
+				'parent'               => $parent_slug,
+				'slug'                 => $slug,
+				'cap'                  => $cap,
+				'command'              => PufferDesk_Command_Ids::APP_OPEN_ROUTE,
+				'target'               => $app_id,
+				'iframe_compatibility' => $this->get_admin_menu_iframe_compatibility( $slug, $url ),
 			);
 		}
 
@@ -483,6 +488,17 @@ final class PufferDesk_Admin_Menu_App_Provider {
 		}
 
 		return $items;
+	}
+
+	/**
+	 * Get iframe compatibility for a WordPress admin menu URL.
+	 *
+	 * @param string $slug Admin menu or submenu slug.
+	 * @param string $url Admin URL.
+	 * @return string
+	 */
+	private function get_admin_menu_iframe_compatibility( $slug, $url ) {
+		return PufferDesk_Admin_Screen_Availability::iframe_compatibility( $slug, $url );
 	}
 
 	/**

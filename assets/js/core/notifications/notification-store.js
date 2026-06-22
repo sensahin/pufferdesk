@@ -63,6 +63,22 @@
 		return `${sanitizeId(source) || 'notification'}-${Date.now()}-${Math.random().toString(16).slice(2, 8)}-${sanitizeId(title || message).slice(0, 28)}`;
 	}
 
+	function isPufferDeskRuntimeSource(value) {
+		return typeof value === 'string' && value.indexOf('/pufferdesk/') !== -1;
+	}
+
+	function isPufferDeskRuntimeErrorSource(filename, error) {
+		if (isPufferDeskRuntimeSource(filename)) {
+			return true;
+		}
+
+		if (error && typeof error.stack === 'string' && isPufferDeskRuntimeSource(error.stack)) {
+			return true;
+		}
+
+		return Boolean(error && typeof error.fileName === 'string' && isPufferDeskRuntimeSource(error.fileName));
+	}
+
 	function normalizeBoolean(value, fallback = false) {
 		if (typeof value === 'boolean') {
 			return value;
@@ -450,6 +466,9 @@
 				if (!event || !event.message) {
 					return;
 				}
+				if (!isPufferDeskRuntimeErrorSource(event.filename || '', event.error || null)) {
+					return;
+				}
 
 				notify({
 					message: event.filename ? `${event.filename}:${event.lineno || 0}` : '',
@@ -464,6 +483,9 @@
 			window.addEventListener('unhandledrejection', (event) => {
 				const reason = event && event.reason ? event.reason : null;
 				const message = reason && reason.message ? reason.message : String(reason || getLabel('runtimeErrorFallback'));
+				if (!isPufferDeskRuntimeErrorSource('', reason)) {
+					return;
+				}
 
 				notify({
 					message,

@@ -5,9 +5,17 @@
  * @package PufferDesk
  */
 
-const ABSPATH = __DIR__ . '/';
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
+
+defined( 'ABSPATH' ) || exit;
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
+
 const PUFFERDESK_DIR = __DIR__ . '/../../';
-const PUFFERDESK_VERSION = '0.1.0';
+const PUFFERDESK_VERSION = '0.1.3';
 
 /**
  * Minimal translation stub for isolated template rendering.
@@ -57,7 +65,7 @@ function wp_parse_args( $args, $defaults = array() ) {
  * @return void
  */
 function wp_print_inline_script_tag( $script ) {
-	echo '<script>' . $script . '</script>';
+	echo '<script>' . esc_html( $script ) . '</script>';
 }
 
 /**
@@ -95,7 +103,7 @@ function get_bloginfo() {
  * @return int
  */
 function current_time() {
-	return time();
+	return time(); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 }
 
 /**
@@ -106,7 +114,7 @@ function current_time() {
  * @return string
  */
 function wp_date( $format, $timestamp = null ) {
-	return date( $format, $timestamp ? $timestamp : time() );
+	return gmdate( $format, $timestamp ? $timestamp : time() );
 }
 
 /**
@@ -117,7 +125,7 @@ function wp_date( $format, $timestamp = null ) {
  * @return string
  */
 function date_i18n( $format, $timestamp = false ) {
-	return date( $format, $timestamp ? $timestamp : time() );
+	return gmdate( $format, $timestamp ? $timestamp : time() );
 }
 
 /**
@@ -149,6 +157,16 @@ function pufferdesk_smoke_enable_reflection_access( $reflection ) {
 	if ( PHP_VERSION_ID < 80100 ) {
 		$reflection->setAccessible( true );
 	}
+}
+
+/**
+ * Fail the smoke test.
+ *
+ * @param string $message Failure message.
+ * @return void
+ */
+function pufferdesk_smoke_fail( $message ) {
+	throw new RuntimeException( esc_html( $message ) );
 }
 
 $reflection = new ReflectionClass( 'PufferDesk_Shell_Renderer' );
@@ -191,13 +209,11 @@ $render_template->invoke(
 $html = ob_get_clean();
 
 if ( false === strpos( $html, 'data-pufferdesk-shell' ) ) {
-	fwrite( STDERR, "Shell marker missing.\n" );
-	exit( 1 );
+	pufferdesk_smoke_fail( 'Shell marker missing.' );
 }
 
 if ( false === strpos( $html, 'pdk-desktop' ) ) {
-	fwrite( STDERR, "Desktop marker missing.\n" );
-	exit( 1 );
+	pufferdesk_smoke_fail( 'Desktop marker missing.' );
 }
 
 echo "Shell renderer template smoke passed.\n";

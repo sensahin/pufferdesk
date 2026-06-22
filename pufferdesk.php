@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name:       PufferDesk
+ * Plugin Name:       PufferDesk - Turn your admin into a desktop
  * Description:       Turn your WordPress admin into a desktop.
- * Version:           0.1.2
+ * Version:           0.1.3
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Senol Sahin
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'PUFFERDESK_VERSION', '0.1.2' );
+define( 'PUFFERDESK_VERSION', '0.1.3' );
 define( 'PUFFERDESK_FILE', __FILE__ );
 define( 'PUFFERDESK_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PUFFERDESK_URL', plugin_dir_url( __FILE__ ) );

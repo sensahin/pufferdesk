@@ -16,6 +16,7 @@
 			? config.contracts.appDescriptors
 			: {};
 		const appKinds = descriptorContract.kinds || {};
+		const iframeCompatibility = descriptorContract.iframeCompatibility || {};
 		const windowPersistence = descriptorContract.windowPersistence || {};
 
 		function getNativeAppWindowOptions(app, baseOptions, nativeContext = {}) {
@@ -35,7 +36,16 @@
 			return nativeOptions ? Object.assign({}, baseOptions, nativeOptions) : null;
 		}
 
-		function getNavigationRouteUrl(app, nativeContext = {}) {
+		function normalizeIframeCompatibility(value) {
+			const compatibility = typeof value === 'string' ? value : '';
+			const embed = iframeCompatibility.EMBED || 'embed';
+
+			return compatibility && Object.keys(iframeCompatibility).some((key) => iframeCompatibility[key] === compatibility)
+				? compatibility
+				: embed;
+		}
+
+		function getNavigationRoute(app, nativeContext = {}) {
 			const routes = app && Array.isArray(app.navigation) ? app.navigation : [];
 			const routeRef = nativeContext && typeof nativeContext === 'object'
 				? String(nativeContext.routeId || nativeContext.url || '').trim()
@@ -51,7 +61,7 @@
 				item.slug === routeRef
 			));
 
-			return route && typeof route.url === 'string' ? route.url : '';
+			return route && typeof route.url === 'string' ? route : null;
 		}
 
 		function getNativeAdminRequestedFeature(nativeContext = {}) {
@@ -155,7 +165,9 @@
 				return getNativeAppWindowOptions(app, windowOptions, nativeContext);
 			}
 
-			windowOptions.url = getNavigationRouteUrl(app, nativeContext) || app.url;
+			const route = getNavigationRoute(app, nativeContext);
+			windowOptions.iframeCompatibility = normalizeIframeCompatibility(route && route.iframe_compatibility ? route.iframe_compatibility : app.iframe_compatibility);
+			windowOptions.url = route && route.url ? route.url : app.url;
 			return windowOptions;
 		}
 

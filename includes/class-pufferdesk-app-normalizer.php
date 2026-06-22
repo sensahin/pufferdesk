@@ -22,6 +22,8 @@ final class PufferDesk_App_Normalizer {
 	const SOURCE_WP_PLUGIN = 'wp-plugin';
 	const WINDOW_PERSISTENCE_WORKSPACE = 'workspace';
 	const WINDOW_PERSISTENCE_NONE = 'none';
+	const IFRAME_COMPATIBILITY_EMBED = 'embed';
+	const IFRAME_COMPATIBILITY_CLASSIC = 'classic';
 
 	/**
 	 * App group IDs.
@@ -74,16 +76,29 @@ final class PufferDesk_App_Normalizer {
 	}
 
 	/**
+	 * App iframe compatibility IDs.
+	 *
+	 * @return array<string,string>
+	 */
+	public static function get_iframe_compatibility_ids() {
+		return array(
+			'EMBED'   => self::IFRAME_COMPATIBILITY_EMBED,
+			'CLASSIC' => self::IFRAME_COMPATIBILITY_CLASSIC,
+		);
+	}
+
+	/**
 	 * Browser-facing app descriptor contract.
 	 *
 	 * @return array<string,mixed>
 	 */
 	public static function client_contract() {
 		return array(
-			'groups'            => self::get_group_ids(),
-			'kinds'             => self::get_kind_ids(),
-			'sources'           => self::get_source_ids(),
-			'windowPersistence' => self::get_window_persistence_ids(),
+			'groups'              => self::get_group_ids(),
+			'iframeCompatibility' => self::get_iframe_compatibility_ids(),
+			'kinds'               => self::get_kind_ids(),
+			'sources'             => self::get_source_ids(),
+			'windowPersistence'   => self::get_window_persistence_ids(),
 		);
 	}
 
@@ -216,6 +231,24 @@ final class PufferDesk_App_Normalizer {
 	}
 
 	/**
+	 * Normalize an iframe compatibility policy.
+	 *
+	 * @param mixed $compatibility Raw compatibility value.
+	 * @return string
+	 */
+	public static function normalize_iframe_compatibility( $compatibility ) {
+		if ( is_array( $compatibility ) || is_object( $compatibility ) ) {
+			return self::IFRAME_COMPATIBILITY_EMBED;
+		}
+
+		$compatibility = sanitize_key( (string) $compatibility );
+
+		return in_array( $compatibility, self::get_iframe_compatibility_ids(), true )
+			? $compatibility
+			: self::IFRAME_COMPATIBILITY_EMBED;
+	}
+
+	/**
 	 * Check whether the current user can access an app descriptor.
 	 *
 	 * @param mixed $app App descriptor.
@@ -252,13 +285,14 @@ final class PufferDesk_App_Normalizer {
 				continue;
 			}
 
-			$id                 = sanitize_key( $app['id'] );
-			$label              = sanitize_text_field( $app['label'] );
-			$icon               = isset( $app['icon'] ) ? PufferDesk_Icon_Renderer::normalize( $app['icon'] ) : PufferDesk_Icon_Renderer::normalize( PufferDesk_Icon_Renderer::DEFAULT_DASHICON );
-			$group              = isset( $app['group'] ) ? sanitize_key( $app['group'] ) : self::GROUP_SYSTEM;
-			$kind               = isset( $app['kind'] ) ? sanitize_key( $app['kind'] ) : self::KIND_IFRAME;
-			$source             = isset( $app['source'] ) ? sanitize_key( (string) $app['source'] ) : self::SOURCE_REGISTRY;
-			$window_persistence = isset( $app['window_persistence'] ) ? sanitize_key( (string) $app['window_persistence'] ) : self::WINDOW_PERSISTENCE_WORKSPACE;
+			$id                   = sanitize_key( $app['id'] );
+			$label                = sanitize_text_field( $app['label'] );
+			$icon                 = isset( $app['icon'] ) ? PufferDesk_Icon_Renderer::normalize( $app['icon'] ) : PufferDesk_Icon_Renderer::normalize( PufferDesk_Icon_Renderer::DEFAULT_DASHICON );
+			$group                = isset( $app['group'] ) ? sanitize_key( $app['group'] ) : self::GROUP_SYSTEM;
+			$kind                 = isset( $app['kind'] ) ? sanitize_key( $app['kind'] ) : self::KIND_IFRAME;
+			$source               = isset( $app['source'] ) ? sanitize_key( (string) $app['source'] ) : self::SOURCE_REGISTRY;
+			$window_persistence   = isset( $app['window_persistence'] ) ? sanitize_key( (string) $app['window_persistence'] ) : self::WINDOW_PERSISTENCE_WORKSPACE;
+			$iframe_compatibility = self::normalize_iframe_compatibility( isset( $app['iframe_compatibility'] ) ? $app['iframe_compatibility'] : self::IFRAME_COMPATIBILITY_EMBED );
 			if ( '' === $id || '' === $label ) {
 				continue;
 			}
@@ -275,11 +309,11 @@ final class PufferDesk_App_Normalizer {
 				$window_persistence = self::WINDOW_PERSISTENCE_WORKSPACE;
 			}
 
-			$url    = isset( $app['url'] ) ? esc_url_raw( $app['url'] ) : '';
-			$native = isset( $app['native'] ) ? sanitize_key( $app['native'] ) : '';
-			$dock   = $this->normalize_dock( isset( $app['dock'] ) ? $app['dock'] : array() );
-			$badge  = $this->badge_normalizer->normalize( isset( $app['badge'] ) ? $app['badge'] : array() );
-			$navigation = $this->normalize_navigation( isset( $app['navigation'] ) ? $app['navigation'] : array(), $id );
+			$url        = isset( $app['url'] ) ? esc_url_raw( $app['url'] ) : '';
+			$native     = isset( $app['native'] ) ? sanitize_key( $app['native'] ) : '';
+			$dock       = $this->normalize_dock( isset( $app['dock'] ) ? $app['dock'] : array() );
+			$badge      = $this->badge_normalizer->normalize( isset( $app['badge'] ) ? $app['badge'] : array() );
+			$navigation = $this->normalize_navigation( isset( $app['navigation'] ) ? $app['navigation'] : array(), $id, $iframe_compatibility );
 
 			/**
 			 * Filter the normalized badge for a shell app.
@@ -310,11 +344,12 @@ final class PufferDesk_App_Normalizer {
 					'cap'                => $cap,
 					'kind'               => $kind,
 					'source'             => $source,
-					'native'             => $native,
-					'dock'               => $dock,
-				'navigation'         => $navigation,
-				'window_persistence' => $window_persistence,
-				'menu'               => $this->menu_normalizer->normalize_definition( isset( $app['menu'] ) ? $app['menu'] : array(), $label ),
+				'native'             => $native,
+				'dock'               => $dock,
+				'navigation'           => $navigation,
+				'window_persistence'   => $window_persistence,
+				'iframe_compatibility' => $iframe_compatibility,
+				'menu'                 => $this->menu_normalizer->normalize_definition( isset( $app['menu'] ) ? $app['menu'] : array(), $label ),
 			);
 
 			if ( ! empty( $badge ) ) {
@@ -359,11 +394,13 @@ final class PufferDesk_App_Normalizer {
 	 *
 	 * @param mixed  $navigation Raw navigation route data.
 	 * @param string $app_id App descriptor ID.
+	 * @param string $fallback_iframe_compatibility App-level iframe compatibility.
 	 * @return array<int,array<string,mixed>>
 	 */
-	private function normalize_navigation( $navigation, $app_id ) {
-		$routes = array();
-		$seen   = array();
+	private function normalize_navigation( $navigation, $app_id, $fallback_iframe_compatibility = self::IFRAME_COMPATIBILITY_EMBED ) {
+		$routes                        = array();
+		$seen                          = array();
+		$fallback_iframe_compatibility = self::normalize_iframe_compatibility( $fallback_iframe_compatibility );
 
 		if ( ! is_array( $navigation ) ) {
 			return $routes;
@@ -391,6 +428,9 @@ final class PufferDesk_App_Normalizer {
 			if ( '' === $id ) {
 				continue;
 			}
+			$iframe_compatibility = self::normalize_iframe_compatibility(
+				isset( $route['iframe_compatibility'] ) ? $route['iframe_compatibility'] : $fallback_iframe_compatibility
+			);
 
 			$key = $id . '|' . $url;
 			if ( isset( $seen[ $id ] ) || isset( $seen[ $url ] ) || isset( $seen[ $key ] ) ) {
@@ -401,15 +441,16 @@ final class PufferDesk_App_Normalizer {
 			$seen[ $key ] = true;
 
 			$routes[] = array(
-				'id'      => $id,
-				'label'   => $label,
-				'url'     => $url,
-				'appId'   => $app_id,
-				'parent'  => ! empty( $route['parent'] ) ? sanitize_text_field( (string) $route['parent'] ) : '',
-				'slug'    => ! empty( $route['slug'] ) ? sanitize_text_field( (string) $route['slug'] ) : '',
-				'cap'     => $cap,
-				'command' => PufferDesk_Command_Ids::APP_OPEN_ROUTE,
-				'target'  => $app_id,
+				'id'                   => $id,
+				'label'                => $label,
+				'url'                  => $url,
+				'appId'                => $app_id,
+				'parent'               => ! empty( $route['parent'] ) ? sanitize_text_field( (string) $route['parent'] ) : '',
+				'slug'                 => ! empty( $route['slug'] ) ? sanitize_text_field( (string) $route['slug'] ) : '',
+				'cap'                  => $cap,
+				'command'              => PufferDesk_Command_Ids::APP_OPEN_ROUTE,
+				'target'               => $app_id,
+				'iframe_compatibility' => $iframe_compatibility,
 			);
 		}
 

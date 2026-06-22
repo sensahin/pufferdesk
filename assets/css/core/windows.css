@@ -597,7 +597,9 @@
 	overflow-x: auto;
 	overflow-y: hidden;
 	padding: 6px 8px;
+	position: relative;
 	scrollbar-width: thin;
+	z-index: 5;
 }
 
 .pdk-app-navigation-item {

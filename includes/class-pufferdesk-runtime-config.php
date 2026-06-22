@@ -239,14 +239,18 @@ final class PufferDesk_Runtime_Config {
 	 */
 	private function get_iframe_config() {
 		return array(
-			'readyTimeoutMs' => 6000,
-			'labels'         => array(
-				'loadingTitle'       => __( 'Loading...', 'pufferdesk' ),
-				'loadingDescription' => '',
-				'errorTitle'         => __( 'This page could not be safely embedded.', 'pufferdesk' ),
-				'errorDescription'   => __( 'PufferDesk kept the page covered because it did not confirm iframe mode.', 'pufferdesk' ),
-				'retry'              => __( 'Retry', 'pufferdesk' ),
-				'openClassic'        => __( 'Open in Classic Admin', 'pufferdesk' ),
+			'readyTimeoutMs'     => 6000,
+			'blankCheckDelayMs'  => 2600,
+			'blankCheckMinText'  => 80,
+			'labels'             => array(
+				'loadingTitle'            => __( 'Loading...', 'pufferdesk' ),
+				'loadingDescription'      => '',
+				'errorTitle'              => __( 'This page could not be safely embedded.', 'pufferdesk' ),
+				'errorDescription'        => __( 'PufferDesk kept the page covered because it did not confirm iframe mode.', 'pufferdesk' ),
+				'embedBlockedTitle'       => __( 'This admin screen cannot be displayed inside PufferDesk.', 'pufferdesk' ),
+				'embedBlockedDescription' => __( 'Some plugin screens require the standard WordPress admin page to finish loading.', 'pufferdesk' ),
+				'retry'                   => __( 'Retry', 'pufferdesk' ),
+				'openClassic'             => __( 'Open in Classic Admin', 'pufferdesk' ),
 			),
 		);
 	}

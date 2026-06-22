@@ -258,6 +258,8 @@
 			const labels = iframe.labels && typeof iframe.labels === 'object' ? iframe.labels : {};
 
 			return Object.assign({
+				embedBlockedDescription: 'Some plugin screens require the standard WordPress admin page to finish loading.',
+				embedBlockedTitle: 'This admin screen cannot be displayed inside PufferDesk.',
 				errorDescription: 'PufferDesk kept the page covered because it did not confirm iframe mode.',
 				errorTitle: 'This page could not be safely embedded.',
 				loadingDescription: '',
@@ -265,6 +267,18 @@
 				openClassic: 'Open in Classic Admin',
 				retry: 'Retry'
 			}, labels);
+		}
+
+		function getClassicIframeCompatibility() {
+			const config = getRuntimeConfig();
+			const appDescriptors = config.contracts && config.contracts.appDescriptors && typeof config.contracts.appDescriptors === 'object'
+				? config.contracts.appDescriptors
+				: {};
+			const compatibility = appDescriptors.iframeCompatibility && typeof appDescriptors.iframeCompatibility === 'object'
+				? appDescriptors.iframeCompatibility
+				: {};
+
+			return compatibility.CLASSIC || 'classic';
 		}
 
 		function createIframeVeil() {
@@ -334,6 +348,9 @@
 			if (options.url) {
 				win.dataset.pdkWindowUrl = options.url;
 				win.dataset.pdkIframeState = 'loading';
+				if (typeof options.iframeCompatibility === 'string' && options.iframeCompatibility) {
+					win.dataset.pdkIframeCompatibility = options.iframeCompatibility;
+				}
 			}
 			if (options.contextMenu === false) {
 				win.dataset.pdkContextMenuDisabled = '1';
@@ -363,7 +380,7 @@
 				const iframe = document.createElement('iframe');
 				body.classList.add('pdk-window-body-has-frame');
 				iframe.className = 'pdk-app-frame';
-				iframe.src = withIframeParam(options.url);
+				iframe.src = options.iframeCompatibility === getClassicIframeCompatibility() ? 'about:blank' : withIframeParam(options.url);
 				iframe.setAttribute('sandbox', 'allow-downloads allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts');
 				iframe.title = options.title;
 				body.appendChild(iframe);
